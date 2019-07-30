@@ -1,5 +1,5 @@
 import React, { Component, useState } from "react";
-import { Button } from 'antd';
+import { Button, Checkbox } from 'antd';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -15,6 +15,7 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      save: false,
       seed     : "",
       privKey  : "",
       config   : {
@@ -110,9 +111,9 @@ class Login extends Component {
         
         <label>Private Key</label>
         <input placeholder='Private Key' value={privKey}></input>
+        <Checkbox value={this.state.save} onChange={(e) => this.setState({save: e.target.checked})}>Save credentials</Checkbox> 
         
-        
-         <Button onClick={()=>this.props.tryLogin('xxx')} loading={this.props.isLoading}>Login</Button>
+         <Button onClick={()=>this.props.tryLogin('xxx', this.state.save)} loading={this.props.isLoading}>Login</Button>
       </>
     );
   }
