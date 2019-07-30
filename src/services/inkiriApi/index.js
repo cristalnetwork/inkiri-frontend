@@ -24,3 +24,22 @@ export const getAccountInformation = (account_name) =>   new Promise((res,rej)=>
         
     }, 500)
 })
+
+export const getAvailableAccounts = () =>   new Promise((res,rej)=> {
+    setTimeout(()=> {
+        res({ data:  
+        			{ 
+      					accounts: [{ 
+										name 		: 'ikmasterooo1'
+										, priv 	: '5J2bKBbHH6xB2U255CWbXJ6uAuibg5KCh1omKdhpKoCfrTxWkUN'
+									},
+									{ 
+										name 		: 'ikadminoooo1'
+										, priv 	: '5KkKKHiFqNfyFRTWQSdVmg7UBTdwvmkRz48dUyE6pQCEbfJLm6u'
+									}
+								]
+							} 
+						});
+        
+    }, 500)
+})
