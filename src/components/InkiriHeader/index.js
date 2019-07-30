@@ -1,9 +1,10 @@
 import React, {useState, Component} from 'react'
-import { Layout, Icon, Select } from 'antd';
+import { Layout, Icon, Select, Button } from 'antd';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 import * as userRedux from '@app/redux/models/user'
+import * as loginRedux from '@app/redux/models/login'
 import styles from './index.less';
 
 // import AvatarDropdown from '@app/components/GlobalHeader';
@@ -52,6 +53,7 @@ class InkiriHeader extends Component {
                 </Option>
                 <Option value="Yiminghe">yiminghe</Option>
               </Select>
+              <Button style={{marginLeft: '10px'}}icon={'logout'} onClick={this.props.logout}>Logout</Button>
             </div>
           </div>
         </Header>
@@ -67,6 +69,7 @@ export default connect(
         isLoading:     userRedux.isLoading(state)
     }),
     (dispatch)=>({
-        try: bindActionCreators(userRedux.tryUserState , dispatch)
+        try: bindActionCreators(userRedux.tryUserState , dispatch),
+        logout: bindActionCreators(loginRedux.logout, dispatch)
     })
 )(InkiriHeader)
