@@ -37,6 +37,7 @@ class AllInOne extends Component {
       privs:               {
         'ikmasterooo1': '5J2bKBbHH6xB2U255CWbXJ6uAuibg5KCh1omKdhpKoCfrTxWkUN'
         , 'ikadminoooo1': '5KkKKHiFqNfyFRTWQSdVmg7UBTdwvmkRz48dUyE6pQCEbfJLm6u'
+        , 'marcostest13': ''
       }
       
     };
@@ -341,6 +342,7 @@ class AllInOne extends Component {
                 
                 <Option value="ikmasterooo1">ikmasterooo1</Option>
                 <Option value="ikadminoooo1">ikadminoooo1</Option>
+                <Option value="marcostest13">marcostest13</Option>
               </Select>
             </div>
 
@@ -353,6 +355,7 @@ class AllInOne extends Component {
                 
                 <Option value="ikmasterooo1">ikmasterooo1</Option>
                 <Option value="ikadminoooo1">ikadminoooo1</Option>
+                <Option value="marcostest13">marcostest13</Option>
               </Select>
             </div>
 
