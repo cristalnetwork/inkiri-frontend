@@ -14,13 +14,14 @@ const versionConfig = {
 const language = versionConfig.language;
 
 const currency = {
-  name: "INKIRI",
-  symbol: "IK$",
-  fiat: {
-    symbol: "BRL$",
-    plural: "Reais"
-  },
-  asset_precision: versionConfig.asset_precision
+  token:            "ikmasterooo1",
+  name:             "INKIRI",
+  symbol:           "IK$",
+  fiat:             {
+                      symbol: "BRL$",
+                      plural: "Reais"
+                    },
+  asset_precision:  versionConfig.asset_precision
 };
 
 const api = {

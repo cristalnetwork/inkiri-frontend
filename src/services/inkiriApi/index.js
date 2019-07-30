@@ -1,4 +1,6 @@
 import global from '@app/configs/global';
+import { createDfuseClient, DfuseClient } from "@dfuse/client"
+import * as globalCfg from '@app/configs/global';
 
 // Recibe como parametro el account_name y retorna el balance y las cuentas asociadas a él, y retorna la info de perfil.
 
@@ -45,10 +47,64 @@ export const  getAvailableAccounts = () =>   new Promise((res,rej)=> {
 				});
 })
 
-export const  getAccountBalance = (account) =>   new Promise((res,rej)=> {
+// export const  getAccountBalance = (account) =>   new Promise((res,rej)=> {
+
+//   const client = createDfuseClient({
+//     apiKey: globalCfg.dfuse.apiKey,
+//     network: globalCfg.dfuse.network
+//   })
+	
+// 	// const _data = fetchBalance(client, account);
+// 	// res({ data: { ..._data } }); 
 
 
-	res({ data: {} });
-        
+// 	try {
+//     const _data = fetchBalance(client, account);
+//     _data.then(data => {
+// 			console.log(' fetchBALANCE ', JSON.stringify(data));
+// 			res (data)
+// 		})
+// 		.catch(ex=>{
+// 			rej()
+// 		})
+// 		.finally( () => client.release() );
+
+//     return _data;
+
+//   } catch (error) {
+//     console.log("An error occurred", error)
+//     client.release()
+//   }
+
+  
+
     
-})
+// })
+
+
+
+// const fetchBalance = (client, account) =>   new Promise((res,rej)=> {
+
+// 	const options = { blockNum: undefined }
+//   // const response = client.stateTable<AccountTableRow>(
+//   const response = client.stateTable(
+//     globalCfg.currency.token,
+//     account,
+//     "accounts",
+//     options
+//   )
+
+// 	response
+// 	.then(res => res.json())
+// 	.then(data => {
+// 		console.log(' fetchBALANCE ', JSON.stringify(data));
+// 		res ({ balance: data.rows[0].json.balance, blockNum: data.up_to_block_num || undefined }	)
+// 	})
+// 	.catch(ex=>{
+// 		console.log(' error fetchBALANCE ', JSON.stringify(ex));
+// 		rej({})
+// 	})
+
+//   return response;
+//   //return { balance: response.rows[0].json.balance, blockNum: response.up_to_block_num || undefined }
+// })

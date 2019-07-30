@@ -42,12 +42,13 @@ class AllInOne extends Component {
       
     };
 
-    this.onAmountChange   = this.onAmountChange.bind(this);
-    this.onAccountChange  = this.onAccountChange.bind(this);
-    this.onSenderChange   = this.onSenderChange.bind(this);
-    this.readConfig       = this.readConfig.bind(this);
-    this.getSenderPriv    = this.getSenderPriv.bind(this);
-    this.prettyJson       = this.prettyJson.bind(this);
+    this.onAmountChange           = this.onAmountChange.bind(this);
+    this.onAccountChange          = this.onAccountChange.bind(this);
+    this.onSenderChange           = this.onSenderChange.bind(this);
+    this.readConfig               = this.readConfig.bind(this);
+    this.getSenderPriv            = this.getSenderPriv.bind(this);
+    this.getSenderAccountBalance  = this.getSenderAccountBalance.bind(this);
+    this.prettyJson               = this.prettyJson.bind(this);
 
     this.stream = undefined
     // this.client = undefined
@@ -72,7 +73,7 @@ class AllInOne extends Component {
   }
 
   onAmountChange(value) {
-    // this.setState({destination_amount: event.target.value});
+    // this.setState(  {destination_amount: event.target.value});
     console.log(' -- onAmountChange')
     console.log(JSON.stringify(value))
     this.setState({destination_amount: value});
@@ -87,6 +88,34 @@ class AllInOne extends Component {
 
   onSenderChange(value){
     this.setState({sender_account: value});
+  }
+
+  getSenderAccountBalance(){
+    // const res = api.getAccountBalance(this.state.sender_account);
+    // console.log(JSON.stringify(res));
+
+    if(!this.state.connected)
+      this.launch();
+
+    console.log(' FETCHING BALANCE FOR: ', this.state.sender_account, '; FOR TOKEN: ', globalCfg.currency.token)
+    this.client.stateTable(
+      globalCfg.currency.token,
+      this.state.sender_account,
+      "accounts",
+      { blockNum: undefined }
+    )
+    .then(data => {
+      console.log(' fetchBALANCE ', JSON.stringify(data));
+      //({ balance: data.rows[0].json.balance, blockNum: data.up_to_block_num || undefined }  )
+      let text_ = 'Balance account:' + this.state.sender_account + ' amount:' + data.rows[0].json.balance
+      this.setState((prevState) => ({
+        transfers: [ ...prevState.transfers.slice(-100), text_ ],
+      }))
+    })
+    .catch(ex=>{
+      console.log(' error fetchBALANCE ', JSON.stringify(ex));
+    })
+
   }
 
   getFormattedAmount()
@@ -371,6 +400,7 @@ class AllInOne extends Component {
 
             <button className="App-button" onClick={()=>this.send()}>Send</button>
             <button className="App-button" onClick={()=>this.issue()}>Issue</button>
+            <button className="App-button" onClick={()=>this.getSenderAccountBalance()}>Get Sender Balance</button>
 
           </div>
         </div>
