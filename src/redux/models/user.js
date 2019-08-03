@@ -9,16 +9,16 @@ const SET_USERSTATE     = 'userstate/SET_USERSTATE'
 
 // El usuario ya esta logeado
 // Creadores de acciones (se pueden usar desde los compoenentes)
-export const tryUserState  = (username) =>({ type: TRY_USERSTATE, payload: username });
+export const tryUserState  = (accountName) =>({ type: TRY_USERSTATE, payload: accountName });
 export const setUserState  = (userStateData) =>({ type: SET_USERSTATE, payload: userStateData});
 
 // El reducer del modelo
 const defaultState = { loading: 0, accounts: [] };
 
-// Selectores - Conocen el stado y retornan la info que es necesaria
-export const isLoading       = (state) => state.user.loading > 0
-export const defaultAccount  = (state) => (state.user.accounts && state.user.accounts.length>0) ? state.user.accounts[0] : undefined
-export const allAccounts     = (state) => (state.user.accounts || [])
+// Selectores - Conocen el estado y retornan la info que es necesaria
+export const isLoading         = (state) => state.user.loading > 0
+export const defaultAccount    = (state) => (state.user.accounts && state.user.accounts.length>0) ? state.user.accounts[0] : undefined
+export const allAccounts       = (state) => (state.user.accounts || [])
 
 function reducer(state = defaultState, action = {}) {
   switch (action.type) {
@@ -45,8 +45,7 @@ function* tryLoadUserStateSaga({ type, payload }) {
   try {
     console.log('tryLoadUserStateSaga')
     console.log(JSON.stringify(payload)); 
-    // en payload.username
-    const res = yield api.getAccountInformation(payload.username);
+    const res = yield api.getAccountInformation(payload);
     console.log(JSON.stringify(res)); 
     // assert res.data.accounts
     

@@ -1,6 +1,7 @@
 const arrToObj  = (a = []) => a.reduce((prev,act) => { prev[act] = act; return prev; } , {});
 
 export const pathNames = arrToObj([
+    'businessAllInOne',
     'businessDashboard',
     'businessUnderConstruction',
     'businessExtracto',
@@ -8,12 +9,19 @@ export const pathNames = arrToObj([
     'businessDepositar',
     'businessRetirar',
     'businessCambiar',
+
+    'businessRequestMoney',
+
+    'businessSendMoney',
+    'businessPaymentsAndServices',
+
+    'businessConfiguration'
 ])
 
 const business =[
     {
        key: pathNames.businessDashboard,
-       fileName: 'home',
+       fileName: 'allInOne',
        area: 'business',
        path: 'dashboard',
        container: 'dashboard',
@@ -27,7 +35,28 @@ const business =[
         container: 'dashboard',
         role: 'business'
      },
+     {
+       key: pathNames.businessSendMoney,
+       fileName: 'sendMoney',
+       area: 'business',
+       path: 'send-money',
+       container: 'dashboard' 
+    },
 
+     {
+       key: pathNames.businessExtracto,
+       fileName: 'home',
+       area: 'business',
+       path: 'extrato',
+       container: 'dashboard' 
+    },
+     {
+       key: pathNames.businessAllInOne,
+       fileName: 'allInOne',
+       area: 'business',
+       path: 'all-in-one',
+       container: 'dashboard' 
+    },
 ]
 
 const admin = [];

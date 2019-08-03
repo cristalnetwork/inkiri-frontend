@@ -1,2 +1,7 @@
 node_modules
+<<<<<<< HEAD
 yarn.lock
+=======
+yarn.lock
+.vscode
+>>>>>>> f2feeb62b7e8d29259e15d46c3b60db5ecdafc3c
