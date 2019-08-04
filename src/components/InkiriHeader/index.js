@@ -1,16 +1,17 @@
-import React, {useState, Component} from 'react'
-import { Layout, Icon, Select } from 'antd';
-import { Anchor } from 'antd';
+import React, {Component} from 'react'
+import { Layout, Icon, Button } from 'antd';
+
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 import * as userRedux from '@app/redux/models/user'
+import * as loginRedux from '@app/redux/models/login'
 import styles from './index.less';
+
+import UserSelector from './userSelector'
 
 // import AvatarDropdown from '@app/components/GlobalHeader';
 
-const { Header, Sider, Content } = Layout;
-const { Option } = Select;
-const { Link } = Anchor;
+const { Header } = Layout;
 
 class InkiriHeader extends Component {
   constructor(props) {
@@ -18,6 +19,7 @@ class InkiriHeader extends Component {
     this.state = {
       collapsed: false,
     };
+    this.handleChange = this.handleChange.bind(this);
   }
 
 
@@ -31,8 +33,9 @@ class InkiriHeader extends Component {
     return JSON.stringify(account);
   }
   
-  handleChange(value) {
-    console.log(`selected ${value}`);
+  handleChange(account) {
+    console.log(`selected ${account.name}`);
+    this.props.tryLogin(account)
   }
 
   render(){
@@ -44,21 +47,18 @@ class InkiriHeader extends Component {
               type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
               onClick={this.toggle}
             />
+            
             <div className="right">
-
+              <div className="header_element_container">
+                <Button style={{marginLeft: '10px'}}icon={'logout'} onClick={this.props.logout}>Logout</Button>
+              </div>
               <div className="header_element_container">
                 <a className="header_element_top_padded header_element_left_padded" target="_blank" href="https://jungle.bloks.io/account/ikadminoooo1">View account on blockexplorer</a>
               </div>
-
               <div className="header_element_container">
-                <div style={{ display: 'none' }}> ToDo: obtenet lista acounts desde API </div>
-                <Select defaultValue="ikmasterooo1" style={{ width: 'auto' }} onChange={this.handleChange}>
-                  <Option value="ikmasterooo1">ikmasterooo1</Option>
-                  <Option value="ikadminoooo1" disabled>
-                    ikadminoooo1
-                  </Option>
-                </Select>
+               <UserSelector onChange={this.handleChange} />
               </div>
+
             </div>
           </div>
         </Header>
@@ -69,11 +69,10 @@ class InkiriHeader extends Component {
 
 export default connect(
     (state)=> ({
-        userAccount:   userRedux.defaultAccount(state),
-        allAccounts:   userRedux.allAccounts(state),
-        isLoading:     userRedux.isLoading(state)
     }),
     (dispatch)=>({
-        try: bindActionCreators(userRedux.tryUserState , dispatch)
+        try: bindActionCreators(userRedux.tryUserState , dispatch),
+        tryLogin: bindActionCreators(loginRedux.tryLogin, dispatch),
+        logout: bindActionCreators(loginRedux.logout, dispatch)
     })
 )(InkiriHeader)
