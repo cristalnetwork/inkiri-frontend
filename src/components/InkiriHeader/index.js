@@ -47,15 +47,18 @@ class InkiriHeader extends Component {
               type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
               onClick={this.toggle}
             />
+            
             <div className="right">
+              <div className="header_element_container">
+                <Button style={{marginLeft: '10px'}}icon={'logout'} onClick={this.props.logout}>Logout</Button>
+              </div>
               <div className="header_element_container">
                 <a className="header_element_top_padded header_element_left_padded" target="_blank" href="https://jungle.bloks.io/account/ikadminoooo1">View account on blockexplorer</a>
               </div>
-
               <div className="header_element_container">
                <UserSelector onChange={this.handleChange} />
-                <Button style={{marginLeft: '10px'}}icon={'logout'} onClick={this.props.logout}>Logout</Button>
               </div>
+
             </div>
           </div>
         </Header>
