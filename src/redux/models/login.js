@@ -20,8 +20,11 @@ function* loadLoginData() {
   yield put({type: core.ACTION_START, payload: { login: 'Check local storage'}})
   const { data } = yield getStorage('login');
   if(data && data.account) {
+    console.log(' -- redux::models::login::loadLoginData >> tryLogin', JSON.stringify(data))
     yield put(tryLogin(data.account, true))
   }
+  else
+    console.log(' -- redux::models::login::loadLoginData >> could NOT LOGIN', JSON.stringify(data))
   yield put({type: core.ACTION_END, payload: 'login'})
 }
 

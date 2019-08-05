@@ -89,8 +89,7 @@ export const listBankAccounts = () => new Promise((res,rej)=> {
       { blockNum: undefined }
     )
     .then(data => {
-      console.log(' dfuse::listBankAccounts >> ', JSON.stringify(data));
-
+      // console.log(' dfuse::listBankAccounts >> ', JSON.stringify(data));
       // {"state":1,"account_type":1,"overdraft":"0x00000000000000000000000000000000","fee":"0x05000000000000000000000000000000","xchg_counter":0,"xchg_amount":"0x00000000000000000000000000000000","withdraw_counter":0,"withdraw_amount":"0x00000000000000000000000000000000","deposits_counter":0,"locked_amount":"0x00000000000000000000000000000000","key":"ikadminoooo1"}}}
 
 			var accounts = data.rows.map(account => 
@@ -98,7 +97,9 @@ export const listBankAccounts = () => new Promise((res,rej)=> {
 									,'state_description' : getStateDescription(account.json.state)
 									,'account_type_description' : getAccountTypeDescription(account.json.account_type) }));
 
-      res ({data:{accounts:accounts}})
+			let _res = {data:{accounts:accounts}};
+			console.log(' dfuse::listBankAccounts >> ', JSON.stringify(_res));
+      res (_res);
 
     })
     .catch(ex=>{
@@ -176,9 +177,3 @@ export const listTransactions = (account_name) => new Promise((res,rej)=> {
 
 })	
 
-
-
-// For testing purposes only
-export const addPersonalBank = (account_name) => new Promise((res,rej)=> {
-	
-})	

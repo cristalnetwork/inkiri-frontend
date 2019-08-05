@@ -26,8 +26,17 @@ const currency = {
 };
 
 const bank = {
-  contract:         "ikmasterooo1",
-  issuer:           "ikmasterooo1"
+  contract:               "ikmasterooo1",
+  issuer:                 "ikmasterooo1",
+  ACCOUNT_TYPE_PERSONAL:   1,
+  ACCOUNT_TYPE_BUSINESS:   2,
+  ACCOUNT_TYPE_FOUNDATION: 3,
+  ACCOUNT_TYPE_BANKADMIN:  4,
+  ACCOUNT_STATE_OK:        1,
+  ACCOUNT_STATE_BLOCKED:   2,
+  DEFAULT_FEE :            5,
+  DEFAULT_OVERDRAFT :      0
+  
 };
 
 const api = {

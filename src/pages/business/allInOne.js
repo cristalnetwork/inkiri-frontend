@@ -54,6 +54,7 @@ class AllInOne extends Component {
 
     this.testSearchBankAccount    = this.testSearchBankAccount.bind(this);
     this.testListTxs              = this.testListTxs.bind(this);
+    this.addPersonalBankAccount   = this.addPersonalBankAccount.bind(this);
 
     this.stream = undefined
     // this.client = undefined
@@ -69,7 +70,6 @@ class AllInOne extends Component {
     })
 
   }
-
 
   componentWillUnmount() {
     if (this.stream !== undefined) {
@@ -141,6 +141,20 @@ class AllInOne extends Component {
     api.dfuse.listBankAccounts().then(res => {console.log(' -- listBankAccounts --'); console.log('---- RES:', JSON.stringify(res))} );
   }
 
+  addPersonalBankAccount = async () => {
+    const privateKey = this.getSenderPriv();
+    const receiver   = this.state.destination_account;
+    const sender     = this.state.sender_account;
+    
+    // async (auth_account, auth_priv, account_name)
+    api.addPersonalBankAccount(sender, privateKey, receiver)
+    .then(res => {console.log(' -- addPersonalBankAccount --'); console.log('---- RES:', JSON.stringify(res))} )
+    .catch(ex => {
+            console.log(' -- addPersonalBankAccount --');
+            console.log('---- ERROR:', JSON.stringify(ex));
+    });
+  }
+
   testSearchBankAccount = async () => {
     
     api.dfuse.searchBankAccount('ikadminoooo1')
@@ -177,14 +191,18 @@ class AllInOne extends Component {
     return;
   }
 
+  // NOT LINKED
+  authDfuse = async() => {
+    api.dfuse.auth().then(res => {console.log(' -- dfuse::auth --'); console.log('---- RES:', JSON.stringify(res))} );
+  }
+
   testEOSHelper = async () => {
     let myPriv     = '5J2bKBbHH6xB2U255CWbXJ6uAuibg5KCh1omKdhpKoCfrTxWkUN';
     let myPub      = 'EOS6gWUtcGdykP26Y2JBH7ZQm2RRsNCP8cB5PwSbqiPPR6C5T7rjA';
     let stringData = 'holamundo';
 
-    api.dfuse.auth().then(res => {console.log(' -- dfuse::auth --'); console.log('---- RES:', JSON.stringify(res))} );
     
-    return;
+    
 
     api.eosHelper.generateRandomKeys().then(res => {console.log(' -- generateRandomKeys --'); console.log('---- RES:', JSON.stringify(res))} );
     api.eosHelper.seedPrivate('privateSeed').then(res => {console.log(' -- seedPrivate --'); console.log('---- RES:', JSON.stringify(res))} );
@@ -514,6 +532,8 @@ class AllInOne extends Component {
               />
             </div>
 
+            
+            <button className="App-button" onClick={()=>this.addPersonalBankAccount()}>Add Receiver as Inkiri Bank Account</button>
             <button className="App-button" onClick={()=>this.testSearchBankAccount()}>Search BankAccount</button>
             <button className="App-button" onClick={()=>this.testListTxs()}>List TXs</button>
             <button className="App-button" onClick={()=>this.listBankAccounts()}>List Bank Accounts</button>

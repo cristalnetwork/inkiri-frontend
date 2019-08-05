@@ -127,25 +127,39 @@ export const issueMoney = async (issuer_account, issuer_priv, receiver_account, 
 
 }
 
-export const getAccountInformation = (account_name) =>  new Promise((res,rej)=> {
-    
-    return dfuse.searchBankAccount(account_name);
-    
-   //  dfuse.searchBankAccount(account_name)
-   //   .then(data => {
-		 //     console.log(' InkiriApi::getAccountInformation (then#1) >> ', JSON.stringify(data));
-		 //     res(data)
-		 // })
-		 // .catch(ex=>{
-		 //   console.log(' InkiriApi::getAccountInformation (error#1) >>  ', JSON.stringify(ex));
-		 //   rej(ex);
-		 // })
-		 // .finally(function(){
-		 //   console.log(' InkiriApi::getAccountInformation (finally#1).  ');
-		 // })
+export const addPersonalBankAccount = async (auth_account, auth_priv, account_name) => { 
 
-})
+	// cleos -u http://jungle2.cryptolions.io:80 push action ikmasterooo1 upsertikacc '{"user":"ikadminoooo1", "fee":5, "overdraft":0, "account_type":1, "state":1}' -p ikmasterooo1@active
 
-export const  getAvailableAccounts = () =>   new Promise((res,rej)=> {
-    return dfuse.listBankAccounts();
-})
+	console.log(' inkiriApi::addPersonalBankAccount ', 
+		'param@auth_account:', auth_account,
+		'param@auth_priv:', auth_priv,
+		'param@account_name:', account_name
+		);
+
+	const addAccountAction = {
+    account: globalCfg.bank.contract,
+    name: "upsertikacc",
+    authorization: [
+      {
+        actor: auth_account,
+        permission: "active"
+      }
+    ],
+    data: {
+      user : 					account_name
+      , fee : 				globalCfg.bank.DEFAULT_FEE
+      , overdraft: 		globalCfg.bank.DEFAULT_OVERDRAFT
+      , account_type: globalCfg.bank.ACCOUNT_TYPE_PERSONAL
+      , state: 				globalCfg.bank.ACCOUNT_STATE_OK
+    }
+  }
+  
+  console.log(' InkiriApi::addPersonalBankAccount >> About to add account >> ', prettyJson(addAccountAction))
+
+  return pushTX(addAccountAction, auth_priv);
+
+}
+
+export const getAccountInformation = (account_name) =>  dfuse.searchBankAccount(account_name);
+export const getAvailableAccounts  = () =>   dfuse.listBankAccounts();
