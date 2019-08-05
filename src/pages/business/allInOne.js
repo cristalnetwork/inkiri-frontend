@@ -50,6 +50,10 @@ class AllInOne extends Component {
     this.getSenderAccountBalance  = this.getSenderAccountBalance.bind(this);
     this.prettyJson               = this.prettyJson.bind(this);
     this.testEOSHelper            = this.testEOSHelper.bind(this);
+    this.listBankAccounts         = this.listBankAccounts.bind(this);
+
+    this.testSearchBankAccount    = this.testSearchBankAccount.bind(this);
+    this.testListTxs              = this.testListTxs.bind(this);
 
     this.stream = undefined
     // this.client = undefined
@@ -131,6 +135,46 @@ class AllInOne extends Component {
       transferTo,
       transferQuantity
     }
+  }
+
+  listBankAccounts = async () => {
+    api.dfuse.listBankAccounts().then(res => {console.log(' -- listBankAccounts --'); console.log('---- RES:', JSON.stringify(res))} );
+  }
+
+  testSearchBankAccount = async () => {
+    
+    api.dfuse.searchBankAccount('ikadminoooo1')
+    .then(res => 
+        {
+            console.log(' -- dfuse::searchBankAccount --');
+            console.log('---- RES:', JSON.stringify(res));
+        } 
+    )
+    .catch(ex => {
+            console.log(' -- dfuse::searchBankAccount --');
+            console.log('---- ERROR:', JSON.stringify(ex));
+        } 
+    )
+    
+    return;
+  }
+
+  testListTxs = async () => {
+    api.dfuse.listTransactions('ikadminoooo1')
+    .then(res => 
+        {
+            console.log(' -- dfuse::listTransactions --');
+            console.log('---- RES:', JSON.stringify(res));
+        } 
+    )
+    .catch(ex => {
+            console.log(' -- dfuse::listTransactions --');
+            console.log('---- ERROR:', JSON.stringify(ex));
+        } 
+    )
+    
+
+    return;
   }
 
   testEOSHelper = async () => {
@@ -470,6 +514,9 @@ class AllInOne extends Component {
               />
             </div>
 
+            <button className="App-button" onClick={()=>this.testSearchBankAccount()}>Search BankAccount</button>
+            <button className="App-button" onClick={()=>this.testListTxs()}>List TXs</button>
+            <button className="App-button" onClick={()=>this.listBankAccounts()}>List Bank Accounts</button>
             <button className="App-button" onClick={()=>this.testEOSHelper()}>Test EOS</button>
             <button className="App-button" onClick={()=>this.send()}>Send</button>
             <button className="App-button" onClick={()=>this.issue()}>Issue</button>

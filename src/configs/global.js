@@ -25,6 +25,11 @@ const currency = {
   asset_precision:  versionConfig.asset_precision
 };
 
+const bank = {
+  contract:         "ikmasterooo1",
+  issuer:           "ikmasterooo1"
+};
+
 const api = {
   base: versionConfig.base_url,
   baseFiles: versionConfig.assets_url + "files/",
@@ -52,4 +57,4 @@ const dfuse = {
   websocket_url : 'wss://jungle.eos.dfuse.io/v1/stream'
 }
 
-export { language, api, currency, dfuse };
+export { language, api, currency, dfuse, bank };

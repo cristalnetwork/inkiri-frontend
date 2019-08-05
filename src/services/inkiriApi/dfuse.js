@@ -66,11 +66,96 @@ export const getAccountBalance = (account) => new Promise((res,rej)=> {
       res ({data:{balance:data.rows[0].json.balance}})
     })
     .catch(ex=>{
-      console.log(' error fetchBALANCE ', JSON.stringify(ex));
+      console.log('dfuse::getAccountBalance >> ERROR ', JSON.stringify(ex));
       rej(ex);
     })
     .finally(function(){
       client.release();
     })
 
+})	
+
+export const listBankAccounts = () => new Promise((res,rej)=> {
+	
+	console.log('dfuse::listBankAccounts >> ', 'About to retrieve listBankAccounts')	
+	
+	// get_table_rows
+
+	let client = createClient();
+	client.stateTable(
+      globalCfg.bank.issuer,
+      globalCfg.bank.issuer,
+      "ikaccounts",
+      { blockNum: undefined }
+    )
+    .then(data => {
+      console.log(' dfuse::listBankAccounts >> ', JSON.stringify(data));
+			var accounts = data.rows.map(account => account.json);
+      res ({data:{accounts:accounts}})
+
+    })
+    .catch(ex=>{
+      console.log('dfuse::listBankAccounts >> ERROR ', JSON.stringify(ex));
+      rej(ex);
+    })
+    .finally(function(){
+      client.release();
+    })
+
+})	
+
+export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
+	listBankAccounts()
+	.then(data => {
+		// console.log(' dfuse::searchBankAccount >> ', JSON.stringify(data));
+  	var account = data.data.accounts.filter(account => account.key === account_name);
+    if(account)
+    {
+    	let _res = {data:{account:account[0]}};
+    	console.log(' dfuse::searchBankAccount >> ', JSON.stringify(_res));	
+    	res (_res)
+    }
+    else
+  	{
+  		console.log(' dfuse::searchBankAccount >> ', 'Account not Found!');	
+  		rej({error:'Account not found'});
+  	}
+  })
+  .catch(ex=>{
+    console.log('dfuse::searchBankAccount >> ERROR ', JSON.stringify(ex));
+    rej(ex);
+  })
+})	
+
+export const listTransactions = (account_name) => new Promise((res,rej)=> {
+	
+	const query = 'account:' + globalCfg.bank.issuer + ' (data.from:'+account_name+' OR data.to:'+account_name+')'
+
+	console.log('dfuse::listTransactions >> ', 'About to retrieve listTransactions >>', query);	
+
+	let client = createClient();
+	client.searchTransactions(
+      query,
+      { limit: 50 }
+    )
+    .then(data => {
+    	var txs = data.transactions.map(transaction => transaction.lifecycle.execution_trace.action_traces[0].act);
+      //console.log('dfuse::listTransactions >> ', JSON.stringify(data));
+      res ({data:{txs:txs}})
+    })
+    .catch(ex=>{
+      console.log('dfuse::listTransactions >> ERROR ', JSON.stringify(ex));
+      rej(ex);
+    })
+    .finally(function(){
+      client.release();
+    })
+
+})	
+
+
+
+// For testing purposes only
+export const addPersonalBank = (account_name) => new Promise((res,rej)=> {
+	
 })	
