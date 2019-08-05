@@ -49,11 +49,12 @@ class AllInOne extends Component {
     this.getSenderPriv            = this.getSenderPriv.bind(this);
     this.getSenderAccountBalance  = this.getSenderAccountBalance.bind(this);
     this.prettyJson               = this.prettyJson.bind(this);
+    this.testEOSHelper            = this.testEOSHelper.bind(this);
 
     this.stream = undefined
     // this.client = undefined
     this.client = createDfuseClient({
-      apiKey:globalCfg.dfuse.apiKey,
+      apiKey:globalCfg.dfuse.api_key,
       network:globalCfg.dfuse.network,
       streamClientOptions: {
         socketOptions: {
@@ -91,29 +92,13 @@ class AllInOne extends Component {
   }
 
   getSenderAccountBalance(){
-    // const res = api.getAccountBalance(this.state.sender_account);
-    // console.log(JSON.stringify(res));
-
-    if(!this.state.connected)
-      this.launch();
-
-    console.log(' FETCHING BALANCE FOR: ', this.state.sender_account, '; FOR TOKEN: ', globalCfg.currency.token)
-    this.client.stateTable(
-      globalCfg.currency.token,
-      this.state.sender_account,
-      "accounts",
-      { blockNum: undefined }
-    )
-    .then(data => {
-      console.log(' fetchBALANCE ', JSON.stringify(data));
-      //({ balance: data.rows[0].json.balance, blockNum: data.up_to_block_num || undefined }  )
-      let text_ = 'Balance account:' + this.state.sender_account + ' amount:' + data.rows[0].json.balance
+    
+    api.dfuse.getAccountBalance(this.state.sender_account).then(data => {
+      console.log(JSON.stringify(data));
+      let text_ = 'Balance account:' + this.state.sender_account + ' amount:' + data.data.balance
       this.setState((prevState) => ({
         transfers: [ ...prevState.transfers.slice(-100), text_ ],
       }))
-    })
-    .catch(ex=>{
-      console.log(' error fetchBALANCE ', JSON.stringify(ex));
     })
 
   }
@@ -132,7 +117,7 @@ class AllInOne extends Component {
     const guaranteed = "in-block" // Or "irreversible", "handoff:1", "handoffs:2", "handoffs:3"
     const transferTo = this.state.destination_account;
     const transferQuantity = this.getFormattedAmount();
-    const dfuseApiToken = globalCfg.dfuse.apiKey
+    const dfuseApiToken = globalCfg.dfuse.api_key
     const privateKey = this.getSenderPriv();
 
     const transferFrom = this.state.sender_account;
@@ -148,99 +133,186 @@ class AllInOne extends Component {
     }
   }
 
+  testEOSHelper = async () => {
+    let myPriv     = '5J2bKBbHH6xB2U255CWbXJ6uAuibg5KCh1omKdhpKoCfrTxWkUN';
+    let myPub      = 'EOS6gWUtcGdykP26Y2JBH7ZQm2RRsNCP8cB5PwSbqiPPR6C5T7rjA';
+    let stringData = 'holamundo';
+
+    api.dfuse.auth().then(res => {console.log(' -- dfuse::auth --'); console.log('---- RES:', JSON.stringify(res))} );
+    
+    return;
+
+    api.eosHelper.generateRandomKeys().then(res => {console.log(' -- generateRandomKeys --'); console.log('---- RES:', JSON.stringify(res))} );
+    api.eosHelper.seedPrivate('privateSeed').then(res => {console.log(' -- seedPrivate --'); console.log('---- RES:', JSON.stringify(res))} );
+    api.eosHelper.isValidPrivate(myPriv).then(res => {console.log(' -- isValidPrivate --'); console.log('---- RES:', JSON.stringify(res))} );
+    api.eosHelper.isValidPublic(myPub).then(res => {console.log(' -- isValidPublic --'); console.log('---- RES:', JSON.stringify(res))} );
+    api.eosHelper.signString(myPriv, stringData).then(res => 
+      {
+          console.log(' -- signString --'); 
+          console.log('---- RES:', JSON.stringify(res));
+          
+          api.eosHelper.recover(res.data.signed_data, stringData, false).then( res2 => {
+            console.log(' -- recover --'); 
+            console.log('---- RES:', JSON.stringify(res2))}
+          )
+          
+          api.eosHelper.verify(res.data.signed_data, stringData, myPub).then( res2 => {
+            console.log(' -- verify --'); 
+            console.log('---- RES:', JSON.stringify(res2))}
+          )
+
+    } );
+    
+    api.eosHelper.sha256(stringData).then(res => {
+      console.log(' -- sha256 --'); 
+      console.log(JSON.stringify(res));
+      api.eosHelper.signHash(myPriv, res.data.hashed_data).then(res2 => {
+          console.log(' -- signHash --'); 
+          console.log('---- RES:', JSON.stringify(res2))
+        }
+      );
+
+    } );
+    
+
+  }
+
   send = async () => {
     
     if(!this.state.connected)
       this.launch();
 
-    const config = this.readConfig()
+    const privateKey = this.getSenderPriv();
+    const receiver   = this.state.destination_account;
+    const sender     = this.state.sender_account;
+    const amount     = this.state.destination_amount;
 
-    const signatureProvider = new JsSignatureProvider([config.privateKey])
-    const rpc = new JsonRpc(config.endpoint)
-    const api = new Api({
-      rpc,
-      signatureProvider
+    api.sendMoney(sender, privateKey, receiver, amount)
+    .then(data => {
+      console.log(' AllInOne::send (then#1) >>  ', JSON.stringify(data));
     })
-
-    const transferAction = {
-      account: "ikmasterooo1",
-      name: "transfer",
-      authorization: [
-        {
-          actor: config.transferFrom,
-          permission: "active"
-        }
-      ],
-      data: {
-        from: config.transferFrom,
-        to: config.transferTo,
-        quantity: config.transferQuantity,
-        memo: 'snd|key'
-      }
-    }
-
-    console.log("Transfer action", this.prettyJson(transferAction))
-
-    const startTime = new Date()
-    const result = await api.transact(
-      { actions: [transferAction] },
-      {
-        blocksBehind: 3,
-        expireSeconds: 30
-      }
-    )
+    .catch(ex=>{
+      console.log(' AllInOne::send (error#1) >>  ', JSON.stringify(ex));
+    })
   }
+
+  // sendOLD = async () => {
+    
+  //   if(!this.state.connected)
+  //     this.launch();
+
+  //   const config = this.readConfig()
+
+  //   const signatureProvider = new JsSignatureProvider([config.privateKey])
+  //   const rpc = new JsonRpc(config.endpoint)
+  //   const api = new Api({
+  //     rpc,
+  //     signatureProvider
+  //   })
+
+  //   const transferAction = {
+  //     account: "ikmasterooo1",
+  //     name: "transfer",
+  //     authorization: [
+  //       {
+  //         actor: config.transferFrom,
+  //         permission: "active"
+  //       }
+  //     ],
+  //     data: {
+  //       from: config.transferFrom,
+  //       to: config.transferTo,
+  //       quantity: config.transferQuantity,
+  //       memo: 'snd|key'
+  //     }
+  //   }
+
+  //   console.log(" allInOne::send >> Transfer action <<", this.prettyJson(transferAction))
+
+  //   const startTime = new Date()
+  //   const result = await api.transact(
+  //     { actions: [transferAction] },
+  //     {
+  //       blocksBehind: 3,
+  //       expireSeconds: 30
+  //     }
+  //   )
+
+  //   console.log(' allInOne::send >> result <<', this.prettyJson(result));
+
+  // }
   
   prettyJson(input: any): string {
     return JSON.stringify(input, null, 2)
   }
+
 
   issue = async () => {
     
     if(!this.state.connected)
       this.launch();
 
-    const config = this.readConfig()
+    const privateKey = this.getSenderPriv();
+    // const receiver   = this.state.destination_account + 'xx';
+    const receiver   = this.state.destination_account;
+    const sender     = this.state.sender_account;
+    const amount     = this.state.destination_amount;
 
-    const signatureProvider = new JsSignatureProvider([config.privateKey])
-    const rpc = new JsonRpc(config.endpoint)
-    const api = new Api({
-      rpc,
-      signatureProvider
+    api.issueMoney(sender, privateKey, receiver, amount)
+    .then(data => {
+      console.log(' AllInOne::issue (then#1) >>  ', JSON.stringify(data));
     })
-
-    const issueAction = {
-      account: "ikmasterooo1",
-      name: "issue",
-      authorization: [
-        {
-          actor: config.transferFrom,
-          permission: "active"
-        }
-      ],
-      data: {
-        to: config.transferTo,
-        quantity: config.transferQuantity,
-        memo: 'iss|key'
-      }
-    }
-
-    console.log("Issue action", this.prettyJson(issueAction))
-
-    const startTime = new Date()
-    const result = await api.transact(
-      { actions: [issueAction] },
-      {
-        blocksBehind: 3,
-        expireSeconds: 30
-      }
-    )
+    .catch(ex=>{
+      console.log(' AllInOne::issue (error#1) >>  ', JSON.stringify(ex));
+    })
   }
+
+  // issueOLD = async () => {
+    
+  //   if(!this.state.connected)
+  //     this.launch();
+
+  //   const config = this.readConfig()
+
+  //   const signatureProvider = new JsSignatureProvider([config.privateKey])
+  //   const rpc = new JsonRpc(config.endpoint)
+  //   const api = new Api({
+  //     rpc,
+  //     signatureProvider
+  //   })
+
+  //   const issueAction = {
+  //     account: "ikmasterooo1",
+  //     name: "issue",
+  //     authorization: [
+  //       {
+  //         actor: config.transferFrom,
+  //         permission: "active"
+  //       }
+  //     ],
+  //     data: {
+  //       to: config.transferTo,
+  //       quantity: config.transferQuantity,
+  //       memo: 'iss|key'
+  //     }
+  //   }
+
+  //   console.log("Issue action", this.prettyJson(issueAction))
+
+  //   const startTime = new Date()
+  //   const result = await api.transact(
+  //     { actions: [issueAction] },
+  //     {
+  //       blocksBehind: 3,
+  //       expireSeconds: 30
+  //     }
+  //   )
+  // }
 
   launch = async () => {
   // launch(){
     console.log(' LAUNCH clicked')
-    if (!globalCfg.dfuse.apiKey) {
+    if (!globalCfg.dfuse.api_key) {
       const messages = [
         "To correctly run this sample, you need to defined an environment variable",
         "named 'REACT_APP_DFUSE_API_KEY' with the value being your dfuse API token.",
@@ -398,6 +470,7 @@ class AllInOne extends Component {
               />
             </div>
 
+            <button className="App-button" onClick={()=>this.testEOSHelper()}>Test EOS</button>
             <button className="App-button" onClick={()=>this.send()}>Send</button>
             <button className="App-button" onClick={()=>this.issue()}>Issue</button>
             <button className="App-button" onClick={()=>this.getSenderAccountBalance()}>Get Sender Balance</button>
