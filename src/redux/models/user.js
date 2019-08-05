@@ -46,7 +46,7 @@ function* tryLoadUserStateSaga({ type, payload }) {
     console.log('tryLoadUserStateSaga')
     console.log(JSON.stringify(payload)); 
     const res = yield api.getAccountInformation(payload);
-    // console.log('redux/models/user::tryLoadUserStateSaga', JSON.stringify(res)); 
+    console.log('redux/models/user::tryLoadUserStateSaga --> getAccountInformation', JSON.stringify(res)); 
     // assert res.data.accounts
     
     yield put(setUserState({accounts: res.data.accounts}))

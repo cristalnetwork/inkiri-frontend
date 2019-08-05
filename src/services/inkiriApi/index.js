@@ -129,42 +129,21 @@ export const issueMoney = async (issuer_account, issuer_priv, receiver_account, 
 
 export const getAccountInformation = (account_name) =>  new Promise((res,rej)=> {
     
-  //   dfuse.listBankAccounts()
-  // 	.then( response => {
-		// 	return response.json();
-		// })
-		// .then(data => {
-		//     console.log(' InkiriApi::sendMoney (then#1) >> ', JSON.stringify(data));
-		//     res({data:data})
-		// })
-		// .catch(ex=>{
-		//   console.log(' InkiriApi::sendMoney (error#1) >>  ', JSON.stringify(ex));
-		//   rej(ex);
-		// })
-		// .finally(function(){
-		//   console.log(' InkiriApi::sendMoney (finally#1).  ');
-		// })
+    return dfuse.searchBankAccount(account_name);
+    
+   //  dfuse.searchBankAccount(account_name)
+   //   .then(data => {
+		 //     console.log(' InkiriApi::getAccountInformation (then#1) >> ', JSON.stringify(data));
+		 //     res(data)
+		 // })
+		 // .catch(ex=>{
+		 //   console.log(' InkiriApi::getAccountInformation (error#1) >>  ', JSON.stringify(ex));
+		 //   rej(ex);
+		 // })
+		 // .finally(function(){
+		 //   console.log(' InkiriApi::getAccountInformation (finally#1).  ');
+		 // })
 
-  //   setTimeout(()=> {
-  //       res({ data:  
-  //       			{ 
-  //     					accounts: [{ 
-		// 								name 								: 'betosarasasa'
-		// 								, balance 					: 1000
-		// 								, account_id  			: 'aaaaa'
-		// 							  , account_type 			: 'type_personal' // (personal, fundo, negocio)
-		// 							  , locked_amount 		: 100
-		// 							  , deposits_counter  : 1
-		// 							  , withdraw_amount   : 0
-		// 							  , withdraw_counter  : 0
-		// 							  , xchg_amount 			: 0
-		// 							  , xchg_counter 			: 0
-		// 							  , permission 				: 'owner'
-		// 						}]
-		// 					} 
-		// 				});
-        
-  //   }, 500)
 })
 
 export const  getAvailableAccounts = () =>   new Promise((res,rej)=> {
