@@ -90,7 +90,14 @@ export const listBankAccounts = () => new Promise((res,rej)=> {
     )
     .then(data => {
       console.log(' dfuse::listBankAccounts >> ', JSON.stringify(data));
-			var accounts = data.rows.map(account => account.json);
+
+      // {"state":1,"account_type":1,"overdraft":"0x00000000000000000000000000000000","fee":"0x05000000000000000000000000000000","xchg_counter":0,"xchg_amount":"0x00000000000000000000000000000000","withdraw_counter":0,"withdraw_amount":"0x00000000000000000000000000000000","deposits_counter":0,"locked_amount":"0x00000000000000000000000000000000","key":"ikadminoooo1"}}}
+
+			var accounts = data.rows.map(account => 
+				({	...account.json
+									,'state_description' : getStateDescription(account.json.state)
+									,'account_type_description' : getAccountTypeDescription(account.json.account_type) }));
+
       res ({data:{accounts:accounts}})
 
     })
@@ -103,6 +110,22 @@ export const listBankAccounts = () => new Promise((res,rej)=> {
     })
 
 })	
+
+// This is an amazing HACK!
+// Check https://github.com/cristalnetwork/inkiri-eos-contracts/blob/master/inkiribank.cpp
+function getStateDescription(state_id){
+	const states = ['none', 'ok', 'blocked'];
+	if(state_id>=states.length)
+		return states[0];
+	return states[state_id];
+}
+
+function getAccountTypeDescription(account_type_id){
+	const account_types = ['none', 'personal', 'business', 'foundation', 'bankadmin'];
+	if(account_type_id>=account_types.length)
+		return account_types[0];
+	return account_types[account_type_id];
+}
 
 export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
 	listBankAccounts()
