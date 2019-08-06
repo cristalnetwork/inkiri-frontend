@@ -153,7 +153,7 @@ export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
 
 export const listTransactions = (account_name) => new Promise((res,rej)=> {
 	
-	const query = 'account:' + globalCfg.bank.issuer + ' (data.from:'+account_name+' OR data.to:'+account_name+')'
+	const query = 'account:' + globalCfg.currency.token + ' (data.from:'+account_name+' OR data.to:'+account_name+')'
 
 	console.log('dfuse::listTransactions >> ', 'About to retrieve listTransactions >>', query);	
 
@@ -164,7 +164,7 @@ export const listTransactions = (account_name) => new Promise((res,rej)=> {
     )
     .then(data => {
     	var txs = data.transactions.map(transaction => transaction.lifecycle.execution_trace.action_traces[0].act);
-      //console.log('dfuse::listTransactions >> ', JSON.stringify(data));
+      console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
       res ({data:{txs:txs}})
     })
     .catch(ex=>{

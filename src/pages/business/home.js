@@ -133,12 +133,13 @@ class Home extends Component {
   }
   
   componentDidMount(){
-    console.log(' pages::business::home >> this.props.userAccount:', this.props.userAccount)
-
-    let account_name = this.props.userAccount || 'ikadminoooo1';
+    
+    let account_name = this.props.userAccount || 'inkpersonal1';
+    console.log(' pages::business::home >> this.props.userAccount:', this.props.userAccount, ' | fetching history for:', account_name)
+    
     let that = this;
     this.setState({loading:true});
-    api.dfuse.listTransactions('ikadminoooo1')
+    api.dfuse.listTransactions(account_name)
     .then(res => 
         {
             console.log(' -- dfuse::listTransactions --');
@@ -171,7 +172,6 @@ class Home extends Component {
   {
     return(
     <Row>
-      
       <Col span={12}>
         <Statistic title="Balance" prefix="IK$" value={568.08} />
       </Col>

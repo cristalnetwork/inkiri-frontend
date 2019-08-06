@@ -37,8 +37,9 @@ class AllInOne extends Component {
       privs:               {
         'ikmasterooo1': '5J2bKBbHH6xB2U255CWbXJ6uAuibg5KCh1omKdhpKoCfrTxWkUN'
         , 'ikadminoooo1': '5KkKKHiFqNfyFRTWQSdVmg7UBTdwvmkRz48dUyE6pQCEbfJLm6u'
-        , 'inkiritoken1':'5K5Sk4A2V3MeS7uWw5itgQYzoGF3Aaeer3iZB7qCj3GbqmknVvM'
+        , 'inkiritoken1': '5K5Sk4A2V3MeS7uWw5itgQYzoGF3Aaeer3iZB7qCj3GbqmknVvM'
         , 'marcostest13': ''
+        , 'inkpersonal1': '5JtCAhCxKEbMfU3XSHpF451P9sVnPkzxD2WgUgVgPtWEKikTXsh'
       }
       
     };
@@ -506,6 +507,7 @@ class AllInOne extends Component {
                 <Option value="ikmasterooo1">ikmasterooo1</Option>
                 <Option value="ikadminoooo1">ikadminoooo1</Option>
                 <Option value="marcostest13">marcostest13</Option>
+                <Option value="inkpersonal1">inkpersonal1</Option>
               </Select>
             </div>
 
@@ -519,6 +521,7 @@ class AllInOne extends Component {
                 <Option value="ikmasterooo1">ikmasterooo1</Option>
                 <Option value="ikadminoooo1">ikadminoooo1</Option>
                 <Option value="marcostest13">marcostest13</Option>
+                <Option value="inkpersonal1">inkpersonal1</Option>
               </Select>
             </div>
 
