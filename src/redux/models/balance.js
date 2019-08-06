@@ -41,6 +41,7 @@ const defaultState = {
 function reducer(state = defaultState, action = {}) {
   switch (action.type) {
     case LOAD_BALANCE: 
+      if(!action.payload.key) return state;
       return {
         ...state,
         isLoading: state.isLoading +1
