@@ -14,7 +14,7 @@ const versionConfig = {
 const language = versionConfig.language;
 
 const currency = {
-  token:            "ikmasterooo1",
+  token:            "inkiritoken1",
   name:             "INKIRI",
   symbol:           "IK$",
   eos_symbol:       "INK",
