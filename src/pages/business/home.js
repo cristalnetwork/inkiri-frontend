@@ -1,5 +1,4 @@
 import React, {useState, Component} from 'react'
-import { Button } from 'antd';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -12,174 +11,218 @@ import { InboundMessageType, createDfuseClient } from '@dfuse/client';
 
 import * as api from '@app/services/inkiriApi';
 
+import { PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
+
 import './home.css'; 
+
+import { Table, Divider } from 'antd';
+
+import { Spin } from 'antd';
+
+const { TabPane } = Tabs;
+
+const Description = ({ term, children, span = 12 }) => (
+    <Col span={span}>
+      <div className="description">
+        <div className="term">{term}</div>
+        <div className="detail">{children}</div>
+      </div>
+    </Col>
+  );
+
+const routes = [
+  {
+    path: 'index',
+    breadcrumbName: 'First-level Menu',
+  },
+  {
+    path: 'first',
+    breadcrumbName: 'Second-level Menu',
+  },
+  {
+    path: 'second',
+    breadcrumbName: 'Third-level Menu',
+  },
+];
+
+const columns = [
+  {
+    title: 'Date',
+    dataIndex: 'date',
+    key: 'date',
+    render: text => <a href="javascript:;">{text}</a>,
+  },
+  {
+    title: 'Description',
+    dataIndex: 'description',
+    key: 'description',
+  },
+  {
+    title: 'Amount',
+    dataIndex: 'amount',
+    key: 'amount',
+  },
+  {
+    title: 'Tags',
+    key: 'tags',
+    dataIndex: 'tags',
+    render: tags => (
+      <span>
+        {tags.map(tag => {
+          let color = tag.length > 5 ? 'geekblue' : 'green';
+          if (tag === 'loser') {
+            color = 'volcano';
+          }
+          return (
+            <Tag color={color} key={tag}>
+              {tag.toUpperCase()}
+            </Tag>
+          );
+        })}
+      </span>
+    ),
+  },
+  {
+    title: 'Action',
+    key: 'action',
+    render: (text, record) => (
+      <span>
+        <a href="javascript:;">Invite {record.name}</a>
+        <Divider type="vertical" />
+        <a href="javascript:;">Delete</a>
+      </span>
+    ),
+  },
+];
+
+const data = [
+  {
+    key: '1',
+    date: 'John Brown',
+    description: 32,
+    amount: 'New York No. 1 Lake Park',
+    tags: ['nice', 'developer'],
+  },
+  {
+    key: '2',
+    date: 'Jim Green',
+    description: 42,
+    amount: 'London No. 1 Lake Park',
+    tags: ['loser'],
+  },
+  {
+    key: '3',
+    date: 'Joe Black',
+    description: 32,
+    amount: 'Sidney No. 1 Lake Park',
+    tags: ['cool', 'teacher'],
+  },
+];
 
 class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      connected: false,
+      loading: false,
       errorMessages: [],
-      transfers: [],
+      // txs: data,
+      txs: [],
       balance: {}
     };
 
-    this.stream = undefined
-    // this.client = undefined
-    this.client = createDfuseClient({
-      apiKey:globalCfg.dfuse.apiKey,
-      network:globalCfg.dfuse.network,
-      streamClientOptions: {
-        socketOptions: {
-          onClose: this.onClose,
-          onError: this.onError,
-        }
-      }
+  }
+  
+  componentDidMount(){
+    console.log(' pages::business::home >> this.props.userAccount:', this.props.userAccount)
+
+    let account_name = this.props.userAccount || 'ikadminoooo1';
+    let that = this;
+    this.setState({loading:true});
+    api.dfuse.listTransactions('ikadminoooo1')
+    .then(res => 
+        {
+            console.log(' -- dfuse::listTransactions --');
+            console.log('---- RES:', JSON.stringify(res));
+        } 
+    )
+    .catch(ex => {
+            console.log(' -- dfuse::listTransactions --');
+            console.log('---- ERROR:', JSON.stringify(ex));
+        } 
+    )
+    .finally(function(){
+      that.setState({loading:false});
     })
+  } 
 
-  }
-
-
-  componentWillUnmount() {
-    if (this.stream !== undefined) {
-      this.stream.close()
-    }
-  }
-
-  launch = async () => {
-  // launch(){
-    console.log(' LAUNCH clicked')
-    if (!globalCfg.dfuse.apiKey) {
-      const messages = [
-        "To correctly run this sample, you need to defined an environment variable",
-        "named 'REACT_APP_DFUSE_API_KEY' with the value being your dfuse API token.",
-        "",
-        "To make it into effect, define the variable before starting the development",
-        "scripts, something like:",
-        "",
-        "REACT_APP_DFUSE_API_KEY=web_....",
-        "",
-        "You can obtain a free API key by visiting https://dfuse.io"
-      ]
-
-      console.log(' LAUNCH no key')
-      this.setState({ connected: false, errorMessages: messages, transfers: [] })
-      return
-    }
-
-    if (this.state.connected) {
-      const messages = [
-        "Already connected!!!!"
-      ]
-
-      this.setState({errorMessages: messages, transfers: [] })
-      return;
-    }
-
-    this.setState({ errorMessages: [], transfers: [] })
-
-    try {
-      this.stream = await this.client.streamActionTraces({
-        account: "ikmasterooo1", action_name: "transfer"
-      }, this.onMessage)
-
-      console.log(' LAUNCH connected')
-      this.setState({ connected: true })
-    } catch (error) {
-      console.log(' LAUNCH error')
-      console.log(JSON.stringify(error))
-      this.setState({ errorMessages: ["Unable to connect to socket.", JSON.stringify(error)] })
-    }
-  }
-
-  onMessage = async (message) => {
-    console.log(' ON  MESSAGE ', JSON.stringify(message))
-    if (message.type !== InboundMessageType.ACTION_TRACE) {
-      return
-    }
-
-    const { from, to, quantity, memo } = message.data.trace.act.data
-    const transfer = `Transfer [${from} -> ${to}, ${quantity}] (${memo})`
-
-    this.setState((prevState) => ({
-      transfers: [ ...prevState.transfers.slice(-100), transfer ],
-    }))
-  }
-
-  stop = async () => {
-    if (this.stream === undefined) {
-      return
-    }
-
-    try {
-      await this.stream.close()
-      this.stream = undefined
-    } catch (error) {
-      this.setState({ errorMessages: ["Unable to disconnect socket correctly.", JSON.stringify(error)]})
-    }
-  }
-
-  onClose = () => {
-    this.setState({ connected: false })
-  }
-
-  onError = (error) => {
-    this.setState({ errorMessages: ["An error occurred with the socket.", JSON.stringify(error)]})
-  }
-
-  renderTransfer = (transfer, index) => {
-    return <code key={index} className="App-transfer">{transfer}</code>
-  }
-
-  renderTransfers() {
+  renderContent() 
+  {
     return (
-      <div className="App-infinite-container">
-        { this.state.transfers.length <= 0
-            ? this.renderTransfer("Nothing yet, start by hitting Launch!")
-            : this.state.transfers.reverse().map(this.renderTransfer)
-        }
-      </div>
-    )
+      <Row>
+        <Description term="Entradas"><Tag color="green">IK$ 1500</Tag></Description>
+        <Description term="Variacao de caja"><Tag color="red">-IK$ 88</Tag></Description>
+        <Description term="Saidas"><Tag color="red">-IK$ 1588</Tag></Description>
+        <Description term="Lancamentos">35</Description>
+      </Row>
+    );
   }
 
-  renderError = (error, index) => {
-    if (error === "") {
-      return <br key={index} className="App-error"/>
-    }
-
-    return <code key={index} className="App-error">{error}</code>
+  renderExtraContent ()
+  {
+    return(
+    <Row>
+      
+      <Col span={12}>
+        <Statistic title="Balance" prefix="IK$" value={568.08} />
+      </Col>
+    </Row>
+    );
   }
-
-  renderErrors() {
-    if (this.state.errorMessages.length <= 0) {
-      return null
-    }
-
-    return (
-      <div className="App-container">
-        {this.state.errorMessages.map(this.renderError)}
-      </div>
-    )
-  }
+  
 
   render() {
+    let content;
+    if(this.state.loading)
+    {
+      content = <Spin tip="Loading..."><div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}></div></Spin>;
+    }
+    else{
+      content = <div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}>
+        <Table columns={columns} dataSource={this.state.txs} />
+      </div>;
+    }
     return (
-      <div className="XX-App">
-        <div className="XX-header">
-          <h2>Transactions History</h2>
-          {this.renderErrors()}
-          <div className="App-buttons">
-            <button className="App-button" onClick={()=>this.launch()}>Launch</button>
-            <button className="App-button" onClick={()=>this.stop()}>Stop</button>
-          </div>
-          <div className="App-main">
-            <p className="App-status">
-              {`Connected: ${this.state.connected ? "Connected (Showing last 100 transfers)" : "Disconnected"}`}
-            </p>
-            {this.renderTransfers()}
-          </div>
+      <>
+      <PageHeader
+        breadcrumb={{ routes }}
+        title="Extrato"
+        subTitle="This is a subtitle"
+        extra={[
+          <Button key="3">Filter</Button>,
+          <Button key="1" type="primary">
+            Apply
+          </Button>,
+        ]}
+        footer={
+          <Tabs defaultActiveKey="1">
+            <TabPane tab="All" key="1" />
+            <TabPane tab="Deposits" key="2" />
+            <TabPane tab="Withdraws" key="3" />
+            <TabPane tab="Exchanges" key="4" />
+            <TabPane tab="Payments" key="5" />
+            <TabPane tab="Requests" key="6" />
+          </Tabs>
+        }
+      >
+        <div className="wrap">
+          <div className="content padding">{this.renderContent()}</div>
+          <div className="extraContent">{this.renderExtraContent()}</div>
         </div>
-      </div>
+      </PageHeader>
+
+      {content}
+      
+      </>
     );
   }
 }
@@ -188,7 +231,7 @@ export default connect(
     (state)=> ({
         userAccount: 	      userRedux.defaultAccount(state),
         allAccounts: 	      userRedux.allAccounts(state),
-        isLoading: 		      userRedux.isLoading(state)
+        isLoading: 		      userRedux.isLoading(state) 
     }),
     (dispatch)=>({
         tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)

@@ -18,7 +18,7 @@ const _checkRole = ({role, actualRole, children, history}) => {
         </>
     } else {
         if(actualRole) {
-            history.push(`/${actualRole}/dashboard`);
+            history.push(`/${actualRole}/extrato`);
         }
         else {
             history.push(`/login`);

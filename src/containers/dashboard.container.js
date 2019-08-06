@@ -7,6 +7,10 @@ import InkiriHeader from '@app/components/InkiriHeader';
 const { Header, Content, Footer, Sider } = Layout;
 
 //{ TopMenu? <TopMenu/>: <PageHeader title="Inkiri Bank" subTitle="Enjoy!" /> }
+// <Content style={{ margin: '24px 16px 0' }}>
+// <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
+// { Children? <Children/>: false }
+// </div>
 
 export const DashboardContainer = ({footerText,  TopMenu, Menu, Children}) => {
     const [collapsed, setCollapse] = useState(0);
@@ -17,14 +21,18 @@ export const DashboardContainer = ({footerText,  TopMenu, Menu, Children}) => {
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-        <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
+        <Sider collapsible collapsed={collapsed} onCollapse={onCollapse} theme="light">
+            <div className="logo">
+              <img src="/favicons/favicon-32x32.png" />
+            </div>
             { Menu? <Menu/>: false }
         </Sider>
         <Layout>
           <Header style={{ background: '#fff', padding: 0 }}>
             { TopMenu? <TopMenu/>: <InkiriHeader /> }
           </Header>
-          <Content style={{ margin: '0 16px' }}>
+          <Content style={{ margin: '24px 16px 0' }}>
+
             { Children? <Children/>: false }
           </Content>
           <Footer style={{ textAlign: 'center' }}>{ footerText || "©2019"}</Footer>
