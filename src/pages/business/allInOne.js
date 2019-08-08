@@ -5,11 +5,12 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import * as userRedux from '@app/redux/models/user'
+import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
 
 import { InboundMessageType, createDfuseClient } from '@dfuse/client';
-
+import { BrowserRouter as Router, Route, Redirect, withRouter } from "react-router-dom";
 import * as api from '@app/services/inkiriApi';
 
 import './home.css'; 
@@ -57,6 +58,7 @@ class AllInOne extends Component {
     this.testSearchBankAccount    = this.testSearchBankAccount.bind(this);
     this.testListTxs              = this.testListTxs.bind(this);
     this.addPersonalBankAccount   = this.addPersonalBankAccount.bind(this);
+    this.routerTest               = this.routerTest.bind(this);
 
     this.stream = undefined
     // this.client = undefined
@@ -74,9 +76,9 @@ class AllInOne extends Component {
   }
 
   componentWillUnmount() {
-    if (this.stream !== undefined) {
-      this.stream.close()
-    }
+    // if (this.stream !== undefined) {
+    //   this.stream.close()
+    // }
   }
 
   onAmountChange(value) {
@@ -142,6 +144,14 @@ class AllInOne extends Component {
 
   listBankAccounts = async () => {
     api.dfuse.listBankAccounts().then(res => {console.log(' -- listBankAccounts --'); console.log('---- RES:', JSON.stringify(res))} );
+  }
+
+  routerTest = async () => {
+    this.props.history.push({
+      pathname: `/${this.props.actualRole}/send-money`
+      , search: '?query=abc'
+      // , state: { detail: 'this is a detail' }
+    })
   }
 
   addPersonalBankAccount = async () => {
@@ -536,7 +546,7 @@ class AllInOne extends Component {
               />
             </div>
 
-            
+            <button className="App-button" onClick={()=>this.routerTest()}>RouterTest: Send Money</button>
             <button className="App-button" onClick={()=>this.addPersonalBankAccount()}>Add Receiver as Inkiri Bank Account</button>
             <button className="App-button" onClick={()=>this.testSearchBankAccount()}>Search BankAccount</button>
             <button className="App-button" onClick={()=>this.testListTxs()}>List TXs</button>
@@ -567,13 +577,14 @@ class AllInOne extends Component {
   }
 }
 
-export default connect(
+export default withRouter(connect(
     (state)=> ({
         userAccount: 	      userRedux.defaultAccount(state),
         allAccounts: 	      userRedux.allAccounts(state),
-        isLoading: 		      userRedux.isLoading(state)
+        isLoading: 		      userRedux.isLoading(state),
+        actualRole:         loginRedux.actualRole(state)
     }),
     (dispatch)=>({
         tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
     })
-)(AllInOne)
+)(AllInOne))

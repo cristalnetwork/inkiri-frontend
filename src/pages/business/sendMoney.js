@@ -10,6 +10,9 @@ import * as balanceRedux from '@app/redux/models/balance'
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
+import PropTypes from "prop-types";
+import { withRouter } from "react-router-dom";
+
 import { Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
 import { Form, Icon, InputNumber, Input, AutoComplete } from 'antd';
 
@@ -59,7 +62,22 @@ class SendMoney extends Component {
     this.onChange     = this.onChange.bind(this); 
   }
 
+  static propTypes = {
+    // match: PropTypes.object.isRequired,
+    // location: PropTypes.object.isRequired,
+    // history: PropTypes.object.isRequired
+    match: PropTypes.object,
+    location: PropTypes.object,
+    history: PropTypes.object
+  };
 
+  componentDidMount(){
+    // const { myKey } = this.props.location.params
+    const { match, location, history } = this.props;
+    // console.log( 'sendMoney::router-params >> match:' , JSON.stringify(match))
+    console.log( 'sendMoney::router-params >> location:' , JSON.stringify(location))
+  }
+  
   onSelect(value) {
     console.log('onSelect', value);
     this.setState({receipt:value})
@@ -196,7 +214,7 @@ class SendMoney extends Component {
   
 }
 
-export default Form.create() (connect(
+export default Form.create() (withRouter(connect(
     (state)=> ({
         accounts:         accountsRedux.accounts(state),
         actualAccount:    loginRedux.actualAccount(state),
@@ -206,5 +224,5 @@ export default Form.create() (connect(
     (dispatch)=>({
         
     })
-)(SendMoney)
+)(SendMoney) )
 );
