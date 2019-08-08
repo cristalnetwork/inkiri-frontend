@@ -13,8 +13,10 @@ import * as globalCfg from '@app/configs/global';
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
-import { Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
-import { Form, Icon, InputNumber, Input, AutoComplete } from 'antd';
+import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
+import { Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+
+const { Paragraph, Text } = Typography;
 
 import './sendMoney.css'; 
 
@@ -52,14 +54,18 @@ class SendMoney extends Component {
       receipt:      '',
       amount:       0,
       memo:         '',
-      pushing:      false
+      pushingTx:    false,
+      result:       undefined,
+      result_object:undefined,
+      error:        {}
     };
 
     // this.handleSearch = this.handleSearch.bind(this); 
     this.onSelect     = this.onSelect.bind(this); 
-    this.renderForm   = this.renderForm.bind(this); 
+    this.renderContent   = this.renderContent.bind(this); 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.onChange     = this.onChange.bind(this); 
+    this.resetPage    = this.resetPage.bind(this); 
   }
 
   static propTypes = {
@@ -99,6 +105,7 @@ class SendMoney extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (err) {
+        //
         return;
       }
       console.log('Received values of form: ', values);
@@ -108,71 +115,138 @@ class SendMoney extends Component {
       const receiver   = values.receipt;
       const sender     = this.props.actualAccount;
       const amount     = values.amount;
-
+      let that         = this;
+      that.setState({pushingTx:true});
       api.sendMoney(sender, privateKey, receiver, amount)
       .then(data => {
         console.log(' SendMoney::send (then#1) >>  ', JSON.stringify(data));
+        that.setState({result:'ok', pushingTx:false, result_object:data});
       })
       .catch(ex=>{
         console.log(' SendMoney::send (error#1) >>  ', JSON.stringify(ex));
+        that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
       })
     });
   };
 
-  renderForm() {
+  backToDashboard = async () => {
+    this.props.history.push({
+      pathname: '/business/extrato'
+    })
+  }
+
+  resetPage(){
+    this.setState({result: undefined, result_object: undefined, error: {}});
+  }
+
+  renderContent() {
+  
     const { getFieldDecorator } = this.props.form;
     
-     return (
-      <div style={{ margin: '0 0px', padding: 24, background: '#fff'}}>
-        <Spin spinning={this.state.pushing} delay={500} tip="Pushing transaction...">
-          
-          <Form onSubmit={this.handleSubmit} className="login-formX">
-            
-            <Form.Item style={{'minHeight':60}}>
-              {getFieldDecorator('receipt', {
-                rules: [{ required: true, message: 'Please input receipt account name!' }]
-              })(
+    if(this.state.result=='ok')
+    {
+      const _href = api.dfuse.getBlockExplorerTxLink(this.state.result_object?this.state.result_object.data:{});
+      // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
+      const tx_id = api.dfuse.getTxId(this.state.result_object?this.state.result_object.data:{});
+      return (<Result
+        status="success"
+        title="Transaction completed successfully!"
+        subTitle="Transaction id ${tx_id}. Cloud server takes up to 30 seconds, please wait."
+        extra={[
+          <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
+            Go to dashboard
+          </Button>,
+          <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" >View on Blockchain</Button>,
+          <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetPage()} />
+       
 
-                <AutoComplete
-                  size="large"
-                  dataSource={this.props.accounts.filter(acc=>acc.key!=this.props.actualAccount).map(acc=>acc.key)}
-                  style={{ width: 400 }}
-                  onSelect={this.onSelect}
-                  placeholder="Receipt account name"
-                  filterOption={true}
+        ]}
+      />)
+    }
 
-                >
-                  <Input suffix={<Icon type="user" className="certain-category-icon" />} />
-                </AutoComplete>
-                 
-              )}
-            </Form.Item>
+    if(this.state.result=='error')
+    {
 
-            
-            <Form.Item style={{'minHeight':60}}>
-              {getFieldDecorator('amount', {
-                rules: [{ required: true, message: 'Please input an amount to send!' }],
-              })(
-                <InputNumber
-                  size="large"
-                  style={{ width: 400 }}
-                  defaultValue={0}
-                  formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                  onChange={this.onChange}
-                />,
-              )}
-            </Form.Item>
+      return (<Result
+                status="error"
+                title="Transaction Failed"
+                subTitle="Please check and modify the following information before resubmitting."
+                extra={[
+                  <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
+                    Go to dashboard
+                  </Button>,
+                  <Button key="re-send">Try sending again</Button>,
+                  <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetPage()} />
+                ]}
+              >
+                <div className="desc">
+                  <Paragraph>
+                    <Text
+                      strong
+                      style={{
+                        fontSize: 16,
+                      }}
+                    >
+                      The content you submitted has the following error:
+                    </Text>
+                  </Paragraph>
+                  <Paragraph>
+                    <Icon style={{ color: 'red' }} type="close-circle" /> {this.state.error}
+                  </Paragraph>
+                </div>
+              </Result>)
+    }
 
-            <Form.Item>
-              <Button type="primary" htmlType="submit" className="login-form-button">
-                Send
-              </Button>
+    return (
+        <div style={{ margin: '0 auto', width:500, padding: 24, background: '#fff'}}>
+          <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+            <Form onSubmit={this.handleSubmit}>
+                
+              <Form.Item style={{'minHeight':60}}>
+                {getFieldDecorator('receipt', {
+                  rules: [{ required: true, message: 'Please input receipt account name!' }]
+                })(
+
+                  <AutoComplete
+                    size="large"
+                    dataSource={this.props.accounts.filter(acc=>acc.key!=this.props.actualAccount).map(acc=>acc.key)}
+                    style={{ width: '100%' }}
+                    onSelect={this.onSelect}
+                    placeholder="Receipt account name"
+                    filterOption={true}
+
+                  >
+                    <Input suffix={<Icon type="user" className="certain-category-icon" />} />
+                  </AutoComplete>
+                   
+                )}
+              </Form.Item>
+
               
-            </Form.Item>
-          </Form>
-        </Spin>
-      </div>
+              <Form.Item style={{'minHeight':60}}>
+                {getFieldDecorator('amount', {
+                  rules: [{ required: true, message: 'Please input an amount to send!' }],
+                })(
+                  <InputNumber
+                    size="large"
+                    style={{ width: '100%' }}
+                    defaultValue={0}
+                    formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                    onChange={this.onChange}
+                  />,
+                )}
+              </Form.Item>
+
+              <Form.Item>
+                <Button type="primary" htmlType="submit" className="login-form-button">
+                  Send
+                </Button>
+                
+              </Form.Item>
+            </Form>
+          </Spin>
+        </div>
     );
   }
 
@@ -190,23 +264,24 @@ class SendMoney extends Component {
   
 
   render() {
-    let content = this.renderForm();
+    let content = this.renderContent();
     
     return (
       <>
-      <PageHeader
-        breadcrumb={{ routes }}
-        title="Send money"
-        subTitle="Send money instantly for free"
-        
-      >
-        <div className="wrap">
-          <div className="extraContent">{this.renderExtraContent()}</div>
-        </div>
-      </PageHeader>
+        <PageHeader
+          breadcrumb={{ routes }}
+          title="Send money"
+          subTitle="Send money instantly for free"
+          
+        >
+          <div className="wrap">
+            <div className="extraContent">{this.renderExtraContent()}</div>
+          </div>
+        </PageHeader>
 
-      {content}
-      
+        <div style={{ margin: '0 0px', padding: 24, background: '#fff'}}>
+          {content}
+        </div>
       </>
     );
   }

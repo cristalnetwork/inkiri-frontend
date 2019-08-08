@@ -65,7 +65,9 @@ const dfuse = {
   auth_url      : 'https://auth.dfuse.io/v1/auth/issue',
   base_url      : 'https://jungle.eos.dfuse.io',
   chain_id      : 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
-  websocket_url : 'wss://jungle.eos.dfuse.io/v1/stream'
+  websocket_url : 'wss://jungle.eos.dfuse.io/v1/stream',
+
+  tx_url        : 'https://jungle.bloks.io/transaction/'
 }
 
 export { language, api, currency, dfuse, bank };

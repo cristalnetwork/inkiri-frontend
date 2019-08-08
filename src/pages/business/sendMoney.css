@@ -36,3 +36,8 @@
   width: 100%;
   line-height: 20px;
 }
+
+.ik-form{
+  min-width:500px;
+  margin: 0 auto;
+}

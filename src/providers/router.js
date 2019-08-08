@@ -11,15 +11,16 @@ import { DashboardContainer } from '@app/containers/dashboard.container';
 import Login from '@app/pages/general/login'
 import MenuByRole from './menu';
 
-const _checkRole = ({role, actualRole, children, history}) => {
+const _checkRole = ({role, actualRole, children, history, location}) => {
     if (role === actualRole) {
         return <>
             {children}
         </>
     } else {
         if(actualRole) {
-            history.push(`/${actualRole}/extrato`);
-            // history.push(`/${actualRole}/send-money`);
+            // history.push(`/${actualRole}/extrato`);
+            console.log(' >>>>> router <<<<< location:', JSON.stringify(location));
+            history.push(`/${actualRole}/send-money`);
         }
         else {
             history.push(`/login`);
