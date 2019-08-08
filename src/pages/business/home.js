@@ -33,89 +33,57 @@ const Description = ({ term, children, span = 12 }) => (
 const routes = [
   {
     path: 'index',
-    breadcrumbName: 'First-level Menu',
+    breadcrumbName: 'Inkiri BANK',
   },
   {
     path: 'first',
-    breadcrumbName: 'Second-level Menu',
+    breadcrumbName: 'My money',
   },
   {
     path: 'second',
-    breadcrumbName: 'Third-level Menu',
-  },
+    breadcrumbName: 'Extrato',
+  }
 ];
 
 const columns = [
   {
     title: 'Date',
-    dataIndex: 'date',
-    key: 'date',
-    render: text => <a href="javascript:;">{text}</a>,
+    dataIndex: 'block_time',
+    key: 'block_time'
   },
   {
     title: 'Description',
-    dataIndex: 'description',
-    key: 'description',
+    dataIndex: 'sub_header',
+    key: 'sub_header',
+    render: text => <a href="javascript:;">{text} </a>
   },
   {
     title: 'Amount',
-    dataIndex: 'amount',
-    key: 'amount',
+    dataIndex: 'quantity',
+    key: 'quantity',
   },
   {
     title: 'Tags',
-    key: 'tags',
-    dataIndex: 'tags',
-    render: tags => (
+    key: 'tx_type',
+    dataIndex: 'tx_type',
+    render: tx_type => (
       <span>
-        {tags.map(tag => {
-          let color = tag.length > 5 ? 'geekblue' : 'green';
-          if (tag === 'loser') {
-            color = 'volcano';
-          }
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        })}
+       <Tag color={'volcano'} key={tx_type}>
+              {tx_type.toUpperCase()}
+       </Tag>
       </span>
-    ),
+      )
   },
   {
     title: 'Action',
     key: 'action',
     render: (text, record) => (
       <span>
-        <a href="javascript:;">Invite {record.name}</a>
+        <a href="javascript:;">View Details</a>
         <Divider type="vertical" />
-        <a href="javascript:;">Delete</a>
+        <a href="javascript:;">another fn()</a>
       </span>
     ),
-  },
-];
-
-const data = [
-  {
-    key: '1',
-    date: 'John Brown',
-    description: 32,
-    amount: 'New York No. 1 Lake Park',
-    tags: ['nice', 'developer'],
-  },
-  {
-    key: '2',
-    date: 'Jim Green',
-    description: 42,
-    amount: 'London No. 1 Lake Park',
-    tags: ['loser'],
-  },
-  {
-    key: '3',
-    date: 'Joe Black',
-    description: 32,
-    amount: 'Sidney No. 1 Lake Park',
-    tags: ['cool', 'teacher'],
   },
 ];
 
@@ -125,7 +93,6 @@ class Home extends Component {
     this.state = {
       loading: false,
       errorMessages: [],
-      // txs: data,
       txs: [],
       balance: {}
     };
@@ -142,12 +109,13 @@ class Home extends Component {
     api.dfuse.listTransactions(account_name)
     .then(res => 
         {
-            console.log(' -- dfuse::listTransactions --');
-            console.log('---- RES:', JSON.stringify(res));
+            // console.log(' -- home.js::listTransactions --');
+            // console.log('---- RES:', JSON.stringify(res));
+            that.setState({'txs':res.data.txs})
         } 
     )
     .catch(ex => {
-            console.log(' -- dfuse::listTransactions --');
+            console.log(' -- home.js::listTransactions ERROR --');
             console.log('---- ERROR:', JSON.stringify(ex));
         } 
     )
@@ -182,21 +150,21 @@ class Home extends Component {
 
   render() {
     let content;
-    if(this.state.loading)
-    {
-      content = <Spin tip="Loading..."><div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}></div></Spin>;
-    }
-    else{
+    // if(this.state.loading)
+    // {
+    //   content = <Spin tip="Loading..."><div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}></div></Spin>;
+    // }
+    // else{
       content = <div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}>
-        <Table columns={columns} dataSource={this.state.txs} />
+        <Table rowKey={record => record.key} loading={this.state.loading} columns={columns} dataSource={this.state.txs} />
       </div>;
-    }
+    // }
     return (
       <>
       <PageHeader
         breadcrumb={{ routes }}
         title="Extrato"
-        subTitle="This is a subtitle"
+        subTitle="List of transactions"
         extra={[
           <Button key="3">Filter</Button>,
           <Button key="1" type="primary">

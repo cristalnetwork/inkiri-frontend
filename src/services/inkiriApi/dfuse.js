@@ -1,5 +1,6 @@
 import * as globalCfg from '@app/configs/global';
 import { createDfuseClient, DfuseClient } from "@dfuse/client";
+import * as txsHelper from './transactionHelper';
 
 const DFUSE_AUTH_TOKEN_KEY = 'dfuse_auth_token_key';
 // Item format:
@@ -115,14 +116,16 @@ export const listBankAccounts = () => new Promise((res,rej)=> {
 // This is an amazing HACK!
 // Check https://github.com/cristalnetwork/inkiri-eos-contracts/blob/master/inkiribank.cpp
 function getStateDescription(state_id){
-	const states = ['none', 'ok', 'blocked'];
+	const states = globalCfg.bank.ACCOUNT_STATES;
 	if(state_id>=states.length)
 		return states[0];
 	return states[state_id];
 }
 
+// This is another amazing HACK!
+// Check https://github.com/cristalnetwork/inkiri-eos-contracts/blob/master/inkiribank.cpp
 function getAccountTypeDescription(account_type_id){
-	const account_types = ['none', 'personal', 'business', 'foundation', 'bankadmin'];
+	const account_types = globalCfg.bank.ACCOUNT_TYPES;
 	if(account_type_id>=account_types.length)
 		return account_types[0];
 	return account_types[account_type_id];
@@ -163,8 +166,22 @@ export const listTransactions = (account_name) => new Promise((res,rej)=> {
       { limit: 50 }
     )
     .then(data => {
-    	var txs = data.transactions.map(transaction => transaction.lifecycle.execution_trace.action_traces[0].act);
-      console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
+    	// var txs = data.transactions.map(transaction => transaction.lifecycle.execution_trace.action_traces[0].act);
+      var txs = data.transactions.map(
+        function (transaction) {
+          const expandedTx = txsHelper.getTxMetadata(account_name, transaction.lifecycle.execution_trace);
+          return {  
+              ...transaction.lifecycle.execution_trace.action_traces[0].act
+              , ...expandedTx
+              ,'id' :               transaction.lifecycle.execution_trace.id 
+              ,'block_time' :       transaction.lifecycle.execution_trace.block_time
+              ,'transaction_id' :   transaction.lifecycle.execution_trace.id 
+              ,'block_num' :        transaction.lifecycle.execution_trace.block_num 
+          };
+        })
+        
+      // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
+      console.log(' dfuse::listTransactions >> ', JSON.stringify(txs));
       res ({data:{txs:txs}})
     })
     .catch(ex=>{
