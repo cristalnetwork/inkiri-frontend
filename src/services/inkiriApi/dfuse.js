@@ -53,7 +53,7 @@ export function createClient(){
 
 export const getAccountBalance = (account) => new Promise((res,rej)=> {
 	
-	console.log('dfuse::getAccountBalance >> ', 'About to retrieve balance')	
+	console.log('dfuse::getAccountBalance >> ', 'About to retrieve balance for account:', account)	
 	
 	let client = createClient();
 	client.stateTable(
@@ -63,8 +63,15 @@ export const getAccountBalance = (account) => new Promise((res,rej)=> {
       { blockNum: undefined }
     )
     .then(data => {
-      console.log(' dfuse::getAccountBalance >> ', JSON.stringify(data));
-      res ({data:{balance:data.rows[0].json.balance}})
+      console.log(' dfuse::getAccountBalance >> receive balance for account:', account, JSON.stringify(data));
+      const _res = {
+                      data:{
+                        balance:       txsHelper.getEOSQuantityToNumber(data.rows[0].json.balance),
+                        balanceText:   data.rows[0].json.balance
+                      }
+                    };
+      console.log(' dfuse::getAccountBalance >> about to dispatch balance for account:', account, JSON.stringify(_res));
+      res (_res);
     })
     .catch(ex=>{
       console.log('dfuse::getAccountBalance >> ERROR ', JSON.stringify(ex));
@@ -174,7 +181,8 @@ export const listTransactions = (account_name) => new Promise((res,rej)=> {
               ...transaction.lifecycle.execution_trace.action_traces[0].act
               , ...expandedTx
               ,'id' :               transaction.lifecycle.execution_trace.id 
-              ,'block_time' :       transaction.lifecycle.execution_trace.block_time
+              ,'block_time' :       transaction.lifecycle.execution_trace.block_time.split('.')[0]
+              ,'block_time_number': Number(transaction.lifecycle.execution_trace.block_time.split('.')[0].replace(/-/g,'').replace(/T/g,'').replace(/:/g,'') )
               ,'transaction_id' :   transaction.lifecycle.execution_trace.id 
               ,'block_num' :        transaction.lifecycle.execution_trace.block_num 
           };

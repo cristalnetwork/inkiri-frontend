@@ -20,10 +20,11 @@ class UserBalance extends Component  {
     
     render() {
         const {userId, balance, loading} = this.props;
+        // console.log(' >> userBalance::render userID: ', userId, ' | balance: ', balance)
         return (
         <>
             {
-                loading? <Spin size={'small'} />: balance(userId)
+                loading? <Spin size={'small'} />: balance
             }
         </>
         )
@@ -32,7 +33,7 @@ class UserBalance extends Component  {
 
 export default connect(
     (state)=> ({
-        balance:   balanceRedux.userBalance(state),
+        balance:   balanceRedux.userBalanceText(state),
         loading:   balanceRedux.isLoading(state),
     }),
     (dispatch) => ({

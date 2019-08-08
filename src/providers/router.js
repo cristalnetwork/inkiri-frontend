@@ -19,6 +19,7 @@ const _checkRole = ({role, actualRole, children, history}) => {
     } else {
         if(actualRole) {
             history.push(`/${actualRole}/extrato`);
+            // history.push(`/${actualRole}/send-money`);
         }
         else {
             history.push(`/login`);

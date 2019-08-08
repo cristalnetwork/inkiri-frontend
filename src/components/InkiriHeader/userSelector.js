@@ -15,8 +15,6 @@ const SelectUser = ({accounts, actualAccount, onChange, loading}) => {
         }
     }
     
-    console.log(' components::InkiriHeader::useSelector SelectUser>>accounts:', JSON.stringify(accounts));
-
     return (
         <Select defaultValue={actualAccount} style={{ width: '100%' }} onChange={sendAccount} loading={loading} placeholder={'Select account'}>
             { accounts.map(acc => <Option key={acc.key} value={acc.key}>{acc.key}</Option> )}

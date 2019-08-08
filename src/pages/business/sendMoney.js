@@ -1,195 +1,210 @@
 import React, {useState, Component} from 'react'
-import { Button } from 'antd';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
-import * as userRedux from '@app/redux/models/user'
+import * as loginRedux from '@app/redux/models/login'
+import * as accountsRedux from '@app/redux/models/accounts'
+import * as balanceRedux from '@app/redux/models/balance'
 
+import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
-import { InboundMessageType, createDfuseClient } from '@dfuse/client';
+import { Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
+import { Form, Icon, InputNumber, Input, AutoComplete } from 'antd';
 
-import './home.css'; 
+import './sendMoney.css'; 
+
+const Description = ({ term, children, span = 12 }) => (
+    <Col span={span}>
+      <div className="description">
+        <div className="term">{term}</div>
+        <div className="detail">{children}</div>
+      </div>
+    </Col>
+  );
+
+const routes = [
+  {
+    path: 'index',
+    breadcrumbName: 'Inkiri BANK',
+  },
+  {
+    path: 'first',
+    breadcrumbName: 'Pay',
+  },
+  {
+    path: 'second',
+    breadcrumbName: 'Send money',
+  }
+];
+
 
 class SendMoney extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      connected: false,
-      errorMessages: [],
-      transfers: [],
-      balance: {}
+      loading:      false,
+      dataSource:   [],
+      receipt:      '',
+      amount:       0,
+      memo:         '',
+      pushing:      false
     };
 
-    this.stream = undefined
-    // this.client = undefined
-    this.client = createDfuseClient({
-      apiKey:globalCfg.dfuse.apiKey,
-      network:globalCfg.dfuse.network,
-      streamClientOptions: {
-        socketOptions: {
-          onClose: this.onClose,
-          onError: this.onError,
-        }
+    // this.handleSearch = this.handleSearch.bind(this); 
+    this.onSelect     = this.onSelect.bind(this); 
+    this.renderForm   = this.renderForm.bind(this); 
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.onChange     = this.onChange.bind(this); 
+  }
+
+
+  onSelect(value) {
+    console.log('onSelect', value);
+    this.setState({receipt:value})
+  }
+
+  onChange(value) {
+    console.log('changed', value);
+    this.setState({amount:value})
+  }
+
+  // onSearch={this.handleSearch}
+  handleSearch(value){
+    // this.setState({
+    //   dataSource: !value ? [] : [value, value + value, value + value + value],
+    // });
+  };
+
+  handleSubmit = e => {
+    e.preventDefault();
+    this.props.form.validateFields((err, values) => {
+      if (err) {
+        return;
       }
-    })
+      console.log('Received values of form: ', values);
 
-  }
+      const privateKey = api.dummyPrivateKeys[this.props.actualAccount] 
+      // HACK! >> La tenemos que traer de localStorage? <<
+      const receiver   = values.receipt;
+      const sender     = this.props.actualAccount;
+      const amount     = values.amount;
 
+      api.sendMoney(sender, privateKey, receiver, amount)
+      .then(data => {
+        console.log(' SendMoney::send (then#1) >>  ', JSON.stringify(data));
+      })
+      .catch(ex=>{
+        console.log(' SendMoney::send (error#1) >>  ', JSON.stringify(ex));
+      })
+    });
+  };
 
-  componentWillUnmount() {
-    if (this.stream !== undefined) {
-      this.stream.close()
-    }
-  }
-
-  launch = async () => {
-    return;
-
-    console.log(' LAUNCH clicked')
-    if (!globalCfg.dfuse.apiKey) {
-      const messages = [
-        "To correctly run this sample, you need to defined an environment variable",
-        "named 'REACT_APP_DFUSE_API_KEY' with the value being your dfuse API token.",
-        "",
-        "To make it into effect, define the variable before starting the development",
-        "scripts, something like:",
-        "",
-        "REACT_APP_DFUSE_API_KEY=web_....",
-        "",
-        "You can obtain a free API key by visiting https://dfuse.io"
-      ]
-
-      console.log(' LAUNCH no key')
-      this.setState({ connected: false, errorMessages: messages, transfers: [] })
-      return
-    }
-
-    if (this.state.connected) {
-      const messages = [
-        "Already connected!!!!"
-      ]
-
-      this.setState({errorMessages: messages, transfers: [] })
-      return;
-    }
+  renderForm() {
+    const { getFieldDecorator } = this.props.form;
     
-    this.setState({ errorMessages: [], transfers: [] })
+     return (
+      <div style={{ margin: '0 0px', padding: 24, background: '#fff'}}>
+        <Spin spinning={this.state.pushing} delay={500} tip="Pushing transaction...">
+          
+          <Form onSubmit={this.handleSubmit} className="login-formX">
+            
+            <Form.Item style={{'minHeight':60}}>
+              {getFieldDecorator('receipt', {
+                rules: [{ required: true, message: 'Please input receipt account name!' }]
+              })(
 
-    try {
-      this.stream = await this.client.streamActionTraces({
-        account: "ikmasterooo1", action_name: "transfer"
-      }, this.onMessage)
+                <AutoComplete
+                  size="large"
+                  dataSource={this.props.accounts.filter(acc=>acc.key!=this.props.actualAccount).map(acc=>acc.key)}
+                  style={{ width: 400 }}
+                  onSelect={this.onSelect}
+                  placeholder="Receipt account name"
+                  filterOption={true}
 
-      console.log(' LAUNCH connected')
-      this.setState({ connected: true })
-    } catch (error) {
-      console.log(' LAUNCH error')
-      console.log(JSON.stringify(error))
-      this.setState({ errorMessages: ["Unable to connect to socket.", JSON.stringify(error)] })
-    }
-  }
+                >
+                  <Input suffix={<Icon type="user" className="certain-category-icon" />} />
+                </AutoComplete>
+                 
+              )}
+            </Form.Item>
 
-  onMessage = async (message) => {
-    console.log(' ON  MESSAGE ', JSON.stringify(message))
-    if (message.type !== InboundMessageType.ACTION_TRACE) {
-      return
-    }
+            
+            <Form.Item style={{'minHeight':60}}>
+              {getFieldDecorator('amount', {
+                rules: [{ required: true, message: 'Please input an amount to send!' }],
+              })(
+                <InputNumber
+                  size="large"
+                  style={{ width: 400 }}
+                  defaultValue={0}
+                  formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                  parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                  onChange={this.onChange}
+                />,
+              )}
+            </Form.Item>
 
-    const { from, to, quantity, memo } = message.data.trace.act.data
-    const transfer = `Transfer [${from} -> ${to}, ${quantity}] (${memo})`
-
-    this.setState((prevState) => ({
-      transfers: [ ...prevState.transfers.slice(-100), transfer ],
-    }))
-  }
-
-  stop = async () => {
-    if (this.stream === undefined) {
-      return
-    }
-
-    try {
-      await this.stream.close()
-      this.stream = undefined
-    } catch (error) {
-      this.setState({ errorMessages: ["Unable to disconnect socket correctly.", JSON.stringify(error)]})
-    }
-  }
-
-  onClose = () => {
-    this.setState({ connected: false })
-  }
-
-  onError = (error) => {
-    this.setState({ errorMessages: ["An error occurred with the socket.", JSON.stringify(error)]})
-  }
-
-  renderTransfer = (transfer, index) => {
-    return <code key={index} className="App-transfer">{transfer}</code>
-  }
-
-  renderTransfers() {
-    return (
-      <div className="App-infinite-container">
-        { this.state.transfers.length <= 0
-            ? this.renderTransfer("Nothing yet, start by hitting Launch!")
-            : this.state.transfers.reverse().map(this.renderTransfer)
-        }
-      </div>
-    )
-  }
-
-  renderError = (error, index) => {
-    if (error === "") {
-      return <br key={index} className="App-error"/>
-    }
-
-    return <code key={index} className="App-error">{error}</code>
-  }
-
-  renderErrors() {
-    if (this.state.errorMessages.length <= 0) {
-      return null
-    }
-
-    return (
-      <div className="App-container">
-        {this.state.errorMessages.map(this.renderError)}
-      </div>
-    )
-  }
-
-  render() {
-    return (
-      <div className="XX-App">
-        <div className="XX-header">
-          <h2>Send money</h2>
-          {this.renderErrors()}
-          <div className="App-buttons">
-            <button className="App-button" onClick={()=>this.launch()}>Launch</button>
-            <button className="App-button" onClick={()=>this.stop()}>Stop</button>
-          </div>
-          <div className="App-main">
-            <p className="App-status">
-              {`Connected: ${this.state.connected ? "Connected (Showing last 100 transfers)" : "Disconnected"}`}
-            </p>
-            {this.renderTransfers()}
-          </div>
-        </div>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" className="login-form-button">
+                Send
+              </Button>
+              
+            </Form.Item>
+          </Form>
+        </Spin>
       </div>
     );
   }
+
+  renderExtraContent ()
+  {
+    return(
+    <Row>
+      <Col span={24}>
+        <Card><Statistic title="Account Balance (IK$)" value={this.props.balance} precision={2} /></Card>
+      </Col>
+    </Row>
+    );
+  
+  }
+  
+
+  render() {
+    let content = this.renderForm();
+    
+    return (
+      <>
+      <PageHeader
+        breadcrumb={{ routes }}
+        title="Send money"
+        subTitle="Send money instantly for free"
+        
+      >
+        <div className="wrap">
+          <div className="extraContent">{this.renderExtraContent()}</div>
+        </div>
+      </PageHeader>
+
+      {content}
+      
+      </>
+    );
+  }
+
+  
 }
 
-export default connect(
+export default Form.create() (connect(
     (state)=> ({
-        userAccount: 	userRedux.defaultAccount(state),
-        allAccounts: 	userRedux.allAccounts(state),
-        isLoading: 		userRedux.isLoading(state)
+        accounts:         accountsRedux.accounts(state),
+        actualAccount:    loginRedux.actualAccount(state),
+        isLoading:        loginRedux.isLoading(state),
+        balance:          balanceRedux.userBalanceFormatted(state),
     }),
     (dispatch)=>({
-        tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
+        
     })
 )(SendMoney)
+);

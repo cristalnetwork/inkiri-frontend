@@ -1,6 +1,6 @@
 import { takeEvery, put, } from '@redux-saga/core/effects';
 import { store } from '../configureStore'
-import { getAccountInformation } from '@app/services/inkiriApi'
+import { getAccountBalance } from '@app/services/inkiriApi'
 
 // Constantes
 const LOAD_BALANCE = 'balance/LOAD_BALANCE'
@@ -14,9 +14,12 @@ export const setBalance = ({key, balance}) =>({ type: SET_BALANCE, payload: { ke
 function* loadBalanceSaga({action, payload}) {
   const { key } = payload;
   if(!key) return;
-  const { data }= yield getAccountInformation(key)
+  // console.log('*********************', '*********************', ' LOADEANDO BALANCE CON USER:', key);
+  const { data }= yield getAccountBalance(key);
+  // console.log('*********************', '*********************', ' RECEIVED BALANCE DE USER:', key, JSON.stringify(data));
   if(data) {
-    yield put(setBalance({key, balance: data.account}))
+    // console.log('*********************', '*********************', ' LLAMANDO a >>setBalance<< CON USER:', key);
+    yield put(setBalance({key, balance: data}))
   }
 }
 
@@ -26,16 +29,16 @@ store.injectSaga('balances', [
 ]);
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
-export const userBalance = (state) => (userId) => {
-  const ub = state.balances.accounts.find(x => x.key === userId);
-  return ub? ub.balance.overdraft || '0' : '0';
-}
-export const isLoading = (state) => state.balances.isLoading > 0
+export const userBalance           = (state) => state.balances.balance;
+export const userBalanceText       = (state) => state.balances.balanceText;
+export const userBalanceFormatted  = (state) => Number(state.balances.balance).toFixed(2);
+export const isLoading             = (state) => state.balances.isLoading > 0
 
 // El reducer del modelo
 const defaultState = {
-  accounts: [],
-  isLoading: 0
+  balance:       0,
+  balanceText:   '0',
+  isLoading:     0
 }
 
 function reducer(state = defaultState, action = {}) {
@@ -46,14 +49,18 @@ function reducer(state = defaultState, action = {}) {
         ...state,
         isLoading: state.isLoading +1
       }
-    case SET_BALANCE: 
+    case SET_BALANCE:
+      // console.log('redux::models::balance::SET_BALANCE', JSON.stringify(action))
+      // console.log('>> >> >> action.payload.balance.balance', action.payload.balance.balance)
       return  {
-        ...state,
-        accounts: [
-          ...state.accounts.filter(x =>x.key !== action.payload.key), //Quito el balance anterior
-          action.payload //Agrego el nuevo
-        ],
-        isLoading: state.isLoading -1
+        ...state
+        , balance:     action.payload.balance.balance 
+        , balanceText: action.payload.balance.balanceText
+        // , accounts: [
+        //   ...state.accounts.filter(x =>x.key !== action.payload.key), //Quito el balance anterior
+        //   action.payload //Agrego el nuevo
+        // ]
+        , isLoading: state.isLoading -1
       }
     default: return state;
   }

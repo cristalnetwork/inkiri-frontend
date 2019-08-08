@@ -39,7 +39,7 @@ function* tryLoginSaga({ type, payload }) {
     console.err(e)
   }
   yield put({type: TRY_LOGIN_END})
-  yield put( tryUserState(account.name))
+  yield put( tryUserState(account.key))
 }
 
 function* logoutSaga( ) {
@@ -55,11 +55,12 @@ store.injectSaga('login', [
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
 export const isLoading = (state) => state.login.loading > 0
-export const accounts = (state) => state.login.accounts || []
+// export const accounts = (state) => state.login.accounts || []
 export const actualAccount = (state) => state.login.userId
 
 // El reducer del modelo
-const defaultState = { loading: 0, role: undefined, userId: undefined, accounts: [] };
+// const defaultState = { loading: 0, role: undefined, userId: undefined, accounts: [] };
+const defaultState = { loading: 0, role: undefined, userId: undefined};
 
 function reducer(state = defaultState, action = {}) {
   switch (action.type) {

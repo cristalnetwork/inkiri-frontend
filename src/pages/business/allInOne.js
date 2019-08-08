@@ -34,13 +34,13 @@ class AllInOne extends Component {
       sender_account:      'ikmasterooo1',
       destination_account: 'ikadminoooo1',
       destination_amount:   2,
-      privs:               {
-        'ikmasterooo1': '5J2bKBbHH6xB2U255CWbXJ6uAuibg5KCh1omKdhpKoCfrTxWkUN'
-        , 'ikadminoooo1': '5KkKKHiFqNfyFRTWQSdVmg7UBTdwvmkRz48dUyE6pQCEbfJLm6u'
-        , 'inkiritoken1': '5K5Sk4A2V3MeS7uWw5itgQYzoGF3Aaeer3iZB7qCj3GbqmknVvM'
-        , 'marcostest13': ''
-        , 'inkpersonal1': '5JtCAhCxKEbMfU3XSHpF451P9sVnPkzxD2WgUgVgPtWEKikTXsh'
-      }
+      // privs:               {
+      //   'ikmasterooo1': '5J2bKBbHH6xB2U255CWbXJ6uAuibg5KCh1omKdhpKoCfrTxWkUN'
+      //   , 'ikadminoooo1': '5KkKKHiFqNfyFRTWQSdVmg7UBTdwvmkRz48dUyE6pQCEbfJLm6u'
+      //   , 'inkiritoken1': '5K5Sk4A2V3MeS7uWw5itgQYzoGF3Aaeer3iZB7qCj3GbqmknVvM'
+      //   , 'marcostest13': ''
+      //   , 'inkpersonal1': '5JtCAhCxKEbMfU3XSHpF451P9sVnPkzxD2WgUgVgPtWEKikTXsh'
+      // }
       
     };
 
@@ -115,7 +115,8 @@ class AllInOne extends Component {
   }
   
   getSenderPriv(){
-    return this.state.privs[this.state.sender_account];
+    // return this.state.privs[this.state.sender_account];
+    return api.dummyPrivateKeys[this.state.sender_account]
   }
 
   readConfig() {

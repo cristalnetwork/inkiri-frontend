@@ -3,21 +3,19 @@ import React, {useState, Component} from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
-import * as userRedux from '@app/redux/models/user'
+// import * as userRedux from '@app/redux/models/user';
+import * as loginRedux from '@app/redux/models/login'
+import * as balanceRedux from '@app/redux/models/balance'
 
 import * as globalCfg from '@app/configs/global';
 
-import { InboundMessageType, createDfuseClient } from '@dfuse/client';
-
 import * as api from '@app/services/inkiriApi';
 
-import { PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
+import { Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
+
+import { Table, Divider, Spin } from 'antd';
 
 import './home.css'; 
-
-import { Table, Divider } from 'antd';
-
-import { Spin } from 'antd';
 
 const { TabPane } = Tabs;
 
@@ -49,7 +47,10 @@ const columns = [
   {
     title: 'Date',
     dataIndex: 'block_time',
-    key: 'block_time'
+    key: 'block_time',
+    sortDirections: ['descend'],
+    defaultSortOrder: 'descend',
+    sorter: (a, b) => a.block_time_number - b.block_time_number,
   },
   {
     title: 'Description',
@@ -101,8 +102,8 @@ class Home extends Component {
   
   componentDidMount(){
     
-    let account_name = this.props.userAccount || 'inkpersonal1';
-    console.log(' pages::business::home >> this.props.userAccount:', this.props.userAccount, ' | fetching history for:', account_name)
+    let account_name = this.props.actualAccount;
+    console.log(' pages::business::home >> this.props.actualAccount:', this.props.actualAccount, ' | fetching history for:', account_name)
     
     let that = this;
     this.setState({loading:true});
@@ -140,8 +141,8 @@ class Home extends Component {
   {
     return(
     <Row>
-      <Col span={12}>
-        <Statistic title="Balance" prefix="IK$" value={568.08} />
+      <Col span={24}>
+        <Card><Statistic title="Account Balance (IK$)" value={this.props.balance} precision={2} /></Card>
       </Col>
     </Row>
     );
@@ -156,7 +157,7 @@ class Home extends Component {
     // }
     // else{
       content = <div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}>
-        <Table rowKey={record => record.key} loading={this.state.loading} columns={columns} dataSource={this.state.txs} />
+        <Table rowKey={record => record.id} loading={this.state.loading} columns={columns} dataSource={this.state.txs} />
       </div>;
     // }
     return (
@@ -197,11 +198,11 @@ class Home extends Component {
 
 export default connect(
     (state)=> ({
-        userAccount: 	      userRedux.defaultAccount(state),
-        allAccounts: 	      userRedux.allAccounts(state),
-        isLoading: 		      userRedux.isLoading(state) 
+        // userAccount: 	      userRedux.defaultAccount(state),
+        actualAccount:    loginRedux.actualAccount(state),
+        balance:          balanceRedux.userBalanceFormatted(state),
     }),
     (dispatch)=>({
-        tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
+        // tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
     })
 )(Home)

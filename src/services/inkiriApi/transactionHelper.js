@@ -25,15 +25,19 @@ function getTxMetadata(account_name, fullTx){
   };
 }
 
+function getEOSQuantityToNumber(quantity){ 
+	return Number(quantity.replace(globalCfg.currency.eos_symbol, ''));
+}
+
 function getTxQuantity(tx)             { return tx.data.quantity;}
-function getTxQuantityToNumber(tx)     { return Number(tx.data.quantity.replace(globalCfg.currency.eos_symbol, ''));}
+function getTxQuantityToNumber(tx)     { return getEOSQuantityToNumber(tx.data.quantity); }
 function getTxName(tx)                 { return tx.name ; }
 function getTxCode(tx)                 { return (tx.data && tx.data.memo)?tx.data.memo.split('|')[0]:''; }
 function getTxSubCode(tx)              { return tx.data.memo.split('|').length>1 ? tx.data.memo.split('|')[1] : '';}
 function combineTxNameCode(tx)         { return getTxName(tx) + '_' + getTxCode(tx) ; }
 function isTransfer(param)             { return param=='transfer';}
 function isIssue(param)                { return param=='issue'; }
-function isSender(account_name, tx_act){ return tx_act.data.to==account_name; }
+function isSender(account_name, tx_act){ return tx_act.data.to!=account_name; }
 function mayTxHaveNewerTx(tx_code){
   const search = ['transfer_bck']; 
   return search.indexOf(tx_code)>=0;
@@ -160,4 +164,4 @@ function getPreAuthPaymentInfo(tx){
 //END////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export { getTxMetadata };
+export { getTxMetadata, getEOSQuantityToNumber };

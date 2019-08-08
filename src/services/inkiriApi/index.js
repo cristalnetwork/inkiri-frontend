@@ -86,7 +86,7 @@ export const sendMoney = async (sender_account, sender_priv, receiver_account, a
       from: sender_account,
       to: receiver_account,
       quantity: formatAmount(amount),
-      memo: 'snd|key'
+      memo: 'snd'
     }
   }
 
@@ -163,3 +163,12 @@ export const addPersonalBankAccount = async (auth_account, auth_priv, account_na
 
 export const getAccountInformation = (account_name) =>  dfuse.searchBankAccount(account_name);
 export const getAvailableAccounts  = () =>   dfuse.listBankAccounts();
+export const getAccountBalance = (account_name) =>  dfuse.getAccountBalance(account_name);
+
+export const dummyPrivateKeys = {
+		'ikmasterooo1': '5J2bKBbHH6xB2U255CWbXJ6uAuibg5KCh1omKdhpKoCfrTxWkUN'
+    , 'ikadminoooo1': '5KkKKHiFqNfyFRTWQSdVmg7UBTdwvmkRz48dUyE6pQCEbfJLm6u'
+    , 'inkiritoken1': '5K5Sk4A2V3MeS7uWw5itgQYzoGF3Aaeer3iZB7qCj3GbqmknVvM'
+    , 'marcostest13': ''
+    , 'inkpersonal1': '5JtCAhCxKEbMfU3XSHpF451P9sVnPkzxD2WgUgVgPtWEKikTXsh'
+  }
