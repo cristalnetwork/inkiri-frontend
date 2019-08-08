@@ -3,6 +3,9 @@ import { Layout, Icon, Button } from 'antd';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
+
+import UserBalance from './userBalance';
+
 import * as userRedux from '@app/redux/models/user'
 import * as loginRedux from '@app/redux/models/login'
 import styles from './index.less';
@@ -49,8 +52,11 @@ class InkiriHeader extends Component {
             />
             
             <div className="right">
+              <div className="header_element_container" style={{marginLeft: '10px'}}>
+                User balance: <UserBalance userId={this.props.actualAccount} />
+              </div>
               <div className="header_element_container">
-                <Button style={{marginLeft: '10px'}}icon={'logout'} onClick={this.props.logout}>Logout</Button>
+                <Button icon={'logout'} onClick={this.props.logout}>Logout</Button>
               </div>
               <div className="header_element_container">
                 <a className="header_element_top_padded header_element_left_padded" target="_blank" href="https://jungle.bloks.io/account/ikadminoooo1">View account on blockexplorer</a>
@@ -58,7 +64,6 @@ class InkiriHeader extends Component {
               <div className="header_element_container">
                <UserSelector onChange={this.handleChange} />
               </div>
-
             </div>
           </div>
         </Header>
@@ -69,6 +74,7 @@ class InkiriHeader extends Component {
 
 export default connect(
     (state)=> ({
+      actualAccount: loginRedux.actualAccount(state),
     }),
     (dispatch)=>({
         try: bindActionCreators(userRedux.tryUserState , dispatch),

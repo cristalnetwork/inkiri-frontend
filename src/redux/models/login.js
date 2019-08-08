@@ -34,7 +34,7 @@ function* tryLoginSaga({ type, payload }) {
     if(payload.save) {
       setStorage('login',{account, save})
     }
-    yield put(set({userId: account.name, role: 'business'}))
+    yield put(set({userId: account.key, role: 'business'}))
   } catch(e) {
     console.err(e)
   }
