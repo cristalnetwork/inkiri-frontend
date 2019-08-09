@@ -16,9 +16,10 @@ import { withRouter } from "react-router-dom";
 import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
 import { Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
+import './sendMoney.css'; 
+
 const { Paragraph, Text } = Typography;
 
-import './sendMoney.css'; 
 
 const Description = ({ term, children, span = 12 }) => (
     <Col span={span}>
@@ -145,9 +146,10 @@ class SendMoney extends Component {
     
     if(this.state.result=='ok')
     {
-      const _href = api.dfuse.getBlockExplorerTxLink(this.state.result_object?this.state.result_object.data:{});
-      // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
       const tx_id = api.dfuse.getTxId(this.state.result_object?this.state.result_object.data:{});
+      const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
+      // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
+      
       return (<Result
         status="success"
         title="Transaction completed successfully!"

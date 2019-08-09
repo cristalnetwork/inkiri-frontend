@@ -60,14 +60,14 @@ const api = {
 
 // ToDo: Traer DFuse config from private server!
 const dfuse = {
-  api_key       : 'web_8a50f2bc42c1df1a41830c359ba74240',
-  network       : 'jungle',
-  auth_url      : 'https://auth.dfuse.io/v1/auth/issue',
-  base_url      : 'https://jungle.eos.dfuse.io',
-  chain_id      : 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
-  websocket_url : 'wss://jungle.eos.dfuse.io/v1/stream',
-
-  tx_url        : 'https://jungle.bloks.io/transaction/'
+  api_key                   : 'web_8a50f2bc42c1df1a41830c359ba74240',
+  network                   : 'jungle',
+  auth_url                  : 'https://auth.dfuse.io/v1/auth/issue',
+  base_url                  : 'https://jungle.eos.dfuse.io',
+  chain_id                  : 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
+  websocket_url             : 'wss://jungle.eos.dfuse.io/v1/stream',
+  default_page_size         : 25,
+  tx_url                    : 'https://jungle.bloks.io/transaction/'
 }
 
 export { language, api, currency, dfuse, bank };

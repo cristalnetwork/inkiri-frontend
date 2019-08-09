@@ -13,7 +13,7 @@ import * as api from '@app/services/inkiriApi';
 
 import { Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
 
-import { Table, Divider, Spin } from 'antd';
+import { notification, Table, Divider, Spin } from 'antd';
 
 import './home.css'; 
 
@@ -55,8 +55,7 @@ const columns = [
   {
     title: 'Description',
     dataIndex: 'sub_header',
-    key: 'sub_header',
-    render: text => <a href="javascript:;">{text} </a>
+    key: 'sub_header'
   },
   {
     title: 'Amount',
@@ -82,7 +81,7 @@ const columns = [
       <span>
         <a href="javascript:;">View Details</a>
         <Divider type="vertical" />
-        <a href="javascript:;">another fn()</a>
+        <a href={api.dfuse.getBlockExplorerTxLink(record.transaction_id)} target="_blank">View on Blockchain</a>
       </span>
     ),
   },
@@ -92,38 +91,113 @@ class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading: false,
-      errorMessages: [],
-      txs: [],
-      balance: {}
+      loading:                      false,
+      txs:                          [],
+      cursor:                       '',
+      responses:                    {}, // array of { txs:[], cursor:'', page_index:0}
+      balance:                      {},
+      pagination:                   { pageSize: 0 , total: 0 }
     };
 
+    this.loadTransactionsForAccount = this.loadTransactionsForAccount.bind(this);  
+    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
+    this.renderFooter               = this.renderFooter.bind(this); 
+    this.onNewData                  = this.onNewData.bind(this);     
   }
   
   componentDidMount(){
-    
+    this.loadTransactionsForAccount(true);  
+  } 
+
+  loadTransactionsForAccount(is_first){
+
     let account_name = this.props.actualAccount;
     console.log(' pages::business::home >> this.props.actualAccount:', this.props.actualAccount, ' | fetching history for:', account_name)
     
     let that = this;
     this.setState({loading:true});
-    api.dfuse.listTransactions(account_name)
-    .then(res => 
-        {
+    console.log(' <><><><><><><><><> this.state.cursor:', this.state.cursor)
+    api.dfuse.listTransactions(account_name, (is_first===true?undefined:this.state.cursor) )
+    .then( (res) => {
             // console.log(' -- home.js::listTransactions --');
             // console.log('---- RES:', JSON.stringify(res));
-            that.setState({'txs':res.data.txs})
-        } 
-    )
-    .catch(ex => {
+            // that.buildTablePagination(res.data)
+            that.onNewData(res.data);
+    } ,(ex) => {
             console.log(' -- home.js::listTransactions ERROR --');
             console.log('---- ERROR:', JSON.stringify(ex));
-        } 
-    )
-    .finally(function(){
-      that.setState({loading:false});
-    })
-  } 
+            that.setState({loading:false});  
+      } 
+    );
+    
+  }
+
+  onNewData(data){
+    
+    const _txs = [...this.state.txs, ...data.txs];
+    const pagination = {...this.state.pagination};
+    pagination.pageSize= _txs.length;
+    pagination.total= _txs.length;
+
+    console.log(' >>>>>>>>>>> this.state.cursor:', this.state.cursor)
+    console.log(' >>>>>>>>>>> data.cursor:', data.cursor)
+    this.setState({pagination:pagination, txs:_txs, cursor:data.cursor, loading:false})
+
+    if(!data.txs || data.txs.length==0)
+    {
+      this.openNotificationWithIcon("info", "End of transactions","You have reached the end of transaction list!")
+    }
+  }
+
+  openNotificationWithIcon(type, title, message) {
+    notification[type]({
+      message: title,
+      description:message,
+    });
+  }
+
+  // buildTablePagination(data){
+    
+  //   if(!data.txs || data.txs.length==0)
+  //   {
+  //     return;
+  //   }
+
+  //   const pageIndex_Key             = this.getResponseKey()
+  //   const responses                 = { ...this.state.responses };
+  //   responses[pageIndex_Key.key]    = {'txs':data.txs, cursor: data.cursor, page_index:pageIndex_Key.page_index};
+
+  //   const pagination = { ...this.state.pagination };
+  //   pagination.total = pagination.total + data.txs.length;
+
+  //   this.setState({
+  //     pagination:pagination,
+  //     responses:responses
+  //   })
+  // }
+
+  // getResponseKey(){
+  //   const page_index  = (this.state.pagination.current || 1);
+  //   const key         = '_key_'+ page_index;
+  //   return {page_index:page_index, key:key};
+  // }
+
+  // getCurrentTxs(){
+  //   if(!this.state.responses || this.state.responses.length==0)
+  //     return [];
+  //   const pageIndex_Key = this.getResponseKey()
+  //   return (this.state.responses[pageIndex_Key.key]?this.state.responses[pageIndex_Key.key].txs:[])
+  // }  
+
+  // handleTableChange(pagination, filters, sorter){
+  //   console.log(JSON.stringify(pagination))
+  //   return;
+  //   const new_pagination   = { ...this.state.pagination };
+  //   new_pagination.current = pagination.current;
+  //   this.setState({
+  //     pagination: new_pagination,
+  //   });    
+  // }
 
   renderContent() 
   {
@@ -137,29 +211,35 @@ class Home extends Component {
     );
   }
 
+  renderFooter(){
+    return (<><Button key="load-more-data" disabled={this.state.cursor==''} onClick={()=>this.loadTransactionsForAccount(false)}>More!!</Button> </>)
+  }
+
   renderExtraContent ()
   {
     return(
     <Row>
       <Col span={24}>
-        <Card><Statistic title="Account Balance (IK$)" value={this.props.balance} precision={2} /></Card>
+        <Card><Statistic title="Account Balance (IK$)" value={this.props.balance} precision={2} /> 
+        </Card> <></>
       </Col>
     </Row>
     );
   }
   
-
   render() {
-    let content;
-    // if(this.state.loading)
-    // {
-    //   content = <Spin tip="Loading..."><div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}></div></Spin>;
-    // }
-    // else{
-      content = <div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}>
-        <Table rowKey={record => record.id} loading={this.state.loading} columns={columns} dataSource={this.state.txs} />
-      </div>;
-    // }
+    const content = (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}>
+        <Table 
+          onChange={() => this.handleTableChange}
+          rowKey={record => record.id} 
+          loading={this.state.loading} 
+          columns={columns} 
+          dataSource={this.state.txs} 
+          footer={() => this.renderFooter()}
+          pagination={this.state.pagination}
+          />
+      </div>);
+    // <>
     return (
       <>
       <PageHeader
@@ -190,7 +270,6 @@ class Home extends Component {
       </PageHeader>
 
       {content}
-      
       </>
     );
   }

@@ -18,9 +18,9 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
         </>
     } else {
         if(actualRole) {
-            // history.push(`/${actualRole}/extrato`);
-            console.log(' >>>>> router <<<<< location:', JSON.stringify(location));
-            history.push(`/${actualRole}/send-money`);
+            history.push(`/${actualRole}/extrato`);
+            // console.log(' >>>>> router <<<<< location:', JSON.stringify(location));
+            // history.push(`/${actualRole}/send-money`);
         }
         else {
             history.push(`/login`);
@@ -35,7 +35,7 @@ const CheckRole = connect((state)=>({
 
 const CheckLogin = () => <CheckRole role={undefined}><Login/></CheckRole>
 
-const loadableComponent = (area,fileName, container, role)=> {
+const loadableComponent = (area, fileName, container, role)=> {
     const ayncComponent = loadable(() => import(`../pages/${area}/${fileName}`), {
         fallback: <Spin style={{marginTop: '100px'}}/>,
     })

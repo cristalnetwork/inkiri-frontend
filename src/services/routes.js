@@ -16,11 +16,11 @@ const routes  = {
                         path: pathNames.businessExtracto,
                         title: 'Transaction History',
                     },
-                    {
-                        key: pathNames.businessInformes,
-                        path: pathNames.businessUnderConstruction,
-                        title: 'Reports',
-                    },
+                    // {
+                    //     key: pathNames.businessInformes,
+                    //     path: pathNames.businessUnderConstruction,
+                    //     title: 'Reports',
+                    // },
                     {
                         key: pathNames.businessDepositar,
                         path: pathNames.businessUnderConstruction,
