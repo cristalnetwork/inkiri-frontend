@@ -37,10 +37,20 @@ class InkiriHeader extends Component {
   }
   
   handleChange(account) {
-    console.log(`selected ${account.name}`);
-    this.props.tryLogin(account)
+    // console.log(`selected ${account.name}`);
+    // this.props.tryLogin(account)
   }
 
+  /*
+    * <div className="header_element_container">
+    *  <UserSelector onChange={this.handleChange} />
+    * </div>
+  */
+  /*
+    * <div className="header_element_container">
+    *   <a className="header_element_top_padded header_element_left_padded" target="_blank" href="https://jungle.bloks.io/account/ikadminoooo1">View account on blockexplorer</a>
+    * </div>
+  */
   render(){
     return (
        <Header style={{ background: '#fff', padding: 0 }}>
@@ -52,18 +62,14 @@ class InkiriHeader extends Component {
             />
             
             <div className="right">
-              <div className="header_element_container" style={{marginLeft: '10px'}}>
-                User balance: <UserBalance userId={this.props.actualAccount} />
-              </div>
               <div className="header_element_container">
                 <Button icon={'logout'} onClick={this.props.logout}>Logout</Button>
               </div>
-              <div className="header_element_container">
-                <a className="header_element_top_padded header_element_left_padded" target="_blank" href="https://jungle.bloks.io/account/ikadminoooo1">View account on blockexplorer</a>
+              <div className="header_element_container" style={{marginRight: '10px'}}>
+                Account balance: <UserBalance userId={this.props.actualAccount} />
               </div>
-              <div className="header_element_container">
-               <UserSelector onChange={this.handleChange} />
-              </div>
+              
+              
             </div>
           </div>
         </Header>

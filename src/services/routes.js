@@ -22,8 +22,8 @@ const routes  = {
                     //     title: 'Reports',
                     // },
                     {
-                        key: pathNames.businessDepositar,
-                        path: pathNames.businessUnderConstruction,
+                        key: pathNames.businessDeposit,
+                        path: pathNames.businessDeposit,
                         title: 'Deposit',
                     },
                     {
