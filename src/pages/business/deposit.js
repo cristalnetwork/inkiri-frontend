@@ -15,24 +15,13 @@ import { withRouter } from "react-router-dom";
 
 import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
 import { Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
-
-import { Steps, message } from 'antd';
-
-const { Step } = Steps;
+import { Steps, message, Select } from 'antd';
 
 import './deposit.css'; 
 
+const { Step } = Steps;
 const { Paragraph, Text } = Typography;
-
-
-const Description = ({ term, children, span = 12 }) => (
-    <Col span={span}>
-      <div className="description">
-        <div className="term">{term}</div>
-        <div className="detail">{children}</div>
-      </div>
-    </Col>
-  );
+const { Option } = Select;
 
 const routes = [
   {
@@ -49,22 +38,6 @@ const routes = [
   }
 ];
 
-const steps = [
-  {
-    title: 'Input amount and currency',
-    content: (<div>hihiihhihi</div>),
-  },
-  {
-    title: 'Input envelope ID',
-    content: 'Second-content',
-  },
-  {
-    title: 'Confirm transaction',
-    content: 'Last-content',
-  },
-];
-
-
 class Deposit extends Component {
   constructor(props) {
     super(props);
@@ -73,19 +46,46 @@ class Deposit extends Component {
       dataSource:   [],
       receipt:      '',
       amount:       0,
-      memo:         '',
+      currency:     'BRL',
+      envelope_id:  'xxxxxxx',
       pushingTx:    false,
       result:       undefined,
       result_object:undefined,
       error:        {},
 
       current: 0,
+
+      number_validateStatus : '',
+      number_help:  ''
+      
     };
 
-    this.onSelect     = this.onSelect.bind(this); 
-    this.renderContent   = this.renderContent.bind(this); 
-    this.onChange     = this.onChange.bind(this); 
-    this.resetPage    = this.resetPage.bind(this); 
+    this.onSelect         = this.onSelect.bind(this); 
+    this.renderSteps      = this.renderSteps.bind(this); 
+    this.onChange         = this.onChange.bind(this); 
+    this.resetPage        = this.resetPage.bind(this); 
+
+    this.handleSubmit     = this.handleSubmit.bind(this);
+    this.renderEnvelopeId = this.renderEnvelopeId.bind(this);
+    this.renderConfirmRequest = this.renderConfirmRequest.bind(this);
+    let that = this;
+    this.steps = [
+      {
+        title: 'Input amount and currency',
+        content: (<div>hihiihhihi</div>),
+        renderContent : function() { return that.renderAmountForm() },
+      },
+      {
+        title: 'Envelope ID',
+        content: 'Second-content',
+        renderContent: function() { return that.renderEnvelopeId() },
+      },
+      {
+        title: 'Confirm transaction',
+        content: 'Last-content',
+        renderContent: function() { return that.renderConfirmRequest() },
+      },
+    ];
   }
 
   
@@ -105,9 +105,10 @@ class Deposit extends Component {
     this.setState({receipt:value})
   }
 
-  onChange(value) {
-    console.log('changed', value);
-    this.setState({amount:value})
+  onChange(e) {
+    // console.log('changed', value);
+    e.preventDefault();
+    this.setState({amount:e.target.value})
   }
 
   
@@ -117,19 +118,99 @@ class Deposit extends Component {
     })
   }
 
+  handleCurrencyChange(value){
+    this.setState({currency:value})
+  }
+
+  handleSubmit = e => {
+    e.preventDefault();
+  }
+
   resetPage(){
     this.setState({result: undefined, result_object: undefined, error: {}});
   }
 
-  renderContent() {
+  doDeposit(){
+    
+  }
+  renderSelectCurrency() {
+    return(
+      <Select onChange={this.handleCurrencyChange.bind(this)} defaultValue="BRL" style={{ width: 90 }}>
+        <Option value="BRL">BRL</Option>
+        <Option value="INK">{globalCfg.currency.symbol}</Option>
+      </Select>
+    )
+  };
+
+  renderConfirmRequest(){
+    const curr      = this.state.currency;
+    const amount    = this.state.amount;
+    const env       = this.state.envelope_id;
+    return (<Result
+      icon={<Icon type="question-circle" theme="twoTone" />}
+      title={`You will deposit ${curr}${amount} on envelope ${env}`}
+      subTitle="Please confirm operation."
+      extra={<Button type="primary" onclick={doDeposit}>Confirm Deposit</Button>}
+    />)
+  }
+
+  renderEnvelopeId(){
+    const curr   = this.state.currency;
+    const amount = this.state.amount.toString();
+    return (
+        <div style={{ margin: '0 auto', width:500, padding: 24, background: '#fff'}}>
+            <Row gutter={16}>
+              <Col span={24}>
+                <Statistic valueStyle={{fontSize:36, color:'#108ee9'}} title="Type this ID onto the envelope" value={this.state.envelope_id} prefix={<Icon type="red-envelope" />} />
+              </Col>
+            </Row>
+            <Row gutter={16}>
+              <Col span={24}>
+                <div className="ant-result-subtitle">You will deposit amount: {curr} {amount}</div>
+              </Col>
+            </Row>
+        </div>
+    );
+  }
+  
+  renderAmountForm() {
   
     const { getFieldDecorator } = this.props.form;
-    
+    return (
+        <div style={{ margin: '0 auto', width:500, padding: 24, background: '#fff'}}>
+          <Form onSubmit={this.handleSubmit}>
+            <Form.Item 
+              style={{minHeight:60, marginBottom:12}}
+              validateStatus={this.state.number_validateStatus}
+              help={this.state.number_help}>
+              {getFieldDecorator('amount', {
+                rules: [{ required: true, message: 'Please input an amount to send!' }],
+              })(
+                <Input
+                  size="large"
+                  style={{ width: '100%' }}
+                  onChange={this.onChange}
+                  className="input-money extra-large"
+                  allowClear
+                  addonBefore={this.renderSelectCurrency()}  
+                  defaultValue={this.state.amount}
+                />
+                
+
+              )}
+            </Form.Item>
+          </Form>
+          
+        </div>
+    );
+  }
+
+  renderResult() {
+  
     if(this.state.result=='ok')
     {
       const tx_id = api.dfuse.getTxId(this.state.result_object?this.state.result_object.data:{});
       const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
-      // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
       
       return (<Result
         status="success"
@@ -181,28 +262,33 @@ class Deposit extends Component {
     }
     //<>
 
+    
+  }
+  
+  renderSteps() {
     const { current } = this.state;
-
+    const content = this.steps[current].renderContent();
+    //const content = this.renderAmountForm();
     return(
       <>
         <Steps current={current}>
-          {steps.map(item => (
+          {this.steps.map(item => (
             <Step key={item.title} title={item.title} />
           ))}
         </Steps>
-        <div className="steps-content">{steps[current].content}</div>
+        <div className="steps-content">{content}</div>
         <div className="steps-action">
           {current > 0 && (
             <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>
               Previous
             </Button>
           )}
-          {current < steps.length - 1 && (
+          {current < this.steps.length - 1 && (
             <Button type="primary" onClick={() => this.next()}>
               Next
             </Button>
           )}
-          {current === steps.length - 1 && (
+          {current === this.steps.length - 1 && (
             <Button type="primary" onClick={() => message.success('Processing complete!')}>
               Done
             </Button>
@@ -214,7 +300,7 @@ class Deposit extends Component {
   }
 
   render() {
-    let content = this.renderContent();
+    let content = this.renderSteps();
     
     return (
       <>

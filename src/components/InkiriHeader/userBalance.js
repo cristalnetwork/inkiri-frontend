@@ -24,7 +24,7 @@ class UserBalance extends Component  {
         return (
         <>
             {
-                loading? <Spin size={'small'} />: balance
+                loading? <Spin size={'small'} />: <b>{balance}</b>
             }
         </>
         )
@@ -33,7 +33,7 @@ class UserBalance extends Component  {
 
 export default connect(
     (state)=> ({
-        balance:   balanceRedux.userBalanceText(state),
+        balance:   balanceRedux.userBalanceFormatted(state),
         loading:   balanceRedux.isLoading(state),
     }),
     (dispatch) => ({

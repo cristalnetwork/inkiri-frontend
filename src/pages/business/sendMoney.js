@@ -14,7 +14,7 @@ import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
 import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
-import { Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
 import './sendMoney.css'; 
 
@@ -58,7 +58,10 @@ class SendMoney extends Component {
       pushingTx:    false,
       result:       undefined,
       result_object:undefined,
-      error:        {}
+      error:        {},
+      number_validateStatus : '',
+      number_help:  ''
+                    
     };
 
     // this.handleSearch = this.handleSearch.bind(this); 
@@ -67,6 +70,7 @@ class SendMoney extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.onChange     = this.onChange.bind(this); 
     this.resetPage    = this.resetPage.bind(this); 
+    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
   }
 
   static propTypes = {
@@ -90,9 +94,10 @@ class SendMoney extends Component {
     this.setState({receipt:value})
   }
 
-  onChange(value) {
-    console.log('changed', value);
-    this.setState({amount:value})
+  onChange(e) {
+    e.preventDefault();
+    // console.log('changed', e);
+    this.setState({amount:e.target.value, number_validateStatus:'' , number_help:''})
   }
 
   // onSearch={this.handleSearch}
@@ -102,11 +107,25 @@ class SendMoney extends Component {
     // });
   };
 
+  openNotificationWithIcon(type, title, message) {
+    notification[type]({
+      message: title,
+      description:message,
+    });
+  }
+
+
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (err) {
         //
+        return;
+      }
+      if(isNaN(this.state.amount))
+      {
+        this.openNotificationWithIcon("error", this.state.amount + "Valid number required","Please type a validnumber greater than 0!")    
+        this.setState({number_validateStatus:'error' , number_help:'Should be a number greater than 0'})
         return;
       }
       console.log('Received values of form: ', values);
@@ -185,9 +204,7 @@ class SendMoney extends Component {
                   <Paragraph>
                     <Text
                       strong
-                      style={{
-                        fontSize: 16,
-                      }}
+                      style={{ fontSize: 16, }}
                     >
                       The content you submitted has the following error:
                     </Text>
@@ -198,45 +215,52 @@ class SendMoney extends Component {
                 </div>
               </Result>)
     }
+    
+    // ** hack for sublime renderer ** //
 
     return (
         <div style={{ margin: '0 auto', width:500, padding: 24, background: '#fff'}}>
           <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
             <Form onSubmit={this.handleSubmit}>
                 
-              <Form.Item style={{'minHeight':60}}>
+              <Form.Item style={{minHeight:60, marginBottom:12}}>
                 {getFieldDecorator('receipt', {
                   rules: [{ required: true, message: 'Please input receipt account name!' }]
                 })(
-
                   <AutoComplete
                     size="large"
                     dataSource={this.props.accounts.filter(acc=>acc.key!=this.props.actualAccount).map(acc=>acc.key)}
                     style={{ width: '100%' }}
                     onSelect={this.onSelect}
-                    placeholder="Receipt account name"
+                    placeholder=""
                     filterOption={true}
-
+                    className="extra-large"
                   >
-                    <Input suffix={<Icon type="user" className="certain-category-icon" />} />
+                    <Input suffix={<Icon type="user" style={{fontSize:20}} className="default-icon" />} />
                   </AutoComplete>
                    
                 )}
               </Form.Item>
 
               
-              <Form.Item style={{'minHeight':60}}>
+              <Form.Item 
+                style={{minHeight:60, marginBottom:12}}
+                validateStatus={this.state.number_validateStatus}
+                help={this.state.number_help}>
                 {getFieldDecorator('amount', {
                   rules: [{ required: true, message: 'Please input an amount to send!' }],
                 })(
-                  <InputNumber
+                  <Input
                     size="large"
                     style={{ width: '100%' }}
                     defaultValue={0}
-                    formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                    parser={value => value.replace(/\$\s?|(,*)/g, '')}
                     onChange={this.onChange}
-                  />,
+                    className="input-money extra-large"
+                    allowClear
+                    prefix={<Icon type="dollar-circle" theme="filled" style={{fontSize:34}} className="certain-category-icon" />} 
+                    
+                  />
+                  
                 )}
               </Form.Item>
 
@@ -251,19 +275,28 @@ class SendMoney extends Component {
         </div>
     );
   }
+  
+  /*
+  
+  */
+  
+  // ** hack for sublime renderer ** //
 
   renderExtraContent ()
   {
-    return(
-    <Row>
-      <Col span={24}>
-        <Card><Statistic title="Account Balance (IK$)" value={this.props.balance} precision={2} /></Card>
-      </Col>
-    </Row>
-    );
+    return (<></>);
+
+    // return(
+    // <Row>
+    //   <Col span={24}>
+    //     <Card><Statistic title="Account Balance (IK$)" value={this.props.balance} precision={2} /></Card>
+    //   </Col>
+    // </Row>
+    // );
   
   }
   
+  // ** hack for sublime renderer ** //
 
   render() {
     let content = this.renderContent();
