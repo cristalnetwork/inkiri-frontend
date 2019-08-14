@@ -73,13 +73,13 @@ export const sendMoney = async (sender_account, sender_priv, receiver_account, a
 		'param@amount:', amount
 		);
 
-	const transferAction = {
+  const transferAction = {
     account: globalCfg.currency.token,
     name: "transfer",
     authorization: [
       {
-        actor: sender_account,
-        permission: "active"
+        actor:         sender_account,
+        permission:    'active'
       }
     ],
     data: {
@@ -171,4 +171,6 @@ export const dummyPrivateKeys = {
     , 'inkiritoken1': '5K5Sk4A2V3MeS7uWw5itgQYzoGF3Aaeer3iZB7qCj3GbqmknVvM'
     , 'marcostest13': ''
     , 'inkpersonal1': '5JtCAhCxKEbMfU3XSHpF451P9sVnPkzxD2WgUgVgPtWEKikTXsh'
+    , 'inkirimaster': '5KesM1e6XqoTMtbJ8P5bakYom1rd3KbBQa9dKg3FqE23YAK9BPE'
+    , 'inkpersonal2': '5KRg4dqcdAnGzRVhM4vJkDRVkfDYrH3RXG2CVzA61AsfjyHDvBh'
   }

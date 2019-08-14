@@ -24,13 +24,14 @@ export const auth = () =>   new Promise((res,rej)=> {
 		fetch(globalCfg.dfuse.auth_url, {
 	    method: 'post',
 	    body: JSON.stringify(opts)
-		  }).then(function(response) {
-		    return response.json();
-		  }).then(function(data) {
+		  }).then((response) => response.json(), (err) => {rej(err);})
+      .then((data) => {
 		  	console.log('dfuse::auth >> ', 'About to set local storage', JSON.stringify(data))	
 		  	localStorage.setItem(DFUSE_AUTH_TOKEN_KEY, JSON.stringify(data))
 				res({data:data});
-		  });
+		  }, (ex) => {
+        rej(ex);
+      });
 	  return;
 	}
 
@@ -62,7 +63,7 @@ export const getAccountBalance = (account) => new Promise((res,rej)=> {
       "accounts",
       { blockNum: undefined }
     )
-    .then(data => {
+    .then((data) => {
       console.log(' dfuse::getAccountBalance >> receive balance for account:', account, JSON.stringify(data));
       const _res = {
                       data:{
@@ -72,14 +73,13 @@ export const getAccountBalance = (account) => new Promise((res,rej)=> {
                     };
       console.log(' dfuse::getAccountBalance >> about to dispatch balance for account:', account, JSON.stringify(_res));
       res (_res);
-    })
-    .catch(ex=>{
+      client.release();
+    }, (ex)=>{
       console.log('dfuse::getAccountBalance >> ERROR ', JSON.stringify(ex));
       rej(ex);
-    })
-    .finally(function(){
       client.release();
-    })
+    });
+    
 
 })	
 
@@ -96,10 +96,8 @@ export const listBankAccounts = () => new Promise((res,rej)=> {
       "ikaccounts",
       { blockNum: undefined }
     )
-    .then(data => {
-      // console.log(' dfuse::listBankAccounts >> ', JSON.stringify(data));
-      // {"state":1,"account_type":1,"overdraft":"0x00000000000000000000000000000000","fee":"0x05000000000000000000000000000000","xchg_counter":0,"xchg_amount":"0x00000000000000000000000000000000","withdraw_counter":0,"withdraw_amount":"0x00000000000000000000000000000000","deposits_counter":0,"locked_amount":"0x00000000000000000000000000000000","key":"ikadminoooo1"}}}
-
+    .then((data) => {
+      
 			var accounts = data.rows.map(account => 
 				({	...account.json
 									,'state_description' : getStateDescription(account.json.state)
@@ -108,15 +106,12 @@ export const listBankAccounts = () => new Promise((res,rej)=> {
 			let _res = {data:{accounts:accounts}};
 			console.log(' dfuse::listBankAccounts >> ', JSON.stringify(_res));
       res (_res);
-
-    })
-    .catch(ex=>{
+      client.release();
+    }, (ex)=>{
       console.log('dfuse::listBankAccounts >> ERROR ', JSON.stringify(ex));
       rej(ex);
-    })
-    .finally(function(){
       client.release();
-    })
+    });
 
 })	
 
@@ -140,10 +135,10 @@ function getAccountTypeDescription(account_type_id){
 
 export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
 	listBankAccounts()
-	.then(data => {
+	.then((data) => {
 		// console.log(' dfuse::searchBankAccount >> ', JSON.stringify(data));
   	var account = data.data.accounts.filter(account => account.key === account_name);
-    if(account)
+    if(account && account.length>0)
     {
     	let _res = {data:{account:account[0]}};
     	console.log(' dfuse::searchBankAccount >> ', JSON.stringify(_res));	
@@ -154,11 +149,10 @@ export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
   		console.log(' dfuse::searchBankAccount >> ', 'Account not Found!');	
   		rej({error:'Account not found'});
   	}
-  })
-  .catch(ex=>{
+  }, (ex)=>{
     console.log('dfuse::searchBankAccount >> ERROR ', JSON.stringify(ex));
     rej(ex);
-  })
+  });
 })	
 
 export const listTransactions = (account_name, cursor) => new Promise((res,rej)=> {

@@ -1,0 +1,28 @@
+.amountInput{
+  height:100px!important;  
+  line-height:100px!important;  
+  display: flex;
+  flex-direction: row;
+}
+.amountInput .extra-large
+  , .amountInput .ant-select-selection
+  , .amountInput .ant-select-selection__rendered
+  {
+    font-size:68px!important;
+    line-height:68px!important;
+    min-height:100px!important;
+    color: #108ee9;
+  }
+
+.amountInput input.ant-input{
+   text-align: center;
+ }
+.amountInput .ant-select-lg{
+    height:100px!important;
+  }
+.amountInput .ant-select-selection-selected-value{
+    font-size:51px!important;
+    line-height:100px!important;
+    min-height:100px!important;
+    color: #108ee9;
+  }

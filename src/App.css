@@ -1,0 +1,11 @@
+.dashboard_page_content
+, .dashboard_page_header_wrap{
+	margin: 0px auto;
+	width:500px;
+ 	padding: 24;
+	background: '#fff';
+}
+
+.dashboard_page_header_wrap .ant-statistic-content{
+	text-align: center!important;
+}

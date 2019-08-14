@@ -13,7 +13,10 @@
   margin-top: 24px;
 }
 
-.extra-large input.ant-input-number-input
+.ant-row .ant-form-item:not(:last-child){
+  /*margin-bottom:20px;*/
+}
+/*.extra-large input.ant-input-number-input
 , .input-money input.ant-input{
    text-align: center;
  }
@@ -23,6 +26,6 @@
   line-height:68px!important;
   min-height:100px!important;
   color: #108ee9;
-}
+}*/
 
-.ant-select-selection-selected-value {font-size:20px!important;}
+/*.ant-select-selection-selected-value {font-size:20px!important;}*/

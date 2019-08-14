@@ -3,7 +3,7 @@ import ecc from 'eosjs-ecc';
 
 export const generateRandomKeys = () =>   new Promise((res,rej)=> {
     
-      ecc.randomKey().then(privateKey => {
+      ecc.randomKey().then((privateKey) => {
         
         let pubkey  = ecc.privateToPublic(privateKey); 
         console.log('eosHelper::generateRandomKeys()\t')

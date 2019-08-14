@@ -1,5 +1,5 @@
 import React, {useState, Component} from 'react'
-import { Button, Select, InputNumber } from 'antd';
+import { Button, Select, Input, InputNumber } from 'antd';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -35,13 +35,12 @@ class AllInOne extends Component {
       sender_account:      'ikmasterooo1',
       destination_account: 'ikadminoooo1',
       destination_amount:   2,
-      // privs:               {
-      //   'ikmasterooo1': '5J2bKBbHH6xB2U255CWbXJ6uAuibg5KCh1omKdhpKoCfrTxWkUN'
-      //   , 'ikadminoooo1': '5KkKKHiFqNfyFRTWQSdVmg7UBTdwvmkRz48dUyE6pQCEbfJLm6u'
-      //   , 'inkiritoken1': '5K5Sk4A2V3MeS7uWw5itgQYzoGF3Aaeer3iZB7qCj3GbqmknVvM'
-      //   , 'marcostest13': ''
-      //   , 'inkpersonal1': '5JtCAhCxKEbMfU3XSHpF451P9sVnPkzxD2WgUgVgPtWEKikTXsh'
-      // }
+      sign_account : 'inkiritoken1',
+      sign_pub     : 'EOS6Hhg3bfxWTbeKEsyGxDYFsRmMbM7bQHhPmLmKwNRC7w74Ta6kT',
+      sign_priv    : '5K5Sk4A2V3MeS7uWw5itgQYzoGF3Aaeer3iZB7qCj3GbqmknVvM',
+      sign_to_sign : '5J71N15h7KcmfSWsDYb7tPZGoURitBEkKmVTMGbVmRw2YpV1Brd',
+      sign_signature : 'nada',
+      sign_soy_yo : ''
       
     };
 
@@ -208,6 +207,20 @@ class AllInOne extends Component {
     api.dfuse.auth().then(res => {console.log(' -- dfuse::auth --'); console.log('---- RES:', JSON.stringify(res))} );
   }
 
+  signString = async() => {
+    api.eosHelper.signString(this.state.sign_priv, this.state.sign_to_sign)
+    .then((res) => {
+      console.log('---- RES:', JSON.stringify(res));
+      this.setState({sign_signature: JSON.stringify(res)});
+      api.eosHelper.verify(res.data.signed_data, this.state.sign_to_sign, this.state.sign_pub).then( res2 => {
+        console.log('---- RES:', JSON.stringify(res2));
+        this.setState({sign_soy_yo: JSON.stringify(res2)});
+      })
+      
+    } , (error) => {
+      console.log('---- RES:', JSON.stringify(error));
+    });
+  }
   testEOSHelper = async () => {
     let myPriv     = '5J2bKBbHH6xB2U255CWbXJ6uAuibg5KCh1omKdhpKoCfrTxWkUN';
     let myPub      = 'EOS6gWUtcGdykP26Y2JBH7ZQm2RRsNCP8cB5PwSbqiPPR6C5T7rjA';
@@ -498,7 +511,7 @@ class AllInOne extends Component {
       </div>
     )
   }
-
+  //
   render() {
     return (
 
@@ -556,6 +569,46 @@ class AllInOne extends Component {
             <button className="App-button" onClick={()=>this.issue()}>Issue</button>
             <button className="App-button" onClick={()=>this.getSenderAccountBalance()}>Get Sender Balance</button>
 
+          </div>
+        </div>
+
+        <div className="XX-header">
+          <h2>Tools</h2>
+          <div className="App-main">
+            <Input
+                addonBefore="account"
+                placeholder={this.state.sign_account}
+                onChange={ (value) => this.setState({sign_account:value}) }
+              />
+              <Input
+                addonBefore="priv"
+                placeholder={this.state.sign_priv}
+                onChange={ (value) => this.setState({sign_priv:value}) }
+              />
+              <Input
+                addonBefore="pub"
+                placeholder={this.state.sign_pub}
+                onChange={ (value) => this.setState({sign_pub:value}) }
+              />
+              <Input
+                addonBefore="to_sign"
+                placeholder={this.state.sign_to_sign}
+                onChange={ (value) => this.setState({sign_to_sign:value}) }
+              />
+              <Input
+                addonBefore="signature"
+                placeholder={this.state.sign_signature}
+                value={ this.state.sign_signature }
+              />
+              <Input
+                addonBefore="sign result"
+                placeholder={this.state.sign_soy_yo}
+                value={ this.state.sign_soy_yo }
+              />
+          </div>
+          <div className="App-buttons">
+            <button className="App-button" onClick={()=>this.signString()}>signString</button>
+            
           </div>
         </div>
 

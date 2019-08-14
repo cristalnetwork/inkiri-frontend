@@ -138,14 +138,14 @@ class SendMoney extends Component {
       let that         = this;
       that.setState({pushingTx:true});
       api.sendMoney(sender, privateKey, receiver, amount)
-      .then(data => {
+      .then((data) => {
         console.log(' SendMoney::send (then#1) >>  ', JSON.stringify(data));
         that.setState({result:'ok', pushingTx:false, result_object:data});
-      })
-      .catch(ex=>{
+      }, (ex) => {
         console.log(' SendMoney::send (error#1) >>  ', JSON.stringify(ex));
         that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
-      })
+      });
+      
     });
   };
 
@@ -188,15 +188,13 @@ class SendMoney extends Component {
     if(this.state.result=='error')
     {
 
+      // <Button key="re-send">Try sending again</Button>,
       return (<Result
                 status="error"
                 title="Transaction Failed"
                 subTitle="Please check and modify the following information before resubmitting."
                 extra={[
-                  <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
-                    Go to dashboard
-                  </Button>,
-                  <Button key="re-send">Try sending again</Button>,
+                  <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>Go to dashboard</Button>,
                   <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetPage()} />
                 ]}
               >

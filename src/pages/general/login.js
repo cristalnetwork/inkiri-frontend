@@ -53,7 +53,7 @@ class Login extends Component {
     let keystore = Keystore('myaccount', sessionConfig)
     // let eos = Eos.Testnet({keyProvider: keystore.keyProvider})
 
-    Keygen.generateMasterKeys().then(keys => {
+    Keygen.generateMasterKeys().then((keys) => {
       // create blockchain account called 'myaccount'
       
       console.log(JSON.stringify(keys));
@@ -94,7 +94,7 @@ class Login extends Component {
       httpEndpoint,
     });
 
-    eosConnect.getAccount('eosfiredream').then(result => console.log(result)).catch(error => console.error(error));
+    eosConnect.getAccount('eosfiredream').then((result) => {console.log(result)}, (error) => {console.error(error)});
 
   }
 
