@@ -3,6 +3,7 @@ import { store } from '../configureStore'
 import { tryUserState } from './user'; 
 import { getStorage, clearStorage, setStorage } from '@app/services/localStorage'
 import * as core from './core';
+import * as api from '@app/services/inkiriApi';
 
 // Constantes
 const TRY_LOGIN = 'login/TRY';
@@ -29,6 +30,10 @@ function* loadLoginData() {
 }
 
 function* tryLoginSaga({ type, payload }) {
+
+  // LLAMO A inkiriAPI.login
+  // api.login(account, api.dummyPrivateKeys[account]);
+
   const { account, save} = payload
   try {
     if(payload.save) {

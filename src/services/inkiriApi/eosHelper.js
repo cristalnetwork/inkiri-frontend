@@ -23,7 +23,7 @@ export const seedPrivate = (secret_seed) =>   new Promise((res,rej)=> {
     let wif     = ecc.seedPrivate(secret_seed);
     let pubKey  = ecc.privateToPublic(wif); 
     
-    console.log('eosHelper::seedPrivate()\t')
+    console.log('eosHelper::seedPrivate    ()\t')
     console.log('param@Seed:\t', secret_seed)
     console.log('Private Key:\t', wif)
     console.log('Public Key:\t', pubKey) 

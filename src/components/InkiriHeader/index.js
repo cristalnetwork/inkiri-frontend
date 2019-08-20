@@ -66,7 +66,7 @@ class InkiriHeader extends Component {
                 <Button icon={'logout'} onClick={this.props.logout}>Logout</Button>
               </div>
               <div className="header_element_container" style={{marginRight: '10px'}}>
-                Account Balance (IK$) <UserBalance userId={this.props.actualAccount} />
+                <b>{this.props.actualAccount}</b> Balance (IK$) <UserBalance userId={this.props.actualAccount} />
               </div>
             </div>
           </div>

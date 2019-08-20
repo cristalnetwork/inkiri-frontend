@@ -4,33 +4,15 @@ import * as globalCfg from '@app/configs/global';
 
 import * as eosHelper from './eosHelper.js';
 import * as dfuse from './dfuse.js';
+import * as bank from './bank.priv.js';
+import ecc from 'eosjs-ecc';
 
 import { Api, JsonRpc, RpcError } from 'eosjs';
 import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig';
 
 export {eosHelper};
 export {dfuse};
-
-// function eosConfig() {
-//   const endpoint 		= "https://jungle.eos.dfuse.io"
-//   const guaranteed 	= "in-block" // Or "irreversible", "handoff:1", "handoffs:2", "handoffs:3"
-//   const transferTo 	= this.state.destination_account;
-//   const transferQuantity = this.getFormattedAmount();
-//   const dfuseApiToken = globalCfg.dfuse.api_key
-//   const privateKey = this.getSenderPriv();
-
-//   const transferFrom = this.state.sender_account;
-  
-//   return {
-//     endpoint,
-//     guaranteed,
-//     dfuseApiToken: dfuseApiToken,
-//     privateKey: privateKey,
-//     transferFrom: transferFrom,
-//     transferTo,
-//     transferQuantity
-//   }
-// }
+export {bank};
 
 function formatAmount(amount){
   return Number(amount).toFixed(4) + ' ' + globalCfg.currency.eos_symbol;
@@ -39,6 +21,18 @@ function formatAmount(amount){
 function prettyJson(input){
   return JSON.stringify(input, null, 2)
 }
+
+// const getKeyAccounts = async (publicKey) => { 
+//   const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
+//   const response  = await jsonRpc.history_get_key_accounts(publicKey);
+//   return {data:response}
+// }
+
+// const getControlledAccounts = async (controllingAccount) => { 
+//   const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
+//   const response  = await jsonRpc.history_get_controlled_accounts(controllingAccount);
+//   return {data:response}
+// }
 
 const pushTX = async (tx, privatekey) => { 
 	const signatureProvider = new JsSignatureProvider([privatekey])
@@ -174,3 +168,56 @@ export const dummyPrivateKeys = {
     , 'inkirimaster': '5KesM1e6XqoTMtbJ8P5bakYom1rd3KbBQa9dKg3FqE23YAK9BPE'
     , 'inkpersonal2': '5KRg4dqcdAnGzRVhM4vJkDRVkfDYrH3RXG2CVzA61AsfjyHDvBh'
   }
+
+
+export const login = async (account_name, private_key) => {
+  
+  // 1.- Obtengo la publica de la privada.
+  const pubkey  = ecc.privateToPublic(private_key); 
+  
+  // 2.- Obtengo las controlling accounts.
+  const key_accounts = await dfuse.getKeyAccounts(pubkey);
+  
+  // 3.- Valido account_name en array de cuentas de la publica.
+  if(key_accounts.indexOf(account_name)<0)
+  {
+    throw new Error('Account and key not matching!') 
+  }  
+
+  // 4.- Valido que account esta en la tabla del bank, es decir es cliente.
+  let customer_info;
+  try{
+    customer_info = await dfuse.searchBankAccount(account_name);
+  }
+  catch(ex){
+    console.log('inkiriApi::login ERROR >> Account is not a Bank customer!') 
+    throw new Error('Account is not a Bank customer!') 
+  }
+
+
+  // 5.- me logeo al banko
+  let bank_auth;
+  try{
+    bank_auth = await bank.auth(account_name, private_key);
+  }
+  catch(ex){
+    // console.log('inkiriApi::login ERROR >> Account is not on private servers!', ex) 
+    // throw new Error('Account is not on private servers!'); 
+    throw ex;
+    return; 
+  }
+
+  const bank_requests = await bank.listMyRequests(account_name, 0, 10);
+
+  console.log(' ************************************* '
+      , ' inkiriApi::login >> KEY ACCOUNTS: '
+      , JSON.stringify(key_accounts)
+      , ' | BANK CUSTOMER INFO:'
+      , JSON.stringify(customer_info)
+      , ' | BANK PRIVATE INFO:'
+      , JSON.stringify(bank_auth)
+      , ' | BANK REQUESTS'
+      , JSON.stringify(bank_requests));
+
+  return key_accounts;
+} 

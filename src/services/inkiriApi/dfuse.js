@@ -1,48 +1,78 @@
 import * as globalCfg from '@app/configs/global';
 import { createDfuseClient, DfuseClient } from "@dfuse/client";
 import * as txsHelper from './transactionHelper';
+import * as jwtHelper from './jwtHelper';
 
-const DFUSE_AUTH_TOKEN_KEY = 'dfuse_auth_token_key';
 // Item format:
 // {
 //   "token": "eyJhbGciOiJLTVNFUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTA2OTIxNzIsImp0aSI6IjQ0Y2UzMDVlLWMyN2QtNGIzZS1iN2ExLWVlM2NlNGUyMDE1MyIsImlhdCI6MTU1MDYwNTc3MiwiaXNzIjoiZGZ1c2UuaW8iLCJzdWIiOiJ1aWQ6bWRmdXNlMmY0YzU3OTFiOWE3MzE1IiwidGllciI6ImVvc3EtdjEiLCJvcmlnaW4iOiJlb3NxLmFwcCIsInN0YmxrIjotMzYwMCwidiI6MX0.k1Y66nqBS7S6aSt-zyt24lPFiNfWiLPbICc89kxoDvTdyDnLuUK7JxuGru9_PbPf89QBipdldRZ_ajTwlbT-KQ",
 //   "expires_at": 1550692172 // An UNIX timestamp (UTC) indicating when the JWT will expire.
 // }  							
-		
+
+export const isAuth = () => {
+  return jwtHelper.getTokenIfNotExpired(jwtHelper.DFUSE_AUTH_TOKEN_KEY)!==null;
+}
+
 export const auth = () =>   new Promise((res,rej)=> {
 	
 	// Check if already have a valid token at localstorage
-	let dfuse_auth = localStorage.getItem(DFUSE_AUTH_TOKEN_KEY);
-	
-	console.log('dfuse::auth >> ', JSON.stringify(dfuse_auth))	
+	const token = jwtHelper.getTokenIfNotExpired(jwtHelper.DFUSE_AUTH_TOKEN_KEY);
 
-	if(dfuse_auth===null || !isValidUnixDate(JSON.parse(dfuse_auth).expires_at))
+  // console.log(' >> dfuse::auth >> is TOKEN at local storage? >> ')  
+
+  if(!token)
 	{
-		console.log('dfuse::auth >> ', 'About to post dfuse auth api')	
+		// console.log('dfuse::auth >> NO >>', 'About to post dfuse auth api')	
 		// Retrieve dfuse token
 		const opts = {"api_key":globalCfg.dfuse.api_key}
 		fetch(globalCfg.dfuse.auth_url, {
-	    method: 'post',
+	    method: 'POST',
 	    body: JSON.stringify(opts)
 		  }).then((response) => response.json(), (err) => {rej(err);})
       .then((data) => {
-		  	console.log('dfuse::auth >> ', 'About to set local storage', JSON.stringify(data))	
-		  	localStorage.setItem(DFUSE_AUTH_TOKEN_KEY, JSON.stringify(data))
-				res({data:data});
+		  	// console.log('dfuse::auth >> ', 'About to set local storage', JSON.stringify(data))	
+		  	// localStorage.setItem(jwtHelper.DFUSE_AUTH_TOKEN_KEY, JSON.stringify(data))
+        jwtHelper.setTokenToStorage(jwtHelper.DFUSE_AUTH_TOKEN_KEY, JSON.stringify(data));
+				res(jwtHelper.buildResponse(data.token));
+        return;
 		  }, (ex) => {
         rej(ex);
+        return;
       });
 	  return;
 	}
-
-	console.log('dfuse::auth >> ', 'About to retrieve from local storage', dfuse_auth)	
-	res({data:JSON.parse(dfuse_auth)})
-
+  else{
+    // console.log('dfuse::auth >> YES >>', 'About to retrieve from local storage', token)  
+    // res({data:JSON.parse(dfuse_auth)})
+    res(jwtHelper.buildResponse(token));
+  }
+	
 })
 
-function isValidUnixDate(unixDate){
-	return (new Date().getTime()/1000|0)<unixDate;
-}
+
+
+// GET /v0/state/key_accounts
+// In replace of -> /v1/history/get_key_accounts
+// Source -> https://docs.dfuse.io/#rest-get-v0-state-key-accounts
+export const getKeyAccounts = (public_key) => new Promise((res,rej)=> {
+  auth()
+    .then((token) => {
+      // console.log( ' >>>>>> dfuse::getKeyAccounts >> token ->' , token)
+      const path = globalCfg.dfuse.base_url + '/v0/state/key_accounts';
+      const method = 'GET';
+      const query = '?public_key='+public_key;
+      
+      jwtHelper.apiCall(path+query, method)
+        .then((data) => {
+            res(data.account_names)
+          }, (ex) => {
+            rej(ex);
+          });
+    }, (ex) => {
+      // console.log( ' >> dfuse::getKeyAccounts ERROR >>', ex)
+      rej(ex);
+    });
+})
 
 export function createClient(){
 	let client = createDfuseClient({
@@ -54,7 +84,7 @@ export function createClient(){
 
 export const getAccountBalance = (account) => new Promise((res,rej)=> {
 	
-	console.log('dfuse::getAccountBalance >> ', 'About to retrieve balance for account:', account)	
+	// console.log('dfuse::getAccountBalance >> ', 'About to retrieve balance for account:', account)	
 	
 	let client = createClient();
 	client.stateTable(
@@ -64,18 +94,18 @@ export const getAccountBalance = (account) => new Promise((res,rej)=> {
       { blockNum: undefined }
     )
     .then((data) => {
-      console.log(' dfuse::getAccountBalance >> receive balance for account:', account, JSON.stringify(data));
+      // console.log(' dfuse::getAccountBalance >> receive balance for account:', account, JSON.stringify(data));
       const _res = {
                       data:{
                         balance:       txsHelper.getEOSQuantityToNumber(data.rows[0].json.balance),
                         balanceText:   data.rows[0].json.balance
                       }
                     };
-      console.log(' dfuse::getAccountBalance >> about to dispatch balance for account:', account, JSON.stringify(_res));
+      // console.log(' dfuse::getAccountBalance >> about to dispatch balance for account:', account, JSON.stringify(_res));
       res (_res);
       client.release();
     }, (ex)=>{
-      console.log('dfuse::getAccountBalance >> ERROR ', JSON.stringify(ex));
+      // console.log('dfuse::getAccountBalance >> ERROR ', JSON.stringify(ex));
       rej(ex);
       client.release();
     });
@@ -85,7 +115,7 @@ export const getAccountBalance = (account) => new Promise((res,rej)=> {
 
 export const listBankAccounts = () => new Promise((res,rej)=> {
 	
-	console.log('dfuse::listBankAccounts >> ', 'About to retrieve listBankAccounts')	
+	// console.log('dfuse::listBankAccounts >> ', 'About to retrieve listBankAccounts')	
 	
 	// get_table_rows
 
@@ -104,11 +134,11 @@ export const listBankAccounts = () => new Promise((res,rej)=> {
 									,'account_type_description' : getAccountTypeDescription(account.json.account_type) }));
 
 			let _res = {data:{accounts:accounts}};
-			console.log(' dfuse::listBankAccounts >> ', JSON.stringify(_res));
+			// console.log(' dfuse::listBankAccounts >> ', JSON.stringify(_res));
       res (_res);
       client.release();
     }, (ex)=>{
-      console.log('dfuse::listBankAccounts >> ERROR ', JSON.stringify(ex));
+      // console.log('dfuse::listBankAccounts >> ERROR ', JSON.stringify(ex));
       rej(ex);
       client.release();
     });
@@ -141,7 +171,7 @@ export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
     if(account && account.length>0)
     {
     	let _res = {data:{account:account[0]}};
-    	console.log(' dfuse::searchBankAccount >> ', JSON.stringify(_res));	
+    	// console.log(' dfuse::searchBankAccount >> ', JSON.stringify(_res));	
     	res (_res)
     }
     else

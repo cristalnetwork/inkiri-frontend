@@ -35,12 +35,12 @@ class AllInOne extends Component {
       sender_account:      'ikmasterooo1',
       destination_account: 'ikadminoooo1',
       destination_amount:   2,
-      sign_account : 'inkiritoken1',
-      sign_pub     : 'EOS6Hhg3bfxWTbeKEsyGxDYFsRmMbM7bQHhPmLmKwNRC7w74Ta6kT',
-      sign_priv    : '5K5Sk4A2V3MeS7uWw5itgQYzoGF3Aaeer3iZB7qCj3GbqmknVvM',
-      sign_to_sign : '5J71N15h7KcmfSWsDYb7tPZGoURitBEkKmVTMGbVmRw2YpV1Brd',
-      sign_signature : 'nada',
-      sign_soy_yo : ''
+      sign_account         : 'ikmasterooo1',
+      sign_pub             : 'EOS6gWUtcGdykP26Y2JBH7ZQm2RRsNCP8cB5PwSbqiPPR6C5T7rjA',
+      sign_priv            : '5J2bKBbHH6xB2U255CWbXJ6uAuibg5KCh1omKdhpKoCfrTxWkUN',
+      sign_to_sign         : '5Jx62Vzr7cptghWHsVeY8uNaUWRsEixSnqayCMVcqepRHFZuZQa',
+      sign_signature       : 'nada',
+      sign_soy_yo          : ''
       
     };
 
@@ -202,12 +202,42 @@ class AllInOne extends Component {
     return;
   }
 
+  getRequests = async() => {
+
+    // const bank_requests = await api.bank.listMyRequests('ikmasterooo1', 0, 10);
+    const bank_requests = await api.bank.listMyRequests(undefined, 0, 10);
+    console.log(JSON.stringify(bank_requests));
+    return;
+  }
+
+  
+
+  testLogin = async() => {  
+    let account = '';
+    // account = 'inkiritoken1';
+    // account = 'inkirimaster';
+    // account = 'ikadminoooo1';
+    account = 'ikmasterooo1';
+    api.login(account, api.dummyPrivateKeys[account])
+    .then((res) => {
+      console.log('---- api.login >>> RES:', JSON.stringify(res))
+    }, (err) => {
+      console.log('---- api.login >>> ERROR:', err)
+    } );
+    
+   
+  }
+
   // NOT LINKED
   authDfuse = async() => {
     api.dfuse.auth().then(res => {console.log(' -- dfuse::auth --'); console.log('---- RES:', JSON.stringify(res))} );
   }
 
   signString = async() => {
+    console.log(' ABOUT TO SIGN => ', 
+      ' | state.sign_priv => ', this.state.sign_priv, 
+      ' | state.sign_to_sign =>', this.state.sign_to_sign, 
+      ' | this.state.sign_pub => ', this.state.sign_pub);
     api.eosHelper.signString(this.state.sign_priv, this.state.sign_to_sign)
     .then((res) => {
       console.log('---- RES:', JSON.stringify(res));
@@ -216,18 +246,15 @@ class AllInOne extends Component {
         console.log('---- RES:', JSON.stringify(res2));
         this.setState({sign_soy_yo: JSON.stringify(res2)});
       })
-      
     } , (error) => {
-      console.log('---- RES:', JSON.stringify(error));
+      console.log('---- RES:', error, JSON.stringify(error));
     });
   }
+
   testEOSHelper = async () => {
     let myPriv     = '5J2bKBbHH6xB2U255CWbXJ6uAuibg5KCh1omKdhpKoCfrTxWkUN';
     let myPub      = 'EOS6gWUtcGdykP26Y2JBH7ZQm2RRsNCP8cB5PwSbqiPPR6C5T7rjA';
     let stringData = 'holamundo';
-
-    
-    
 
     api.eosHelper.generateRandomKeys().then(res => {console.log(' -- generateRandomKeys --'); console.log('---- RES:', JSON.stringify(res))} );
     api.eosHelper.seedPrivate('privateSeed').then(res => {console.log(' -- seedPrivate --'); console.log('---- RES:', JSON.stringify(res))} );
@@ -608,6 +635,8 @@ class AllInOne extends Component {
           </div>
           <div className="App-buttons">
             <button className="App-button" onClick={()=>this.signString()}>signString</button>
+            <button className="App-button" onClick={()=>this.testLogin()}>testLogin</button>
+            <button className="App-button" onClick={()=>this.getRequests()}>getRequests</button>
             
           </div>
         </div>
