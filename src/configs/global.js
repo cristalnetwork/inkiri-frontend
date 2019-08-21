@@ -25,9 +25,24 @@ const bank = {
   ACCOUNT_STATE_BLOCKED:   2,
   ACCOUNT_STATES:          ['none', 'ok', 'blocked'],
   DEFAULT_FEE :            5,
-  DEFAULT_OVERDRAFT :      0
+  DEFAULT_OVERDRAFT :      0,
   
+  isPersonalAccount : (account_type) => {
+    console.log(' +-+-+- isPersonalAccount', parseInt(account_type) , '==', bank.ACCOUNT_TYPE_PERSONAL);
+    return parseInt(account_type) == bank.ACCOUNT_TYPE_PERSONAL;
+  },
+   isBusinessAccount : (account_type) => {
+    return parseInt(account_type) == bank.ACCOUNT_TYPE_BUSINESS;
+  },
+  isAdminAccount : (account_type) => {
+    return parseInt(account_type) == bank.ACCOUNT_TYPE_BANKADMIN;
+  },
+  isEnabledAccount : (account_state) => {
+    console.log(' +-+-+- isEnabledAccount', parseInt(account_state) , '==', bank.ACCOUNT_STATE_OK);
+    return parseInt(account_state) == bank.ACCOUNT_STATE_OK;
+  }
 };
+
 
 const base_url    = 'http://localhost:3600';
 const api_version = '/api/v1';

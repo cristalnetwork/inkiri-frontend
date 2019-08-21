@@ -73,18 +73,18 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
     fetchOptions.body = JSON.stringify(data);
   }
 
-  console.log( ' ###### jwtHelper::apiCall >> fetchOptions.body', JSON.stringify(fetchOptions.body),
-    ' | path:', path);
+  console.log( ' ###### jwtHelper::apiCall >> path:', path);
+  console.log( ' ###### jwtHelper::apiCall >> fetchOptions.body', JSON.stringify(fetchOptions.body))
 
   fetch(path, fetchOptions)
       .then((resp) => resp.json(), (ex) => { rej(ex) })
       .then((data) => {
-        console.log( ' apiCall >> ', JSON.stringify(data));
+        console.log( ' ###### jwtHelper::apiCall >> result:', JSON.stringify(data));
         res(data);
         // if (store.getState().App.toJS().connectionStatus.status === false) {
         //   store.dispatch(appActions.connectionStatus(true));
         // }
-        return { data };
+        // return { data };
       }, (err) => {
         // if (store.getState().App.toJS().connectionStatus.status === true) {
         //   store.dispatch(appActions.connectionStatus(false));

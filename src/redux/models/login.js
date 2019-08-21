@@ -24,12 +24,14 @@ function* loadLoginData() {
   yield put({type: core.ACTION_START, payload: { login: 'Check local storage'}})
   const { data } = yield getStorage(ACCOUNT_DATA);
   if(data && data.account_name && data.password) {
-    console.log(' -- redux::models::login::loadLoginData >> tryLogin', JSON.stringify(data))
+    // console.log(' -- redux::models::login::loadLoginData >> tryLogin', JSON.stringify(data))
     // yield put(tryLogin(data.account, true))
     yield put(tryLogin(data.account_name, data.password, false))
   }
   else
+  {
     console.log(' -- redux::models::login::loadLoginData >> could NOT LOGIN', JSON.stringify(data))
+  }
   yield put({type: core.ACTION_END, payload: 'login'})
 }
 
@@ -44,7 +46,7 @@ function* tryLoginSaga({ type, payload }) {
     if(payload.remember) {
       setStorage(ACCOUNT_DATA, {account_name, password, remember, login_data})
     }
-    yield put(set({userId: account_name, role: 'business'}))
+    yield put(set({userId: account_name, role: 'business', login_data:login_data }))
   } catch(e) {
     console.log(' >> LOGIN REDUX ERROR#1', e)
   }
@@ -83,10 +85,14 @@ store.injectSaga('login', [
 ]);
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
-export const isLoading = (state) => state.login.loading > 0
+export const isLoading           = (state) => state.login.loading > 0
 // export const accounts = (state) => state.login.accounts || []
-export const actualAccount = (state) => state.login.userId
-export const actualRole = (state) => state.login.role
+export const actualAccount       = (state) => state.login.userId
+export const actualRole          = (state) => state.login.role
+
+export const personalAccount     = (state) => state.login.login_data.personalAccount
+export const corporateAccounts   = (state) => state.login.login_data.corporateAccounts
+export const adminAccount        = (state) => state.login.login_data.adminAccount
 
 // El reducer del modelo
 // const defaultState = { loading: 0, role: undefined, userId: undefined, accounts: [] };
@@ -107,8 +113,9 @@ function reducer(state = defaultState, action = {}) {
     case SET_LOGIN: 
       return {
         ...state,
-        userId: action.payload.userId,
-        role: action.payload.role,
+        userId:     action.payload.userId,
+        role:       action.payload.role,
+        login_data: action.payload.login_data
       }
     case LOGOUT:
       return defaultState;

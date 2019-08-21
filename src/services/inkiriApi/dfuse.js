@@ -94,13 +94,13 @@ export const getAccountBalance = (account) => new Promise((res,rej)=> {
       { blockNum: undefined }
     )
     .then((data) => {
-      // console.log(' dfuse::getAccountBalance >> receive balance for account:', account, JSON.stringify(data));
+      console.log(' dfuse::getAccountBalance >> receive balance for account:', account, JSON.stringify(data));
       const _res = {
-                      data:{
-                        balance:       txsHelper.getEOSQuantityToNumber(data.rows[0].json.balance),
-                        balanceText:   data.rows[0].json.balance
-                      }
-                    };
+          data:{
+            balance:       data.rows.length?txsHelper.getEOSQuantityToNumber(data.rows[0].json.balance):0,
+            balanceText:   data.rows.length?data.rows[0].json.balance:0
+          }
+        };
       // console.log(' dfuse::getAccountBalance >> about to dispatch balance for account:', account, JSON.stringify(_res));
       res (_res);
       client.release();
@@ -113,13 +113,12 @@ export const getAccountBalance = (account) => new Promise((res,rej)=> {
 
 })	
 
+
 export const listBankAccounts = () => new Promise((res,rej)=> {
 	
-	// console.log('dfuse::listBankAccounts >> ', 'About to retrieve listBankAccounts')	
-	
-	// get_table_rows
+	// Can we cache this information?
 
-	let client = createClient();
+  let client = createClient();
 	client.stateTable(
       globalCfg.bank.issuer,
       globalCfg.bank.issuer,
@@ -145,6 +144,7 @@ export const listBankAccounts = () => new Promise((res,rej)=> {
 
 })	
 
+
 // This is an amazing HACK!
 // Check https://github.com/cristalnetwork/inkiri-eos-contracts/blob/master/inkiribank.cpp
 function getStateDescription(state_id){
@@ -162,6 +162,36 @@ function getAccountTypeDescription(account_type_id){
 		return account_types[0];
 	return account_types[account_type_id];
 }
+
+
+export const searchPermissioningAccounts = (account_name) => new Promise( (res, rej) => {
+
+  /*
+  {
+    "query" : "{searchTransactionsForward(query: \"data.auth.accounts.permission.actor:inkpersonal3\") {cursor results { undo trace { id matchingActions { json }}}}}"
+  }
+  */
+  auth()
+    .then((token) => {
+      
+      const path   = globalCfg.dfuse.base_url + '/graphql';
+      const method = 'POST';
+      const data   = {"query" : '{searchTransactionsForward(query: "data.auth.accounts.permission.actor:'+account_name+'") {cursor results { undo trace { id matchingActions { json }}}}}'};
+      
+      jwtHelper.apiCall(path, method, data)
+        .then((data) => {
+            const ret = data.data.searchTransactionsForward.results.map(txs => ({ account_name:txs.trace.matchingActions[0].json.account, permission:txs.trace.matchingActions[0].json.auth.accounts.filter(perm => perm.permission.actor==account_name)[0].permission }))
+            res(ret)
+          }, (ex) => {
+            rej(ex);
+          });
+    }, (ex) => {
+      // console.log( ' >> dfuse::getKeyAccounts ERROR >>', ex)
+      rej(ex);
+    });
+  
+})
+
 
 export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
 	listBankAccounts()
@@ -184,6 +214,39 @@ export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
     rej(ex);
   });
 })	
+
+export const searchOneBankAccount = (account_name) => new Promise((res,rej)=> {
+  let client = createClient();
+  client.stateTable(
+      globalCfg.bank.issuer,
+      globalCfg.bank.issuer,
+      "ikaccounts",
+      { lower_bound: account_name, limit: 1}
+    )
+    .then((data) => {
+      
+      var accounts = data.rows.map(account => 
+        ({  ...account.json
+                  ,'state_description' : getStateDescription(account.json.state)
+                  ,'account_type_description' : getAccountTypeDescription(account.json.account_type) }));
+
+
+      if(accounts && accounts.length>0)
+      {
+        let _res = {data:{account:accounts[0]}};
+        res (_res);
+      }
+      else{
+        rej('Account is not a bank customer!');
+      }
+      client.release();
+    }, (ex)=>{
+      // console.log('dfuse::listBankAccounts >> ERROR ', JSON.stringify(ex));
+      rej(ex);
+      client.release();
+    });
+
+})  
 
 export const listTransactions = (account_name, cursor) => new Promise((res,rej)=> {
 	

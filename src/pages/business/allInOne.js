@@ -61,16 +61,16 @@ class AllInOne extends Component {
 
     this.stream = undefined
     // this.client = undefined
-    this.client = createDfuseClient({
-      apiKey:globalCfg.dfuse.api_key,
-      network:globalCfg.dfuse.network,
-      streamClientOptions: {
-        socketOptions: {
-          onClose: this.onClose,
-          onError: this.onError,
-        }
-      }
-    })
+    // this.client = createDfuseClient({
+    //   apiKey:globalCfg.dfuse.api_key,
+    //   network:globalCfg.dfuse.network,
+    //   streamClientOptions: {
+    //     socketOptions: {
+    //       onClose: this.onClose,
+    //       onError: this.onError,
+    //     }
+    //   }
+    // })
 
   }
 
@@ -204,10 +204,34 @@ class AllInOne extends Component {
 
   getRequests = async() => {
 
-    // const bank_requests = await api.bank.listMyRequests('ikmasterooo1', 0, 10);
     const bank_requests = await api.bank.listMyRequests(undefined, 0, 10);
     console.log(JSON.stringify(bank_requests));
     return;
+
+  //   const client = createDfuseClient({ apiKey:globalCfg.dfuse.api_key,
+  //     network:globalCfg.dfuse.network, })
+
+  //   try {
+  //     //data.auth.accounts.permission.actor:ACCOUNT_NAME
+  //     const response = await client.stateTablesForScopes(
+  //       globalCfg.bank.contract,
+  //       [globalCfg.bank.issuer],
+  //       "delband"
+  //     )
+
+  //     //  const response = await client.stateTable("eosio.token", "EOS", "stat")
+  //     console.log("State tables for scopes response", prettifyJson(response))
+  //   } catch (error) {
+  //     console.log("An error occurred", error)
+  //   }
+
+  // client.release()
+
+
+  //   db.table: supports two values:
+  //   [table_name]/[scope]
+  //   [table_name]
+
   }
 
   
@@ -424,7 +448,9 @@ class AllInOne extends Component {
   // }
 
   launch = async () => {
-  // launch(){
+    
+    return;  
+
     console.log(' LAUNCH clicked')
     if (!globalCfg.dfuse.api_key) {
       const messages = [

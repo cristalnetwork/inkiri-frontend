@@ -1,4 +1,3 @@
-import global from '@app/configs/global';
 import { createDfuseClient, DfuseClient } from "@dfuse/client"
 import * as globalCfg from '@app/configs/global';
 
@@ -178,24 +177,46 @@ export const login = async (account_name, private_key) => {
   // 2.- Obtengo las controlling accounts.
   const key_accounts = await dfuse.getKeyAccounts(pubkey);
   
-  // 3.- Valido account_name en array de cuentas de la publica.
+  // 3.- Valido que account_name en array de cuentas de la publica.
   if(key_accounts.indexOf(account_name)<0)
   {
     throw new Error('Account and key not matching!') 
   }  
 
-  // 4.- Valido que account esta en la tabla del bank, es decir es cliente.
+  // 4.- Valido que account esta en la tabla del bank, es decir es cliente, y es cuenta personal.
   let customer_info;
   try{
-    customer_info = await dfuse.searchBankAccount(account_name);
+    customer_info = (await dfuse.searchOneBankAccount(account_name)).data.account;
+    console.log('inkiriApi::login customer_info >> ', JSON.stringify(customer_info))
   }
   catch(ex){
     console.log('inkiriApi::login ERROR >> Account is not a Bank customer!') 
     throw new Error('Account is not a Bank customer!') 
   }
 
+  if( !globalCfg.bank.isPersonalAccount(customer_info.account_type) 
+    || !globalCfg.bank.isEnabledAccount(customer_info.state))
+  {
+    throw new Error('Your account should be an enabled and a Personal type account!')
+    return; 
+  }
 
-  // 5.- me logeo al banko
+  const personalAccount   = customer_info;
+  let   corporateAccounts  = [];
+  let   adminAccount       = null;
+  
+  // 5.- Traigo el resto de las cuentas, para cargar si es admin del banco, y las cuentas empresa que tenga relacionadas
+
+  try{
+    let permissioning_accounts = await dfuse.searchPermissioningAccounts(account_name)
+    console.log('inkiriApi::login permissioning_account >> ', JSON.stringify(permissioning_accounts))
+  }
+  catch(ex){
+    console.log('inkiriApi::login ERROR >> permissioning_account !', ex) 
+    // throw new Error('Account is not a Bank customer!') 
+  }
+
+  // 6.- me logeo al banko
   let bank_auth;
   try{
     bank_auth = await bank.auth(account_name, private_key);
@@ -207,19 +228,20 @@ export const login = async (account_name, private_key) => {
     return; 
   }
 
-  // const bank_requests = await bank.listMyRequests(account_name, 0, 10);
+  // console.log(' **************** '
+  //     , ' inkiriApi::login >> KEY ACCOUNTS: '
+  //     , JSON.stringify(key_accounts));
+  // console.log(' **************** '
+  //     , ' inkiriApi::login >> BLOCKCHAIN CONTRACT CUSTOMER INFO:'
+  //     , JSON.stringify(customer_info));
+  // console.log(' **************** '
+  //     , ' inkiriApi::login >> BANK PRIVATE INFO:'
+  //     , JSON.stringify(bank_auth));
 
-  console.log(' ************************************* '
-      , ' inkiriApi::login >> KEY ACCOUNTS: '
-      , JSON.stringify(key_accounts)
-      , ' | BANK CUSTOMER INFO:'
-      , JSON.stringify(customer_info)
-      , ' | BANK PRIVATE INFO:'
-      , JSON.stringify(bank_auth));
-
+  
   return {
-    key_accounts:key_accounts,
-    customer_info:customer_info,
-    bank_auth:bank_auth,
+    personalAccount : personalAccount,
+    corporateAccounts : corporateAccounts,
+    adminAccount : adminAccount
   };
 } 

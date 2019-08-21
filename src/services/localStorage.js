@@ -8,7 +8,7 @@ export function getStorage (area, secret='insecure') {
     return new Promise(async(res, rej) =>   {
         try {
             let rawData = localStorage.getItem(area);
-            console.log(' >> localStorage.js << :: getStorage => ', ' | area:', area, ' | rawData:', rawData);
+            // console.log(' >> localStorage.js << :: getStorage => ', ' | area:', area, ' | rawData:', rawData);
             if(rawData===null)
             {
                 // rej({error:'no_item'});
