@@ -17,6 +17,9 @@ import { notification, Table, Divider, Spin } from 'antd';
 
 import './home.css'; 
 
+import TransactionTable from '@app/components/TransactionTable';
+import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
+
 const { TabPane } = Tabs;
 
 const Description = ({ term, children, span = 12 }) => (
@@ -43,49 +46,6 @@ const routes = [
   }
 ];
 
-const columns = [
-  {
-    title: 'Date',
-    dataIndex: 'block_time',
-    key: 'block_time',
-    sortDirections: ['descend'],
-    defaultSortOrder: 'descend',
-    sorter: (a, b) => a.block_time_number - b.block_time_number,
-  },
-  {
-    title: 'Description',
-    dataIndex: 'sub_header',
-    key: 'sub_header'
-  },
-  {
-    title: 'Amount',
-    dataIndex: 'quantity',
-    key: 'quantity',
-  },
-  {
-    title: 'Tags',
-    key: 'tx_type',
-    dataIndex: 'tx_type',
-    render: tx_type => (
-      <span>
-       <Tag color={'volcano'} key={tx_type}>
-              {tx_type.toUpperCase()}
-       </Tag>
-      </span>
-      )
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: (text, record) => (
-      <span>
-        <a href="javascript:;">View Details</a>
-        <Divider type="vertical" />
-        <a href={api.dfuse.getBlockExplorerTxLink(record.transaction_id)} target="_blank">View on Blockchain</a>
-      </span>
-    ),
-  },
-];
 
 class Home extends Component {
   constructor(props) {
@@ -93,16 +53,23 @@ class Home extends Component {
     this.state = {
       loading:                      false,
       txs:                          [],
+      deposits:                     [],
+
+      stats:                        {},
+      
       cursor:                       '',
       responses:                    {}, // array of { txs:[], cursor:'', page_index:0}
       balance:                      {},
-      pagination:                   { pageSize: 0 , total: 0 }
+      pagination:                   { pageSize: 0 , total: 0 },
+      active_tab:                   DISPLAY_ALL_TXS
     };
 
     this.loadTransactionsForAccount = this.loadTransactionsForAccount.bind(this);  
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderFooter               = this.renderFooter.bind(this); 
-    this.onNewData                  = this.onNewData.bind(this);     
+    this.onNewData                  = this.onNewData.bind(this);
+    this.onTabChange                = this.onTabChange.bind(this);
+    this.onTableChange              = this.onTableChange.bind(this);
   }
   
   componentDidMount(){
@@ -116,16 +83,13 @@ class Home extends Component {
     
     let that = this;
     this.setState({loading:true});
-    console.log(' <><><><><><><><><> this.state.cursor:', this.state.cursor)
+    // console.log(' <><><><><><><><><> this.state.cursor:', this.state.cursor)
     api.dfuse.listTransactions(account_name, (is_first===true?undefined:this.state.cursor) )
     .then( (res) => {
-            // console.log(' -- home.js::listTransactions --');
-            // console.log('---- RES:', JSON.stringify(res));
-            // that.buildTablePagination(res.data)
             that.onNewData(res.data);
     } ,(ex) => {
-            console.log(' -- home.js::listTransactions ERROR --');
-            console.log('---- ERROR:', JSON.stringify(ex));
+            // console.log(' -- home.js::listTransactions ERROR --');
+            // console.log('---- ERROR:', JSON.stringify(ex));
             that.setState({loading:false});  
       } 
     );
@@ -147,6 +111,30 @@ class Home extends Component {
     {
       this.openNotificationWithIcon("info", "End of transactions","You have reached the end of transaction list!")
     }
+    else{
+      this.computeStats();
+    }
+  }
+
+  computeStats(txs){
+    let stats = this.currentStats();
+    if(txs===undefined)
+      txs = this.state.txs;
+    const money_in  = txs.filter( tx => tx.i_sent)
+                    .map(tx =>tx.quantity)
+                    .reduce((acc, amount) => acc + Number(amount), 0);
+    const money_out = txs.filter( tx => !tx.i_sent)
+                    .map(tx =>tx.quantity)
+                    .reduce((acc, amount) => acc + Number(amount), 0);
+    
+    stats[this.state.active_tab] = {money_out:money_out, money_in:money_in, count:txs.length}
+    this.setState({stats:stats})
+  }
+
+  currentStats(){
+    const x = this.state.stats[this.state.active_tab];
+    const _default = {money_in:  0,money_out: 0, count:0};
+    return x?x:_default;
   }
 
   openNotificationWithIcon(type, title, message) {
@@ -155,58 +143,30 @@ class Home extends Component {
       description:message,
     });
   }
+  // Component Events
 
-  // buildTablePagination(data){
-    
-  //   if(!data.txs || data.txs.length==0)
-  //   {
-  //     return;
-  //   }
+  onTabChange(key) {
+    console.log(key);
+    this.setState({active_tab:key})
+  }
+  
+  onTableChange(key, txs) {
+    // console.log(key);
+    // this.setState({active_tab:key})
+    if(key==this.state.active_tab )
+      this.computeStats(txs);
+  }
 
-  //   const pageIndex_Key             = this.getResponseKey()
-  //   const responses                 = { ...this.state.responses };
-  //   responses[pageIndex_Key.key]    = {'txs':data.txs, cursor: data.cursor, page_index:pageIndex_Key.page_index};
-
-  //   const pagination = { ...this.state.pagination };
-  //   pagination.total = pagination.total + data.txs.length;
-
-  //   this.setState({
-  //     pagination:pagination,
-  //     responses:responses
-  //   })
-  // }
-
-  // getResponseKey(){
-  //   const page_index  = (this.state.pagination.current || 1);
-  //   const key         = '_key_'+ page_index;
-  //   return {page_index:page_index, key:key};
-  // }
-
-  // getCurrentTxs(){
-  //   if(!this.state.responses || this.state.responses.length==0)
-  //     return [];
-  //   const pageIndex_Key = this.getResponseKey()
-  //   return (this.state.responses[pageIndex_Key.key]?this.state.responses[pageIndex_Key.key].txs:[])
-  // }  
-
-  // handleTableChange(pagination, filters, sorter){
-  //   console.log(JSON.stringify(pagination))
-  //   return;
-  //   const new_pagination   = { ...this.state.pagination };
-  //   new_pagination.current = pagination.current;
-  //   this.setState({
-  //     pagination: new_pagination,
-  //   });    
-  // }
-
-  renderContent() 
+  // Begin RENDER section
+  renderTableViewStats() 
   {
+    const current_stats = this.currentStats();
     return (
       <Row>
-        <Description term="Entradas"><Tag color="green">IK$ 1500</Tag></Description>
-        <Description term="Variacao de caja"><Tag color="red">-IK$ 88</Tag></Description>
-        <Description term="Saidas"><Tag color="red">-IK$ 1588</Tag></Description>
-        <Description term="Lancamentos">35</Description>
+        <Description term="Entradas"><Tag color="green">IK$ {current_stats.money_in.toFixed(2)}</Tag></Description>
+        <Description term="Variacao de caja"><Tag color="red">IK$ {(current_stats.money_in - current_stats.money_out).toFixed(2)}</Tag></Description>
+        <Description term="Saidas"><Tag color="red">-IK$ {current_stats.money_out.toFixed(2)}</Tag></Description>
+        <Description term="Lancamentos">{current_stats.count|0}</Description>
       </Row>
     );
   }
@@ -226,11 +186,20 @@ class Home extends Component {
     </Row>
     );
   }
-  
-  render() {
-    const content = (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}>
-        <Table 
-          onChange={() => this.handleTableChange}
+
+  renderContent(){
+    if(this.state.active_tab==DISPLAY_DEPOSIT){
+      return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}>
+        <TransactionTable request_type={DISPLAY_DEPOSIT} onChange={this.onTableChange}/>
+      </div>);
+    }
+    
+    //
+
+    if(this.state.active_tab==DISPLAY_ALL_TXS){
+      return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}>
+        <Table
+          key="table_all_txs" 
           rowKey={record => record.id} 
           loading={this.state.loading} 
           columns={columns} 
@@ -239,37 +208,47 @@ class Home extends Component {
           pagination={this.state.pagination}
           />
       </div>);
-    // <>
+    }
+  }
+  //
+  render() {
+    const content = this.renderContent();
+    
+    /*
+    PageHeader
+      extra={[
+        <Button key="3">Filter</Button>,
+        <Button key="1" type="primary">
+          Apply
+        </Button>,
+      ]}
+    */
     return (
       <>
-      <PageHeader
-        breadcrumb={{ routes }}
-        title="Extrato"
-        subTitle="List of transactions"
-        extra={[
-          <Button key="3">Filter</Button>,
-          <Button key="1" type="primary">
-            Apply
-          </Button>,
-        ]}
-        footer={
-          <Tabs defaultActiveKey="1">
-            <TabPane tab="All" key="1" />
-            <TabPane tab="Deposits" key="2" />
-            <TabPane tab="Withdraws" key="3" />
-            <TabPane tab="Exchanges" key="4" />
-            <TabPane tab="Payments" key="5" />
-            <TabPane tab="Requests" key="6" />
-          </Tabs>
-        }
-      >
-        <div className="wrap">
-          <div className="content padding">{this.renderContent()}</div>
-          <div className="extraContent">{this.renderExtraContent()}</div>
-        </div>
-      </PageHeader>
+        <PageHeader
+          extra={[]}
+          breadcrumb={{ routes }}
+          title="Extrato"
+          subTitle="List of transactions"
+          footer={
+            <Tabs  defaultActiveKey={DISPLAY_ALL_TXS} onChange={this.onTabChange}>
+              <TabPane tab="All"       key={DISPLAY_ALL_TXS} />
+              <TabPane tab="Deposits"  key={DISPLAY_DEPOSIT} />
+              <TabPane tab="Withdraws" key={DISPLAY_WITHDRAWS} disabled />
+              <TabPane tab="Exchanges" key={DISPLAY_EXCHANGES} disabled />
+              <TabPane tab="Payments"  key={DISPLAY_PAYMENTS} disabled />
+              <TabPane tab="Requests"  key={DISPLAY_REQUESTS} disabled />
+            </Tabs>
+          }
+        >
+          <div className="wrap">
+            <div className="content padding">{this.renderTableViewStats()}</div>
+            <div className="extraContent">{this.renderExtraContent()}</div>
+          </div>
+        </PageHeader>
 
-      {content}
+        {content}
+
       </>
     );
   }
@@ -277,7 +256,6 @@ class Home extends Component {
 
 export default connect(
     (state)=> ({
-        // userAccount: 	      userRedux.defaultAccount(state),
         actualAccount:    loginRedux.actualAccount(state),
         balance:          balanceRedux.userBalanceFormatted(state),
     }),

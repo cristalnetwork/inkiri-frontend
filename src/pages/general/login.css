@@ -2,8 +2,9 @@
     margin-bottom: auto;
 }
 .login-form {
-    max-width: 200px;
-    margin-left: calc(50% - 100px);
+    max-width: 500px;
+    /*margin-left: calc(50% - 250px);*/
+    margin: 0 auto;
     margin-top: calc(100px);
     padding: 20px;
     border: 2px solid #f3f3f3;

@@ -1,16 +1,11 @@
 import React, { Component } from "react";
-import { Form, Button, Checkbox } from 'antd';
+import { Form, Icon, Input, Button, Checkbox } from 'antd';
 import UserSelector from '@app/components/InkiriHeader/userSelector'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login';
-
+import { withRouter } from "react-router-dom";
 import * as global from '@app/configs/global';
-
-import {Keystore, Keygen} from 'eosjs-keygen';
-// import {Eos} from 'eosjs';
-import * as myEOS from 'eosjs';
-// import { Api, JsonRpc, RpcError } from 'eosjs';
 
 import './login.css'
 
@@ -22,10 +17,65 @@ class Login extends Component {
       
     };
     
-    
   }
 
-  render() {   
+  handleSubmit = e => {
+    e.preventDefault();
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        console.log('Received values of form: ', values);
+        this.props.tryLogin(values.account_name, values.password, values.remember);
+      }
+    });
+  };
+
+  render() {
+    const { getFieldDecorator } = this.props.form;
+    return (
+      <Form onSubmit={this.handleSubmit} className="login-form">
+        <Form.Item>
+          {getFieldDecorator('account_name', {
+            rules: [{ required: true, message: 'Please input your account_name!' }],
+            initialValue:"inkpersonal1"
+          })(
+            <Input
+              prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
+              placeholder="Account name"
+              
+            />,
+          )}
+        </Form.Item>
+        <Form.Item>
+          {getFieldDecorator('password', {
+            rules: [{ required: true, message: 'Please input your Password!' }],
+            initialValue:"5JtCAhCxKEbMfU3XSHpF451P9sVnPkzxD2WgUgVgPtWEKikTXsh"
+          })(
+            <Input
+              prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+              type="password"
+              placeholder="Password"
+              
+            />,
+          )}
+        </Form.Item>
+        <Form.Item>
+          {getFieldDecorator('remember', {
+            valuePropName: 'checked',
+            initialValue: true,
+          })(<Checkbox>Remember me</Checkbox>)}
+          <a className="login-form-forgot" href="">
+            Forgot password
+          </a>
+          <Button type="primary" htmlType="submit" className="login-form-button">
+            Log in
+          </Button>
+          Or <a href="">register now!</a>
+        </Form.Item>
+      </Form>
+    );
+  }
+//
+  renderXX() {   
     
     return (
       <Form className="login-form">
@@ -43,7 +93,8 @@ class Login extends Component {
   }
 }
 
-export default connect(
+// 
+export default Form.create() (withRouter(connect(
     (state)=> ({
         isLoading: loginRedux.isLoading(state)
     }),
@@ -51,3 +102,4 @@ export default connect(
         tryLogin: bindActionCreators(loginRedux.tryLogin, dispatch)
     })
 )(Login)
+));

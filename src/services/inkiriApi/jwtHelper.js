@@ -73,6 +73,9 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
     fetchOptions.body = JSON.stringify(data);
   }
 
+  console.log( ' ###### jwtHelper::apiCall >> fetchOptions.body', JSON.stringify(fetchOptions.body),
+    ' | path:', path);
+
   fetch(path, fetchOptions)
       .then((resp) => resp.json(), (ex) => { rej(ex) })
       .then((data) => {
@@ -92,62 +95,3 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
 
 });
 
-export const apiCallX = (path, method, data, cb) => {
-  
-  // try {
-  //   if (data && store.getState().Auth && store.getState().Auth.keys) {
-  //     // data = addSignatureToContent(data);
-  //     let signed = signMemo(apiConfig.admin_pub_key, sha256(JSON.stringify(data)), extractKey());
-  //     data = {
-  //       ...data,
-  //       signed: signed
-  //     };
-
-  //     console.log(JSON.stringify(data));
-  //   }
-  // } catch (e) {
-  //   console.warn("Error adding signature", { path, data, method }, e);
-  // }
-
-  let bearer_token;
-  let _key = DFUSE_AUTH_TOKEN_KEY;
-  if(!path.startsWith(globalCfg.dfuse.base_url) )
-    _key = BANK_AUTH_TOKEN_KEY;
-  bearer_token = getBearerToken(getTokenIfNotExpired(_key));
-
-  // Check if there are any callbacks established
-  return () => {
-    cb = typeof cb === "function" ? cb : res => res;
-    let fetchOptions = {
-      method: method || "GET",
-      headers: {
-        Accept: "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-        Authorization: bearer_token,
-      }
-    };
-
-    if (typeof data !== "undefined") {
-      fetchOptions.body = JSON.stringify(data);
-    }
-
-    // const my_path = path.startsWith(config.api.end_point)?path:(config.api.end_point+path);
-    return fetch(path, fetchOptions)
-      .then(res => res.json())
-      .then(data => {
-        cb(data);
-        // if (store.getState().App.toJS().connectionStatus.status === false) {
-        //   store.dispatch(appActions.connectionStatus(true));
-        // }
-        return { data };
-      })
-      .catch(ex => {
-        // if (store.getState().App.toJS().connectionStatus.status === true) {
-        //   store.dispatch(appActions.connectionStatus(false));
-        // }
-        console.warn({ networkError: ex });
-        cb({ data: { error: ex }, networkError: true });
-        return { data: { error: ex }, networkError: true };
-      });
-  }
-};

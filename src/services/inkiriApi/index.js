@@ -207,7 +207,7 @@ export const login = async (account_name, private_key) => {
     return; 
   }
 
-  const bank_requests = await bank.listMyRequests(account_name, 0, 10);
+  // const bank_requests = await bank.listMyRequests(account_name, 0, 10);
 
   console.log(' ************************************* '
       , ' inkiriApi::login >> KEY ACCOUNTS: '
@@ -215,9 +215,11 @@ export const login = async (account_name, private_key) => {
       , ' | BANK CUSTOMER INFO:'
       , JSON.stringify(customer_info)
       , ' | BANK PRIVATE INFO:'
-      , JSON.stringify(bank_auth)
-      , ' | BANK REQUESTS'
-      , JSON.stringify(bank_requests));
+      , JSON.stringify(bank_auth));
 
-  return key_accounts;
+  return {
+    key_accounts:key_accounts,
+    customer_info:customer_info,
+    bank_auth:bank_auth,
+  };
 } 

@@ -14,8 +14,8 @@ const currency = {
 };
 
 const bank = {
-  contract:               "ikmasterooo1",
-  issuer:                 "ikmasterooo1",
+  contract:               "inkirimaster",
+  issuer:                 "inkirimaster",
   ACCOUNT_TYPE_PERSONAL:   1,
   ACCOUNT_TYPE_BUSINESS:   2,
   ACCOUNT_TYPE_FOUNDATION: 3,
@@ -33,6 +33,7 @@ const base_url    = 'http://localhost:3600';
 const api_version = '/api/v1';
 const api = {
   end_point:               base_url+ api_version
+  , default_page_size         : 25
 };
 
 // ToDo: Traer DFuse config from private server!

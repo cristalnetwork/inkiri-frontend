@@ -19,13 +19,13 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
     }).then(
       (response) => {
          if (!response.ok) {
-            console.log(' ********************************** !OK')
+            // console.log(' ********************************** !OK')
             rej(response.statusText);
             throw new Error(response.statusText);
           }
           return response.json()
       }, (err) => {
-        console.log(' ********************************** !OK#2', err)
+        // console.log(' ********************************** !OK#2', err)
         rej(err.message);
         throw err;
       })
@@ -93,14 +93,73 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
   }
 })
 
-export const listMyRequests = (account_name, page, limit) =>   new Promise((res,rej)=> {
+export const nextEnvelopeId = (account_name) =>   new Promise((res,rej)=> {
+
+  var promise1 = nextRequestId(account_name);
+  var promise2 = getMyUser(account_name);
   
+  Promise.all([promise1, promise2]).then((values) => {
+    console.log(' ************ inkiriApi::nextEnvelopeId >> ', JSON.stringify(values));
+      let next_id = values[0];
+      let user_id = values[1].userCounterId;
+      let envId   = pad(user_id, 5)+pad(next_id, 5);
+      res(envId)
+  }, (err)=>{
+    console.log(' ************ inkiriApi::nextEnvelopeId ERROR >> ', JSON.stringify(err));
+    rej(err);
+  });
+
+  
+});
+
+function pad(num, size) {
+    var s = "00000" + num;
+    return s.substr(s.length-size);
+}
+
+export const nextRequestId = (account_name) =>   new Promise((res,rej)=> {
+  listMyRequests(account_name, 0, 1)
+    .then(
+      (responseJson) => {
+        if(!responseJson || responseJson.length==0)
+        {
+          res(1)
+        }
+        else{
+          res(responseJson[0].requestCounterId+1)
+        }
+      },
+      (err) => {
+        rej(err);
+      })
+});
+
+export const getMyUser = (account_name) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.end_point + '/users';
+  const method  = 'GET';
+  let query     = '?page=0&limit=1&account_name='+account_name;
+  jwtHelper.apiCall(path+query, method)
+    .then((data) => {
+        res(data[0])
+      }, (ex) => {
+        rej(ex);
+      });
+});
+
+export const listMyRequests = (account_name, page, limit, request_type) =>   new Promise((res,rej)=> {
+  
+  console.log(' BANKAPI::LIST MY REQUESTS>> account_name:', account_name
+  , '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
   const path    = globalCfg.api.end_point + '/requests';
   const method  = 'GET';
   let query     = '?page='+(page|0); 
   query=query+'&limit='+(limit|10);
   if(account_name)
-    query=query+'&requested_by='+account_name;
+    query=query+'&from='+account_name;
+  if(request_type!== undefined)
+    query=query+'&requested_type='+request_type;
+
   jwtHelper.apiCall(path+query, method)
     .then((data) => {
         res(data)
@@ -109,7 +168,7 @@ export const listMyRequests = (account_name, page, limit) =>   new Promise((res,
       });
 });
 
-export const createDeposit = (account_name, amount) =>   new Promise((res,rej)=> {
+export const createDeposit = (account_name, amount, currency) =>   new Promise((res,rej)=> {
   
   // "from": "inkiritoken1",
   // "requested_type": "type_deposit",
@@ -119,14 +178,18 @@ export const createDeposit = (account_name, amount) =>   new Promise((res,rej)=>
   const path    = globalCfg.api.end_point + '/requests';
   const method  = 'POST';
   const post_params = {
-          'account_name': account_name
-          , 'requested_type': 'type_deposit'
-          , 'amount':  Number(amount).toFixed(2)
+          'account_name':       account_name
+          , 'requested_type':   'type_deposit'
+          , 'amount':           Number(amount).toFixed(2)
+          , 'deposit_currency': currency
         };
+  console.log(' inkiriApi::createDeposit >> ABOUT TO POST', JSON.stringify(post_params))
   jwtHelper.apiCall(path, method, post_params)
     .then((data) => {
+        console.log(' inkiriApi::createDeposit >> RESPONSE', JSON.stringify(data))
         res(data)
       }, (ex) => {
+        console.log(' inkiriApi::createDeposit >> ERROR ', JSON.stringify(ex))
         rej(ex);
       });
 

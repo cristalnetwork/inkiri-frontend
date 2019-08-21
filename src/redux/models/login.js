@@ -12,17 +12,21 @@ const SET_LOGIN = 'login/SET_LOGIN'
 const LOGOUT = 'login/LOGOUT'
 
 // Creadores de acciones (se pueden usar desde los compoenentes)
-export const tryLogin = (account, save) =>({ type: TRY_LOGIN, payload: {account, save } });
+// export const tryLogin = (account, save) =>({ type: TRY_LOGIN, payload: {account, save } });
+export const tryLogin = (account_name, password, remember) =>({ type: TRY_LOGIN, payload: {account_name, password, remember } });
 export const logout = () => ({type: LOGOUT});
 export const set = (loginData) =>({ type: SET_LOGIN, payload: loginData});
+
+const ACCOUNT_DATA = 'account_data'
 
 //Eventos que requieren del async
 function* loadLoginData() {
   yield put({type: core.ACTION_START, payload: { login: 'Check local storage'}})
-  const { data } = yield getStorage('login');
-  if(data && data.account) {
+  const { data } = yield getStorage(ACCOUNT_DATA);
+  if(data && data.account_name && data.password) {
     console.log(' -- redux::models::login::loadLoginData >> tryLogin', JSON.stringify(data))
-    yield put(tryLogin(data.account, true))
+    // yield put(tryLogin(data.account, true))
+    yield put(tryLogin(data.account_name, data.password, false))
   }
   else
     console.log(' -- redux::models::login::loadLoginData >> could NOT LOGIN', JSON.stringify(data))
@@ -31,21 +35,41 @@ function* loadLoginData() {
 
 function* tryLoginSaga({ type, payload }) {
 
-  // LLAMO A inkiriAPI.login
-  // api.login(account, api.dummyPrivateKeys[account]);
-
-  const { account, save} = payload
+  const { account_name, password, remember} = payload
+  console.log(' LOGIN REDUX >> tryLoginSaga >> ', account_name, password, remember)
   try {
-    if(payload.save) {
-      setStorage('login',{account, save})
+    // LLAMO A inkiriAPI.login
+    const login_data = yield api.login(account_name, password);
+    
+    if(payload.remember) {
+      setStorage(ACCOUNT_DATA, {account_name, password, remember, login_data})
     }
-    yield put(set({userId: account.key, role: 'business'}))
+    yield put(set({userId: account_name, role: 'business'}))
   } catch(e) {
-    console.err(e)
+    console.log(' >> LOGIN REDUX ERROR#1', e)
   }
   yield put({type: TRY_LOGIN_END})
-  yield put( tryUserState(account.key))
+  yield put( tryUserState(account_name))
 }
+
+
+// function* tryLoginSaga({ type, payload }) {
+
+//   // LLAMO A inkiriAPI.login
+//   // api.login(account, api.dummyPrivateKeys[account]);
+
+//   const { account, save} = payload
+//   try {
+//     if(payload.save) {
+//       setStorage('login',{account, save})
+//     }
+//     yield put(set({userId: account.key, role: 'business'}))
+//   } catch(e) {
+//     console.err(e)
+//   }
+//   yield put({type: TRY_LOGIN_END})
+//   yield put( tryUserState(account.key))
+// }
 
 function* logoutSaga( ) {
   yield clearStorage();

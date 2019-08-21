@@ -661,7 +661,6 @@ class AllInOne extends Component {
 
 export default withRouter(connect(
     (state)=> ({
-        userAccount: 	      userRedux.defaultAccount(state),
         allAccounts: 	      userRedux.allAccounts(state),
         isLoading: 		      userRedux.isLoading(state),
         actualRole:         loginRedux.actualRole(state)

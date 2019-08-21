@@ -4,8 +4,6 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
-import * as accountsRedux from '@app/redux/models/accounts'
-import * as balanceRedux from '@app/redux/models/balance'
 
 import AmountInput from '@app/components/AmountInput';
 
@@ -55,7 +53,7 @@ class DepositMoney extends Component {
       loading:      false,
       value:       {amount:0, currency:''},
       pushingTx:    false,
-      envelope_id:  'xxxxxxx',
+      envelope_id:  '--loading--',
       result:       undefined,
       result_object:undefined,
       error:        {},
@@ -85,7 +83,16 @@ class DepositMoney extends Component {
     // const { myKey } = this.props.location.params
     const { match, location, history } = this.props;
     // console.log( 'sendMoney::router-params >> match:' , JSON.stringify(match))
-    console.log( 'sendMoney::router-params >> location:' , JSON.stringify(location))
+    
+    api.bank.nextEnvelopeId (this.props.actualAccount).then(  
+      (res)=>{
+        this.setState ({envelope_id: res});
+      },
+      (err)=>{
+        console.log(' ERROR FETCHING ENV ID ->', err);
+      },
+    )
+
   }
   
   onChange(e) {
@@ -131,21 +138,16 @@ class DepositMoney extends Component {
     this.setState({result: undefined, result_object: undefined, error: {}});
   }
 
-  renderConfirmRequest(){
-    const {amount, currency}      = this.state.value;
-    const env                     = this.state.envelope_id;
-    return (<Result
-      icon={<Icon type="question-circle" theme="twoTone" />}
-      title={`You will deposit ${currency}${amount} on envelope ${env}`}
-      subTitle="Please confirm operation."
-      extra={[<Button type="primary" onClick={() => {this.doDeposit()} }>Confirm Deposit</Button>,
-              <Button key="cancel" onClick={() => {this.resetResult()} }>Cancel</Button>]}
-    />)
-  }
-
   doDeposit(){
     // guarda
-    // limpia
+    api.bank.createDeposit(this.props.actualAccount, this.state.value.amount, this.state.value.currency)
+    .then((res)=>{
+      console.log(' >> doDeposit >> ', JSON.stringify(res));
+      this.setState({result:'ok'});
+    }, (err)=>{
+      this.setState({result:'error', error:err});
+    })
+    
 
   }
 
@@ -156,6 +158,7 @@ class DepositMoney extends Component {
     if(this.state.result=='should-confirm'){
       return this.renderConfirmRequest();
     }
+
     if(this.state.result=='ok')
     {
       const tx_id = api.dfuse.getTxId(this.state.result_object?this.state.result_object.data:{});
@@ -164,16 +167,13 @@ class DepositMoney extends Component {
       
       return (<Result
         status="success"
-        title="Transaction completed successfully!"
-        subTitle="Transaction id ${tx_id}. Cloud server takes up to 30 seconds, please wait."
+        title="Deposit Requested Succesfully!"
+        subTitle="Please wait until deposit is validated and cedited to your account."
         extra={[
           <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
             Go to dashboard
           </Button>,
-          <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" >View on Blockchain</Button>,
           <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetResult()} />
-       
-
         ]}
       />)
     }
@@ -239,10 +239,15 @@ class DepositMoney extends Component {
 
   renderEnvelopeId ()
   {
+    if(this.state.result)
+    {  
+      return (<></>);
+    }
+    //
     return(
     <Row>
       <Col span={24}>
-        <Card><Statistic title="Type this ID onto the envelope" value={this.state.envelope_id}  /></Card>
+        <Card><Statistic title="Type this ID onto the envelope" value={this.state.envelope_id} formatter={(value)=>{return value.toString()}}  /></Card>
       </Col>
     </Row>
     );
@@ -271,18 +276,26 @@ class DepositMoney extends Component {
       </>
     );
   }
+
+  renderConfirmRequest(){
+    const {amount, currency}      = this.state.value;
+    const env                     = this.state.envelope_id;
+    return (<Result
+      icon={<Icon type="question-circle" theme="twoTone" />}
+      title={`You will deposit ${currency} ${amount} on envelope ${env}`} 
+      subTitle="Please confirm operation."
+      extra={[<Button key="do_deposit" type="primary" onClick={() => {this.doDeposit()} }>Confirm Deposit</Button>,
+              <Button key="cancel" onClick={() => {this.resetResult()} }>Cancel</Button>]}/>)
+  }
 }
 
 //
 export default Form.create() (withRouter(connect(
     (state)=> ({
-        accounts:         accountsRedux.accounts(state),
         actualAccount:    loginRedux.actualAccount(state),
-        isLoading:        loginRedux.isLoading(state),
-        balance:          balanceRedux.userBalanceFormatted(state),
+        isLoading:        loginRedux.isLoading(state)
     }),
     (dispatch)=>({
         
     })
-)(DepositMoney) )
-);
+)(DepositMoney) ));
