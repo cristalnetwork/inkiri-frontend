@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 
 import UserBalance from './userBalance';
 
-import * as userRedux from '@app/redux/models/user'
+// import * as userRedux from '@app/redux/models/user'
 import * as loginRedux from '@app/redux/models/login'
 import styles from './index.less';
 
@@ -81,7 +81,7 @@ export default connect(
       actualAccount: loginRedux.actualAccount(state),
     }),
     (dispatch)=>({
-        try: bindActionCreators(userRedux.tryUserState , dispatch),
+        // try: bindActionCreators(userRedux.tryUserState , dispatch),
         tryLogin: bindActionCreators(loginRedux.tryLogin, dispatch),
         logout: bindActionCreators(loginRedux.logout, dispatch)
     })

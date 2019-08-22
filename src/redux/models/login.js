@@ -1,6 +1,6 @@
 import { takeEvery, put } from '@redux-saga/core/effects';
 import { store } from '../configureStore'
-import { tryUserState } from './user'; 
+// import { tryUserState } from './user'; 
 import { getStorage, clearStorage, setStorage } from '@app/services/localStorage'
 import * as core from './core';
 import * as api from '@app/services/inkiriApi';
@@ -51,7 +51,7 @@ function* tryLoginSaga({ type, payload }) {
     console.log(' >> LOGIN REDUX ERROR#1', e)
   }
   yield put({type: TRY_LOGIN_END})
-  yield put( tryUserState(account_name))
+  // yield put( tryUserState(account_name))
 }
 
 

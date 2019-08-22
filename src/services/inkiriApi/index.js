@@ -6,6 +6,8 @@ import * as dfuse from './dfuse.js';
 import * as bank from './bank.priv.js';
 import ecc from 'eosjs-ecc';
 
+import * as txsHelper from './transactionHelper';
+
 import { Api, JsonRpc, RpcError } from 'eosjs';
 import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig';
 
@@ -19,6 +21,49 @@ function formatAmount(amount){
 
 function prettyJson(input){
   return JSON.stringify(input, null, 2)
+}
+
+const listAllBankAccounts = async () => { 
+  const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
+  // const response  = await jsonRpc.get_account(account_name)
+  const response = await jsonRpc.get_table_rows({
+    json:           true                 
+    , code:         globalCfg.bank.issuer
+    , scope:        globalCfg.bank.issuer
+    , table:        'ikaccounts'        
+    , limit:        1000
+    , reverse:      false
+    , show_payer :  false
+  });
+  // Ver https://github.com/EOSIO/eos/issues/3948
+  // if more==true, entonces hay que traer mas usando lower_bound o upper_bound
+  var accounts = response.rows.map(account => 
+        ({  ...account
+                  ,'state_description' :        txsHelper.getStateDescription(account.state)
+                  ,'account_type_description' : txsHelper.getAccountTypeDescription(account.account_type) }));
+  return {...accounts}
+}
+
+const getBankAccount = async (account_name) => { 
+  const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
+  // const response  = await jsonRpc.get_account(account_name)
+  const response = await jsonRpc.get_table_rows({
+    json:           true                 
+    , code:         globalCfg.bank.issuer
+    , scope:        globalCfg.bank.issuer
+    , table:        'ikaccounts'        
+    , lower_bound:  account_name
+    , limit:        1
+    , reverse:      false
+    , show_payer :  false
+  });
+  return {...response.rows[0]}
+}
+
+const getAccount = async (account_name) => { 
+  const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
+  const response  = await jsonRpc.get_account(account_name)
+  return {data:response}
 }
 
 // const getKeyAccounts = async (publicKey) => { 
@@ -154,7 +199,6 @@ export const addPersonalBankAccount = async (auth_account, auth_priv, account_na
 
 }
 
-export const getAccountInformation = (account_name) =>  dfuse.searchBankAccount(account_name);
 export const getAvailableAccounts  = () =>   dfuse.listBankAccounts();
 export const getAccountBalance = (account_name) =>  dfuse.getAccountBalance(account_name);
 
@@ -167,6 +211,12 @@ export const dummyPrivateKeys = {
     , 'inkirimaster': '5KesM1e6XqoTMtbJ8P5bakYom1rd3KbBQa9dKg3FqE23YAK9BPE'
     , 'inkpersonal2': '5KRg4dqcdAnGzRVhM4vJkDRVkfDYrH3RXG2CVzA61AsfjyHDvBh'
   }
+
+const getMaxPermission = (account_name, permissioner_account) => new Promise( (res, rej) => {
+  // let permissioner = await getAccount(permissioner_account)
+  // const the_perms = permissioner.permissions.filter( perm => perm.required_auth.accounts. == 'active' )[0];
+})
+
 
 
 export const login = async (account_name, private_key) => {
@@ -186,7 +236,8 @@ export const login = async (account_name, private_key) => {
   // 4.- Valido que account esta en la tabla del bank, es decir es cliente, y es cuenta personal.
   let customer_info;
   try{
-    customer_info = (await dfuse.searchOneBankAccount(account_name)).data.account;
+    // customer_info = (await dfuse.searchOneBankAccount(account_name)).data.account;
+    customer_info = await getBankAccount(account_name);
     console.log('inkiriApi::login customer_info >> ', JSON.stringify(customer_info))
   }
   catch(ex){
@@ -200,15 +251,26 @@ export const login = async (account_name, private_key) => {
     throw new Error('Your account should be an enabled and a Personal type account!')
     return; 
   }
+  
+  const bchain_account_info = await getAccount(account_name);
+  const personalAccount   = { 
+      account_name:       bchain_account_info.data.account_name,
+      account_type:       customer_info.account_type,
+      account_type_desc:  customer_info.account_type_description,
+      role:               '??',          
+      extra:        {
+        bank: customer_info, 
+        blockchain : bchain_account_info.data
+      }
+  };
 
-  const personalAccount   = customer_info;
   let   corporateAccounts  = [];
   let   adminAccount       = null;
   
+  let permissioning_accounts ;
   // 5.- Traigo el resto de las cuentas, para cargar si es admin del banco, y las cuentas empresa que tenga relacionadas
-
   try{
-    let permissioning_accounts = await dfuse.searchPermissioningAccounts(account_name)
+    permissioning_accounts = await dfuse.searchPermissioningAccounts(account_name)
     console.log('inkiriApi::login permissioning_account >> ', JSON.stringify(permissioning_accounts))
   }
   catch(ex){
@@ -216,6 +278,38 @@ export const login = async (account_name, private_key) => {
     // throw new Error('Account is not a Bank customer!') 
   }
 
+  // HACK
+  if(account_name==globalCfg.bank.issuer)
+  {
+    adminAccount = { ...personalAccount}
+  }
+
+  // permissioning_accounts
+
+  /*
+  personal account
+    owner -> root
+    active -> manager
+    viewer -> --
+
+
+    admin account - inkirimaster
+    owner -> root
+    active -> manager, --
+        pda  -> --
+        viewer-> --
+
+    corporate account
+        owner -> root
+    active -> manager
+        pdv -> can sell
+        viewer -> can view
+
+    Token issuer account - inkiritoken1
+        owner -> private_key
+        active -> inkirimaster
+
+  */
   // 6.- me logeo al banko
   let bank_auth;
   try{
@@ -228,20 +322,15 @@ export const login = async (account_name, private_key) => {
     return; 
   }
 
-  // console.log(' **************** '
-  //     , ' inkiriApi::login >> KEY ACCOUNTS: '
-  //     , JSON.stringify(key_accounts));
-  // console.log(' **************** '
-  //     , ' inkiriApi::login >> BLOCKCHAIN CONTRACT CUSTOMER INFO:'
-  //     , JSON.stringify(customer_info));
-  // console.log(' **************** '
-  //     , ' inkiriApi::login >> BANK PRIVATE INFO:'
-  //     , JSON.stringify(bank_auth));
-
-  
-  return {
+  const ret= {
     personalAccount : personalAccount,
     corporateAccounts : corporateAccounts,
     adminAccount : adminAccount
   };
+
+  console.log(' **************** '
+      , ' +-+-+-+-+-+-+- inkiriApi::login >> result: '
+      , JSON.stringify(ret));
+
+  return ret;
 } 

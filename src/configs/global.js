@@ -3,6 +3,7 @@ const language = "english";
 
 const currency = {
   token:            "inkiritoken1",
+  issuer:           "inkiritoken1",
   name:             "INKIRI",
   symbol:           "IK$",
   eos_symbol:       "INK",

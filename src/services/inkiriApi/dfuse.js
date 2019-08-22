@@ -129,8 +129,8 @@ export const listBankAccounts = () => new Promise((res,rej)=> {
       
 			var accounts = data.rows.map(account => 
 				({	...account.json
-									,'state_description' : getStateDescription(account.json.state)
-									,'account_type_description' : getAccountTypeDescription(account.json.account_type) }));
+									,'state_description' :        txsHelper.getStateDescription(account.json.state)
+									,'account_type_description' : txsHelper.getAccountTypeDescription(account.json.account_type) }));
 
 			let _res = {data:{accounts:accounts}};
 			// console.log(' dfuse::listBankAccounts >> ', JSON.stringify(_res));
@@ -143,26 +143,6 @@ export const listBankAccounts = () => new Promise((res,rej)=> {
     });
 
 })	
-
-
-// This is an amazing HACK!
-// Check https://github.com/cristalnetwork/inkiri-eos-contracts/blob/master/inkiribank.cpp
-function getStateDescription(state_id){
-	const states = globalCfg.bank.ACCOUNT_STATES;
-	if(state_id>=states.length)
-		return states[0];
-	return states[state_id];
-}
-
-// This is another amazing HACK!
-// Check https://github.com/cristalnetwork/inkiri-eos-contracts/blob/master/inkiribank.cpp
-function getAccountTypeDescription(account_type_id){
-	const account_types = globalCfg.bank.ACCOUNT_TYPES;
-	if(account_type_id>=account_types.length)
-		return account_types[0];
-	return account_types[account_type_id];
-}
-
 
 export const searchPermissioningAccounts = (account_name) => new Promise( (res, rej) => {
 
@@ -180,7 +160,10 @@ export const searchPermissioningAccounts = (account_name) => new Promise( (res, 
       
       jwtHelper.apiCall(path, method, data)
         .then((data) => {
-            const ret = data.data.searchTransactionsForward.results.map(txs => ({ account_name:txs.trace.matchingActions[0].json.account, permission:txs.trace.matchingActions[0].json.auth.accounts.filter(perm => perm.permission.actor==account_name)[0].permission }))
+            const ret = data.data.searchTransactionsForward.results.map(txs => ({ 
+              permissioner:txs.trace.matchingActions[0].json.account, 
+              permission:txs.trace.matchingActions[0].json.permission, 
+              permissioned:txs.trace.matchingActions[0].json.auth.accounts.filter(perm => perm.permission.actor==account_name)[0].permission }))
             res(ret)
           }, (ex) => {
             rej(ex);
@@ -193,60 +176,60 @@ export const searchPermissioningAccounts = (account_name) => new Promise( (res, 
 })
 
 
-export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
-	listBankAccounts()
-	.then((data) => {
-		// console.log(' dfuse::searchBankAccount >> ', JSON.stringify(data));
-  	var account = data.data.accounts.filter(account => account.key === account_name);
-    if(account && account.length>0)
-    {
-    	let _res = {data:{account:account[0]}};
-    	// console.log(' dfuse::searchBankAccount >> ', JSON.stringify(_res));	
-    	res (_res)
-    }
-    else
-  	{
-  		console.log(' dfuse::searchBankAccount >> ', 'Account not Found!');	
-  		rej({error:'Account not found'});
-  	}
-  }, (ex)=>{
-    console.log('dfuse::searchBankAccount >> ERROR ', JSON.stringify(ex));
-    rej(ex);
-  });
-})	
+// export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
+// 	listBankAccounts()
+// 	.then((data) => {
+// 		// console.log(' dfuse::searchBankAccount >> ', JSON.stringify(data));
+//   	var account = data.data.accounts.filter(account => account.key === account_name);
+//     if(account && account.length>0)
+//     {
+//     	let _res = {data:{account:account[0]}};
+//     	// console.log(' dfuse::searchBankAccount >> ', JSON.stringify(_res));	
+//     	res (_res)
+//     }
+//     else
+//   	{
+//   		console.log(' dfuse::searchBankAccount >> ', 'Account not Found!');	
+//   		rej({error:'Account not found'});
+//   	}
+//   }, (ex)=>{
+//     console.log('dfuse::searchBankAccount >> ERROR ', JSON.stringify(ex));
+//     rej(ex);
+//   });
+// })	
 
-export const searchOneBankAccount = (account_name) => new Promise((res,rej)=> {
-  let client = createClient();
-  client.stateTable(
-      globalCfg.bank.issuer,
-      globalCfg.bank.issuer,
-      "ikaccounts",
-      { lower_bound: account_name, limit: 1}
-    )
-    .then((data) => {
+// export const searchOneBankAccount = (account_name) => new Promise((res,rej)=> {
+//   let client = createClient();
+//   client.stateTable(
+//       globalCfg.bank.issuer,
+//       globalCfg.bank.issuer,
+//       "ikaccounts",
+//       { lower_bound: account_name, limit: 1}
+//     )
+//     .then((data) => {
       
-      var accounts = data.rows.map(account => 
-        ({  ...account.json
-                  ,'state_description' : getStateDescription(account.json.state)
-                  ,'account_type_description' : getAccountTypeDescription(account.json.account_type) }));
+//       var accounts = data.rows.map(account => 
+//         ({  ...account.json
+//                   ,'state_description' : getStateDescription(account.json.state)
+//                   ,'account_type_description' : getAccountTypeDescription(account.json.account_type) }));
 
 
-      if(accounts && accounts.length>0)
-      {
-        let _res = {data:{account:accounts[0]}};
-        res (_res);
-      }
-      else{
-        rej('Account is not a bank customer!');
-      }
-      client.release();
-    }, (ex)=>{
-      // console.log('dfuse::listBankAccounts >> ERROR ', JSON.stringify(ex));
-      rej(ex);
-      client.release();
-    });
+//       if(accounts && accounts.length>0)
+//       {
+//         let _res = {data:{account:accounts[0]}};
+//         res (_res);
+//       }
+//       else{
+//         rej('Account is not a bank customer!');
+//       }
+//       client.release();
+//     }, (ex)=>{
+//       // console.log('dfuse::listBankAccounts >> ERROR ', JSON.stringify(ex));
+//       rej(ex);
+//       client.release();
+//     });
 
-})  
+// })  
 
 export const listTransactions = (account_name, cursor) => new Promise((res,rej)=> {
 	

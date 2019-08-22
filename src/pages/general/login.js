@@ -66,7 +66,7 @@ class Login extends Component {
           <a className="login-form-forgot" href="">
             Forgot password
           </a>
-          <Button type="primary" htmlType="submit" className="login-form-button">
+          <Button type="primary" htmlType="submit" className="login-form-button" loading={this.props.isLoading}>
             Log in
           </Button>
           Or <a href="">register now!</a>
@@ -84,7 +84,7 @@ class Login extends Component {
         </Form.Item>
         <Form.Item>
           <Checkbox value={this.state.save} onChange={(e) => this.setState({save: e.target.checked})}>Remember me</Checkbox>
-          <Button type="primary" disabled={!this.state.account} onClick={()=>this.props.tryLogin(this.state.account, this.state.save)} loading={this.props.isLoading}  className="login-form-button">
+          <Button type="primary" disabled={!this.state.account} onClick={()=>this.props.tryLogin(this.state.account, this.state.save)}   className="login-form-button">
             Login
           </Button>
         </Form.Item>

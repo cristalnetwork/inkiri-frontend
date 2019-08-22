@@ -4,7 +4,6 @@ import { Button, Select, Input, InputNumber } from 'antd';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
-import * as userRedux from '@app/redux/models/user'
 import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
@@ -169,20 +168,20 @@ class AllInOne extends Component {
 
   testSearchBankAccount = async () => {
     
-    api.dfuse.searchBankAccount('ikadminoooo1')
-    .then(res => 
-        {
-            console.log(' -- dfuse::searchBankAccount --');
-            console.log('---- RES:', JSON.stringify(res));
-        } 
-    )
-    .catch(ex => {
-            console.log(' -- dfuse::searchBankAccount --');
-            console.log('---- ERROR:', JSON.stringify(ex));
-        } 
-    )
+    // api.dfuse.searchBankAccount('ikadminoooo1')
+    // .then(res => 
+    //     {
+    //         console.log(' -- dfuse::searchBankAccount --');
+    //         console.log('---- RES:', JSON.stringify(res));
+    //     } 
+    // )
+    // .catch(ex => {
+    //         console.log(' -- dfuse::searchBankAccount --');
+    //         console.log('---- ERROR:', JSON.stringify(ex));
+    //     } 
+    // )
     
-    return;
+    // return;
   }
 
   testListTxs = async () => {
@@ -687,11 +686,10 @@ class AllInOne extends Component {
 
 export default withRouter(connect(
     (state)=> ({
-        allAccounts: 	      userRedux.allAccounts(state),
-        isLoading: 		      userRedux.isLoading(state),
+        // isLoading: 		      userRedux.isLoading(state),
         actualRole:         loginRedux.actualRole(state)
     }),
     (dispatch)=>({
-        tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
+        // tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
     })
 )(AllInOne))
