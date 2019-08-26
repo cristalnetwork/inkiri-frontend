@@ -11,7 +11,7 @@ import { DashboardContainer } from '@app/containers/dashboard.container';
 import Login from '@app/pages/general/login'
 import MenuByRole from './menu';
 
-import history from '@app/history.js;'
+import history from '@app/history.js'
 
 // LOGIN, ROLES and REDIRECT TO REFERRER -- > https://reacttraining.com/react-router/web/example/auth-workflow
 
