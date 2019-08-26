@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { Layout, Icon, Button } from 'antd';
+import { Layout, Icon, Button, Tag } from 'antd';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -12,7 +12,7 @@ import styles from './index.less';
 
 import UserSelector from './userSelector'
 
-// import AvatarDropdown from '@app/components/GlobalHeader';
+import AccountSelector from '@app/components/InkiriHeader/accountSelector';
 
 const { Header } = Layout;
 
@@ -35,9 +35,9 @@ class InkiriHeader extends Component {
   }
   
 
-  handleChange(account) {
-    // console.log(`selected ${account.name}`);
-    // this.props.tryLogin(account)
+  handleChange(account_name) {
+    console.log(`selected ${account_name}`);
+    this.props.trySwitchAccount(account_name);
   }
 
   /*
@@ -59,13 +59,14 @@ class InkiriHeader extends Component {
               type={this.props.menuIsCollapsed ? 'menu-unfold' : 'menu-fold'}
               onClick={this.toggle}
             />
-              
+
             <div className="right">
               <div className="header_element_container">
                 <Button icon={'logout'} onClick={this.props.logout}>Logout</Button>
               </div>
               <div className="header_element_container" style={{marginRight: '10px'}}>
-                <b>{this.props.actualAccount}</b> Balance (IK$) <UserBalance userId={this.props.actualAccount} />
+                <AccountSelector onChange={this.handleChange} />
+                 &nbsp; <Tag> {this.props.actualAccount} Balance (IK$) <UserBalance userId={this.props.actualAccount} /> </Tag>
               </div>
             </div>
           </div>
@@ -82,8 +83,9 @@ export default connect(
     }),
     (dispatch)=>({
         // try: bindActionCreators(userRedux.tryUserState , dispatch),
-        tryLogin: bindActionCreators(loginRedux.tryLogin, dispatch),
-        logout: bindActionCreators(loginRedux.logout, dispatch),
-        collapseMenu: bindActionCreators(menuRedux.collapseMenu, dispatch)
+        tryLogin:           bindActionCreators(loginRedux.tryLogin, dispatch),
+        trySwitchAccount:   bindActionCreators(loginRedux.trySwitchAccount, dispatch),
+        logout:             bindActionCreators(loginRedux.logout, dispatch),
+        collapseMenu:       bindActionCreators(menuRedux.collapseMenu, dispatch)
     })
 )(InkiriHeader)

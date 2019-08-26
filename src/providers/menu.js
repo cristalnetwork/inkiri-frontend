@@ -32,18 +32,17 @@ const renderItem = (item) => {
     }
 }
 
-export const MenuByRole = ({items = [], menuIsCollapsed = false, getMenu, actualAccount, actualRole }) => {
+export const MenuByRole = ({items = [], getMenu, actualAccount, actualRole }) => {
         useEffect(()=>{
             getMenu(actualAccount, actualRole)
         })
-        // console.log( '****** MENU::menuIsCollapsed' , menuIsCollapsed)
+        //
         return (
                 <Menu
                     defaultSelectedKeys={['1']}
                     defaultOpenKeys={['sub1']}
                     mode="inline"
                     theme="light"
-                    inlineCollapsed={menuIsCollapsed}
                 >
                     { items.map(renderItem) }
                 </Menu>
@@ -53,7 +52,6 @@ export const MenuByRole = ({items = [], menuIsCollapsed = false, getMenu, actual
 export default connect(
     state => ({
         items:             menuRedux.getMenuItems(state),
-        menuIsCollapsed :  menuRedux.isCollapsed(state),
         actualAccount:     loginRedux.actualAccount(state),
         actualRole:        loginRedux.actualRole(state),
     }),

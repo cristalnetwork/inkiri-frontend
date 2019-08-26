@@ -40,7 +40,7 @@ class Login extends Component {
           <Form.Item>
             {getFieldDecorator('account_name', {
               rules: [{ required: true, message: 'Please input your account_name!' }],
-              initialValue:"inkpersonal1"
+              
             })(
               <Input
                 prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
@@ -52,7 +52,7 @@ class Login extends Component {
           <Form.Item>
             {getFieldDecorator('password', {
               rules: [{ required: true, message: 'Please input your Password!' }],
-              initialValue:"5JtCAhCxKEbMfU3XSHpF451P9sVnPkzxD2WgUgVgPtWEKikTXsh"
+              
             })(
               <Input
                 prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}

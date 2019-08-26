@@ -14,6 +14,8 @@ import MenuByRole from './menu';
 import history from '@app/history.js'
 
 import * as loginRedux from '@app/redux/models/login'
+import * as menuRedux from '@app/redux/models/menu'
+
 // LOGIN, ROLES and REDIRECT TO REFERRER -- > https://reacttraining.com/react-router/web/example/auth-workflow
 
 const _checkRole = ({role, actualRole, children, history, location}) => {
@@ -41,13 +43,15 @@ const CheckRole = connect((state)=>({
 
 const CheckLogin = () => <CheckRole role={undefined}><Login/></CheckRole>
 
-const loadableComponent = (area, fileName, container, role)=> {
+//
+
+const loadableComponent = (area, fileName, container, role, menuIsCollapsed)=> {
     const ayncComponent = loadable(() => import(`../pages/${area}/${fileName}`), {
         fallback: <Spin style={{marginTop: '100px'}}/>,
     })
     let Container;
     if(container === 'dashboard') {
-        Container = ()=> <DashboardContainer Children={ayncComponent} Menu={MenuByRole}/>
+        Container = ()=> <DashboardContainer Children={ayncComponent} Menu={MenuByRole} />
     } else {
         Container = ()=> <BlankContainer Children={ayncComponent} />
     }
@@ -57,12 +61,22 @@ const loadableComponent = (area, fileName, container, role)=> {
     return ()=><Container />
 }
 
-  export function DashboardRouter({routes}) {
+export const DashboardRouter = ({routes, menuIsCollapsed}) => {
   return (
     <Router history={history}>
         <Route path="/login" component={CheckLogin} />
-        {routes.map(item => <Route key={item.path} path={'/'+item.area+'/'+item.path} component={loadableComponent(item.area, item.fileName, item.container, item.role)} /> )}
+        {routes.map(item => <Route key={item.path} path={'/'+item.area+'/'+item.path} component={loadableComponent(item.area, item.fileName, item.container, item.role, menuIsCollapsed)} /> )}
         <Route path={'/'} component={()=><Redirect to={'/login'} />} />
     </Router>
   );
 }
+
+export default connect(
+    state => ({
+        menuIsCollapsed :  menuRedux.isCollapsed(state)
+    }),
+    dispatch => ({
+        
+    })
+)(DashboardRouter)
+

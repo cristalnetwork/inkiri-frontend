@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Layout, PageHeader } from 'antd';
 
 import InkiriHeader from '@app/components/InkiriHeader';
-// import { Header } from 'antd';
+// import AccountSelector from '@app/components/InkiriHeader/accountSelector';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -12,7 +12,7 @@ const { Header, Content, Footer, Sider } = Layout;
 // { Children? <Children/>: false }
 // </div>
 
-export const DashboardContainer = ({footerText,  TopMenu, Menu, Children}) => {
+export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, menuIsCollapsed}) => {
     const [collapsed, setCollapse] = useState(0);
 
       const onCollapse = collapsed => {
@@ -21,7 +21,7 @@ export const DashboardContainer = ({footerText,  TopMenu, Menu, Children}) => {
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-        <Sider collapsible collapsed={collapsed} onCollapse={onCollapse} theme="light">
+        <Sider collapsible collapsed={menuIsCollapsed} onCollapse={onCollapse} theme="light">
             <div className="logo">
               <img src="/favicons/favicon-32x32.png" />
             </div>

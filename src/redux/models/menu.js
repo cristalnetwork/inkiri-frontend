@@ -30,9 +30,9 @@ function* getMenuSaga({ type, payload }) {
     // }
     
     const {account_name, account_type } = payload;
-    console.log(' --------------- getMENUSAGA > payload', payload)
-    console.log(' --------------- getMENUSAGA > account_name', account_name)
-    console.log(' --------------- getMENUSAGA > account_type', account_type)
+    // console.log(' --------------- getMENUSAGA > payload', payload)
+    // console.log(' --------------- getMENUSAGA > account_name', account_name)
+    // console.log(' --------------- getMENUSAGA > account_type', account_type)
     yield put(setMenu({ role: account_type, menu: getRoutesByRole( account_type )}))
   } catch(error) {
     console.log({error})

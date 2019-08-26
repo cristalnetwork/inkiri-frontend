@@ -408,6 +408,35 @@ export const login = async (account_name, private_key) => {
     otherPersonalAccounts : personalAccounts
   };
 
+  // ret.adminAccount  = {
+  //       "permission": "viewer",
+  //       "permissioner":
+  //       {
+  //           "account_name": "inkirimastor",
+  //           "account_type": globalCfg.bank.ACCOUNT_TYPE_BANKADMIN,
+  //           "account_type_description": globalCfg.bank.getAccountType(globalCfg.bank.ACCOUNT_TYPE_BANKADMIN)
+  //       },
+  //       "permissioned":
+  //       {
+  //           "actor": "inkirimastor",
+  //           "permission": "active"
+  //       }
+  //   }
+  // ret.corporateAccounts  = [{
+  //       "permission": "viewer",
+  //       "permissioner":
+  //       {
+  //           "account_name": "inkiribiz",
+  //           "account_type": globalCfg.bank.ACCOUNT_TYPE_BUSINESS,
+  //           "account_type_description": globalCfg.bank.getAccountType(globalCfg.bank.ACCOUNT_TYPE_BUSINESS)
+  //       },
+  //       "permissioned":
+  //       {
+  //           "actor": "inkiribiz",
+  //           "permission": "active"
+  //       }
+  //   }]
+
   console.log(' **************** '
       , ' +-+-+-+-+-+-+- inkiriApi::login >> result: '
       , JSON.stringify(ret));
