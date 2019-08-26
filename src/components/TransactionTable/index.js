@@ -65,12 +65,12 @@ export const columns = [
       {
         return (
           <span>
-            <a href="javascript:;">View Details</a>
+            <a href="#">View Details</a>
           </span>  );
       }
       return(
           <span>
-            <a href="javascript:;">View Details</a>
+            <a href="#">View Details</a>
             <Divider type="vertical" />
             <a href={api.dfuse.getBlockExplorerTxLink(record.transaction_id)} target="_blank">View on Blockchain</a>
           </span>

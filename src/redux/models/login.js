@@ -56,7 +56,7 @@ function* tryLoginSaga({ type, payload }) {
       setStorage(ACCOUNT_DATA, {account_name, password, remember, accounts, master_account})
       // setStorage(ACCOUNT_DATA, {account_name, password, remember, accounts, account_name})
     }
-    yield put(set({userId: account_name, role: accounts.personalAccount.permissioner.account_type, accounts:accounts, master_account:account_name , current_account:accounts.personalAccount}))
+    yield put(set({userId: account_name, accounts:accounts, master_account:account_name , current_account:accounts.personalAccount}))
   } catch(e) {
     console.log(' >> LOGIN REDUX ERROR#1', e)
   }
@@ -79,6 +79,7 @@ function* trySwitchAccountSaga({ type, payload }) {
   const stateData = getLoginDataFromStorage(data, account_name );
   
   console.log(' LOGIN REDUX >> trySwitchAccountSaga >>putting new data', JSON.stringify(stateData));
+  setStorage(ACCOUNT_DATA, {account_name:account_name, password:data.password, remember:data.remember, accounts:stateData.accounts, master_account:stateData.master_account})
   yield put(set(stateData))
   yield put({type: TRY_SWITCH_END})
   
@@ -92,9 +93,12 @@ function* logoutSaga( ) {
 function getLoginDataFromStorage(storageData, switch_to){
   const account_name    = storageData.account_name;
   const master_account  = storageData.master_account;
-  const new_account     = switch_to?switch_to:account_name;
+  const new_account     = switch_to!==undefined?switch_to:account_name;
   const account         = accountsToArray(storageData.accounts).filter( acc => acc.permissioner.account_name==new_account)[0]
-  return {userId: new_account, role: account.permissioner.account_type, accounts:storageData.accounts, master_account:master_account , current_account:account}
+
+  const _loginData = {userId: new_account, accounts:storageData.accounts, master_account:master_account , current_account:account};
+  console.log(' lodingREDUX::getLoginDataFromStorage >> ', _loginData)
+  return _loginData;
 }
 
 function accountsToArray(accounts){
@@ -111,7 +115,8 @@ store.injectSaga('login', [
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
 export const isLoading             = (state) => state.login.loading > 0
-export const actualAccount         = (state) => (state.login.current_account)?state.login.current_account.permissioned.actor:undefined
+// export const actualAccount         = (state) => (state.login.current_account)?state.login.current_account.permissioned.actor:undefined
+export const actualAccount         = (state) => (state.login.current_account)?state.login.current_account.permissioner.account_name:undefined
 export const actualRole            = (state) => (state.login.current_account)?globalCfg.bank.getAccountType(state.login.current_account.permissioner.account_type):undefined
 export const currentAccount        = (state) => state.login.current_account
 
@@ -122,8 +127,7 @@ export const adminAccount          = (state) => state.login.accounts.adminAccoun
 export const allAccounts           = (state) => accountsToArray(state.login.accounts)
 
 // El reducer del modelo
-// const defaultState = { loading: 0, role: undefined, userId: undefined, accounts: [] };
-const defaultState = { loading: 0, role: undefined, userId: undefined, current_account: undefined, accounts:{}};
+const defaultState = { loading: 0, userId: undefined, current_account: undefined, accounts:{}};
 
 function reducer(state = defaultState, action = {}) {
   switch (action.type) {
@@ -152,7 +156,6 @@ function reducer(state = defaultState, action = {}) {
         ...state,
         // userId             : action.payload.accounts.personalAccount.permissioned.actor
         userId             : action.payload.userId
-        , role             : action.payload.role
         , accounts         : action.payload.accounts
         , master_account   : action.payload.master_account
         , current_account  : action.payload.current_account
