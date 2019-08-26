@@ -30,17 +30,18 @@ const renderItem = (item) => {
     }
 }
 
-export const MenuByRole = ({items = [], getMenu, menuIsCollapsed = false }) => {
+export const MenuByRole = ({items = [], menuIsCollapsed = false, getMenu }) => {
         useEffect(()=>{
             getMenu({userId: "1"})
         })
+        console.log( '****** MENU::menuIsCollapsed' , menuIsCollapsed)
         return (
                 <Menu
                     defaultSelectedKeys={['1']}
                     defaultOpenKeys={['sub1']}
                     mode="inline"
                     theme="light"
-                    inlineCollapsed={true}
+                    inlineCollapsed={menuIsCollapsed}
                 >
                     { items.map(renderItem) }
                 </Menu>
