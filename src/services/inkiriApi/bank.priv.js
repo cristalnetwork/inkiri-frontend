@@ -130,6 +130,7 @@ export const nextRequestId = (account_name) =>   new Promise((res,rej)=> {
         }
       },
       (err) => {
+        console.log(' ************ inkiriApi::nextRequestId ERROR >> ', JSON.stringify(err));
         rej(err);
       })
 });

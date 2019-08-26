@@ -1,12 +1,13 @@
 import React, {useEffect} from 'react'
 import { connect } from 'react-redux'
-import { getMenuItems, getMenu } from '../redux/models/menu'
+//import { getMenuItems, getMenu,  } from '@app/redux/models/menu'
+import * as menuRedux from '@app/redux/models/menu'
 
 import { Menu, Icon } from 'antd';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 
-import { getPath } from '../configs/routes'
+import { getPath } from '@app/configs/routes'
 
 const  { SubMenu } = Menu;
 
@@ -29,7 +30,7 @@ const renderItem = (item) => {
     }
 }
 
-export const MenuByRole = ({items = [], getMenu }) => {
+export const MenuByRole = ({items = [], getMenu, menuIsCollapsed = false }) => {
         useEffect(()=>{
             getMenu({userId: "1"})
         })
@@ -39,6 +40,7 @@ export const MenuByRole = ({items = [], getMenu }) => {
                     defaultOpenKeys={['sub1']}
                     mode="inline"
                     theme="light"
+                    inlineCollapsed={true}
                 >
                     { items.map(renderItem) }
                 </Menu>
@@ -47,9 +49,10 @@ export const MenuByRole = ({items = [], getMenu }) => {
 
 export default connect(
     state => ({
-        items: getMenuItems(state)
+        items:             menuRedux.getMenuItems(state),
+        menuIsCollapsed :  menuRedux.isCollapsed(state)
     }),
     dispatch => ({
-        getMenu: bindActionCreators(getMenu, dispatch)
+        getMenu: bindActionCreators( menuRedux.getMenu, dispatch)
     })
 )(MenuByRole)

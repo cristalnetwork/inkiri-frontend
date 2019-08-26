@@ -43,12 +43,12 @@ function* tryLoginSaga({ type, payload }) {
   console.log(' LOGIN REDUX >> tryLoginSaga >> ', account_name, password, remember)
   try {
     // LLAMO A inkiriAPI.login
-    const login_data = yield api.login(account_name, password);
+    const accounts = yield api.login(account_name, password);
     
     if(payload.remember) {
-      setStorage(ACCOUNT_DATA, {account_name, password, remember, login_data})
+      setStorage(ACCOUNT_DATA, {account_name, password, remember, accounts})
     }
-    yield put(set({userId: account_name, role: 'business', login_data:login_data }))
+    yield put(set({userId: account_name, role: 'business', accounts:accounts }))
   } catch(e) {
     console.log(' >> LOGIN REDUX ERROR#1', e)
   }
@@ -70,17 +70,20 @@ store.injectSaga('login', [
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
 export const isLoading           = (state) => state.login.loading > 0
-// export const accounts = (state) => state.login.accounts || []
-export const actualAccount       = (state) => state.login.userId
-export const actualRole          = (state) => state.login.role
+// export const actualAccount       = (state) => state.login.userId
+// export const actualRole          = (state) => state.login.role
+export const actualAccount       = (state) => (state.login.current_account)?state.login.current_account.permissioned.actor:undefined
+export const actualRole          = (state) => (state.login.current_account)?state.login.current_account.permissioned.permission:undefined
+export const currentAccount      = (state) => state.login.current_account
 
-export const personalAccount     = (state) => state.login.login_data.personalAccount
-export const corporateAccounts   = (state) => state.login.login_data.corporateAccounts
-export const adminAccount        = (state) => state.login.login_data.adminAccount
+export const personalAccount     = (state) => state.login.accounts.personalAccount
+export const personalAccounts    = (state) => state.login.accounts.personalAccounts
+export const corporateAccounts   = (state) => state.login.accounts.corporateAccounts
+export const adminAccount        = (state) => state.login.accounts.adminAccount
 
 // El reducer del modelo
 // const defaultState = { loading: 0, role: undefined, userId: undefined, accounts: [] };
-const defaultState = { loading: 0, role: undefined, userId: undefined};
+const defaultState = { loading: 0, role: undefined, userId: undefined, current_account: undefined, accounts:{}};
 
 function reducer(state = defaultState, action = {}) {
   switch (action.type) {
@@ -97,9 +100,10 @@ function reducer(state = defaultState, action = {}) {
     case SET_LOGIN: 
       return {
         ...state,
-        userId:     action.payload.userId,
-        role:       action.payload.role,
-        login_data: action.payload.login_data
+        userId             : action.payload.accounts.personalAccount.permissioned.actor
+        , role             : action.payload.role
+        , current_account  : action.payload.accounts.personalAccount   
+        , accounts         : action.payload.accounts
       }
     case LOGOUT:
       return defaultState;

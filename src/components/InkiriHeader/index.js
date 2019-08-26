@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 
 import UserBalance from './userBalance';
 
-// import * as userRedux from '@app/redux/models/user'
+import * as menuRedux from '@app/redux/models/menu'
 import * as loginRedux from '@app/redux/models/login'
 import styles from './index.less';
 
@@ -19,23 +19,22 @@ const { Header } = Layout;
 class InkiriHeader extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      collapsed: false,
-    };
     this.handleChange = this.handleChange.bind(this);
   }
 
 
   toggle = () => {
-    this.setState({
-      collapsed: !this.state.collapsed,
-    });
+    this.props.collapseMenu(!this.props.menuIsCollapsed);
+    // this.setState({
+    //   collapsed: !this.state.collapsed,
+    // });
   };
 
   accountToString(account){
     return JSON.stringify(account);
   }
   
+
   handleChange(account) {
     // console.log(`selected ${account.name}`);
     // this.props.tryLogin(account)
@@ -57,7 +56,7 @@ class InkiriHeader extends Component {
           <div className="ant-pro-global-header">  
             <Icon
               className="trigger"
-              type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
+              type={this.props.menuIsCollapsed ? 'menu-unfold' : 'menu-fold'}
               onClick={this.toggle}
             />
             
@@ -78,11 +77,13 @@ class InkiriHeader extends Component {
 
 export default connect(
     (state)=> ({
-      actualAccount: loginRedux.actualAccount(state),
+      actualAccount :   loginRedux.actualAccount(state),
+      menuIsCollapsed : menuRedux.isCollapsed(state)
     }),
     (dispatch)=>({
         // try: bindActionCreators(userRedux.tryUserState , dispatch),
         tryLogin: bindActionCreators(loginRedux.tryLogin, dispatch),
-        logout: bindActionCreators(loginRedux.logout, dispatch)
+        logout: bindActionCreators(loginRedux.logout, dispatch),
+        collapseMenu: bindActionCreators(menuRedux.collapseMenu, dispatch)
     })
 )(InkiriHeader)

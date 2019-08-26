@@ -6,17 +6,24 @@ import { Spin } from 'antd';
 
 
 class UserBalance extends Component  {
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const {userId, loadBalance} = this.props;
         loadBalance(userId)
     }
 
-    componentWillReceiveProps(newProps) {
+    componentDidUpdate(prevProps, prevState) 
+    {
         const {userId, loadBalance} = this.props;
-        if(newProps.userId !== userId) {
-            loadBalance(newProps.userId)
+        if(prevProps.userId !== userId) {
+            loadBalance(userId)
         }
     }
+    // componentWillReceiveProps(newProps) {
+    //     const {userId, loadBalance} = this.props;
+    //     if(newProps.userId !== userId) {
+    //         loadBalance(newProps.userId)
+    //     }
+    // }
     
     render() {
         const {userId, balance, loading} = this.props;
