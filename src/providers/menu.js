@@ -2,12 +2,14 @@ import React, {useEffect} from 'react'
 import { connect } from 'react-redux'
 //import { getMenuItems, getMenu,  } from '@app/redux/models/menu'
 import * as menuRedux from '@app/redux/models/menu'
+import * as loginRedux from '@app/redux/models/login'
 
 import { Menu, Icon } from 'antd';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 
 import { getPath } from '@app/configs/routes'
+// import { getRoutesByRole } from '@app/services/routes'
 
 const  { SubMenu } = Menu;
 
@@ -30,11 +32,11 @@ const renderItem = (item) => {
     }
 }
 
-export const MenuByRole = ({items = [], menuIsCollapsed = false, getMenu }) => {
+export const MenuByRole = ({items = [], menuIsCollapsed = false, getMenu, actualAccount, actualRole }) => {
         useEffect(()=>{
-            getMenu({userId: "1"})
+            getMenu(actualAccount, actualRole)
         })
-        console.log( '****** MENU::menuIsCollapsed' , menuIsCollapsed)
+        // console.log( '****** MENU::menuIsCollapsed' , menuIsCollapsed)
         return (
                 <Menu
                     defaultSelectedKeys={['1']}
@@ -51,9 +53,11 @@ export const MenuByRole = ({items = [], menuIsCollapsed = false, getMenu }) => {
 export default connect(
     state => ({
         items:             menuRedux.getMenuItems(state),
-        menuIsCollapsed :  menuRedux.isCollapsed(state)
+        menuIsCollapsed :  menuRedux.isCollapsed(state),
+        actualAccount:     loginRedux.actualAccount(state),
+        actualRole:        loginRedux.actualRole(state),
     }),
     dispatch => ({
-        getMenu: bindActionCreators( menuRedux.getMenu, dispatch)
+        getMenu:           bindActionCreators( menuRedux.getMenu, dispatch)
     })
 )(MenuByRole)

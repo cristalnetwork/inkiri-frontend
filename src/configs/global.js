@@ -28,6 +28,10 @@ const bank = {
   DEFAULT_FEE :            5,
   DEFAULT_OVERDRAFT :      0,
   
+  getAccountType : (account_type) => {
+    // console.log(' +-+-+- isPersonalAccount', parseInt(account_type) , '==', bank.ACCOUNT_TYPE_PERSONAL);
+    return parseInt(account_type)<bank.ACCOUNT_TYPES.length?bank.ACCOUNT_TYPES[parseInt(account_type)]:undefined;
+  },
   isPersonalAccount : (account_type) => {
     // console.log(' +-+-+- isPersonalAccount', parseInt(account_type) , '==', bank.ACCOUNT_TYPE_PERSONAL);
     return parseInt(account_type) == bank.ACCOUNT_TYPE_PERSONAL;

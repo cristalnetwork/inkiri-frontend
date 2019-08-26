@@ -1,64 +1,64 @@
 const arrToObj  = (a = []) => a.reduce((prev,act) => { prev[act] = act; return prev; } , {});
 
 export const pathNames = arrToObj([
-    'businessAllInOne',
-    'businessDashboard',
-    'businessUnderConstruction',
-    'businessExtracto',
-    'businessDeposit',
-    'businessRetirar',
-    'businessCambiar',
+    'personalAllInOne',
+    'personalDashboard',
+    'personalUnderConstruction',
+    'personalExtracto',
+    'personalDeposit',
+    'personalRetirar',
+    'personalCambiar',
 
-    'businessRequestMoney',
+    'personalRequestMoney',
 
-    'businessSendMoney',
-    'businessPaymentsAndServices',
+    'personalSendMoney',
+    'personalPaymentsAndServices',
 
-    'businessConfiguration'
+    'personalConfiguration'
 ])
 
-const business =[
+const personal =[
     {
-       key: pathNames.businessDashboard,
+       key: pathNames.personalDashboard,
        fileName: 'allInOne',
-       area: 'business',
+       area: 'personal',
        path: 'dashboard',
        container: 'dashboard',
-       role: 'business'
+       role: 'personal'
     },
     {
-        key: pathNames.businessUnderConstruction,
+        key: pathNames.personalUnderConstruction,
         fileName: 'under-construction',
-        area: 'business',
+        area: 'personal',
         path: 'proximamente',
         container: 'dashboard',
-        role: 'business'
+        role: 'personal'
      },
      {
-       key: pathNames.businessSendMoney,
+       key: pathNames.personalSendMoney,
        fileName: 'sendMoney',
-       area: 'business',
+       area: 'personal',
        path: 'send-money',
        container: 'dashboard' 
     },
      {
-       key: pathNames.businessDeposit,
+       key: pathNames.personalDeposit,
        fileName: 'deposit',
-       area: 'business',
+       area: 'personal',
        path: 'deposit',
        container: 'dashboard' 
     },
     {
-       key: pathNames.businessExtracto,
+       key: pathNames.personalExtracto,
        fileName: 'home',
-       area: 'business',
+       area: 'personal',
        path: 'extrato',
        container: 'dashboard' 
     },
      {
-       key: pathNames.businessAllInOne,
+       key: pathNames.personalAllInOne,
        fileName: 'allInOne',
-       area: 'business',
+       area: 'personal',
        path: 'all-in-one',
        container: 'dashboard' 
     },
@@ -66,12 +66,12 @@ const business =[
 
 const admin = [];
 
-const persona = [];
+const business = [];
 
 const merged  = [
-    ...business,
+    ...personal,
     ...admin,
-    ...persona
+    ...business
   ]
 
 export const getPath = (key) => {

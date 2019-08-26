@@ -9,7 +9,7 @@ import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
 
 import { InboundMessageType, createDfuseClient } from '@dfuse/client';
-import { BrowserRouter as Router, Route, Redirect, withRouter } from "react-router-dom";
+import { Route, Redirect, withRouter } from "react-router-dom";
 import * as api from '@app/services/inkiriApi';
 
 import './home.css'; 

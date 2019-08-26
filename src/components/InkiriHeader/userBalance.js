@@ -6,6 +6,7 @@ import { Spin } from 'antd';
 
 
 class UserBalance extends Component  {
+    
     UNSAFE_componentWillMount() {
         const {userId, loadBalance} = this.props;
         loadBalance(userId)

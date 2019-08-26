@@ -13,6 +13,7 @@ import MenuByRole from './menu';
 
 import history from '@app/history.js'
 
+import * as loginRedux from '@app/redux/models/login'
 // LOGIN, ROLES and REDIRECT TO REFERRER -- > https://reacttraining.com/react-router/web/example/auth-workflow
 
 const _checkRole = ({role, actualRole, children, history, location}) => {
@@ -35,7 +36,7 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
 }
 
 const CheckRole = connect((state)=>({
-    actualRole: state.login.role
+    actualRole:       loginRedux.actualRole(state),
 }),()=>({}))(withRouter(_checkRole))
 
 const CheckLogin = () => <CheckRole role={undefined}><Login/></CheckRole>

@@ -1,78 +1,78 @@
 import { pathNames } from '../configs/routes'
 const routes  = {
-    business: {
+    personal: {
         items: [
             {
-                key: pathNames.businessDashboard,
+                key: pathNames.personalDashboard,
                 title: 'My money',
                 items: [
                     {
-                        key: pathNames.businessAllInOne,
-                        path: pathNames.businessAllInOne,
+                        key: pathNames.personalAllInOne,
+                        path: pathNames.personalAllInOne,
                         title: 'All In One',
                     },
                     {
-                        key: pathNames.businessExtracto,
-                        path: pathNames.businessExtracto,
+                        key: pathNames.personalExtracto,
+                        path: pathNames.personalExtracto,
                         title: 'Transaction History',
                     },
                     // {
-                    //     key: pathNames.businessInformes,
-                    //     path: pathNames.businessUnderConstruction,
+                    //     key: pathNames.personalInformes,
+                    //     path: pathNames.personalUnderConstruction,
                     //     title: 'Reports',
                     // },
                     {
-                        key: pathNames.businessDeposit,
-                        path: pathNames.businessDeposit,
+                        key: pathNames.personalDeposit,
+                        path: pathNames.personalDeposit,
                         title: 'Deposit',
                     },
                     {
-                        key: pathNames.businessRetirar,
-                        path: pathNames.businessUnderConstruction,
+                        key: pathNames.personalRetirar,
+                        path: pathNames.personalUnderConstruction,
                         title: 'Withdraw',
                     },
                     {
-                        key: pathNames.businessCambiar,
-                        path: pathNames.businessUnderConstruction,
+                        key: pathNames.personalCambiar,
+                        path: pathNames.personalUnderConstruction,
                         title: 'Exchange',
                     }
                 ]
             },
             {
-                key: pathNames.businessRequestMoney,
+                key: pathNames.personalRequestMoney,
                 title: 'Receive',
                 items: [
                     {
-                        key: pathNames.businessRequestMoney,
-                        path: pathNames.businessUnderConstruction,
+                        key: pathNames.personalRequestMoney,
+                        path: pathNames.personalUnderConstruction,
                         title: 'Request money',
                     }
                 ]
             },
             {
-                key: pathNames.businessSendMoney,
+                key: pathNames.personalSendMoney,
                 title: 'Pay',
                 items: [
                     {
-                        key: pathNames.businessSendMoney,
-                        path: pathNames.businessSendMoney,
+                        key: pathNames.personalSendMoney,
+                        path: pathNames.personalSendMoney,
                         title: 'Send money',
                     },
                     {
-                        key: pathNames.businessPaymentsAndServices,
-                        path: pathNames.businessUnderConstruction,
+                        key: pathNames.personalPaymentsAndServices,
+                        path: pathNames.personalUnderConstruction,
                         title: 'Payment and services',
                     }
                 ]
             }
             ,
             {
-                key: pathNames.businessConfiguration,
+                key: pathNames.personalConfiguration,
                 title: 'Configuration',
                 items: [
                     {
-                        key: pathNames.businessConfiguration,
-                        path: pathNames.businessUnderConstruction,
+                        key: pathNames.personalConfiguration,
+                        path: pathNames.personalUnderConstruction,
                         title: 'Configuration'
                     }
                 ]
@@ -80,10 +80,11 @@ const routes  = {
         ]
     },
     admin: {},
-    personal: {},
+    business: {},
     guest: {}
 }
 
 export const getRoutesByRole = (role) => {
+    console.log(' **** routes::getRoutesByRole >> ', role)
     return routes[role];
 }

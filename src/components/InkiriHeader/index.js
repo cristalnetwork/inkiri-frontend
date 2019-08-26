@@ -59,7 +59,7 @@ class InkiriHeader extends Component {
               type={this.props.menuIsCollapsed ? 'menu-unfold' : 'menu-fold'}
               onClick={this.toggle}
             />
-            
+              
             <div className="right">
               <div className="header_element_container">
                 <Button icon={'logout'} onClick={this.props.logout}>Logout</Button>

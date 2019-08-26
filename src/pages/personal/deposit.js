@@ -112,7 +112,7 @@ class DepositMoney extends Component {
 
   backToDashboard = async () => {
     this.props.history.push({
-      pathname: '/business/extrato'
+      pathname: `/${this.props.actualRole}/extrato`
     })
   }
 
@@ -293,6 +293,7 @@ class DepositMoney extends Component {
 export default Form.create() (withRouter(connect(
     (state)=> ({
         actualAccount:    loginRedux.actualAccount(state),
+        actualRole:       loginRedux.actualRole(state),
         isLoading:        loginRedux.isLoading(state)
     }),
     (dispatch)=>({

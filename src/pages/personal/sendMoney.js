@@ -151,7 +151,7 @@ class SendMoney extends Component {
 
   backToDashboard = async () => {
     this.props.history.push({
-      pathname: '/business/extrato'
+      pathname: `/${this.props.actualRole}/extrato`
     })
   }
 
@@ -326,6 +326,7 @@ export default Form.create() (withRouter(connect(
     (state)=> ({
         accounts:         accountsRedux.accounts(state),
         actualAccount:    loginRedux.actualAccount(state),
+        actualRole:       loginRedux.actualRole(state),
         isLoading:        loginRedux.isLoading(state),
         balance:          balanceRedux.userBalanceFormatted(state),
     }),

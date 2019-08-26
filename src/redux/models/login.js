@@ -1,6 +1,6 @@
 import { takeEvery, put } from '@redux-saga/core/effects';
 import { store } from '../configureStore'
-// import { tryUserState } from './user'; 
+import * as globalCfg from '@app/configs/global';
 import { getStorage, clearStorage, setStorage } from '@app/services/localStorage'
 import * as core from './core';
 import * as api from '@app/services/inkiriApi';
@@ -48,7 +48,7 @@ function* tryLoginSaga({ type, payload }) {
     if(payload.remember) {
       setStorage(ACCOUNT_DATA, {account_name, password, remember, accounts})
     }
-    yield put(set({userId: account_name, role: 'business', accounts:accounts }))
+    yield put(set({userId: account_name, role: accounts.personalAccount.permissioner.account_type, accounts:accounts }))
   } catch(e) {
     console.log(' >> LOGIN REDUX ERROR#1', e)
   }
@@ -73,7 +73,7 @@ export const isLoading           = (state) => state.login.loading > 0
 // export const actualAccount       = (state) => state.login.userId
 // export const actualRole          = (state) => state.login.role
 export const actualAccount       = (state) => (state.login.current_account)?state.login.current_account.permissioned.actor:undefined
-export const actualRole          = (state) => (state.login.current_account)?state.login.current_account.permissioned.permission:undefined
+export const actualRole          = (state) => (state.login.current_account)?globalCfg.bank.getAccountType(state.login.current_account.permissioner.account_type):undefined
 export const currentAccount      = (state) => state.login.current_account
 
 export const personalAccount     = (state) => state.login.accounts.personalAccount

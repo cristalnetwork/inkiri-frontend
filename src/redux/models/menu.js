@@ -1,5 +1,5 @@
-import * as api from '../../services/userApi'
-import { getRoutesByRole } from '../../services/routes'
+// import * as api from '../../services/userApi'
+import { getRoutesByRole } from '@app/services/routes'
 import { takeEvery, call, put } from '@redux-saga/core/effects';
 import { store } from '@app/redux/configureStore'
 // ConstantesT
@@ -12,7 +12,7 @@ const TRY_COLLAPSE    = 'menu/TRY_COLLAPSE'
 const SET_COLLAPSE    = 'menu/SET_COLLAPSE'
 
 // Creadores de acciones (se pueden usar desde los compoenentes)
-export const getMenu = (userId) =>({ type: GET_ASYNC, payload: { userId }});
+export const getMenu = (account_name, account_type) =>({ type: GET_ASYNC, payload: { account_name, account_type }});
 export const getMenuFail = (error) =>({ type: GET_FAIL, payload: { error }});
 export const setMenu = ({ role, menu }) =>({ type: SET, payload: { role, menu }});
 export const cleanMenu = () =>({ type: CLEAN_MENU });
@@ -23,10 +23,17 @@ export const collapseMenu = (is_collapsed) => ({ type: TRY_COLLAPSE, payload: { 
 //Eventos que requieren del async
 function* getMenuSaga({ type, payload }) {
   try {
-    const {error, data } = yield call(api.getRole, payload.userId)
-    if (typeof error === 'undefined') {
-      yield put(setMenu({ role: data.role, menu: getRoutesByRole( data.role )}))
-    }
+    // const {error, data } = yield call(api.getRole, payload.userId)
+    // account_name: actualAccount, account_type:actualRole
+    // if (typeof error === 'undefined') {
+      // yield put(setMenu({ role: data.role, menu: getRoutesByRole( data.role )}))
+    // }
+    
+    const {account_name, account_type } = payload;
+    console.log(' --------------- getMENUSAGA > payload', payload)
+    console.log(' --------------- getMENUSAGA > account_name', account_name)
+    console.log(' --------------- getMENUSAGA > account_type', account_type)
+    yield put(setMenu({ role: account_type, menu: getRoutesByRole( account_type )}))
   } catch(error) {
     console.log({error})
     yield put(getMenuFail(error))
@@ -37,12 +44,12 @@ function* getMenuSaga({ type, payload }) {
 function* tryCollapseMenuSaga({ type, payload }) {
 
   const { is_collapsed } = payload
-  console.log(' MENU REDUX >> tryCollapseMenuSaga >> payload: ', payload)
-  console.log(' MENU REDUX >> tryCollapseMenuSaga >> is_collapsed: ', is_collapsed)
+  // console.log(' MENU REDUX >> tryCollapseMenuSaga >> payload: ', payload)
+  // console.log(' MENU REDUX >> tryCollapseMenuSaga >> is_collapsed: ', is_collapsed)
   yield put({type: SET_COLLAPSE, payload: payload })
 }
 
-//Se envan las sagas a redux estableciendo que y cuantas veces dispara la funciรณn
+//Se envan las sagas a redux estableciendo que y cuantas veces dispara la funcion
 store.injectSaga('menu', [
   takeEvery(GET_ASYNC, getMenuSaga),
   takeEvery(TRY_COLLAPSE, tryCollapseMenuSaga),
@@ -78,7 +85,7 @@ function reducer(state = defaultState, action = {}) {
         loading: state.loading - 1
       }
     case SET_COLLAPSE:
-      console.log(' menuREDUX::SET_COLLAPSE -> action.payload >> ', action.payload)
+      // console.log(' menuREDUX::SET_COLLAPSE -> action.payload >> ', action.payload)
       return {
         ...state,
         is_collapsed: action.payload.is_collapsed
