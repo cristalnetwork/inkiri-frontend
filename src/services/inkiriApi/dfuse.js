@@ -94,7 +94,7 @@ export const getAccountBalance = (account) => new Promise((res,rej)=> {
       { blockNum: undefined }
     )
     .then((data) => {
-      console.log(' dfuse::getAccountBalance >> receive balance for account:', account, JSON.stringify(data));
+      // console.log(' dfuse::getAccountBalance >> receive balance for account:', account, JSON.stringify(data));
       const _res = {
           data:{
             balance:       data.rows.length?txsHelper.getEOSQuantityToNumber(data.rows[0].json.balance):0,
@@ -176,27 +176,28 @@ export const searchPermissioningAccounts = (account_name) => new Promise( (res, 
 })
 
 
-// export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
-// 	listBankAccounts()
-// 	.then((data) => {
-// 		// console.log(' dfuse::searchBankAccount >> ', JSON.stringify(data));
-//   	var account = data.data.accounts.filter(account => account.key === account_name);
-//     if(account && account.length>0)
-//     {
-//     	let _res = {data:{account:account[0]}};
-//     	// console.log(' dfuse::searchBankAccount >> ', JSON.stringify(_res));	
-//     	res (_res)
-//     }
-//     else
-//   	{
-//   		console.log(' dfuse::searchBankAccount >> ', 'Account not Found!');	
-//   		rej({error:'Account not found'});
-//   	}
-//   }, (ex)=>{
-//     console.log('dfuse::searchBankAccount >> ERROR ', JSON.stringify(ex));
-//     rej(ex);
-//   });
-// })	
+export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
+	listBankAccounts()
+	.then((data) => {
+		// console.log(' dfuse::searchBankAccount >> ', JSON.stringify(data));
+  	var account = data.data.accounts.filter(account => account.key === account_name);
+    if(account && account.length>0)
+    {
+    	let _res = account[0];
+    	// console.log(' dfuse::searchBankAccount >> ', JSON.stringify(_res));	
+    	res (_res)
+    }
+    else
+  	{
+  		console.log(' dfuse::searchBankAccount >> ', 'Account not Found!');	
+  		// rej({error:'Account not found'});
+      res(undefined);
+  	}
+  }, (ex)=>{
+    console.log('dfuse::searchBankAccount >> ERROR ', JSON.stringify(ex));
+    rej(ex);
+  });
+})	
 
 // export const searchOneBankAccount = (account_name) => new Promise((res,rej)=> {
 //   let client = createClient();

@@ -11,6 +11,10 @@ import { DashboardContainer } from '@app/containers/dashboard.container';
 import Login from '@app/pages/general/login'
 import MenuByRole from './menu';
 
+import history from '@app/history.js;'
+
+// LOGIN, ROLES and REDIRECT TO REFERRER -- > https://reacttraining.com/react-router/web/example/auth-workflow
+
 const _checkRole = ({role, actualRole, children, history, location}) => {
     if (role === actualRole) {
         return <>
@@ -54,7 +58,7 @@ const loadableComponent = (area, fileName, container, role)=> {
 
   export function DashboardRouter({routes}) {
   return (
-    <Router>
+    <Router history={history}>
         <Route path="/login" component={CheckLogin} />
         {routes.map(item => <Route key={item.path} path={'/'+item.area+'/'+item.path} component={loadableComponent(item.area, item.fileName, item.container, item.role)} /> )}
         <Route path={'/'} component={()=><Redirect to={'/login'} />} />

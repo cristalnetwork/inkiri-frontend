@@ -29,7 +29,7 @@ const bank = {
   DEFAULT_OVERDRAFT :      0,
   
   isPersonalAccount : (account_type) => {
-    console.log(' +-+-+- isPersonalAccount', parseInt(account_type) , '==', bank.ACCOUNT_TYPE_PERSONAL);
+    // console.log(' +-+-+- isPersonalAccount', parseInt(account_type) , '==', bank.ACCOUNT_TYPE_PERSONAL);
     return parseInt(account_type) == bank.ACCOUNT_TYPE_PERSONAL;
   },
    isBusinessAccount : (account_type) => {
@@ -39,7 +39,7 @@ const bank = {
     return parseInt(account_type) == bank.ACCOUNT_TYPE_BANKADMIN;
   },
   isEnabledAccount : (account_state) => {
-    console.log(' +-+-+- isEnabledAccount', parseInt(account_state) , '==', bank.ACCOUNT_STATE_OK);
+    // console.log(' +-+-+- isEnabledAccount', parseInt(account_state) , '==', bank.ACCOUNT_STATE_OK);
     return parseInt(account_state) == bank.ACCOUNT_STATE_OK;
   }
 };

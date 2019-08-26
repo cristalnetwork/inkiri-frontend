@@ -44,20 +44,27 @@ const listAllBankAccounts = async () => {
   return {...accounts}
 }
 
-const getBankAccount = async (account_name) => { 
-  const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
-  // const response  = await jsonRpc.get_account(account_name)
-  const response = await jsonRpc.get_table_rows({
-    json:           true                 
-    , code:         globalCfg.bank.issuer
-    , scope:        globalCfg.bank.issuer
-    , table:        'ikaccounts'        
-    , lower_bound:  account_name
-    , limit:        1
-    , reverse:      false
-    , show_payer :  false
-  });
-  return {...response.rows[0]}
+// export const getBankAccount = async (account_name) => { 
+//   const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
+//   const response = await jsonRpc.get_table_rows({
+//     json:           true                 
+//     , code:         globalCfg.bank.issuer
+//     , scope:        globalCfg.bank.issuer
+//     , table:        'ikaccounts'        
+//     , lower_bound:  account_name
+//     , limit:        1
+//     , reverse:      false
+//     , show_payer :  false
+//   });
+//   const _found = (response.rows&&response.rows.length>0);
+//   console.log(' InkiriApi::getBankAccount >> ', (_found?{...response.rows[0]}:'NOT FOUND'));
+//   return _found?{...response.rows[0]}:undefined;
+// }
+export const getBankAccount = (account_name) => dfuse.searchBankAccount(account_name);
+
+export const isBankCustomer = async (account_name) => { 
+  const customer = await getBankAccount(account_name);
+  return customer!==undefined;
 }
 
 const getAccount = async (account_name) => { 
@@ -212,12 +219,108 @@ export const dummyPrivateKeys = {
     , 'inkpersonal2': '5KRg4dqcdAnGzRVhM4vJkDRVkfDYrH3RXG2CVzA61AsfjyHDvBh'
   }
 
-const getMaxPermission = (account_name, permissioner_account) => new Promise( (res, rej) => {
-  // let permissioner = await getAccount(permissioner_account)
-  // const the_perms = permissioner.permissions.filter( perm => perm.required_auth.accounts. == 'active' )[0];
+
+// permissioning_accounts
+
+  /*
+  personal account
+    owner -> root
+    active -> manager
+    viewer -> --
+
+
+    admin account - inkirimaster
+    owner -> root
+    active -> manager, --
+        pda  -> --
+        viewer-> --
+
+    corporate account
+        owner -> root
+    active -> manager
+        pdv -> can sell
+        viewer -> can view
+
+    Token issuer account - inkiritoken1
+        owner -> private_key
+        active -> inkirimaster
+
+  */
+  
+
+const getMaxPermissionForAccount = async (account_name, permissioner_account) => {
+  
+  // console.log('inkiriApi::getMaxPermissionForAccount >> account_name:', account_name, ' | permissioner_account:', permissioner_account)
+
+  const permissioner = await getAccount(permissioner_account)
+  const perms = permissioner.data.permissions.reduce((_arr, perm) =>  {
+    const perm_auths = perm.required_auth.accounts.filter(acc_perm => acc_perm.permission.actor == account_name) ;
+    if(perm_auths.length>0)
+    { 
+      _arr.push({ permission: perm_auths[0].permission, perm_name:perm.perm_name, permissioner:permissioner_account});
+    }; 
+    return _arr;
+  } ,[] )
+
+  const perms_hierarchy = ['viewer', 'pda', 'active', 'owner',]
+  return perms.length<1 ? undefined : perms.sort(function(a, b){return perms_hierarchy.indexOf(a.perm_name)<perms_hierarchy.indexOf(b.perm_name)})[0];
+}
+
+const getPermissionedAccountsForAccount = (account_name) => new Promise((res, rej) => {
+  
+  // console.log(' ************* #1 searchPermissioningAccounts')
+  dfuse.searchPermissioningAccounts(account_name)
+  .then(
+    (permissioning_accounts)=>{
+      
+      let isCustomerPromises = [];
+      let bank_customer_tmp  = {};
+      // console.log(JSON.stringify(permissioning_accounts))
+      // console.log(' ************* #2 isBankCustomer ??')
+      permissioning_accounts.forEach((perm) => {
+        // console.log(' ++ iterator: ', perm.permissioner)
+        isCustomerPromises.push(getBankAccount(perm.permissioner))
+      })
+      Promise.all(isCustomerPromises).then((values) => {
+        // console.log(JSON.stringify(values))
+        let permissionPromises = [];
+        // console.log(' ************* #3 getMaxPermissionForAccount ??')
+        values.forEach((bank_customer, index) => {
+          if(bank_customer) 
+          {
+            bank_customer_tmp[bank_customer.key] = bank_customer;
+            permissionPromises.push(getMaxPermissionForAccount(account_name, permissioning_accounts[index].permissioner))
+          }
+        })
+        Promise.all(permissionPromises).then((permissions) => {
+            
+            res(permissions.filter(permission => (permission!==undefined)).map((permission) => {
+              const bank_customer = bank_customer_tmp[permission.permissioner];
+              return {
+                  permission         : permission.perm_name
+                  , permissioner     : {
+                      account_name               : permission.permissioner
+                      , account_type             : bank_customer.account_type
+                      , account_type_description : txsHelper.getAccountTypeDescription(bank_customer.account_type)}
+                  , permissioned     : permission.permission  
+                  }
+            }));
+          }, (err)=>{
+          console.log(' ************ inkiriApi::getPermissionedAccountsForAccount getMaxPermissionForAccount ERROR >> ', JSON.stringify(err));
+          rej(err);
+        });
+
+      }, (err)=>{
+        console.log(' ************ inkiriApi::getPermissionedAccountsForAccount isCustomerPromises ERROR >> ', JSON.stringify(err));
+        rej(err);
+      });
+    },
+    (error)=>{
+      console.log('inkiriApi::getPermissionedAccountsForAccount ERROR >> ', error) 
+      throw new Error(JSON.stringigy(error)) 
+    }
+  )
 })
-
-
 
 export const login = async (account_name, private_key) => {
   
@@ -254,62 +357,37 @@ export const login = async (account_name, private_key) => {
   
   const bchain_account_info = await getAccount(account_name);
   const personalAccount   = { 
-      account_name:       bchain_account_info.data.account_name,
-      account_type:       customer_info.account_type,
-      account_type_desc:  customer_info.account_type_description,
-      role:               '??',          
+
+      // account_name:       bchain_account_info.data.account_name,
+      // account_type:       customer_info.account_type,
+      // account_type_desc:  customer_info.account_type_description,
+      // role:               '??',          
       extra:        {
         bank: customer_info, 
         blockchain : bchain_account_info.data
       }
+      , permission       : 'active'
+      , permissioner     : {
+          account_name               : account_name
+          , account_type             : customer_info.account_type
+          , account_type_description : txsHelper.getAccountTypeDescription(customer_info.account_type)}
+      , permissioned     : {
+            "actor": account_name,
+            "permission": "active"
+        }
   };
 
-  let   corporateAccounts  = [];
-  let   adminAccount       = null;
+  let persmissionedAccounts = await getPermissionedAccountsForAccount(account_name);
+  let corporateAccounts     = persmissionedAccounts.filter(perm => globalCfg.bank.isBusinessAccount(perm.permissioner.account_type))
+  let adminAccount          = persmissionedAccounts.filter(perm => globalCfg.bank.isAdminAccount(perm.permissioner.account_type))
+  let personalAccounts      = persmissionedAccounts.filter(perm => globalCfg.bank.isPersonalAccount(perm.permissioner.account_type))
+  // // HACK
+  // if(account_name==globalCfg.bank.issuer)
+  // {
+  //   adminAccount = { ...personalAccount}
+  // }
+
   
-  let permissioning_accounts ;
-  // 5.- Traigo el resto de las cuentas, para cargar si es admin del banco, y las cuentas empresa que tenga relacionadas
-  try{
-    permissioning_accounts = await dfuse.searchPermissioningAccounts(account_name)
-    console.log('inkiriApi::login permissioning_account >> ', JSON.stringify(permissioning_accounts))
-  }
-  catch(ex){
-    console.log('inkiriApi::login ERROR >> permissioning_account !', ex) 
-    // throw new Error('Account is not a Bank customer!') 
-  }
-
-  // HACK
-  if(account_name==globalCfg.bank.issuer)
-  {
-    adminAccount = { ...personalAccount}
-  }
-
-  // permissioning_accounts
-
-  /*
-  personal account
-    owner -> root
-    active -> manager
-    viewer -> --
-
-
-    admin account - inkirimaster
-    owner -> root
-    active -> manager, --
-        pda  -> --
-        viewer-> --
-
-    corporate account
-        owner -> root
-    active -> manager
-        pdv -> can sell
-        viewer -> can view
-
-    Token issuer account - inkiritoken1
-        owner -> private_key
-        active -> inkirimaster
-
-  */
   // 6.- me logeo al banko
   let bank_auth;
   try{
@@ -323,9 +401,11 @@ export const login = async (account_name, private_key) => {
   }
 
   const ret= {
-    personalAccount : personalAccount,
-    corporateAccounts : corporateAccounts,
-    adminAccount : adminAccount
+    personalAccount       : personalAccount,
+    // persmissionedAccounts : persmissionedAccounts,
+    corporateAccounts     : corporateAccounts.length>0?corporateAccounts:undefined,
+    adminAccount          : (adminAccount&&adminAccount.length>0)?adminAccount[0]:undefined,
+    otherPersonalAccounts : personalAccounts
   };
 
   console.log(' **************** '

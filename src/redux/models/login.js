@@ -5,6 +5,8 @@ import { getStorage, clearStorage, setStorage } from '@app/services/localStorage
 import * as core from './core';
 import * as api from '@app/services/inkiriApi';
 
+import history from '@app/history.js';
+
 // Constantes
 const TRY_LOGIN = 'login/TRY';
 const TRY_LOGIN_END = 'login/TRY_LOGIN_END';
@@ -54,27 +56,9 @@ function* tryLoginSaga({ type, payload }) {
   // yield put( tryUserState(account_name))
 }
 
-
-// function* tryLoginSaga({ type, payload }) {
-
-//   // LLAMO A inkiriAPI.login
-//   // api.login(account, api.dummyPrivateKeys[account]);
-
-//   const { account, save} = payload
-//   try {
-//     if(payload.save) {
-//       setStorage('login',{account, save})
-//     }
-//     yield put(set({userId: account.key, role: 'business'}))
-//   } catch(e) {
-//     console.err(e)
-//   }
-//   yield put({type: TRY_LOGIN_END})
-//   yield put( tryUserState(account.key))
-// }
-
 function* logoutSaga( ) {
   yield clearStorage();
+  history.replace('/');
 }
 
 //Se envan las sagas a redux estableciendo que y cuantas veces dispara la funcià¸£à¸“n
