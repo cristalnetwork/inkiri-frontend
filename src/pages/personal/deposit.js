@@ -16,6 +16,8 @@ import { withRouter } from "react-router-dom";
 import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
+import * as routesService from '@app/services/routes';
+
 import './deposit.css'; 
 
 const { Paragraph, Text } = Typography;
@@ -30,21 +32,7 @@ const Description = ({ term, children, span = 12 }) => (
     </Col>
   );
 
-const routes = [
-  {
-    path: 'index',
-    breadcrumbName: 'Inkiri BANK',
-  },
-  {
-    path: 'first',
-    breadcrumbName: 'My money',
-  },
-  {
-    path: 'second',
-    breadcrumbName: 'Deposit',
-  }
-];
-
+const routes = routesService.breadcrumbForFile('deposit');
 
 class DepositMoney extends Component {
   constructor(props) {

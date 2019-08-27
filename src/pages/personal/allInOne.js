@@ -12,7 +12,7 @@ import { InboundMessageType, createDfuseClient } from '@dfuse/client';
 import { Route, Redirect, withRouter } from "react-router-dom";
 import * as api from '@app/services/inkiriApi';
 
-import './home.css'; 
+import './extrato.css'; 
 
 
 

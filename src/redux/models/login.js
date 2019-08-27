@@ -97,7 +97,7 @@ function getLoginDataFromStorage(storageData, switch_to){
   const account         = accountsToArray(storageData.accounts).filter( acc => acc.permissioner.account_name==new_account)[0]
 
   const _loginData = {userId: new_account, accounts:storageData.accounts, master_account:master_account , current_account:account};
-  console.log(' lodingREDUX::getLoginDataFromStorage >> ', _loginData)
+  // console.log(' lodingREDUX::getLoginDataFromStorage >> ', _loginData)
   return _loginData;
 }
 

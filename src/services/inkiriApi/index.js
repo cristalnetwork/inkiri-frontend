@@ -373,6 +373,8 @@ export const login = async (account_name, private_key) => {
           // , account_type_description : txsHelper.getAccountTypeDescription(customer_info.account_type)
           , account_type             : globalCfg.bank.ACCOUNT_TYPE_BANKADMIN 
           , account_type_description : txsHelper.getAccountTypeDescription(globalCfg.bank.ACCOUNT_TYPE_BANKADMIN)
+          // , account_type             : globalCfg.bank.ACCOUNT_TYPE_BUSINESS 
+          // , account_type_description : txsHelper.getAccountTypeDescription(globalCfg.bank.ACCOUNT_TYPE_BUSINESS)
       }
       , permissioned     : {
             "actor": account_name,

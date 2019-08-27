@@ -9,7 +9,7 @@ import { bindActionCreators } from 'redux';
 
 const { Header, Content, Footer, Sider } = Layout;
 
-export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, menuIsCollapsed, collapseMenu}) => {
+export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, menuIsCollapsed, collapseMenu}) => {
     
     console.log(' DashboardContainer >> menuIsCollapsed:' , menuIsCollapsed)
     const onCollapse = () => {
@@ -22,7 +22,7 @@ export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, menuIs
             <div className="logo">
               <img src="/favicons/favicon-32x32.png" />
             </div>
-            { Menu? <Menu/>: false }
+            { Menu? <Menu area={area} fileName={fileName}/>: false }
         </Sider>
         <Layout>
           <Header style={{ background: '#fff', padding: 0 }}>

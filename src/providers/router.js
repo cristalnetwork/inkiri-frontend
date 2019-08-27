@@ -26,7 +26,7 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
         </>
     } else {
         if(actualRole) {
-            history.push(`/${actualRole}/dashboard`);
+            history.push(`/${actualRole}/pda`);
             // history.push(`/${actualRole}/dashboard`);
             // history.push(`/${actualRole}/deposit`);
             // history.push(`/${actualRole}/extrato`);
@@ -53,10 +53,12 @@ const loadableComponent = (area, fileName, container, role)=> {
     })
     let Container;
     if(container === 'dashboard') {
-        Container = ()=> <DashboardContainer footerText=""  TopMenu="" Children={ayncComponent} Menu={MenuByRole}/>
+        Container = ()=> <DashboardContainer footerText=""  TopMenu="" Children={ayncComponent} Menu={MenuByRole} area={area} fileName={fileName} />
+        
     } else {
         Container = ()=> <BlankContainer Children={ayncComponent} />
     }
+
     if (role) {
         return ()=>(<CheckRole role={role}><Container/></CheckRole>)
     }
@@ -73,12 +75,4 @@ export const DashboardRouter = ({routes}) => {
   );
 }
 
-// export default connect(
-//     state => ({
-//       menuIsCollapsed :  menuRedux.isCollapsed(state)
-//     }),
-//     dispatch => ({
-//       collapseMenu:      bindActionCreators(menuRedux.collapseMenu, dispatch)        
-//     })
-// )(DashboardRouter)
 

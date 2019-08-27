@@ -27,6 +27,10 @@ export const pathNames = arrToObj([
     'bankadminProviders',
     'bankadminPDA',
 
+    'bankadminStaff',
+    'bankadminSalaries',
+    'bankadminCrew',
+
     'dashboard'
 ])
 
@@ -64,7 +68,7 @@ const personal =[
     },
     {
        key: pathNames.personalExtracto,
-       fileName: 'home',
+       fileName: 'extrato',
        area: 'personal',
        path: 'extrato',
        container: 'dashboard' 
@@ -137,7 +141,6 @@ const bankadmin = [
        container: 'dashboard',
        role: 'bankadmin'
     },
-
     {
        key: pathNames.bankadminProfiles,
        fileName: 'under-construction',
@@ -146,7 +149,6 @@ const bankadmin = [
        container: 'dashboard',
        role: 'bankadmin'
     },
-
     {
        key: pathNames.bankadminProviders,
        fileName: 'under-construction',
@@ -155,12 +157,28 @@ const bankadmin = [
        container: 'dashboard',
        role: 'bankadmin'
     },
-
     {
        key: pathNames.bankadminPDA,
-       fileName: 'under-construction',
+       fileName: 'pda',
        area: 'bankadmin',
        path: 'pda',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+
+    {
+       key: pathNames.bankadminSalaries,
+       fileName: 'under-construction',
+       area: 'bankadmin',
+       path: 'salaries',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+    {
+       key: pathNames.bankadminCrew,
+       fileName: 'under-construction',
+       area: 'bankadmin',
+       path: 'crew',
        container: 'dashboard',
        role: 'bankadmin'
     },
@@ -178,6 +196,17 @@ export const getPath = (key) => {
     const path = (merged.find(routeItem => routeItem.key === key ) || {path: ''}).path
     const area = (merged.find(routeItem => routeItem.key === key ) || {area: ''}).area
     return `/${area}/${path}` 
+}
+
+const capitalize = (s) => {
+  if (typeof s !== 'string') return ''
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+export const getItem = (path) => {
+    const item  = merged.find(routeItem => routeItem.path === path )
+    const title = item.path.split('-').map(obj => capitalize(obj)).join(' ') 
+    return {...item, fullpath:`/${item.area}/${item.path}`, title:title}
 } 
 
 export default merged

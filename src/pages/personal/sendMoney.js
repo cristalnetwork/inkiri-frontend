@@ -8,6 +8,7 @@ import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
 
 import * as api from '@app/services/inkiriApi';
+import * as routesService from '@app/services/routes';
 import * as globalCfg from '@app/configs/global';
 
 import PropTypes from "prop-types";
@@ -30,21 +31,7 @@ const Description = ({ term, children, span = 12 }) => (
     </Col>
   );
 
-const routes = [
-  {
-    path: 'index',
-    breadcrumbName: 'Inkiri BANK',
-  },
-  {
-    path: 'first',
-    breadcrumbName: 'Pay',
-  },
-  {
-    path: 'second',
-    breadcrumbName: 'Send money',
-  }
-];
-
+const routes = routesService.breadcrumbForFile('send-money');
 
 class SendMoney extends Component {
   constructor(props) {
@@ -321,7 +308,7 @@ class SendMoney extends Component {
 
   
 }
-
+//
 export default Form.create() (withRouter(connect(
     (state)=> ({
         accounts:         accountsRedux.accounts(state),

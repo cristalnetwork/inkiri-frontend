@@ -49,10 +49,13 @@ export const columns = [
     title: 'Tags',
     key: 'tx_type',
     dataIndex: 'tx_type',
-    render: tx_type => (
+    render: (tx_type, record) => (
       <span>
        <Tag color={'volcano'} key={tx_type}>
               {tx_type.toUpperCase()}
+       </Tag>
+       <Tag color={'volcano'} key={record.state||'x'}>
+              {(record.state||'x').toUpperCase()}
        </Tag>
       </span>
       )
@@ -131,7 +134,6 @@ class TransactionTable extends Component {
     .then( (res) => {
         that.onNewData(res);
       } ,(ex) => {
-        // console.log(' -- home.js::listTransactions ERROR --');
         // console.log('---- ERROR:', JSON.stringify(ex));
         that.setState({loading:false});  
       } 

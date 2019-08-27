@@ -1,4 +1,5 @@
-import { pathNames } from '../configs/routes'
+import { pathNames, getItem } from '@app/configs/routes'
+
 const routes  = {
     personal: {
         items: [
@@ -127,17 +128,33 @@ const routes  = {
                     },
                     {
                         key: pathNames.bankadminPDA,
-                        path: pathNames.bankadminUnderConstruction,
+                        path: pathNames.bankadminPDA,
                         title: 'PDA',
                     }
 
                 ]
             },
             {
-                        key: pathNames.bankadminConfiguration,
+                key: pathNames.bankadminStaff,
+                title: 'Staff',
+                items: [
+                    {
+                        key: pathNames.bankadminSalaries,
                         path: pathNames.bankadminUnderConstruction,
-                        title: 'Configuration'
-                
+                        title: 'Salaries',
+                    },
+                    {
+                        key: pathNames.bankadminCrew,
+                        path: pathNames.bankadminUnderConstruction,
+                        title: 'Crew',
+                    }
+
+                ]
+            },
+            {
+                key: pathNames.bankadminConfiguration,
+                path: pathNames.bankadminUnderConstruction,
+                title: 'Configuration'
             }
         ]
     },
@@ -148,4 +165,20 @@ const routes  = {
 export const getRoutesByRole = (role) => {
     // console.log(' **** routes::getRoutesByRole >> ', role)
     return routes[role];
+}
+
+export const breadcrumbForFile = (file) => {
+    const menuItem = getItem(file);
+    return [
+      {
+        path: 'dashboard',
+        breadcrumbName: 'Inkiri BANK',
+      },
+      {
+        path: menuItem.fullpath,
+        breadcrumbName: menuItem.title,
+      }
+    ];
+
+    
 }

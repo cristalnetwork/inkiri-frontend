@@ -169,6 +169,28 @@ export const listMyRequests = (account_name, page, limit, request_type) =>   new
       });
 });
 
+export const listRequests = (page, limit, request_type, account_name) =>   new Promise((res,rej)=> {
+  
+  console.log(' BANKAPI::LIST MY REQUESTS>> account_name:', account_name
+  , '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
+  const path    = globalCfg.api.end_point + '/requests';
+  const method  = 'GET';
+  let query     = '?page='+(page|0); 
+  query=query+'&limit='+(limit|10);
+  if(account_name!== undefined)
+    query=query+'&from='+account_name;
+  if(request_type!== undefined)
+    query=query+'&requested_type='+request_type;
+
+  jwtHelper.apiCall(path+query, method)
+    .then((data) => {
+        res(data)
+      }, (ex) => {
+        rej(ex);
+      });
+});
+
+
 export const createDeposit = (account_name, amount, currency) =>   new Promise((res,rej)=> {
   
   // "from": "inkiritoken1",

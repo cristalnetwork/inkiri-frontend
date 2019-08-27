@@ -33,15 +33,19 @@ const renderItem = (item) => {
     }
 }
 
-export const MenuByRole = ({items = [], getMenu, actualAccount, actualRole }) => {
+export const MenuByRole = ({area, fileName, items = [], getMenu, actualAccount, actualRole }) => {
         useEffect(()=>{
             getMenu(actualAccount, actualRole)
         })
-        //
+
+        // ToDo: Here goes default selected item menu logic!!!
+        // const aa = [(fileName=='dashboard')?fileName:fileName];
+        const aa = ['dashboard'];
+        const bb=[undefined];
         return (
                 <Menu
-                    defaultSelectedKeys={['dashboard']}
-                    defaultOpenKeys={['sub1']}
+                    defaultSelectedKeys={aa}
+                    defaultOpenKeys={bb}
                     mode="inline"
                     theme="light"
                 >

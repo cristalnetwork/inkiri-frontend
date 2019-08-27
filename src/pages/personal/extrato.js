@@ -10,12 +10,13 @@ import * as balanceRedux from '@app/redux/models/balance'
 import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
+import * as routesService from '@app/services/routes';
 
 import { Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
 
 import { notification, Table, Divider, Spin } from 'antd';
 
-import './home.css'; 
+import './extrato.css'; 
 
 import TransactionTable from '@app/components/TransactionTable';
 import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
@@ -31,23 +32,9 @@ const Description = ({ term, children, span = 12 }) => (
     </Col>
   );
 
-const routes = [
-  {
-    path: 'index',
-    breadcrumbName: 'Inkiri BANK',
-  },
-  {
-    path: 'first',
-    breadcrumbName: 'My money',
-  },
-  {
-    path: 'second',
-    breadcrumbName: 'Extrato',
-  }
-];
+const routes = routesService.breadcrumbForFile('extrato');
 
-
-class Home extends Component {
+class Extrato extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -79,7 +66,7 @@ class Home extends Component {
   loadTransactionsForAccount(is_first){
 
     let account_name = this.props.actualAccount;
-    console.log(' pages::business::home >> this.props.actualAccount:', this.props.actualAccount, ' | fetching history for:', account_name)
+    console.log(' pages::personal::extrato >> this.props.actualAccount:', this.props.actualAccount, ' | fetching history for:', account_name)
     
     let that = this;
     this.setState({loading:true});
@@ -88,7 +75,7 @@ class Home extends Component {
     .then( (res) => {
             that.onNewData(res.data);
     } ,(ex) => {
-            // console.log(' -- home.js::listTransactions ERROR --');
+            // console.log(' -- extrato.js::listTransactions ERROR --');
             // console.log('---- ERROR:', JSON.stringify(ex));
             that.setState({loading:false});  
       } 
@@ -262,4 +249,4 @@ export default connect(
     (dispatch)=>({
         // tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
     })
-)(Home)
+)(Extrato)
