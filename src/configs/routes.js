@@ -8,18 +8,32 @@ export const pathNames = arrToObj([
     'personalDeposit',
     'personalRetirar',
     'personalCambiar',
-
     'personalRequestMoney',
-
     'personalSendMoney',
     'personalPaymentsAndServices',
+    'personalConfiguration',
 
-    'personalConfiguration'
+    'bankadminDashboard',
+    'bankadminUnderConstruction',
+    'bankadminTransactions',
+    'bankadminOperations',
+    'bankadminExternalTransfers',
+    'bankadminConfiguration',
+    'bankadminPAP',
+
+    'bankadminAdministration',
+    'bankadminAccounts',
+    'bankadminProfiles',
+    'bankadminProviders',
+    'bankadminPDA',
+
+    'dashboard'
 ])
 
 const personal =[
     {
-       key: pathNames.personalDashboard,
+       // key: pathNames.personalDashboard,
+       key: pathNames.dashboard,
        fileName: 'allInOne',
        area: 'personal',
        path: 'dashboard',
@@ -64,13 +78,99 @@ const personal =[
     },
 ]
 
-const admin = [];
+const bankadmin = [
+    {
+       // key: pathNames.bankadminDashboard,
+       key: pathNames.dashboard,
+       fileName: 'under-construction',
+       area: 'bankadmin',
+       path: 'dashboard',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+    {
+        key: pathNames.bankadminUnderConstruction,
+        fileName: 'under-construction',
+        area: 'bankadmin',
+        path: 'proximamente',
+        container: 'dashboard',
+        role: 'bankadmin'
+     },
+     {
+       key: pathNames.bankadminTransactions,
+       fileName: 'under-construction',
+       area: 'bankadmin',
+       path: 'transactions',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+    {
+       key: pathNames.bankadminOperations,
+       fileName: 'under-construction',
+       area: 'bankadmin',
+       path: 'operations',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+    {
+       key: pathNames.bankadminExternalTransfers,
+       fileName: 'under-construction',
+       area: 'bankadmin',
+       path: 'external-transfers',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+    {
+       key: pathNames.bankadminConfiguration,
+       fileName: 'under-construction',
+       area: 'bankadmin',
+       path: 'configuration',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+    
+    {
+       key: pathNames.bankadminAccounts,
+       fileName: 'under-construction',
+       area: 'bankadmin',
+       path: 'accounts',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+
+    {
+       key: pathNames.bankadminProfiles,
+       fileName: 'under-construction',
+       area: 'bankadmin',
+       path: 'profiles',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+
+    {
+       key: pathNames.bankadminProviders,
+       fileName: 'under-construction',
+       area: 'bankadmin',
+       path: 'providers',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+
+    {
+       key: pathNames.bankadminPDA,
+       fileName: 'under-construction',
+       area: 'bankadmin',
+       path: 'pda',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+ ];
 
 const business = [];
 
 const merged  = [
     ...personal,
-    ...admin,
+    ...bankadmin,
     ...business
   ]
 

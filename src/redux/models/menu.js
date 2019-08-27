@@ -45,7 +45,7 @@ function* tryCollapseMenuSaga({ type, payload }) {
 
   const { is_collapsed } = payload
   // console.log(' MENU REDUX >> tryCollapseMenuSaga >> payload: ', payload)
-  // console.log(' MENU REDUX >> tryCollapseMenuSaga >> is_collapsed: ', is_collapsed)
+  console.log(' MENU REDUX >> tryCollapseMenuSaga >> is_collapsed: ', is_collapsed)
   yield put({type: SET_COLLAPSE, payload: payload })
 }
 

@@ -369,8 +369,11 @@ export const login = async (account_name, private_key) => {
       , permission       : 'active'
       , permissioner     : {
           account_name               : account_name
-          , account_type             : customer_info.account_type
-          , account_type_description : txsHelper.getAccountTypeDescription(customer_info.account_type)}
+          // , account_type             : customer_info.account_type
+          // , account_type_description : txsHelper.getAccountTypeDescription(customer_info.account_type)
+          , account_type             : globalCfg.bank.ACCOUNT_TYPE_BANKADMIN 
+          , account_type_description : txsHelper.getAccountTypeDescription(globalCfg.bank.ACCOUNT_TYPE_BANKADMIN)
+      }
       , permissioned     : {
             "actor": account_name,
             "permission": "active"

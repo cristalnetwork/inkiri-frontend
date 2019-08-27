@@ -1,6 +1,7 @@
 import React from 'react'
 import loadable from '@loadable/component'
 import { BrowserRouter as Router, Route, Redirect, withRouter } from "react-router-dom";
+
 import { connect } from 'react-redux';
 
 import { Spin } from 'antd'
@@ -14,18 +15,19 @@ import MenuByRole from './menu';
 import history from '@app/history.js'
 
 import * as loginRedux from '@app/redux/models/login'
-import * as menuRedux from '@app/redux/models/menu'
 
 // LOGIN, ROLES and REDIRECT TO REFERRER -- > https://reacttraining.com/react-router/web/example/auth-workflow
 
 const _checkRole = ({role, actualRole, children, history, location}) => {
     if (role === actualRole) {
+
         return <>
             {children}
         </>
     } else {
         if(actualRole) {
             history.push(`/${actualRole}/dashboard`);
+            // history.push(`/${actualRole}/dashboard`);
             // history.push(`/${actualRole}/deposit`);
             // history.push(`/${actualRole}/extrato`);
             // history.push(`/${actualRole}/send-money`);
@@ -45,13 +47,13 @@ const CheckLogin = () => <CheckRole role={undefined}><Login/></CheckRole>
 
 //
 
-const loadableComponent = (area, fileName, container, role, menuIsCollapsed)=> {
+const loadableComponent = (area, fileName, container, role)=> {
     const ayncComponent = loadable(() => import(`../pages/${area}/${fileName}`), {
         fallback: <Spin style={{marginTop: '100px'}}/>,
     })
     let Container;
     if(container === 'dashboard') {
-        Container = ()=> <DashboardContainer Children={ayncComponent} Menu={MenuByRole} />
+        Container = ()=> <DashboardContainer footerText=""  TopMenu="" Children={ayncComponent} Menu={MenuByRole}/>
     } else {
         Container = ()=> <BlankContainer Children={ayncComponent} />
     }
@@ -61,22 +63,22 @@ const loadableComponent = (area, fileName, container, role, menuIsCollapsed)=> {
     return ()=><Container />
 }
 
-export const DashboardRouter = ({routes, menuIsCollapsed}) => {
+export const DashboardRouter = ({routes}) => {    
   return (
     <Router history={history}>
         <Route path="/login" component={CheckLogin} />
-        {routes.map(item => <Route key={item.path} path={'/'+item.area+'/'+item.path} component={loadableComponent(item.area, item.fileName, item.container, item.role, menuIsCollapsed)} /> )}
+        {routes.map(item => <Route key={'/'+item.area+'/'+item.path} path={'/'+item.area+'/'+item.path} component={loadableComponent(item.area, item.fileName, item.container, item.role)} /> )}
         <Route path={'/'} component={()=><Redirect to={'/login'} />} />
     </Router>
   );
 }
 
-export default connect(
-    state => ({
-        menuIsCollapsed :  menuRedux.isCollapsed(state)
-    }),
-    dispatch => ({
-        
-    })
-)(DashboardRouter)
+// export default connect(
+//     state => ({
+//       menuIsCollapsed :  menuRedux.isCollapsed(state)
+//     }),
+//     dispatch => ({
+//       collapseMenu:      bindActionCreators(menuRedux.collapseMenu, dispatch)        
+//     })
+// )(DashboardRouter)
 

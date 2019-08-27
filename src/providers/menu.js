@@ -14,6 +14,7 @@ import { getPath } from '@app/configs/routes'
 const  { SubMenu } = Menu;
 
 const renderItem = (item) => {
+    // console.log(item.key , item.items)
     if(item.items) {
         return (
         <SubMenu title={item.title} key={item.key}>
@@ -39,7 +40,7 @@ export const MenuByRole = ({items = [], getMenu, actualAccount, actualRole }) =>
         //
         return (
                 <Menu
-                    defaultSelectedKeys={['1']}
+                    defaultSelectedKeys={['dashboard']}
                     defaultOpenKeys={['sub1']}
                     mode="inline"
                     theme="light"

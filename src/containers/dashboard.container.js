@@ -2,22 +2,19 @@ import React, { useState } from 'react';
 import { Layout, PageHeader } from 'antd';
 
 import InkiriHeader from '@app/components/InkiriHeader';
-// import AccountSelector from '@app/components/InkiriHeader/accountSelector';
+import * as menuRedux from '@app/redux/models/menu'
+
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux';
 
 const { Header, Content, Footer, Sider } = Layout;
 
-//{ TopMenu? <TopMenu/>: <PageHeader title="Inkiri Bank" subTitle="Enjoy!" /> }
-// <Content style={{ margin: '24px 16px 0' }}>
-// <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
-// { Children? <Children/>: false }
-// </div>
-
-export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, menuIsCollapsed}) => {
-    const [collapsed, setCollapse] = useState(0);
-
-      const onCollapse = collapsed => {
-        setCollapse(collapsed)
-      };
+export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, menuIsCollapsed, collapseMenu}) => {
+    
+    console.log(' DashboardContainer >> menuIsCollapsed:' , menuIsCollapsed)
+    const onCollapse = () => {
+      // collapseMenu(!menuIsCollapsed);
+    };
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
@@ -35,8 +32,17 @@ export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, menuIs
 
             { Children? <Children/>: false }
           </Content>
-          <Footer style={{ textAlign: 'center' }}>{ footerText || "©2019"}</Footer>
+          <Footer style={{ textAlign: 'center' }}>{ footerText || "INKIRI © 2019"}</Footer>
         </Layout>
       </Layout>
     );
 }
+
+export default connect(
+    state => ({
+      menuIsCollapsed :  menuRedux.isCollapsed(state)
+    }),
+    dispatch => ({
+      collapseMenu:       bindActionCreators(menuRedux.collapseMenu, dispatch)        
+    })
+)(DashboardContainer)
