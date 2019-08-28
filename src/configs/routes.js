@@ -1,7 +1,7 @@
 import * as utils from '@app/utils/utils';
 
 export const pathNames = utils.arrToObj([
-    'personalAllInOne',
+   'personalAllInOne',
     'personalDashboard',
     'personalUnderConstruction',
     'personalExtracto',
@@ -195,10 +195,14 @@ const bankadmin = [
 
 const business = [];
 
+const common = [];
+
+
 const merged  = [
     ...personal,
     ...bankadmin,
-    ...business
+    ...business,
+    ...common
   ]
 
 export const getPath = (key) => {

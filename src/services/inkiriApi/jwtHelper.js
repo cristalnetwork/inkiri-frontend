@@ -83,7 +83,12 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
       .then((resp) => resp.json(), (ex) => { rej(ex) })
       .then((data) => {
         console.log( ' ###### jwtHelper::apiCall >> result:', JSON.stringify(data));
-        res(data);
+        if(data.error)
+        {
+          rej (data);
+        }
+        else
+          res(data);
         // if (store.getState().App.toJS().connectionStatus.status === false) {
         //   store.dispatch(appActions.connectionStatus(true));
         // }

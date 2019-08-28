@@ -49,6 +49,7 @@ class InkiriHeader extends Component {
     * <div className="header_element_container">
     *   <a className="header_element_top_padded header_element_left_padded" target="_blank" href="https://jungle.bloks.io/account/ikadminoooo1">View account on blockexplorer</a>
     * </div>
+    * {this.props.actualAccount} 
   */
   render(){
     return (
@@ -66,7 +67,7 @@ class InkiriHeader extends Component {
               </div>
               <div className="header_element_container" style={{marginRight: '10px'}}>
                 <AccountSelector onChange={this.handleChange} />
-                 &nbsp; <Tag> {this.props.actualAccount} Balance (IK$) <UserBalance userId={this.props.actualAccount} /> </Tag>
+                 &nbsp; <Tag> Account Balance (IK$) <UserBalance userId={this.props.actualAccount} /> </Tag>
               </div>
             </div>
           </div>

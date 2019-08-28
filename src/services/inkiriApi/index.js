@@ -162,7 +162,7 @@ export const issueMoney = async (issuer_account, issuer_priv, receiver_account, 
     data: {
       to: receiver_account,
       quantity: formatAmount(amount),
-      memo: 'iss|'+(memo|'')
+      memo: (memo|'')
     }
   }
 
@@ -386,7 +386,7 @@ export const login = async (account_name, private_key) => {
   let persmissionedAccounts = await getPermissionedAccountsForAccount(account_name);
   let corporateAccounts     = persmissionedAccounts.filter(perm => globalCfg.bank.isBusinessAccount(perm.permissioner.account_type))
   let adminAccount          = persmissionedAccounts.filter(perm => globalCfg.bank.isAdminAccount(perm.permissioner.account_type))
-  let personalAccounts      = persmissionedAccounts.filter(perm => globalCfg.bank.isPersonalAccount(perm.permissioner.account_type))
+  let personalAccounts      = persmissionedAccounts.filter(perm => perm.permissioner.account_name!==account_name && globalCfg.bank.isPersonalAccount(perm.permissioner.account_type))
   // // HACK
   // if(account_name==globalCfg.bank.issuer)
   // {
@@ -402,8 +402,8 @@ export const login = async (account_name, private_key) => {
   catch(ex){
     // console.log('inkiriApi::login ERROR >> Account is not on private servers!', ex) 
     // throw new Error('Account is not on private servers!'); 
-    throw ex;
-    return; 
+    // throw ex;
+    // return; 
   }
 
   const ret= {
@@ -413,35 +413,6 @@ export const login = async (account_name, private_key) => {
     adminAccount          : (adminAccount&&adminAccount.length>0)?adminAccount[0]:undefined,
     otherPersonalAccounts : personalAccounts
   };
-
-  // ret.adminAccount  = {
-  //       "permission": "viewer",
-  //       "permissioner":
-  //       {
-  //           "account_name": "inkirimastor",
-  //           "account_type": globalCfg.bank.ACCOUNT_TYPE_BANKADMIN,
-  //           "account_type_description": globalCfg.bank.getAccountType(globalCfg.bank.ACCOUNT_TYPE_BANKADMIN)
-  //       },
-  //       "permissioned":
-  //       {
-  //           "actor": "inkirimastor",
-  //           "permission": "active"
-  //       }
-  //   }
-  // ret.corporateAccounts  = [{
-  //       "permission": "viewer",
-  //       "permissioner":
-  //       {
-  //           "account_name": "inkiribiz",
-  //           "account_type": globalCfg.bank.ACCOUNT_TYPE_BUSINESS,
-  //           "account_type_description": globalCfg.bank.getAccountType(globalCfg.bank.ACCOUNT_TYPE_BUSINESS)
-  //       },
-  //       "permissioned":
-  //       {
-  //           "actor": "inkiribiz",
-  //           "permission": "active"
-  //       }
-  //   }]
 
   console.log(' **************** '
       , ' +-+-+-+-+-+-+- inkiriApi::login >> result: '

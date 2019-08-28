@@ -82,6 +82,7 @@ function* trySwitchAccountSaga({ type, payload }) {
   setStorage(ACCOUNT_DATA, {account_name:account_name, password:data.password, remember:data.remember, accounts:stateData.accounts, master_account:stateData.master_account})
   yield put(setLoginData(stateData))
   yield put({type: TRY_SWITCH_END})
+  history.replace('/');
   
 }
 

@@ -49,7 +49,8 @@ const bank = {
 };
 
 
-const base_url    = 'http://localhost:3600';
+// const base_url    = 'http://localhost:3600';
+const base_url    = 'https://cristal-backend.herokuapp.com';
 const api_version = '/api/v1';
 const api = {
   end_point                   : base_url+ api_version
@@ -78,6 +79,9 @@ const api = {
   , STATE_ERROR               : 'state_error'
   , STATE_CONCLUDED           : 'state_concluded'
   , getStates           : () => { return [api.STATE_REQUESTED, api.STATE_PROCESSING, api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_ERROR, api.STATE_CONCLUDED];}
+  , isOnBlockchain      : (request) => {
+      return request.tx_id || request.transaction_id;
+    }
   , isFinished         : (request) => {
       return [api.STATE_REJECTED, api.STATE_CONCLUDED, api.STATE_ERROR].indexOf(request.state)>=0;
     }

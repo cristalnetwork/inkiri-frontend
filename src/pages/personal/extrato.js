@@ -58,8 +58,20 @@ class Extrato extends Component {
     this.onNewData                  = this.onNewData.bind(this);
     this.onTabChange                = this.onTabChange.bind(this);
     this.onTableChange              = this.onTableChange.bind(this);
+    this.onProcessRequestClick      = this.onProcessRequestClick.bind(this);
   }
   
+  onProcessRequestClick(request){
+    console.log( ' PDA::onProcessRequestClick >> ', JSON.stringify(request) )
+
+    // this.props.history.push({
+    //   pathname: `/common/process-request`
+    //   // , search: '?query=abc'
+    //   , state: { request: request }
+    // })
+    // READ >> this.props.location.state.detail
+  }
+
   componentDidMount(){
     this.loadTransactionsForAccount(true);  
   } 
@@ -191,7 +203,7 @@ class Extrato extends Component {
           key="table_all_txs" 
           rowKey={record => record.id} 
           loading={this.state.loading} 
-          columns={columns(this.props.actualRoleId)} 
+          columns={columns(this.props.actualRoleId, this.onProcessRequestClick)} 
           dataSource={this.state.txs} 
           footer={() => this.renderFooter()}
           pagination={this.state.pagination}
@@ -236,7 +248,8 @@ class Extrato extends Component {
 export default connect(
     (state)=> ({
         actualAccount:    loginRedux.actualAccount(state),
-        actualRoleId:       loginRedux.actualRoleId(state),
+        actualRole:       loginRedux.actualRole(state),
+        actualRoleId:     loginRedux.actualRoleId(state),
         balance:          balanceRedux.userBalanceFormatted(state),
     }),
     (dispatch)=>({

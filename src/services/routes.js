@@ -8,11 +8,11 @@ const routes  = {
                 key:  pathNames.dashboard,
                 title: 'My money',
                 items: [
-                    {
-                        key: pathNames.personalAllInOne,
-                        path: pathNames.personalAllInOne,
-                        title: 'All In One',
-                    },
+                    // {
+                    //     key: pathNames.personalAllInOne,
+                    //     path: pathNames.personalAllInOne,
+                    //     title: 'All In One',
+                    // },
                     {
                         key: pathNames.personalExtracto,
                         path: pathNames.personalExtracto,
@@ -164,7 +164,7 @@ const routes  = {
 
 export const getRoutesByRole = (role) => {
     // console.log(' **** routes::getRoutesByRole >> ', role)
-    return routes[role];
+    return role?routes[role]:[];
 }
 
 export const breadcrumbForFile = (file) => {

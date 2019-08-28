@@ -66,7 +66,11 @@ function getTxHeaderText(account_name, tx, i_sent){
 }
 function getTxSubHeaderText(account_name, tx, i_sent, tx_type, tx_name, tx_code, tx_subcode){
   
+
   switch(tx_type) {
+    case 'issue_iss': //ToDo: Remove case.
+      return i_sent?'Emisión por depósito en '+tx_subcode:'Depositaste en '+tx_subcode
+      break;
     case 'issue_dep':
       return i_sent?'Emisión por depósito en '+tx_subcode:'Depositaste en '+tx_subcode
       break;

@@ -19,13 +19,13 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
     }).then(
       (response) => {
          if (!response.ok) {
-            // console.log(' ********************************** !OK')
+            console.log(' CHALLENGE ********************************** !OK', response.status)
             rej(response.statusText);
             throw new Error(response.statusText);
           }
           return response.json()
       }, (err) => {
-        // console.log(' ********************************** !OK#2', err)
+        console.log(' CHALLENGE  ********************************** !OK#2', err)
         rej(err.message);
         throw err;
       })

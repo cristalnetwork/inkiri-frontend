@@ -56,7 +56,7 @@ export const columns = (account_type, onButtonClick) => {
               {tx_type.toUpperCase()}
        </Tag>
        <Tag color={'geekblue'} key={record.state||'x'}>
-              {(record.state||'x').toUpperCase()}
+              {(record.state||'COMPLETED').toUpperCase()}
        </Tag>
       </span>
       )
@@ -66,16 +66,18 @@ export const columns = (account_type, onButtonClick) => {
     title: 'Action',
     key: 'action',
     render: (text, record) => {
-      console.log(' render button??? >> ', account_type)
-      let processButton = !globalCfg.bank.isAdminAccount(account_type)?(null):(
-        <Button key={'process_'+record.id} onClick={()=>{
-            if(typeof onButtonClick === 'function') { onButtonClick(record) }}}>Process</Button>
-        );
-      let viewDetailsButton = !globalCfg.bank.isAdminAccount(account_type)?(null):(
-        <Button key={'view_'+record.id} onClick={()=>{
-            if(typeof onButtonClick === 'function') { onButtonClick(record) }}}>ViewDetails</Button>
-        );
-      //
+      // console.log(' render button??? >> ', account_type)
+      let processButton = (null);
+      if(typeof onButtonClick === 'function' && globalCfg.bank.isAdminAccount(account_type)){
+        processButton = (<Button key={'process_'+record.id} onClick={()=>{ onButtonClick(record) }}>Process</Button>);
+      } //
+      let viewDetailsButton = (null);
+      const onBlockchain = globalCfg.api.isOnBlockchain(record);
+      if(onBlockchain){
+        const _href = api.dfuse.getBlockExplorerTxLink(onBlockchain);
+        viewDetailsButton = (<Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" >View on Blockchain</Button>);
+      } //
+
       if(!globalCfg.api.isFinished(record))
       {
         return (
@@ -85,13 +87,12 @@ export const columns = (account_type, onButtonClick) => {
             {processButton}
           </span>  );
       }
+      //
       return(
-          <span>
-            {viewDetailsButton}
-            <Divider type="vertical" />
-            <a href={api.dfuse.getBlockExplorerTxLink(record.transaction_id)} target="_blank">View on Blockchain</a>
-          </span>
-        )},
+        <span>
+          {viewDetailsButton}
+        </span>
+      )},
   },
 ]};
 
@@ -111,13 +112,6 @@ class TransactionTable extends Component {
     this.onNewData         = this.onNewData.bind(this);
     this.renderFooter      = this.renderFooter.bind(this); 
   }
-
-  componentWillReceiveProps(newProps) {
-      // const {request_type, actualAccount} = this.props;
-      // if(newProps.actualAccount !== actualAccount) {
-      //   this.loadTxs(true)
-      // }
-  }  
 
   componentDidMount(){
     this.loadTxs();
@@ -158,6 +152,7 @@ class TransactionTable extends Component {
 
   onNewData(txs){
     
+    if(!txs || !txs.length) txs = [];
     const _txs            = [...this.state.txs, ...txs];
     const pagination      = {...this.state.pagination};
     pagination.pageSize   = _txs.length;

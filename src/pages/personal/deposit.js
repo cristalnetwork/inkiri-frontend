@@ -77,7 +77,8 @@ class DepositMoney extends Component {
         this.setState ({envelope_id: res});
       },
       (err)=>{
-        console.log(' ERROR FETCHING ENV ID ->', err);
+        // console.log(' ERROR FETCHING ENV ID ->', err);
+        this.openNotificationWithIcon("error", "Cant fetch next envelope ID", "Please check if you are logged in bank service. " + JSON.stringify(err))      
       },
     )
 

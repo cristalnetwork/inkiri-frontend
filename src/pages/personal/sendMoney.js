@@ -235,11 +235,11 @@ class SendMoney extends Component {
                 help={this.state.number_help}>
                 {getFieldDecorator('amount', {
                   rules: [{ required: true, message: 'Please input an amount to send!' }],
+                  initialValue: 0
                 })(
                   <Input
                     size="large"
                     style={{ width: '100%' }}
-                    defaultValue={0}
                     onChange={this.onChange}
                     className="input-money extra-large"
                     allowClear
