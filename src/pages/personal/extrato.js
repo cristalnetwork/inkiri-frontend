@@ -189,7 +189,7 @@ class Extrato extends Component {
           key="table_all_txs" 
           rowKey={record => record.id} 
           loading={this.state.loading} 
-          columns={columns} 
+          columns={columns(this.props.actualRoleId)} 
           dataSource={this.state.txs} 
           footer={() => this.renderFooter()}
           pagination={this.state.pagination}
@@ -244,6 +244,7 @@ class Extrato extends Component {
 export default connect(
     (state)=> ({
         actualAccount:    loginRedux.actualAccount(state),
+        actualRoleId:       loginRedux.actualRoleId(state),
         balance:          balanceRedux.userBalanceFormatted(state),
     }),
     (dispatch)=>({

@@ -14,37 +14,3 @@
   background-color: #fff;
 }
 
-.statsContent {
-  flex: 1;
-}
-.filtersContent {
-  flex: 1;
-
-}
-.statsContent.padding {
-  padding-left: 40px;
-}
-.statsContent .description {
-  display: table;
-}
-.description .term {
-  display: table-cell;
-  margin-right: 8px;
-  padding-bottom: 8px;
-  white-space: nowrap;
-  line-height: 20px;
-}
-.description .term:after {
-  position: relative;
-  top: -0.5px;
-  margin: 0 8px 0 2px;
-  content: ":";
-}
-.description .detail {
-  display: table-cell;
-  padding-bottom: 8px;
-  width: 100%;
-  line-height: 20px;
-}
-
-

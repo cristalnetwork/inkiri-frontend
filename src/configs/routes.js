@@ -1,6 +1,6 @@
-const arrToObj  = (a = []) => a.reduce((prev,act) => { prev[act] = act; return prev; } , {});
+import * as utils from '@app/utils/utils';
 
-export const pathNames = arrToObj([
+export const pathNames = utils.arrToObj([
     'personalAllInOne',
     'personalDashboard',
     'personalUnderConstruction',
@@ -198,14 +198,9 @@ export const getPath = (key) => {
     return `/${area}/${path}` 
 }
 
-const capitalize = (s) => {
-  if (typeof s !== 'string') return ''
-  return s.charAt(0).toUpperCase() + s.slice(1)
-}
-
 export const getItem = (path) => {
     const item  = merged.find(routeItem => routeItem.path === path )
-    const title = item.path.split('-').map(obj => capitalize(obj)).join(' ') 
+    const title = item.path.split('-').map(obj => utils.capitalize(obj)).join(' ') 
     return {...item, fullpath:`/${item.area}/${item.path}`, title:title}
 } 
 

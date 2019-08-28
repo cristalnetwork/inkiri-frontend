@@ -52,8 +52,38 @@ const bank = {
 const base_url    = 'http://localhost:3600';
 const api_version = '/api/v1';
 const api = {
-  end_point:               base_url+ api_version
+  end_point                   : base_url+ api_version
   , default_page_size         : 25
+  , FIAT_CURR_BRL             : 'BRL'
+  , FIAT_CURR_IK              : 'IK$'
+  , TYPE_DEPOSIT              : 'type_deposit'
+  , TYPE_EXCHANGE             : 'type_exchange'
+  , TYPE_PAYMENT              : 'type_payment'
+  , TYPE_PROVIDER             : 'type_provider' 
+  , TYPE_SEND                 : 'type_send'
+  , TYPE_WITHDRAW             : 'type_withdraw' 
+  , TYPE_SERVICE              : 'type_service'
+  , isDeposit          : (request) => { return (request.tx_type==api.TYPE_DEPOSIT)}
+  , isIKDeposit        : (request) => { return (request.tx_type==api.TYPE_DEPOSIT && request.deposit_currency==api.FIAT_CURR_IK)}
+  , isBRLDeposit       : (request) => { return (request.tx_type==api.TYPE_DEPOSIT && request.deposit_currency==api.FIAT_CURR_BRL)}
+  , isWithdraw         : (request) => { return (request.tx_type==api.TYPE_WITHDRAW)}
+  , getTypes           : () => { return [ api.TYPE_DEPOSIT, api.TYPE_EXCHANGE, api.TYPE_PAYMENT, api.TYPE_PROVIDER, api.TYPE_SEND, api.TYPE_WITHDRAW, api.TYPE_SERVICE];}
+  , STATE_REQUESTED           : 'state_requested'
+  , STATE_PROCESSING          : 'state_processing'
+  , STATE_REJECTED            : 'state_rejected'
+  , STATE_ACCEPTED            : 'state_accepted'
+  , STATE_ERROR               : 'state_error'
+  , STATE_CONCLUDED           : 'state_concluded'
+  , getStates           : () => { return [api.STATE_REQUESTED, api.STATE_PROCESSING, api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_ERROR, api.STATE_CONCLUDED];}
+  , isFinished         : (request) => {
+      return [api.STATE_REJECTED, api.STATE_CONCLUDED, api.STATE_ERROR].indexOf(request.state)>=0;
+    }
+  , canCancel          : (request) => {
+      return [api.STATE_REQUESTED].indexOf(request.state)>=0;
+    }
+  , isProcessPending   : (request) => {
+      return [api.STATE_REQUESTED].indexOf(request.state)>=0;
+    }
 };
 
 // ToDo: Traer DFuse config from private server!

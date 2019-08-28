@@ -26,7 +26,8 @@ export const  DISPLAY_SERVICE    = 'type_service';
 
 // deposit, exchange, payment, withdraw, provider, send, service
 
-export const columns = [
+export const columns = (account_type) => {
+  return [
   {
     title: 'Date',
     dataIndex: 'block_time',
@@ -60,15 +61,23 @@ export const columns = [
       </span>
       )
   },
+  //
   {
     title: 'Action',
     key: 'action',
     render: (text, record) => {
+      console.log(' render button??? >> ', account_type)
+      let processButton = !globalCfg.bank.isAdminAccount(account_type)?(null):(
+        <Button key={'process_'+record.id} onClick={()=>{}}>Process</Button>
+        );
+      //
       if(!record.transaction_id)
       {
         return (
           <span>
             <a href="#">View Details</a>
+            <Divider type="vertical" />
+            {processButton}
           </span>  );
       }
       return(
@@ -79,7 +88,7 @@ export const columns = [
           </span>
         )},
   },
-];
+]};
 
 
 class TransactionTable extends Component {
@@ -175,7 +184,7 @@ class TransactionTable extends Component {
         key="table_deposits"
         rowKey={record => record.id} 
         loading={this.state.loading} 
-        columns={columns} 
+        columns={columns(this.props.actualRoleId)} 
         dataSource={this.state.txs} 
         footer={() => this.renderFooter()}
         pagination={this.state.pagination}
@@ -189,6 +198,7 @@ class TransactionTable extends Component {
 export default connect(
     (state)=> ({
       actualAccount: loginRedux.actualAccount(state),
+      actualRoleId:    loginRedux.actualRoleId(state),
     }),
     (dispatch)=>({
         tryLogin: bindActionCreators(loginRedux.tryLogin, dispatch),

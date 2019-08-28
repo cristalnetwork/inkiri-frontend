@@ -5,7 +5,6 @@ import { bindActionCreators } from 'redux';
 
 // import * as userRedux from '@app/redux/models/user';
 import * as loginRedux from '@app/redux/models/login'
-import * as balanceRedux from '@app/redux/models/balance'
 
 import * as globalCfg from '@app/configs/global';
 
@@ -20,14 +19,16 @@ import './pda.css';
 import styles from './style.less';
 
 import TransactionTable from '@app/components/TransactionTable';
-import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
-// import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_WITHDRAWS} from '@app/components/TransactionTable';
+//import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
+import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_WITHDRAWS} from '@app/components/TransactionTable';
+
+import * as utils from '@app/utils/utils';
 
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
-const SelectOption = Select.Option;
+const { Option } = Select;
 const { Search, TextArea } = Input;
 
 const Description = ({ term, children, span = 12 }) => (
@@ -56,6 +57,7 @@ const Info: React.SFC<{
         {bordered && <em />}
       </div>
     );
+//
 
 class PDA extends Component {
   constructor(props) {
@@ -138,20 +140,41 @@ class PDA extends Component {
     let stats = this.currentStats();
     if(txs===undefined)
       txs = this.state.txs;
-    const money_in  = txs.filter( tx => tx.i_sent)
+    const deposits      = txs.filter( tx => globalCfg.api.isDeposit(tx))
                     .map(tx =>tx.quantity)
                     .reduce((acc, amount) => acc + Number(amount), 0);
-    const money_out = txs.filter( tx => !tx.i_sent)
+    const withdraws     = txs.filter( tx => globalCfg.api.isWithdraw(tx))
                     .map(tx =>tx.quantity)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     
-    stats[this.state.active_tab] = {money_out:money_out, money_in:money_in, count:txs.length}
+    const deposits_ik   = txs.filter( tx => globalCfg.api.isIKDeposit(tx))
+                    .map(tx =>tx.quantity)
+                    .reduce((acc, amount) => acc + Number(amount), 0);
+    const deposits_brl  = txs.filter( tx => globalCfg.api.isBRLDeposit(tx))
+                    .map(tx =>tx.quantity)
+                    .reduce((acc, amount) => acc + Number(amount), 0);
+    const pending      = txs.filter( tx => globalCfg.api.isProcessPending(tx))
+                    .map(tx =>tx.quantity).length;
+
+    stats[this.state.active_tab] = {
+        withdraws:     withdraws
+        , deposits:    deposits
+        , count:       txs.length
+        , deposits_ik: deposits_ik 
+        , deposits_brl:deposits_brl 
+        , pending:     pending};
+
     this.setState({stats:stats})
   }
 
   currentStats(){
     const x = this.state.stats[this.state.active_tab];
-    const _default = {money_in:  0,money_out: 0, count:0};
+    const _default = {deposits:0 
+              , withdraws:0
+              , count:0
+              , deposits_ik:0
+              , deposits_brl:0
+              , pending:0};
     return x?x:_default;
   }
 
@@ -162,11 +185,6 @@ class PDA extends Component {
     });
   }
   // Component Events
-
-  // onTabChange(key) {
-  //   console.log(key);
-  //   this.setState({active_tab:key})
-  // }
   
   onTableChange(key, txs) {
     // console.log(key);
@@ -176,44 +194,25 @@ class PDA extends Component {
   }
 
   // Begin RENDER section
-  renderTableViewStats() 
-  {
-    const current_stats = this.currentStats();
-    return (
-      <Row>
-        <Description term="Lancamentos">{current_stats.count|0}</Description>
-        <Description term="Entradas"><Tag color="green">IK$ {current_stats.money_in.toFixed(2)}</Tag></Description>
-        <Description term="Variacao de caja"><Tag color="red">IK$ {(current_stats.money_in - current_stats.money_out).toFixed(2)}</Tag></Description>
-        <Description term="Saidas"><Tag color="red">-IK$ {current_stats.money_out.toFixed(2)}</Tag></Description>
+  // renderTableViewStats() 
+  // {
+  //   const current_stats = this.currentStats();
+  //   return (
+  //     <Row>
+  //       <Description term="Lancamentos">{current_stats.count|0}</Description>
+  //       <Description term="Entradas"><Tag color="green">IK$ {current_stats.deposits.toFixed(2)}</Tag></Description>
+  //       <Description term="Variacao de caja"><Tag color="red">IK$ {(current_stats.deposits - current_stats.withdraws).toFixed(2)}</Tag></Description>
+  //       <Description term="Saidas"><Tag color="red">-IK$ {current_stats.withdraws.toFixed(2)}</Tag></Description>
         
-      </Row>
-    );
-  }
+  //     </Row>
+  //   );
+  // }
 
   renderFooter(){
     return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadTransactionsForPDA()}>More!!</Button> </>)
   }
 
-  renderContent(){
-    
-    if(this.state.active_tab==DISPLAY_ALL_TXS){
-      return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}>
-        <Table
-          key="table_all_txs" 
-          rowKey={record => record.id} 
-          loading={this.state.loading} 
-          columns={columns} 
-          dataSource={this.state.txs} 
-          footer={() => this.renderFooter()}
-          pagination={this.state.pagination}
-          />
-      </div>);
-    }
-  }
-  //
-
-  renderFilterContent ()
-  {
+  renderFilterContent (){
     const form = this.renderFilterForm();
     return(
       <div className="wrap">
@@ -225,34 +224,42 @@ class PDA extends Component {
       </div>
     );
   }
+
+  //
+  renderSelectTxTypeOptions(){
+    return (
+      globalCfg.api.getTypes().map( tx_type => {return(<Option key={'option'+tx_type} value={tx_type} label={utils.firsts(tx_type.split('_')[1])}>{ utils.capitalize(tx_type.split('_')[1]) } </Option>)})
+        )
+  }
+  // 
+  renderSelectTxStateOptions(){
+    return (
+      globalCfg.api.getStates().map( tx_state => {return(<Option key={'option'+tx_state} value={tx_state} label={utils.firsts(tx_state.split('_')[1])}>{ utils.capitalize(tx_state.split('_')[1]) } </Option>)})
+        )
+  }
   //
   renderFilterForm() {
     const { getFieldDecorator, getFieldsError, getFieldError, isFieldTouched } = this.props.form;
     // Only show error after a field is touched.
-    const usernameError = isFieldTouched('username') && getFieldError('username');
-    const passwordError = isFieldTouched('password') && getFieldError('password');
     return (
       <Form layout="inline" onSubmit={this.handleSubmit}>
-        <Form.Item validateStatus={usernameError ? 'error' : ''} help={usernameError || ''}>
-          {getFieldDecorator('username', {
-            rules: [{ required: true, message: 'Please input your username!' }],
-          })(
-            <Input
-              prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
-              placeholder="Username"
-            />,
-          )}
+        <Form.Item>
+            <Select placeholder="Transaction type"
+              mode="multiple"
+              style={{ minWidth: '250px' }}
+              defaultValue={['ALL']}
+              optionLabelProp="label">
+                {this.renderSelectTxTypeOptions()}
+            </Select>
         </Form.Item>
-        <Form.Item validateStatus={passwordError ? 'error' : ''} help={passwordError || ''}>
-          {getFieldDecorator('password', {
-            rules: [{ required: true, message: 'Please input your Password!' }],
-          })(
-            <Input
-              prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
-              type="password"
-              placeholder="Password"
-            />,
-          )}
+        <Form.Item>
+          <Select placeholder="Transaction status"
+              mode="multiple"
+              style={{ minWidth: '250px' }}
+              defaultValue={['ALL']}
+              optionLabelProp="label">
+                {this.renderSelectTxStateOptions()}
+            </Select>
         </Form.Item>
         <Form.Item>
             {getFieldDecorator('search', {
@@ -272,7 +279,7 @@ class PDA extends Component {
 
   
   render() {
-    // const content = this.renderContent();
+    //
     const filters = this.renderFilterContent();
     const content = this.renderUMIContent();
     return (
@@ -311,6 +318,7 @@ class PDA extends Component {
     //
   
   renderUMIContent(){
+    const current_stats = this.currentStats();  
     return  (<>
       <div className="styles standardList" style={{ marginTop: 24 }}>
         <Card bordered={false}>
@@ -319,16 +327,16 @@ class PDA extends Component {
               <Info title="" value="TODAY" bordered />
             </Col>
             <Col sm={5} xs={24}>
-              <Info title="IK$ DEPOSITS" value="IK$ 500" bordered />
+              <Info title="IK$ DEPOSITS" value={'IK$ ' + current_stats.deposits_ik.toFixed(2)} bordered />
             </Col>
             <Col sm={5} xs={24}>
-              <Info title="BRL DEPOSITS" value="BRL 500" bordered />
+              <Info title="BRL DEPOSITS" value={'BRL ' + current_stats.deposits_brl.toFixed(2)} bordered />
             </Col>
             <Col sm={5} xs={24}>
-              <Info title="WITHDRAWS" value="IK$ 250" />
+              <Info title="WITHDRAWS" value={'IK$ ' + current_stats.withdraws.toFixed(2)} />
             </Col>
             <Col sm={5} xs={24}>
-              <Info title="PENDING" value="2" />
+              <Info title="PENDING" value={current_stats.pending.toString()} />
             </Col>
           </Row>
         </Card>
@@ -348,7 +356,7 @@ class PDA extends Component {
             key="table_all_txs" 
             rowKey={record => record.id} 
             loading={this.state.loading} 
-            columns={columns} 
+            columns={columns(this.props.actualRoleId)} 
             dataSource={this.state.txs} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
@@ -364,7 +372,7 @@ class PDA extends Component {
 export default Form.create() (connect(
     (state)=> ({
         actualAccount:    loginRedux.actualAccount(state),
-        balance:          balanceRedux.userBalanceFormatted(state),
+        actualRoleId:       loginRedux.actualRoleId(state),
     }),
     (dispatch)=>({
         // tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
