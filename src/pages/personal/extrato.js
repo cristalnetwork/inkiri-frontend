@@ -17,6 +17,7 @@ import { Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
 import { notification, Table, Divider, Spin } from 'antd';
 
 import './extrato.css'; 
+import styles from './extrato.less';
 
 import TransactionTable from '@app/components/TransactionTable';
 import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
@@ -165,12 +166,13 @@ class Extrato extends Component {
   renderExtraContent ()
   {
     return(
-    <Row>
-      <Col span={24}>
-        <Card><Statistic title="Account Balance (IK$)" value={this.props.balance} precision={2} /> 
-        </Card> <></>
-      </Col>
-    </Row>
+      <Row>
+        
+        <Col xs={24} sm={24}>
+          <div className ="textSecondary" > Account Balance (IK$) </div>
+          <div className ="heading" >{Number(this.props.balance).toFixed(2)}</div>
+        </Col>
+      </Row>
     );
   }
 
@@ -200,16 +202,6 @@ class Extrato extends Component {
   //
   render() {
     const content = this.renderContent();
-    
-    /*
-    PageHeader
-      extra={[
-        <Button key="3">Filter</Button>,
-        <Button key="1" type="primary">
-          Apply
-        </Button>,
-      ]}
-    */
     return (
       <>
         <PageHeader

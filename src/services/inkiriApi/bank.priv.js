@@ -9,7 +9,7 @@ export const isAuth = () => {
 export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
   
   const token = jwtHelper.getTokenIfNotExpired(jwtHelper.BANK_AUTH_TOKEN_KEY);
-  
+  console.log(' ******* BANK PRIV BEARER TOKEN >> ', token);
   if(!token)
   {
     const challenge_endpoint = globalCfg.api.end_point+'/eos/challenge/'+account_name;
@@ -93,6 +93,12 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
   }
 })
 
+export const envelopeIdFromRequest = (request, user_id, req_id) =>   {
+  if(request!==undefined)
+    return pad(request.requested_by.userCounterId, 5)+pad(request.requestCounterId, 5);
+  return pad(user_id, 5)+pad(req_id, 5);
+}
+
 export const nextEnvelopeId = (account_name) =>   new Promise((res,rej)=> {
 
   var promise1 = nextRequestId(account_name);
@@ -102,7 +108,8 @@ export const nextEnvelopeId = (account_name) =>   new Promise((res,rej)=> {
     console.log(' ************ inkiriApi::nextEnvelopeId >> ', JSON.stringify(values));
       let next_id = values[0];
       let user_id = values[1].userCounterId;
-      let envId   = pad(user_id, 5)+pad(next_id, 5);
+      // let envId   = pad(user_id, 5)+pad(next_id, 5);
+      let envId   = envelopeIdFromRequest(undefined, user_id, next_id)
       res(envId)
   }, (err)=>{
     console.log(' ************ inkiriApi::nextEnvelopeId ERROR >> ', JSON.stringify(err));
@@ -217,3 +224,27 @@ export const createDeposit = (account_name, amount, currency) =>   new Promise((
       });
 
 });
+
+export const setDepositOk = (request_id, tx_id) =>  updateDeposit(request_id, globalCfg.api.STATE_CONCLUDED , tx_id);
+
+export const updateDeposit = (request_id, state, tx_id) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.end_point + '/requests';
+  const method  = 'PATCH';
+  const query   = `/${request_id}`;
+  const post_params = {
+          _id:         request_id
+          , state:     state
+          , tx_id:     tx_id
+        };
+  console.log(' inkiriApi::createDeposit >> ABOUT TO POST', JSON.stringify(post_params))
+  jwtHelper.apiCall(path+query, method, post_params)
+    .then((data) => {
+        console.log(' inkiriApi::createDeposit >> RESPONSE', JSON.stringify(data))
+        res(data)
+      }, (ex) => {
+        console.log(' inkiriApi::createDeposit >> ERROR ', JSON.stringify(ex))
+        rej(ex);
+      });  
+
+})

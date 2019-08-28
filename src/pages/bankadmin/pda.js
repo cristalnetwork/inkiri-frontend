@@ -11,12 +11,14 @@ import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 import * as routesService from '@app/services/routes';
 
+import { Route, Redirect, withRouter } from "react-router-dom";
+
 import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col, List } from 'antd';
 import { Form, Input, Icon} from 'antd';
 import { notification, Table, Divider, Spin } from 'antd';
 
 import './pda.css'; 
-import styles from './style.less';
+import styles from './style.less'; 
 
 import TransactionTable from '@app/components/TransactionTable';
 //import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
@@ -80,6 +82,7 @@ class PDA extends Component {
     this.onNewData                  = this.onNewData.bind(this);
     // this.onTabChange                = this.onTabChange.bind(this);
     this.onTableChange              = this.onTableChange.bind(this);
+    this.onProcessRequestClick      = this.onProcessRequestClick.bind(this);
   }
   
   componentDidMount(){
@@ -193,20 +196,23 @@ class PDA extends Component {
       this.computeStats(txs);
   }
 
-  // Begin RENDER section
-  // renderTableViewStats() 
-  // {
-  //   const current_stats = this.currentStats();
-  //   return (
-  //     <Row>
-  //       <Description term="Lancamentos">{current_stats.count|0}</Description>
-  //       <Description term="Entradas"><Tag color="green">IK$ {current_stats.deposits.toFixed(2)}</Tag></Description>
-  //       <Description term="Variacao de caja"><Tag color="red">IK$ {(current_stats.deposits - current_stats.withdraws).toFixed(2)}</Tag></Description>
-  //       <Description term="Saidas"><Tag color="red">-IK$ {current_stats.withdraws.toFixed(2)}</Tag></Description>
-        
-  //     </Row>
-  //   );
-  // }
+
+  onProcessRequestClick(request){
+    console.log( ' PDA::onProcessRequestClick >> ', JSON.stringify(request) )
+
+    this.props.history.push({
+      pathname: `/${this.props.actualRole}/process-request`
+      // , search: '?query=abc'
+      , state: { request: request }
+    })
+
+    // this.props.history.push({
+    //   pathname: '/template',
+    //   search: '?query=abc',
+    //   state: { detail: response.data }
+    // })
+    // READ >> this.props.location.state.detail
+  }
 
   renderFooter(){
     return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadTransactionsForPDA()}>More!!</Button> </>)
@@ -239,8 +245,6 @@ class PDA extends Component {
   }
   //
   renderFilterForm() {
-    const { getFieldDecorator, getFieldsError, getFieldError, isFieldTouched } = this.props.form;
-    // Only show error after a field is touched.
     return (
       <Form layout="inline" onSubmit={this.handleSubmit}>
         <Form.Item>
@@ -262,14 +266,10 @@ class PDA extends Component {
             </Select>
         </Form.Item>
         <Form.Item>
-            {getFieldDecorator('search', {
-            rules: [],
-          })(
-            <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />,
-          )}
+            <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
         </Form.Item>
         <Form.Item>
-          <Button htmlType="submit" disabled={hasErrors(getFieldsError())}>
+          <Button htmlType="submit">
             Filter
           </Button>
         </Form.Item>
@@ -356,7 +356,7 @@ class PDA extends Component {
             key="table_all_txs" 
             rowKey={record => record.id} 
             loading={this.state.loading} 
-            columns={columns(this.props.actualRoleId)} 
+            columns={columns(this.props.actualRoleId, this.onProcessRequestClick)} 
             dataSource={this.state.txs} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
@@ -369,13 +369,14 @@ class PDA extends Component {
 
 }
 //
-export default Form.create() (connect(
+export default  (withRouter(connect(
     (state)=> ({
         actualAccount:    loginRedux.actualAccount(state),
-        actualRoleId:       loginRedux.actualRoleId(state),
+        actualRoleId:     loginRedux.actualRoleId(state),
+        actualRole:       loginRedux.actualRole(state),
     }),
     (dispatch)=>({
         // tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
     })
-)(PDA)
+)(PDA))
 );

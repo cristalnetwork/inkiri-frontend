@@ -102,7 +102,7 @@ const routes  = {
                     {
                         key: pathNames.bankadminPAP,
                         path: pathNames.bankadminUnderConstruction,
-                        title: 'Pre-Authorized Payment',
+                        title: 'Pre-Auth Payments',
                     }
 
                 ]

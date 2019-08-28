@@ -56,6 +56,9 @@ const api = {
   , default_page_size         : 25
   , FIAT_CURR_BRL             : 'BRL'
   , FIAT_CURR_IK              : 'IK$'
+  , fiatSymbolToMemo : (symbol) => {
+    return symbol?symbol.replace('$', 'S').toLowerCase():'na'
+  }
   , TYPE_DEPOSIT              : 'type_deposit'
   , TYPE_EXCHANGE             : 'type_exchange'
   , TYPE_PAYMENT              : 'type_payment'

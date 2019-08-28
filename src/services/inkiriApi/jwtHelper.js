@@ -74,8 +74,10 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
   }
 
   console.log( ' ###### jwtHelper::apiCall >> path:', path);
+  console.log( ' ###### jwtHelper::apiCall >> method', method || "GET")
   console.log( ' ###### jwtHelper::apiCall >> fetchOptions.body', JSON.stringify(fetchOptions.body))
   console.log( ' ###### jwtHelper::apiCall >> fetchOptions.headers', bearer_token)
+
   
   fetch(path, fetchOptions)
       .then((resp) => resp.json(), (ex) => { rej(ex) })

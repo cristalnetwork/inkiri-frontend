@@ -684,6 +684,7 @@ class AllInOne extends Component {
   }
 }
 
+
 export default withRouter(connect(
     (state)=> ({
         // isLoading: 		      userRedux.isLoading(state),

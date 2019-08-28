@@ -141,7 +141,7 @@ export const sendMoney = async (sender_account, sender_priv, receiver_account, a
 
 }
 
-export const issueMoney = async (issuer_account, issuer_priv, receiver_account, amount) => { 
+export const issueMoney = async (issuer_account, issuer_priv, receiver_account, amount, memo) => { 
 
 	console.log(' inkiriApi::sendMoney ', 
 		'param@issuer_account:', issuer_account,
@@ -162,7 +162,7 @@ export const issueMoney = async (issuer_account, issuer_priv, receiver_account, 
     data: {
       to: receiver_account,
       quantity: formatAmount(amount),
-      memo: 'iss|key'
+      memo: 'iss|'+(memo|'')
     }
   }
 
@@ -369,10 +369,11 @@ export const login = async (account_name, private_key) => {
       , permission       : 'active'
       , permissioner     : {
           account_name               : account_name
-          // , account_type             : customer_info.account_type
-          // , account_type_description : txsHelper.getAccountTypeDescription(customer_info.account_type)
-          , account_type             : globalCfg.bank.ACCOUNT_TYPE_BANKADMIN 
-          , account_type_description : txsHelper.getAccountTypeDescription(globalCfg.bank.ACCOUNT_TYPE_BANKADMIN)
+          , account_type             : customer_info.account_type
+          , account_type_description : txsHelper.getAccountTypeDescription(customer_info.account_type)
+          // FOR TESTING PURPOSES
+          // , account_type             : globalCfg.bank.ACCOUNT_TYPE_BANKADMIN 
+          // , account_type_description : txsHelper.getAccountTypeDescription(globalCfg.bank.ACCOUNT_TYPE_BANKADMIN)
           // , account_type             : globalCfg.bank.ACCOUNT_TYPE_BUSINESS 
           // , account_type_description : txsHelper.getAccountTypeDescription(globalCfg.bank.ACCOUNT_TYPE_BUSINESS)
       }

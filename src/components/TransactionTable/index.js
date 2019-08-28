@@ -26,7 +26,7 @@ export const  DISPLAY_SERVICE    = 'type_service';
 
 // deposit, exchange, payment, withdraw, provider, send, service
 
-export const columns = (account_type) => {
+export const columns = (account_type, onButtonClick) => {
   return [
   {
     title: 'Date',
@@ -52,10 +52,10 @@ export const columns = (account_type) => {
     dataIndex: 'tx_type',
     render: (tx_type, record) => (
       <span>
-       <Tag color={'volcano'} key={tx_type}>
+       <Tag color={'geekblue'} key={tx_type}>
               {tx_type.toUpperCase()}
        </Tag>
-       <Tag color={'volcano'} key={record.state||'x'}>
+       <Tag color={'geekblue'} key={record.state||'x'}>
               {(record.state||'x').toUpperCase()}
        </Tag>
       </span>
@@ -68,21 +68,26 @@ export const columns = (account_type) => {
     render: (text, record) => {
       console.log(' render button??? >> ', account_type)
       let processButton = !globalCfg.bank.isAdminAccount(account_type)?(null):(
-        <Button key={'process_'+record.id} onClick={()=>{}}>Process</Button>
+        <Button key={'process_'+record.id} onClick={()=>{
+            if(typeof onButtonClick === 'function') { onButtonClick(record) }}}>Process</Button>
+        );
+      let viewDetailsButton = !globalCfg.bank.isAdminAccount(account_type)?(null):(
+        <Button key={'view_'+record.id} onClick={()=>{
+            if(typeof onButtonClick === 'function') { onButtonClick(record) }}}>ViewDetails</Button>
         );
       //
-      if(!record.transaction_id)
+      if(!globalCfg.api.isFinished(record))
       {
         return (
           <span>
-            <a href="#">View Details</a>
+            {viewDetailsButton}
             <Divider type="vertical" />
             {processButton}
           </span>  );
       }
       return(
           <span>
-            <a href="#">View Details</a>
+            {viewDetailsButton}
             <Divider type="vertical" />
             <a href={api.dfuse.getBlockExplorerTxLink(record.transaction_id)} target="_blank">View on Blockchain</a>
           </span>
@@ -90,6 +95,7 @@ export const columns = (account_type) => {
   },
 ]};
 
+//
 
 class TransactionTable extends Component {
   constructor(props) {

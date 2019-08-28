@@ -26,6 +26,7 @@ export const pathNames = utils.arrToObj([
     'bankadminProfiles',
     'bankadminProviders',
     'bankadminPDA',
+    'bankadminPDA_ProcessRequest',
 
     'bankadminStaff',
     'bankadminSalaries',
@@ -165,7 +166,15 @@ const bankadmin = [
        container: 'dashboard',
        role: 'bankadmin'
     },
-
+    {
+       key: pathNames.bankadminPDA_ProcessRequest,
+       fileName: 'processRequest',
+       area: 'bankadmin',
+       path: 'process-request',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+    
     {
        key: pathNames.bankadminSalaries,
        fileName: 'under-construction',

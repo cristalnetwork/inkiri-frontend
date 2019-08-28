@@ -117,7 +117,8 @@ class SendMoney extends Component {
       }
       console.log('Received values of form: ', values);
 
-      const privateKey = api.dummyPrivateKeys[this.props.actualAccount] 
+      // const privateKey = api.dummyPrivateKeys[this.props.actualAccount] 
+      const privateKey = this.props.actualPrivateKey;
       // HACK! >> La tenemos que traer de localStorage? <<
       const receiver   = values.receipt;
       const sender     = this.props.actualAccount;
@@ -314,6 +315,7 @@ export default Form.create() (withRouter(connect(
         accounts:         accountsRedux.accounts(state),
         actualAccount:    loginRedux.actualAccount(state),
         actualRole:       loginRedux.actualRole(state),
+        actualPrivateKey: loginRedux.actualPrivateKey(state),
         isLoading:        loginRedux.isLoading(state),
         balance:          balanceRedux.userBalanceFormatted(state),
     }),

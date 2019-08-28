@@ -22,7 +22,7 @@ const TRY_SWITCH_END = 'login/TRY_SWITCH_END';
 export const trySwitchAccount = (account_name) =>({ type: TRY_SWITCH, payload: {account_name } });
 export const tryLogin         = (account_name, password, remember) =>({ type: TRY_LOGIN, payload: {account_name, password, remember } });
 export const logout           = () => ({type: LOGOUT});
-export const set              = (loginData) =>({ type: SET_LOGIN, payload: loginData});
+export const setLoginData     = (loginData) =>({ type: SET_LOGIN, payload: loginData});
 
 const ACCOUNT_DATA = 'account_data'
 
@@ -34,7 +34,7 @@ function* loadLoginData() {
   if(data && data.account_name && data.password) {
     //yield put(tryLogin(data.account_name, data.password, false))
     const stateData = getLoginDataFromStorage(data);
-    yield put(set(stateData))
+    yield put(setLoginData(stateData))
   }
   else
   {
@@ -56,7 +56,7 @@ function* tryLoginSaga({ type, payload }) {
       setStorage(ACCOUNT_DATA, {account_name, password, remember, accounts, master_account})
       // setStorage(ACCOUNT_DATA, {account_name, password, remember, accounts, account_name})
     }
-    yield put(set({userId: account_name, accounts:accounts, master_account:account_name , current_account:accounts.personalAccount}))
+    yield put(setLoginData({userId: account_name, accounts:accounts, master_account:account_name , current_account:accounts.personalAccount, password:password}))
   } catch(e) {
     console.log(' >> LOGIN REDUX ERROR#1', e)
   }
@@ -80,7 +80,7 @@ function* trySwitchAccountSaga({ type, payload }) {
   
   console.log(' LOGIN REDUX >> trySwitchAccountSaga >>putting new data', JSON.stringify(stateData));
   setStorage(ACCOUNT_DATA, {account_name:account_name, password:data.password, remember:data.remember, accounts:stateData.accounts, master_account:stateData.master_account})
-  yield put(set(stateData))
+  yield put(setLoginData(stateData))
   yield put({type: TRY_SWITCH_END})
   
 }
@@ -93,10 +93,11 @@ function* logoutSaga( ) {
 function getLoginDataFromStorage(storageData, switch_to){
   const account_name    = storageData.account_name;
   const master_account  = storageData.master_account;
+  const password        = storageData.password;
   const new_account     = switch_to!==undefined?switch_to:account_name;
   const account         = accountsToArray(storageData.accounts).filter( acc => acc.permissioner.account_name==new_account)[0]
 
-  const _loginData = {userId: new_account, accounts:storageData.accounts, master_account:master_account , current_account:account};
+  const _loginData = {userId: new_account, accounts:storageData.accounts, master_account:master_account , current_account:account, password:password};
   // console.log(' lodingREDUX::getLoginDataFromStorage >> ', _loginData)
   return _loginData;
 }
@@ -117,9 +118,11 @@ store.injectSaga('login', [
 export const isLoading             = (state) => state.login.loading > 0
 // export const actualAccount         = (state) => (state.login.current_account)?state.login.current_account.permissioned.actor:undefined
 export const actualAccount         = (state) => (state.login.current_account)?state.login.current_account.permissioner.account_name:undefined
+export const actualPrivateKey      = (state) => state.login.private_key
 export const actualRole            = (state) => (state.login.current_account)?globalCfg.bank.getAccountType(state.login.current_account.permissioner.account_type):undefined
 export const actualRoleId          = (state) => (state.login.current_account)?state.login.current_account.permissioner.account_type:undefined
 export const currentAccount        = (state) => state.login.current_account
+
 
 export const personalAccount       = (state) => state.login.accounts.personalAccount
 export const otherPersonalAccounts = (state) => state.login.accounts.otherPersonalAccounts
@@ -128,7 +131,13 @@ export const adminAccount          = (state) => state.login.accounts.adminAccoun
 export const allAccounts           = (state) => accountsToArray(state.login.accounts)
 
 // El reducer del modelo
-const defaultState = { loading: 0, userId: undefined, current_account: undefined, accounts:{}};
+const defaultState = { 
+    loading:             0
+    , userId:            undefined
+    , current_account:   undefined
+    , accounts:          {}
+    , private_key :      undefined
+  };
 
 function reducer(state = defaultState, action = {}) {
   switch (action.type) {
@@ -153,10 +162,12 @@ function reducer(state = defaultState, action = {}) {
         loading: state.loading - 1
       }
     case SET_LOGIN: 
+      console.log( ' loginREDUX >> action.payload.password >> ' , action.payload.password)
       return {
         ...state,
         // userId             : action.payload.accounts.personalAccount.permissioned.actor
         userId             : action.payload.userId
+        , private_key      : action.payload.password
         , accounts         : action.payload.accounts
         , master_account   : action.payload.master_account
         , current_account  : action.payload.current_account
