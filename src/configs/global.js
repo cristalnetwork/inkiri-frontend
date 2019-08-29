@@ -22,28 +22,47 @@ const bank = {
   ACCOUNT_TYPE_FOUNDATION: 3,
   ACCOUNT_TYPE_BANKADMIN:  4,
   ACCOUNT_TYPES:           ['none', 'personal', 'business', 'foundation', 'bankadmin'],
+  listAccountTypes   : () => { 
+    //return [bank.ACCOUNT_TYPE_PERSONAL, bank.ACCOUNT_TYPE_BUSINESS, bank.ACCOUNT_TYPE_FOUNDATION, bank.ACCOUNT_TYPE_BANKADMIN];
+    return bank.ACCOUNT_TYPES.splice(1);
+  } ,
   ACCOUNT_STATE_OK:        1,
   ACCOUNT_STATE_BLOCKED:   2,
   ACCOUNT_STATES:          ['none', 'ok', 'blocked'],
+  listAccountStates  : () => { 
+    return bank.ACCOUNT_STATES.splice(1);
+  } ,
   DEFAULT_FEE :            5,
-  DEFAULT_OVERDRAFT :      0,
+  DEFAULT_OVERDRAFT:       0,
   
+  getAccountState : (account_state) => {
+    return parseInt(account_state)<bank.ACCOUNT_STATES.length?bank.ACCOUNT_STATES[parseInt(account_state)]:undefined;
+  },
   getAccountType : (account_type) => {
-    // console.log(' +-+-+- isPersonalAccount', parseInt(account_type) , '==', bank.ACCOUNT_TYPE_PERSONAL);
     return parseInt(account_type)<bank.ACCOUNT_TYPES.length?bank.ACCOUNT_TYPES[parseInt(account_type)]:undefined;
   },
-  isPersonalAccount : (account_type) => {
-    // console.log(' +-+-+- isPersonalAccount', parseInt(account_type) , '==', bank.ACCOUNT_TYPE_PERSONAL);
-    return parseInt(account_type) == bank.ACCOUNT_TYPE_PERSONAL;
+  isPersonalAccount : (param) => {
+    if(typeof param !== 'number' && typeof param !== 'string')
+      param = param.account_type  
+    return parseInt(param) == bank.ACCOUNT_TYPE_PERSONAL;
+    
   },
-   isBusinessAccount : (account_type) => {
-    return parseInt(account_type) == bank.ACCOUNT_TYPE_BUSINESS;
+  isBusinessAccount : (param) => {
+    if(typeof param !== 'number' && typeof param !== 'string')
+      param = param.account_type  
+    return parseInt(param) == bank.ACCOUNT_TYPE_BUSINESS;
   },
-  isAdminAccount : (account_type) => {
-    return parseInt(account_type) == bank.ACCOUNT_TYPE_BANKADMIN;
+  isFoundationAccount : (param) => {
+    if(typeof param !== 'number' && typeof param !== 'string')
+      param = param.account_type  
+    return parseInt(param) == bank.ACCOUNT_TYPE_FOUNDATION;
+  },
+  isAdminAccount : (param) => {
+    if(typeof param !== 'number' && typeof param !== 'string')
+      param = param.account_type  
+    return parseInt(param) == bank.ACCOUNT_TYPE_BANKADMIN;
   },
   isEnabledAccount : (account_state) => {
-    // console.log(' +-+-+- isEnabledAccount', parseInt(account_state) , '==', bank.ACCOUNT_STATE_OK);
     return parseInt(account_state) == bank.ACCOUNT_STATE_OK;
   }
 };

@@ -136,7 +136,7 @@ const bankadmin = [
     
     {
        key: pathNames.bankadminAccounts,
-       fileName: 'under-construction',
+       fileName: 'accounts',
        area: 'bankadmin',
        path: 'accounts',
        container: 'dashboard',

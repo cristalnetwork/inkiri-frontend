@@ -1,6 +1,6 @@
 import { takeEvery, put, call } from '@redux-saga/core/effects';
 import { store } from '../configureStore'
-import { getAvailableAccounts } from '@app/services/inkiriApi'
+import { listBankAccounts } from '@app/services/inkiriApi'
 import * as core from './core';
 
 // Constantes
@@ -13,7 +13,7 @@ export const setAccunts = (accounts = []) =>({ type: SET_ACCOUNTS, payload: {acc
 
 //Eventos que requieren del async
 function* loadAccounts() {
-  const {data} = yield getAvailableAccounts();
+  const {data} = yield listBankAccounts();
   if(data) {
     yield put(setAccunts(data.accounts))
   }

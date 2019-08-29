@@ -126,13 +126,13 @@ export const listBankAccounts = () => new Promise((res,rej)=> {
       { blockNum: undefined }
     )
     .then((data) => {
-      
+      console.log(' dfuse::listBankAccounts >> ', JSON.stringify(data));
 			var accounts = data.rows.map(account => 
 				({	...account.json
 									,'state_description' :        txsHelper.getStateDescription(account.json.state)
 									,'account_type_description' : txsHelper.getAccountTypeDescription(account.json.account_type) }));
 
-			let _res = {data:{accounts:accounts}};
+			let _res = {data:{accounts:accounts,more:false}};
 			// console.log(' dfuse::listBankAccounts >> ', JSON.stringify(_res));
       res (_res);
       client.release();

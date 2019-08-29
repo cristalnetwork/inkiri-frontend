@@ -269,7 +269,7 @@ class PDA extends Component {
             <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
         </Form.Item>
         <Form.Item>
-          <Button htmlType="submit">
+          <Button htmlType="submit" disabled>
             Filter
           </Button>
         </Form.Item>
@@ -286,8 +286,8 @@ class PDA extends Component {
       <>
         <PageHeader
           extra={[
-            <Button key="_new_deposit"  icon="plus"> Deposit</Button>,
-            <Button key="_new_withdraw" icon="plus"> Withdraw</Button>,
+            <Button key="_new_deposit"  icon="plus" disabled> Deposit</Button>,
+            <Button key="_new_withdraw" icon="plus" disabled> Withdraw</Button>,
           ]}
           breadcrumb={{ routes }}
           title="PDA"

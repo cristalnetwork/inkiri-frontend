@@ -46,7 +46,6 @@ class Extrato extends Component {
       stats:                        {},
       
       cursor:                       '',
-      responses:                    {}, // array of { txs:[], cursor:'', page_index:0}
       balance:                      {},
       pagination:                   { pageSize: 0 , total: 0 },
       active_tab:                   DISPLAY_ALL_TXS

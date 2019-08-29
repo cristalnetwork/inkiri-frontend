@@ -35,32 +35,39 @@ const listAllBankAccounts = async () => {
     , reverse:      false
     , show_payer :  false
   });
+  console.log(' api::listAllBankAccounts >> ', JSON.stringify(response));
   // Ver https://github.com/EOSIO/eos/issues/3948
   // if more==true, entonces hay que traer mas usando lower_bound o upper_bound
   var accounts = response.rows.map(account => 
         ({  ...account
                   ,'state_description' :        txsHelper.getStateDescription(account.state)
                   ,'account_type_description' : txsHelper.getAccountTypeDescription(account.account_type) }));
-  return {...accounts}
+  return {data:{accounts:accounts, more:response.more}};
 }
 
-// export const getBankAccount = async (account_name) => { 
-//   const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
-//   const response = await jsonRpc.get_table_rows({
-//     json:           true                 
-//     , code:         globalCfg.bank.issuer
-//     , scope:        globalCfg.bank.issuer
-//     , table:        'ikaccounts'        
-//     , lower_bound:  account_name
-//     , limit:        1
-//     , reverse:      false
-//     , show_payer :  false
-//   });
-//   const _found = (response.rows&&response.rows.length>0);
-//   console.log(' InkiriApi::getBankAccount >> ', (_found?{...response.rows[0]}:'NOT FOUND'));
-//   return _found?{...response.rows[0]}:undefined;
-// }
-export const getBankAccount = (account_name) => dfuse.searchBankAccount(account_name);
+export const findBankAccount = async (account_name) => { 
+  const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
+  const response = await jsonRpc.get_table_rows({
+    json:           true                 
+    , code:         globalCfg.bank.issuer
+    , scope:        globalCfg.bank.issuer
+    , table:        'ikaccounts'        
+    , lower_bound:  account_name
+    , upper_bound:  account_name
+    , limit:        1
+    , reverse:      false
+    , show_payer :  false
+  });
+  const _found = (response.rows&&response.rows.length>0);
+  if(_found)
+    console.log(' InkiriApi::findBankAccount >> ', JSON.stringify(response.rows[0]));
+  else
+    console.log(' InkiriApi::findBankAccount >> ', 'NOT FOUND');
+  return _found?{...response.rows[0]}:undefined;
+}
+
+// export const getBankAccount = (account_name) => dfuse.searchBankAccount(account_name);
+export const getBankAccount = (account_name) => findBankAccount(account_name);
 
 export const isBankCustomer = async (account_name) => { 
   const customer = await getBankAccount(account_name);
@@ -206,7 +213,8 @@ export const addPersonalBankAccount = async (auth_account, auth_priv, account_na
 
 }
 
-export const getAvailableAccounts  = () =>   dfuse.listBankAccounts();
+// export const listBankAccounts  = () => dfuse.listBankAccounts();
+export const listBankAccounts  = () => listAllBankAccounts();
 export const getAccountBalance = (account_name) =>  dfuse.getAccountBalance(account_name);
 
 export const dummyPrivateKeys = {
@@ -355,20 +363,16 @@ export const login = async (account_name, private_key) => {
     throw new Error('Account is not a Bank customer!') 
   }
 
-  // if( !globalCfg.bank.isPersonalAccount(customer_info.account_type) 
-  //   || !globalCfg.bank.isEnabledAccount(customer_info.state))
-  // {
-  //   throw new Error('Your account should be an enabled and a Personal type account!')
-  //   return; 
-  // }
+  // || !globalCfg.bank.isPersonalAccount(customer_info.account_type)   
+  if( !globalCfg.bank.isEnabledAccount(customer_info.state))
+  {
+    throw new Error('Your account should be an enabled and a Personal type account!')
+    return; 
+  }
   
   const bchain_account_info = await getAccount(account_name);
   const personalAccount   = { 
 
-      // account_name:       bchain_account_info.data.account_name,
-      // account_type:       customer_info.account_type,
-      // account_type_desc:  customer_info.account_type_description,
-      // role:               '??',          
       extra:        {
         bank: customer_info, 
         blockchain : bchain_account_info.data
@@ -400,19 +404,38 @@ export const login = async (account_name, private_key) => {
   //   adminAccount = { ...personalAccount}
   // }
 
-  
-  // 6.- me logeo al banko
+  /*
+  * 6.- me logeo al banko
+  */
   let bank_auth;
+  let need_creation = false;
   try{
     bank_auth = await bank.auth(account_name, private_key);
   }
   catch(ex){
+    if(ex && ex.error && parseInt(ex.error)==404){
+      need_creation = true;
+    }
+    bank_auth = undefined;
     console.log('inkiriApi::login ERROR >> Account is not on private servers!', JSON.stringify(ex)) 
     // throw new Error('Account is not on private servers!'); 
-    // throw ex;
     // return; 
   }
 
+  if(!bank_auth&&need_creation)
+  {
+    try{
+      let bank_create = await bank.createUser(account_name);
+      bank_auth = await bank.auth(account_name, private_key);
+    }
+    catch(ex){
+      console.log('inkiriApi::login ERROR#2 >> !', JSON.stringify(ex)) 
+      throw new Error('Account is not on private servers!'); 
+      return;
+    }
+      
+  }
+   
   const ret= {
     personalAccount       : personalAccount,
     // persmissionedAccounts : persmissionedAccounts,

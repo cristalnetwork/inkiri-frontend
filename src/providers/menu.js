@@ -17,13 +17,14 @@ const renderItem = (item) => {
     // console.log(item.key , item.items)
     if(item.items) {
         return (
-        <SubMenu title={item.title} key={item.key}>
+        <SubMenu title={<span>{ item.icon? <Icon type={item.icon} />: false }<span>{item.title}</span></span>} key={item.key}>
+            
             { item.items.map(renderItem) }
         </SubMenu>
         );
     } else {
         return  (
-        <Menu.Item key={item.key}>
+        <Menu.Item key={item.key} disabled={item.path!=item.key}>
             <Link to={getPath(item.path || item.key)}>
                 { item.icon? <Icon type={item.icon} />: false }
                 <span>{item.title}</span>

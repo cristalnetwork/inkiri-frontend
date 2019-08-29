@@ -39,8 +39,14 @@ export const columns = (account_type, onButtonClick) => {
   {
     title: 'Description',
     dataIndex: 'sub_header',
-    key: 'sub_header'
+    key: 'sub_header',
+    render: (value, record) => {
+      if(globalCfg.bank.isAdminAccount(account_type))
+        return(<>{record.sub_header_admin||record.sub_header}</>)  
+      return(<>{record.sub_header}</>)
+    }
   },
+  //
   {
     title: 'Amount',
     dataIndex: 'quantity',

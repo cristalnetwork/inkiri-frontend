@@ -30,7 +30,7 @@ const ACCOUNT_DATA = 'account_data'
 function* loadLoginData() {
   yield put({type: core.ACTION_START, payload: { login: 'Check local storage'}})
   const { data } = yield getStorage(ACCOUNT_DATA);
-  console.log(' loginREDUX::loadLoginData >> storage >> ', JSON.stringify(data))
+  // console.log(' loginREDUX::loadLoginData >> storage >> ', JSON.stringify(data))
   if(data && data.account_name && data.password) {
     //yield put(tryLogin(data.account_name, data.password, false))
     const stateData = getLoginDataFromStorage(data);
@@ -163,7 +163,7 @@ function reducer(state = defaultState, action = {}) {
         loading: state.loading - 1
       }
     case SET_LOGIN: 
-      console.log( ' loginREDUX >> action.payload.password >> ' , action.payload.password)
+      // console.log( ' loginREDUX >> action.payload.password >> ' , action.payload.password)
       return {
         ...state,
         // userId             : action.payload.accounts.personalAccount.permissioned.actor

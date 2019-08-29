@@ -24,13 +24,15 @@ const AccountSelector = ({allAccounts, actualAccount, currentAccount, onChange, 
         return 'loading';
 
       let icons = {};
-      icons[globalCfg.bank.getAccountType(globalCfg.bank.ACCOUNT_TYPE_PERSONAL)]  = 'user';
-      icons[globalCfg.bank.getAccountType(globalCfg.bank.ACCOUNT_TYPE_BUSINESS)]  = 'shop';
-      icons[globalCfg.bank.getAccountType(globalCfg.bank.ACCOUNT_TYPE_BANKADMIN)] = 'bank';
+      // icons[globalCfg.bank.getAccountType(globalCfg.bank.ACCOUNT_TYPE_PERSONAL)]  = 'user';
+      // icons[globalCfg.bank.getAccountType(globalCfg.bank.ACCOUNT_TYPE_BUSINESS)]  = 'shop';
+      // icons[globalCfg.bank.getAccountType(globalCfg.bank.ACCOUNT_TYPE_BANKADMIN)] = 'bank';
 
-      // console.log( ' ACCOUNTSELECTOR >> ', allAccounts, account_item);
+      icons[globalCfg.bank.ACCOUNT_TYPE_PERSONAL]  = 'user';
+      icons[globalCfg.bank.ACCOUNT_TYPE_BUSINESS]  = 'shop';
+      icons[globalCfg.bank.ACCOUNT_TYPE_BANKADMIN] = 'bank';
 
-      return icons[account_item.permissioner.account_type_description]
+      return icons[account_item.permissioner.account_type]
     }
 
     const getOptions = () => {

@@ -76,7 +76,7 @@ class InkiriHeader extends Component {
   }
 
 }
-
+//
 export default connect(
     (state)=> ({
       actualAccount :   loginRedux.actualAccount(state),

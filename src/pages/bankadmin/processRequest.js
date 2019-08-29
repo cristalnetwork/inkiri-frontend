@@ -187,17 +187,22 @@ class processRequest extends Component {
     api.issueMoney(sender, privateKey, receiver, amount, memo)
       .then(data => {
         console.log(' processRequest::issue (then#1) >>  ', JSON.stringify(data));
-        if(data && data.transaction_id)
+        if(data && data.data && data.data.transaction_id)
         {
           // updeteo la tx
-          api.bank.setDepositOk(_id, data.transaction_id).then(
+          api.bank.setDepositOk(_id, data.data.transaction_id).then(
             // muestro resultado
             (update_res) => {
+              console.log(' processRequest::issue (then#2) >> update_res ', JSON.stringify(update_res), JSON.stringify(data));
+              console.log(' processRequest::issue (then#2) >> data ', JSON.stringify(data));
               that.setState({result:'ok', pushingTx:false, result_object:data});
             }, (err) => {
               that.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
             }
           )
+        }
+        else{
+          that.setState({result:'error', pushingTx:false, error:'UNKNOWN!'});
         }
         
       }, (ex)=>{
@@ -297,7 +302,7 @@ class processRequest extends Component {
                 <Input
                     size="large"
                     style={{ width: '100%' }}
-                    defaultValue={requested_by.account_name}
+                    value={requested_by.account_name}
                     className="extra-large"
                     readOnly
                     suffix={<Icon type="user" style={{fontSize:20}} className="default-icon" />} 
@@ -310,7 +315,7 @@ class processRequest extends Component {
                 <Input
                     size="large"
                     style={{ width: '100%' }}
-                    defaultValue={amount}
+                    value={amount}
                     className="input-money extra-large"
                     readOnly
                     prefix={<Icon type="dollar-circle" theme="filled" style={{fontSize:34}} className="certain-category-icon" />} 

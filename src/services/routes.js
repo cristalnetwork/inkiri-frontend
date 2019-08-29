@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { pathNames, getItem } from '@app/configs/routes'
 
 const routes  = {
@@ -7,6 +8,7 @@ const routes  = {
                 // key: pathNames.personalDashboard,
                 key:  pathNames.dashboard,
                 title: 'My money',
+                icon: 'wallet',
                 items: [
                     // {
                     //     key: pathNames.personalAllInOne,
@@ -38,6 +40,7 @@ const routes  = {
             {
                 key: pathNames.personalRequestMoney,
                 title: 'Receive',
+                icon: 'plus-square',
                 items: [
                     {
                         key: pathNames.personalRequestMoney,
@@ -49,6 +52,7 @@ const routes  = {
             {
                 key: pathNames.personalSendMoney,
                 title: 'Pay',
+                icon: 'minus-square',
                 items: [
                     {
                         key: pathNames.personalSendMoney,
@@ -59,6 +63,7 @@ const routes  = {
                         key: pathNames.personalPaymentsAndServices,
                         path: pathNames.personalUnderConstruction,
                         title: 'Payment and services',
+                        icon: 'shop',
                     }
                 ]
             }
@@ -66,6 +71,7 @@ const routes  = {
             {
                 key: pathNames.personalConfiguration,
                 title: 'Configuration',
+                icon: 'setting',
                 items: [
                     {
                         key: pathNames.personalConfiguration,
@@ -83,21 +89,24 @@ const routes  = {
                 key:  pathNames.dashboard,
                 title: 'Dashboard',
                 path: pathNames.bankadminUnderConstruction,
-                
+                icon: 'dashboard'
             },
             {
                 key: pathNames.bankadminTransactions,
                 title: 'Transactions',
+                icon: 'bank',
                 items: [
                     {
                         key: pathNames.bankadminOperations,
                         path: pathNames.bankadminUnderConstruction,
                         title: 'Operations',
+                        
                     },
                     {
                         key: pathNames.bankadminExternalTransfers,
                         path: pathNames.bankadminUnderConstruction,
                         title: 'External Transfers',
+
                     },
                     {
                         key: pathNames.bankadminPAP,
@@ -110,10 +119,11 @@ const routes  = {
             {
                 key: pathNames.bankadminAdministration,
                 title: 'Administration',
+                icon: 'table',
                 items: [
                     {
                         key: pathNames.bankadminAccounts,
-                        path: pathNames.bankadminUnderConstruction,
+                        path: pathNames.bankadminAccounts,
                         title: 'Accounts',
                     },
                     {
@@ -137,6 +147,7 @@ const routes  = {
             {
                 key: pathNames.bankadminStaff,
                 title: 'Staff',
+                icon: 'profile',
                 items: [
                     {
                         key: pathNames.bankadminSalaries,
@@ -154,7 +165,8 @@ const routes  = {
             {
                 key: pathNames.bankadminConfiguration,
                 path: pathNames.bankadminUnderConstruction,
-                title: 'Configuration'
+                title: 'Configuration',
+                icon: 'setting',
             }
         ]
     },
@@ -167,8 +179,13 @@ export const getRoutesByRole = (role) => {
     return role?routes[role]:[];
 }
 
+
 export const breadcrumbForFile = (file) => {
     const menuItem = getItem(file);
+    
+    // const parent = getParent(routes, pathNames.bankadminAccounts)
+    // console.log(' >>>> getParent >>>> ', parent)
+
     return [
       {
         path: 'dashboard',
@@ -179,6 +196,21 @@ export const breadcrumbForFile = (file) => {
         breadcrumbName: menuItem.title,
       }
     ];
-
-    
 }
+
+// function getParent(root, struct) {
+//     var parent = null;
+//     var check = function (root, struct) {
+//         _.each(root, function (value, key) {
+//             if (value == struct) {
+//                 parent = key;
+//             } else if (root == struct) {
+//                 parent = '_root';
+//             } else if (typeof value === 'object') {
+//                 check(value, struct);
+//             }
+//         });
+//     }
+//     check(root, struct);
+//     return parent;
+// }
