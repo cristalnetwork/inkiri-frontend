@@ -19,7 +19,7 @@ export const auth = () =>   new Promise((res,rej)=> {
 	const token = jwtHelper.getTokenIfNotExpired(jwtHelper.DFUSE_AUTH_TOKEN_KEY);
 
   // console.log(' >> dfuse::auth >> is TOKEN at local storage? >> ')  
-
+  console.log(' >> dfuse::auth >> TOKEN? >> ', token);  
   if(!token)
 	{
 		// console.log('dfuse::auth >> NO >>', 'About to post dfuse auth api')	
@@ -144,6 +144,12 @@ export const listBankAccounts = () => new Promise((res,rej)=> {
 
 })	
 
+/**
+ * Function that retrieves all blockchain transactions that includes
+ * the account that was given authority over a permission.
+ *
+ * @param {string} account_name – Description.
+ */
 export const searchPermissioningAccounts = (account_name) => new Promise( (res, rej) => {
 
   /*
@@ -151,6 +157,7 @@ export const searchPermissioningAccounts = (account_name) => new Promise( (res, 
     "query" : "{searchTransactionsForward(query: \"data.auth.accounts.permission.actor:inkpersonal3\") {cursor results { undo trace { id matchingActions { json }}}}}"
   }
   */
+  // ToDo: Improve GraphQL query! Filter duplicates and find latest.
   auth()
     .then((token) => {
       
@@ -160,11 +167,22 @@ export const searchPermissioningAccounts = (account_name) => new Promise( (res, 
       
       jwtHelper.apiCall(path, method, data)
         .then((data) => {
-            const ret = data.data.searchTransactionsForward.results.map(txs => ({ 
-              permissioner:txs.trace.matchingActions[0].json.account, 
-              permission:txs.trace.matchingActions[0].json.permission, 
-              permissioned:txs.trace.matchingActions[0].json.auth.accounts.filter(perm => perm.permission.actor==account_name)[0].permission }))
-            res(ret)
+            // Filter transactions to get unique permissioners account names.
+            const accounts = data.data.searchTransactionsForward.results
+              .map(txs => txs.trace.matchingActions[0].json.account)
+              .filter(account=>account!=account_name);
+            const _res = [...new Set(accounts)];
+            console.log(' dfuse::searchPermissioningAccounts() account_name:', account_name, ' | result: ', JSON.stringify(_res))
+            res(_res);
+
+            // const ret = data.data.searchTransactionsForward.results
+            //   .filter((obj, index) => obj)
+            //   .map(txs => ({ 
+            //     permissioner:txs.trace.matchingActions[0].json.account, 
+            //     permission:txs.trace.matchingActions[0].json.permission, 
+            //     permissioned:txs.trace.matchingActions[0].json.auth.accounts.filter(perm => perm.permission.actor==account_name)[0].permission }))
+            // res(ret)
+
           }, (ex) => {
             rej(ex);
           });

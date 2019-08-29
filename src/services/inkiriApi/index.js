@@ -266,6 +266,12 @@ const getMaxPermissionForAccount = async (account_name, permissioner_account) =>
   return perms.length<1 ? undefined : perms.sort(function(a, b){return perms_hierarchy.indexOf(a.perm_name)<perms_hierarchy.indexOf(b.perm_name)})[0];
 }
 
+/**
+ * Function that retrieves all blockchain transactions that includes
+ * the account that was given authority over a permission.
+ *
+ * @param {string} account_name – Description.
+ */
 const getPermissionedAccountsForAccount = (account_name) => new Promise((res, rej) => {
   
   // console.log(' ************* #1 searchPermissioningAccounts')
@@ -275,11 +281,11 @@ const getPermissionedAccountsForAccount = (account_name) => new Promise((res, re
       
       let isCustomerPromises = [];
       let bank_customer_tmp  = {};
-      // console.log(JSON.stringify(permissioning_accounts))
       // console.log(' ************* #2 isBankCustomer ??')
       permissioning_accounts.forEach((perm) => {
         // console.log(' ++ iterator: ', perm.permissioner)
-        isCustomerPromises.push(getBankAccount(perm.permissioner))
+        // isCustomerPromises.push(getBankAccount(perm.permissioner)) // OLD VERSION
+        isCustomerPromises.push(getBankAccount(perm))
       })
       Promise.all(isCustomerPromises).then((values) => {
         // console.log(JSON.stringify(values))
@@ -289,7 +295,8 @@ const getPermissionedAccountsForAccount = (account_name) => new Promise((res, re
           if(bank_customer) 
           {
             bank_customer_tmp[bank_customer.key] = bank_customer;
-            permissionPromises.push(getMaxPermissionForAccount(account_name, permissioning_accounts[index].permissioner))
+            // permissionPromises.push(getMaxPermissionForAccount(account_name, permissioning_accounts[index].permissioner)) // OLD VERSION
+            permissionPromises.push(getMaxPermissionForAccount(account_name, permissioning_accounts[index]))
           }
         })
         Promise.all(permissionPromises).then((permissions) => {
@@ -348,12 +355,12 @@ export const login = async (account_name, private_key) => {
     throw new Error('Account is not a Bank customer!') 
   }
 
-  if( !globalCfg.bank.isPersonalAccount(customer_info.account_type) 
-    || !globalCfg.bank.isEnabledAccount(customer_info.state))
-  {
-    throw new Error('Your account should be an enabled and a Personal type account!')
-    return; 
-  }
+  // if( !globalCfg.bank.isPersonalAccount(customer_info.account_type) 
+  //   || !globalCfg.bank.isEnabledAccount(customer_info.state))
+  // {
+  //   throw new Error('Your account should be an enabled and a Personal type account!')
+  //   return; 
+  // }
   
   const bchain_account_info = await getAccount(account_name);
   const personalAccount   = { 
@@ -400,7 +407,7 @@ export const login = async (account_name, private_key) => {
     bank_auth = await bank.auth(account_name, private_key);
   }
   catch(ex){
-    // console.log('inkiriApi::login ERROR >> Account is not on private servers!', ex) 
+    console.log('inkiriApi::login ERROR >> Account is not on private servers!', JSON.stringify(ex)) 
     // throw new Error('Account is not on private servers!'); 
     // throw ex;
     // return; 
