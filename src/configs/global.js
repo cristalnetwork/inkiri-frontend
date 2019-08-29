@@ -68,8 +68,8 @@ const bank = {
 };
 
 
-// const base_url    = 'http://localhost:3600';
-const base_url    = 'https://cristal-backend.herokuapp.com';
+const base_url    = 'http://localhost:3600';
+// const base_url    = 'https://cristal-backend.herokuapp.com';
 const api_version = '/api/v1';
 const api = {
   end_point                   : base_url+ api_version
