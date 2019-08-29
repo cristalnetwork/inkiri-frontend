@@ -67,13 +67,13 @@ class Login extends Component {
               valuePropName: 'checked',
               initialValue: true,
             })(<Checkbox>Remember me</Checkbox>)}
-            <a className="login-form-forgot" href="">
+            <a className="login-form-forgot" href="#" disabled>
               Forgot password
             </a>
             <Button type="primary" htmlType="submit" className="login-form-button" loading={this.props.isLoading}>
               Log in
             </Button>
-            Or <a href="">register now!</a>
+            Or <a href="#" disabled >register now!</a>
           </Form.Item>
         </Form>
       </>

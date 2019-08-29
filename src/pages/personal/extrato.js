@@ -99,8 +99,8 @@ class Extrato extends Component {
     
     const _txs = [...this.state.txs, ...data.txs];
     const pagination = {...this.state.pagination};
-    pagination.pageSize= _txs.length;
-    pagination.total= _txs.length;
+    pagination.pageSize=   _txs.length;
+    pagination.total=     _txs.length;
 
     console.log(' >>>>>>>>>>> this.state.cursor:', this.state.cursor)
     console.log(' >>>>>>>>>>> data.cursor:', data.cursor)
