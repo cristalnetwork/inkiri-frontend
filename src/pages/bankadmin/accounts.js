@@ -80,7 +80,7 @@ class AdminAccounts extends Component {
     this.onNewData                  = this.onNewData.bind(this);
     // this.onTabChange                = this.onTabChange.bind(this);
     // this.onTableChange              = this.onTableChange.bind(this);
-    this.onProcessRequestClick      = this.onProcessRequestClick.bind(this);
+    this.onButtonClick              = this.onButtonClick.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
     
   }
@@ -106,10 +106,10 @@ class AdminAccounts extends Component {
                 key: 'account_type',
                 render: (account_type, record) => (
                   <span>
+                   
                    <Tag key={record.key+account_type}>
-                      {
-                        globalCfg.bank.getAccountType(account_type).toUpperCase()
-                      }
+                     <Icon type={globalCfg.bank.ACCOUNT_ICONS[account_type]} />
+                      &nbsp;{globalCfg.bank.getAccountType(account_type).toUpperCase()}
                    </Tag>
                   </span>
                   )
@@ -121,9 +121,7 @@ class AdminAccounts extends Component {
                 render: (state, record) => (
                   <span>
                    <Tag key={record.key+state}>
-                        {
-                          globalCfg.bank.getAccountState(state).toUpperCase()
-                        }
+                        { globalCfg.bank.getAccountState(state).toUpperCase() }
                    </Tag>
                   </span>
                   )
@@ -150,7 +148,7 @@ class AdminAccounts extends Component {
                 render: (text, record) => {
                   return(
                     <span>
-                      
+                      <Button key={'process_'+record.key} onClick={()=>{ this.onButtonClick(record) }} icon="profile" size="small">Details</Button>
                     </span>
                   )},
               },
@@ -160,6 +158,25 @@ class AdminAccounts extends Component {
   componentDidMount(){
     this.loadAccounts();  
   } 
+
+  
+  onButtonClick(account){
+    console.log( ' ACCOUNTS::onButtonClick >> ', JSON.stringify(account) )
+
+    this.props.history.push({
+      pathname: `/${this.props.actualRole}/account`
+      // , search: '?query=abc'
+      , state: { account: account }
+    })
+
+    // this.props.history.push({
+    //   pathname: '/template',
+    //   search: '?query=abc',
+    //   state: { detail: response.data }
+    // })
+    // READ >> this.props.location.state.detail
+  }
+
 
   loadAccounts = async () => {
 
@@ -272,18 +289,7 @@ class AdminAccounts extends Component {
   // Component Events
   
 
-  onProcessRequestClick(request){
-    console.log( ' ACCOUNTS::onProcessRequestClick >> ', JSON.stringify(request) )
-
-    // this.props.history.push({
-    //   pathname: `/${this.props.actualRole}/process-request`
-    //   // , search: '?query=abc'
-    //   , state: { request: request }
-    // })
-
-    // READ >> this.props.location.state.detail
-  }
-
+  
   renderFooter(){
     return (<Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadAccounts()}>More!!</Button>)
   }

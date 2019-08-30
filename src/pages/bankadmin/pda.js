@@ -196,7 +196,6 @@ class PDA extends Component {
       this.computeStats(txs);
   }
 
-
   onProcessRequestClick(request){
     console.log( ' PDA::onProcessRequestClick >> ', JSON.stringify(request) )
 

@@ -35,7 +35,7 @@ const listAllBankAccounts = async () => {
     , reverse:      false
     , show_payer :  false
   });
-  console.log(' api::listAllBankAccounts >> ', JSON.stringify(response));
+  // console.log(' api::listAllBankAccounts >> ', JSON.stringify(response));
   // Ver https://github.com/EOSIO/eos/issues/3948
   // if more==true, entonces hay que traer mas usando lower_bound o upper_bound
   var accounts = response.rows.map(account => 
