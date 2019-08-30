@@ -74,7 +74,7 @@ export const isBankCustomer = async (account_name) => {
   return customer!==undefined;
 }
 
-const getAccount = async (account_name) => { 
+export const getAccount = async (account_name) => { 
   const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
   const response  = await jsonRpc.get_account(account_name)
   return {data:response}

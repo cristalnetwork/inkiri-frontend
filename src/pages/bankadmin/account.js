@@ -39,69 +39,24 @@ class Account extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading:      false,
+      loading:      true,
       dataSource:   [],
       receipt:      '',
       amount:       0,
       memo:         '',
       pushingTx:    false,
       result:       undefined,
+      
       result_object:undefined,
       error:        {},
+      
       number_validateStatus : '',
       number_help:  ''
 
       , account : undefined
       , account_balance : '?.??'
-      , request:     {
-                        "nota_fiscal_url": "",
-                        "comprobante_url": "",
-                        "deposit_currency": "",
-                        "_id": "",
-                        "requested_type": "type_deposit",
-                        "amount": "0",
-                        "created_by":
-                        {
-                            "_id": "",
-                            "account_name": "n/a",
-                            "first_name": "n/a",
-                            "last_name": "n/a",
-                            "email": "n/a",
-                            "created_at": "n/a",
-                            "updatedAt": "n/a",
-                            "userCounterId": 0,
-                            "__v": 0,
-                            "to_sign": "n/a",
-                            "id": ""
-                        },
-                        "from": "n/a",
-                        "requested_by":
-                        {
-                            "_id": "",
-                            "account_name": "n/a",
-                            "first_name": "n/a",
-                            "last_name": "n/a",
-                            "email": "n/a",
-                            "created_at": "n/a",
-                            "updatedAt": "n/a",
-                            "userCounterId": 0,
-                            "__v": 0,
-                            "to_sign": "n/a",
-                            "id": "n/a"
-                        },
-                        "state": "state_concluded",
-                        "created_at": "n/a",
-                        "updatedAt": "n/a",
-                        "requestCounterId": 0,
-                        "__v": 0,
-                        "block_time": "n/a",
-                        "sub_header": "n/a",
-                        "quantity": "0",
-                        "tx_type": "type_deposit",
-                        "i_sent": true,
-                        "id": "n/a",
-                        "quantity_txt": "0.00 IK$"
-}
+      , eos_account : undefined
+      
     };
 
     // this.handleSearch = this.handleSearch.bind(this); 
@@ -113,7 +68,7 @@ class Account extends Component {
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderAccountInfo          = this.renderAccountInfo.bind(this);
     this.loadAccountInfo            = this.loadAccountInfo.bind(this);
-    this.issueMoney                 = this.issueMoney.bind(this);
+    this.changePermissions          = this.changePermissions.bind(this);
   }
 
   static propTypes = {
@@ -127,7 +82,6 @@ class Account extends Component {
 
   componentDidMount(){
     const { match, location, history } = this.props;
-    // console.log( 'Account::router-params >>' , JSON.stringify(this.props.location.state.request) );
     if(this.props.location && this.props.location.state)
     {  
       this.setState({account : this.props.location.state.account})
@@ -140,9 +94,33 @@ class Account extends Component {
   }
   
   loadAccountInfo = async (account_name) => {
-    const { data } = await api.getAccountBalance(account_name);
-    console.log(' >> loadAccountInfo :: balance >>', JSON.stringify(data));
-    this.setState({account_balance: parseFloat(data.balance).toFixed(2)})
+    
+    // const { balance } = await api.getAccountBalance(account_name);
+    // const { perm } = await api.getAccount(account_name);
+
+    var promise1 = api.getAccountBalance(account_name);
+    var promise2 = api.getAccount(account_name);
+  
+    Promise.all([promise1, promise2])
+      .then((values) => {
+        console.log(' ************ page::account::fetching balance and perms >> ', JSON.stringify(values));
+        let balance = values[0];
+        let perm    = values[1];
+        console.log(' balance >> ' , account_name, JSON.stringify(balance))
+        console.log(' perm >> ' , JSON.stringify(perm))    
+        this.setState({loading:false, account_balance: parseFloat(balance.balance).toFixed(2)
+                        , eos_account: perm.data})
+      }, (err)=>{
+        console.log(' ************ page::account::fetching balance and perms >> ', JSON.stringify(err));
+        this.setState({loading:false
+          , result: 'error'
+          , error: {
+                      title:'Error loading blockchain permissions and balance.'
+                      , content:JSON.stringify(err)
+                    }
+          , loading: false})
+      });
+
   }
   onSelect(value) {
     console.log('onSelect', value);
@@ -169,65 +147,21 @@ class Account extends Component {
     });
   }
 
-  issueMoney = async () => {
-    // let thato = this;
-    // const x_id = this.state.request._id;
-    // const x_tx_id= 'ea19c171cd3f07e2233d28469c0c2344503cf974368116e01037caa856fc88b2';
-    // api.bank.setDepositOk(x_id, x_tx_id).then(
-    //   // muestro resultado
-    //   (update_res) => {
-        
-    //     console.log('OK')
-    //     const xx = {data:{transaction_id:x_tx_id}};
-    //     thato.setState({result:'ok', pushingTx:false, result_object:xx});
-    //   }, (err) => {
-    //     console.log('ERROR', JSON.stringify(err))
-    //     thato.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
-    //   }
-    // )
-
-    // return;
-    const {_id, amount, requested_by, requestCounterId, deposit_currency} = this.state.request;
-    const privateKey = this.props.actualPrivateKey;
-    const receiver   = requested_by.account_name;
-    const sender     = globalCfg.currency.issuer; //this.props.actualAccount;
+  changePermissions = async () => {
     
-    const fiat       = globalCfg.api.fiatSymbolToMemo(deposit_currency)
-    const memo       = `dep|${fiat}|${requestCounterId.toString()}`;
-
-    let that = this;
-    that.setState({pushingTx:true});
-    api.issueMoney(sender, privateKey, receiver, amount, memo)
-      .then(data => {
-        console.log(' Account::issue (then#1) >>  ', JSON.stringify(data));
-        if(data && data.data && data.data.transaction_id)
-        {
-          // updeteo la tx
-          api.bank.setDepositOk(_id, data.data.transaction_id).then(
-            // muestro resultado
-            (update_res) => {
-              console.log(' Account::issue (then#2) >> update_res ', JSON.stringify(update_res), JSON.stringify(data));
-              console.log(' Account::issue (then#2) >> data ', JSON.stringify(data));
-              that.setState({result:'ok', pushingTx:false, result_object:data});
-            }, (err) => {
-              that.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
-            }
-          )
-        }
-        else{
-          that.setState({result:'error', pushingTx:false, error:'UNKNOWN!'});
-        }
-        
-      }, (ex)=>{
-        console.log(' Account::issue (error#1) >>  ', JSON.stringify(ex));
-        that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
-      });
+    // that.setState({pushingTx:true});
+    // api.changePermissions(sender, privateKey, receiver, amount, memo)
+    //   .then(data => {
+    //     that.setState({pushingTx:false, result:'error', error:'error'});
+    //   }, (ex)=>{
+    //     that.setState({pushingTx:false, result:'error', error:JSON.stringify(ex)});
+    //   });
   }
 
 
   handleSubmit = e => {
     e.preventDefault();
-    this.issueMoney();
+    this.changePermissions();
   };
 
   backToDashboard = async () => {
@@ -275,11 +209,11 @@ class Account extends Component {
 
     if(this.state.result=='error')
     {
-
+      const {title, content} = this.state.error;
       // <Button key="re-send">Try sending again</Button>,
       return (<Result
                 status="error"
-                title="Transaction Failed"
+                title={title}
                 subTitle="Please check and modify the following information before resubmitting."
                 extra={[
                   <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>Go to dashboard</Button>,
@@ -296,7 +230,7 @@ class Account extends Component {
                     </Text>
                   </Paragraph>
                   <Paragraph>
-                    <Icon style={{ color: 'red' }} type="close-circle" /> {this.state.error}
+                    <Icon style={{ color: 'red' }} type="close-circle" /> {title}
                   </Paragraph>
                 </div>
               </Result>)
@@ -304,44 +238,13 @@ class Account extends Component {
     
     // ** hack for sublime renderer ** //
 
-    const {amount, requested_by} = this.state.request;
-    const cant_process           = globalCfg.api.isFinished(this.state.request)
+    
     return (
         <div style={{ margin: '0 auto', width:500, padding: 24, background: '#fff'}}>
           <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
             <Form onSubmit={this.handleSubmit}>
                 
-              <Form.Item style={{minHeight:60, marginBottom:12}}>
-                <Input
-                    size="large"
-                    style={{ width: '100%' }}
-                    value={requested_by.account_name}
-                    className="extra-large"
-                    readOnly
-                    suffix={<Icon type="user" style={{fontSize:20}} className="default-icon" />} 
-                  />
 
-              </Form.Item>
-
-              
-              <Form.Item  style={{minHeight:60, marginBottom:12}}> 
-                <Input
-                    size="large"
-                    style={{ width: '100%' }}
-                    value={amount}
-                    className="input-money extra-large"
-                    readOnly
-                    prefix={<Icon type="dollar-circle" theme="filled" style={{fontSize:34}} className="certain-category-icon" />} 
-                  />
-                
-              </Form.Item>
-
-              <Form.Item>
-                <Button type="primary" htmlType="submit" className="login-form-button" disabled={cant_process}>
-                  Accept Deposit & Issue
-                </Button>
-                
-              </Form.Item>
             </Form>
           </Spin>
         </div>
@@ -413,8 +316,8 @@ class Account extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes }}
-          title="Process Request"
-          subTitle="Process customer request"
+          title="Account details"
+          subTitle="View and modifiy account profile and permissions"
           
         >
          
@@ -426,7 +329,7 @@ class Account extends Component {
         </PageHeader>
 
         <div style={{ margin: '24px 0', padding: 0, background: '#fff'}}>
-           < Card  title = " Desposit "  style = { { marginBottom: 24 } } >
+           < Card  title = " Account Permissions "  style = { { marginBottom: 24 } } >
           {content}
           </Card>
         </div>

@@ -20,7 +20,7 @@ export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, 
     
     const [collapsed, setCollapse] = useState(0);
 
-    console.log(' >>>>>>  DashboardContainer >> menuIsCollapsed >>' , menuIsCollapsed)
+    // console.log(' >>>>>>  DashboardContainer >> menuIsCollapsed >>' , menuIsCollapsed)
     // const onCollapse = (e) => {
     //   // collapseMenu(!menuIsCollapsed);
     // };
@@ -46,7 +46,7 @@ export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, 
           theme="light"
           breakpoint="sm"
           onBreakpoint={broken => {
-            console.log( ' >>> Sider::broken? >>>' , broken);
+            // console.log( ' >>> Sider::broken? >>>' , broken);
           }}
           collapsedWidth={isMobile?0:80}
           
@@ -54,7 +54,7 @@ export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, 
             <div className="logo">
               <img src="/favicons/favicon-32x32.png" />
             </div>
-            { Menu? <Menu area={area} fileName={fileName}/>: false }
+            { Menu? <Menu area={area} fileName={fileName} />: false }
         </Sider>
         <Layout>
           <Header style={{ background: '#fff', padding: 0 }}>

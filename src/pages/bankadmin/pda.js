@@ -345,7 +345,6 @@ class PDA extends Component {
           bordered={false}
           title="List of Deposits and Withdraws"
           style={{ marginTop: 24 }}
-          bodyStyle={{ padding: '0 32px 40px 32px' }}
           extra={this.renderExtraContent()}
         >
           <Button type="dashed" style={{ display:'none', width: '50%', marginBottom: 8 }} key="_new_deposit"  icon="plus"> Deposit</Button>
