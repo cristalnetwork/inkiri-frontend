@@ -311,7 +311,13 @@ export const getBlockExplorerTxLink = (tx_id) => {
 
   return globalCfg.dfuse.tx_url + tx_id;
 }
+
 export const getTxId = (result_tx) => {
 
   return result_tx.transaction_id;
+}
+
+export const getBlockExplorerAccountLink = (account_name) => {
+
+  return globalCfg.dfuse.account_url + account_name;
 }

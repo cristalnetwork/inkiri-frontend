@@ -9,10 +9,12 @@ import UserBalance from './userBalance';
 import * as menuRedux from '@app/redux/models/menu'
 import * as loginRedux from '@app/redux/models/login'
 import styles from './index.less';
+import styles_right from './right_content.less';
 
 import UserSelector from './userSelector'
 
 import AccountSelector from '@app/components/InkiriHeader/accountSelector';
+
 
 const { Header } = Layout;
 
@@ -40,36 +42,67 @@ class InkiriHeader extends Component {
     this.props.trySwitchAccount(account_name);
   }
 
-  /*
-    * <div className="header_element_container">
-    *  <UserSelector onChange={this.handleChange} />
-    * </div>
-  */
-  /*
-    * <div className="header_element_container">
-    *   <a className="header_element_top_padded header_element_left_padded" target="_blank" href="https://jungle.bloks.io/account/ikadminoooo1">View account on blockexplorer</a>
-    * </div>
-    * {this.props.actualAccount} 
-  */
   render(){
+    let header_content ;
+    if(this.props.isMobile)
+    {
+      header_content = (
+        <>
+        <a className="ant-pro-global-header-logo" key="logo">
+          <img src="/favicons/favicon-32x32.png" alt="logo" />
+        </a>
+        <div className="right">
+          <AccountSelector onChange={this.handleChange} isMobile={this.props.isMobile}/>
+          <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
+        </div>
+        </>
+        );
+    }
+    else{
+      //
+      header_content=(
+              <div className="right">
+                <div className="header_element_container">
+                  <Button icon={'logout'} onClick={this.props.logout}>Logout</Button>
+                </div>
+                <div className="header_element_container" style={{marginRight: '10px'}}>
+                  <AccountSelector onChange={this.handleChange} isMobile={this.props.isMobile}/>
+                   &nbsp; <Tag> Account Balance (IK$) <UserBalance userId={this.props.actualAccount} /> </Tag>
+                </div>
+              </div>
+            );
+    }
+    //
     return (
        <Header style={{ background: '#fff', padding: 0 }}>
           <div className="ant-pro-global-header">  
-            <Icon
-              className="trigger"
-              type={this.props.menuIsCollapsed ? 'menu-unfold' : 'menu-fold'}
-              onClick={this.toggle}
-            />
+            {header_content}
+          </div>
+        </Header>
+    )
+  }
 
-            <div className="right">
-              <div className="header_element_container">
-                <Button icon={'logout'} onClick={this.props.logout}>Logout</Button>
+  renderXX(){
+    return (
+       <Header style={{ background: '#fff', padding: 0 }}>
+          <div className="ant-pro-global-header">  
+
+              <Icon
+                className="trigger"
+                type={this.props.menuIsCollapsed ? 'menu-unfold' : 'menu-fold'}
+                onClick={this.toggle}
+              />
+              
+              <div className="right">
+                <div className="header_element_container">
+                  <Button icon={'logout'} onClick={this.props.logout}>Logout</Button>
+                </div>
+                <div className="header_element_container" style={{marginRight: '10px'}}>
+                  <AccountSelector onChange={this.handleChange} />
+                   &nbsp; <Tag> Account Balance (IK$) <UserBalance userId={this.props.actualAccount} /> </Tag>
+                </div>
               </div>
-              <div className="header_element_container" style={{marginRight: '10px'}}>
-                <AccountSelector onChange={this.handleChange} />
-                 &nbsp; <Tag> Account Balance (IK$) <UserBalance userId={this.props.actualAccount} /> </Tag>
-              </div>
-            </div>
+            
           </div>
         </Header>
     )

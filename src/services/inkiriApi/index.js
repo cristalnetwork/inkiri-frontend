@@ -35,7 +35,7 @@ const listAllBankAccounts = async () => {
     , reverse:      false
     , show_payer :  false
   });
-  console.log(' api::listAllBankAccounts >> ', JSON.stringify(response));
+  // console.log(' api::listAllBankAccounts >> ', JSON.stringify(response));
   // Ver https://github.com/EOSIO/eos/issues/3948
   // if more==true, entonces hay que traer mas usando lower_bound o upper_bound
   var accounts = response.rows.map(account => 
@@ -74,7 +74,7 @@ export const isBankCustomer = async (account_name) => {
   return customer!==undefined;
 }
 
-const getAccount = async (account_name) => { 
+export const getAccount = async (account_name) => { 
   const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
   const response  = await jsonRpc.get_account(account_name)
   return {data:response}

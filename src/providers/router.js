@@ -56,6 +56,7 @@ const loadableComponent = (area, fileName, container, role)=> {
     })
     let Container;
     if(container === 'dashboard') {
+        // console.log('ABOUT TO RENDER SIDE MENU')
         Container = ()=> <DashboardContainer footerText=""  TopMenu="" Children={ayncComponent} Menu={MenuByRole} area={area} fileName={fileName} />
         
     } else {

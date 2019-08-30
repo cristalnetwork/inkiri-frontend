@@ -8,7 +8,7 @@ import './accountSelector.less';
 
 // const { Option } = Select;
 
-const AccountSelector = ({allAccounts, actualAccount, currentAccount, onChange, loading}) => {
+const AccountSelector = ({allAccounts, actualAccount, currentAccount, onChange, loading, isMobile}) => {
     
     const getDisplayAccountData = (account_item) => {
       if(!account_item)
@@ -16,23 +16,21 @@ const AccountSelector = ({allAccounts, actualAccount, currentAccount, onChange, 
       const account_type       = account_item.permissioner.account_type_description.toUpperCase();
       const account_name       = account_item.permissioner.account_name.toUpperCase();
       const account_permission = account_item.permission.replace('active', 'gestor').toUpperCase(); 
-      return `${account_name} - Conta ${account_type} [${account_permission}] `
+      // return `${account_name} - Conta ${account_type} [${account_permission}] `
+      // return `${account_name}[${account_type}]${account_permission} `
+      return (<><span className="bold">{account_permission}</span><span>@{account_name}</span><span>.{account_type}</span></>)
     }
 
     const getIconForAccountType = (account_item) => {
       if(!account_item)
         return 'loading';
 
-      let icons = {};
-      // icons[globalCfg.bank.getAccountType(globalCfg.bank.ACCOUNT_TYPE_PERSONAL)]  = 'user';
-      // icons[globalCfg.bank.getAccountType(globalCfg.bank.ACCOUNT_TYPE_BUSINESS)]  = 'shop';
-      // icons[globalCfg.bank.getAccountType(globalCfg.bank.ACCOUNT_TYPE_BANKADMIN)] = 'bank';
-
-      icons[globalCfg.bank.ACCOUNT_TYPE_PERSONAL]  = 'user';
-      icons[globalCfg.bank.ACCOUNT_TYPE_BUSINESS]  = 'shop';
-      icons[globalCfg.bank.ACCOUNT_TYPE_BANKADMIN] = 'bank';
-
-      return icons[account_item.permissioner.account_type]
+      // let icons = {};
+      // icons[globalCfg.bank.ACCOUNT_TYPE_PERSONAL]  = 'user';
+      // icons[globalCfg.bank.ACCOUNT_TYPE_BUSINESS]  = 'shop';
+      // icons[globalCfg.bank.ACCOUNT_TYPE_BANKADMIN] = 'bank';
+      // return icons[account_item.permissioner.account_type]
+      return globalCfg.bank.ACCOUNT_ICONS[account_item.permissioner.account_type];
     }
 
     const getOptions = () => {
@@ -64,21 +62,24 @@ const AccountSelector = ({allAccounts, actualAccount, currentAccount, onChange, 
         }
     }
     
-    // return (<Dropdown overlay={getOptions()} trigger={['click']} className="accountSelector" icon={<Icon type={getIconForAccountType(currentAccount)} />}>
-    //      <a className="ant-dropdown-link" href="#">
-    //       {getDisplayAccountData(currentAccount)} <Icon type={getIconForAccountType(currentAccount)} />
-    //     </a>
-    //   </Dropdown>)
 
-    return (<Dropdown.Button overlay={getOptions()} trigger={['click']} className="accountSelector" icon={<Icon type={getIconForAccountType(currentAccount)} />}>
-        <Icon type={getIconForAccountType(currentAccount)} /> {getDisplayAccountData(currentAccount)}
-      </Dropdown.Button>)
+    // return (<Dropdown.Button overlay={getOptions()} trigger={['click']} className="accountSelector"  placement="bottomRight" icon={<Icon type={getIconForAccountType(currentAccount)} />} >
+    //     <Icon type={getIconForAccountType(currentAccount)} /> {getDisplayAccountData(currentAccount)}
+    //   </Dropdown.Button>)
 
-    // return (
-    //     <Select defaultValue={actualAccount} style={{ width: '100%' }} onChange={sendAccount} loading={loading} placeholder={'Select account'}>
-    //         { allAccounts.map(acc => <Option key={acc.permissioner.account_name} value={acc.permissioner.account_name}>{getDisplayAccountData(acc)}</Option> )}
-    //     </Select>
-    // )
+    if(!isMobile)
+      return (<Dropdown overlay={getOptions()} className="accountSelector"  placement="bottomRight" >
+        <Button><Icon type={getIconForAccountType(currentAccount)} /> {getDisplayAccountData(currentAccount)}</Button>
+      </Dropdown>)
+    else
+      return (<>
+        <Dropdown.Button overlay={getOptions()} trigger={['click']} className="accountSelector"  placement="bottomRight" >
+          <Icon type={getIconForAccountType(currentAccount)} /> 
+        </Dropdown.Button>
+        </>)
+    
+
+    
 }
 
 export default connect(

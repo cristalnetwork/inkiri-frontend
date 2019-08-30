@@ -22,6 +22,7 @@ const bank = {
   ACCOUNT_TYPE_FOUNDATION: 3,
   ACCOUNT_TYPE_BANKADMIN:  4,
   ACCOUNT_TYPES:           ['none', 'personal', 'business', 'foundation', 'bankadmin'],
+  ACCOUNT_ICONS:           ['none', 'user', 'shop', 'home', 'bank'],
   listAccountTypes   : () => { 
     //return [bank.ACCOUNT_TYPE_PERSONAL, bank.ACCOUNT_TYPE_BUSINESS, bank.ACCOUNT_TYPE_FOUNDATION, bank.ACCOUNT_TYPE_BANKADMIN];
     return bank.ACCOUNT_TYPES.splice(1);
@@ -36,10 +37,10 @@ const bank = {
   DEFAULT_OVERDRAFT:       0,
   
   getAccountState : (account_state) => {
-    return parseInt(account_state)<bank.ACCOUNT_STATES.length?bank.ACCOUNT_STATES[parseInt(account_state)]:undefined;
+    return (parseInt(account_state)<bank.ACCOUNT_STATES.length)?bank.ACCOUNT_STATES[parseInt(account_state)]:undefined;
   },
   getAccountType : (account_type) => {
-    return parseInt(account_type)<bank.ACCOUNT_TYPES.length?bank.ACCOUNT_TYPES[parseInt(account_type)]:undefined;
+    return (parseInt(account_type)<bank.ACCOUNT_TYPES.length)?bank.ACCOUNT_TYPES[parseInt(account_type)]:undefined;
   },
   isPersonalAccount : (param) => {
     if(typeof param !== 'number' && typeof param !== 'string')
@@ -121,7 +122,8 @@ const dfuse = {
   chain_id                  : 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
   websocket_url             : 'wss://jungle.eos.dfuse.io/v1/stream',
   default_page_size         : 25,
-  tx_url                    : 'https://jungle.bloks.io/transaction/'
+  tx_url                    : 'https://jungle.bloks.io/transaction/',
+  account_url               : 'https://jungle.bloks.io/account/'
 }
 
 export { language, api, currency, dfuse, bank };
