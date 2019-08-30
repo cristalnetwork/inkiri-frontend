@@ -46,6 +46,7 @@ class Login extends Component {
                 prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
                 placeholder="Account name"
                 autoFocus
+                autoCapitalize="off"
               />,
             )}
           </Form.Item>
