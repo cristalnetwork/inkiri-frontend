@@ -56,23 +56,31 @@ export const columns = (account_type, onButtonClick) => {
     title: 'Tags',
     key: 'tx_type',
     dataIndex: 'tx_type',
-    render: (tx_type, record) => (
-      <span>
-       <Tag color={'geekblue'} key={tx_type}>
-              {tx_type.toUpperCase()}
-       </Tag>
-       <Tag color={'geekblue'} key={record.state||'x'}>
-              {(record.state||'COMPLETED').toUpperCase()}
-       </Tag>
-      </span>
-      )
+    render: (tx_type, record) => {
+      let extras = null;
+      if(globalCfg.api.isDeposit(record))
+      {
+        const envelope_id = api.bank.envelopeIdFromRequest(record);
+        extras = (< ><br/><span key={'envelope_'+record.id}>ENVELOPE ID: <b>{envelope_id}</b></span></>);
+      }
+      return (
+          <span key={'tags'+record.id}>
+           <Tag color={'geekblue'} key={'type'+record.id}>
+                  {tx_type.toUpperCase()}
+           </Tag><br/>
+           <Tag color={'geekblue'} key={'state'+record.id}>
+                  {(record.state||'COMPLETED').toUpperCase()}
+           </Tag>
+           {extras}
+          </span>
+          )}
   },
   //
   {
     title: 'Action',
     key: 'action',
     render: (text, record) => {
-      // console.log(' render button??? >> ', account_type)
+      // console.log('ADDING ROW >> ', record.id);
       let processButton = (null);
       if(typeof onButtonClick === 'function' && globalCfg.bank.isAdminAccount(account_type)){
         processButton = (<Button key={'process_'+record.id} onClick={()=>{ onButtonClick(record) }}>Process</Button>);
@@ -81,7 +89,7 @@ export const columns = (account_type, onButtonClick) => {
       const onBlockchain = globalCfg.api.isOnBlockchain(record);
       if(onBlockchain){
         const _href = api.dfuse.getBlockExplorerTxLink(onBlockchain);
-        viewDetailsButton = (<Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" >View on Blockchain</Button>);
+        viewDetailsButton = (<Button type="link" href={_href} target="_blank" key={'view-on-blockchain_'+record.id} icon="cloud" >View on Blockchain</Button>);
       } //
 
       if(!globalCfg.api.isFinished(record))
@@ -124,9 +132,28 @@ class TransactionTable extends Component {
   }
 
   renderFooter(){
-    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadTxs()}>More!!</Button> </>)
+    return (<><Button key={'load-more-data_'+this.props.request_type} disabled={!this.state.can_get_more} onClick={()=>this.loadTxs()}>More!!</Button> </>)
   }
 
+  refresh(){
+    const that = this;
+    
+      this.setState(
+        {txs:[]
+          , can_get_more:true
+          , page:-1}
+        , ()=>{
+          that.loadTxs();
+        })
+      return;
+  }
+
+  componentDidUpdate(prevProps) {
+    // Typical usage (don't forget to compare props):
+    if (this.props.need_refresh !== prevProps.need_refresh && this.props.need_refresh) {
+      this.refresh();
+    }
+  }
   loadTxs(){
 
     let can_get_more   = this.state.can_get_more;
@@ -188,7 +215,7 @@ class TransactionTable extends Component {
   render(){
     return (
       <Table 
-        key="table_deposits"
+        key={'tx_table__'+this.props.request_type}
         rowKey={record => record.id} 
         loading={this.state.loading} 
         columns={columns(this.props.actualRoleId)} 

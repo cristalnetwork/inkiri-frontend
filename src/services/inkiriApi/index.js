@@ -11,6 +11,8 @@ import * as txsHelper from './transactionHelper';
 import { Api, JsonRpc, RpcError } from 'eosjs';
 import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig';
 
+import _ from 'lodash';
+
 export {eosHelper};
 export {dfuse};
 export {bank};
@@ -113,7 +115,8 @@ const pushTX = async (tx, privatekey) => {
 	  
 	} catch (e) {
 	  console.log(' InkiriApi::pushTX (error#1) >>  ', JSON.stringify(e));
-    throw e.json.error.details[0].message;
+    // throw e.json.error.details[0].message;
+    throw e;
 	}
 }
 
@@ -179,6 +182,89 @@ export const issueMoney = async (issuer_account, issuer_priv, receiver_account, 
 
 }
 
+export const setAccountPermission = async (account, account_priv, permission_name, authority_obj, parent) => { 
+
+  if(!parent)
+    parent='owner';
+
+  // delete authority_obj.waits;
+
+  const permAction = {
+    account: 'eosio',
+    name: "updateauth",
+    authorization: [
+      {
+        actor: account,
+        permission: "owner"
+      }
+    ],
+    data: {
+      //[permission_name] : {... authority_obj}
+      account:    account,
+      permission: permission_name,
+      auth:       authority_obj,
+      parent:     parent
+    }
+  }
+
+  console.log(' InkiriApi::permAction >> About to change permission >> ', prettyJson(permAction))
+
+  return pushTX(permAction, account_priv);
+
+}
+
+const default_perm = {
+            "perm_name": "active",
+            "parent": "owner",
+            "required_auth":
+            {
+                "threshold": 1,
+                "keys": [],
+                "accounts": [],
+                "waits": []
+            }
+        }
+
+export const getNewPermissionObj = (eos_account_object, permissioned, perm_name) =>{
+
+  // console.log(' RECEIVED getNewPermissionObj >> permissioned >>', JSON.stringify(permissioned))
+  // console.log(' RECEIVED getNewPermissionObj >> perm_name >>', JSON.stringify(perm_name))
+  // console.log(' RECEIVED getNewPermissionObj >> eos_account_object >>', JSON.stringify(eos_account_object))
+  // Creamos el nuevo permiso
+  const new_perm = {
+                    "permission":
+                    {
+                        "actor": permissioned,
+                        "permission": "active"
+                    },
+                    "weight": 1
+                };
+  
+  // If permission not in eos_account_obj, we create it 
+  let perm = eos_account_object.permissions.filter( perm => perm.perm_name==perm_name )
+  if(!perm || perm.length==0)
+  {
+    perm = Object.assign({}, default_perm);
+    perm.perm_name = perm_name;
+    perm.required_auth.accounts.push(new_perm)
+  }
+  else
+  {
+    // Add permission and sort accounts array for created permission => perm_name   
+    perm = perm[0];
+    perm.required_auth.accounts.push(new_perm)
+    const ordered = _.sortBy(perm.required_auth.accounts, function(perm) { return perm.permission.actor; })
+    perm.required_auth.accounts = ordered;
+
+  }
+
+  // console.log(' RETURN getNewPermissionObj >> eos_account_object >>', JSON.stringify(eos_account_object))
+  // console.log(' RETURN getNewPermissionObj >> new_perm >>', JSON.stringify(perm))
+  // delete perm.required_auth.waits
+
+  return perm.required_auth;
+}
+
 export const addPersonalBankAccount = async (auth_account, auth_priv, account_name) => { 
 
 	// cleos -u http://jungle2.cryptolions.io:80 push action ikmasterooo1 upsertikacc '{"user":"ikadminoooo1", "fee":5, "overdraft":0, "account_type":1, "state":1}' -p ikmasterooo1@active
@@ -226,6 +312,7 @@ export const dummyPrivateKeys = {
     , 'inkirimaster': '5KesM1e6XqoTMtbJ8P5bakYom1rd3KbBQa9dKg3FqE23YAK9BPE'
     , 'inkpersonal2': '5KRg4dqcdAnGzRVhM4vJkDRVkfDYrH3RXG2CVzA61AsfjyHDvBh'
   }
+
 
 
 // permissioning_accounts

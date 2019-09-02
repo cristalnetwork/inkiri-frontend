@@ -82,6 +82,32 @@ export function createClient(){
   return client;
 } 
 
+// https://jungle.eos.dfuse.io/v0/state/tables/scopes?account=inkiritoken1&scopes=inkiritoken1|inkpersonal1|inkpersonal3&table=accounts&json=true
+
+export const getAccountsBalances = (account_names_array) => new Promise((res,rej)=> {
+  auth()
+    .then((token) => {
+      // console.log( ' >>>>>> dfuse::getKeyAccounts >> token ->' , token)
+      const path           = globalCfg.dfuse.base_url + '/v0/state/tables/scopes';
+      const method         = 'GET';
+      const currency_token = globalCfg.currency.token;
+      const scopes         = account_names_array.join('|');
+
+      const query = `?account=${currency_token}&scopes=${scopes}&table=accounts&json=true`;
+      
+      jwtHelper.apiCall(path+query, method)
+        .then((data) => {
+            res(data.tables.map(row=>{return{account:row.scope, balance:row.rows[0].json.balance}} ) )
+          }, (ex) => {
+            rej(ex);
+          });
+    }, (ex) => {
+      // console.log( ' >> dfuse::getKeyAccounts ERROR >>', ex)
+      rej(ex);
+    });
+})
+
+
 export const getAccountBalance = (account) => new Promise((res,rej)=> {
 	
 	// console.log('dfuse::getAccountBalance >> ', 'About to retrieve balance for account:', account)	

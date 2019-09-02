@@ -45,6 +45,8 @@ class Extrato extends Component {
 
       stats:                        {},
       
+      need_refresh:                 {},  
+
       cursor:                       '',
       balance:                      {},
       pagination:                   { pageSize: 0 , total: 0 },
@@ -58,10 +60,11 @@ class Extrato extends Component {
     this.onTabChange                = this.onTabChange.bind(this);
     this.onTableChange              = this.onTableChange.bind(this);
     this.onProcessRequestClick      = this.onProcessRequestClick.bind(this);
+    this.refreshCurrentTable        = this.refreshCurrentTable.bind(this);
   }
   
   onProcessRequestClick(request){
-    console.log( ' PDA::onProcessRequestClick >> ', JSON.stringify(request) )
+    console.log( ' EXTRATO::onProcessRequestClick >> ', JSON.stringify(request) )
 
     // this.props.history.push({
     //   pathname: `/common/process-request`
@@ -136,6 +139,29 @@ class Extrato extends Component {
     return x?x:_default;
   }
 
+  refreshCurrentTable(){
+    const that = this;
+    
+    if(this.state.active_tab==DISPLAY_ALL_TXS)
+    {
+      this.setState(
+        {txs:[]}
+        , ()=>{
+          that.loadTransactionsForAccount(true);
+        })
+      return;
+    }
+
+    let need_refresh = this.state.need_refresh;
+    need_refresh[this.state.active_tab]=true;
+    this.setState(
+        {need_refresh:need_refresh}
+        , ()=>{
+          need_refresh[this.state.active_tab]=false;
+          that.setState({need_refresh:need_refresh})
+        })
+  }
+
   openNotificationWithIcon(type, title, message) {
     notification[type]({
       message: title,
@@ -145,7 +171,7 @@ class Extrato extends Component {
   // Component Events
 
   onTabChange(key) {
-    console.log(key);
+    // console.log(key);
     this.setState({active_tab:key})
   }
   
@@ -190,7 +216,11 @@ class Extrato extends Component {
   renderContent(){
     if(this.state.active_tab==DISPLAY_DEPOSIT){
       return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}>
-        <TransactionTable request_type={DISPLAY_DEPOSIT} onChange={this.onTableChange}/>
+        <TransactionTable 
+          key={'table_'+DISPLAY_DEPOSIT} 
+          need_refresh={this.state.need_refresh[DISPLAY_DEPOSIT]}
+          request_type={DISPLAY_DEPOSIT} 
+          onChange={this.onTableChange}/>
       </div>);
     }
     
@@ -199,7 +229,7 @@ class Extrato extends Component {
     if(this.state.active_tab==DISPLAY_ALL_TXS){
       return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}>
         <Table
-          key="table_all_txs" 
+          key={"table_"+DISPLAY_ALL_TXS} 
           rowKey={record => record.id} 
           loading={this.state.loading} 
           columns={columns(this.props.actualRoleId, this.onProcessRequestClick)} 
@@ -216,7 +246,10 @@ class Extrato extends Component {
     return (
       <>
         <PageHeader
-          extra={[]}
+          extra={[
+            <Button key="refresh" icon="redo" disabled={this.state.loading} onClick={()=>this.refreshCurrentTable()} ></Button>,
+            
+          ]}
           breadcrumb={{ routes }}
           title="Extrato"
           subTitle="List of transactions"
