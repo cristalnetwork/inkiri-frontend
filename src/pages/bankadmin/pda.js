@@ -20,7 +20,7 @@ import { notification, Table, Divider, Spin } from 'antd';
 import './pda.css'; 
 import styles from './style.less'; 
 
-import TransactionTable from '@app/components/TransactionTable';
+// import TransactionTable from '@app/components/TransactionTable';
 //import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
 import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_WITHDRAWS} from '@app/components/TransactionTable';
 
@@ -320,7 +320,7 @@ class PDA extends Component {
     const current_stats = this.currentStats();  
     return  (<>
       <div className="styles standardList" style={{ marginTop: 24 }}>
-        <Card bordered={false}>
+        <Card key="the_card_key" bordered={false}>
           <Row>
             <Col sm={4} xs={24}>
               <Info title="" value="TODAY" bordered />
@@ -341,18 +341,16 @@ class PDA extends Component {
         </Card>
 
         <Card
+          key="card_table_all_requests"
           className="styles listCard"
           bordered={false}
           title="List of Deposits and Withdraws"
           style={{ marginTop: 24 }}
           extra={this.renderExtraContent()}
         >
-          <Button type="dashed" style={{ display:'none', width: '50%', marginBottom: 8 }} key="_new_deposit"  icon="plus"> Deposit</Button>
-          <Button type="dashed" style={{ display:'none',width: '50%', marginBottom: 8 }} key="_new_withdraw" icon="plus"> Withdraw</Button>
-          
           <Table
-            key="table_all_txs" 
-            rowKey={record => record.id} 
+            key="table_all_requests" 
+            rowKey{record => record.id} 
             loading={this.state.loading} 
             columns={columns(this.props.actualRoleId, this.onProcessRequestClick)} 
             dataSource={this.state.txs} 

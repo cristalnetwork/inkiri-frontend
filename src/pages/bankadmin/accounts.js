@@ -84,6 +84,7 @@ class AdminAccounts extends Component {
     this.getColumns                 = this.getColumns.bind(this);
     
   }
+
   getColumns(){
     return [
               {
@@ -159,6 +160,7 @@ class AdminAccounts extends Component {
     this.loadAccounts();  
   } 
 
+     "https://mainnet.eos.dfuse.io/v0/state/tables/scopes?account=inkiritoken1&scopes=inkirimaster|inkpersonal2|inkpersonal3&table=accounts&block_num=25000000&json=true"
   
   onButtonClick(account){
     console.log( ' ACCOUNTS::onButtonClick >> ', JSON.stringify(account) )
@@ -197,8 +199,16 @@ class AdminAccounts extends Component {
     //api.bank.listRequests(page, limit, req_type, account_name)
     api.listBankAccounts()
     .then( (res) => {
-        // console.log('---- pages::accounts >> ', JSON.stringify(res));
+
+        // // HACK!!!!!!!!!!!!!!!!!
+        // that.props.history.push({
+        //   pathname: `/${that.props.actualRole}/account`
+        //   // , search: '?query=abc'
+        //   , state: { account: res.data.accounts[0] }
+        // })
+
         that.onNewData(res.data);
+
       } ,(ex) => {
         // console.log('---- ERROR:', JSON.stringify(ex));
         that.setState({loading:false});  
@@ -275,6 +285,7 @@ class AdminAccounts extends Component {
         , business:0
         , foundation:0 };
   }
+
   currentStats(){
     const x = this.state.stats;
     return x?x:this.getDefaultStats();
