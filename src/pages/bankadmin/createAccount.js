@@ -280,7 +280,7 @@ class CreateAccount extends Component {
                 )}
               </Form.Item>
 
-              <h3 style={{paddingLeft: 50}}>Profile</h3>
+              <h3 style={{paddingLeft: 50}}>PROFILE SECTION</h3>
               
               <Form.Item
                 label="Nome"
@@ -336,9 +336,9 @@ class CreateAccount extends Component {
         <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>
           <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
             <Form {...formItemLayout} onSubmit={this.handleSubmit}>
-              <h3 style={{paddingLeft: 50}}>EOS Account Name</h3>
+              <h3 style={{paddingLeft: 50}}>EOS ACCOUNT NAME SECTION</h3>
               <Form.Item
-                extra={<>Validate your account name at <a href="https://api.monitor.jungletestnet.io/#account"  target="_blank">this validator</a> or <a href="https://eos-account-creator.com/choose/" target="_blank">this validator</a>. </>}
+                extra={<>Validate your account name if new at <a href="https://api.monitor.jungletestnet.io/#account"  target="_blank">this validator</a> or <a href="https://eos-account-creator.com/choose/" target="_blank">this validator</a>. </>}
                 label={
                   <span>
                     Account Name&nbsp;
@@ -354,6 +354,7 @@ class CreateAccount extends Component {
               </Form.Item>
               
               <Divider />
+              <h3 style={{paddingLeft: 50}}>NEW EOS ACCOUNT SECTION</h3>
               <h3 style={{paddingLeft: 50}}>Fill following fields if you want to create a new EOS account</h3>
               
               <Form.Item label="Password" hasFeedback>
