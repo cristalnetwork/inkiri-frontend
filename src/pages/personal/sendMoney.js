@@ -21,16 +21,6 @@ import './sendMoney.css';
 
 const { Paragraph, Text } = Typography;
 
-
-const Description = ({ term, children, span = 12 }) => (
-    <Col span={span}>
-      <div className="description">
-        <div className="term">{term}</div>
-        <div className="detail">{children}</div>
-      </div>
-    </Col>
-  );
-
 const routes = routesService.breadcrumbForFile('send-money');
 
 class SendMoney extends Component {

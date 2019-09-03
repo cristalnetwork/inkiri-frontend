@@ -33,32 +33,8 @@ const RadioGroup = Radio.Group;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
-const Description = ({ term, children, span = 12 }) => (
-    <Col span={span}>
-      <div className="description">
-        <div className="term">{term}</div>
-        <div className="detail">{children}</div>
-      </div>
-    </Col>
-  );
-
 const routes = routesService.breadcrumbForFile('pda');
 
-function hasErrors(fieldsError) {
-  return Object.keys(fieldsError).some(field => fieldsError[field]);
-}
-
-const Info: React.SFC<{
-      title: React.ReactNode;
-      value: React.ReactNode;
-      bordered?: boolean;
-    }> = ({ title, value, bordered }) => (
-      <div className="styles headerInfo">
-        <span>{title}</span>
-        <p>{value}</p>
-        {bordered && <em />}
-      </div>
-    );
 //
 
 class PDA extends Component {

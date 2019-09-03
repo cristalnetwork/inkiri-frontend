@@ -33,33 +33,8 @@ const RadioGroup = Radio.Group;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
-const Description = ({ term, children, span = 12 }) => (
-    <Col span={span}>
-      <div className="description">
-        <div className="term">{term}</div>
-        <div className="detail">{children}</div>
-      </div>
-    </Col>
-  );
-
 const routes = routesService.breadcrumbForFile('accounts');
 
-function hasErrors(fieldsError) {
-  return Object.keys(fieldsError).some(field => fieldsError[field]);
-}
-
-const Info: React.SFC<{
-      title: React.ReactNode;
-      value: React.ReactNode;
-      bordered?: boolean;
-    }> = ({ title, value, bordered }) => (
-      <div className="styles headerInfo">
-        <span>{title}</span>
-        <p>{value}</p>
-        {bordered && <em />}
-      </div>
-    );
-//
 
 class AdminAccounts extends Component {
   constructor(props) {
@@ -84,6 +59,7 @@ class AdminAccounts extends Component {
     // this.onTableChange              = this.onTableChange.bind(this);
     this.onButtonClick              = this.onButtonClick.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
+    this.onNewAccount               = this.onNewAccount.bind(this); 
     
   }
 
@@ -175,8 +151,12 @@ class AdminAccounts extends Component {
     this.loadAccounts();  
   } 
 
-     "https://mainnet.eos.dfuse.io/v0/state/tables/scopes?account=inkiritoken1&scopes=inkirimaster|inkpersonal2|inkpersonal3&table=accounts&block_num=25000000&json=true"
-  
+  onNewAccount = () => {
+    this.props.history.push({
+      pathname: `/${this.props.actualRole}/create-account`
+    })
+  }
+
   onButtonClick(account){
     console.log( ' ACCOUNTS::onButtonClick >> ', JSON.stringify(account) )
 
@@ -397,7 +377,7 @@ class AdminAccounts extends Component {
       <>
         <PageHeader
           extra={[
-            <Button key="_new_account" icon="plus"> Account</Button>
+            <Button key="_new_account" icon="plus" onClick={()=>{this.onNewAccount()}}> Account</Button>
           ]}
           breadcrumb={{ routes }}
           title="Accounts"
@@ -415,8 +395,6 @@ class AdminAccounts extends Component {
 
   renderUMIContent(){
     const {total, pending, negative_balance, personal, business, admin, foundation} = this.currentStats();  
-    //<Info title="TOTAL" value={total} bordered />
-    //<Info title="" value="ACCOUNTS" bordered />
     return  (<>
       <div className="styles standardList" style={{ marginTop: 24 }}>
         <Card bordered={false}>
