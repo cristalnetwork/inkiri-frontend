@@ -399,25 +399,11 @@ class Account extends Component {
     // (<div style={{ margin: '24px 0', padding: 0, background: '#fff'}}></div>)
 
     const {account_type} = this.state.account;
-    const permConf = {  
-          [globalCfg.bank.ACCOUNT_TYPE_PERSONAL]     : ['owner', 'active', 'viewer']
-          , [globalCfg.bank.ACCOUNT_TYPE_BUSINESS  ] : ['owner', 'active', 'pdv', 'viewer']
-          , [globalCfg.bank.ACCOUNT_TYPE_FOUNDATION] : ['owner', 'active', 'viewer']
-          , [globalCfg.bank.ACCOUNT_TYPE_BANKADMIN ] : ['owner', 'active', 'pda', 'viewer']}
+    const permConf = globalCfg.bank.listPermsByAccountType();
     
     const xx = this.renderAllPerms(permConf[account_type]);
     return <>{xx}</>;
 
-    // return (
-    //   <>
-    //     {permConf[account_type].map(perm_name=>{return(
-    //       <>    
-    //         {this.renderPerm(perm_name)}
-    //       </>
-    //       )})}
-        
-    //   </>
-    // );
   }
   
   //

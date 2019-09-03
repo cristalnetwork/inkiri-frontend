@@ -9,3 +9,21 @@
 .dashboard_page_header_wrap .ant-statistic-content{
 	text-align: center!important;
 }
+
+
+
+/*HACK FOR FILTERS*/
+.filter_form.ant-form-inline{
+  display: flex!important;
+  flex-direction: row!important;
+  justify-content: flex-end!important;
+}
+.filter_form.ant-form-inline .ant-form-item{
+  display: flex!important;
+  flex-direction: column!important;
+  justify-content: flex-start!important;
+
+}
+.filter_form .ant-form-item-label{
+  text-align: left!important;
+}

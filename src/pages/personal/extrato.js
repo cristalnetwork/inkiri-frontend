@@ -211,7 +211,7 @@ class Extrato extends Component {
       <div className="filter_wrap">
         <Row>
           <Col span={24}>
-            <Form layout="inline" onSubmit={this.handleSubmit}>
+            <Form layout="inline" className="filter_form" onSubmit={this.handleSubmit}>
               <Form.Item label="Operation">
                   <Select placeholder="Operation"
                     mode="multiple"

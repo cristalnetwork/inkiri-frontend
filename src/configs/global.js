@@ -23,6 +23,14 @@ const bank = {
   ACCOUNT_TYPE_BANKADMIN:  4,
   ACCOUNT_TYPES:           ['none', 'personal', 'business', 'foundation', 'bankadmin'],
   ACCOUNT_ICONS:           ['none', 'user', 'shop', 'home', 'bank'],
+  listPermsByAccountType : () => {
+   return {
+        [bank.ACCOUNT_TYPE_PERSONAL]     : ['owner', 'active', 'viewer']
+        , [bank.ACCOUNT_TYPE_BUSINESS  ] : ['owner', 'active', 'pdv', 'viewer']
+        , [bank.ACCOUNT_TYPE_FOUNDATION] : ['owner', 'active', 'viewer']
+        , [bank.ACCOUNT_TYPE_BANKADMIN ] : ['owner', 'active', 'pda', 'viewer']
+        }
+  },
   listAccountTypes   : () => { 
     //return [bank.ACCOUNT_TYPE_PERSONAL, bank.ACCOUNT_TYPE_BUSINESS, bank.ACCOUNT_TYPE_FOUNDATION, bank.ACCOUNT_TYPE_BANKADMIN];
     return bank.ACCOUNT_TYPES.filter((item, idx) => idx>0);

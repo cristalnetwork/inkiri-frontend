@@ -10,6 +10,7 @@ import * as balanceRedux from '@app/redux/models/balance'
 import * as api from '@app/services/inkiriApi';
 import * as routesService from '@app/services/routes';
 import * as globalCfg from '@app/configs/global';
+import * as utils from '@app/utils/utils';
 
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
@@ -21,7 +22,7 @@ import {
   Checkbox,
 } from 'antd';
 
-import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
+import { Divider, Steps, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
 // import './xxx.css'; 
@@ -31,6 +32,46 @@ const AutoCompleteOption = AutoComplete.Option;
 const { Paragraph, Text } = Typography;
 
 const routes = routesService.breadcrumbForFile('account');
+
+const { Step } = Steps;
+
+const steps = [
+  {
+    title: 'Account Type & Profile',
+    content: 'First-content',
+  },
+  {
+    title: 'Account details',
+    content: 'Second-content',
+  },
+  {
+    title: 'Account Roles',
+    content: 'Last-content',
+  },
+];
+
+const formItemLayout = {
+      labelCol: {
+        xs: { span: 24 },
+        sm: { span: 8 },
+      },
+      wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 16 },
+      },
+    };
+const tailFormItemLayout = {
+      wrapperCol: {
+        xs: {
+          span: 24,
+          offset: 0,
+        },
+        sm: {
+          span: 16,
+          offset: 8,
+        },
+      },
+    };
 
 class CreateAccount extends Component {
   constructor(props) {
@@ -49,8 +90,9 @@ class CreateAccount extends Component {
       number_help:  '',
 
       confirmDirty: false,
-      autoCompleteResult: [],
       
+      current_step: 0,
+
       account_name: '',
       default_keys: {  wif:      'Generated Private Key',
                          pub_key:  'Generated Public Key',
@@ -62,7 +104,6 @@ class CreateAccount extends Component {
 
     // this.handleSearch = this.handleSearch.bind(this); 
     this.onSelect                  = this.onSelect.bind(this); 
-    this.renderContent             = this.renderContent.bind(this); 
     this.handleSubmit              = this.handleSubmit.bind(this);
     this.onChange                  = this.onChange.bind(this); 
     this.resetPage                 = this.resetPage.bind(this); 
@@ -71,6 +112,16 @@ class CreateAccount extends Component {
     this.genAccountName            = this.genAccountName.bind(this); 
   }
   
+   next() {
+      const current_step = this.state.current_step + 1;
+      this.setState({ current_step });
+    }
+
+    prev() {
+      const current_step = this.state.current_step - 1;
+      this.setState({ current_step });
+    }
+
   onSelect(value) {
     console.log('onSelect', value);
     this.setState({receipt:value})
@@ -206,10 +257,183 @@ class CreateAccount extends Component {
     this.setState({result: undefined, result_object: undefined, error: {}});
   }
 
-  renderContent() {
-  
+  renderStep(current_step){
     const { getFieldDecorator } = this.props.form;
     
+    
+    let content = null;
+    
+    if(current_step==0)
+      content = (
+        <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>
+          <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+            <Form {...formItemLayout} onSubmit={this.handleSubmit}>
+              
+              <Form.Item label="Account Type">
+                {getFieldDecorator('account_type', {
+                  rules: [{ required: true, message: 'Please select an account type!' }],
+                })(
+                  <Select>
+                    <Option value="1">Personal Account</Option>
+                    <Option value="2" disabled>Business Account</Option>
+                  </Select>,
+                )}
+              </Form.Item>
+
+              <h3 style={{paddingLeft: 50}}>Profile</h3>
+              
+              <Form.Item
+                label="Nome"
+                >
+                  {getFieldDecorator('nome', {
+                    rules: [{ required: true, message: 'Please input your name!', whitespace: true }],
+                  })(<Input />)}
+                </Form.Item>
+
+                <Form.Item
+                  label="Sobrenome"
+                >
+                  {getFieldDecorator('sobrenome', {
+                    rules: [{ required: true, message: 'Please input your name!', whitespace: true }],
+                  })(<Input />)}
+                </Form.Item>
+                <Form.Item label="E-mail">
+                  {getFieldDecorator('email', {
+                    rules: [
+                      {
+                        type: 'email',
+                        message: 'The input is not valid E-mail!',
+                      },
+                      {
+                        required: true,
+                        message: 'Please input your E-mail!',
+                      },
+                    ],
+                  })(<Input />)}
+                </Form.Item>
+                <Form.Item label="Phone Number">
+                  {getFieldDecorator('phone', {
+                    rules: [{ required: true, message: 'Please input your phone number!' }],
+                  })(<Input style={{ width: '100%' }} />)}
+                </Form.Item>
+            </Form>
+          </Spin>
+        </div>
+    );
+    
+    /*
+    <Form.Item {...tailFormItemLayout}>
+      <Button type="primary" htmlType="submit" className="login-form-button">
+        Create Account
+      </Button>
+      
+    </Form.Item>
+    */
+    //
+
+    if(current_step==1)
+      content = (
+        <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>
+          <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+            <Form {...formItemLayout} onSubmit={this.handleSubmit}>
+              <h3 style={{paddingLeft: 50}}>EOS Account Name</h3>
+              <Form.Item
+                extra={<>Validate your account name at <a href="https://api.monitor.jungletestnet.io/#account"  target="_blank">this validator</a> or <a href="https://eos-account-creator.com/choose/" target="_blank">this validator</a>. </>}
+                label={
+                  <span>
+                    Account Name&nbsp;
+                    <Tooltip title="EOS Account names must be exactly 12 characters long and consist of lower case characters and digits up until 5.">
+                      <Icon type="question-circle-o" />
+                    </Tooltip>
+                  </span>
+                }
+              >
+                {getFieldDecorator('account_name', {
+                  rules: [{ required: true, message: 'Please input your account name!', whitespace: true }],
+                })(<Input />)}
+              </Form.Item>
+              
+              <Divider />
+              <h3 style={{paddingLeft: 50}}>Fill following fields if you want to create a new EOS account</h3>
+              
+              <Form.Item label="Password" hasFeedback>
+                {getFieldDecorator('password', {
+                  rules: [
+                    {
+                      required: true,
+                      message: 'Please input your password!',
+                    },
+                    {
+                      validator: this.validateToNextPassword,
+                    },
+                  ],
+                })(<Input />)}
+              </Form.Item>
+              <Form.Item label="Confirm Password" hasFeedback>
+                {getFieldDecorator('confirm', {
+                  rules: [
+                    {
+                      required: true,
+                      message: 'Please confirm your password!',
+                    },
+                    {
+                      validator: this.compareToFirstPassword,
+                    },
+                  ],
+                })(<Input onBlur={this.handleConfirmBlur} />)}
+              </Form.Item>
+              <Form.Item label="Generated keys">
+                <Input readOnly addonAfter={<Icon type="key" />} value={this.state.generated_keys.wif} />
+                <Input readOnly addonAfter={<Icon type="global" />} value={this.state.generated_keys.pub_key}  />
+              </Form.Item>
+            </Form>
+          </Spin>
+        </div>
+    );
+    //
+    if(current_step==2){
+      const permConf = globalCfg.bank.listPermsByAccountType();
+      const xx = this.renderAllPerms(permConf[globalCfg.bank.ACCOUNT_TYPE_PERSONAL]);
+      content = (xx);
+    }
+    //
+    return (
+      <Card 
+          title={(<span><strong>{steps[current_step].title} </strong> </span> )}
+          key={'new_perm'}
+          style = { { marginBottom: 24, marginTop: 24 } } 
+          >
+        {content}
+      </Card>);
+  }
+  
+  renderAllPerms(perms) {
+    return (
+      <Card 
+        key={'card_master'}
+        style = { { marginBottom: 24 } } 
+        extra = {<Button key="_new_perm" size="small" icon="plus"> New</Button>}
+        tabList={perms.map(perm=>{
+          return {key: perm
+                  , tab: (
+                    <span>{utils.capitalize(perm)}</span>
+                  )}
+  
+        })}
+        activeTabKey="owner"
+        >
+        <div style={{ margin: '0 auto', width:'100%', padding: 24, background: '#fff'}}>
+          
+        </div>
+      </Card>
+    );
+  }
+  //
+
+  
+  //
+  renderResult() {
+  
     if(this.state.result=='ok')
     {
       const tx_id = api.dfuse.getTxId(this.state.result_object?this.state.result_object.data:{});
@@ -263,151 +487,19 @@ class CreateAccount extends Component {
     
     // ** hack for sublime renderer ** //
 
-    const { autoCompleteResult } = this.state;
-
-    const formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 8 },
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 16 },
-      },
-    };
-    const tailFormItemLayout = {
-      wrapperCol: {
-        xs: {
-          span: 24,
-          offset: 0,
-        },
-        sm: {
-          span: 16,
-          offset: 4,
-        },
-      },
-    };
-    
-    const websiteOptions = autoCompleteResult.map(website => (
-      <AutoCompleteOption key={website}>{website}</AutoCompleteOption>
-    ));
-
-    return (
-        <div style={{ margin: '0 auto', width:'80%', padding: 24, background: '#fff'}}>
-          <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-            <Form {...formItemLayout} onSubmit={this.handleSubmit}>
-              
-              <Form.Item
-                label="Nome"
-              >
-                {getFieldDecorator('nome', {
-                  rules: [{ required: true, message: 'Please input your name!', whitespace: true }],
-                })(<Input />)}
-              </Form.Item>
-
-              <Form.Item
-                label="Sobrenome"
-              >
-                {getFieldDecorator('sobrenome', {
-                  rules: [{ required: true, message: 'Please input your name!', whitespace: true }],
-                })(<Input />)}
-              </Form.Item>
-
-              <Form.Item
-                extra={<>Validate your account name at <a href="https://api.monitor.jungletestnet.io/#account"  target="_blank">this validator</a> or <a href="https://eos-account-creator.com/choose/" target="_blank">this validator</a>. </>}
-                label={
-                  <span>
-                    Account Name&nbsp;
-                    <Tooltip title="EOS Account names must be exactly 12 characters long and consist of lower case characters and digits up until 5.">
-                      <Icon type="question-circle-o" />
-                    </Tooltip>
-                  </span>
-                }
-              >
-                {getFieldDecorator('account_name', {
-                  rules: [{ required: true, message: 'Please input your account name!', whitespace: true }],
-                })(<Input addonAfter={<Button icon="retweet" key="gen_account_name" onClick={()=>this.genAccountName()} />} />)}
-              </Form.Item>
-              
-              <Form.Item label="Account Type">
-                {getFieldDecorator('account_type', {
-                  rules: [{ required: true, message: 'Please select an account type!' }],
-                })(
-                  <Select>
-                    <Option value="1">Personal Account</Option>
-                    <Option value="2" disabled>Business Account</Option>
-                  </Select>,
-                )}
-              </Form.Item>
-
-              <Form.Item label="E-mail">
-                {getFieldDecorator('email', {
-                  rules: [
-                    {
-                      type: 'email',
-                      message: 'The input is not valid E-mail!',
-                    },
-                    {
-                      required: true,
-                      message: 'Please input your E-mail!',
-                    },
-                  ],
-                })(<Input />)}
-              </Form.Item>
-              <Form.Item label="Password" hasFeedback>
-                {getFieldDecorator('password', {
-                  rules: [
-                    {
-                      required: true,
-                      message: 'Please input your password!',
-                    },
-                    {
-                      validator: this.validateToNextPassword,
-                    },
-                  ],
-                })(<Input />)}
-              </Form.Item>
-              <Form.Item label="Confirm Password" hasFeedback>
-                {getFieldDecorator('confirm', {
-                  rules: [
-                    {
-                      required: true,
-                      message: 'Please confirm your password!',
-                    },
-                    {
-                      validator: this.compareToFirstPassword,
-                    },
-                  ],
-                })(<Input onBlur={this.handleConfirmBlur} />)}
-              </Form.Item>
-              <Form.Item label="Generated keys">
-                <Input readOnly addonAfter={<Icon type="key" />} value={this.state.generated_keys.wif} />
-                <Input readOnly addonAfter={<Icon type="global" />} value={this.state.generated_keys.pub_key}  />
-              </Form.Item>
-              <Form.Item label="Phone Number">
-                {getFieldDecorator('phone', {
-                  rules: [{ required: true, message: 'Please input your phone number!' }],
-                })(<Input style={{ width: '100%' }} />)}
-              </Form.Item>
-              <Form.Item {...tailFormItemLayout}>
-                <Button type="primary" htmlType="submit" className="login-form-button">
-                  Create Account
-                </Button>
-                
-              </Form.Item>
-            </Form>
-          </Spin>
-        </div>
-    );
   }
   
   // ** hack for sublime renderer ** //
 
-  // ** hack for sublime renderer ** //
-
   render() {
-    let content = this.renderContent();
+    let content = null;
+    const {current_step, result} = this.state;
+    if(result)
+      content = this.renderResult();
+    else 
+      content = this.renderStep(current_step);
     
+
     return (
       <>
         <PageHeader
@@ -417,9 +509,36 @@ class CreateAccount extends Component {
           
         >          
         </PageHeader>
-
+        
         <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24}}>
+          <Steps current={current_step}>
+            {steps.map(item => (
+              <Step key={item.title} title={item.title} />
+            ))}
+          </Steps>
+        </div>
+        
+
           {content}
+        
+        <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24}}>
+          <div className="steps-action">
+            {current_step > 0 && (
+              <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>
+                Previous
+              </Button>
+            )}
+            {current_step < steps.length - 1 && (
+              <Button type="primary" onClick={() => this.next()}>
+                Next
+              </Button>
+            )}
+            {current_step === steps.length - 1 && (
+              <Button type="primary" onClick={() => console.log('Processing complete!')}>
+                Done
+              </Button>
+            )}
+          </div>
         </div>
       </>
     );

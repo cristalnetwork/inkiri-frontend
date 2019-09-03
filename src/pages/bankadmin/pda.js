@@ -211,7 +211,7 @@ class PDA extends Component {
       <div className="wrap">
         <Row>
           <Col span={24}>
-            <Form layout="inline" onSubmit={this.handleSubmit}>
+            <Form layout="inline" className="filter_form" onSubmit={this.handleSubmit}>
               <Form.Item label="Transaction type">
                   <Select placeholder="Transaction type"
                     mode="multiple"
