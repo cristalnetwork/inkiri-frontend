@@ -350,7 +350,7 @@ class PDA extends Component {
         >
           <Table
             key="table_all_requests" 
-            rowKey{record => record.id} 
+            rowKey={record => record.id} 
             loading={this.state.loading} 
             columns={columns(this.props.actualRoleId, this.onProcessRequestClick)} 
             dataSource={this.state.txs} 
