@@ -158,6 +158,8 @@ class AdminAccounts extends Component {
               //
               {
                 title: 'Action',
+                fixed: 'right',
+                width: 100,
                 key: 'action',
                 render: (text, record) => {
                   return(
@@ -413,31 +415,59 @@ class AdminAccounts extends Component {
 
   renderUMIContent(){
     const {total, pending, negative_balance, personal, business, admin, foundation} = this.currentStats();  
-    
+    //<Info title="TOTAL" value={total} bordered />
+    //<Info title="" value="ACCOUNTS" bordered />
     return  (<>
       <div className="styles standardList" style={{ marginTop: 24 }}>
         <Card bordered={false}>
           <Row>
-            <Col sm={4} xs={24}>
-              <Info title="" value="ACCOUNTS" bordered />
+            <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+               <Statistic title="" value="STATS" />
             </Col>
-            <Col sm={3} xs={24}>
-              <Info title="TOTAL" value={total} bordered />
+            <Col xs={24} sm={12} md={6} lg={3} xl={3}>
+               <Statistic
+                title="TOTAL"
+                value={total}
+                precision={0}
+              />
             </Col>
-            <Col sm={4} xs={24}>
-              <Info title="PENDING" value={pending} bordered />
+            <Col xs={24} sm={12} md={6} lg={3} xl={3}>
+              <Statistic
+                title="PENDING"
+                value={pending}
+                precision={0}
+                valueStyle={{ color: '#fadb14' }}
+                prefix={<Icon type="clock-circle" />}
+              />
             </Col>
-            <Col sm={4} xs={24}>
-              <Info title="NEGATIVE BALANCE" value={negative_balance} />
+            <Col xs={24} sm={12} md={6} lg={3} xl={3}>
+              <Statistic
+                title="NEGATIVE"
+                value={negative_balance}
+                precision={0}
+                valueStyle={{ color: '#cf1322' }}
+              />
             </Col>
-            <Col sm={3} xs={24}>
-              <Info title="PERSONAL" value={personal} />
+            <Col xs={24} sm={12} md={6} lg={3} xl={3}>
+              <Statistic
+                title="PERSONAL"
+                value={personal}
+                precision={0}
+              />
             </Col>
-            <Col sm={3} xs={24}>
-              <Info title="BUSINESS" value={business} />
+            <Col xs={24} sm={12} md={6} lg={3} xl={3}>
+              <Statistic
+                title="BUSINESS"
+                value={business}
+                precision={0}
+              />
             </Col>
-            <Col sm={3} xs={24}>
-              <Info title="ADMIN" value={admin} />
+            <Col xs={24} sm={12} md={6} lg={3} xl={3}>
+              <Statistic
+                title="ADMIN"
+                value={admin}
+                precision={0}
+              />
             </Col>
           </Row>
         </Card>
@@ -457,6 +487,7 @@ class AdminAccounts extends Component {
             dataSource={this.state.accounts} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
+            scroll={{ x: 700 }}
             />
 
         </Card>

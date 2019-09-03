@@ -317,25 +317,46 @@ class PDA extends Component {
     //
   
   renderUMIContent(){
-    const current_stats = this.currentStats();  
+    const {deposits_ik, deposits_brl, withdraws, pending} = this.currentStats();  
     return  (<>
       <div className="styles standardList" style={{ marginTop: 24 }}>
         <Card key="the_card_key" bordered={false}>
           <Row>
-            <Col sm={4} xs={24}>
-              <Info title="" value="TODAY" bordered />
+            <Col xs={24} sm={12} md={6} lg={4} xl={4}>
+              <Statistic title="" value="STATS" />
             </Col>
-            <Col sm={5} xs={24}>
-              <Info title="IK$ DEPOSITS" value={'IK$ ' + current_stats.deposits_ik.toFixed(2)} bordered />
+            <Col xs={24} sm={12} md={6} lg={5} xl={5}>
+              <Statistic
+                title="IK$ DEPOSITS"
+                value={deposits_ik}
+                precision={2}
+                suffix="IK$"
+              />
             </Col>
-            <Col sm={5} xs={24}>
-              <Info title="BRL DEPOSITS" value={'BRL ' + current_stats.deposits_brl.toFixed(2)} bordered />
+            <Col xs={24} sm={12} md={6} lg={5} xl={5}>
+              <Statistic
+                title="BRL DEPOSITS"
+                value={deposits_brl}
+                precision={2}
+                suffix="BRL"
+              />
             </Col>
-            <Col sm={5} xs={24}>
-              <Info title="WITHDRAWS" value={'IK$ ' + current_stats.withdraws.toFixed(2)} />
+            <Col xs={24} sm={12} md={6} lg={5} xl={5}>
+              <Statistic
+                title="WITHDRAWS"
+                value={withdraws}
+                precision={2}
+                suffix="IK$"
+              />
             </Col>
-            <Col sm={5} xs={24}>
-              <Info title="PENDING" value={current_stats.pending.toString()} />
+            <Col xs={24} sm={12} md={6} lg={5} xl={5}>
+              <Statistic
+                title="PENDING"
+                value={pending}
+                precision={0}
+                valueStyle={{ color: '#fadb14' }}
+                prefix={<Icon type="clock-circle" />}
+              />
             </Col>
           </Row>
         </Card>
@@ -356,6 +377,7 @@ class PDA extends Component {
             dataSource={this.state.txs} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
+            scroll={{ x: 700 }}
             />
 
         </Card>

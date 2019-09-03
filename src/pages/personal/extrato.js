@@ -12,7 +12,7 @@ import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 import * as routesService from '@app/services/routes';
 
-import { Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
+import { Icon, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
 
 import { notification, Table, Divider, Spin } from 'antd';
 
@@ -185,14 +185,58 @@ class Extrato extends Component {
   // Begin RENDER section
   renderTableViewStats() 
   {
-    const current_stats = this.currentStats();
+    const {money_in, money_out, count} = this.currentStats();
+    const variacion = money_in-money_out;
     return (
-      <Row>
-        <Description term="Entradas"><Tag color="green">IK$ {current_stats.money_in.toFixed(2)}</Tag></Description>
-        <Description term="Variacao de caja"><Tag color="red">IK$ {(current_stats.money_in - current_stats.money_out).toFixed(2)}</Tag></Description>
-        <Description term="Saidas"><Tag color="red">-IK$ {current_stats.money_out.toFixed(2)}</Tag></Description>
-        <Description term="Lancamentos">{current_stats.count|0}</Description>
-      </Row>
+      <div className="styles standardList" style={{ marginTop: 24 }}>
+        <Card key="the_card_key" bordered={false}>
+          <Row>
+            <Col xs={24} sm={12} md={5} lg={5} xl={5}>
+            <Statistic
+                    title="Entradas"
+                    value={money_in}
+                    precision={2}
+                    valueStyle={{ color: 'green' }}
+                    prefix={<Icon type="arrow-up" />}
+                  />
+            </Col>
+            <Col xs={24} sm={12} md={5} lg={5} xl={5}>
+              <Statistic
+                    title="Saidas"
+                    value={money_out}
+                    precision={2}
+                    valueStyle={{ color: 'red' }}
+                    prefix={<Icon type="arrow-down" />}
+                  />
+            </Col>
+            <Col xs={24} sm={12} md={5} lg={5} xl={5}>
+              <Statistic
+                    title="Variacao de caja"
+                    value={variacion}
+                    precision={2}
+                    valueStyle={variacion>0?{ color: 'green' }:{ color: 'red' }}
+                    prefix={((variacion==0)?null:(variacion>0?<Icon type="arrow-up" />:<Icon type="arrow-down" />))}
+                  />
+            </Col>
+            <Col xs={24} sm={12} md={4} lg={4} xl={4}>
+              <Statistic
+                    title="Transações"
+                    value={count|0}
+                    precision={0}
+                    
+                  />
+            </Col>
+            <Col xs={24} sm={12} md={5} lg={5} xl={5}>
+              <Statistic
+                title="Account Balance"
+                value={Number(this.props.balance)}
+                precision={2}
+                suffix="IK$"
+              />
+            </Col>
+          </Row>
+        </Card>
+      </div>
     );
   }
 
@@ -200,34 +244,22 @@ class Extrato extends Component {
     return (<><Button key="load-more-data" disabled={this.state.cursor==''} onClick={()=>this.loadTransactionsForAccount(false)}>More!!</Button> </>)
   }
 
-  renderExtraContent ()
-  {
-    return(
-      <Row>
-        
-        <Col xs={24} sm={24}>
-          <div className ="textSecondary" > Account Balance (IK$) </div>
-          <div className ="heading" >{Number(this.props.balance).toFixed(2)}</div>
-        </Col>
-      </Row>
-    );
-  }
-
   renderContent(){
+    let content = null;
     if(this.state.active_tab==DISPLAY_DEPOSIT){
-      return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}>
+      content = (
         <TransactionTable 
           key={'table_'+DISPLAY_DEPOSIT} 
           need_refresh={this.state.need_refresh[DISPLAY_DEPOSIT]}
           request_type={DISPLAY_DEPOSIT} 
           onChange={this.onTableChange}/>
-      </div>);
+      );
     }
     
     //
 
     if(this.state.active_tab==DISPLAY_ALL_TXS){
-      return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360 }}>
+      content = (
         <Table
           key={"table_"+DISPLAY_ALL_TXS} 
           rowKey={record => record.id} 
@@ -236,13 +268,18 @@ class Extrato extends Component {
           dataSource={this.state.txs} 
           footer={() => this.renderFooter()}
           pagination={this.state.pagination}
+          scroll={{ x: 700 }}
           />
-      </div>);
+      );
     }
+
+    return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360, marginTop: 24  }}>
+      {content}</div>)
   }
   //
   render() {
     const content = this.renderContent();
+    const stats = this.renderTableViewStats();
     return (
       <>
         <PageHeader
@@ -264,12 +301,9 @@ class Extrato extends Component {
             </Tabs>
           }
         >
-          <div className="wrap">
-            <div className="content padding">{this.renderTableViewStats()}</div>
-            <div className="extraContent">{this.renderExtraContent()}</div>
-          </div>
         </PageHeader>
-
+  
+        {stats}
         {content}
 
       </>

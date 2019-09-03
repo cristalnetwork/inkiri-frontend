@@ -381,7 +381,7 @@ class processRequest extends Component {
     //     <Description term="Entradas"><Tag color="green">IK$ {current_stats.money_in.toFixed(2)}</Tag></Description>
     //     <Description term="Variacao de caja"><Tag color="red">IK$ {(current_stats.money_in - current_stats.money_out).toFixed(2)}</Tag></Description>
     //     <Description term="Saidas"><Tag color="red">-IK$ {current_stats.money_out.toFixed(2)}</Tag></Description>
-    //     <Description term="Lancamentos">{current_stats.count|0}</Description>
+    //     <Description term="Lançamentos">{current_stats.count|0}</Description>
     //   </Row>
     // );
   }  

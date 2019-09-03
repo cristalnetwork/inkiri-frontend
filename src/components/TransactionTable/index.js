@@ -79,6 +79,8 @@ export const columns = (account_type, onButtonClick) => {
   {
     title: 'Action',
     key: 'action',
+    fixed: 'right',
+    width: 100,
     render: (text, record) => {
       // console.log('ADDING ROW >> ', record.id);
       let processButton = (null);
@@ -222,6 +224,7 @@ class TransactionTable extends Component {
         dataSource={this.state.txs} 
         footer={() => this.renderFooter()}
         pagination={this.state.pagination}
+        scroll={{ x: 700 }}
       />
     
     )

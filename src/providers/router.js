@@ -27,13 +27,13 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
     } else {
         if(actualRole) {
             if(actualRole=='bankadmin') 
-              // history.push(`/${actualRole}/pda`);
-              history.push(`/${actualRole}/accounts`);
+              history.push(`/${actualRole}/pda`);
+              // history.push(`/${actualRole}/accounts`);
             else
               // history.push(`/${actualRole}/dashboard`);
               // history.push(`/${actualRole}/deposit`);
-              history.push(`/${actualRole}/extrato`);
-              // history.push(`/${actualRole}/send-money`);
+              // history.push(`/${actualRole}/extrato`);
+              history.push(`/${actualRole}/send-money`);
         }
         else {
             history.push(`/login`);

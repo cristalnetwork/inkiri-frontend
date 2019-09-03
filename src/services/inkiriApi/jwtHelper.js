@@ -83,7 +83,13 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
       .then((resp) => resp.json(), (ex) => { rej(ex) })
       .then((data) => {
         console.log( ' ###### jwtHelper::apiCall >> result:', JSON.stringify(data));
-        if(data.error)
+        
+        if(!data)
+        {
+          rej('UNKNOWN ERROR!')
+        }
+        else
+        if(data && data.error)
         {
           rej (data);
         }

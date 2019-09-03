@@ -300,7 +300,7 @@ class SendMoney extends Component {
           </div>
         </PageHeader>
 
-        <div style={{ margin: '0 0px', padding: 24, background: '#fff'}}>
+        <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24}}>
           {content}
         </div>
       </>

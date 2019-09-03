@@ -233,9 +233,11 @@ function pad(num, size) {
 }
 
 export const nextRequestId = (account_name) =>   new Promise((res,rej)=> {
-  listMyRequests(account_name, 0, 1)
+  // listMyRequests(account_name, 0, 1)
+  listRequests(0, 1)
     .then(
       (responseJson) => {
+        console.log(' API >> nextRequestId >> >>', JSON.stringify(responseJson))
         if(!responseJson || responseJson.length==0)
         {
           res(1)

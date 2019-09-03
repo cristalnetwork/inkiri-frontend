@@ -38,7 +38,7 @@ class DepositMoney extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading:      false,
+      loading:      true,
       value:       {amount:0, currency:''},
       pushingTx:    false,
       envelope_id:  '--loading--',
@@ -56,6 +56,7 @@ class DepositMoney extends Component {
     this.resetResult                = this.resetResult.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderConfirmRequest       = this.renderConfirmRequest.bind(this);
+    this.getNextEnvelopeId          = this.getNextEnvelopeId.bind(this);
   }
 
   static propTypes = {
@@ -68,22 +69,22 @@ class DepositMoney extends Component {
   };
 
   componentDidMount(){
-    // const { myKey } = this.props.location.params
-    const { match, location, history } = this.props;
-    // console.log( 'sendMoney::router-params >> match:' , JSON.stringify(match))
     
+    this.getNextEnvelopeId();
+  }
+  
+  getNextEnvelopeId(){
     api.bank.nextEnvelopeId (this.props.actualAccount).then(  
       (res)=>{
-        this.setState ({envelope_id: res});
+        this.setState ({loading:false, envelope_id: res});
       },
       (err)=>{
         // console.log(' ERROR FETCHING ENV ID ->', err);
+        this.setState ({loading:false});
         this.openNotificationWithIcon("error", "Cant fetch next envelope ID", "Please check if you are logged in bank service. " + JSON.stringify(err))      
       },
     )
-
   }
-  
   onChange(e) {
     // e.preventDefault();
     console.log(' amountInput --> changed', JSON.stringify(e));
@@ -125,6 +126,7 @@ class DepositMoney extends Component {
 
   resetResult(){
     this.setState({result: undefined, result_object: undefined, error: {}});
+    this.getNextEnvelopeId();
   }
 
   doDeposit(){
@@ -144,8 +146,9 @@ class DepositMoney extends Component {
   
     const { getFieldDecorator } = this.props.form;
     
+    let result_or_confirm = null;
     if(this.state.result=='should-confirm'){
-      return this.renderConfirmRequest();
+      result_or_confirm = this.renderConfirmRequest();
     }
 
     if(this.state.result=='ok')
@@ -154,7 +157,7 @@ class DepositMoney extends Component {
       const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
       // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
       
-      return (<Result
+      result_or_confirm = (<Result
         status="success"
         title="Deposit Requested Succesfully!"
         subTitle="Please wait until deposit is validated and cedited to your account."
@@ -169,8 +172,7 @@ class DepositMoney extends Component {
 
     if(this.state.result=='error')
     {
-
-      return (<Result
+      result_or_confirm = (<Result
                 status="error"
                 title="Transaction Failed"
                 subTitle="Please check and modify the following information before resubmitting."
@@ -192,35 +194,50 @@ class DepositMoney extends Component {
                     </Text>
                   </Paragraph>
                   <Paragraph>
-                    <Icon style={{ color: 'red' }} type="close-circle" /> {this.state.error}
+                    <Icon style={{ color: 'red' }} type="close-circle" /> {JSON.stringify(this.state.error)}
                   </Paragraph>
                 </div>
               </Result>)
     }
+    //
     
+    if(result_or_confirm)
+      return(
+        <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24  }}>
+          {result_or_confirm}
+        </div>);
+
     // ** hack for sublime renderer ** //
-
+    const envelope = this.renderEnvelopeId();
+    const {pushingTx, loading} = this.state;
+    const loading_text = pushingTx?'Pushing transaction...':(loading?'Loading...':'');
     return (
-        <div className="dashboard_page_content">
-          <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-            <Form onSubmit={this.handleSubmit}>
-              
-              <Form.Item>
-                {getFieldDecorator('amount', {
-                  initialValue: { amount: 0, currency: globalCfg.currency.symbol },
-                  rules: [{ validator: this.checkPrice }],
-                })(<AmountInput size="large" onChange={this.onChange} />)}
-              </Form.Item>
+        <>
+          {envelope}
+          
+          <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24  }}>
+            <div className="dashboard_page_content">
+              <Spin spinning={pushingTx||loading} delay={500} tip={loading_text}>
+                <Form onSubmit={this.handleSubmit}>
+                  
+                  <Form.Item>
+                    {getFieldDecorator('amount', {
+                      initialValue: { amount: 0, currency: globalCfg.currency.symbol },
+                      rules: [{ validator: this.checkPrice }],
+                    })(<AmountInput size="large" onChange={this.onChange} />)}
+                  </Form.Item>
 
-              <Form.Item>
-                <Button type="primary" htmlType="submit" className="login-form-button">
-                  Deposit
-                </Button>
-                
-              </Form.Item>
-            </Form>
-          </Spin>
-        </div>
+                  <Form.Item>
+                    <Button type="primary" htmlType="submit" className="login-form-button">
+                      Deposit
+                    </Button>
+                    
+                  </Form.Item>
+                </Form>
+              </Spin>
+            </div>    
+          </div>
+        </>
     );
   }
   
@@ -234,11 +251,19 @@ class DepositMoney extends Component {
     }
     //
     return(
-    <Row>
-      <Col span={24}>
-        <Card><Statistic title="Type this ID onto the envelope" value={this.state.envelope_id} formatter={(value)=>{return value.toString()}}  /></Card>
-      </Col>
-    </Row>
+      <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24  }}>
+        <div className="dashboard_page_content">
+          <Row>
+            <Col span={24}>
+              <Card>
+              <Statistic 
+                title="Type this ID onto the envelope" 
+                value={this.state.envelope_id} formatter={(value)=>{return value.toString()}}  />
+                </Card>
+            </Col>
+          </Row>
+        </div>
+      </div>
     );
   
   }
@@ -254,14 +279,12 @@ class DepositMoney extends Component {
           subTitle="Deposit paper money and receive Inkiri on your account"
           
         >
-          <div className="dashboard_page_header_wrap">
-            <div className="extraContent">{this.renderEnvelopeId()}</div>
-          </div> 
+          
         </PageHeader>
 
-        <div style={{ margin: '0 0px', padding: 24, background: '#fff'}}>
+        
           {content}
-        </div>
+        
       </>
     );
   }
