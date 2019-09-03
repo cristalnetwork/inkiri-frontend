@@ -60,7 +60,9 @@ class AdminAccounts extends Component {
     this.onButtonClick              = this.onButtonClick.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
     this.onNewAccount               = this.onNewAccount.bind(this); 
-    
+    this.renderAccountTypeFilter    = this.renderAccountTypeFilter.bind(this);
+    this.renderAccountStateFilter   = this.renderAccountStateFilter.bind(this);
+    this.renderFilterContent        = this.renderFilterContent.bind(this);
   }
 
   getColumns(){
@@ -312,21 +314,21 @@ class AdminAccounts extends Component {
 
   //
   
-  renderFilterContent (){
-    const optTypes  = null; //this.renderSelectAccountTypeOptions();
-    const optStates = null; //this.renderSelectAccountStateOptions();
+  renderFilterContent(){
+    const optTypes  = this.renderAccountTypeFilter();
+    const optStates = this.renderAccountStateFilter();
     return(
       <div className="wrap">
         <Row>
           <Col span={24}>
             <Form layout="inline" onSubmit={this.handleSubmit}>
-              <Form.Item>
+              <Form.Item label="Account Type">
                 {optTypes}
               </Form.Item>
-              <Form.Item>
+              <Form.Item label="Account State">
                 {optStates}
               </Form.Item>
-              <Form.Item>
+              <Form.Item  label="Search">
                   <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
               </Form.Item>
               <Form.Item>
@@ -342,8 +344,8 @@ class AdminAccounts extends Component {
   }
 
   // 
-  renderSelectAccountStateOptions(){
-    console.log(' ** renderSelectAccountStateOptions')
+  renderAccountStateFilter(){
+    console.log(' ** renderAccountStateFilter')
     return (
       <Select placeholder="Account status"
                     mode="multiple"
@@ -356,8 +358,8 @@ class AdminAccounts extends Component {
     )
   }
   //
-  renderSelectAccountTypeOptions(){
-    console.log(' ** renderSelectAccountTypeOptions')
+  renderAccountTypeFilter(){
+    console.log(' ** renderAccountTypeFilter')
     return (<Select placeholder="Account type"
                     mode="multiple"
                     style={{ minWidth: '250px' }}
@@ -365,7 +367,9 @@ class AdminAccounts extends Component {
                     optionLabelProp="label">
 
       {globalCfg.bank.listAccountTypes()
-        .map( account_type => <Option key={'option'+account_type} value={account_type} label={utils.firsts(account_type)}>{ utils.capitalize(account_type) } </Option> )}
+        .map( account_type => 
+          <Option key={'option_'+account_type} value={account_type} label={account_type}>{ account_type } </Option> 
+        )}
       </Select>);
   }
   

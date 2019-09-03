@@ -25,13 +25,13 @@ const bank = {
   ACCOUNT_ICONS:           ['none', 'user', 'shop', 'home', 'bank'],
   listAccountTypes   : () => { 
     //return [bank.ACCOUNT_TYPE_PERSONAL, bank.ACCOUNT_TYPE_BUSINESS, bank.ACCOUNT_TYPE_FOUNDATION, bank.ACCOUNT_TYPE_BANKADMIN];
-    return bank.ACCOUNT_TYPES.splice(1);
+    return bank.ACCOUNT_TYPES.filter((item, idx) => idx>0);
   } ,
   ACCOUNT_STATE_OK:        1,
   ACCOUNT_STATE_BLOCKED:   2,
   ACCOUNT_STATES:          ['none', 'ok', 'blocked'],
   listAccountStates  : () => { 
-    return bank.ACCOUNT_STATES.splice(1);
+    return bank.ACCOUNT_STATES.filter((item, idx) => idx>0);
   } ,
   DEFAULT_FEE :            5,
   DEFAULT_OVERDRAFT:       0,

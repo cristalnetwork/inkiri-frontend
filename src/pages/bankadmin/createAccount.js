@@ -50,7 +50,8 @@ class CreateAccount extends Component {
 
       confirmDirty: false,
       autoCompleteResult: [],
-  
+      
+      account_name: '',
       default_keys: {  wif:      'Generated Private Key',
                          pub_key:  'Generated Public Key',
                          seed:     ''}, 
@@ -67,7 +68,7 @@ class CreateAccount extends Component {
     this.resetPage                 = this.resetPage.bind(this); 
     this.openNotificationWithIcon  = this.openNotificationWithIcon.bind(this); 
     this.generateKeys              = this.generateKeys.bind(this); 
-
+    this.genAccountName            = this.genAccountName.bind(this); 
   }
   
   onSelect(value) {
@@ -96,6 +97,12 @@ class CreateAccount extends Component {
     const { value } = e.target;
     this.setState({ confirmDirty: this.state.confirmDirty || !!value });
   };
+
+  genAccountName(){
+    // do gen account name
+    // this.setState({account_name:'something_really_cool'})
+    // value={this.state.account_name}
+  }
 
   generateKeys(do_generate){
 
@@ -289,6 +296,22 @@ class CreateAccount extends Component {
         <div style={{ margin: '0 auto', width:'80%', padding: 24, background: '#fff'}}>
           <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
             <Form {...formItemLayout} onSubmit={this.handleSubmit}>
+              
+              <Form.Item
+                label="Nome"
+              >
+                {getFieldDecorator('nome', {
+                  rules: [{ required: true, message: 'Please input your name!', whitespace: true }],
+                })(<Input />)}
+              </Form.Item>
+
+              <Form.Item
+                label="Sobrenome"
+              >
+                {getFieldDecorator('sobrenome', {
+                  rules: [{ required: true, message: 'Please input your name!', whitespace: true }],
+                })(<Input />)}
+              </Form.Item>
 
               <Form.Item
                 extra={<>Validate your account name at <a href="https://api.monitor.jungletestnet.io/#account"  target="_blank">this validator</a> or <a href="https://eos-account-creator.com/choose/" target="_blank">this validator</a>. </>}
@@ -303,7 +326,7 @@ class CreateAccount extends Component {
               >
                 {getFieldDecorator('account_name', {
                   rules: [{ required: true, message: 'Please input your account name!', whitespace: true }],
-                })(<Input />)}
+                })(<Input addonAfter={<Button icon="retweet" key="gen_account_name" onClick={()=>this.genAccountName()} />} />)}
               </Form.Item>
               
               <Form.Item label="Account Type">

@@ -193,19 +193,6 @@ class PDA extends Component {
     return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadTransactionsForPDA()}>More!!</Button> </>)
   }
 
-  renderFilterContent (){
-    const form = this.renderFilterForm();
-    return(
-      <div className="wrap">
-        <Row>
-          <Col span={24}>
-            {form}
-          </Col>
-        </Row>
-      </div>
-    );
-  }
-
   //
   renderSelectTxTypeOptions(){
     return (
@@ -219,36 +206,42 @@ class PDA extends Component {
         )
   }
   //
-  renderFilterForm() {
+  renderFilterContent() {
     return (
-      <Form layout="inline" onSubmit={this.handleSubmit}>
-        <Form.Item>
-            <Select placeholder="Transaction type"
-              mode="multiple"
-              style={{ minWidth: '250px' }}
-              defaultValue={['ALL']}
-              optionLabelProp="label">
-                {this.renderSelectTxTypeOptions()}
-            </Select>
-        </Form.Item>
-        <Form.Item>
-          <Select placeholder="Transaction status"
-              mode="multiple"
-              style={{ minWidth: '250px' }}
-              defaultValue={['ALL']}
-              optionLabelProp="label">
-                {this.renderSelectTxStateOptions()}
-            </Select>
-        </Form.Item>
-        <Form.Item>
-            <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
-        </Form.Item>
-        <Form.Item>
-          <Button htmlType="submit" disabled>
-            Filter
-          </Button>
-        </Form.Item>
-      </Form>
+      <div className="wrap">
+        <Row>
+          <Col span={24}>
+            <Form layout="inline" onSubmit={this.handleSubmit}>
+              <Form.Item label="Transaction type">
+                  <Select placeholder="Transaction type"
+                    mode="multiple"
+                    style={{ minWidth: '250px' }}
+                    defaultValue={['ALL']}
+                    optionLabelProp="label">
+                      {this.renderSelectTxTypeOptions()}
+                  </Select>
+              </Form.Item>
+              <Form.Item label="Transaction status">
+                <Select placeholder="Transaction status"
+                    mode="multiple"
+                    style={{ minWidth: '250px' }}
+                    defaultValue={['ALL']}
+                    optionLabelProp="label">
+                      {this.renderSelectTxStateOptions()}
+                  </Select>
+              </Form.Item>
+              <Form.Item label="Search">
+                  <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
+              </Form.Item>
+              <Form.Item>
+                <Button htmlType="submit" disabled>
+                  Filter
+                </Button>
+              </Form.Item>
+            </Form>
+          </Col>
+        </Row>
+      </div>
     );
   }
 

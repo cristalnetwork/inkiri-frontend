@@ -171,8 +171,8 @@ class DepositMoney extends Component {
                   <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
                     Go to dashboard
                   </Button>,
-                  <Button key="re-send">Try sending again</Button>,
-                  <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetPage()} />
+                  <Button key="re-send">Try deposit again</Button>,
+                  <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetResult()} />
                 ]}
               >
                 <div className="desc">

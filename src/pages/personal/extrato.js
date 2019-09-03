@@ -12,7 +12,7 @@ import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 import * as routesService from '@app/services/routes';
 
-import { Icon, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
+import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
 
 import { notification, Table, Divider, Spin } from 'antd';
 
@@ -22,7 +22,15 @@ import styles from './extrato.less';
 import TransactionTable from '@app/components/TransactionTable';
 import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
 
+import * as utils from '@app/utils/utils';
+
+import { DatePicker } from 'antd';
+import moment from 'moment';
+
+const { MonthPicker, RangePicker } = DatePicker;
 const { TabPane } = Tabs;
+const { Option } = Select;
+const { Search, TextArea } = Input;
 
 const routes = routesService.breadcrumbForFile('extrato');
 
@@ -52,6 +60,7 @@ class Extrato extends Component {
     this.onTableChange              = this.onTableChange.bind(this);
     this.onProcessRequestClick      = this.onProcessRequestClick.bind(this);
     this.refreshCurrentTable        = this.refreshCurrentTable.bind(this);
+    this.renderFilterContent        = this.renderFilterContent.bind(this);
   }
   
   onProcessRequestClick(request){
@@ -173,7 +182,84 @@ class Extrato extends Component {
       this.computeStats(txs);
   }
 
-  // Begin RENDER section
+  /* *********************************
+   * Begin RENDER section
+  */
+  
+  //
+  renderSelectTxTypeOptions(){
+    return (
+      globalCfg.api.getTypes().map( tx_type => {return(<Option key={'option'+tx_type} value={tx_type} label={utils.firsts(tx_type.split('_')[1])}>{ utils.capitalize(tx_type.split('_')[1]) } </Option>)})
+        )
+  }
+  // 
+  renderSelectInOutOptions(){
+    return (
+      ['all', 'in', 'out'].map( tx_state => {return(<Option key={'option'+tx_state} value={tx_state} label={utils.firsts(tx_state)}>{ utils.capitalize(tx_state) } </Option>)})
+        )
+  }
+  // 
+  renderSelectAccountTypeOptions(){
+    return (
+      globalCfg.bank.listAccountTypes().map( tx_state => {return(<Option key={'option'+tx_state} value={tx_state} label={utils.firsts(tx_state)}>{ utils.capitalize(tx_state) } </Option>)})
+        )
+  }
+  //
+  renderFilterContent() {
+    const dateFormat = 'YYYY/MM/DD';
+    return (
+      <div className="filter_wrap">
+        <Row>
+          <Col span={24}>
+            <Form layout="inline" onSubmit={this.handleSubmit}>
+              <Form.Item label="Operation">
+                  <Select placeholder="Operation"
+                    mode="multiple"
+                    style={{ minWidth: '250px' }}
+                    defaultValue={['ALL']}
+                    optionLabelProp="label">
+                      {this.renderSelectTxTypeOptions()}
+                  </Select>
+              </Form.Item>
+              <Form.Item label="Date Range">
+                  <RangePicker
+                    defaultValue={[moment('2015/01/01', dateFormat), moment('2015/01/01', dateFormat)]}
+                    format={dateFormat}
+                  />
+              </Form.Item>
+              <Form.Item label="In-Out">
+                <Select placeholder="In-Out"
+                    mode="multiple"
+                    style={{ minWidth: '250px' }}
+                    defaultValue={['ALL']}
+                    optionLabelProp="label">
+                      {this.renderSelectInOutOptions()}
+                  </Select>
+              </Form.Item>
+              <Form.Item label="Account type">
+                <Select placeholder="Account type"
+                    mode="multiple"
+                    style={{ minWidth: '250px' }}
+                    defaultValue={['ALL']}
+                    optionLabelProp="label">
+                      {this.renderSelectAccountTypeOptions()}
+                  </Select>
+              </Form.Item>
+              <Form.Item label="Search">
+                  <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
+              </Form.Item>
+              <Form.Item>
+                <Button htmlType="submit" disabled>
+                  Filter
+                </Button>
+              </Form.Item>
+            </Form>
+          </Col>
+        </Row>
+      </div>
+    );
+  }
+  //
   renderTableViewStats() 
   {
     const {money_in, money_out, count} = this.currentStats();
@@ -271,6 +357,7 @@ class Extrato extends Component {
   render() {
     const content = this.renderContent();
     const stats = this.renderTableViewStats();
+    const filters = this.renderFilterContent();
     return (
       <>
         <PageHeader
@@ -282,6 +369,12 @@ class Extrato extends Component {
           title="Extrato"
           subTitle="List of transactions"
           footer={
+           <></>   
+          }
+        >
+        </PageHeader>
+        <div className="styles standardList" style={{ marginTop: 0 }}>
+          <Card key="tabs_card" bordered={false}>
             <Tabs  defaultActiveKey={DISPLAY_ALL_TXS} onChange={this.onTabChange}>
               <TabPane tab="All"       key={DISPLAY_ALL_TXS} />
               <TabPane tab="Deposits"  key={DISPLAY_DEPOSIT} />
@@ -290,11 +383,13 @@ class Extrato extends Component {
               <TabPane tab="Payments"  key={DISPLAY_PAYMENTS} disabled />
               <TabPane tab="Requests"  key={DISPLAY_REQUESTS} disabled />
             </Tabs>
-          }
-        >
-        </PageHeader>
-  
+          </Card>
+        </div>
+        
+        {filters}
+
         {stats}
+        
         {content}
 
       </>

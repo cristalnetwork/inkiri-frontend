@@ -1,3 +1,18 @@
+.ant-form-inline{
+  display: flex!important;
+  flex-direction: row!important;
+  justify-content: flex-end!important;
+}
+.ant-form-inline .ant-form-item{
+  display: flex!important;
+  flex-direction: column!important;
+  justify-content: flex-start!important;
+
+}
+.ant-form-item-label{
+  text-align: left!important;
+}
+
 .ant-pagination {display: none!important;}
 .ant-table-footer {
     display: flex;
@@ -6,6 +21,22 @@
 
 .wrap {
   display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+
+  margin: 0 0px;
+  padding: 24px;
+  background-color: #fff;
+}
+
+.filter_wrap {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+
+  margin: 0 0px;
+  padding-bottom: 24px;
+  background-color: #fff;
 }
 .content {
   flex: 1;
