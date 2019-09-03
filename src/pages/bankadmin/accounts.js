@@ -24,6 +24,8 @@ import {DISPLAY_ALL_TXS} from '@app/components/TransactionTable';
 
 import * as utils from '@app/utils/utils';
 
+import _ from 'lodash';
+
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
 const RadioButton = Radio.Button;
@@ -144,6 +146,17 @@ class AdminAccounts extends Component {
               },
               //
               {
+                title: 'Balance',
+                dataIndex: 'balance',
+                key: 'balance',
+                render: (balance, record) => (
+                  <span>
+                    { parseFloat(balance).toFixed(2) }
+                  </span>
+                  )
+              },
+              //
+              {
                 title: 'Action',
                 key: 'action',
                 render: (text, record) => {
@@ -200,17 +213,27 @@ class AdminAccounts extends Component {
     api.listBankAccounts()
     .then( (res) => {
 
-        // // HACK!!!!!!!!!!!!!!!!!
-        // that.props.history.push({
-        //   pathname: `/${that.props.actualRole}/account`
-        //   // , search: '?query=abc'
-        //   , state: { account: res.data.accounts[0] }
-        // })
+        console.log(' >> api.listBankAccounts >>', JSON.stringify(res.data))
 
-        that.onNewData(res.data);
+        api.dfuse.getAccountsBalances(res.data.accounts.map(acc=>acc.key))
+          .then( (balances) => {
+            console.log(' >> balances >> ', balances)
+            const _balances = _.reduce(balances, function(result, value, key) {
+                result[value.account] = value.balance;
+                return result;
+              }, {});
+            const _data = res.data.accounts.map(acc => {return{...acc, balance:_balances[acc.key] }})
+            console.log(JSON.stringify(_data))
+            // that.onNewData(res.data);
+            that.onNewData({accounts:_data, more:res.data.more});
+          } ,(ex2) => {
+            console.log(' dfuse.getAccountsBalances ERROR#2', JSON.stringify(ex2) )
+            that.setState({loading:false});  
+          });      
+        
 
       } ,(ex) => {
-        // console.log('---- ERROR:', JSON.stringify(ex));
+        console.log(' dfuse.getAccountsBalances ERROR#1', JSON.stringify(ex) )
         that.setState({loading:false});  
       } 
     );
