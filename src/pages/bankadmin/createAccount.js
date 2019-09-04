@@ -586,7 +586,7 @@ class CreateAccount extends Component {
                   initialValue: confirm_password
                 })(<Input onBlur={this.handleConfirmBlur} />)}
               </Form.Item>
-              <Form.Item label="Generated keys">
+              <Form.Item label="Generated keys" extra="PLEASE COPY PRIVATE KEY">
                 <Input readOnly addonAfter={<Icon type="key" />} value={generated_keys.wif} />
                 <Input readOnly addonAfter={<Icon type="global" />} value={generated_keys.pub_key}  />
               </Form.Item>

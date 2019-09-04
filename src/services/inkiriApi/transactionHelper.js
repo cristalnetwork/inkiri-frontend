@@ -26,14 +26,14 @@ function getTxMetadata(account_name, fullTx){
 }
 
 function getEOSQuantityToNumber(quantity){ 
-	return Number(quantity.replace(globalCfg.currency.eos_symbol, ''));
+	return !quantity?0:Number(quantity.replace(globalCfg.currency.eos_symbol, ''));
 }
 
 function getTxQuantity(tx)             { return tx.data.quantity;}
 function getTxQuantityToNumber(tx)     { return getEOSQuantityToNumber(tx.data.quantity); }
 function getTxName(tx)                 { return tx.name ; }
 function getTxCode(tx)                 { return (tx.data && tx.data.memo)?tx.data.memo.split('|')[0]:''; }
-function getTxSubCode(tx)              { return tx.data.memo.split('|').length>1 ? tx.data.memo.split('|')[1] : '';}
+function getTxSubCode(tx)              { return (!tx.data.memo)?'':(tx.data.memo.split('|').length>1 ? tx.data.memo.split('|')[1] : '');}
 function combineTxNameCode(tx)         { return getTxName(tx) + '_' + getTxCode(tx) ; }
 function isTransfer(param)             { return param=='transfer';}
 function isIssue(param)                { return param=='issue'; }
