@@ -273,16 +273,36 @@ export const getMyUser = (account_name) =>   new Promise((res,rej)=> {
 
 export const createUser = (account_name) =>   new Promise((res,rej)=> {
   
-  // "from": "inkiritoken1",
-  // "requested_type": "type_deposit",
-  // "amount": "500",
-  // "envelope_id": "500",  
-
   const path    = globalCfg.api.end_point + '/users';
   const method  = 'POST';
   const post_params = {
           'account_name':  account_name
           , 'email':       `${account_name}@inkiri.com`
+        };
+  console.log(' inkiriApi::createUser >> ABOUT TO POST', JSON.stringify(post_params))
+  jwtHelper.apiCall(path, method, post_params)
+    .then((data) => {
+        console.log(' inkiriApi::createUser >> RESPONSE', JSON.stringify(data))
+        res(data)
+      }, (ex) => {
+        console.log(' inkiriApi::createUser >> ERROR ', JSON.stringify(ex))
+        rej(ex);
+      });
+});
+
+
+export const createFullUser = (account_name, first_name, last_name, email, legal_id, birthday, phone, address) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.end_point + '/users';
+  const method  = 'POST';
+  const post_params = {
+          account_name:  account_name
+          , email:       first_name
+          , last_name:   last_name
+          , legal_id:    legal_id
+          // , birthday:    birthday
+          , phone:       phone
+          , address:     address
         };
   console.log(' inkiriApi::createUser >> ABOUT TO POST', JSON.stringify(post_params))
   jwtHelper.apiCall(path, method, post_params)

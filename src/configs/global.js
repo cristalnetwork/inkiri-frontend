@@ -15,8 +15,9 @@ const currency = {
 };
 
 const bank = {
-  contract:               "inkirimaster",
-  issuer:                 "inkirimaster",
+  contract:                "inkirimaster",
+  issuer:                  "inkirimaster",
+  customers:               'https://jungle.bloks.io/account/inkirimaster?loadContract=true&tab=Tables&account=inkirimaster&scope=inkirimaster&limit=100',
   ACCOUNT_TYPE_PERSONAL:   1,
   ACCOUNT_TYPE_BUSINESS:   2,
   ACCOUNT_TYPE_FOUNDATION: 3,
@@ -77,8 +78,8 @@ const bank = {
 };
 
 
-// const base_url    = 'http://localhost:3600';
-const base_url    = 'https://cristal-backend.herokuapp.com';
+const base_url    = 'http://localhost:3600';
+// const base_url    = 'https://cristal-backend.herokuapp.com';
 const api_version = '/api/v1';
 const api = {
   end_point                   : base_url+ api_version
@@ -134,4 +135,9 @@ const dfuse = {
   account_url               : 'https://jungle.bloks.io/account/'
 }
 
-export { language, api, currency, dfuse, bank };
+const eosnode = {
+  node : 'https://proxy.eosnode.tools/',
+  create_account : 'https://api.monitor.jungletestnet.io/#account',
+  // create_account: 'https://eos-account-creator.com/choose/'
+}
+export { language, api, currency, dfuse, bank, eosnode };

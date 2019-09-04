@@ -104,7 +104,7 @@ const pushTX = async (tx, privatekey) => {
 
   try {
 	  const result = await api.transact(
-	    { actions: [tx] },
+	    { actions: Array.isArray(tx)?tx:[tx] },
 	    {
 	      blocksBehind: 3,
 	      expireSeconds: 30
@@ -120,6 +120,121 @@ const pushTX = async (tx, privatekey) => {
 	}
 }
 
+export const createAccount = async (creator_priv, new_account_name, new_account_public_key, fee, overdraft) => { 
+
+  let actions = [];
+  const newAccountAction = 
+    {
+    account:         'eosio',
+    name:            'newaccount',
+    authorization: [{
+      actor:         globalCfg.bank.issuer,
+      permission:    'active',
+    }],
+    data: {
+      creator: globalCfg.bank.issuer,
+      name: new_account_name,
+      owner: {
+        threshold: 1,
+        keys: [{
+          key: new_account_public_key,
+          weight: 1
+        }],
+        accounts: [{
+            permission: {
+              actor: globalCfg.bank.issuer,
+              permission: "active"
+            },
+            weight: 1
+          }],
+        waits: []
+      },
+      active: {
+        threshold: 1,
+        keys: [{
+          key: new_account_public_key,
+          weight: 1
+        }],
+        accounts: [],
+        waits: []
+      },
+    },
+  };
+  // actions.push(newAccountAction)
+
+  const buyRamAction = {
+    account: 'eosio',
+    name: 'buyrambytes',
+    authorization: [{
+      actor: globalCfg.bank.issuer,
+      permission: 'active',
+    }],
+    data: {
+      payer: globalCfg.bank.issuer,
+      receiver: new_account_name,
+      // bytes: 8192,
+      bytes: 4096,
+    },
+  };
+  // actions.push(buyRamAction)
+
+  const delegateBWAction= {
+    account: 'eosio',
+    name: 'delegatebw',
+    authorization: [{
+      actor: globalCfg.bank.issuer,
+      permission: 'active',
+    }],
+    data: {
+      from: globalCfg.bank.issuer,
+      receiver: new_account_name,
+      stake_net_quantity: '1.0000 EOS',
+      stake_cpu_quantity: '1.0000 EOS',
+      transfer: false,
+    }
+  }
+  // actions.push(delegateBWAction)
+
+  const createBankAccountAction = {
+    account: globalCfg.bank.issuer,
+    name: 'upsertikacc',
+    authorization: [{
+      actor:       globalCfg.bank.issuer,
+      permission:  'active',
+    }],
+    data: {
+      user            : new_account_name
+      , fee           : fee
+      , overdraft     : overdraft
+      , account_type  : 1
+      , state         : 1
+    },
+  }
+  // actions.push(createBankAccountAction)
+
+  const issueAction = {
+    account: globalCfg.currency.token,
+    name: "issue",
+    authorization: [
+      {
+        actor: globalCfg.currency.issuer,
+        permission: "active"
+      }
+    ],
+    data: {
+      to: new_account_name,
+      quantity: formatAmount(overdraft),
+      memo: ('oft|create')
+    }
+  }
+  // actions.push(issueAction)
+
+  // actions = [newAccountAction, buyRamAction, delegateBWAction]
+  actions = [newAccountAction, buyRamAction, delegateBWAction, createBankAccountAction, issueAction]
+  return pushTX(actions, creator_priv);
+}
+
+  
 export const sendMoney = async (sender_account, sender_priv, receiver_account, amount) => { 
 	console.log(' inkiriApi::sendMoney ', 
 		'param@sender_account:', sender_account,
