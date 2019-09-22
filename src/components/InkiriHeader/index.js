@@ -63,7 +63,7 @@ class InkiriHeader extends Component {
       header_content=(
               <div className="right">
                 <div className="header_element_container">
-                  <Button icon={'logout'} onClick={this.props.logout}>Logout</Button>
+                  <Button icon={'logout'} onClick={this.props.logout} size="small">Logout</Button>
                 </div>
                 <div className="header_element_container" style={{marginRight: '10px'}}>
                   <AccountSelector onChange={this.handleChange} isMobile={this.props.isMobile}/>

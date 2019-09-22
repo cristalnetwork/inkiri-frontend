@@ -1,3 +1,7 @@
+.ant-page-header {
+  background-color: #ffffff;
+}
+
 .dashboard_page_content
 , .dashboard_page_header_wrap{
 	margin: 0px auto;

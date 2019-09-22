@@ -69,7 +69,7 @@ const AccountSelector = ({allAccounts, actualAccount, currentAccount, onChange, 
 
     if(!isMobile)
       return (<Dropdown overlay={getOptions()} className="accountSelector"  placement="bottomRight" >
-        <Button><Icon type={getIconForAccountType(currentAccount)} /> {getDisplayAccountData(currentAccount)}</Button>
+        <Button size="small"><Icon type={getIconForAccountType(currentAccount)} /> {getDisplayAccountData(currentAccount)}</Button>
       </Dropdown>)
     else
       return (<>
