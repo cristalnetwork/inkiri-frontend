@@ -105,8 +105,8 @@ class CreateAccount extends Component {
                          seed:     ''} ,
 
       account_type:     undefined,
-      account_overdraft:500,
-      account_fee:      5,
+      account_overdraft:0,
+      account_fee:      0,
       first_name:       '',
       last_name:        '',
       email:            '',
@@ -124,7 +124,6 @@ class CreateAccount extends Component {
 
     };
 
-    // this.handleSearch = this.handleSearch.bind(this); 
     this.handleSubmit              = this.handleSubmit.bind(this);
     
     this.resetPage                 = this.resetPage.bind(this); 
@@ -132,6 +131,7 @@ class CreateAccount extends Component {
     this.generateKeys              = this.generateKeys.bind(this); 
     this.genAccountName            = this.genAccountName.bind(this); 
     this.doCreateAccount           = this.doCreateAccount.bind(this); 
+    this.handleAccountTypeChange   = this.handleAccountTypeChange.bind(this);
   }
 
   validateStep = () => new Promise((res, rej) => {
@@ -231,11 +231,10 @@ class CreateAccount extends Component {
     
   }
 
-  // onSearch={this.handleSearch}
-  handleSearch(value){
-    // this.setState({
-    //   dataSource: !value ? [] : [value, value + value, value + value + value],
-    // });
+  // Fields Events
+  handleAccountTypeChange(value){
+    console.log(value)
+    this.setState({account_type:value});
   };
 
   /* ************************************************* 
@@ -395,6 +394,112 @@ class CreateAccount extends Component {
       this.setState({result: undefined, result_object: undefined, error: {}});
   }
 
+  fieldsByAccountType(){
+    const {account_type} = this.state;
+    
+    if(!account_type)
+      return (<></>);
+    //
+    
+    const { getFieldDecorator } = this.props.form;
+    if(globalCfg.bank.isPersonalAccount(account_type))
+    {
+      const {account_fee, account_overdraft, first_name, last_name, email, legal_id, birthday, phone, address} = this.state;  
+      return(
+        <>
+          <h3 style={{paddingLeft: 50}}>PROFILE SECTION</h3>
+          <Form.Item
+            label="Nome"
+            >
+              {getFieldDecorator('first_name', {
+                rules: [{ required: true, message: 'Please input your name!', whitespace: true }],
+                initialValue: first_name
+              })(<Input />)}
+            </Form.Item>
+
+            <Form.Item
+              label="Sobrenome"
+            >
+              {getFieldDecorator('last_name', {
+                rules: [{ required: true, message: 'Please input your name!', whitespace: true }],
+                initialValue: last_name
+              })(<Input />)}
+            </Form.Item>
+            <Form.Item label="E-mail">
+              {getFieldDecorator('email', {
+                rules: [
+                  {
+                    type: 'email',
+                    message: 'The input is not valid E-mail!',
+                  },
+                  {
+                    required: true,
+                    message: 'Please input your E-mail!',
+                  },
+                ],
+                initialValue: email
+              })(<Input />)}
+            </Form.Item>
+            <Form.Item label="CPF">
+              {getFieldDecorator('legal_id', {
+                rules: [{ required: true, message: 'Please input your CPF!' }],
+                initialValue: legal_id
+              })(<Input style={{ width: '100%' }} />)}
+            </Form.Item>
+            <Form.Item label="Birthday">
+              {getFieldDecorator('birthday', {
+                rules: [{ required: true, message: 'Please input your birthday!' }],
+                initialValue: moment(birthday, dateFormat)
+              })( <DatePicker format={dateFormat} style={{ width: '100%' }} />)}
+            </Form.Item>
+            <Form.Item label="Phone Number">
+              {getFieldDecorator('phone', {
+                rules: [{ required: true, message: 'Please input your phone number!' }],
+                initialValue: phone
+              })(<Input style={{ width: '100%' }} />)}
+            </Form.Item>
+            
+            <h4 style={{paddingLeft: 50}}>Address</h4>
+            <Form.Item label="Street" extra="Street and Number, Apt, Suite, Unit, Building">
+              {getFieldDecorator('address.street', {
+                rules: [{ required: true, message: 'Please input Street!' }],
+                initialValue: address.street
+              })(<Input style={{ width: '100%' }} />)}
+            </Form.Item>
+            <Form.Item label="City">
+              {getFieldDecorator('address.city', {
+                rules: [{ required: true, message: 'Please input City!' }],
+                initialValue: address.city
+              })(<Input style={{ width: '100%' }} />)}
+            </Form.Item>
+            <Form.Item label="State/Province">
+              {getFieldDecorator('address.state', {
+                rules: [{ required: true, message: 'Please input State/Province!' }],
+                initialValue: address.state
+              })(<Input style={{ width: '100%' }} />)}
+            </Form.Item>
+            <Form.Item label="Zip / Postal Code">
+              {getFieldDecorator('address.zip', {
+                rules: [{ required: true, message: 'Please input Zip/Postal code!' }],
+                initialValue: address.zip
+              })(<Input style={{ width: '100%' }} />)}
+            </Form.Item>
+            <Form.Item label="Country">
+              {getFieldDecorator('address.country', {
+                rules: [{ required: true, message: 'Please input State/Province!' }],
+                initialValue: address.country
+              })(<Input style={{ width: '100%' }} />)}
+            </Form.Item>
+        </>)
+    }
+  
+    //
+    if(globalCfg.bank.isBusinessAccount(account_type))
+    {
+
+    }
+  }
+  //
   renderStep(current_step){
     const { getFieldDecorator } = this.props.form;
     
@@ -416,9 +521,9 @@ class CreateAccount extends Component {
                         rules: [{ required: true, message: 'Please select an account type!' }],
                         initialValue: account_type
                       })(
-                        <Select>
+                        <Select onChange={this.handleAccountTypeChange}>
                           <Option value="1">Personal Account</Option>
-                          <Option value="2" disabled>Business Account</Option>
+                          <Option value="2">Business Account</Option>
                         </Select>,
                       )}
                     </Form.Item>
@@ -442,90 +547,8 @@ class CreateAccount extends Component {
                         })(<Input type="number" />)}
                       </Form.Item>
 
-                    <h3 style={{paddingLeft: 50}}>PROFILE SECTION</h3>
+                      {this.fieldsByAccountType()}
                     
-                    <Form.Item
-                      label="Nome"
-                      >
-                        {getFieldDecorator('first_name', {
-                          rules: [{ required: true, message: 'Please input your name!', whitespace: true }],
-                          initialValue: first_name
-                        })(<Input />)}
-                      </Form.Item>
-      
-                      <Form.Item
-                        label="Sobrenome"
-                      >
-                        {getFieldDecorator('last_name', {
-                          rules: [{ required: true, message: 'Please input your name!', whitespace: true }],
-                          initialValue: last_name
-                        })(<Input />)}
-                      </Form.Item>
-                      <Form.Item label="E-mail">
-                        {getFieldDecorator('email', {
-                          rules: [
-                            {
-                              type: 'email',
-                              message: 'The input is not valid E-mail!',
-                            },
-                            {
-                              required: true,
-                              message: 'Please input your E-mail!',
-                            },
-                          ],
-                          initialValue: email
-                        })(<Input />)}
-                      </Form.Item>
-                      <Form.Item label="CPF">
-                        {getFieldDecorator('legal_id', {
-                          rules: [{ required: true, message: 'Please input your CPF!' }],
-                          initialValue: legal_id
-                        })(<Input style={{ width: '100%' }} />)}
-                      </Form.Item>
-                      <Form.Item label="Birthday">
-                        {getFieldDecorator('birthday', {
-                          rules: [{ required: true, message: 'Please input your birthday!' }],
-                          initialValue: moment(birthday, dateFormat)
-                        })( <DatePicker format={dateFormat} style={{ width: '100%' }} />)}
-                      </Form.Item>
-                      <Form.Item label="Phone Number">
-                        {getFieldDecorator('phone', {
-                          rules: [{ required: true, message: 'Please input your phone number!' }],
-                          initialValue: phone
-                        })(<Input style={{ width: '100%' }} />)}
-                      </Form.Item>
-                      
-                      <h4 style={{paddingLeft: 50}}>Address</h4>
-                      <Form.Item label="Street" extra="Street and Number, Apt, Suite, Unit, Building">
-                        {getFieldDecorator('address.street', {
-                          rules: [{ required: true, message: 'Please input Street!' }],
-                          initialValue: address.street
-                        })(<Input style={{ width: '100%' }} />)}
-                      </Form.Item>
-                      <Form.Item label="City">
-                        {getFieldDecorator('address.city', {
-                          rules: [{ required: true, message: 'Please input City!' }],
-                          initialValue: address.city
-                        })(<Input style={{ width: '100%' }} />)}
-                      </Form.Item>
-                      <Form.Item label="State/Province">
-                        {getFieldDecorator('address.state', {
-                          rules: [{ required: true, message: 'Please input State/Province!' }],
-                          initialValue: address.state
-                        })(<Input style={{ width: '100%' }} />)}
-                      </Form.Item>
-                      <Form.Item label="Zip / Postal Code">
-                        {getFieldDecorator('address.zip', {
-                          rules: [{ required: true, message: 'Please input Zip/Postal code!' }],
-                          initialValue: address.zip
-                        })(<Input style={{ width: '100%' }} />)}
-                      </Form.Item>
-                      <Form.Item label="Country">
-                        {getFieldDecorator('address.country', {
-                          rules: [{ required: true, message: 'Please input State/Province!' }],
-                          initialValue: address.country
-                        })(<Input style={{ width: '100%' }} />)}
-                      </Form.Item>
                   </Form>
                 </Spin>
               </div>
