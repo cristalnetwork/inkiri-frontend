@@ -177,7 +177,7 @@ class CreateAccount extends Component {
   doCreateAccount(){
     
     console.log(' FINALLY createAccount!!!')
-    const {account_name, password, confirm_password, generated_keys, account_type, account_overdraft, account_fee, first_name, last_name, email, legal_id, birthday, phone, address} = this.state;
+    const {business_name, account_name, password, confirm_password, generated_keys, account_type, account_overdraft, account_fee, first_name, last_name, email, legal_id, birthday, phone, address} = this.state;
     const that             = this;
     that.setState({pushingTx:true})
     /*
