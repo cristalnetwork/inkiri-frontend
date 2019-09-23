@@ -296,10 +296,10 @@ class PDA extends Component {
             </Col>
             <Col xs={24} sm={12} md={6} lg={5} xl={5}>
               <Statistic
-                title="IK$ DEPOSITS"
+                title={globalCfg.currency.symbol + " DEPOSITS"}
                 value={deposits_ik}
                 precision={2}
-                suffix="IK$"
+                suffix={globalCfg.currency.symbol}
               />
             </Col>
             <Col xs={24} sm={12} md={6} lg={5} xl={5}>
@@ -315,7 +315,7 @@ class PDA extends Component {
                 title="WITHDRAWS"
                 value={withdraws}
                 precision={2}
-                suffix="IK$"
+                suffix={globalCfg.currency.symbol}
               />
             </Col>
             <Col xs={24} sm={12} md={6} lg={5} xl={5}>

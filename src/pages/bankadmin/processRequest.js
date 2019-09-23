@@ -393,7 +393,7 @@ class processRequest extends Component {
       <Row>
         
         <Col xs={24} sm={24}>
-          <div className ="textSecondary" > Customer Balance (IK$) </div>
+          <div className ="textSecondary" > Customer Balance ({globalCfg.currency.symbol}) </div>
           <div className ="heading" >{Number(0).toFixed(2)}</div>
         </Col>
       </Row>

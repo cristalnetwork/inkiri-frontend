@@ -261,14 +261,6 @@ class SendMoney extends Component {
   renderExtraContent ()
   {
     return (<></>);
-
-    // return(
-    // <Row>
-    //   <Col span={24}>
-    //     <Card><Statistic title="Account Balance (IK$)" value={this.props.balance} precision={2} /></Card>
-    //   </Col>
-    // </Row>
-    // );
   
   }
   

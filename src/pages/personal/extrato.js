@@ -308,7 +308,7 @@ class Extrato extends Component {
                 title="Account Balance"
                 value={Number(this.props.balance)}
                 precision={2}
-                suffix="IK$"
+                suffix={globalCfg.currency.symbol}
               />
             </Col>
           </Row>

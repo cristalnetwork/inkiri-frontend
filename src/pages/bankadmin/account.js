@@ -544,11 +544,11 @@ class Account extends Component {
       <Descriptions.Item  label = " Full Name " > {fullname} </ Descriptions.Item >
       <Descriptions.Item  label = " Email " >{email}</ Descriptions.Item >
       <Descriptions.Item  label = " Created at " >N/A</ Descriptions.Item >
-      <Descriptions.Item  label = " Fee " >{parseFloat(fee).toFixed(2)}</ Descriptions.Item >
+      <Descriptions.Item  label = " Fee " >{globalCfg.currency.toCurrencyString(fee)}</ Descriptions.Item >
       <Descriptions.Item  label = " Associated Documents " > 
         <a href="#"><i>nothing yet</i></a>
       </Descriptions.Item>
-      <Descriptions.Item  label = " Overdraft " >{parseFloat(overdraft).toFixed(2)}</ Descriptions.Item >
+      <Descriptions.Item  label = " Overdraft " >{globalCfg.currency.toCurrencyString(overdraft)}</ Descriptions.Item >
       <Descriptions.Item  label = " Status " >{(state_description|'')}</ Descriptions.Item >
       <Descriptions.Item  label = " Account Type " >{(account_type_description|'')}</ Descriptions.Item >
       <Descriptions.Item  label = " Blockchain Link" >
@@ -565,7 +565,7 @@ class Account extends Component {
     return(
       <Row>
         <Col xs={24} sm={24}>
-          <div className ="textSecondary" > Account Balance (IK$) </div>
+          <div className ="textSecondary" > Account Balance ({globalCfg.currency.symbol}) </div>
           <div className ="heading" >{balance}</div>
         </Col>
       </Row>

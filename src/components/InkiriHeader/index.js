@@ -15,6 +15,7 @@ import UserSelector from './userSelector'
 
 import AccountSelector from '@app/components/InkiriHeader/accountSelector';
 
+import * as globalCfg from '@app/configs/global';
 
 const { Header } = Layout;
 
@@ -67,7 +68,7 @@ class InkiriHeader extends Component {
                 </div>
                 <div className="header_element_container" style={{marginRight: '10px'}}>
                   <AccountSelector onChange={this.handleChange} isMobile={this.props.isMobile}/>
-                   &nbsp; <Tag> Account Balance (IK$) <UserBalance userId={this.props.actualAccount} /> </Tag>
+                   &nbsp; <Tag> Account Balance ({globalCfg.currency.symbol}) <UserBalance userId={this.props.actualAccount} /> </Tag>
                 </div>
               </div>
             );
@@ -77,32 +78,6 @@ class InkiriHeader extends Component {
        <Header style={{ background: '#fff', padding: 0 }}>
           <div className="ant-pro-global-header">  
             {header_content}
-          </div>
-        </Header>
-    )
-  }
-
-  renderXX(){
-    return (
-       <Header style={{ background: '#fff', padding: 0 }}>
-          <div className="ant-pro-global-header">  
-
-              <Icon
-                className="trigger"
-                type={this.props.menuIsCollapsed ? 'menu-unfold' : 'menu-fold'}
-                onClick={this.toggle}
-              />
-              
-              <div className="right">
-                <div className="header_element_container">
-                  <Button icon={'logout'} onClick={this.props.logout}>Logout</Button>
-                </div>
-                <div className="header_element_container" style={{marginRight: '10px'}}>
-                  <AccountSelector onChange={this.handleChange} />
-                   &nbsp; <Tag> Account Balance (IK$) <UserBalance userId={this.props.actualAccount} /> </Tag>
-                </div>
-              </div>
-            
           </div>
         </Header>
     )

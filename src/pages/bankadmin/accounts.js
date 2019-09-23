@@ -114,10 +114,10 @@ class AdminAccounts extends Component {
                 render: (fee, record) => (
                   <span>
                    <Tag color={'geekblue'} key={record.key+fee}>
-                          fee: IK${parseFloat(fee).toFixed(2)}
+                          fee: {globalCfg.currency.toCurrencyString(fee)}
                    </Tag>
                    <Tag color={'geekblue'} key={record.key+record.overdraft}>
-                          overdraft: IK${parseFloat(record.overdraft).toFixed(2)}
+                          overdraft: {globalCfg.currency.toCurrencyString(record.overdraft)}
                    </Tag>
                   </span>
                   )
@@ -127,9 +127,10 @@ class AdminAccounts extends Component {
                 title: 'Balance',
                 dataIndex: 'balance',
                 key: 'balance',
+                align: 'right',
                 render: (balance, record) => (
                   <span>
-                    { parseFloat(balance).toFixed(2) }
+                    {globalCfg.currency.toCurrencyString(balance)}
                   </span>
                   )
               },

@@ -11,7 +11,9 @@ const currency = {
                       symbol: "BRL$",
                       plural: "Reais"
                     },
-  asset_precision:  4
+  asset_precision:  4,
+
+  toCurrencyString: (value) => { return currency.symbol + ' ' + parseFloat(isNaN(value)?0:value) ; }
 };
 
 const bank = {
