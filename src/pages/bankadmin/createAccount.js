@@ -120,7 +120,7 @@ class CreateAccount extends Component {
                         zip:     '', 
                         country: ''
                       },
-
+      business_name     : ''
 
     };
 
@@ -151,8 +151,8 @@ class CreateAccount extends Component {
       //HACK
       if(current_step==0 && !account_name)
       {
-        const my_account_name   = (values.last_name.trim() + values.first_name.trim()).toLowerCase();
-        values['account_name']  = (my_account_name+'1234512345').substring(0, 12);
+        const my_account_name   = globalCfg.bank.isPersonalAccount(this.state.account_type) ? (values.last_name.trim() + values.first_name.trim()).toLowerCase() : (values.business_name.trim()).toLowerCase();
+        values['account_name']  = (my_account_name+'123451234512345').substring(0, 12);
       }
       this.setState(values);
       res(true);
@@ -233,7 +233,7 @@ class CreateAccount extends Component {
 
   // Fields Events
   handleAccountTypeChange(value){
-    console.log(value)
+    // console.log(value)
     this.setState({account_type:value});
   };
 
@@ -375,6 +375,7 @@ class CreateAccount extends Component {
       account_type:     undefined,
       account_overdraft:500,
       account_fee:      5,
+      
       first_name:       '',
       last_name:        '',
       email:            '',
@@ -387,7 +388,9 @@ class CreateAccount extends Component {
                         state:   '', 
                         zip:     '', 
                         country: ''
-                      }};
+                      },
+    business_name     : ''
+    };
     if(full)
       this.setState({...default_state, result: undefined, result_object: undefined, error: {}});
     else
@@ -496,7 +499,18 @@ class CreateAccount extends Component {
     //
     if(globalCfg.bank.isBusinessAccount(account_type))
     {
-
+      const {business_name} = this.state;
+      return (<>
+          <h3 style={{paddingLeft: 50}}>PROFILE SECTION</h3>
+          <Form.Item
+            label="Nome do Negócio"
+            >
+              {getFieldDecorator('business_name', {
+                rules: [{ required: true, message: 'Please input a valid business name!', whitespace: true }],
+                initialValue: business_name
+              })(<Input />)}
+            </Form.Item>
+      </>);
     }
   }
   //
