@@ -120,7 +120,7 @@ const pushTX = async (tx, privatekey) => {
 	}
 }
 
-export const createAccount = async (creator_priv, new_account_name, new_account_public_key, fee, overdraft) => { 
+export const createAccount = async (creator_priv, new_account_name, new_account_public_key, account_type, fee, overdraft) => { 
 
   let actions = [];
   const newAccountAction = 
@@ -206,12 +206,12 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
       user            : new_account_name
       , fee           : fee
       , overdraft     : overdraft
-      , account_type  : 1
+      , account_type  : account_type
       , state         : 1
     },
   }
   // actions.push(createBankAccountAction)
-
+  // This should be executed at the Smart Contract.
   const issueAction = {
     account: globalCfg.currency.token,
     name: "issue",

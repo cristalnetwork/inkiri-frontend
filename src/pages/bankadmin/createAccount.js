@@ -174,31 +174,6 @@ class CreateAccount extends Component {
     this.setState({ current_step });
   }
 
-  // doCreateAccountHack(){
-  //   let account_name       = 'pablotutino1';
-  //   let pub_key            = 'EOS7vRUpaQiNV9pncychw6a4RuXHkqiTNLjrQhGWNaVn8K65XvwCt';
-  //   let account_fee        = 5;
-  //   let account_overdraft  = 100;
-    
-  //   api.createAccount(this.props.actualPrivateKey , account_name, pub_key, account_fee, account_overdraft)
-  //       .then((res)=>{
-  //         console.log(' doCreateAccount() BLOCKCHAIN OK ',JSON.stringify(res))
-          
-  //         * Step #2: create account on private servers 
-          
-  //         const {first_name, last_name, email, legal_id, birthday, phone, address} = this.state;
-  //         api.bank.createFullUser (account_name, first_name, last_name, email, legal_id, birthday, phone, address)
-  //           .then((res2)=>{
-  //             console.log(' doCreateAccount() MONGO OK ',JSON.stringify(res2))
-  //           }, (err2)=>{
-  //             console.log(' doCreateAccount() MONGO ERROR ',JSON.stringify(err2))          
-  //           })
-  //       }, (err)=>{
-  //         console.log(' doCreateAccount() BLOCKCHAIN ERROR', JSON.stringify(err))
-  //       })
-
-  // }
-
   doCreateAccount(){
     
     console.log(' FINALLY createAccount!!!')
@@ -208,14 +183,15 @@ class CreateAccount extends Component {
     /*
     * Step #1: create EOS account
     */
-    console.log(this.props.actualPrivateKey , account_name, generated_keys.pub_key, account_fee, account_overdraft)
-    api.createAccount(this.props.actualPrivateKey , account_name, generated_keys.pub_key, account_fee, account_overdraft)
+    console.log(this.props.actualPrivateKey , account_name, generated_keys.pub_key, account_fee, account_overdraft, account_type)
+    api.createAccount(this.props.actualPrivateKey , account_name, generated_keys.pub_key, account_type, account_fee, account_overdraft)
       .then((res)=>{
         console.log(' doCreateAccount() BLOCKCHAIN OK ',JSON.stringify(res))
         /*
         * Step #2: create account on private servers 
         */
-        api.bank.createFullUser (account_name, first_name, last_name, email, legal_id, birthday, phone, address)
+        // api.bank.createFullUser (account_name, first_name, last_name, email, legal_id, birthday, phone, address)
+        api.bank.createFullUser (account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name)
           .then((res2)=>{
             that.setState({result:'ok', pushingTx:false, result_object:{account_name:account_name}});
             console.log(' doCreateAccount() MONGO OK ',JSON.stringify(res2))

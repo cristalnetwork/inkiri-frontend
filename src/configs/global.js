@@ -25,6 +25,9 @@ const bank = {
   ACCOUNT_TYPE_FOUNDATION: 3,
   ACCOUNT_TYPE_BANKADMIN:  4,
   ACCOUNT_TYPES:           ['none', 'personal', 'business', 'foundation', 'bankadmin'],
+  // getAccountId : (account_string) =>{
+  //   return bank.ACCOUNT_TYPES.indexOf(account_string);
+  // },
   ACCOUNT_ICONS:           ['none', 'user', 'shop', 'home', 'bank'],
   listPermsByAccountType : () => {
    return {

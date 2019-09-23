@@ -291,18 +291,24 @@ export const createUser = (account_name) =>   new Promise((res,rej)=> {
 });
 
 
-export const createFullUser = (account_name, first_name, last_name, email, legal_id, birthday, phone, address) =>   new Promise((res,rej)=> {
-  
+
+// export const createFullUser = (account_name, first_name, last_name, email, legal_id, birthday, phone, address) =>   new Promise((res,rej)=> {
+
+export const createFullUser = (account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name) =>   new Promise((res,rej)=> {  
   const path    = globalCfg.api.end_point + '/users';
   const method  = 'POST';
+  const account_type_string = globalCfg.bank.getAccountType(account_type);
+  
   const post_params = {
-          account_name:  account_name
-          , email:       first_name
-          , last_name:   last_name
-          , legal_id:    legal_id
+          account_type:    account_type_string
+          , account_name:  account_name
+          , email:         first_name
+          , last_name:     last_name
+          , legal_id:      legal_id
           // , birthday:    birthday
-          , phone:       phone
-          , address:     address
+          , phone:         phone
+          , address:       address
+          , business_name: business_name
         };
   console.log(' inkiriApi::createUser >> ABOUT TO POST', JSON.stringify(post_params))
   jwtHelper.apiCall(path, method, post_params)
