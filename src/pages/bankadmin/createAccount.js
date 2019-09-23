@@ -289,6 +289,19 @@ class CreateAccount extends Component {
     callback();
   };
 
+  validateNumberGToEZ  = (rule, value, callback) => {
+    const amount = parseInt(value || 0, 10);
+    if (Number.isNaN(amount)) {
+      callback('Please type a valid number!');
+      return;
+    }
+    if(amount<0) {
+      callback('Please type a number greater than or equal zero!');
+      return;
+    }
+    callback();
+  }
+
   validateNumber  = (rule, value, callback) => {
     const amount = parseInt(value || 0, 10);
     if (Number.isNaN(amount)) {
@@ -413,7 +426,7 @@ class CreateAccount extends Component {
                     <Form.Item label="Fee">
                         {getFieldDecorator('account_fee', {
                           rules: [{ required: true, message: 'Please input fee!', whitespace: true },
-                          {validator: this.validateNumber}],
+                          {validator: this.validateNumberGToEZ}],
                           initialValue: account_fee
                         })(<Input  type="number"/>)}
                     </Form.Item>
@@ -424,7 +437,7 @@ class CreateAccount extends Component {
                       >
                         {getFieldDecorator('account_overdraft', {
                           rules: [{ required: true, message: 'Please input overdraft!', whitespace: true },
-                          {validator: this.validateNumber}],
+                          {validator: this.validateNumberGToEZ}],
                           initialValue: account_overdraft
                         })(<Input type="number" />)}
                       </Form.Item>
