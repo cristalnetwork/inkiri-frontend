@@ -29,6 +29,8 @@ import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography 
 
 // import './xxx.css'; 
 
+import {CopyToClipboard} from 'react-copy-to-clipboard';
+
 const { Option } = Select;
 const AutoCompleteOption = AutoComplete.Option;
 const { Paragraph, Text } = Typography;
@@ -152,7 +154,7 @@ class CreateAccount extends Component {
       if(current_step==0 && !account_name)
       {
         const my_account_name   = globalCfg.bank.isPersonalAccount(this.state.account_type) ? (values.last_name.trim() + values.first_name.trim()).toLowerCase() : (values.business_name.trim()).toLowerCase();
-        values['account_name']  = (my_account_name+'123451234512345').substring(0, 12);
+        values['account_name']  = (my_account_name.replace(/ /g, '')+'123451234512345').substring(0, 12);
       }
       this.setState(values);
       res(true);
@@ -612,8 +614,15 @@ class CreateAccount extends Component {
                   initialValue: confirm_password
                 })(<Input onBlur={this.handleConfirmBlur} />)}
               </Form.Item>
-              <Form.Item label="Generated keys" extra="PLEASE COPY PRIVATE KEY">
-                <Input readOnly addonAfter={<Icon type="key" />} value={generated_keys.wif} />
+              <h3 style={{paddingLeft: 50}}>KEYS GENERATED FROM PASSWORD</h3>
+              <Form.Item label="Private Key" extra="PLEASE COPY THIS PRIVATE KEY">
+                <Input readOnly addonAfter={
+                     <CopyToClipboard text={generated_keys.wif} onCopy={() => this.openNotificationWithIcon("success", "Key copied successfuly","") }>
+                       <Button type="link" icon="copy" />
+                    </CopyToClipboard>
+                } value={generated_keys.wif} />
+              </Form.Item>
+              <Form.Item label="Public key">
                 <Input readOnly addonAfter={<Icon type="global" />} value={generated_keys.pub_key}  />
               </Form.Item>
             </Form>
