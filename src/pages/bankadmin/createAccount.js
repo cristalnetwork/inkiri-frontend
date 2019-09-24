@@ -106,6 +106,9 @@ class CreateAccount extends Component {
                          pub_key:  'Generated Public Key',
                          seed:     ''} ,
 
+      // account_name_validating : false, 
+      // account_name_validated  : 0,
+
       account_type:     undefined,
       account_overdraft:0,
       account_fee:      0,
@@ -388,7 +391,7 @@ class CreateAccount extends Component {
       const {account_fee, account_overdraft, first_name, last_name, email, legal_id, birthday, phone, address} = this.state;  
       return(
         <>
-          <h3 style={{paddingLeft: 50}}>PROFILE SECTION</h3>
+          <h3 className="fileds_header">PROFILE SECTION</h3>
           <Form.Item
             label="Nome"
             >
@@ -479,7 +482,7 @@ class CreateAccount extends Component {
     {
       const {business_name} = this.state;
       return (<>
-          <h3 style={{paddingLeft: 50}}>PROFILE SECTION</h3>
+          <h3 className="fileds_header">PROFILE SECTION</h3>
           <Form.Item
             label="Nome do Negócio"
             >
@@ -506,7 +509,7 @@ class CreateAccount extends Component {
                 <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
                   <Form {...formItemLayout} onSubmit={this.handleSubmit}>
                     
-                    <h3 style={{paddingLeft: 50}}>ACCOUNT SECTION</h3>
+                    <h3 className="fileds_header">ACCOUNT SECTION</h3>
                     
                     <Form.Item label="Account Type">
                       {getFieldDecorator('account_type', {
@@ -548,7 +551,10 @@ class CreateAccount extends Component {
     }
     
     //
-
+    /*
+      , account_name_validating, account_name_validated
+      addonAfter={<Button type="link" icon="check" loading={account_name_validating} onClick={() => {this.validateAccountName()}} />}
+    */
     if(current_step==1)
     {  
       const {account_name, password, confirm_password, default_keys, generated_keys} = this.state;  
@@ -557,18 +563,10 @@ class CreateAccount extends Component {
           <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
             <Form {...formItemLayout} onSubmit={this.handleSubmitS1}>
               
-              <h3 style={{paddingLeft: 50}}>EOS ACCOUNT NAME SECTION</h3>
+              <h3 className="fileds_header">EOS ACCOUNT NAME SECTION</h3>
               <Form.Item
-                extra={<>Validate your account name if new at <a href={globalCfg.eosnode.create_account}  target="_blank">this validator</a> . </>}
-                label={
-                  <span>
-                    Account Name&nbsp;
-                    <Tooltip title="EOS Account names must be exactly 12 characters long and consist of lower case characters and digits up until 5.">
-                      <Icon type="question-circle-o" />
-                    </Tooltip>
-                  </span>
-                }
-              >
+                extra={<>EOS Account names must be exactly 12 characters long and consist of lower case characters and digits up until 5. <br/>Validate your account name if new at <a href={globalCfg.eosnode.create_account}  target="_blank">this validator</a> . </>}
+                label="Account name">
                 {getFieldDecorator('account_name', {
                   rules: [
                     { required: true, message: 'Please input your account name!', whitespace: true }
@@ -579,12 +577,11 @@ class CreateAccount extends Component {
                       }
                     ],
                   initialValue: account_name
-                })(<Input />)}
+                })(<Input  />)}
               </Form.Item>
               
               <Divider />
-              <h3 style={{paddingLeft: 50}}>NEW EOS ACCOUNT SECTION</h3>
-              <h3 style={{paddingLeft: 50}}>Fill following fields if you want to create a new EOS account</h3>
+              <h3 className="fileds_header">SECURITY</h3>
               
               <Form.Item label="Password" hasFeedback>
                 {getFieldDecorator('password', {
@@ -614,10 +611,10 @@ class CreateAccount extends Component {
                   initialValue: confirm_password
                 })(<Input onBlur={this.handleConfirmBlur} />)}
               </Form.Item>
-              <h3 style={{paddingLeft: 50}}>KEYS GENERATED FROM PASSWORD</h3>
-              <Form.Item label="Private Key" extra="PLEASE COPY THIS PRIVATE KEY">
+              <h3 className="fileds_header">KEYS GENERATED FROM PASSWORD</h3>
+              <Form.Item label="Private Key" extra="You can copy and keep this private key for security reasons.">
                 <Input readOnly addonAfter={
-                     <CopyToClipboard text={generated_keys.wif} onCopy={() => this.openNotificationWithIcon("success", "Key copied successfuly","") }>
+                    <CopyToClipboard text={generated_keys.wif} onCopy={() => this.openNotificationWithIcon("success", "Key copied successfuly","") }>
                        <Button type="link" icon="copy" />
                     </CopyToClipboard>
                 } value={generated_keys.wif} />

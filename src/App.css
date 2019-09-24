@@ -31,3 +31,9 @@
 .filter_form .ant-form-item-label{
   text-align: left!important;
 }
+
+/* form styling */
+h3.fileds_header{
+  padding-left: 50px;
+  margin-top:20px;
+}
