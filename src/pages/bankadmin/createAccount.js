@@ -25,12 +25,13 @@ import {
 } from 'antd';
 
 import { Divider, Steps, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
-import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { List, Skeleton, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
-// import './xxx.css'; 
+import { Modal } from 'antd';
 
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 
+const { confirm } = Modal;
 const { Option } = Select;
 const AutoCompleteOption = AutoComplete.Option;
 const { Paragraph, Text } = Typography;
@@ -92,7 +93,7 @@ class CreateAccount extends Component {
       
       confirmDirty:     false,
       
-      current_step:     0,
+      current_step:     2,
 
       account_name:     '',
       password:         '',
@@ -109,7 +110,7 @@ class CreateAccount extends Component {
       // account_name_validating : false, 
       // account_name_validated  : 0,
 
-      account_type:     undefined,
+      account_type:     2, //undefined,
       account_overdraft:0,
       account_fee:      0,
       first_name:       '',
@@ -119,24 +120,36 @@ class CreateAccount extends Component {
       birthday:         '1980/11/06',
       phone:            '',
       address:          { 
-                        street:  '', 
-                        city:    '', 
-                        state:   '', 
-                        zip:     '', 
-                        country: ''
-                      },
-      business_name     : ''
+                          street:  '', 
+                          city:    '', 
+                          state:   '', 
+                          zip:     '', 
+                          country: ''
+                        },
+      business_name:    '',
 
+      // PERMS
+      active_tab_key:  'owner',
+      new_perm_name:   '',
+      delete_permission:undefined,
+      adding_new_perm:  false,
+      permissions:      undefined
     };
 
-    this.handleSubmit              = this.handleSubmit.bind(this);
+    this.handleAddPermissionSubmit = this.handleAddPermissionSubmit.bind(this);
     
     this.resetPage                 = this.resetPage.bind(this); 
     this.openNotificationWithIcon  = this.openNotificationWithIcon.bind(this); 
     this.generateKeys              = this.generateKeys.bind(this); 
     this.genAccountName            = this.genAccountName.bind(this); 
     this.doCreateAccount           = this.doCreateAccount.bind(this); 
+    this.confirmCreateAccount      = this.confirmCreateAccount.bind(this); 
     this.handleAccountTypeChange   = this.handleAccountTypeChange.bind(this);
+    
+    this.onNewPermission            = this.onNewPermission.bind(this);
+    this.onCancelNewPermission      = this.onCancelNewPermission.bind(this);
+    this.onDeletePermission         = this.onDeletePermission.bind(this);
+
   }
 
   validateStep = () => new Promise((res, rej) => {
@@ -179,8 +192,30 @@ class CreateAccount extends Component {
     this.setState({ current_step });
   }
 
+  getAccountDescription = () => {
+    const { business_name, account_name, password, confirm_password, generated_keys, account_type, account_overdraft, account_fee, first_name, last_name, email, legal_id, birthday, phone, address} = this.state; 
+    const complete_name = (globalCfg.bank.isPersonalAccount(account_type))?`${first_name} ${last_name}`:business_name
+    const type_desc     = utils.capitalize(globalCfg.bank.getAccountType(account_type));
+    const _fee          = globalCfg.currency.toCurrencyString(account_fee);
+    const _overdraft    = globalCfg.currency.toCurrencyString(account_overdraft)
+    return (<span>Please confirm creation of a <b>{type_desc} Account</b>. <br/>Account name: <b>{account_name}</b>.<br/> Name: <b>{complete_name}</b>.<br/> Fee: {_fee}.<br/> Overdraft: {_overdraft}.</span>);
+  }
+
+
+  confirmCreateAccount = () => {
+
+    const modal_content = this.getAccountDescription();
+    confirm({
+      title: 'Create Account',
+      content: modal_content,
+      onOk() {
+        this.doCreateAccount();
+      },
+      onCancel() {},
+    });
+  }
+
   doCreateAccount(){
-    
     console.log(' FINALLY createAccount!!!')
     const {business_name, account_name, password, confirm_password, generated_keys, account_type, account_overdraft, account_fee, first_name, last_name, email, legal_id, birthday, phone, address} = this.state;
     const that             = this;
@@ -212,7 +247,60 @@ class CreateAccount extends Component {
     
   }
 
-  // Fields Events
+  // Events
+  componentDidMount(){
+    this.loadDemoData();
+  }
+
+  handleAddPermissionSubmit = e => {
+
+    e.preventDefault();
+    this.props.form.validateFields((err, values) => {
+      if (err) {
+        //
+        return;
+      }
+      const {new_perm_name} = this.state;
+      console.log(' >> addPermission ?? >>', JSON.stringify(values), ' | new_perm_name >> ', new_perm_name)
+      let my_permissions = this.state.permissions;
+      if(!my_permissions)
+        my_permissions={};
+      if(!my_permissions[new_perm_name])
+        my_permissions[new_perm_name]=[];
+      if(my_permissions[new_perm_name].indexOf(values.permissioned)>-1)
+      {
+        this.openNotificationWithIcon("warning", "Account already added to authorized list","")  
+        return;
+      }
+      my_permissions[new_perm_name].push(values.permissioned)
+      this.setState({permissions:my_permissions, adding_new_perm:false})
+      this.openNotificationWithIcon("success", "Account added to authorized list","")
+    });
+    
+  };
+
+  onTabChange = (tabKey) => {
+    this.setState({
+      active_tab_key: tabKey,
+    });
+  }
+
+  onNewPermission(perm_name){
+    this.setState({adding_new_perm:true, new_perm_name:perm_name})
+  }
+
+  onDeletePermission(perm_name, actor){
+    let my_permissions = this.state.permissions;
+    const idx_to_rm = my_permissions[perm_name].indexOf(actor)
+    my_permissions[perm_name].splice(idx_to_rm, 1);
+    this.setState({permissions:my_permissions})
+  }
+  onCancelNewPermission(){
+    // this.setState({result:'', new_perm_name:''})
+    this.setState({adding_new_perm:false, new_perm_name:''})
+  }
+
+
   handleAccountTypeChange(value){
     // console.log(value)
     this.setState({account_type:value});
@@ -325,13 +413,7 @@ class CreateAccount extends Component {
   //     return;
   //   }
   // };
-    
-
-  handleSubmit = e => {
-    if(e)
-      e.preventDefault();
-  };
-
+  
   backToDashboard = async () => {
     this.props.history.push({
       pathname: `/${this.props.actualRole}/extrato`
@@ -354,8 +436,8 @@ class CreateAccount extends Component {
                          seed:     ''} ,
 
       account_type:     undefined,
-      account_overdraft:500,
-      account_fee:      5,
+      account_overdraft:0,
+      account_fee:      0,
       
       first_name:       '',
       last_name:        '',
@@ -364,13 +446,14 @@ class CreateAccount extends Component {
       birthday:         '1980/11/06',
       phone:            '',
       address:          { 
-                        street:  '', 
-                        city:    '', 
-                        state:   '', 
-                        zip:     '', 
-                        country: ''
-                      },
-    business_name     : ''
+                          street:  '', 
+                          city:    '', 
+                          state:   '', 
+                          zip:     '', 
+                          country: ''
+                        },
+      business_name:    '',
+      permissions:      undefined
     };
     if(full)
       this.setState({...default_state, result: undefined, result_object: undefined, error: {}});
@@ -495,6 +578,46 @@ class CreateAccount extends Component {
     }
   }
   //
+  
+  loadDemoData = () => {
+    const default_state = {
+      account_name:     'qwertyasdfg1',
+      password:         '1234',
+      confirm_password: '1234',
+      default_keys:     {  
+                         wif:      'Generated Private Key',
+                         pub_key:  'Generated Public Key',
+                         seed:     ''}, 
+      generated_keys:   {
+                         wif:      'Generated Private Key',
+                         pub_key:  'Generated Public Key',
+                         seed:     ''} ,
+
+      account_type:     2,
+      account_overdraft:500,
+      account_fee:      5,
+      
+      first_name:       '',
+      last_name:        '',
+      email:            '',
+      legal_id:         '',
+      birthday:         '1980/11/06',
+      phone:            '',
+      address:          { 
+                          street:  '', 
+                          city:    '', 
+                          state:   '', 
+                          zip:     '', 
+                          country: ''
+                        },
+      business_name:    'Alto Rendimiento LTD',
+      permissions:      undefined
+    };
+    
+    this.setState({...default_state});
+    
+  }
+
   renderStep(current_step){
     const { getFieldDecorator } = this.props.form;
     
@@ -628,70 +751,208 @@ class CreateAccount extends Component {
       );
     }
     
-    //
-    if(current_step==2){
+    const {adding_new_perm} = this.state;
+
+    if(current_step==2 && !adding_new_perm){
+      const {account_type} = this.state;  
       const permConf = globalCfg.bank.listPermsByAccountType();
-      const xx = this.renderAllPerms(permConf[globalCfg.bank.ACCOUNT_TYPE_PERSONAL]);
+      // const xx = this.renderAllPerms(permConf[globalCfg.bank.ACCOUNT_TYPE_PERSONAL]);
+      const xx = this.renderAllPerms(permConf[account_type]);
       content = (xx);
     }
     
-    //
-    return (
-      <>
+    if(current_step==2 && adding_new_perm)
+    {
+      const {active_tab_key} = this.state;
+      const account_name = 'inkirimaster';
+      content = (
         <Card 
-          title={(<span><strong>{steps[current_step].title} </strong> </span> )}
-          key={'new_perm'}
-          style = { { marginBottom: 24, marginTop: 24 } } 
-          loading={this.state.pushingTx}
+          title={(<span>New Permission for <strong>{utils.capitalize(active_tab_key)} </strong> </span> )}
+          key={'_new_perm'}
+          style = { { marginBottom: 24 } } 
+          extra = {<Button key="_new_perm_cancel" icon="close" onClick={() => this.onCancelNewPermission()}> Cancel</Button>}
           >
-          {content}
-        </Card>
-        <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24}}>
-          <div className="steps-action">
-            {current_step > 0 && (
-              <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>
-                Previous
-              </Button>
-            )}
-            {current_step < steps.length - 1 && (
-              <Button type="primary" onClick={() => this.next()}>
-                Next
-              </Button>
-            )}
-            {current_step === steps.length - 1 && (
-              <Button type="primary" onClick={() => this.doCreateAccount()} disabled={this.state.pushingTx}>
-                Done
-              </Button>
-            )}
+          <div style={{ margin: '0 auto', width:'100%', padding: 24, background: '#fff'}}>
+
+            <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+              <Form onSubmit={this.handleAddPermissionSubmit}>
+                  
+                <Form.Item style={{minHeight:60, marginBottom:12}}>
+                  {getFieldDecorator('permissioned', {
+                    rules: [{ required: true, message: 'Please input account name!' }]
+                  })(
+                    <AutoComplete
+                      size="large"
+                      dataSource={this.props.accounts.filter(acc=>acc.key!=account_name).map(acc=>acc.key)}
+                      style={{ width: '100%' }}
+                      onSelect={this.onSelect}
+                      placeholder=""
+                      filterOption={true}
+                      className="extra-large"
+                    >
+                      <Input suffix={<Icon type="user" style={{fontSize:20}} className="default-icon" />} />
+                    </AutoComplete>
+                     
+                  )}
+                </Form.Item>
+
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" className="login-form-button">
+                    Authorize
+                  </Button>
+                  
+                </Form.Item>
+              </Form>
+            </Spin>
+          
           </div>
-        </div>
-      </>);
+        </Card>
+      ); 
+    }
+
+    return (
+        <>
+          <Card 
+            title={(<span><strong>{steps[current_step].title} </strong> </span> )}
+            key={'new_perm'}
+            style = { { marginBottom: 24, marginTop: 24 } } 
+            loading={this.state.pushingTx}
+            >
+            {content}
+          </Card>
+          <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24}}>
+            <div className="steps-action">
+              {current_step > 0 && (
+                <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>
+                  Previous
+                </Button>
+              )}
+              {current_step < steps.length - 1 && (
+                <Button type="primary" onClick={() => this.next()}>
+                  Next
+                </Button>
+              )}
+              {current_step === steps.length - 1 && (
+                <Button type="primary" onClick={() => this.confirmCreateAccount()} disabled={this.state.pushingTx} disabled={this.state.adding_new_perm}>
+                  Create Account
+                </Button>
+              )}
+            </div>
+          </div>
+        </>);
+    
   }
   
+  getPermissionsCount = (perm_name) => {
+    const {permissions} = this.state;
+    return (permissions && permissions[perm_name])?permissions[perm_name].length:0;
+  }
+
   renderAllPerms(perms) {
+    const {active_tab_key} = this.state;
     return (
       <Card 
         key={'card_master'}
         style = { { marginBottom: 24 } } 
-        extra = {<Button key="_new_perm" size="small" icon="plus" disabled> Authorize account</Button>}
+        extra = {<Button key="_new_perm" size="small" icon="plus" onClick={() => this.onNewPermission(active_tab_key)}> Authorize account</Button>}
         tabList={perms.map(perm=>{
           return {key: perm
                   , tab: (
-                    <span>{utils.capitalize(perm)}</span>
+                    <span>{utils.capitalize(perm)} ({this.getPermissionsCount(perm)})</span>
                   )}
   
         })}
-        activeTabKey="owner"
+        activeTabKey={active_tab_key}
+        onTabChange={this.onTabChange}
         >
         <div style={{ margin: '0 auto', width:'100%', padding: 24, background: '#fff'}}>
-          
+          {this.renderPermContent(active_tab_key)}
         </div>
       </Card>
     );
   }
   //
 
-  
+  renderPermContent(perm_name) {
+    
+    const { permissions } = this.state;
+    let list = [];
+    if(permissions && permissions[perm_name] && permissions[perm_name].length>0)
+      list = permissions[perm_name];
+    
+    return (
+          
+          <List
+            itemLayout="horizontal"
+            dataSource={list}
+            renderItem={item => (
+              <List.Item
+                actions={[<a  key={"delete-"+perm_name+item} 
+                              onClick={() => this.onDeletePermission(perm_name, item )}
+                            >DELETE</a>]}
+              >
+                <Skeleton avatar title={false} loading={item.loading} active>
+                  <List.Item.Meta
+                    avatar={
+                      <span className="ant-avatar"><Icon style={{fontSize:24, color: 'rgba(0, 0, 0, 0.65)' }} type="key" /> </span>
+                    }
+                    title={<a href="#">{item}</a>}
+                    description={'@'+perm_name}
+                  />
+                  <div></div>
+                </Skeleton>
+              </List.Item>
+            )}
+          />
+    
+    );
+  }
+
+  renderPerm(perm_name) {
+    if(!this.state.eos_account)
+      return(null);
+
+    const { eos_account, loading } = this.state;
+    let perm = eos_account.permissions.filter( perm => perm.perm_name==perm_name )
+    let list = [];
+    if(perm && perm.length>0)
+      list = perm[0].required_auth.accounts.filter(acc => acc.permission.actor.trim()!=eos_account.account_name.trim());
+    //<Icon type="user" />
+    // console.log(' >> reduced perm_name >> ', perm_name,JSON.stringify(list))
+    return (
+      <Card 
+        key={'card_'+perm_name}
+        title = { utils.capitalize(perm_name) + " Permissions" }  
+        style = { { marginBottom: 24 } } 
+        extra = {<a key={'new_'+perm_name} href="#">+ New</a>}
+        >
+        <div style={{ margin: '0 auto', width:'100%', padding: 24, background: '#fff'}}>
+          
+          <List
+            loading={loading}
+            itemLayout="horizontal"
+            dataSource={list}
+            renderItem={item => (
+              <List.Item
+                actions={[<a key={"delete-"+item.permission.actor+item.permission.permission}>DELETE</a>]}
+              >
+                <Skeleton avatar title={false} loading={item.loading} active>
+                  <List.Item.Meta
+                    avatar={
+                      <span className="ant-avatar"><Icon style={{fontSize:24, color: 'rgba(0, 0, 0, 0.65)' }} type="key" /> </span>
+                    }
+                    title={<a href="#">{item.permission.actor}</a>}
+                    description={'@'+item.permission.permission}
+                  />
+                  <div></div>
+                </Skeleton>
+              </List.Item>
+            )}
+          />
+        </div>
+      </Card>
+    );
+  }
   //
   renderResult() {
   
