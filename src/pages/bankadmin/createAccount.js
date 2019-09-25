@@ -502,7 +502,7 @@ class CreateAccount extends Component {
             label="Nome"
             >
               {getFieldDecorator('first_name', {
-                rules: [{ required: true, message: 'Please input your name!', whitespace: true }],
+                rules: [{ required: true, message: 'Please input first name!', whitespace: true }],
                 initialValue: first_name
               })(<Input />)}
             </Form.Item>
@@ -511,7 +511,7 @@ class CreateAccount extends Component {
               label="Sobrenome"
             >
               {getFieldDecorator('last_name', {
-                rules: [{ required: true, message: 'Please input your name!', whitespace: true }],
+                rules: [{ required: true, message: 'Please input last name!', whitespace: true }],
                 initialValue: last_name
               })(<Input />)}
             </Form.Item>
@@ -524,7 +524,7 @@ class CreateAccount extends Component {
                   },
                   {
                     required: true,
-                    message: 'Please input your E-mail!',
+                    message: 'Please input E-mail!',
                   },
                 ],
                 initialValue: email
@@ -532,19 +532,19 @@ class CreateAccount extends Component {
             </Form.Item>
             <Form.Item label="CPF">
               {getFieldDecorator('legal_id', {
-                rules: [{ required: true, message: 'Please input your CPF!' }],
+                rules: [{ required: true, message: 'Please input CPF!' }],
                 initialValue: legal_id
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
             <Form.Item label="Birthday">
               {getFieldDecorator('birthday', {
-                rules: [{ required: true, message: 'Please input your birthday!' }],
+                rules: [{ required: true, message: 'Please input birthday!' }],
                 initialValue: moment(birthday, dateFormat)
               })( <DatePicker format={dateFormat} style={{ width: '100%' }} />)}
             </Form.Item>
             <Form.Item label="Phone Number">
               {getFieldDecorator('phone', {
-                rules: [{ required: true, message: 'Please input your phone number!' }],
+                rules: [{ required: true, message: 'Please input phone number!' }],
                 initialValue: phone
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
@@ -711,11 +711,11 @@ class CreateAccount extends Component {
               
               <h3 className="fileds_header">EOS ACCOUNT NAME SECTION</h3>
               <Form.Item
-                extra={<>EOS Account names must be exactly 12 characters long and consist of lower case characters and digits up until 5. <br/>Validate your account name if new at <a href={globalCfg.eosnode.create_account}  target="_blank">this validator</a> . </>}
+                extra={<>EOS Account names must be exactly 12 characters long and consist of lower case characters and digits up until 5. <br/>Validate account name if new at <a href={globalCfg.eosnode.create_account}  target="_blank">this validator</a> . </>}
                 label="Account name">
                 {getFieldDecorator('account_name', {
                   rules: [
-                    { required: true, message: 'Please input your account name!', whitespace: true }
+                    { required: true, message: 'Please input account name!', whitespace: true }
                      , { max: 12, message: '12 characters max' }
                      , { min: 12, message: '12 characters min' }
                      , {
@@ -734,7 +734,7 @@ class CreateAccount extends Component {
                   rules: [
                     {
                       required: true,
-                      message: 'Please input your password!',
+                      message: 'Please input password!',
                     },
                     {
                       validator: this.validateToNextPassword,
@@ -748,7 +748,7 @@ class CreateAccount extends Component {
                   rules: [
                     {
                       required: true,
-                      message: 'Please confirm your password!',
+                      message: 'Please confirm password!',
                     },
                     {
                       validator: this.compareToFirstPassword,
@@ -879,7 +879,7 @@ class CreateAccount extends Component {
         key={'card_master'}
         style = { { marginBottom: 24 } } 
         extra = {<Button key="_new_perm" size="small" icon="plus" onClick={() => this.onNewPermission(active_tab_key)}> Authorize account</Button>}
-        tabList={perms.map(perm=>{
+        tabList={perms.filter(perm => {return perm=='owner';}).map(perm=>{
           return {key: perm
                   , tab: (
                     <span>{utils.capitalize(perm)} ({this.getPermissionsCount(perm)})</span>

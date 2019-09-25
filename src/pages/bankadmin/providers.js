@@ -33,7 +33,7 @@ const RadioGroup = Radio.Group;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
-const routes = routesService.breadcrumbForFile('accounts');
+const routes = routesService.breadcrumbForFile('providers');
 
 
 class Providers extends Component {
@@ -41,7 +41,7 @@ class Providers extends Component {
     super(props);
     this.state = {
       loading:        false,
-      accounts:       [],
+      providers:      [],
       
       page:           -1, 
       limit:          globalCfg.api.default_page_size,
@@ -51,7 +51,7 @@ class Providers extends Component {
       // active_tab:     DISPLAY_ALL_TXS
     };
 
-    this.loadAccounts               = this.loadAccounts.bind(this);  
+    this.loadProviders               = this.loadProviders.bind(this);  
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderFooter               = this.renderFooter.bind(this); 
     this.onNewData                  = this.onNewData.bind(this);
@@ -59,7 +59,7 @@ class Providers extends Component {
     // this.onTableChange              = this.onTableChange.bind(this);
     this.onButtonClick              = this.onButtonClick.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
-    this.onNewAccount               = this.onNewAccount.bind(this); 
+    this.onNewProvider               = this.onNewProvider.bind(this); 
     this.renderAccountTypeFilter    = this.renderAccountTypeFilter.bind(this);
     this.renderAccountStateFilter   = this.renderAccountStateFilter.bind(this);
     this.renderFilterContent        = this.renderFilterContent.bind(this);
@@ -68,70 +68,55 @@ class Providers extends Component {
   getColumns(){
     return [
               {
-                title: 'Full Name',
-                dataIndex: 'key',
-                key: 'fullname',
+                title: 'Name',
+                dataIndex: 'name',
+                key: 'name',
                 sortDirections: ['descend'],
                 defaultSortOrder: 'descend',
                 // sorter: (a, b) => a.block_time_number - b.block_time_number,
               },
               {
-                title: 'Account name',
-                dataIndex: 'key',
-                key: 'key'
+                title: 'CNPJ',
+                dataIndex: 'cnpj',
+                key: 'cnpj'
               },
               //
               {
-                title: 'Type',
-                dataIndex: 'account_type',
-                key: 'account_type',
-                render: (account_type, record) => (
+                title: 'Email',
+                dataIndex: 'email',
+                key: 'email'
+              },
+              {
+                title: 'Address',
+                dataIndex: 'address',
+                key: 'address',
+                render: (address, record) => (
                   <span>
-                   
-                   <Tag key={record.key+account_type}>
-                     <Icon type={globalCfg.bank.ACCOUNT_ICONS[account_type]} />
-                      &nbsp;{globalCfg.bank.getAccountType(account_type).toUpperCase()}
-                   </Tag>
+                   {address.street}, {address.city}, CP {address.zip}, {address.state}, {address.country} <br/>
+                   {record.phone}
                   </span>
                   )
               },
               {
-                title: 'State',
-                dataIndex: 'state',
-                key: 'state',
-                render: (state, record) => (
-                  <span>
-                   <Tag key={record.key+state}>
-                        { globalCfg.bank.getAccountState(state).toUpperCase() }
-                   </Tag>
-                  </span>
-                  )
-              },
-              {
-                title: 'Tags',
-                key: 'fee',
-                dataIndex: 'fee',
-                render: (fee, record) => (
-                  <span>
-                   <Tag color={'geekblue'} key={record.key+fee}>
-                          fee: {globalCfg.currency.toCurrencyString(fee)}
-                   </Tag>
-                   <Tag color={'geekblue'} key={record.key+record.overdraft}>
-                          overdraft: {globalCfg.currency.toCurrencyString(record.overdraft)}
-                   </Tag>
-                  </span>
-                  )
+                title: 'Category',
+                key: 'category',
+                dataIndex: 'category',
               },
               //
               {
-                title: 'Balance',
-                dataIndex: 'balance',
-                key: 'balance',
-                align: 'right',
-                render: (balance, record) => (
-                  <span>
-                    {globalCfg.currency.toCurrencyString(balance)}
-                  </span>
+                title: 'Products/Services',
+                dataIndex: 'products_services',
+                key: 'products_services',
+                
+              },
+              {
+                title: 'Bank Accounts',
+                dataIndex: 'bank_accounts',
+                key: 'bank_accounts',
+                render: (bank_accounts, record) => (
+                  <>
+                    {bank_accounts.map(bank_account => <span>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</span>)} 
+                  </>
                   )
               },
               //
@@ -151,12 +136,12 @@ class Providers extends Component {
   }
 
   componentDidMount(){
-    this.loadAccounts();  
+    this.loadProviders();  
   } 
 
-  onNewAccount = () => {
+  onNewProvider = () => {
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/create-account`
+      pathname: `/${this.props.actualRole}/create-provider`
     })
   }
 
@@ -178,7 +163,7 @@ class Providers extends Component {
   }
 
 
-  loadAccounts = async () => {
+  loadProviders = async () => {
 
     let can_get_more   = this.state.can_get_more;
     if(!can_get_more)
@@ -195,51 +180,34 @@ class Providers extends Component {
     let that           = this;
     
     //api.bank.listRequests(page, limit, req_type, account_name)
-    api.listBankAccounts()
+    api.bank.listProviders()
     .then( (res) => {
 
-        console.log(' >> api.listBankAccounts >>', JSON.stringify(res.data))
-
-        api.dfuse.getAccountsBalances(res.data.accounts.map(acc=>acc.key))
-          .then( (balances) => {
-            console.log(' >> balances >> ', balances)
-            const _balances = _.reduce(balances, function(result, value, key) {
-                result[value.account] = value.balance;
-                return result;
-              }, {});
-            const _data = res.data.accounts.map(acc => {return{...acc, balance:_balances[acc.key] }})
-            console.log(JSON.stringify(_data))
-            // that.onNewData(res.data);
-            that.onNewData({accounts:_data, more:res.data.more});
-          } ,(ex2) => {
-            console.log(' dfuse.getAccountsBalances ERROR#2', JSON.stringify(ex2) )
-            that.setState({loading:false});  
-          });      
+        console.log(' >> api.bank.listProviders >>', JSON.stringify(res.data))
+        that.onNewData({providers:res});
         
-
       } ,(ex) => {
-        console.log(' dfuse.getAccountsBalances ERROR#1', JSON.stringify(ex) )
+        console.log(' api.bank.listProviders ERROR#1', JSON.stringify(ex) )
         that.setState({loading:false});  
       } 
     );
     
   }
 
-  onNewData(data){
+  onNewData(providers){
     
-
-    const _accounts       = [...this.state.accounts, ...data.accounts];
+    const _providers      = [...this.state.providers, ...providers];
     const pagination      = {...this.state.pagination};
-    pagination.pageSize   = _accounts.length;
-    pagination.total      = _accounts.length;
+    pagination.pageSize   = _providers.length;
+    pagination.total      = _providers.length;
 
-    const has_received_new_data = (data.accounts && data.accounts.length>0);
+    const has_received_new_data = (providers && providers.length>0);
 
-    this.setState({pagination:pagination, accounts:_accounts, can_get_more:data.more, loading:false})
+    this.setState({pagination:pagination, providers:_providers, can_get_more:(has_received_new_data && providers.length==this.state.limit), loading:false})
 
     if(!has_received_new_data)
     {
-      this.openNotificationWithIcon("info", "End of accounts","You have reached the end of account list!")
+      this.openNotificationWithIcon("info", "End of transactions","You have reached the end of transaction list!")
     }
     else
       this.computeStats();
@@ -247,6 +215,9 @@ class Providers extends Component {
 
   
   computeStats(){
+    
+    return;
+
     let stats      = this.state.stats;
     const accounts = this.state.accounts;
     if(!accounts)
@@ -255,12 +226,6 @@ class Providers extends Component {
       return;
     }
 
-    // const deposits      = accounts.filter( tx => globalCfg.api.isDeposit(tx))
-    //                 .map(tx =>tx.quantity)
-    //                 .reduce((acc, amount) => acc + Number(amount), 0);
-    // const withdraws     = accounts.filter( tx => globalCfg.api.isWithdraw(tx))
-    //                 .map(tx =>tx.quantity)
-    //                 .reduce((acc, amount) => acc + Number(amount), 0);
     
     const admin    = accounts.filter( acc => globalCfg.bank.isAdminAccount(acc))
                     .reduce((acc, amount) => acc + 1, 0);
@@ -310,7 +275,7 @@ class Providers extends Component {
 
   
   renderFooter(){
-    return (<Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadAccounts()}>More!!</Button>)
+    return (<Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadProviders()}>More!!</Button>)
   }
 
   //
@@ -376,7 +341,7 @@ class Providers extends Component {
   
   render() {
     //
-    const filters = this.renderFilterContent();
+    const filters = (<></>); //this.renderFilterContent();
     const content = this.renderUMIContent();
     const _href   = globalCfg.bank.customers;
     return (
@@ -384,12 +349,12 @@ class Providers extends Component {
         <PageHeader
           extra={[
             <Button type="link" href={_href} target="_blank" key="view-on-blockchain_" icon="cloud" >View Accounts on Blockchain</Button>,
-            <Button key="_new_account" icon="plus" onClick={()=>{this.onNewAccount()}}> Account</Button>,
+            <Button key="_new_account" icon="plus" onClick={()=>{this.onNewProvider()}}> Provider</Button>,
             
           ]}
           breadcrumb={{ routes }}
-          title="Accounts"
-          subTitle="Bank Accounts Administration"
+          title="Providers"
+          subTitle="Providers Administration"
         >
           
         </PageHeader>
@@ -402,10 +367,10 @@ class Providers extends Component {
 //
 
   renderUMIContent(){
+    
+
     const {total, pending, negative_balance, personal, business, admin, foundation} = this.currentStats();  
-    return  (<>
-      <div className="styles standardList" style={{ marginTop: 24 }}>
-        <Card bordered={false}>
+    const stats = (<Card bordered={false}>
           <Row>
             <Col xs={24} sm={12} md={6} lg={6} xl={6}>
                <Statistic title="" value="STATS" />
@@ -456,12 +421,14 @@ class Providers extends Component {
               />
             </Col>
           </Row>
-        </Card>
-
+        </Card>);
+    //
+    return  (<>
+      <div className="styles standardList" style={{ marginTop: 24 }}>
         <Card
           className="styles listCard"
           bordered={false}
-          title="List of Accounts"
+          title="List of Providers"
           style={{ marginTop: 24 }}
         >
           

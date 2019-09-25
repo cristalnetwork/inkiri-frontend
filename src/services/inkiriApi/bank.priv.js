@@ -320,3 +320,23 @@ export const createFullUser = (account_type, account_name, first_name, last_name
         rej(ex);
       });
 });
+
+export const listProviders = (page, limit) =>   new Promise((res,rej)=> {
+  
+  // console.log(' BANKAPI::LIST MY REQUESTS>> account_name:', account_name, '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
+  const path    = globalCfg.api.end_point + '/providers';
+  const method  = 'GET';
+  let query     = '?page='+(page|0); 
+  query=query+'&limit='+(limit|10);
+  // if(account_name!== undefined)
+  //   query=query+'&from='+account_name;
+  // if(request_type!== undefined)
+  //   query=query+'&requested_type='+request_type;
+
+  jwtHelper.apiCall(path+query, method)
+    .then((data) => {
+        res(data)
+      }, (ex) => {
+        rej(ex);
+      });
+});
