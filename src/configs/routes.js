@@ -35,16 +35,18 @@ export const pathNames = utils.arrToObj([
     'bankadminSalaries',
     'bankadminCrew',
 
-    // 'businessExtracto',
-    // 'businessDeposit',
-    // 'businessWithdraw',
-    // 'businessSales',
-    // 'businessPaymentsAndServices',
+    'businessExtracto',
+    'businessDeposit',
+    'businessWithdraw',
+    'businessPDA',
+    'businessPreAuthSales',
+    'businessSendMoney',
+    'businessPaymentsAndServices',
+    'businessProvidersPayments',
+    'businessSalaries',
+    'businessCrew',
+    'businessConfiguration',
     
-    // 'businessSendMoney',
-    // 'businessPaymentsAndServices',
-
-
     'dashboard'
 ])
 

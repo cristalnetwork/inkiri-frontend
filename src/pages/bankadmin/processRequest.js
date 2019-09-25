@@ -219,7 +219,7 @@ class processRequest extends Component {
 
   backToDashboard = async () => {
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/extrato`
+      pathname: `/${this.props.actualRole}/dashboard`
     })
   }
 
