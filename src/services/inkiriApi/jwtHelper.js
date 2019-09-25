@@ -60,7 +60,6 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
   if(!path.startsWith(globalCfg.dfuse.base_url) )
     _key = BANK_AUTH_TOKEN_KEY;
   bearer_token = getBearerToken(getTokenIfNotExpired(_key));
-
   let fetchOptions = {
     method: method || "GET",
     headers: {
@@ -91,7 +90,12 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
         else
         if(data && data.error)
         {
-          rej (data);
+          rej (data.error);
+        }
+        else
+        if(data && data.errors)
+        {
+          rej (data.errors[0]);
         }
         else
           res(data);

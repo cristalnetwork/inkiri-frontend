@@ -46,7 +46,7 @@ function* loadLoginData() {
 function* tryLoginSaga({ type, payload }) {
 
   const { account_name, password, remember} = payload
-  console.log(' LOGIN REDUX >> tryLoginSaga >> ', account_name, password, remember)
+  // console.log(' LOGIN REDUX >> tryLoginSaga >> ', account_name, password, remember)
   try {
     // LLAMO A inkiriAPI.login
     const accounts = yield api.login(account_name, password);

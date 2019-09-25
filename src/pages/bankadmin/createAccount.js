@@ -346,7 +346,7 @@ class CreateAccount extends Component {
       this.setState({generated_keys:default_keys})
       return;
     }
-    const seed = globalCfg.eosnode.generateSeed(do_generate);
+    const seed = globalCfg.eos.generateSeed(do_generate);
     const keys = api.eosHelper.seedPrivate(seed);
     const that = this;
     api.dfuse.getKeyAccounts(keys.pub_key)
@@ -711,7 +711,7 @@ class CreateAccount extends Component {
               
               <h3 className="fileds_header">EOS ACCOUNT NAME SECTION</h3>
               <Form.Item
-                extra={<>EOS Account names must be exactly 12 characters long and consist of lower case characters and digits up until 5. <br/>Validate account name if new at <a href={globalCfg.eosnode.create_account}  target="_blank">this validator</a> . </>}
+                extra={<>EOS Account names must be exactly 12 characters long and consist of lower case characters and digits up until 5. <br/>Validate account name if new at <a href={globalCfg.eos.create_account}  target="_blank">this validator</a> . </>}
                 label="Account name">
                 {getFieldDecorator('account_name', {
                   rules: [

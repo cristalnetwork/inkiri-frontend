@@ -26,7 +26,7 @@ function prettyJson(input){
 }
 
 const listAllBankAccounts = async () => { 
-  const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
+  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
   // const response  = await jsonRpc.get_account(account_name)
   const response = await jsonRpc.get_table_rows({
     json:           true                 
@@ -48,7 +48,7 @@ const listAllBankAccounts = async () => {
 }
 
 export const findBankAccount = async (account_name) => { 
-  const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
+  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
   const response = await jsonRpc.get_table_rows({
     json:           true                 
     , code:         globalCfg.bank.issuer
@@ -77,16 +77,18 @@ export const isBankCustomer = async (account_name) => {
 }
 
 export const getAccount = async (account_name) => { 
-  const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
+  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
   const response  = await jsonRpc.get_account(account_name)
   return {data:response}
 }
 
-// const getKeyAccounts = async (publicKey) => { 
-//   const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
-//   const response  = await jsonRpc.history_get_key_accounts(publicKey);
-//   return {data:response}
-// }
+const getKeyAccounts = async (publicKey) => { 
+  // const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint);
+  const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url);
+  const response  = await jsonRpc.history_get_key_accounts(publicKey);
+  console.log(' ########## getKeyAccounts:', JSON.stringify(response));
+  return {data:response}
+}
 
 // const getControlledAccounts = async (controllingAccount) => { 
 //   const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
@@ -571,7 +573,8 @@ const getPermissionedAccountsForAccount = (account_name) => new Promise((res, re
     },
     (error)=>{
       console.log('inkiriApi::getPermissionedAccountsForAccount ERROR >> ', error) 
-      throw new Error(JSON.stringigy(error)) 
+      // throw new Error(JSON.stringify(error)) 
+      rej(error);
     }
   )
 })
@@ -583,7 +586,8 @@ export const login = async (account_name, private_key) => {
   
   // 2.- Obtengo las controlling accounts.
   const key_accounts = await dfuse.getKeyAccounts(pubkey);
-  
+  // const key_accounts = await getKeyAccounts(pubkey);
+
   // 3.- Valido que account_name en array de cuentas de la publica.
   if(key_accounts.indexOf(account_name)<0)
   {
@@ -633,10 +637,19 @@ export const login = async (account_name, private_key) => {
         }
   };
 
-  let persmissionedAccounts = await getPermissionedAccountsForAccount(account_name);
+  let persmissionedAccounts = [];
+  try{
+    persmissionedAccounts = await getPermissionedAccountsForAccount(account_name);
+  } 
+  catch(ex)
+  {
+    persmissionedAccounts = [];
+  } 
+
   let corporateAccounts     = persmissionedAccounts.filter(perm => globalCfg.bank.isBusinessAccount(perm.permissioner.account_type))
   let adminAccount          = persmissionedAccounts.filter(perm => globalCfg.bank.isAdminAccount(perm.permissioner.account_type))
   let personalAccounts      = persmissionedAccounts.filter(perm => perm.permissioner.account_name!==account_name && globalCfg.bank.isPersonalAccount(perm.permissioner.account_type))
+  
   // // HACK
   // if(account_name==globalCfg.bank.issuer)
   // {

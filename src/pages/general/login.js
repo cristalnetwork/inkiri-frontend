@@ -29,7 +29,7 @@ class Login extends Component {
         let password = values.password;
         if(!api.eosHelper.isValidPrivate(password))
         {
-          const seed = globalCfg.eosnode.generateSeed(password);
+          const seed = globalCfg.eos.generateSeed(password);
           password = api.eosHelper.seedPrivate(seed).wif;
         }  
 

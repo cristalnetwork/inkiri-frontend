@@ -83,8 +83,8 @@ const bank = {
 };
 
 
-const base_url    = 'http://localhost:3600';
-// const base_url    = 'https://cristal-backend.herokuapp.com';
+// const base_url    = 'http://localhost:3600';
+const base_url    = 'https://cristal-backend.herokuapp.com';
 const api_version = '/api/v1';
 const api = {
   end_point                   : base_url+ api_version
@@ -129,8 +129,8 @@ const api = {
 
 // ToDo: Traer DFuse config from private server!
 const dfuse = {
-  // api_key                   : 'web_8a50f2bc42c1df1a41830c359ba74240',
-  api_key                   : 'web_d171ffb1033789db684e7525782dbecf',
+  api_key                   : 'web_8a50f2bc42c1df1a41830c359ba74240',
+  // api_key                   : 'web_d171ffb1033789db684e7525782dbecf',
   network                   : 'jungle',
   auth_url                  : 'https://auth.dfuse.io/v1/auth/issue',
   base_url                  : 'https://jungle.eos.dfuse.io',
@@ -141,14 +141,18 @@ const dfuse = {
   account_url               : 'https://jungle.bloks.io/account/'
 }
 
-const eosnode = {
+const eos = {
+  /*
+  * https://api.monitor.jungletestnet.io/#apiendpoints
+  */
+  endpoint       : 'https://jungle2.cryptolions.io:443',
   node           : 'https://proxy.eosnode.tools/',
   create_account : 'https://api.monitor.jungletestnet.io/#account',
   // create_account: 'https://eos-account-creator.com/choose/'
   security_prefix: '1nK1r1_K3y_Pr3F1x_',
   generateSeed : (seed) => {
     // We should derivate several times for security reasons.
-    return eosnode.security_prefix + seed;
+    return eos.security_prefix + seed;
   }
 }
-export { language, api, currency, dfuse, bank, eosnode };
+export { language, api, currency, dfuse, bank, eos };
