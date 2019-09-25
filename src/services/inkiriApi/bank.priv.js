@@ -23,7 +23,7 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
   {
     const challenge_endpoint = globalCfg.api.end_point+'/eos/challenge/'+account_name;
     
-    fetch(challenge_endpoint, {method: 'GET' })
+    fetch(challenge_endpoint, {method: 'GET'})
     .then((response) => {
         if (valid_http_codes.indexOf(parseInt(response.status))<0) {
           console.log(' CHALLENGE ********************************** ERROR#1', response.status)

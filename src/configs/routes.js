@@ -38,7 +38,7 @@ export const pathNames = utils.arrToObj([
     'businessExtracto',
     'businessDeposit',
     'businessWithdraw',
-    'businessPDA',
+    'businessPDV',
     'businessPreAuthSales',
     'businessSendMoney',
     'businessPaymentsAndServices',
@@ -46,7 +46,9 @@ export const pathNames = utils.arrToObj([
     'businessSalaries',
     'businessCrew',
     'businessConfiguration',
-    
+
+    'businessUnderConstruction',
+
     'dashboard'
 ])
 
@@ -232,7 +234,106 @@ const bankadmin = [
     },
  ];
 
-const business = [];
+const business = [
+    {
+        key: pathNames.businessUnderConstruction,
+        fileName: 'under-construction',
+        area: 'business',
+        path: 'proximamente',
+        container: 'dashboard',
+        role: 'business'
+    },
+    {
+       key: pathNames.businessExtracto,
+       fileName: 'under-construction',
+       area: 'business',
+       path: 'extrato',
+       container: 'dashboard',
+       role: 'business'
+    },
+
+    {
+       key: pathNames.businessDeposit,
+       fileName: 'under-construction',
+       area: 'business',
+       path: 'deposit',
+       container: 'dashboard',
+       role: 'business'
+    },
+    {
+       key: pathNames.businessWithdraw,
+       fileName: 'under-construction',
+       area: 'business',
+       path: 'withdraw',
+       container: 'dashboard',
+       role: 'business'
+    },
+    {
+       key: pathNames.businessPDV,
+       fileName: 'under-construction',
+       area: 'business',
+       path: 'pdv',
+       container: 'dashboard',
+       role: 'business'
+    },
+    {
+       key: pathNames.businessPreAuthSales,
+       fileName: 'under-construction',
+       area: 'business',
+       path: 'pre-auth-sales',
+       container: 'dashboard',
+       role: 'business'
+    },
+    {
+       key: pathNames.businessSendMoney,
+       fileName: 'under-construction',
+       area: 'business',
+       path: 'send-money',
+       container: 'dashboard',
+       role: 'business'
+    },
+    {
+       key: pathNames.businessPaymentsAndServices,
+       fileName: 'under-construction',
+       area: 'business',
+       path: 'payments-services',
+       container: 'dashboard',
+       role: 'business'
+    },
+    {
+       key: pathNames.businessProvidersPayments,
+       fileName: 'under-construction',
+       area: 'business',
+       path: 'providers-payments',
+       container: 'dashboard',
+       role: 'business'
+    },
+    {
+       key: pathNames.businessSalaries,
+       fileName: 'under-construction',
+       area: 'business',
+       path: 'salaries',
+       container: 'dashboard',
+       role: 'business'
+    },
+    {
+       key: pathNames.businessCrew,
+       fileName: 'under-construction',
+       area: 'business',
+       path: 'crew',
+       container: 'dashboard',
+       role: 'business'
+    },
+    {
+       key: pathNames.businessConfiguration,
+       fileName: 'under-construction',
+       area: 'business',
+       path: 'configuration',
+       container: 'dashboard',
+       role: 'business'
+    },
+    
+    ];
 
 const common = [];
 

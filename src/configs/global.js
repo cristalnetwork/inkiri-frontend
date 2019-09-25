@@ -129,7 +129,8 @@ const api = {
 
 // ToDo: Traer DFuse config from private server!
 const dfuse = {
-  api_key                   : 'web_8a50f2bc42c1df1a41830c359ba74240',
+  // api_key                   : 'web_8a50f2bc42c1df1a41830c359ba74240',
+  api_key                   : 'web_d171ffb1033789db684e7525782dbecf',
   network                   : 'jungle',
   auth_url                  : 'https://auth.dfuse.io/v1/auth/issue',
   base_url                  : 'https://jungle.eos.dfuse.io',

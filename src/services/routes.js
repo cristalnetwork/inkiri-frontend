@@ -170,7 +170,95 @@ const routes  = {
             }
         ]
     },
-    business: {},
+    business: {
+        items: [
+            {
+                key:  'biz_wallet',
+                title: 'My money',
+                icon: 'wallet',
+                items: [
+                    {
+                        key: pathNames.businessExtracto,
+                        path: pathNames.businessUnderConstruction,
+                        title: 'Transaction History',
+                    },
+                    {
+                        key: pathNames.businessDeposit,
+                        path: pathNames.businessUnderConstruction,
+                        title: 'Deposit',
+                    },
+                    {
+                        key: pathNames.businessWithdraw,
+                        path: pathNames.businessUnderConstruction,
+                        title: 'Withdraw',
+                    }
+                ]
+            },
+            {
+                key:  'biz_receive',
+                title: 'Receive',
+                icon: 'plus-square',
+                items: [
+                    {
+                        key: pathNames.businessPDV,
+                        path: pathNames.businessUnderConstruction,
+                        title: 'Vendas - PDV',
+                    },
+                    {
+                        key: pathNames.businessPreAuthSales,
+                        path: pathNames.businessUnderConstruction,
+                        title: 'Taxa de serviços',
+                    }
+                ]
+            },
+            {
+                key:  'biz_pay',
+                title: 'Pay',
+                icon: 'minus-square',
+                items: [
+                    {
+                        key: pathNames.businessSendMoney,
+                        path: pathNames.businessUnderConstruction,
+                        title: 'Send money',
+                    },
+                    {
+                        key: pathNames.businessPaymentsAndServices,
+                        path: pathNames.businessUnderConstruction,
+                        title: 'Services',
+                    },
+                    {
+                        key: pathNames.businessProvidersPayments,
+                        path: pathNames.businessProvidersPayments,
+                        title: 'Providers',
+                    }
+                ]
+            },
+            {
+                key: 'biz_staff',
+                title: 'Staff',
+                icon: 'profile',
+                items: [
+                    {
+                        key: pathNames.businessSalaries,
+                        path: pathNames.businessUnderConstruction,
+                        title: 'Salaries',
+                    },
+                    {
+                        key: pathNames.businessCrew,
+                        path: pathNames.businessUnderConstruction,
+                        title: 'Crew',
+                    }
+
+                ]
+            },
+            {
+                key: pathNames.businessConfiguration,
+                path: pathNames.businessUnderConstruction,
+                title: 'Configuration',
+                icon: 'setting',
+            }
+        ]
+    },
     guest: {}
 }
 

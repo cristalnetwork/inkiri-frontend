@@ -65,7 +65,7 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
     method: method || "GET",
     headers: {
       Accept: "application/json, text/plain, */*", "Content-Type": "application/json",
-      Authorization: bearer_token,
+      Authorization: bearer_token
     }
   };
 
