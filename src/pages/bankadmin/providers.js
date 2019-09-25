@@ -183,8 +183,8 @@ class Providers extends Component {
     api.bank.listProviders()
     .then( (res) => {
 
-        console.log(' >> api.bank.listProviders >>', JSON.stringify(res.data))
-        that.onNewData({providers:res});
+        console.log(' >> api.bank.listProviders >>', JSON.stringify(res))
+        that.onNewData(res);
         
       } ,(ex) => {
         console.log(' api.bank.listProviders ERROR#1', JSON.stringify(ex) )
@@ -196,6 +196,8 @@ class Providers extends Component {
 
   onNewData(providers){
     
+    if(!providers)
+      providers=[];
     const _providers      = [...this.state.providers, ...providers];
     const pagination      = {...this.state.pagination};
     pagination.pageSize   = _providers.length;
@@ -207,7 +209,7 @@ class Providers extends Component {
 
     if(!has_received_new_data)
     {
-      this.openNotificationWithIcon("info", "End of transactions","You have reached the end of transaction list!")
+      this.openNotificationWithIcon("info", "End of list","You have reached the end of list!")
     }
     else
       this.computeStats();
@@ -348,8 +350,7 @@ class Providers extends Component {
       <>
         <PageHeader
           extra={[
-            <Button type="link" href={_href} target="_blank" key="view-on-blockchain_" icon="cloud" >View Accounts on Blockchain</Button>,
-            <Button key="_new_account" icon="plus" onClick={()=>{this.onNewProvider()}}> Provider</Button>,
+            <Button key="_new_provider" icon="plus" onClick={()=>{this.onNewProvider()}}> Provider</Button>,
             
           ]}
           breadcrumb={{ routes }}

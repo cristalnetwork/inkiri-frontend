@@ -300,7 +300,7 @@ class CreateProvider extends Component {
                 </Form.Item>
 
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" className="login-form-button">
+                    <Button type="primary" htmlType="submit" className="login-form-button" disabled>
                       Create Provider
                     </Button>
                     
