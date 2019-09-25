@@ -735,8 +735,9 @@ class CreateAccount extends Component {
                     {
                       required: true,
                       message: 'Please input password!',
-                    },
-                    {
+                    }
+                    ,{ min: 12, message: '12 characters min' }
+                    ,{
                       validator: this.validateToNextPassword,
                     },
                   ],

@@ -26,12 +26,12 @@ const routes  = {
                         title: 'Deposit',
                     },
                     {
-                        key: pathNames.personalRetirar,
+                        key: pathNames.personalWithdraw,
                         path: pathNames.personalUnderConstruction,
                         title: 'Withdraw',
                     },
                     {
-                        key: pathNames.personalCambiar,
+                        key: pathNames.personalExchange,
                         path: pathNames.personalUnderConstruction,
                         title: 'Exchange',
                     }

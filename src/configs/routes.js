@@ -6,8 +6,8 @@ export const pathNames = utils.arrToObj([
     'personalUnderConstruction',
     'personalExtracto',
     'personalDeposit',
-    'personalRetirar',
-    'personalCambiar',
+    'personalWithdraw',
+    'personalExchange',
     'personalRequestMoney',
     'personalSendMoney',
     'personalPaymentsAndServices',
@@ -34,6 +34,16 @@ export const pathNames = utils.arrToObj([
     'bankadminStaff',
     'bankadminSalaries',
     'bankadminCrew',
+
+    // 'businessExtracto',
+    // 'businessDeposit',
+    // 'businessWithdraw',
+    // 'businessSales',
+    // 'businessPaymentsAndServices',
+    
+    // 'businessSendMoney',
+    // 'businessPaymentsAndServices',
+
 
     'dashboard'
 ])
