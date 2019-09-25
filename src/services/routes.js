@@ -133,7 +133,7 @@ const routes  = {
                     },
                     {
                         key: pathNames.bankadminProviders,
-                        path: pathNames.bankadminUnderConstruction,
+                        path: pathNames.bankadminProviders,
                         title: 'Providers',
                     },
                     {

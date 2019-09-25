@@ -170,7 +170,7 @@ const bankadmin = [
     },
     {
        key: pathNames.bankadminProviders,
-       fileName: 'under-construction',
+       fileName: 'providers',
        area: 'bankadmin',
        path: 'providers',
        container: 'dashboard',

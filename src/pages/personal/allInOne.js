@@ -280,9 +280,9 @@ class AllInOne extends Component {
     let stringData = 'holamundo';
 
     api.eosHelper.generateRandomKeys().then(res => {console.log(' -- generateRandomKeys --'); console.log('---- RES:', JSON.stringify(res))} );
-    api.eosHelper.seedPrivate('privateSeed').then(res => {console.log(' -- seedPrivate --'); console.log('---- RES:', JSON.stringify(res))} );
-    api.eosHelper.isValidPrivate(myPriv).then(res => {console.log(' -- isValidPrivate --'); console.log('---- RES:', JSON.stringify(res))} );
-    api.eosHelper.isValidPublic(myPub).then(res => {console.log(' -- isValidPublic --'); console.log('---- RES:', JSON.stringify(res))} );
+    // api.eosHelper.seedPrivate('privateSeed').then(res => {console.log(' -- seedPrivate --'); console.log('---- RES:', JSON.stringify(res))} );
+    // api.eosHelper.isValidPrivate(myPriv).then(res => {console.log(' -- isValidPrivate --'); console.log('---- RES:', JSON.stringify(res))} );
+    // api.eosHelper.isValidPublic(myPub).then(res => {console.log(' -- isValidPublic --'); console.log('---- RES:', JSON.stringify(res))} );
     api.eosHelper.signString(myPriv, stringData).then(res => 
       {
           console.log(' -- signString --'); 

@@ -141,8 +141,13 @@ const dfuse = {
 }
 
 const eosnode = {
-  node : 'https://proxy.eosnode.tools/',
+  node           : 'https://proxy.eosnode.tools/',
   create_account : 'https://api.monitor.jungletestnet.io/#account',
   // create_account: 'https://eos-account-creator.com/choose/'
+  security_prefix: '1nK1r1_K3y_Pr3F1x_',
+  generateSeed : (seed) => {
+    // We should derivate several times for security reasons.
+    return eosnode.security_prefix + seed;
+  }
 }
 export { language, api, currency, dfuse, bank, eosnode };

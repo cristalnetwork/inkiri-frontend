@@ -93,7 +93,7 @@ class CreateAccount extends Component {
       
       confirmDirty:     false,
       
-      current_step:     2,
+      current_step:     0,
 
       account_name:     '',
       password:         '',
@@ -110,7 +110,7 @@ class CreateAccount extends Component {
       // account_name_validating : false, 
       // account_name_validated  : 0,
 
-      account_type:     2, //undefined,
+      account_type:     undefined,
       account_overdraft:0,
       account_fee:      0,
       first_name:       '',
@@ -143,7 +143,7 @@ class CreateAccount extends Component {
     this.generateKeys              = this.generateKeys.bind(this); 
     this.genAccountName            = this.genAccountName.bind(this); 
     this.doCreateAccount           = this.doCreateAccount.bind(this); 
-    this.confirmCreateAccount      = this.confirmCreateAccount.bind(this); 
+    this.validateNConfirmCreateAccount      = this.validateNConfirmCreateAccount.bind(this); 
     this.handleAccountTypeChange   = this.handleAccountTypeChange.bind(this);
     
     this.onNewPermission            = this.onNewPermission.bind(this);
@@ -198,18 +198,27 @@ class CreateAccount extends Component {
     const type_desc     = utils.capitalize(globalCfg.bank.getAccountType(account_type));
     const _fee          = globalCfg.currency.toCurrencyString(account_fee);
     const _overdraft    = globalCfg.currency.toCurrencyString(account_overdraft)
-    return (<span>Please confirm creation of a <b>{type_desc} Account</b>. <br/>Account name: <b>{account_name}</b>.<br/> Name: <b>{complete_name}</b>.<br/> Fee: {_fee}.<br/> Overdraft: {_overdraft}.</span>);
+    return (<span>Please confirm creation of a <b>{type_desc} Account</b>. <br/>Account name: <b>{account_name}</b>.<br/> Name: <b>{complete_name}</b>.<br/> Fee: {_fee}<br/> Overdraft: {_overdraft}</span>);
   }
+  //
 
+  validateNConfirmCreateAccount = () => {
 
-  confirmCreateAccount = () => {
-
+    /* Manual Validation
+     * Check if it's a business account -> must have at least one manager account */
+    const {account_type, permissions} = this.state;
+    if(globalCfg.bank.isBusinessAccount(account_type) && (!permissions || !permissions['owner'] || permissions['owner'].length<1))
+    {
+      this.openNotificationWithIcon("error", "Consider authorizing at least one owner account!","")  
+      return;
+    }
     const modal_content = this.getAccountDescription();
+    const that          = this;
     confirm({
       title: 'Create Account',
       content: modal_content,
       onOk() {
-        this.doCreateAccount();
+        that.doCreateAccount();
       },
       onCancel() {},
     });
@@ -217,14 +226,22 @@ class CreateAccount extends Component {
 
   doCreateAccount(){
     console.log(' FINALLY createAccount!!!')
-    const {business_name, account_name, password, confirm_password, generated_keys, account_type, account_overdraft, account_fee, first_name, last_name, email, legal_id, birthday, phone, address} = this.state;
+    const {permissions, business_name, account_name, password, confirm_password, generated_keys, account_type, account_overdraft, account_fee, first_name, last_name, email, legal_id, birthday, phone, address} = this.state;
     const that             = this;
     that.setState({pushingTx:true})
+    
     /*
     * Step #1: create EOS account
     */
-    console.log(this.props.actualPrivateKey , account_name, generated_keys.pub_key, account_fee, account_overdraft, account_type)
-    api.createAccount(this.props.actualPrivateKey , account_name, generated_keys.pub_key, account_type, account_fee, account_overdraft)
+    console.log('actualPrivateKey:', this.props.actualPrivateKey 
+      , ' | account_name:', account_name
+      , ' | generated_keys.pub_key:', generated_keys.pub_key, 
+      ' | account_fee:', account_fee, 
+      ' | account_overdraft:', account_overdraft, 
+      ' | account_type:', account_type, 
+      ' | permissions:', JSON.stringify(permissions));
+
+    api.createAccount(this.props.actualPrivateKey , account_name, generated_keys.pub_key, account_type, account_fee, account_overdraft, permissions)
       .then((res)=>{
         console.log(' doCreateAccount() BLOCKCHAIN OK ',JSON.stringify(res))
         /*
@@ -249,7 +266,7 @@ class CreateAccount extends Component {
 
   // Events
   componentDidMount(){
-    this.loadDemoData();
+    // this.loadDemoData();
   }
 
   handleAddPermissionSubmit = e => {
@@ -321,7 +338,7 @@ class CreateAccount extends Component {
     // value={this.state.account_name}
   }
 
-  generateKeys(do_generate){
+  generateKeys(do_generate, callback){
 
     if(!do_generate)
     {
@@ -329,13 +346,19 @@ class CreateAccount extends Component {
       this.setState({generated_keys:default_keys})
       return;
     }
-    api.eosHelper.seedPrivate(do_generate)
-      .then((res) => {
-        // console.log(' >> GENERATED >>',JSON.stringify(res))
-        this.setState({generated_keys:res.data})
-      } , (error) => {
-        console.log('---- generateKeys:', error, JSON.stringify(error));
-      });
+    const seed = globalCfg.eosnode.generateSeed(do_generate);
+    const keys = api.eosHelper.seedPrivate(seed);
+    const that = this;
+    api.dfuse.getKeyAccounts(keys.pub_key)
+      .then(()=>{
+        that.setState({generated_keys:keys})
+        if(callback)
+          callback('Name already exists. Please visit provided links and check name by yourself!');
+      },(err)=>{
+        if(callback)
+          callback()
+      })
+
   }
 
   compareToFirstPassword = (rule, value, callback) => {
@@ -718,7 +741,7 @@ class CreateAccount extends Component {
                     },
                   ],
                   initialValue: password
-                })(<Input />)}
+                })(<Input.Password visibilityToggle="true" />)}
               </Form.Item>
               <Form.Item label="Confirm Password" hasFeedback>
                 {getFieldDecorator('confirm_password', {
@@ -732,7 +755,7 @@ class CreateAccount extends Component {
                     },
                   ],
                   initialValue: confirm_password
-                })(<Input onBlur={this.handleConfirmBlur} />)}
+                })(<Input.Password visibilityToggle="true" onBlur={this.handleConfirmBlur} />)}
               </Form.Item>
               <h3 className="fileds_header">KEYS GENERATED FROM PASSWORD</h3>
               <Form.Item label="Private Key" extra="You can copy and keep this private key for security reasons.">
@@ -770,7 +793,7 @@ class CreateAccount extends Component {
           title={(<span>New Permission for <strong>{utils.capitalize(active_tab_key)} </strong> </span> )}
           key={'_new_perm'}
           style = { { marginBottom: 24 } } 
-          extra = {<Button key="_new_perm_cancel" icon="close" onClick={() => this.onCancelNewPermission()}> Cancel</Button>}
+          extra = {<Button key="_new_perm_cancel" icon="close" size="small" onClick={() => this.onCancelNewPermission()}> Cancel</Button>}
           >
           <div style={{ margin: '0 auto', width:'100%', padding: 24, background: '#fff'}}>
 
@@ -782,6 +805,7 @@ class CreateAccount extends Component {
                     rules: [{ required: true, message: 'Please input account name!' }]
                   })(
                     <AutoComplete
+                      autoFocus
                       size="large"
                       dataSource={this.props.accounts.filter(acc=>acc.key!=account_name).map(acc=>acc.key)}
                       style={{ width: '100%' }}
@@ -833,7 +857,7 @@ class CreateAccount extends Component {
                 </Button>
               )}
               {current_step === steps.length - 1 && (
-                <Button type="primary" onClick={() => this.confirmCreateAccount()} disabled={this.state.pushingTx} disabled={this.state.adding_new_perm}>
+                <Button type="primary" onClick={() => this.validateNConfirmCreateAccount()} disabled={this.state.pushingTx} disabled={this.state.adding_new_perm}>
                   Create Account
                 </Button>
               )}
@@ -953,6 +977,7 @@ class CreateAccount extends Component {
       </Card>
     );
   }
+
   //
   renderResult() {
   
@@ -966,8 +991,8 @@ class CreateAccount extends Component {
         <div style={{ margin: '0 0px', padding: 24, background: '#fff'}}>
           <Result
           status="success"
-          title="Transaction completed successfully!"
-          subTitle="User created succesfully. Cloud server takes up to 30 seconds, please wait."
+          title="Account created successfully!"
+          subTitle="Transaction completed succesfully. Blockchain takes up to 30 seconds to reveal changes, please wait."
           extra={[
             <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
               Go to dashboard
@@ -1028,7 +1053,6 @@ class CreateAccount extends Component {
       content = this.renderStep(current_step);
     }
     
-    //extra={[<Button key="_new_account" icon="plus" onClick={()=>{this.doCreateAccountHack()}}> Account Hack</Button>,]} 
     return (
       <>
         <PageHeader

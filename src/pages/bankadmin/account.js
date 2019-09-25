@@ -44,10 +44,7 @@ class Account extends Component {
       result_object:   undefined,
       error:           {},
       
-      number_validateStatus : '',
-      number_help:  ''
-
-      , account : undefined
+      account : undefined
       , account_balance : '?.??'
       , eos_account : undefined
       
@@ -271,7 +268,6 @@ class Account extends Component {
           extra = {<Button key="_new_perm_cancel" icon="close" onClick={() => this.onCancelNewPermission()}> Cancel</Button>}
           >
           <div style={{ margin: '0 auto', width:'100%', padding: 24, background: '#fff'}}>
-           
 
             <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
               <Form onSubmit={this.handleSubmit}>
@@ -281,6 +277,7 @@ class Account extends Component {
                     rules: [{ required: true, message: 'Please input account name!' }]
                   })(
                     <AutoComplete
+                      autoFocus
                       size="large"
                       dataSource={this.props.accounts.filter(acc=>acc.key!=account_name).map(acc=>acc.key)}
                       style={{ width: '100%' }}
@@ -459,7 +456,7 @@ class Account extends Component {
               <List.Item
                 actions={[<a  key={"delete-"+item.permission.actor+item.permission.permission} 
                               onClick={() => this.onDeletePermission(perm_name, item.permission.actor, item.permission.permission )}
-                            >DELETE</a>]}
+                            disabled={item.permission.actor==globalCfg.bank.issuer}>DELETE</a>]}
               >
                 <Skeleton avatar title={false} loading={item.loading} active>
                   <List.Item.Meta

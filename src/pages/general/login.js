@@ -5,7 +5,8 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login';
 import { withRouter } from "react-router-dom";
-import * as global from '@app/configs/global';
+import * as globalCfg from '@app/configs/global';
+import * as api from '@app/services/inkiriApi';
 
 import './login.css'
 
@@ -23,8 +24,16 @@ class Login extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
-        this.props.tryLogin(values.account_name, values.password, values.remember);
+        // console.log('Received values of form: ', values);
+
+        let password = values.password;
+        if(!api.eosHelper.isValidPrivate(password))
+        {
+          const seed = globalCfg.eosnode.generateSeed(password);
+          password = api.eosHelper.seedPrivate(seed).wif;
+        }  
+
+        this.props.tryLogin(values.account_name, password, values.remember);
       }
     });
   };
@@ -58,7 +67,7 @@ class Login extends Component {
               <Input
                 prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
                 type="password"
-                placeholder="Password"
+                placeholder="Private key or Password"
                 
               />,
             )}
@@ -80,25 +89,7 @@ class Login extends Component {
       </>
     );
   }
-//
-  renderXX() {   
-    
-    return (
-      <Form className="login-form">
-        <Form.Item>
-          <UserSelector onChange={(account) => this.setState({account})} className="login-user-selector" />
-        </Form.Item>
-        <Form.Item>
-          <Checkbox value={this.state.save} onChange={(e) => this.setState({save: e.target.checked})}>Remember me</Checkbox>
-          <Button type="primary" disabled={!this.state.account} onClick={()=>this.props.tryLogin(this.state.account, this.state.save)}   className="login-form-button">
-            Login
-          </Button>
-        </Form.Item>
-      </Form>
-    );
-  }
 }
-
 // 
 export default Form.create() (withRouter(connect(
     (state)=> ({

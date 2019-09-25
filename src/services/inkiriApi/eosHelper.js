@@ -19,7 +19,7 @@ export const generateRandomKeys = () =>   new Promise((res,rej)=> {
   })
 })
 
-export const seedPrivate = (secret_seed) =>   new Promise((res,rej)=> {
+export const seedPrivate = (secret_seed) =>   {
     let wif     = ecc.seedPrivate(secret_seed);
     let pubKey  = ecc.privateToPublic(wif); 
     
@@ -28,29 +28,25 @@ export const seedPrivate = (secret_seed) =>   new Promise((res,rej)=> {
     console.log('Private Key:\t', wif)
     console.log('Public Key:\t', pubKey) 
     
-    res({ data: {
+    return {
         wif:      wif,
         pub_key:  pubKey,
         seed:     secret_seed
-      } 
-    });
-})
+      };
+}
 
-export const isValidPrivate = (wif) =>   new Promise((res,rej)=> {
+export const isValidPrivate = (wif) =>   {
 
-    let isValid = ecc.isValidPrivate(wif)
+    let isValid = ecc.isValidPrivate(wif);
 
-    console.log('eosHelper::isValidPrivate()\t')
-    console.log('param@wif:\t', wif)
-    console.log('isValid:\t', isValid) 
+    // console.log('eosHelper::isValidPrivate()\t')
+    // console.log('param@wif:\t', wif)
+    // console.log('isValid:\t', isValid) 
 
-    res({ data: {
-            is_valid : isValid
-          } 
-        });
-})
+    return isValid;
+}
 
-export const isValidPublic = (pubKey) =>   new Promise((res,rej)=> {
+export const isValidPublic = (pubKey) => {
     
     let isValid = ecc.isValidPublic(pubKey)
     
@@ -58,11 +54,8 @@ export const isValidPublic = (pubKey) =>   new Promise((res,rej)=> {
     console.log('param@wif:\t', pubKey)
     console.log('isValid:\t', isValid) 
 
-    res({ data: {
-        is_valid : isValid
-      } 
-    });
-})
+    return isValid;
+}
 
 export const signString = (wif, stringUtf8Data) =>   new Promise((res,rej)=> {
     

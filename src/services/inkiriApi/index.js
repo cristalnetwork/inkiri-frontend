@@ -120,10 +120,10 @@ const pushTX = async (tx, privatekey) => {
 	}
 }
 
-export const createAccount = async (creator_priv, new_account_name, new_account_public_key, account_type, fee, overdraft) => { 
+export const createAccount = async (creator_priv, new_account_name, new_account_public_key, account_type, fee, overdraft, permissions) => { 
 
   let actions = [];
-  const newAccountAction = 
+  let newAccountAction = 
     {
     account:         'eosio',
     name:            'newaccount',
@@ -141,12 +141,12 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
           weight: 1
         }],
         accounts: [{
-            permission: {
-              actor: globalCfg.bank.issuer,
-              permission: "active"
-            },
-            weight: 1
-          }],
+          permission: {
+            actor: globalCfg.bank.issuer,
+            permission: "active"
+          },
+          weight: 1
+        }],
         waits: []
       },
       active: {
@@ -161,6 +161,43 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
     },
   };
   // actions.push(newAccountAction)
+
+  if(permissions)
+  {
+    // console.log(' ******* HAY PERMISOS')
+    Object.keys(permissions).forEach(function (key, idx) {
+      if(!(key in newAccountAction.data))
+      {
+        // console.log(' ******* CREATED PERM: ', key)
+        newAccountAction.data[key] = {
+          threshold: 1,
+          keys: [],
+          accounts: [],
+          waits: []
+        };
+      }
+      
+      // console.log(' ******* ITERANDO: ', key, ' | con items: ', JSON.stringify(permissions[key]))
+      permissions[key].forEach(function(auth_account){
+        newAccountAction.data[key].accounts.push(
+            {
+              permission: {
+                actor: auth_account,
+                permission: "active"
+              },
+              weight: 1
+            }
+          );
+      });
+
+      // SORTING
+      // console.log(' ******* SORTING! ')
+      const ordered = _.sortBy(newAccountAction.data[key].accounts, function(perm) { return perm.permission.actor; })
+      newAccountAction.data[key].accounts = ordered;  
+    });
+  }
+
+  console.log(JSON.stringify(newAccountAction));
 
   const buyRamAction = {
     account: 'eosio',
@@ -229,8 +266,8 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
   }
   // actions.push(issueAction)
 
-  // actions = [newAccountAction, buyRamAction, delegateBWAction]
   actions = [newAccountAction, buyRamAction, delegateBWAction, createBankAccountAction, issueAction]
+  // throw new Error('ESTA!');  
   return pushTX(actions, creator_priv);
 }
 
