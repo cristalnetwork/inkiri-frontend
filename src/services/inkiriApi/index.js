@@ -25,6 +25,9 @@ function prettyJson(input){
   return JSON.stringify(input, null, 2)
 }
 
+// export const listBankAccounts  = () => dfuse.listBankAccounts();
+export const listBankAccounts  = () => listAllBankAccounts();
+
 const listAllBankAccounts = async () => { 
   const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
   // const response  = await jsonRpc.get_account(account_name)
@@ -89,6 +92,29 @@ const getKeyAccounts = async (publicKey) => {
   console.log(' ########## getKeyAccounts:', JSON.stringify(response));
   return {data:response}
 }
+
+// export const getAccountBalance = (account_name) =>  dfuse.getAccountBalance(account_name);
+
+export const getAccountBalance = async (account_name) => { 
+  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint);
+  const params    = {
+    "code" : globalCfg.currency.token,
+    "scope" : account_name,
+    "table" : "accounts",
+    "json" : true
+  }
+
+  const response  = await jsonRpc.get_table_rows(params);
+  console.log(' ########## getAccountBalance:', JSON.stringify(response));
+  let data = {
+              balance:       (response && response.row &&  response.row.length)?txsHelper.getEOSQuantityToNumber(response.row.rows[0].balance):0,
+              balanceText:   (response && response.row &&  response.row.length)?response.row.rows[0].balance:0
+            }
+  return {data}
+}
+
+// v1/chain/get_table_rows
+// jsonRpc.get_table_rows(callParams);
 
 // const getControlledAccounts = async (controllingAccount) => { 
 //   const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url)
@@ -452,22 +478,6 @@ export const addPersonalBankAccount = async (auth_account, auth_priv, account_na
   return pushTX(addAccountAction, auth_priv);
 
 }
-
-// export const listBankAccounts  = () => dfuse.listBankAccounts();
-export const listBankAccounts  = () => listAllBankAccounts();
-export const getAccountBalance = (account_name) =>  dfuse.getAccountBalance(account_name);
-
-export const dummyPrivateKeys = {
-		'ikmasterooo1': '5J2bKBbHH6xB2U255CWbXJ6uAuibg5KCh1omKdhpKoCfrTxWkUN'
-    , 'ikadminoooo1': '5KkKKHiFqNfyFRTWQSdVmg7UBTdwvmkRz48dUyE6pQCEbfJLm6u'
-    , 'inkiritoken1': '5K5Sk4A2V3MeS7uWw5itgQYzoGF3Aaeer3iZB7qCj3GbqmknVvM'
-    , 'marcostest13': ''
-    , 'inkpersonal1': '5JtCAhCxKEbMfU3XSHpF451P9sVnPkzxD2WgUgVgPtWEKikTXsh'
-    , 'inkirimaster': '5KesM1e6XqoTMtbJ8P5bakYom1rd3KbBQa9dKg3FqE23YAK9BPE'
-    , 'inkpersonal2': '5KRg4dqcdAnGzRVhM4vJkDRVkfDYrH3RXG2CVzA61AsfjyHDvBh'
-  }
-
-
 
 // permissioning_accounts
 

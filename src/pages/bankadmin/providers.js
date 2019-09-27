@@ -82,18 +82,26 @@ class Providers extends Component {
               },
               //
               {
-                title: 'Email',
+                title: 'Contact',
                 dataIndex: 'email',
-                key: 'email'
+                key: 'email',
+                render: (email, record) => (
+                  <>
+                    <span key={'email_'+record._id}>
+                     <Icon type="mail" />&nbsp;{email}
+                    </span><br/>
+                    <span key={'phone_'+record._id}> 
+                      <Icon type="phone" />&nbsp;{record.phone}
+                    </span>
+                  </>)
               },
               {
                 title: 'Address',
                 dataIndex: 'address',
                 key: 'address',
                 render: (address, record) => (
-                  <span>
-                   {address.street}, {address.city}, CP {address.zip}, {address.state}, {address.country} <br/>
-                   {record.phone}
+                  <span key={address._id}>
+                   {address.street}, {address.city}, CP {address.zip}, {address.state}, {address.country}
                   </span>
                   )
               },
@@ -114,9 +122,9 @@ class Providers extends Component {
                 dataIndex: 'bank_accounts',
                 key: 'bank_accounts',
                 render: (bank_accounts, record) => (
-                  <>
-                    {bank_accounts.map(bank_account => <span>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</span>)} 
-                  </>
+                  <span key={'bank_accounts_'+record._id}>
+                    {bank_accounts.map(bank_account => <span key={'bank_accounts'+bank_account._id}>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</span>)} 
+                  </span>
                   )
               },
               //
@@ -125,18 +133,17 @@ class Providers extends Component {
                 fixed: 'right',
                 width: 100,
                 key: 'action',
-                render: (text, record) => {
-                  return(
-                    <span>
-                      <Button key={'process_'+record.key} onClick={()=>{ this.onButtonClick(record) }} icon="profile" size="small">Details</Button>
-                    </span>
-                  )},
+                render: (record) => 
+                    (<>
+                     <Button key={'process_'+record._id} onClick={()=>{ this.onButtonClick(record) }} icon="profile" size="small">Profile</Button>
+                     </>)
+                  ,
               },
             ];
   }
 
   componentDidMount(){
-    this.loadProviders();  
+    this.loadProviders(true);  
   } 
 
   onNewProvider = () => {
@@ -145,13 +152,13 @@ class Providers extends Component {
     })
   }
 
-  onButtonClick(account){
-    console.log( ' ACCOUNTS::onButtonClick >> ', JSON.stringify(account) )
+  onButtonClick(provider){
+    console.log( ' ACCOUNTS::onButtonClick >> ', JSON.stringify(provider) )
 
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/account`
+      pathname: `/${this.props.actualRole}/provider-profile`
       // , search: '?query=abc'
-      , state: { account: account }
+      , state: { provider: provider }
     })
 
     // this.props.history.push({
@@ -163,7 +170,7 @@ class Providers extends Component {
   }
 
 
-  loadProviders = async () => {
+  loadProviders = async (first) => {
 
     let can_get_more   = this.state.can_get_more;
     if(!can_get_more)
@@ -184,7 +191,7 @@ class Providers extends Component {
     .then( (res) => {
 
         console.log(' >> api.bank.listProviders >>', JSON.stringify(res))
-        that.onNewData(res);
+        that.onNewData(res, first);
         
       } ,(ex) => {
         console.log(' api.bank.listProviders ERROR#1', JSON.stringify(ex) )
@@ -194,7 +201,7 @@ class Providers extends Component {
     
   }
 
-  onNewData(providers){
+  onNewData(providers, first){
     
     if(!providers)
       providers=[];
@@ -207,63 +214,11 @@ class Providers extends Component {
 
     this.setState({pagination:pagination, providers:_providers, can_get_more:(has_received_new_data && providers.length==this.state.limit), loading:false})
 
-    if(!has_received_new_data)
+    if(!has_received_new_data && !first)
     {
       this.openNotificationWithIcon("info", "End of list","You have reached the end of list!")
     }
-    else
-      this.computeStats();
-  }
-
-  
-  computeStats(){
     
-    return;
-
-    let stats      = this.state.stats;
-    const accounts = this.state.accounts;
-    if(!accounts)
-    {
-      this.setState({stats:this.getDefaultStats()});
-      return;
-    }
-
-    
-    const admin    = accounts.filter( acc => globalCfg.bank.isAdminAccount(acc))
-                    .reduce((acc, amount) => acc + 1, 0);
-    const business = accounts.filter( acc => globalCfg.bank.isBusinessAccount(acc))
-                    .reduce((acc, amount) => acc + 1, 0);
-    const personal = accounts.filter( acc => globalCfg.bank.isPersonalAccount(acc))
-                    .reduce((acc, amount) => acc + 1, 0);
-    const foundation = accounts.filter( acc => globalCfg.bank.isFoundationAccount(acc))
-                    .reduce((acc, amount) => acc + 1, 0);
-
-    this.setState({stats:{
-        total : accounts?accounts.length:0
-        , pending:0 
-        , negative_balance:0
-        , admin:admin
-        , personal:personal
-        , business:business
-        , foundation:foundation
-        }});
-
-  }
-
-  getDefaultStats(){
-    return {
-        total:0
-        , pending:0 
-        , negative_balance:0
-        , admin:0
-        , personal:0
-        , business:0
-        , foundation:0 };
-  }
-
-  currentStats(){
-    const x = this.state.stats;
-    return x?x:this.getDefaultStats();
   }
 
   openNotificationWithIcon(type, title, message) {
@@ -369,61 +324,6 @@ class Providers extends Component {
 
   renderUMIContent(){
     
-
-    const {total, pending, negative_balance, personal, business, admin, foundation} = this.currentStats();  
-    const stats = (<Card bordered={false}>
-          <Row>
-            <Col xs={24} sm={12} md={6} lg={6} xl={6}>
-               <Statistic title="" value="STATS" />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={3} xl={3}>
-               <Statistic
-                title="TOTAL"
-                value={total}
-                precision={0}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={3} xl={3}>
-              <Statistic
-                title="PENDING"
-                value={pending}
-                precision={0}
-                valueStyle={{ color: '#fadb14' }}
-                prefix={<Icon type="clock-circle" />}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={3} xl={3}>
-              <Statistic
-                title="NEGATIVE"
-                value={negative_balance}
-                precision={0}
-                valueStyle={{ color: '#cf1322' }}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={3} xl={3}>
-              <Statistic
-                title="PERSONAL"
-                value={personal}
-                precision={0}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={3} xl={3}>
-              <Statistic
-                title="BUSINESS"
-                value={business}
-                precision={0}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={3} xl={3}>
-              <Statistic
-                title="ADMIN"
-                value={admin}
-                precision={0}
-              />
-            </Col>
-          </Row>
-        </Card>);
-    //
     return  (<>
       <div className="styles standardList" style={{ marginTop: 24 }}>
         <Card
@@ -435,10 +335,10 @@ class Providers extends Component {
           
           <Table
             key="table_all_txs" 
-            rowKey={record => record.key} 
+            rowKey={record => record._id} 
             loading={this.state.loading} 
             columns={this.getColumns()} 
-            dataSource={this.state.accounts} 
+            dataSource={this.state.providers} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
             scroll={{ x: 700 }}

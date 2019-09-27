@@ -1,5 +1,10 @@
-import createHistory from 'history/createBrowserHistory';
+// import createHistory from 'history/createBrowserHistory';
+// export default createHistory({
+//   forceRefresh: true
+// });
 
-export default createHistory({
+import { createBrowserHistory } from 'history';
+
+export default createBrowserHistory({
   forceRefresh: true
 });

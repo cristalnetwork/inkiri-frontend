@@ -20,8 +20,6 @@ import { withRouter } from "react-router-dom";
 import { Badge, Skeleton, List, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
-// import './processRequest.css'; 
-// import styles from './processRequest.less';
 import styles from './account.less';
 
 const { Paragraph, Text } = Typography;

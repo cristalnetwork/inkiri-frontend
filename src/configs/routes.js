@@ -1,7 +1,6 @@
 import * as utils from '@app/utils/utils';
 
 export const pathNames = utils.arrToObj([
-   'personalAllInOne',
     'personalDashboard',
     'personalUnderConstruction',
     'personalExtracto',
@@ -28,6 +27,7 @@ export const pathNames = utils.arrToObj([
     'bankadminProfiles',
     'bankadminProviders',
     'bankadminProviders_CreateProvider',
+    'bankadminProviders_ProviderProfile',
     'bankadminPDA',
     'bankadminPDA_ProcessRequest',
 
@@ -54,23 +54,14 @@ export const pathNames = utils.arrToObj([
 
 const personal =[
     {
-       // key: pathNames.personalDashboard,
        key: pathNames.dashboard,
-       fileName: 'allInOne',
+       fileName: 'under-construction',
        area: 'personal',
        path: 'dashboard',
        container: 'dashboard',
        role: 'personal'
     },
     {
-        key: pathNames.personalUnderConstruction,
-        fileName: 'under-construction',
-        area: 'personal',
-        path: 'proximamente',
-        container: 'dashboard',
-        role: 'personal'
-     },
-     {
        key: pathNames.personalSendMoney,
        fileName: 'sendMoney',
        area: 'personal',
@@ -90,14 +81,7 @@ const personal =[
        area: 'personal',
        path: 'extrato',
        container: 'dashboard' 
-    },
-     {
-       key: pathNames.personalAllInOne,
-       fileName: 'allInOne',
-       area: 'personal',
-       path: 'all-in-one',
-       container: 'dashboard' 
-    },
+    }
 ]
 
 const bankadmin = [
@@ -196,6 +180,14 @@ const bankadmin = [
        fileName: 'createProvider',
        area: 'bankadmin',
        path: 'create-provider',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+    {
+       key: pathNames.bankadminProviders_ProviderProfile,
+       fileName: 'provider',
+       area: 'bankadmin',
+       path: 'provider-profile',
        container: 'dashboard',
        role: 'bankadmin'
     },

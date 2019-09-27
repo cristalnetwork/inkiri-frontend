@@ -63,12 +63,13 @@ export const columns = (account_type, onButtonClick) => {
         const envelope_id = api.bank.envelopeIdFromRequest(record);
         extras = (< ><br/><span key={'envelope_'+record.id}>ENVELOPE ID: <b>{envelope_id}</b></span></>);
       }
+      //
       return (
           <span key={'tags'+record.id}>
-           <Tag color={'geekblue'} key={'type'+record.id}>
+           <Tag color={'geekblue'} key={'type_'+record.id}>
                   {tx_type.toUpperCase()}
            </Tag><br/>
-           <Tag color={'geekblue'} key={'state'+record.id}>
+           <Tag color={'geekblue'} key={'state_'+record.id}>
                   {(record.state||'COMPLETED').toUpperCase()}
            </Tag>
            {extras}

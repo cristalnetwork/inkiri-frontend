@@ -321,6 +321,9 @@ export const createFullUser = (account_type, account_name, first_name, last_name
       });
 });
 
+/*
+* Providers section
+*/
 export const listProviders = (page, limit) =>   new Promise((res,rej)=> {
   
   // console.log(' BANKAPI::LIST MY REQUESTS>> account_name:', account_name, '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
@@ -333,10 +336,50 @@ export const listProviders = (page, limit) =>   new Promise((res,rej)=> {
   // if(request_type!== undefined)
   //   query=query+'&requested_type='+request_type;
 
-  jwtHelper.apiCall(path+query, method)
-    .then((data) => {
-        res(data)
-      }, (ex) => {
+  auth()
+    .then((token) => {
+      jwtHelper.apiCall(path+query, method)
+        .then((data) => {
+            res(data)
+          }, (ex) => {
+            rej(ex);
+          });
+    }, (ex) => {
         rej(ex);
-      });
+    });
+
+});
+
+
+
+export const createOrUpdateProvider = (providerId, name, cnpj, email, phone, address, category, products_services, bank_accounts) =>   new Promise((res,rej)=> {  
+  
+  const postfix = providerId?`/providers/${providerId}`:'/providers';
+  const path    = globalCfg.api.end_point + postfix;
+  const method  = providerId?'PATCH':'POST';
+  const post_params = {
+          name: name
+          , cnpj: cnpj
+          , email: email
+          , phone: phone
+          , address: address
+          , category: category
+          , products_services: products_services
+          , bank_accounts: bank_accounts
+        };
+  console.log(' inkiriApi::createProvider >> ABOUT TO POST', JSON.stringify(post_params));
+  auth()
+    .then((token) => {
+      jwtHelper.apiCall(path, method, post_params)
+        .then((data) => {
+            console.log(' inkiriApi::createProvider >> RESPONSE', JSON.stringify(data))
+            res(data)
+          }, (ex) => {
+            console.log(' inkiriApi::createProvider >> ERROR ', JSON.stringify(ex))
+            rej(ex);
+          });
+    }, (ex) => {
+        rej(ex);
+    });
+
 });

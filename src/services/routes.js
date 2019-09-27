@@ -228,7 +228,7 @@ const routes  = {
                     },
                     {
                         key: pathNames.businessProvidersPayments,
-                        path: pathNames.businessProvidersPayments,
+                        path: pathNames.businessUnderConstruction,
                         title: 'Providers',
                     }
                 ]

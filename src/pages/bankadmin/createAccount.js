@@ -549,7 +549,7 @@ class CreateAccount extends Component {
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
             
-            <h4 style={{paddingLeft: 50}}>Address</h4>
+            <h3 className="fileds_header">ADDRESS</h3>
             <Form.Item label="Street" extra="Street and Number, Apt, Suite, Unit, Building">
               {getFieldDecorator('address.street', {
                 rules: [{ required: true, message: 'Please input Street!' }],

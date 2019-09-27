@@ -51,16 +51,14 @@ class CreateProvider extends Component {
     super(props);
     this.state = {
       loading:      true,
-      value:       {amount:0, currency:''},
       pushingTx:    false,
-      envelope_id:  '--loading--',
+      
       result:       undefined,
       result_object:undefined,
       error:        {},
-      number_validateStatus : '',
-      number_help:  '',
       
-      name:       '',
+
+      name:        '',
       cnpj:        '',
       email:            '',
       phone:            '',
@@ -73,24 +71,78 @@ class CreateProvider extends Component {
                         },
       category:    '',
       products_services:    '',
-
-      bank_name:    '',
-      agency:    '',
-      cc:    '',
+      bank_account:     {  
+                          bank_name:    '',
+                          agency:    '',
+                          cc:    ''
+                        },
 
     };
 
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetResult                = this.resetResult.bind(this); 
+    this.resetForm                  = this.resetForm.bind(this); 
+    this.resetFormAndResult         = this.resetFormAndResult.bind(this); 
+
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
-    this.renderConfirmRequest       = this.renderConfirmRequest.bind(this);
+    this.renderConfirmCreate        = this.renderConfirmCreate.bind(this);
+    this.doCreateProvider           = this.doCreateProvider.bind(this);
   }
 
   componentDidMount(){
-    
+    this.loadDemoData();
   }
   
+  loadDemoData(){
+    this.setState({
+      name:        'Proveedor #1',
+      cnpj:        '123456789',
+      email:            'proveedor1@gmail.com',
+      phone:            '+025369875',
+      address:          { 
+                          street:  'Rua do Rey 1115', 
+                          city:    'Rio de Janeiro', 
+                          state:   'Rio de Janeiro', 
+                          zip:     '111222', 
+                          country: 'Brazil'
+                        },
+      category:      'Proveedor de conocimiento',
+      products_services:    'Conocimientos, ideas, y eso',
+      bank_account:     {  
+                          bank_name:    'Banco do Brasil',
+                          agency:       '1234',
+                          cc:           '987654321'
+                        }});    
+  }
+
+  resetForm(){
+    this.setState({
+      name:             '',
+      cnpj:             '',
+      email:            '',
+      phone:            '',
+      address:          { 
+                          street:  '',
+                          city:    '',
+                          state:   '',
+                          zip:     '',
+                          country: ''
+                        },
+      category:         '',
+      products_services:    '',
+      bank_account:     {  
+                          bank_name:    '',
+                          agency:       '',
+                          cc:           ''
+                        }});    
+  }
+
+  resetFormAndResult(){
+    this.resetResult();
+    this.resetForm();
+  }
+
   openNotificationWithIcon(type, title, message) {
     notification[type]({
       message: title,
@@ -104,26 +156,35 @@ class CreateProvider extends Component {
     })
   }
 
-   handleSubmit = e => {
+  backToProviders = async () => {
+    this.props.history.push({
+      pathname: `/${this.props.actualRole}/providers`
+    })
+  }
+
+  handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      if (!err) {
-        console.log('Received values of form: ', values);
-        // this.setState({result:'should-confirm'});
+      if (err) {
+        this.openNotificationWithIcon("warning", "Please check fields notifications!","")  
+        return;
       }
+      console.log('Received values of form: ', values);
+      this.setState({result:'should-confirm'});
     });
   };
 
   resetResult(){
     this.setState({result: undefined, result_object: undefined, error: {}});
-    this.getNextEnvelopeId();
+    
   }
 
   doCreateProvider(){
+    const {name, cnpj, email, phone, address, category, products_services, bank_account} = this.state;
     // guarda
-    api.bank.createDeposit(this.props.actualAccount, this.state.value.amount, this.state.value.currency)
+    api.bank.createOrUpdateProvider(undefined, name, cnpj, email, phone, address, category, products_services, [bank_account])
     .then((res)=>{
-      console.log(' >> doDeposit >> ', JSON.stringify(res));
+      console.log(' >> doCreateProvider >> ', JSON.stringify(res));
       this.setState({result:'ok'});
     }, (err)=>{
       this.setState({result:'error', error:err});
@@ -136,33 +197,40 @@ class CreateProvider extends Component {
   
     const { getFieldDecorator } = this.props.form;
     
-    let result_or_confirm = null;
+    
     if(this.state.result=='should-confirm'){
-      result_or_confirm = this.renderConfirmRequest();
+      const confirm = this.renderConfirmCreate();
+      return(
+        <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24  }}>
+          {confirm}
+        </div>);
     }
 
     if(this.state.result=='ok')
     {
       const tx_id = api.dfuse.getTxId(this.state.result_object?this.state.result_object.data:{});
-      const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
+      // const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
       // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
       
-      result_or_confirm = (<Result
+      return (<Result
         status="success"
-        title="Deposit Requested Succesfully!"
-        subTitle="Please wait until deposit is validated and cedited to your account."
+        title="Provider Created Succesfully!"
+        subTitle=""
         extra={[
           <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
             Go to dashboard
           </Button>,
-          <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetResult()} />
+          <Button  key="go-to-providers" onClick={()=>this.backToProviders()}>
+            Back to Providers
+          </Button>,
+          <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetFormAndResult()} />
         ]}
       />)
     }
 
     if(this.state.result=='error')
     {
-      result_or_confirm = (<Result
+      return (<Result
                 status="error"
                 title="Transaction Failed"
                 subTitle="Please check and modify the following information before resubmitting."
@@ -170,7 +238,6 @@ class CreateProvider extends Component {
                   <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
                     Go to dashboard
                   </Button>,
-                  <Button key="re-send">Try deposit again</Button>,
                   <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetResult()} />
                 ]}
               >
@@ -191,21 +258,15 @@ class CreateProvider extends Component {
     }
     //
     
-    if(result_or_confirm)
-      return(
-        <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24  }}>
-          {result_or_confirm}
-        </div>);
-
     // ** hack for sublime renderer ** //
-    const {name, cnpj, email, phone, address, category, products_services, bank_name, agency, cc} = this.state;
+    const {name, cnpj, email, phone, address, category, products_services, bank_account} = this.state;
     const {pushingTx, loading} = this.state;
     const loading_text = pushingTx?'Pushing transaction...':(loading?'Loading...':'');
     return (
         <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>
           <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
             <Form {...formItemLayout} onSubmit={this.handleSubmit}>
-              <h3 className="fileds_header">PROFILE SECTION</h3>
+              
               <Form.Item
                 label="Nome"
                 >
@@ -247,7 +308,7 @@ class CreateProvider extends Component {
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>
                 
-                <h4 style={{paddingLeft: 50}}>Address</h4>
+                <h3 className="fileds_header">ADDRESS</h3>
                 <Form.Item label="Street" extra="Street and Number, Apt, Suite, Unit, Building">
                   {getFieldDecorator('address.street', {
                     rules: [{ required: true, message: 'Please input Street!' }],
@@ -281,26 +342,26 @@ class CreateProvider extends Component {
 
                 <h3 className="fileds_header">BANK ACCOUNT</h3>
                 <Form.Item label="Bank Name">
-                  {getFieldDecorator('bank_name', {
+                  {getFieldDecorator('bank_account.bank_name', {
                     rules: [{ required: true, message: 'Please input Bank Name!' }],
-                    initialValue: bank_name
+                    initialValue: bank_account.bank_name
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>
                 <Form.Item label="Agency">
-                  {getFieldDecorator('agency', {
+                  {getFieldDecorator('bank_account.agency', {
                     rules: [{ required: true, message: 'Please input Agency!' }],
-                    initialValue: agency
+                    initialValue: bank_account.agency
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>
                 <Form.Item label="CC">
-                  {getFieldDecorator('cc', {
+                  {getFieldDecorator('bank_account.cc', {
                     rules: [{ required: true, message: 'Please input CC!' }],
-                    initialValue: cc
+                    initialValue: bank_account.cc
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>
 
-                <Form.Item>
-                    <Button type="primary" htmlType="submit" className="login-form-button" disabled>
+                <Form.Item {...tailFormItemLayout}>
+                    <Button type="primary" htmlType="submit" className="login-form-button">
                       Create Provider
                     </Button>
                     
@@ -339,14 +400,21 @@ class CreateProvider extends Component {
       </>
     );
   }
-
-  renderConfirmRequest(){
-    const {amount, currency}      = this.state.value;
+  //
+  renderConfirmCreate(){
+    const {name, cnpj, email, phone, category, products_services, bank_account}      = this.state;
+    
     return (<Result
       icon={<Icon type="question-circle" theme="twoTone" />}
-      title={`You will deposit ${currency} ${amount}`} 
-      subTitle="Please confirm operation."
-      extra={[<Button key="do_deposit" type="primary" onClick={() => {this.doCreateProvider()} }>Confirm Deposit</Button>,
+      title={`Please confirm provider creation`} 
+      subTitle={(<span> Name: {name}<br/> 
+                  CNPJ: {cnpj}<br/>
+                  Email: {email}<br/>
+                  Phone: {phone}<br/> 
+                  Category: {category}<br/>
+                  Products/Services: {products_services}<br/>
+                  Bank Account: {bank_account.bank_name}, {bank_account.agency}, {bank_account.cc} </span>)}
+      extra={[<Button key="do_cerate_provider" type="primary" onClick={() => {this.doCreateProvider()} }>Confirm Create Provider</Button>,
               <Button key="cancel" onClick={() => {this.resetResult()} }>Cancel</Button>]}/>)
   }
 }
