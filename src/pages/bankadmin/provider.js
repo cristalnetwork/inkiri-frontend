@@ -18,52 +18,35 @@ import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
 import { Badge, Skeleton, List, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
-import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { Table, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
 // import styles from './account.less';
 import styles from './style.less';
+import './pda.css'; 
+
+import {columns,  DISPLAY_PROVIDER } from '@app/components/TransactionTable';
+
+import {formItemLayout,tailFormItemLayout } from '@app/utils/utils';
 
 const { Paragraph, Text } = Typography;
 
 const routes = routesService.breadcrumbForFile('providers');
 
-const formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 8 },
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 16 },
-      },
-    };
-const tailFormItemLayout = {
-      wrapperCol: {
-        xs: {
-          span: 24,
-          offset: 0,
-        },
-        sm: {
-          span: 16,
-          offset: 8,
-        },
-      },
-    };
 
 
 class Provider extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading:         true,
       updating:        false,
-      permissioned:    '',
-      dataSource:      [],
       pushingTx:       false,
       
-      active_tab_key:  'owner',
-      new_perm_name:   '',
-      delete_permission:undefined,
+      loading:         false,
+      txs:             [],
+      page:            -1, 
+      limit:           globalCfg.api.default_page_size,
+      can_get_more:    true,
+      
       result:          undefined,
       result_object:   undefined,
       error:           {},
@@ -72,14 +55,13 @@ class Provider extends Component {
       
     };
 
-    // this.handleSearch = this.handleSearch.bind(this); 
-    this.onSelect                   = this.onSelect.bind(this); 
+    this.renderFooter               = this.renderFooter.bind(this); 
+    this.onNewData                  = this.onNewData.bind(this);
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetPage                  = this.resetPage.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderProviderInfo         = this.renderProviderInfo.bind(this);
-    this.onTabChange                = this.onTabChange.bind(this);
     this.onUpdateProvider           = this.onUpdateProvider.bind(this);
   }
 
@@ -94,13 +76,15 @@ class Provider extends Component {
 
   componentDidMount(){
     const { match, location, history } = this.props;
-    if(this.props.location && this.props.location.state)
+    if(this.props.location && this.props.location.state && this.props.location.state.provider)
     {  
-      this.setState({provider : this.props.location.state.provider})
-      if(this.props.location.state.provider )
-      {
-        this.loadProviderTxs(this.props.location.state.provider);
-      }
+      // this.setState({provider : this.props.location.state.provider})
+
+      this.setState(
+          {provider : this.props.location.state.provider}
+      , () => {
+          this.loadProviderTxs(true);
+      });
     }
     else
     {
@@ -109,40 +93,66 @@ class Provider extends Component {
 
   }
   
-  loadProviderTxs = async (provider) => {
+  loadProviderTxs = async (first_call) => {
+    let can_get_more   = this.state.can_get_more;
+    if(!can_get_more)
+    {
+      this.setState({loading:false});
+      return;
+    }
+
     
+    this.setState({loading:true});
+
+    let page                = (this.state.page<0)?0:(this.state.page+1);
+    const {limit, provider} = this.state;
+    let that                = this;
+    
+    // const req_type = DISPLAY_PROVIDER;
+    
+    api.bank.listRequestsForProvider(page, limit, provider.id)
+    .then( (res) => {
+        that.onNewData(res, first_call);
+      } ,(ex) => {
+        // console.log('---- ERROR:', JSON.stringify(ex));
+        that.setState({loading:false});  
+      } 
+    );
   }
 
+  onNewData(txs, first_call){
+    
+    const _txs            = [...this.state.txs, ...txs];
+    const pagination      = {...this.state.pagination};
+    pagination.pageSize   = _txs.length;
+    pagination.total      = _txs.length;
+
+    const has_received_new_data = (txs && txs.length>0);
+
+    this.setState({pagination:pagination, txs:_txs, can_get_more:(has_received_new_data && txs.length==this.state.limit), loading:false})
+
+    if(!has_received_new_data && !first_call)
+    {
+      this.openNotificationWithIcon("info", "End of transactions","You have reached the end of transaction list!")
+    }
+    // else
+    //   this.computeStats();
+  }
 
   /* ****************
    * EVENTS
   */
 
   onUpdateProvider(){
-    this.setState({updating:true});
+    const {updating, provider}=this.state;
+    // this.setState({updating:!updating});
+    const provider_update = Object.assign({}, provider);
+    this.setState({updating:true, provider_update:provider_update});
   }
 
   cancelUpdating(){
     this.setState({updating:false});
   }
-
-  onSelect(value) {
-    console.log('onSelect', value);
-    this.setState({permissioned:value})
-  }
-
-  onTabChange = (tabKey) => {
-    this.setState({
-      active_tab_key: tabKey,
-    });
-  }
-
-  // onSearch={this.handleSearch}
-  handleSearch(value){
-    // this.setState({
-    //   dataSource: !value ? [] : [value, value + value, value + value + value],
-    // });
-  };
 
   openNotificationWithIcon(type, title, message) {
     notification[type]({
@@ -160,14 +170,17 @@ class Provider extends Component {
         return;
       }
       console.log('Received values of form: ', values);
-      this.setState({result:'should-confirm'});
+
+      this.setState({provider_update:values, result:'should-confirm'});
+      // this.setState({result:'should-confirm'});
     });
   };
   
   doUpdateProvider(){
-    const {_id, name, cnpj, email, phone, address, category, products_services, bank_accounts} = this.state.provider;
+    const {id} = this.state.provider;
+    const {name, cnpj, email, phone, address, category, products_services, bank_accounts} = this.state.provider_update;
     // guarda
-    api.bank.createOrUpdateProvider(_id, name, cnpj, email, phone, address, category, products_services, bank_accounts)
+    api.bank.createOrUpdateProvider(id, name, cnpj, email, phone, address, category, products_services, bank_accounts)
     .then((res)=>{
       console.log(' >> doUpdateProvider >> ', JSON.stringify(res));
       this.setState({result:'ok'});
@@ -204,8 +217,9 @@ class Provider extends Component {
    * Render Functions
   */
   renderConfirmUpdate(){
-    const {name, cnpj, email, phone, category, products_services, bank_account}      = this.state;
-    
+    const {name, cnpj, email, phone, category, products_services, bank_accounts}      = this.state.provider_update;
+    const bank_account = bank_accounts[0];
+
     return (<Result
       icon={<Icon type="question-circle" theme="twoTone" />}
       title={`Please confirm provider update`} 
@@ -216,14 +230,17 @@ class Provider extends Component {
                   Category: {category}<br/>
                   Products/Services: {products_services}<br/>
                   Bank Account: {bank_account.bank_name}, {bank_account.agency}, {bank_account.cc} </span>)}
-      extra={[<Button key="do_cerate_provider" type="primary" onClick={() => {this.doUpdateProvider()} }>Confirm Update Provider</Button>,
-              <Button key="cancel" onClick={() => {this.resetResult()} }>Cancel</Button>]}/>)
+      extra={[<Button key="do_update_provider" type="primary" onClick={() => {this.doUpdateProvider()} }>Confirm Update Provider</Button>,
+              <Button key="cancel" onClick={() => {this.resetPage()} }>Cancel</Button>]}/>)
   }
 
+  renderFooter(){
+    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadProviderTxs()}>More!!</Button> </>)
+  }
   renderContent() {
   
     if(this.state.result=='should-confirm'){
-      const confirm = this.renderConfirmCreate();
+      const confirm = this.renderConfirmUpdate();
       return(
         <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24  }}>
           {confirm}
@@ -234,26 +251,20 @@ class Provider extends Component {
     
     if(result=='ok')
     {
-      const tx_id = api.dfuse.getTxId(result_object?result_object.data:{});
-      const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
-      // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
-      
       return (
         <div style={{ margin: '0 0px', padding: 24, background: '#fff'}}>
           <Result
             status="success"
             title="Transaction completed successfully!"
-            subTitle={"Transaction id "+tx_id+". Cloud server takes up to 30 seconds, please wait."}
+            subTitle={"Updates may take up to 30 seconds, please wait."}
             extra={[
               <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
                 Go to dashboard
               </Button>,
-              <Button  key="go-to-accounts" onClick={()=>this.backToProviders()}>
-                Back to Accounts
+              <Button  key="go-to-providers" onClick={()=>this.backToProviders()}>
+                Back to Providers
               </Button>,
               <Button shape="circle" icon="close" key="close" onClick={()=>this.resetPage()} />,
-              <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" >View on Blockchain</Button>,
-              
             ]}
           />
         </div>)
@@ -295,7 +306,16 @@ class Provider extends Component {
     if(updating)
       return this.renderForm();
 
-    return (<></>);
+    return (<Table
+            key="table_all_requests" 
+            rowKey={record => record.id} 
+            loading={this.state.loading} 
+            columns={columns()} 
+            dataSource={this.state.txs} 
+            footer={() => this.renderFooter()}
+            pagination={this.state.pagination}
+            scroll={{ x: 700 }}
+            />);
   }
   
   // ** hack for sublime renderer ** //
@@ -328,16 +348,16 @@ class Provider extends Component {
     </Descriptions>);
 
   }  
-  
+  //
   renderForm(){
     
-    const {provider} = this.state;
-    if(!provider)
+    const {provider_update} = this.state;
+    if(!provider_update)
       return (<></>);
     //
     const { getFieldDecorator } = this.props.form;
-    const {name, cnpj, email, phone, address, category, products_services, bank_accounts} = provider;
-    const {pushingTx, loading} = this.state;
+    const {name, cnpj, email, phone, address, category, products_services, bank_accounts} = provider_update;
+    const {pushingTx} = this.state;
     return (
         <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>
           <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">

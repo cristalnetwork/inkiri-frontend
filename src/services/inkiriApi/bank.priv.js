@@ -350,11 +350,9 @@ export const listProviders = (page, limit) =>   new Promise((res,rej)=> {
 
 });
 
-
-
 export const createOrUpdateProvider = (providerId, name, cnpj, email, phone, address, category, products_services, bank_accounts) =>   new Promise((res,rej)=> {  
-  
-  const postfix = providerId?`/providers/${providerId}`:'/providers';
+
+  const postfix = providerId ? `/providers/${providerId}` : '/providers';
   const path    = globalCfg.api.end_point + postfix;
   const method  = providerId?'PATCH':'POST';
   const post_params = {
@@ -382,4 +380,30 @@ export const createOrUpdateProvider = (providerId, name, cnpj, email, phone, add
         rej(ex);
     });
 
+});
+
+export const listRequestsForProvider = (page, limit, provider_id) =>   new Promise((res,rej)=> {
+  
+  console.log(' BANKAPI::LIST REQUESTS FOR PROVIDER >> provider_id:', provider_id
+    , '| page: ', page
+    , ' | limit:', limit,);
+  const path    = globalCfg.api.end_point + '/requests';
+  const method  = 'GET';
+  let query     = '?page='+(page|0); 
+  query=query+'&limit='+(limit|10);
+  // query=query+'&requested_type=type_exchange';
+  if(provider_id!== undefined)
+    query=query+'&from='+provider_id;
+  
+  auth()
+    .then((token) => {
+      jwtHelper.apiCall(path+query, method)
+        .then((data) => {
+            res(data)
+          }, (ex) => {
+            rej(ex);
+          });
+  }, (ex) => {
+      rej(ex);
+  });
 });

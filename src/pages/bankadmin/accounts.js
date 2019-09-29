@@ -194,7 +194,6 @@ class AdminAccounts extends Component {
     // const limit          = this.state.limit;
     let that           = this;
     
-    //api.bank.listRequests(page, limit, req_type, account_name)
     api.listBankAccounts()
     .then( (res) => {
 

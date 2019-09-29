@@ -101,7 +101,7 @@ class Providers extends Component {
                 key: 'address',
                 render: (address, record) => (
                   <span key={address._id}>
-                   {address.street}, {address.city}, CP {address.zip}, {address.state}, {address.country}
+                   <Icon type="environment" /> {address.street}, {address.city}, CP {address.zip}, {address.state}, {address.country}
                   </span>
                   )
               },
@@ -123,7 +123,7 @@ class Providers extends Component {
                 key: 'bank_accounts',
                 render: (bank_accounts, record) => (
                   <span key={'bank_accounts_'+record._id}>
-                    {bank_accounts.map(bank_account => <span key={'bank_accounts'+bank_account._id}>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</span>)} 
+                    <Icon type="bank" /> {bank_accounts.map(bank_account => <span key={'bank_accounts'+bank_account._id}>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</span>)} 
                   </span>
                   )
               },
@@ -186,7 +186,6 @@ class Providers extends Component {
     // const limit          = this.state.limit;
     let that           = this;
     
-    //api.bank.listRequests(page, limit, req_type, account_name)
     api.bank.listProviders()
     .then( (res) => {
 

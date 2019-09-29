@@ -31,6 +31,8 @@ import { Modal } from 'antd';
 
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 
+import {formItemLayout,tailFormItemLayout } from '@app/utils/utils';
+
 const { confirm } = Modal;
 const { Option } = Select;
 const AutoCompleteOption = AutoComplete.Option;
@@ -54,29 +56,6 @@ const steps = [
     content: 'Last-content',
   },
 ];
-
-const formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 8 },
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 16 },
-      },
-    };
-const tailFormItemLayout = {
-      wrapperCol: {
-        xs: {
-          span: 24,
-          offset: 0,
-        },
-        sm: {
-          span: 16,
-          offset: 8,
-        },
-      },
-    };
 
 const dateFormat =  'YYYY/MM/DD';
 

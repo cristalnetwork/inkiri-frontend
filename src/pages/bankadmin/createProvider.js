@@ -17,34 +17,11 @@ import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
 import * as routesService from '@app/services/routes';
+import {formItemLayout,tailFormItemLayout } from '@app/utils/utils';
 
 const { Paragraph, Text } = Typography;
 
 const routes = routesService.breadcrumbForFile('providers');
-
-const formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 8 },
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 16 },
-      },
-    };
-const tailFormItemLayout = {
-      wrapperCol: {
-        xs: {
-          span: 24,
-          offset: 0,
-        },
-        sm: {
-          span: 16,
-          offset: 8,
-        },
-      },
-    };
-
 
 class CreateProvider extends Component {
   constructor(props) {
@@ -417,6 +394,7 @@ class CreateProvider extends Component {
       extra={[<Button key="do_cerate_provider" type="primary" onClick={() => {this.doCreateProvider()} }>Confirm Create Provider</Button>,
               <Button key="cancel" onClick={() => {this.resetResult()} }>Cancel</Button>]}/>)
   }
+
 }
 
 //
