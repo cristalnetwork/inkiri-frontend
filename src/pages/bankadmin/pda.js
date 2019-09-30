@@ -358,7 +358,7 @@ class PDA extends Component {
 //
 export default  (withRouter(connect(
     (state)=> ({
-        actualAccount:    loginRedux.actualAccount(state),
+        actualAccountName:    loginRedux.actualAccountName(state),
         actualRoleId:     loginRedux.actualRoleId(state),
         actualRole:       loginRedux.actualRole(state),
     }),

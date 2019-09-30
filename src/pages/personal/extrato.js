@@ -80,8 +80,8 @@ class Extrato extends Component {
 
   loadTransactionsForAccount(is_first){
 
-    let account_name = this.props.actualAccount;
-    console.log(' pages::personal::extrato >> this.props.actualAccount:', this.props.actualAccount, ' | fetching history for:', account_name)
+    let account_name = this.props.actualAccountName;
+    console.log(' pages::personal::extrato >> this.props.actualAccountName:', this.props.actualAccountName, ' | fetching history for:', account_name)
     
     let that = this;
     this.setState({loading:true});
@@ -399,7 +399,7 @@ class Extrato extends Component {
 
 export default connect(
     (state)=> ({
-        actualAccount:    loginRedux.actualAccount(state),
+        actualAccountName:    loginRedux.actualAccountName(state),
         actualRole:       loginRedux.actualRole(state),
         actualRoleId:     loginRedux.actualRoleId(state),
         balance:          balanceRedux.userBalanceFormatted(state),

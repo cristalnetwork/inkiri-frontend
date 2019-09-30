@@ -65,7 +65,7 @@ class DepositMoney extends Component {
   }
   
   getNextEnvelopeId(){
-    api.bank.nextEnvelopeId (this.props.actualAccount).then(  
+    api.bank.nextEnvelopeId (this.props.actualAccountName).then(  
       (res)=>{
         this.setState ({loading:false, envelope_id: res});
       },
@@ -122,7 +122,7 @@ class DepositMoney extends Component {
 
   doDeposit(){
     // guarda
-    api.bank.createDeposit(this.props.actualAccount, this.state.value.amount, this.state.value.currency)
+    api.bank.createDeposit(this.props.actualAccountName, this.state.value.amount, this.state.value.currency)
     .then((res)=>{
       console.log(' >> doDeposit >> ', JSON.stringify(res));
       this.setState({result:'ok'});
@@ -295,7 +295,7 @@ class DepositMoney extends Component {
 //
 export default Form.create() (withRouter(connect(
     (state)=> ({
-        actualAccount:    loginRedux.actualAccount(state),
+        actualAccountName:    loginRedux.actualAccountName(state),
         actualRole:       loginRedux.actualRole(state),
         isLoading:        loginRedux.isLoading(state)
     }),

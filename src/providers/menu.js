@@ -34,9 +34,9 @@ const renderItem = (item) => {
     }
 }
 
-export const MenuByRole = ({area, fileName, items = [], getMenu, actualAccount, actualRole }) => {
+export const MenuByRole = ({area, fileName, items = [], getMenu, actualAccountName, actualRole }) => {
         useEffect(()=>{
-            getMenu(actualAccount, actualRole)
+            getMenu(actualAccountName, actualRole)
         })
 
         // ToDo: Here goes default selected item menu logic!!!
@@ -58,7 +58,7 @@ export const MenuByRole = ({area, fileName, items = [], getMenu, actualAccount, 
 export default connect(
     state => ({
         items:             menuRedux.getMenuItems(state),
-        actualAccount:     loginRedux.actualAccount(state),
+        actualAccountName:     loginRedux.actualAccountName(state),
         actualRole:        loginRedux.actualRole(state),
     }),
     dispatch => ({

@@ -7,9 +7,10 @@ import { Spin } from 'antd';
 
 class UserBalance extends Component  {
     
-    UNSAFE_componentWillMount() {
+    componentDidMount() {
         const {userId, loadBalance} = this.props;
-        loadBalance(userId)
+        // console.log(' >> userBalance::componentDidMount userId: ', userId)
+        loadBalance(userId);
     }
 
     componentDidUpdate(prevProps, prevState) 

@@ -177,7 +177,7 @@ class processRequest extends Component {
     const {_id, amount, requested_by, requestCounterId, deposit_currency} = this.state.request;
     const privateKey = this.props.actualPrivateKey;
     const receiver   = requested_by.account_name;
-    const sender     = globalCfg.currency.issuer; //this.props.actualAccount;
+    const sender     = globalCfg.currency.issuer; //this.props.actualAccountName;
     
     const fiat       = globalCfg.api.fiatSymbolToMemo(deposit_currency)
     const memo       = `dep|${fiat}|${requestCounterId.toString()}`;
@@ -435,7 +435,7 @@ class processRequest extends Component {
 export default Form.create() (withRouter(connect(
     (state)=> ({
         accounts:         accountsRedux.accounts(state),
-        actualAccount:    loginRedux.actualAccount(state),
+        actualAccountName:    loginRedux.actualAccountName(state),
         actualRole:       loginRedux.actualRole(state),
         actualPrivateKey: loginRedux.actualPrivateKey(state),
         isLoading:        loginRedux.isLoading(state),

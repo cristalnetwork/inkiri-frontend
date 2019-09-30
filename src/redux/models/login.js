@@ -114,8 +114,8 @@ store.injectSaga('login', [
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
 export const isLoading = (state) => state.login.loading > 0
-// export const actualAccount         = (state) => (state.login.current_account)?state.login.current_account.permissioned.actor:undefined
-export const actualAccount = (state) => (state.login.current_account) ? state.login.current_account.permissioner.account_name : undefined
+// export const actualAccountName         = (state) => (state.login.current_account)?state.login.current_account.permissioned.actor:undefined
+export const actualAccountName = (state) => (state.login.current_account) ? state.login.current_account.permissioner.account_name : undefined
 export const actualPrivateKey = (state) => state.login.private_key
 export const actualRole = (state) => (state.login.current_account) ? globalCfg.bank.getAccountType(state.login.current_account.permissioner.account_type) : undefined
 export const actualRoleId = (state) => (state.login.current_account) ? state.login.current_account.permissioner.account_type : undefined

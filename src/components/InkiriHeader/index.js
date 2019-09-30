@@ -65,7 +65,7 @@ class InkiriHeader extends Component {
         <div className="right">
           <div className="header_element_container">
             <AccountSelector onChange={this.handleChange} isMobile={this.props.isMobile}/>
-             &nbsp; <Tag> Account Balance ({globalCfg.currency.symbol}) <UserBalance userId={this.props.actualAccount} /> </Tag>
+             &nbsp; <span> Account Balance ({globalCfg.currency.symbol}) <UserBalance userId={this.props.actualAccountName} /> </span>
            <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.props.logout} size="small">Logout</Button>
           </div>
         </div>
@@ -85,7 +85,7 @@ class InkiriHeader extends Component {
 //
 export default connect(
     (state)=> ({
-      actualAccount :   loginRedux.actualAccount(state),
+      actualAccountName :   loginRedux.actualAccountName(state),
       menuIsCollapsed : menuRedux.isCollapsed(state)
     }),
     (dispatch)=>({

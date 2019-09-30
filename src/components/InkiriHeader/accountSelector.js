@@ -8,7 +8,7 @@ import './accountSelector.less';
 
 // const { Option } = Select;
 
-const AccountSelector = ({allAccounts, actualAccount, currentAccount, onChange, loading, isMobile}) => {
+const AccountSelector = ({allAccounts, actualAccountName, currentAccount, onChange, loading, isMobile}) => {
     
     const getDisplayAccountData = (account_item) => {
       if(!account_item)
@@ -46,7 +46,7 @@ const AccountSelector = ({allAccounts, actualAccount, currentAccount, onChange, 
     function handleMenuClick(e) {
       // console.log('click', e);
       // const selectedAccount = accounts.find(acc => acc.key === name)
-      if(typeof onChange === 'function' && e.key!==actualAccount) {
+      if(typeof onChange === 'function' && e.key!==actualAccountName) {
           onChange(e.key)
       }
     }
@@ -81,7 +81,7 @@ const AccountSelector = ({allAccounts, actualAccount, currentAccount, onChange, 
 export default connect(
     (state)=> ({
         allAccounts:     loginRedux.allAccounts(state),
-        actualAccount:   loginRedux.actualAccount(state),
+        actualAccountName:   loginRedux.actualAccountName(state),
         currentAccount:  loginRedux.currentAccount(state),
         isLoading:       loginRedux.isLoading(state)
     })

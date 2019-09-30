@@ -13,6 +13,7 @@ export const setBalance = ({key, balance}) =>({ type: SET_BALANCE, payload: { ke
 //Eventos que requieren del async
 function* loadBalanceSaga({action, payload}) {
   const { key } = payload;
+  console.log('*********************', '*********************', ' LOADEANDO BALANCE CON USER:', key);
   if(!key) return;
   // console.log('*********************', '*********************', ' LOADEANDO BALANCE CON USER:', key);
   const { data }= yield getAccountBalance(key);
@@ -36,14 +37,15 @@ export const isLoading             = (state) => state.balances.isLoading > 0
 
 // El reducer del modelo
 const defaultState = {
-  balance:       0,
-  balanceText:   '0',
-  isLoading:     0
+  balance:        0,
+  balanceText:    '0',
+  isLoading:      0
 }
 
 function reducer(state = defaultState, action = {}) {
   switch (action.type) {
     case LOAD_BALANCE: 
+      // console.log('*********************', '*********************', ' REDUCER CON USER:', action.payload.key);
       if(!action.payload.key) return state;
       return {
         ...state,

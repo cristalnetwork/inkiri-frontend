@@ -88,7 +88,8 @@ class Provider extends Component {
     }
     else
     {
-      this.setState({provider : {"address":{"street":"Rua do Rey 1115","city":"Rio de Janeiro","state":"Rio de Janeiro","zip":"111222","country":"Brazil"},"_id":"5d8cba5b494b1a316b854d7c","name":"Proveedor #1","cnpj":"123456789","email":"proveedor1@gmail.com","phone":"+025369875","category":"Proveedor de conocimiento","products_services":"Conocimientos, ideas, y eso","bank_accounts":[{"_id":"5d8cba5b494b1a316b854d7d","bank_name":"Banco do Brasil","agency":"1234","cc":"987654321"}],"created_by":{"self_created":true,"_id":"5d67d2c78ed5673269c0a54c","account_name":"inkirimaster","email":"inkirimaster@inkiri.com","created_at":"2019-08-29T13:27:35.198Z","updatedAt":"2019-09-26T21:14:41.203Z","userCounterId":10,"__v":0,"to_sign":"5HvyTXD98nATUv1PfNg3xjPrZvww5DX7eh21kjPSm836hVGNb4Y","_type":"personal","account_type":"personal","id":"5d67d2c78ed5673269c0a54c"},"created_at":"2019-09-26T13:17:15.630Z","updatedAt":"2019-09-26T13:17:15.630Z","providerCounterId":1,"__v":0,"id":"5d8cba5b494b1a316b854d7c"} });
+      // DEMO DATA!
+      // this.setState({provider : {"address":{"street":"Rua do Rey 1115","city":"Rio de Janeiro","state":"Rio de Janeiro","zip":"111222","country":"Brazil"},"_id":"5d8cba5b494b1a316b854d7c","name":"Proveedor #1","cnpj":"123456789","email":"proveedor1@gmail.com","phone":"+025369875","category":"Proveedor de conocimiento","products_services":"Conocimientos, ideas, y eso","bank_accounts":[{"_id":"5d8cba5b494b1a316b854d7d","bank_name":"Banco do Brasil","agency":"1234","cc":"987654321"}],"created_by":{"self_created":true,"_id":"5d67d2c78ed5673269c0a54c","account_name":"inkirimaster","email":"inkirimaster@inkiri.com","created_at":"2019-08-29T13:27:35.198Z","updatedAt":"2019-09-26T21:14:41.203Z","userCounterId":10,"__v":0,"to_sign":"5HvyTXD98nATUv1PfNg3xjPrZvww5DX7eh21kjPSm836hVGNb4Y","_type":"personal","account_type":"personal","id":"5d67d2c78ed5673269c0a54c"},"created_at":"2019-09-26T13:17:15.630Z","updatedAt":"2019-09-26T13:17:15.630Z","providerCounterId":1,"__v":0,"id":"5d8cba5b494b1a316b854d7c"} });
     }
 
   }
@@ -521,7 +522,7 @@ class Provider extends Component {
 export default Form.create() (withRouter(connect(
     (state)=> ({
         accounts:         accountsRedux.accounts(state),
-        actualAccount:    loginRedux.actualAccount(state),
+        actualAccountName:    loginRedux.actualAccountName(state),
         actualRole:       loginRedux.actualRole(state),
         actualPrivateKey: loginRedux.actualPrivateKey(state),
         isLoading:        loginRedux.isLoading(state),

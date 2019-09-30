@@ -105,12 +105,13 @@ export const getAccountBalance = async (account_name) => {
   }
 
   const response  = await jsonRpc.get_table_rows(params);
-  console.log(' ########## getAccountBalance:', JSON.stringify(response));
-  let data = {
-              balance:       (response && response.row &&  response.row.length)?txsHelper.getEOSQuantityToNumber(response.row.rows[0].balance):0,
-              balanceText:   (response && response.row &&  response.row.length)?response.row.rows[0].balance:0
+  // console.log(' ########## getAccountBalance:', JSON.stringify(response));
+  // {"rows":[{"balance":"5498.0000 INK"}],"more":false}
+  let res = {
+              balance:       (response && response.rows &&  response.rows.length)?txsHelper.getEOSQuantityToNumber(response.rows[0].balance):0,
+              balanceText:   (response && response.rows &&  response.rows.length)?response.rows[0].balance:0
             }
-  return {data}
+  return {data:res}
 }
 
 // v1/chain/get_table_rows

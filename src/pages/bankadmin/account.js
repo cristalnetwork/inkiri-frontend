@@ -92,8 +92,6 @@ class Account extends Component {
   
   loadAccountInfo = async (account_name) => {
     
-    // const { balance } = await api.getAccountBalance(account_name);
-    // const { perm } = await api.getAccount(account_name);
     if(!account_name)
       account_name = account_name | this.state.eos_account.account_name;
     var promise1 = api.getAccountBalance(account_name);
@@ -603,7 +601,7 @@ class Account extends Component {
 export default Form.create() (withRouter(connect(
     (state)=> ({
         accounts:         accountsRedux.accounts(state),
-        actualAccount:    loginRedux.actualAccount(state),
+        actualAccountName:    loginRedux.actualAccountName(state),
         actualRole:       loginRedux.actualRole(state),
         actualPrivateKey: loginRedux.actualPrivateKey(state),
         isLoading:        loginRedux.isLoading(state),

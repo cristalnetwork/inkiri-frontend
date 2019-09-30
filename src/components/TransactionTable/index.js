@@ -166,7 +166,7 @@ class TransactionTable extends Component {
       return;
     }
 
-    let account_name = this.props.actualAccount;
+    let account_name = this.props.actualAccountName;
     
     
     this.setState({loading:true});
@@ -235,7 +235,7 @@ class TransactionTable extends Component {
 
 export default connect(
     (state)=> ({
-      actualAccount: loginRedux.actualAccount(state),
+      actualAccountName: loginRedux.actualAccountName(state),
       actualRoleId:    loginRedux.actualRoleId(state),
     }),
     (dispatch)=>({

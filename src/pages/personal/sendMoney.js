@@ -107,11 +107,11 @@ class SendMoney extends Component {
       }
       console.log('Received values of form: ', values);
 
-      // const privateKey = api.dummyPrivateKeys[this.props.actualAccount] 
+      // const privateKey = api.dummyPrivateKeys[this.props.actualAccountName] 
       const privateKey = this.props.actualPrivateKey;
       // HACK! >> La tenemos que traer de localStorage? <<
       const receiver   = values.receipt;
-      const sender     = this.props.actualAccount;
+      const sender     = this.props.actualAccountName;
       const amount     = values.amount;
       let that         = this;
       that.setState({pushingTx:true});
@@ -205,7 +205,7 @@ class SendMoney extends Component {
                 })(
                   <AutoComplete
                     size="large"
-                    dataSource={this.props.accounts.filter(acc=>acc.key!=this.props.actualAccount).map(acc=>acc.key)}
+                    dataSource={this.props.accounts.filter(acc=>acc.key!=this.props.actualAccountName).map(acc=>acc.key)}
                     style={{ width: '100%' }}
                     onSelect={this.onSelect}
                     placeholder=""
@@ -295,7 +295,7 @@ class SendMoney extends Component {
 export default Form.create() (withRouter(connect(
     (state)=> ({
         accounts:         accountsRedux.accounts(state),
-        actualAccount:    loginRedux.actualAccount(state),
+        actualAccountName:    loginRedux.actualAccountName(state),
         actualRole:       loginRedux.actualRole(state),
         actualPrivateKey: loginRedux.actualPrivateKey(state),
         isLoading:        loginRedux.isLoading(state),

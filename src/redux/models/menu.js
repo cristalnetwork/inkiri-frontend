@@ -24,7 +24,7 @@ export const collapseMenu = (is_collapsed) => ({ type: TRY_COLLAPSE, payload: { 
 function* getMenuSaga({ type, payload }) {
   try {
     // const {error, data } = yield call(api.getRole, payload.userId)
-    // account_name: actualAccount, account_type:actualRole
+    // account_name: actualAccountName, account_type:actualRole
     // if (typeof error === 'undefined') {
       // yield put(setMenu({ role: data.role, menu: getRoutesByRole( data.role )}))
     // }
