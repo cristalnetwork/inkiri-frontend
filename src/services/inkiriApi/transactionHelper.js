@@ -57,6 +57,7 @@ const tx_keycodes = [
   'transfer_bck',
   'transfer_wth',
   'transfer_xch',
+  'transfer_prv', //provider
   'transfer_snd',
   'transfer_pay',
   'transfer_pap'
@@ -91,6 +92,11 @@ function getTxSubHeaderText(account_name, tx, i_sent, tx_type, tx_name, tx_code,
       const data_transfer_xch = getExchangeInfo(tx);
       return i_sent?'Solicitaste cambio a banco '+data_transfer_xch.bank_id:'Solicitaron cambio a banco '+data_transfer_xch.bank_id
       break;
+    case 'transfer_prv':
+      const data_transfer_prv = getProviderPaymentInfo(tx);
+      return i_sent?'Solicitaste pago a proveedor. Request_id:'+data_transfer_prv.request_id:'Solicitaron pago a proveedor. Request_id:'+data_transfer_prv.request_id
+      break;
+    
     case 'transfer_snd':
       return i_sent?'Enviaste dinero':'Te enviaron dinero'
       break;
@@ -145,6 +151,14 @@ function getBackInfo(tx){
 function getExchangeInfo(tx){
   return {
     bank_id : 'BANK_ID'
+    // ,bank : {} ToDo: retrieve bank information from private server!!!
+  }
+}
+// prv: provider payment        >> transfer_prv
+//   prv|request_id
+function getProviderPaymentInfo(tx){
+  return {
+    request_id : (tx && tx.data && tx.data.memo && tx.data.memo.split('|').length>1)?tx.data.memo.split('|')[1]:'N/A'
     // ,bank : {} ToDo: retrieve bank information from private server!!!
   }
 }

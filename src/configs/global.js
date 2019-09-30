@@ -19,6 +19,10 @@ const currency = {
 const bank = {
   contract:                "inkirimaster",
   issuer:                  "inkirimaster",
+
+  exchange_account:        "inkirimaster",
+  provider_account:        "inkirimaster",
+
   customers:               'https://jungle.bloks.io/account/inkirimaster?loadContract=true&tab=Tables&account=inkirimaster&scope=inkirimaster&limit=100',
   ACCOUNT_TYPE_PERSONAL:   1,
   ACCOUNT_TYPE_BUSINESS:   2,

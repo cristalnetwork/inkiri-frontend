@@ -301,12 +301,13 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
 }
 
   
-export const sendMoney = async (sender_account, sender_priv, receiver_account, amount) => { 
+export const sendMoney = async (sender_account, sender_priv, receiver_account, amount, memo, signer_account) => { 
 	console.log(' inkiriApi::sendMoney ', 
 		'param@sender_account:', sender_account,
 		'param@sender_priv:', sender_priv,
 		'param@receiver_account:', receiver_account,
-		'param@amount:', amount
+		'param@amount:', amount,
+    'param@memo:', memo
 		);
 
   const transferAction = {
@@ -314,7 +315,7 @@ export const sendMoney = async (sender_account, sender_priv, receiver_account, a
     name: "transfer",
     authorization: [
       {
-        actor:         sender_account,
+        actor:         sender_account, //signer_account || 
         permission:    'active'
       }
     ],
@@ -322,7 +323,7 @@ export const sendMoney = async (sender_account, sender_priv, receiver_account, a
       from: sender_account,
       to: receiver_account,
       quantity: formatAmount(amount),
-      memo: 'snd'
+      memo: memo||'snd'
     }
   }
 
@@ -334,7 +335,7 @@ export const sendMoney = async (sender_account, sender_priv, receiver_account, a
 
 export const issueMoney = async (issuer_account, issuer_priv, receiver_account, amount, memo) => { 
 
-	console.log(' inkiriApi::sendMoney ', 
+	console.log(' inkiriApi::issueMoney ', 
 		'param@issuer_account:', issuer_account,
 		'param@issuer_priv:', issuer_priv,
 		'param@receiver_account:', receiver_account,
@@ -353,7 +354,7 @@ export const issueMoney = async (issuer_account, issuer_priv, receiver_account, 
     data: {
       to: receiver_account,
       quantity: formatAmount(amount),
-      memo: (memo|'')
+      memo: memo||''
     }
   }
 

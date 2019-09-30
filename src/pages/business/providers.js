@@ -19,7 +19,7 @@ import './providers.css';
 import styles from './providers.less';
 
 import TransactionTable from '@app/components/TransactionTable';
-import {columns,  DISPLAY_ALL_TXS, DISPLAY_PAYMENTS} from '@app/components/TransactionTable';
+import {DISPLAY_ALL_TXS, DISPLAY_PAYMENTS, DISPLAY_PROVIDER} from '@app/components/TransactionTable';
 
 import * as utils from '@app/utils/utils';
 
@@ -59,8 +59,119 @@ class Providers extends Component {
     this.onProcessRequestClick      = this.onProcessRequestClick.bind(this);
     this.refreshCurrentTable        = this.refreshCurrentTable.bind(this);
     this.renderFilterContent        = this.renderFilterContent.bind(this);
+    this.onButtonClick              = this.onButtonClick.bind(this);
+    this.getColumns                 = this.getColumns.bind(this);
   }
   
+  onButtonClick(record){
+  
+    this.props.history.push({
+      pathname: `/${this.props.actualRole}/request-details`
+      // , search: '?query=abc'
+      , state: { request: record }
+    })
+
+  }
+
+  getColumns(){
+    return [
+      {
+        title: 'Date',
+        dataIndex: 'block_time',
+        key: 'block_time',
+        sortDirections: ['descend'],
+        defaultSortOrder: 'descend',
+        sorter: (a, b) => a.block_time_number - b.block_time_number,
+      },
+      {
+        title: 'Description',
+        dataIndex: 'sub_header',
+        key: 'sub_header',
+        render: (value, record) => {
+          return(<>{record.sub_header}</>)
+        }
+      },
+      //
+      {
+        title: 'Amount',
+        dataIndex: 'quantity',
+        key: 'quantity',
+        align: 'right',
+        render: (quantity, record) => (
+          <span>
+            {globalCfg.currency.toCurrencyString(quantity)}
+          </span>
+          )
+      },
+      //
+      {
+        title: 'Tags',
+        key: 'tx_type',
+        dataIndex: 'tx_type',
+        render: (tx_type, record) => {
+
+          return (
+              <span key={'tags'+record.id}>
+               <Tag color={'geekblue'} key={'type_'+record.id}>
+                      {tx_type.toUpperCase()}
+               </Tag>
+               <br/><Tag color={'geekblue'} key={'state_'+record.id}>
+                      {(record.state||'COMPLETED').toUpperCase()}
+               </Tag>
+               <br/><Tag color={'geekblue'} key={'provider_'+record.id}>
+                      {record.provider.name + ' - CNPJ:'+ record.provider.cnpj}
+               </Tag>
+
+               <br/><Tag color={'geekblue'} key={'files_1_'+record.id}>
+                      Nota Fiscal: {record.provider.nota_fiscal_url||'N/A'}
+               </Tag>
+               <br/><Tag color={'geekblue'} key={'files_2_'+record.id}>
+                      Boleto Pagamento: {record.provider.boleto_pagamento||'N/A'}
+               </Tag>
+               <br/><Tag color={'geekblue'} key={'files_3_'+record.id}>
+                      Comprobante Bancario: {record.provider.comprobante_url||'N/A'}
+               </Tag>
+                
+                
+
+              </span>
+              )}
+      },
+      //
+      {
+        title: 'Action',
+        key: 'action',
+        width: 100,
+        render: (text, record) => {
+          // console.log('ADDING ROW >> ', record.id);
+          const processButton = (<Button key={'details_'+record.id} onClick={()=>{ this.onButtonClick(record) }}>Details</Button>);
+          //
+          let viewDetailsButton = (null);
+          const onBlockchain = globalCfg.api.isOnBlockchain(record);
+          if(onBlockchain){
+            const _href = api.dfuse.getBlockExplorerTxLink(onBlockchain);
+            viewDetailsButton = (<Button type="link" href={_href} target="_blank" key={'view-on-blockchain_'+record.id} icon="cloud" >View on Blockchain</Button>);
+          } //
+
+          if(!globalCfg.api.isFinished(record))
+          {
+            return (
+              <span>
+                {viewDetailsButton}
+                <Divider type="vertical" />
+                {processButton}
+              </span>  );
+          }
+          //
+          return(
+            <span>
+              {viewDetailsButton}
+            </span>
+          )},
+      },
+    ];
+  }
+  //
   onNewRequestClick(){
     this.props.history.push({
       pathname: `/${this.props.actualRole}/providers-payments-request`
@@ -92,9 +203,10 @@ class Providers extends Component {
     
     // const req_type = DISPLAY_PROVIDER;
     
-    api.bank.listMyRequests(this.props.actualAccountName, page, limit, DISPLAY_PAYMENTS)
+    api.bank.listMyRequests(this.props.actualAccountName, page, limit, DISPLAY_PROVIDER)
     .then( (res) => {
         that.onNewData(res, first_call);
+        console.log('---- listMyRequests:', JSON.stringify(res));
       } ,(ex) => {
         // console.log('---- ERROR:', JSON.stringify(ex));
         that.setState({loading:false});  
@@ -242,7 +354,7 @@ class Providers extends Component {
           <Row>
             <Col xs={24} sm={12} md={4} lg={4} xl={4}>
               <Statistic
-                    title="Saidas"
+                    title="Pagamentos"
                     value={money_out}
                     precision={2}
                     valueStyle={{ color: 'red' }}
@@ -258,7 +370,7 @@ class Providers extends Component {
                   />
             </Col>
             <Col xs={24} sm={12} md={16} lg={16} xl={16}>
-              <Button style={{float:'right'}} key="_new_request" size="medium" icon="plus" onClick={()=>this.onNewRequestClick()}> Request Payment to Provider</Button>
+              <Button style={{float:'right'}} key="_new_request" size="default" icon="plus" onClick={()=>this.onNewRequestClick()}> Request Payment to Provider</Button>
             </Col>
           </Row>
         </Card>
@@ -293,17 +405,18 @@ class Providers extends Component {
 
         {stats}
         
-        <Table
-          key={"table_"+DISPLAY_ALL_TXS} 
-          rowKey={record => record.id} 
-          loading={this.state.loading} 
-          columns={columns(this.props.actualRoleId, this.onProcessRequestClick)} 
-          dataSource={this.state.txs} 
-          footer={() => this.renderFooter()}
-          pagination={this.state.pagination}
-          scroll={{ x: 700 }}
-          />
-
+        <div style={{ margin: '0 0px', paddingLeft: 12, paddingRight: 12, paddingBottom: 12, background: '#fff', height: 'auto', marginTop: 0  }}>
+          <Table
+            key={"table_"+DISPLAY_ALL_TXS} 
+            rowKey={record => record.id} 
+            loading={this.state.loading} 
+            columns={this.getColumns()} 
+            dataSource={this.state.txs} 
+            footer={() => this.renderFooter()}
+            pagination={this.state.pagination}
+            scroll={{ x: 700 }}
+            />
+        </div>
       </>
     );
   }

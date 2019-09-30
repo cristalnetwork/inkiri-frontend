@@ -125,19 +125,47 @@ class RequestPayment extends Component {
       // HACK! >> La tenemos que traer de localStorage? <<
       const provider_id = this.state.provider.key;
       const sender     = this.props.actualAccountName;
+      const signer     = this.props.personalAccount.permissioner.account_name;
+      
+       
       const amount     = values.amount;
       let that         = this;
-      console.log('**createProviderPayment >> account_name:', sender, ' | amount:', amount, ' | provider_id:', provider_id)
+      
+      // console.log('**createProviderPayment >> account_name:', sender, ' | amount:', amount, ' | provider_id:', provider_id)
       that.setState({pushingTx:true});
+      /*
+      * ToDo: improve this steps!
+      * 1.- create request.
+      *   ** missing -> post files
+      * 2.- get Id and send $IK to payment_account
+      * 3.- update request
+      */
+      api.bank.createProviderPayment(sender, amount, provider_id)
+        .then((data) => {
+          console.log(' createProviderPayment::send (then#1) >>  ', JSON.stringify(data));
+           
+           const request_id       = data.id;
+           const provider_account = globalCfg.bank.provider_account; 
+           const memo             = 'prv|' + request_id
+           api.sendMoney(sender, privateKey, provider_account, amount, memo, signer)
+            .then((data) => {
 
-      // api.createProviderPayment = (sender, amount, provider_id)
-      //   .then((data) => {
-      //     console.log(' createProviderPayment::send (then#1) >>  ', JSON.stringify(data));
-      //     that.setState({result:'ok', pushingTx:false, result_object:data});
-      //   }, (ex) => {
-      //     console.log(' createProviderPayment::send (error#1) >>  ', JSON.stringify(ex));
-      //     that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
-      //   });
+              console.log(' SendMoney::send (then#2) >>  ', JSON.stringify(data));
+
+
+            }, (ex) => {
+              
+              console.log(' SendMoney::send (error#2) >>  ', JSON.stringify(ex));
+              that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+
+            });
+
+
+          that.setState({result:'ok', pushingTx:false, result_object:data});
+        }, (ex) => {
+          console.log(' createProviderPayment::send (error#1) >>  ', JSON.stringify(ex));
+          that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+        });
       
     });
   };
@@ -166,14 +194,13 @@ class RequestPayment extends Component {
     
     if(this.state.result=='ok')
     {
-      const tx_id = api.dfuse.getTxId(this.state.result_object?this.state.result_object.data:{});
-      const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
-      // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
+      const tx_id = '1';//api.dfuse.getTxId(this.state.result_object?this.state.result_object.data:{});
+      const _href = '#';api.dfuse.getBlockExplorerTxLink(tx_id);
       
       return (<Result
         status="success"
         title="Transaction completed successfully!"
-        subTitle="Transaction id ${tx_id}. Cloud server takes up to 30 seconds, please wait."
+        subTitle={`Transaction id ${tx_id}. Cloud server takes up to 30 seconds, please wait.`}
         extra={[
           <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
             Go to dashboard
@@ -183,7 +210,7 @@ class RequestPayment extends Component {
         ]}
       />)
     }
-
+    //`
     if(this.state.result=='error')
     {
 
@@ -307,7 +334,6 @@ class RequestPayment extends Component {
 
   render() {
     let content = this.renderContent();
-    
     return (
       <>
         <PageHeader
@@ -338,7 +364,10 @@ export default Form.create() (withRouter(connect(
         actualRole:       loginRedux.actualRole(state),
         actualPrivateKey: loginRedux.actualPrivateKey(state),
         isLoading:        loginRedux.isLoading(state),
+        personalAccount:  loginRedux.personalAccount(state),
         balance:          balanceRedux.userBalance(state),
+        
+        
     }),
     (dispatch)=>({
         

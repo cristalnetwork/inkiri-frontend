@@ -246,7 +246,7 @@ class processRequest extends Component {
       return (<Result
         status="success"
         title="Transaction completed successfully!"
-        subTitle="Transaction id ${tx_id}. Cloud server takes up to 30 seconds, please wait."
+        subTitle={`Transaction id ${tx_id}. Cloud server takes up to 30 seconds, please wait.`}
         extra={[
           <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
             Go to dashboard

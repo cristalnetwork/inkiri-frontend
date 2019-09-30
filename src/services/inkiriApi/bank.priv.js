@@ -413,7 +413,7 @@ export const createProviderPayment = (account_name, amount, provider_id) =>   ne
   const path    = globalCfg.api.end_point + '/requests';
   const method  = 'POST';
   const post_params = {
-          'account_name':       account_name
+          'from':       account_name
           , 'requested_type':   'type_provider'
           , 'amount':           Number(amount).toFixed(2)
           , 'provider':         provider_id
