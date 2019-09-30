@@ -104,7 +104,7 @@ const routes  = {
                     },
                     {
                         key: pathNames.bankadminExternalTransfers,
-                        path: pathNames.bankadminUnderConstruction,
+                        path: pathNames.bankadminExternalTransfers,
                         title: 'External Transfers',
 
                     },

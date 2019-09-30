@@ -148,20 +148,30 @@ class RequestPayment extends Component {
            const provider_account = globalCfg.bank.provider_account; 
            const memo             = 'prv|' + request_id
            api.sendMoney(sender, privateKey, provider_account, amount, memo, signer)
-            .then((data) => {
+            .then((data1) => {
 
-              console.log(' SendMoney::send (then#2) >>  ', JSON.stringify(data));
-
-
-            }, (ex) => {
+              const send_tx             = data1;
+              console.log(' SendMoney::send (then#2) >>  ', JSON.stringify(send_tx));
               
-              console.log(' SendMoney::send (error#2) >>  ', JSON.stringify(ex));
-              that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+              api.bank.updateProviderPayment(request_id, undefined, send_tx.data.transaction_id)
+                .then((data2) => {
+
+                    that.setState({result:'ok', pushingTx:false, result_object:{blockchain_id : send_tx.data.transaction_id, request_id:request_id} });
+
+                  }, (ex2) => {
+                    console.log(' createProviderPayment::send (error#3) >>  ', JSON.stringify(ex2));
+                    that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex2)});
+                });
+
+            }, (ex1) => {
+              
+              console.log(' SendMoney::send (error#2) >>  ', JSON.stringify(ex1));
+              that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex1)});
 
             });
 
 
-          that.setState({result:'ok', pushingTx:false, result_object:data});
+          // that.setState({result:'ok', pushingTx:false, result_object:data});
         }, (ex) => {
           console.log(' createProviderPayment::send (error#1) >>  ', JSON.stringify(ex));
           that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
@@ -194,13 +204,14 @@ class RequestPayment extends Component {
     
     if(this.state.result=='ok')
     {
-      const tx_id = '1';//api.dfuse.getTxId(this.state.result_object?this.state.result_object.data:{});
-      const _href = '#';api.dfuse.getBlockExplorerTxLink(tx_id);
+      const request_id  = this.state.result_object?this.state.result_object.request_id:'';
+      const tx_id       = this.state.result_object?this.state.result_object.blockchain_id:'';
+      const _href       = api.dfuse.getBlockExplorerTxLink(tx_id);
       
       return (<Result
         status="success"
         title="Transaction completed successfully!"
-        subTitle={`Transaction id ${tx_id}. Cloud server takes up to 30 seconds, please wait.`}
+        subTitle={`Request id ${request_id}. Transaction id ${tx_id}. Cloud server takes up to 30 seconds, please wait.`}
         extra={[
           <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
             Go to dashboard

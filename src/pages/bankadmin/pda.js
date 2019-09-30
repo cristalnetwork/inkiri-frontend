@@ -176,7 +176,7 @@ class PDA extends Component {
     console.log( ' PDA::onProcessRequestClick >> ', JSON.stringify(request) )
 
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/process-request`
+      pathname: `/${this.props.actualRole}/pda-process-request`
       // , search: '?query=abc'
       , state: { request: request }
     })

@@ -67,7 +67,7 @@ class Extrato extends Component {
     console.log( ' EXTRATO::onProcessRequestClick >> ', JSON.stringify(request) )
 
     // this.props.history.push({
-    //   pathname: `/common/process-request`
+    //   pathname: `/common/?`
     //   // , search: '?query=abc'
     //   , state: { request: request }
     // })

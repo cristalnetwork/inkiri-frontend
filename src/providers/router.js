@@ -31,14 +31,16 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
         if(actualRole) {
             if(actualRole=='bankadmin') 
               // history.push(`/${actualRole}/provider-profile`);
-              history.push(`/${actualRole}/providers`);
+              // history.push(`/${actualRole}/providers`);
+              history.push(`/${actualRole}/external-transfers`);
               // history.push(`/${actualRole}/pda`);
               // history.push(`/${actualRole}/accounts`);
               // history.push(`/${actualRole}/create-account`);
             else
               if(actualRole=='business') 
                 // history.push(`/${actualRole}/providers-payments-request`);
-            history.push(`/${actualRole}/providers-payments`);
+                history.push(`/${actualRole}/providers-payments`);
+                //history.push(`/${actualRole}/external-transfers`);
               else                
                 // history.push(`/${actualRole}/dashboard`);
                 // history.push(`/${actualRole}/deposit`);

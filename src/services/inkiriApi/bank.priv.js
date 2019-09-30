@@ -173,25 +173,28 @@ export const createDeposit = (account_name, amount, currency) =>   new Promise((
       });
 });
 
-export const setDepositOk = (request_id, tx_id) =>  updateDeposit(request_id, globalCfg.api.STATE_CONCLUDED , tx_id);
+export const setDepositOk = (request_id, tx_id) =>  updateRequest(request_id, globalCfg.api.STATE_CONCLUDED , tx_id);
 
-export const updateDeposit = (request_id, state, tx_id) =>   new Promise((res,rej)=> {
+// export const updateDeposit = (request_id, state, tx_id) =>   new Promise((res,rej)=> {
+
+export const updateRequest = (request_id, state, tx_id) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.end_point + '/requests';
   const method  = 'PATCH';
   const query   = `/${request_id}`;
-  const post_params = {
-          _id:         request_id
-          , state:     state
-          , tx_id:     tx_id
-        };
-  console.log(' inkiriApi::createDeposit >> ABOUT TO POST', JSON.stringify(post_params))
+  let post_params = {_id:         request_id};
+  if(state)
+    post_params['state'] = state;
+  if(tx_id)
+    post_params['tx_id'] = tx_id;
+
+  console.log(' inkiriApi::updateRequest >> ABOUT TO POST', JSON.stringify(post_params))
   jwtHelper.apiCall(path+query, method, post_params)
     .then((data) => {
-        console.log(' inkiriApi::createDeposit >> RESPONSE', JSON.stringify(data))
+        console.log(' inkiriApi::updateRequest >> RESPONSE', JSON.stringify(data))
         res(data)
       }, (ex) => {
-        console.log(' inkiriApi::createDeposit >> ERROR ', JSON.stringify(ex))
+        console.log(' inkiriApi::updateRequest >> ERROR ', JSON.stringify(ex))
         rej(ex);
       });  
 })
@@ -413,7 +416,7 @@ export const createProviderPayment = (account_name, amount, provider_id) =>   ne
   const path    = globalCfg.api.end_point + '/requests';
   const method  = 'POST';
   const post_params = {
-          'from':       account_name
+          'from':               account_name
           , 'requested_type':   'type_provider'
           , 'amount':           Number(amount).toFixed(2)
           , 'provider':         provider_id
@@ -428,3 +431,5 @@ export const createProviderPayment = (account_name, amount, provider_id) =>   ne
         rej(ex);
       });
 });
+
+export const updateProviderPayment = (request_id, state, tx_id) => updateRequest(request_id, state, tx_id);
