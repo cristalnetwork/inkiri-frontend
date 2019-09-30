@@ -16,8 +16,8 @@ import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statist
 
 import { notification, Table, Divider, Spin } from 'antd';
 
-import './extrato.css'; 
-import styles from './extrato.less';
+import './providers.css'; 
+import styles from './providers.less';
 
 import TransactionTable from '@app/components/TransactionTable';
 import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
@@ -379,8 +379,7 @@ class Extrato extends Component {
               <TabPane tab="All"       key={DISPLAY_ALL_TXS} />
               <TabPane tab="Deposits"  key={DISPLAY_DEPOSIT} />
               <TabPane tab="Withdraws" key={DISPLAY_WITHDRAWS} disabled />
-              <TabPane tab="Exchanges" key={DISPLAY_EXCHANGES} disabled />
-              <TabPane tab="Payments"  key={DISPLAY_PAYMENTS} disabled />
+              <TabPane tab="Payments"  key={DISPLAY_PAYMENTS} />
               <TabPane tab="Requests"  key={DISPLAY_REQUESTS} disabled />
             </Tabs>
           </Card>

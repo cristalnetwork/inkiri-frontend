@@ -1,0 +1,57 @@
+.ant-pagination {display: none!important;}
+.ant-table-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.wrap {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+
+  margin: 0 0px;
+  padding: 24px;
+  background-color: #fff;
+}
+
+.filter_wrap {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+
+  margin: 0 0px;
+  padding-bottom: 24px;
+  background-color: #fff;
+}
+.content {
+  flex: 1;
+}
+.extraContent {
+  min-width: 240px;
+  text-align: right;
+}
+.content.padding {
+  padding-left: 40px;
+}
+.content .description {
+  display: table;
+}
+.description .term {
+  display: table-cell;
+  margin-right: 8px;
+  padding-bottom: 8px;
+  white-space: nowrap;
+  line-height: 20px;
+}
+.description .term:after {
+  position: relative;
+  top: -0.5px;
+  margin: 0 8px 0 2px;
+  content: ":";
+}
+.description .detail {
+  display: table-cell;
+  padding-bottom: 8px;
+  width: 100%;
+  line-height: 20px;
+}

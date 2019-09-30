@@ -237,7 +237,7 @@ const business = [
     },
     {
        key: pathNames.businessExtracto,
-       fileName: 'under-construction',
+       fileName: 'extrato',
        area: 'business',
        path: 'extrato',
        container: 'dashboard',
@@ -293,12 +293,12 @@ const business = [
        role: 'business'
     },
     {
-       key: pathNames.businessProvidersPayments,
-       fileName: 'under-construction',
-       area: 'business',
-       path: 'providers-payments',
+       key:       pathNames.businessProvidersPayments,
+       fileName:  'providers',
+       area:      'business',
+       path:      'providers-payments',
        container: 'dashboard',
-       role: 'business'
+       role:      'business'
     },
     {
        key: pathNames.businessSalaries,
@@ -347,6 +347,11 @@ export const getItem = (path) => {
     const item  = merged.find(routeItem => routeItem.path === path )
     const title = item.path.split('-').map(obj => utils.capitalize(obj)).join(' ') 
     return {...item, fullpath:`/${item.area}/${item.path}`, title:title}
+}
+
+export const getItemByAreaNFilename = (area, filename) => {
+    const item  = merged.find(routeItem => routeItem.area===area && routeItem.fileName===filename )
+    return {...item}
 } 
 
 export default merged

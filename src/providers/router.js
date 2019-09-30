@@ -19,6 +19,9 @@ import * as loginRedux from '@app/redux/models/login'
 // LOGIN, ROLES and REDIRECT TO REFERRER -- > https://reacttraining.com/react-router/web/example/auth-workflow
 
 const _checkRole = ({role, actualRole, children, history, location}) => {
+    
+    // console.log( ' ************ ', ' ROUTER -> role ', role, '=== actualRole', actualRole );
+
     if (role === actualRole) {
 
         return <>
@@ -33,10 +36,13 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
               // history.push(`/${actualRole}/accounts`);
               // history.push(`/${actualRole}/create-account`);
             else
-              // history.push(`/${actualRole}/dashboard`);
-              // history.push(`/${actualRole}/deposit`);
-              history.push(`/${actualRole}/extrato`);
-              // history.push(`/${actualRole}/send-money`);
+              if(actualRole=='business') 
+                history.push(`/${actualRole}/providers-payments`);
+              else                
+                // history.push(`/${actualRole}/dashboard`);
+                // history.push(`/${actualRole}/deposit`);
+                history.push(`/${actualRole}/extrato`);
+                // history.push(`/${actualRole}/send-money`);
         }
         else {
             history.push(`/login`);

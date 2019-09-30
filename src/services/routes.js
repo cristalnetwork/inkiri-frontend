@@ -179,7 +179,7 @@ const routes  = {
                 items: [
                     {
                         key: pathNames.businessExtracto,
-                        path: pathNames.businessUnderConstruction,
+                        path: pathNames.businessExtracto,
                         title: 'Transaction History',
                     },
                     {
@@ -228,7 +228,7 @@ const routes  = {
                     },
                     {
                         key: pathNames.businessProvidersPayments,
-                        path: pathNames.businessUnderConstruction,
+                        path: pathNames.businessProvidersPayments,
                         title: 'Providers',
                     }
                 ]
@@ -267,6 +267,13 @@ export const getRoutesByRole = (role) => {
     return role?routes[role]:[];
 }
 
+// export const getParentOfAreaNFilename = (area, filename) => {
+//     return routes[area].items
+// }
+
+export const getRootKeys = (area) => {
+    return routes[area].items.map( item => item.key );
+}
 
 export const breadcrumbForFile = (file) => {
     const menuItem = getItem(file);

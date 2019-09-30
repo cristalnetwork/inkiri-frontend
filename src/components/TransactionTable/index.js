@@ -51,6 +51,12 @@ export const columns = (account_type, onButtonClick) => {
     title: 'Amount',
     dataIndex: 'quantity',
     key: 'quantity',
+    align: 'right',
+    render: (quantity, record) => (
+      <span>
+        {globalCfg.currency.toCurrencyString(quantity)}
+      </span>
+      )
   },
   {
     title: 'Tags',

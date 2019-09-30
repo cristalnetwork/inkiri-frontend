@@ -8,8 +8,8 @@ import { Menu, Icon } from 'antd';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 
-import { getPath } from '@app/configs/routes'
-// import { getRoutesByRole } from '@app/services/routes'
+import { getPath, getItemByAreaNFilename } from '@app/configs/routes'
+import { getRootKeys } from '@app/services/routes'
 
 const  { SubMenu } = Menu;
 
@@ -18,7 +18,6 @@ const renderItem = (item) => {
     if(item.items) {
         return (
         <SubMenu title={<span>{ item.icon? <Icon type={item.icon} />: false }<span>{item.title}</span></span>} key={item.key}>
-            
             { item.items.map(renderItem) }
         </SubMenu>
         );
@@ -33,16 +32,22 @@ const renderItem = (item) => {
         );
     }
 }
-
+//
 export const MenuByRole = ({area, fileName, items = [], getMenu, actualAccountName, actualRole }) => {
         useEffect(()=>{
             getMenu(actualAccountName, actualRole)
         })
 
+        
         // ToDo: Here goes default selected item menu logic!!!
         // const aa = [(fileName=='dashboard')?fileName:fileName];
-        const aa = ['dashboard'];
-        const bb=[undefined];
+        const selected = getItemByAreaNFilename(area, fileName)
+        const aa = selected?[selected.key]:['dashboard'];
+        const bb = getRootKeys(area);
+
+        console.log(' *************** ', ' ************ RENDERING MENU area:', area, '|fileName:', fileName);
+        console.log(' ************ RENDERING MENU selected:', JSON.stringify(aa));
+        console.log(' ************ RENDERING MENU open:', JSON.stringify(bb));
         return (
                 <Menu
                     defaultSelectedKeys={aa}
@@ -57,11 +62,11 @@ export const MenuByRole = ({area, fileName, items = [], getMenu, actualAccountNa
 
 export default connect(
     state => ({
-        items:             menuRedux.getMenuItems(state),
+        items:                 menuRedux.getMenuItems(state),
         actualAccountName:     loginRedux.actualAccountName(state),
-        actualRole:        loginRedux.actualRole(state),
+        actualRole:            loginRedux.actualRole(state),
     }),
     dispatch => ({
-        getMenu:           bindActionCreators( menuRedux.getMenu, dispatch)
+        getMenu:               bindActionCreators( menuRedux.getMenu, dispatch)
     })
 )(MenuByRole)

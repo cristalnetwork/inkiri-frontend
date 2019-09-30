@@ -26,7 +26,7 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
     fetch(challenge_endpoint, {method: 'GET'})
     .then((response) => {
         if (valid_http_codes.indexOf(parseInt(response.status))<0) {
-          console.log(' CHALLENGE ********************************** ERROR#1', response.status)
+          console.log(' CHALLENGE ********************************** ERROR#1', response.status, ' | response:', JSON.stringify(response))
           const _err = {'error':response.status}
           rej(_err);
           throw new Error(_err);
