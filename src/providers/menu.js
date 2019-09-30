@@ -42,12 +42,12 @@ export const MenuByRole = ({area, fileName, items = [], getMenu, actualAccountNa
         // ToDo: Here goes default selected item menu logic!!!
         // const aa = [(fileName=='dashboard')?fileName:fileName];
         const selected = getItemByAreaNFilename(area, fileName)
-        const aa = selected?[selected.key]:['dashboard'];
+        const aa = selected?[(selected.father_key?selected.father_key:selected.key)]:['dashboard'];
         const bb = getRootKeys(area);
 
-        console.log(' *************** ', ' ************ RENDERING MENU area:', area, '|fileName:', fileName);
-        console.log(' ************ RENDERING MENU selected:', JSON.stringify(aa));
-        console.log(' ************ RENDERING MENU open:', JSON.stringify(bb));
+        // console.log(' *************** ', ' ************ RENDERING MENU area:', area, '|fileName:', fileName);
+        // console.log(' ************ RENDERING MENU selected:', JSON.stringify(aa));
+        // console.log(' ************ RENDERING MENU open:', JSON.stringify(bb));
         return (
                 <Menu
                     defaultSelectedKeys={aa}

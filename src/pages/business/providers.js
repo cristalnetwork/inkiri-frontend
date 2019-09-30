@@ -10,7 +10,7 @@ import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
 import * as routesService from '@app/services/routes';
-
+import { Route, Redirect, withRouter } from "react-router-dom";
 import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
 
 import { notification, Table, Divider, Spin } from 'antd';
@@ -55,11 +55,18 @@ class Providers extends Component {
     this.onNewData                  = this.onNewData.bind(this);
     this.onTabChange                = this.onTabChange.bind(this);
     this.onTableChange              = this.onTableChange.bind(this);
+    this.onNewRequestClick          = this.onNewRequestClick.bind(this);
     this.onProcessRequestClick      = this.onProcessRequestClick.bind(this);
     this.refreshCurrentTable        = this.refreshCurrentTable.bind(this);
     this.renderFilterContent        = this.renderFilterContent.bind(this);
   }
   
+  onNewRequestClick(){
+    this.props.history.push({
+      pathname: `/${this.props.actualRole}/providers-payments-request`
+    })
+  }
+
   onProcessRequestClick(request){
     console.log( ' EXTRATO::onProcessRequestClick >> ', JSON.stringify(request) )
   }
@@ -233,7 +240,7 @@ class Providers extends Component {
       <div className="styles standardList" style={{ marginTop: 24 }}>
         <Card key="the_card_key" bordered={false}>
           <Row>
-            <Col xs={24} sm={12} md={5} lg={5} xl={5}>
+            <Col xs={24} sm={12} md={4} lg={4} xl={4}>
               <Statistic
                     title="Saidas"
                     value={money_out}
@@ -249,6 +256,9 @@ class Providers extends Component {
                     precision={0}
                     
                   />
+            </Col>
+            <Col xs={24} sm={12} md={16} lg={16} xl={16}>
+              <Button style={{float:'right'}} key="_new_request" size="medium" icon="plus" onClick={()=>this.onNewRequestClick()}> Request Payment to Provider</Button>
             </Col>
           </Row>
         </Card>
@@ -299,7 +309,7 @@ class Providers extends Component {
   }
 }
 
-export default connect(
+export default  (withRouter(connect(
     (state)=> ({
         actualAccountName:    loginRedux.actualAccountName(state),
         actualRole:       loginRedux.actualRole(state),
@@ -308,4 +318,4 @@ export default connect(
     (dispatch)=>({
         // tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
     })
-)(Providers)
+)(Providers)));

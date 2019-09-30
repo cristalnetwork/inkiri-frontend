@@ -43,6 +43,7 @@ export const pathNames = utils.arrToObj([
     'businessSendMoney',
     'businessPaymentsAndServices',
     'businessProvidersPayments',
+    'businessProvidersPayments_Request',
     'businessSalaries',
     'businessCrew',
     'businessConfiguration',
@@ -145,6 +146,7 @@ const bankadmin = [
     },
     {
        key: pathNames.bankadminAccounts_Account,
+       father_key: pathNames.bankadminAccounts,
        fileName: 'account',
        area: 'bankadmin',
        path: 'account',
@@ -153,6 +155,7 @@ const bankadmin = [
     },
     {
        key: pathNames.bankadminAccounts_CreateAccount,
+       father_key: pathNames.bankadminAccounts,
        fileName: 'createAccount',
        area: 'bankadmin',
        path: 'create-account',
@@ -177,6 +180,7 @@ const bankadmin = [
     },
     {
        key: pathNames.bankadminProviders_CreateProvider,
+       father_key : pathNames.bankadminProviders,
        fileName: 'createProvider',
        area: 'bankadmin',
        path: 'create-provider',
@@ -185,6 +189,7 @@ const bankadmin = [
     },
     {
        key: pathNames.bankadminProviders_ProviderProfile,
+       father_key : pathNames.bankadminProviders,
        fileName: 'provider',
        area: 'bankadmin',
        path: 'provider-profile',
@@ -201,6 +206,7 @@ const bankadmin = [
     },
     {
        key: pathNames.bankadminPDA_ProcessRequest,
+       father_key : pathNames.bankadminPDA,
        fileName: 'processRequest',
        area: 'bankadmin',
        path: 'process-request',
@@ -300,6 +306,16 @@ const business = [
        container: 'dashboard',
        role:      'business'
     },
+    {
+       key:       pathNames.businessProvidersPayments_Request,
+       father_key: pathNames.businessProvidersPayments,
+       fileName:  'requestPayment',
+       area:      'business',
+       path:      'providers-payments-request',
+       container: 'dashboard',
+       role:      'business'
+    },
+
     {
        key: pathNames.businessSalaries,
        fileName: 'under-construction',
