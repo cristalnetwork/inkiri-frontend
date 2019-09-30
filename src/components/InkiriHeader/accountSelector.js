@@ -25,16 +25,12 @@ const AccountSelector = ({allAccounts, actualAccount, currentAccount, onChange, 
       if(!account_item)
         return 'loading';
 
-      // let icons = {};
-      // icons[globalCfg.bank.ACCOUNT_TYPE_PERSONAL]  = 'user';
-      // icons[globalCfg.bank.ACCOUNT_TYPE_BUSINESS]  = 'shop';
-      // icons[globalCfg.bank.ACCOUNT_TYPE_BANKADMIN] = 'bank';
-      // return icons[account_item.permissioner.account_type]
       return globalCfg.bank.ACCOUNT_ICONS[account_item.permissioner.account_type];
     }
 
     const getOptions = () => {
-      // console.log(' ++++++++++++ accountSelector::allAccounts >> ', allAccounts)
+      
+      // console.log(' ++++++++++++ accountSelector::allAccounts >> ', allAccounts, ' | currentAccount:', currentAccount)
       return (
           <Menu onClick={handleMenuClick}>
             {allAccounts.map(acc => 
@@ -48,7 +44,7 @@ const AccountSelector = ({allAccounts, actualAccount, currentAccount, onChange, 
 
     
     function handleMenuClick(e) {
-      console.log('click', e);
+      // console.log('click', e);
       // const selectedAccount = accounts.find(acc => acc.key === name)
       if(typeof onChange === 'function' && e.key!==actualAccount) {
           onChange(e.key)

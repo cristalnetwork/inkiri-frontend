@@ -62,16 +62,14 @@ class InkiriHeader extends Component {
     else{
       //
       header_content=(
-              <div className="right">
-                <div className="header_element_container">
-                  <Button icon={'logout'} onClick={this.props.logout} size="small">Logout</Button>
-                </div>
-                <div className="header_element_container" style={{marginRight: '10px'}}>
-                  <AccountSelector onChange={this.handleChange} isMobile={this.props.isMobile}/>
-                   &nbsp; <Tag> Account Balance ({globalCfg.currency.symbol}) <UserBalance userId={this.props.actualAccount} /> </Tag>
-                </div>
-              </div>
-            );
+        <div className="right">
+          <div className="header_element_container">
+            <AccountSelector onChange={this.handleChange} isMobile={this.props.isMobile}/>
+             &nbsp; <Tag> Account Balance ({globalCfg.currency.symbol}) <UserBalance userId={this.props.actualAccount} /> </Tag>
+           <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.props.logout} size="small">Logout</Button>
+          </div>
+        </div>
+      );
     }
     //
     return (
