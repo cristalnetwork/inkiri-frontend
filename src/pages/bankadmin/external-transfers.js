@@ -63,6 +63,108 @@ class ExternalTransfers extends Component {
     this.loadTransactionsForPDA();  
   } 
 
+  getColumns(){
+    return [
+      {
+        title: 'Date',
+        dataIndex: 'block_time',
+        key: 'block_time',
+        sortDirections: ['descend'],
+        defaultSortOrder: 'descend',
+        sorter: (a, b) => a.block_time_number - b.block_time_number,
+      },
+      {
+        title: 'Description',
+        dataIndex: 'sub_header',
+        key: 'sub_header',
+        render: (value, record) => {
+          return(<>{record.sub_header}</>)
+        }
+      },
+      //
+      {
+        title: 'Amount',
+        dataIndex: 'quantity',
+        key: 'quantity',
+        align: 'right',
+        render: (quantity, record) => (
+          <span>
+            {globalCfg.currency.toCurrencyString(quantity)}
+          </span>
+          )
+      },
+      //
+      {
+        title: 'Tags',
+        key: 'tx_type',
+        dataIndex: 'tx_type',
+        render: (tx_type, record) => {
+
+          return (
+              <span key={'tags'+record.id}>
+               <Tag color={'geekblue'} key={'type_'+record.id}>
+                      {tx_type.toUpperCase()}
+               </Tag>
+               <br/><Tag color={'geekblue'} key={'state_'+record.id}>
+                      {(record.state||'COMPLETED').toUpperCase()}
+               </Tag>
+               <br/><br/><Tag color={'magenta'} key={'provider_'+record.id}>
+                      {record.provider.name + ' - CNPJ:'+ record.provider.cnpj}
+               </Tag>
+               
+               <br/><br/><Tag color={'blue'} key={'files_1_'+record.id}>
+                      Blockchain TX: {record.tx_id||'N/A'}
+               </Tag>
+
+               <br/><br/><Tag color={'purple'} key={'files_1_'+record.id}>
+                      Nota Fiscal: {record.provider.nota_fiscal_url||'N/A'}
+               </Tag>
+               <br/><Tag color={'purple'} key={'files_2_'+record.id}>
+                      Boleto Pagamento: {record.provider.boleto_pagamento||'N/A'}
+               </Tag>
+               <br/><Tag color={'purple'} key={'files_3_'+record.id}>
+                      Comprobante Bancario: {record.provider.comprobante_url||'N/A'}
+               </Tag>
+                
+                
+
+              </span>
+              )}
+      },
+      //
+      {
+        title: 'Action',
+        key: 'action',
+        width: 100,
+        render: (text, record) => {
+          // console.log('ADDING ROW >> ', record.id);
+          const processButton = (<Button key={'details_'+record.id} onClick={()=>{ this.onProcessRequestClick(record) }}>Process</Button>);
+          //
+          let viewDetailsButton = (null);
+          const onBlockchain = globalCfg.api.isOnBlockchain(record);
+          if(onBlockchain){
+            const _href = api.dfuse.getBlockExplorerTxLink(onBlockchain);
+            viewDetailsButton = (<Button type="link" href={_href} target="_blank" key={'view-on-blockchain_'+record.id} icon="cloud" >View on Blockchain</Button>);
+          } //
+
+          if(!globalCfg.api.isFinished(record))
+          {
+            return (
+              <span>
+                {viewDetailsButton}
+                <Divider type="vertical" />
+                {processButton}
+              </span>  );
+          }
+          //
+          return(
+            <span>
+              {viewDetailsButton}
+            </span>
+          )},
+      },
+    ];
+  }
   loadTransactionsForPDA(){
 
     let can_get_more   = this.state.can_get_more;
@@ -194,7 +296,7 @@ class ExternalTransfers extends Component {
   //
   renderSelectTxTypeOptions(){
     return (
-      globalCfg.api.getTypes().map( tx_type => {return(<Option key={'option'+tx_type} value={tx_type} label={utils.firsts(tx_type.split('_')[1])}>{ utils.capitalize(tx_type.split('_')[1]) } </Option>)})
+      [globalCfg.api.TYPE_PROVIDER, globalCfg.api.TYPE_EXCHANGE ].map( tx_type => {return(<Option key={'option'+tx_type} value={tx_type} label={utils.firsts(tx_type.split('_')[1])}>{ utils.capitalize(tx_type.split('_')[1]) } </Option>)})
         )
   }
   // 
@@ -251,10 +353,6 @@ class ExternalTransfers extends Component {
     return (
       <>
         <PageHeader
-          extra={[
-            <Button key="_new_deposit"  icon="plus" disabled> Deposit</Button>,
-            <Button key="_new_withdraw" icon="plus" disabled> Withdraw</Button>,
-          ]}
           breadcrumb={{ routes }}
           title="External Transfers"
           subTitle="List of Provider Payments and Exchanges"
@@ -350,7 +448,7 @@ class ExternalTransfers extends Component {
             key="table_all_requests" 
             rowKey={record => record.id} 
             loading={this.state.loading} 
-            columns={columns(this.props.actualRoleId, this.onProcessRequestClick)} 
+            columns={this.getColumns()} 
             dataSource={this.state.txs} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
