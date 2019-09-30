@@ -37,7 +37,7 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
               // history.push(`/${actualRole}/create-account`);
             else
               if(actualRole=='business') 
-                history.push(`/${actualRole}/providers-payments`);
+                history.push(`/${actualRole}/providers-payments-request`);
               else                
                 // history.push(`/${actualRole}/dashboard`);
                 // history.push(`/${actualRole}/deposit`);

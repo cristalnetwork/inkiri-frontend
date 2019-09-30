@@ -34,25 +34,26 @@ class CreateProvider extends Component {
       result_object:undefined,
       error:        {},
       
-
-      name:        '',
-      cnpj:        '',
-      email:            '',
-      phone:            '',
-      address:          { 
-                          street:  '', 
-                          city:    '', 
-                          state:   '', 
-                          zip:     '', 
-                          country: ''
-                        },
-      category:    '',
-      products_services:    '',
-      bank_account:     {  
-                          bank_name:    '',
-                          agency:    '',
-                          cc:    ''
-                        },
+      provider:{
+            name:        '',
+            cnpj:        '',
+            email:            '',
+            phone:            '',
+            address:          { 
+                                street:  '', 
+                                city:    '', 
+                                state:   '', 
+                                zip:     '', 
+                                country: ''
+                              },
+            category:    '',
+            products_services:    '',
+            bank_account:     {  
+                                bank_name:    '',
+                                agency:    '',
+                                cc:    ''
+                              }
+          }
 
     };
 
@@ -73,46 +74,52 @@ class CreateProvider extends Component {
   
   loadDemoData(){
     this.setState({
-      name:        'Proveedor #1',
-      cnpj:        '123456789',
-      email:            'proveedor1@gmail.com',
-      phone:            '+025369875',
-      address:          { 
-                          street:  'Rua do Rey 1115', 
-                          city:    'Rio de Janeiro', 
-                          state:   'Rio de Janeiro', 
-                          zip:     '111222', 
-                          country: 'Brazil'
-                        },
-      category:      'Proveedor de conocimiento',
-      products_services:    'Conocimientos, ideas, y eso',
-      bank_account:     {  
-                          bank_name:    'Banco do Brasil',
-                          agency:       '1234',
-                          cc:           '987654321'
-                        }});    
+      provider:{
+        name:        'Proveedor #1',
+        cnpj:        '123456789',
+        email:            'proveedor1@gmail.com',
+        phone:            '+025369875',
+        address:          { 
+                            street:  'Rua do Rey 1115', 
+                            city:    'Rio de Janeiro', 
+                            state:   'Rio de Janeiro', 
+                            zip:     '111222', 
+                            country: 'Brazil'
+                          },
+        category:      'Proveedor de conocimiento',
+        products_services:    'Conocimientos, ideas, y eso',
+        bank_account:     {  
+                            bank_name:    'Banco do Brasil',
+                            agency:       '1234',
+                            cc:           '987654321'
+                          }}
+      }
+    );    
   }
 
   resetForm(){
     this.setState({
-      name:             '',
-      cnpj:             '',
-      email:            '',
-      phone:            '',
-      address:          { 
-                          street:  '',
-                          city:    '',
-                          state:   '',
-                          zip:     '',
-                          country: ''
-                        },
-      category:         '',
-      products_services:    '',
-      bank_account:     {  
-                          bank_name:    '',
-                          agency:       '',
-                          cc:           ''
-                        }});    
+      provider: {
+        name:             '',
+        cnpj:             '',
+        email:            '',
+        phone:            '',
+        address:          { 
+                            street:  '',
+                            city:    '',
+                            state:   '',
+                            zip:     '',
+                            country: ''
+                          },
+        category:         '',
+        products_services:    '',
+        bank_account:     {  
+                            bank_name:    '',
+                            agency:       '',
+                            cc:           ''
+                          }}
+      }
+    );    
   }
 
   resetFormAndResult(){
@@ -147,7 +154,8 @@ class CreateProvider extends Component {
         return;
       }
       console.log('Received values of form: ', values);
-      this.setState({result:'should-confirm'});
+      this.setState({provider:values, result:'should-confirm'});
+      // this.setState({result:'should-confirm'});
     });
   };
 
@@ -157,7 +165,7 @@ class CreateProvider extends Component {
   }
 
   doCreateProvider(){
-    const {name, cnpj, email, phone, address, category, products_services, bank_account} = this.state;
+    const {name, cnpj, email, phone, address, category, products_services, bank_account} = this.state.provider;
     // guarda
     api.bank.createOrUpdateProvider(undefined, name, cnpj, email, phone, address, category, products_services, [bank_account])
     .then((res)=>{
@@ -236,7 +244,7 @@ class CreateProvider extends Component {
     //
     
     // ** hack for sublime renderer ** //
-    const {name, cnpj, email, phone, address, category, products_services, bank_account} = this.state;
+    const {name, cnpj, email, phone, address, category, products_services, bank_account} = this.state.provider;
     const {pushingTx, loading} = this.state;
     const loading_text = pushingTx?'Pushing transaction...':(loading?'Loading...':'');
     return (
@@ -379,7 +387,7 @@ class CreateProvider extends Component {
   }
   //
   renderConfirmCreate(){
-    const {name, cnpj, email, phone, category, products_services, bank_account}      = this.state;
+    const {name, cnpj, email, phone, category, products_services, bank_account}      = this.state.provider;
     
     return (<Result
       icon={<Icon type="question-circle" theme="twoTone" />}

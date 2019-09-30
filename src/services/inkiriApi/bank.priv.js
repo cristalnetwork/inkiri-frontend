@@ -18,7 +18,7 @@ const valid_http_codes = [200, 201, 202, 203, 204]
 export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
   
   const token = jwtHelper.getTokenIfNotExpired(jwtHelper.BANK_AUTH_TOKEN_KEY);
-  console.log(' ******* BANK PRIV BEARER TOKEN >> ', token);
+  // console.log(' ******* BANK PRIV BEARER TOKEN >> ', token);
   if(!token)
   {
     const challenge_endpoint = globalCfg.api.end_point+'/eos/challenge/'+account_name;
@@ -324,17 +324,17 @@ export const createFullUser = (account_type, account_name, first_name, last_name
 /*
 * Providers section
 */
-export const listProviders = (page, limit) =>   new Promise((res,rej)=> {
+export const listProviders = (name, cnpj, page, limit) =>   new Promise((res,rej)=> {
   
   // console.log(' BANKAPI::LIST MY REQUESTS>> account_name:', account_name, '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
   const path    = globalCfg.api.end_point + '/providers';
   const method  = 'GET';
   let query     = '?page='+(page|0); 
   query=query+'&limit='+(limit|10);
-  // if(account_name!== undefined)
-  //   query=query+'&from='+account_name;
-  // if(request_type!== undefined)
-  //   query=query+'&requested_type='+request_type;
+  if(name!== undefined)
+    query=query+'&name='+name;
+  if(cnpj!== undefined)
+    query=query+'&cnpj='+cnpj;
 
   auth()
     .then((token) => {
@@ -407,3 +407,4 @@ export const listRequestsForProvider = (page, limit, provider_id) =>   new Promi
       rej(ex);
   });
 });
+

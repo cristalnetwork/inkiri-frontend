@@ -17,6 +17,8 @@ import { withRouter } from "react-router-dom";
 import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
+import ProviderSearch from '@app/components/ProviderSearch';
+
 import './requestPayment.css'; 
 
 const { Paragraph, Text } = Typography;
@@ -185,21 +187,11 @@ class RequestPayment extends Component {
             <Form onSubmit={this.handleSubmit}>
                 
               <Form.Item style={{minHeight:60, marginBottom:12}}>
-                {getFieldDecorator('receipt', {
-                  rules: [{ required: true, message: 'Please input receipt account name!' }]
+                {getFieldDecorator('provider', {
+                  rules: [{ required: true, message: 'Please input provider name or CNPJ.' }]
                 })(
-                  <AutoComplete
-                    size="large"
-                    dataSource={this.props.accounts.filter(acc=>acc.key!=this.props.actualAccountName).map(acc=>acc.key)}
-                    style={{ width: '100%' }}
-                    onSelect={this.onSelect}
-                    placeholder=""
-                    filterOption={true}
-                    className="extra-large"
-                  >
-                    <Input suffix={<Icon type="user" style={{fontSize:20}} className="default-icon" />} />
-                  </AutoComplete>
-                   
+                  <ProviderSearch style={{ width: '100%' }} />
+                    
                 )}
               </Form.Item>
 

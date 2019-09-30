@@ -5,6 +5,8 @@ import { store } from '@app/redux/configureStore';
 export const BANK_AUTH_TOKEN_KEY     = 'bank_auth_token_key';
 export const DFUSE_AUTH_TOKEN_KEY    = 'dfuse_auth_token_key';
 
+const do_log = false;
+
 const isTimestampExpired = (expires_at) => {
   if(!expires_at) return true;
   return (expires_at < Math.floor((new Date()).getTime() / 1000));
@@ -23,8 +25,8 @@ const isTokenExpired = (token) => {
   if (token && _jwt_decode) {
     const expires_at = _jwt_decode.expires_at;
     const now = new Date();
-    console.log (' ********************************************')
-    console.log (JSON.stringify(expires_at));
+    if(do_log) console.log (' ********************************************')
+    if(do_log) console.log (JSON.stringify(expires_at));
     const expired = (expires_at < Math.floor((new Date()).getTime() / 1000));
     return expired;
   }
@@ -49,7 +51,7 @@ export const getTokenIfNotExpired = (key) => {
   let _token = getTokenFromStorage(key);
   if(!_token) return null;
   let json_token = JSON.parse(_token);
-  // console.log( 'jwtHelper::getTokenIfNotExpired >> ', json_token)
+  if(do_log) console.log( 'jwtHelper::getTokenIfNotExpired >> ', json_token)
   // return (isTokenExpired(json_token.token))?null:json_token.token;
   return isTimestampExpired(json_token.expires_at)?null:json_token.token;
 }
@@ -72,16 +74,16 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
     fetchOptions.body = JSON.stringify(data);
   }
 
-  console.log( ' ###### jwtHelper::apiCall >> path:', path);
-  console.log( ' ###### jwtHelper::apiCall >> method', method || "GET")
-  console.log( ' ###### jwtHelper::apiCall >> fetchOptions.body', JSON.stringify(fetchOptions.body))
-  console.log( ' ###### jwtHelper::apiCall >> fetchOptions.headers', bearer_token)
+  if(do_log) console.log( ' ###### jwtHelper::apiCall >> path:', path);
+  if(do_log) console.log( ' ###### jwtHelper::apiCall >> method', method || "GET")
+  if(do_log) console.log( ' ###### jwtHelper::apiCall >> fetchOptions.body', JSON.stringify(fetchOptions.body))
+  if(do_log) console.log( ' ###### jwtHelper::apiCall >> fetchOptions.headers', bearer_token)
 
   
   fetch(path, fetchOptions)
       .then((resp) => resp.json(), (ex) => { rej(ex) })
       .then((data) => {
-        console.log( ' ###### jwtHelper::apiCall >> result:', JSON.stringify(data));
+        if(do_log) console.log( ' ###### jwtHelper::apiCall >> result:', JSON.stringify(data));
         
         if(!data)
         {
