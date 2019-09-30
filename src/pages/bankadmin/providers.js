@@ -87,10 +87,10 @@ class Providers extends Component {
                 key: 'email',
                 render: (email, record) => (
                   <>
-                    <span key={'email_'+record._id}>
+                    <span key={'email_'+record.id}>
                      <Icon type="mail" />&nbsp;{email}
                     </span><br/>
-                    <span key={'phone_'+record._id}> 
+                    <span key={'phone_'+record.id}> 
                       <Icon type="phone" />&nbsp;{record.phone}
                     </span>
                   </>)
@@ -122,7 +122,7 @@ class Providers extends Component {
                 dataIndex: 'bank_accounts',
                 key: 'bank_accounts',
                 render: (bank_accounts, record) => (
-                  <span key={'bank_accounts_'+record._id}>
+                  <span key={'bank_accounts_'+record.id}>
                     <Icon type="bank" /> {bank_accounts.map(bank_account => <span key={'bank_accounts'+bank_account._id}>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</span>)} 
                   </span>
                   )
@@ -135,7 +135,7 @@ class Providers extends Component {
                 key: 'action',
                 render: (record) => 
                     (<>
-                     <Button key={'process_'+record._id} onClick={()=>{ this.onButtonClick(record) }} icon="profile" size="small">Profile</Button>
+                     <Button key={'process_'+record.id} onClick={()=>{ this.onButtonClick(record) }} icon="profile" size="small">Profile</Button>
                      </>)
                   ,
               },
@@ -334,7 +334,7 @@ class Providers extends Component {
           
           <Table
             key="table_all_txs" 
-            rowKey={record => record._id} 
+            rowKey={record => record.id} 
             loading={this.state.loading} 
             columns={this.getColumns()} 
             dataSource={this.state.providers} 

@@ -190,13 +190,9 @@ class CreateProvider extends Component {
           {confirm}
         </div>);
     }
-
+    //
     if(this.state.result=='ok')
     {
-      const tx_id = api.dfuse.getTxId(this.state.result_object?this.state.result_object.data:{});
-      // const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
-      // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
-      
       return (<Result
         status="success"
         title="Provider Created Succesfully!"

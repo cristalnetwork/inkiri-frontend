@@ -12,10 +12,14 @@ import debounce from 'lodash/debounce';
 
 const { Option } = Select;
 
+/*
+* ToDo: We should re read https://github.com/ant-design/ant-design/blob/master/components/form/demo/customized-form-controls.md
+* up to provide decorator's validation.
+*/
 class ProviderSearch extends Component {
   constructor(props) {
     super(props);
-
+    const value = props.value || {};
     this.state = {
       fetching:         false,
       data:             [],
@@ -28,9 +32,10 @@ class ProviderSearch extends Component {
     
   }
 
+
   fetchProvider = value => {
     // const {value} = this.state;
-    console.log('fetching provider', value);
+    // console.log('fetching provider', value);
     this.lastFetchId += 1;
     
     const fetchId = this.lastFetchId;
@@ -56,20 +61,37 @@ class ProviderSearch extends Component {
   // };
 
   handleChange = value => {
-    console.log(' *** handleChange >> ', value)
+    // console.log(' *** handleChange >> ', value)
     this.setState({
       selected:value,
+      value:value,
       data: [],
       fetching: false,
     });
+
+    const the_value = (value&&value.length>0)?value[0]:undefined;
+    this.triggerChange(the_value);
+
   };
 
-    render() {
+  triggerChange = changedValue => {
+    // Should provide an event to pass value to Form.
+    const { onProviderSelected } = this.props;
+    if (onProviderSelected) {
+      onProviderSelected(
+        changedValue
+      );
+    }
+  };
+
+
+  render() {
     const { fetching, data, value } = this.state;
     return (
       <Select
         mode="multiple"
         showSearch
+        labelInValue
         allowClear={true}
         autoFocus={true}
         maxTagCount={1}

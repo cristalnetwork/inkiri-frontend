@@ -15,7 +15,7 @@ import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
 import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
-import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
 import ProviderSearch from '@app/components/ProviderSearch';
 
@@ -25,44 +25,65 @@ const { Paragraph, Text } = Typography;
 
 const routes = routesService.breadcrumbForFile('providers-payments');
 
+/*
+* Invoice Management via:
+* 
+* https://developers.google.com/drive/api/v3/quickstart/nodejs
+* https://medium.com/@munsifmusthafa03/building-a-file-upload-service-to-your-google-drive-using-oauth-2-0-d883d6d67fe8
+*/
 class RequestPayment extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading:      false,
-      dataSource:   [],
-      receipt:      '',
-      amount:       0,
-      memo:         '',
+      loading:            false,
+      dataSource:         [],
+      
+      provider:           undefined,
+      amount:             0,
+      memo:               '',
+      invoice_file:       undefined,
+      payment_slip_file:  undefined,
+
       pushingTx:    false,
+      
       result:       undefined,
       result_object:undefined,
-      error:        {},
-      number_validateStatus : '',
-      number_help:  ''
-                    
+      error:        {}
     };
 
-    this.onSelect                   = this.onSelect.bind(this); 
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.onChange                   = this.onChange.bind(this); 
     this.resetPage                  = this.resetPage.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
-    
+    this.handleProviderChange       = this.handleProviderChange.bind(this);
   }
 
   
-  onSelect(value) {
-    console.log('onSelect', value);
-    this.setState({receipt:value})
-  }
-
   onChange(e) {
     e.preventDefault();
     // console.log('changed', e);
-    this.setState({amount:e.target.value, number_validateStatus:'' , number_help:''})
+    this.setState({amount:e.target.value})
   }
+
+  handleProviderChange(provider){
+    console.log(' ** handleProviderChange: ', provider);
+    this.setState({provider:provider})
+  }
+
+  validateProvider = (rule, value, callback) => {
+    console.log(' >> validateProvider >> provider:', this.state.provider)
+    console.log(' >> validateProvider >> value: ', value)
+    if (this.state.provider && this.state.provider.key) {
+      callback();
+      return;
+    }
+    // if (value && value.key) {
+    //   callback();
+    //   return;
+    // }
+    callback('Please select a provider!');
+  };
 
   // onSearch={this.handleSearch}
   handleSearch(value){
@@ -83,33 +104,40 @@ class RequestPayment extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (err) {
-        //
+        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen0!")    
+        console.log(' ERRORS!! >> ', err)
         return;
       }
       if(isNaN(this.state.amount))
       {
-        this.openNotificationWithIcon("error", this.state.amount + "Valid number required","Please type a validnumber greater than 0!")    
-        this.setState({number_validateStatus:'error' , number_help:'Should be a number greater than 0'})
+        this.openNotificationWithIcon("error", this.state.amount + " > valid number required","Please type a valid number greater than 0!")    
         return;
       }
-      console.log('Received values of form: ', values);
-
+      if(parseFloat(this.state.amount)>parseFloat(this.props.balance))
+      {
+        const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
+        this.openNotificationWithIcon("error", `Amount must be equal or less than balance ${balance_txt}!`); //`
+        return;
+      }
+      
       // const privateKey = api.dummyPrivateKeys[this.props.actualAccountName] 
       const privateKey = this.props.actualPrivateKey;
       // HACK! >> La tenemos que traer de localStorage? <<
-      const receiver   = values.receipt;
+      const provider_id = this.state.provider.key;
       const sender     = this.props.actualAccountName;
       const amount     = values.amount;
       let that         = this;
+      console.log('**createProviderPayment >> account_name:', sender, ' | amount:', amount, ' | provider_id:', provider_id)
       that.setState({pushingTx:true});
-      // api.sendMoney(sender, privateKey, receiver, amount)
-      // .then((data) => {
-      //   console.log(' SendMoney::send (then#1) >>  ', JSON.stringify(data));
-      //   that.setState({result:'ok', pushingTx:false, result_object:data});
-      // }, (ex) => {
-      //   console.log(' SendMoney::send (error#1) >>  ', JSON.stringify(ex));
-      //   that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
-      // });
+
+      // api.createProviderPayment = (sender, amount, provider_id)
+      //   .then((data) => {
+      //     console.log(' createProviderPayment::send (then#1) >>  ', JSON.stringify(data));
+      //     that.setState({result:'ok', pushingTx:false, result_object:data});
+      //   }, (ex) => {
+      //     console.log(' createProviderPayment::send (error#1) >>  ', JSON.stringify(ex));
+      //     that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+      //   });
       
     });
   };
@@ -123,6 +151,14 @@ class RequestPayment extends Component {
   resetPage(){
     this.setState({result: undefined, result_object: undefined, error: {}});
   }
+
+   normalizeFile = e => {
+    console.log('Upload event:', e);
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e && e.fileList;
+  };
 
   renderContent() {
   
@@ -144,8 +180,6 @@ class RequestPayment extends Component {
           </Button>,
           <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" >View on Blockchain</Button>,
           <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetPage()} />
-       
-
         ]}
       />)
     }
@@ -180,7 +214,7 @@ class RequestPayment extends Component {
     }
     
     // ** hack for sublime renderer ** //
-
+    const{ amount, provider, invoice_file, payment_slip_file} = this.state;
     return (
         <div style={{ margin: '0 auto', width:500, padding: 24, background: '#fff'}}>
           <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
@@ -188,20 +222,17 @@ class RequestPayment extends Component {
                 
               <Form.Item style={{minHeight:60, marginBottom:12}}>
                 {getFieldDecorator('provider', {
-                  rules: [{ required: true, message: 'Please input provider name or CNPJ.' }]
+                  rules: [{ validator: this.validateProvider }],
                 })(
-                  <ProviderSearch style={{ width: '100%' }} />
+                  <ProviderSearch onProviderSelected={this.handleProviderChange} style={{ width: '100%' }} />
                     
                 )}
               </Form.Item>
 
               
-              <Form.Item 
-                style={{minHeight:60, marginBottom:12}}
-                validateStatus={this.state.number_validateStatus}
-                help={this.state.number_help}>
+              <Form.Item style={{minHeight:60, marginBottom:12}}>
                 {getFieldDecorator('amount', {
-                  rules: [{ required: true, message: 'Please input an amount to send!' }],
+                  rules: [{ required: true, message: 'Please input an amount!' }],
                   initialValue: 0
                 })(
                   <Input
@@ -217,9 +248,40 @@ class RequestPayment extends Component {
                 )}
               </Form.Item>
 
+              <Form.Item style={{marginTop:'20px'}}>
+                {getFieldDecorator('invoice_file', {
+                  valuePropName: 'fileList',
+                  getValueFromEvent: this.normalizeFile,
+                })(
+                  <Upload.Dragger name="invoice_file_dragger" action="#" multiple={false}>
+                    <p className="ant-upload-drag-icon">
+                      <Icon type="inbox" />
+                    </p>
+                    <p className="ant-upload-text">Nota Fiscal</p>
+                    <p className="ant-upload-hint">Click or drag file to this area to upload</p>
+                  </Upload.Dragger>,
+                )}
+              </Form.Item>
+
+              <Form.Item style={{marginTop:'20px'}}>
+                {getFieldDecorator('payment_slip_file', {
+                  valuePropName: 'fileList',
+                  getValueFromEvent: this.normalizeFile,
+                })(
+                  <Upload.Dragger name="payment_slip_file_dragger" action="/google_drive" multiple={false} >
+                    <p className="ant-upload-drag-icon">
+                      <Icon type="inbox" />
+                    </p>
+                    <p className="ant-upload-text">Boleto Pagamento</p>
+                    <p className="ant-upload-hint">Click or drag file to this area to upload</p>
+                  </Upload.Dragger>,
+                )}
+              </Form.Item>
+
+
               <Form.Item>
-                <Button type="primary" htmlType="submit" className="login-form-button">
-                  Send
+                <Button style={{marginTop:'20px'}} type="primary" htmlType="submit" className="login-form-button">
+                  Request Payment
                 </Button>
                 
               </Form.Item>
@@ -272,11 +334,11 @@ class RequestPayment extends Component {
 export default Form.create() (withRouter(connect(
     (state)=> ({
         accounts:         accountsRedux.accounts(state),
-        actualAccountName:    loginRedux.actualAccountName(state),
+        actualAccountName:loginRedux.actualAccountName(state),
         actualRole:       loginRedux.actualRole(state),
         actualPrivateKey: loginRedux.actualPrivateKey(state),
         isLoading:        loginRedux.isLoading(state),
-        balance:          balanceRedux.userBalanceFormatted(state),
+        balance:          balanceRedux.userBalance(state),
     }),
     (dispatch)=>({
         

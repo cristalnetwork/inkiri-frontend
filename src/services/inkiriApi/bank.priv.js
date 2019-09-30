@@ -408,3 +408,23 @@ export const listRequestsForProvider = (page, limit, provider_id) =>   new Promi
   });
 });
 
+export const createProviderPayment = (account_name, amount, provider_id) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.end_point + '/requests';
+  const method  = 'POST';
+  const post_params = {
+          'account_name':       account_name
+          , 'requested_type':   'type_provider'
+          , 'amount':           Number(amount).toFixed(2)
+          , 'provider':         provider_id
+        };
+  console.log(' inkiriApi::createProviderPayment >> ABOUT TO POST', JSON.stringify(post_params))
+  jwtHelper.apiCall(path, method, post_params)
+    .then((data) => {
+        console.log(' inkiriApi::createProviderPayment >> RESPONSE', JSON.stringify(data))
+        res(data)
+      }, (ex) => {
+        console.log(' inkiriApi::createProviderPayment >> ERROR ', JSON.stringify(ex))
+        rej(ex);
+      });
+});
