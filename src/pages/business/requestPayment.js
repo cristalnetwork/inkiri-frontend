@@ -21,7 +21,7 @@ import './requestPayment.css';
 
 const { Paragraph, Text } = Typography;
 
-const routes = routesService.breadcrumbForFile('send-money');
+const routes = routesService.breadcrumbForFile('providers-payments');
 
 class RequestPayment extends Component {
   constructor(props) {
@@ -41,30 +41,15 @@ class RequestPayment extends Component {
                     
     };
 
-    // this.handleSearch = this.handleSearch.bind(this); 
-    this.onSelect     = this.onSelect.bind(this); 
-    this.renderContent   = this.renderContent.bind(this); 
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.onChange     = this.onChange.bind(this); 
-    this.resetPage    = this.resetPage.bind(this); 
+    this.onSelect                   = this.onSelect.bind(this); 
+    this.renderContent              = this.renderContent.bind(this); 
+    this.handleSubmit               = this.handleSubmit.bind(this);
+    this.onChange                   = this.onChange.bind(this); 
+    this.resetPage                  = this.resetPage.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
+    
   }
 
-  static propTypes = {
-    // match: PropTypes.object.isRequired,
-    // location: PropTypes.object.isRequired,
-    // history: PropTypes.object.isRequired
-    match: PropTypes.object,
-    location: PropTypes.object,
-    history: PropTypes.object
-  };
-
-  componentDidMount(){
-    // const { myKey } = this.props.location.params
-    const { match, location, history } = this.props;
-    // console.log( 'sendMoney::router-params >> match:' , JSON.stringify(match))
-    console.log( 'sendMoney::router-params >> location:' , JSON.stringify(location))
-  }
   
   onSelect(value) {
     console.log('onSelect', value);
@@ -115,14 +100,14 @@ class RequestPayment extends Component {
       const amount     = values.amount;
       let that         = this;
       that.setState({pushingTx:true});
-      api.sendMoney(sender, privateKey, receiver, amount)
-      .then((data) => {
-        console.log(' SendMoney::send (then#1) >>  ', JSON.stringify(data));
-        that.setState({result:'ok', pushingTx:false, result_object:data});
-      }, (ex) => {
-        console.log(' SendMoney::send (error#1) >>  ', JSON.stringify(ex));
-        that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
-      });
+      // api.sendMoney(sender, privateKey, receiver, amount)
+      // .then((data) => {
+      //   console.log(' SendMoney::send (then#1) >>  ', JSON.stringify(data));
+      //   that.setState({result:'ok', pushingTx:false, result_object:data});
+      // }, (ex) => {
+      //   console.log(' SendMoney::send (error#1) >>  ', JSON.stringify(ex));
+      //   that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+      // });
       
     });
   };
@@ -273,8 +258,8 @@ class RequestPayment extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes }}
-          title="Send money"
-          subTitle="Send money instantly for free"
+          title="Request a payment to a provider"
+          subTitle=""
           
         >
           <div className="wrap">
