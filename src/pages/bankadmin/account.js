@@ -321,7 +321,7 @@ class Account extends Component {
                 Back to Accounts
               </Button>,
               <Button shape="circle" icon="close" key="close" onClick={()=>this.resetPage()} />,
-              <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" >View on Blockchain</Button>,
+              <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>,
               
             ]}
           />
@@ -530,7 +530,7 @@ class Account extends Component {
     let _href='#';
     if(this.state.account)
       _href = api.dfuse.getBlockExplorerAccountLink(account_name);
-    let viewOnBlockchain = (<Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" >View on Blockchain</Button>)
+    let viewOnBlockchain = (<Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>)
 
     return (<Descriptions className="headerList" size="small" column={2}>
       <Descriptions.Item  label = " Account Name " > <b>{account_name}</b> </ Descriptions.Item >

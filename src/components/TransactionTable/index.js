@@ -92,13 +92,13 @@ export const columns = (account_type, onButtonClick) => {
       // console.log('ADDING ROW >> ', record.id);
       let processButton = (null);
       if(typeof onButtonClick === 'function' && globalCfg.bank.isAdminAccount(account_type)){
-        processButton = (<Button key={'process_'+record.id} onClick={()=>{ onButtonClick(record) }}>Process</Button>);
+        processButton = (<Button size="small" key={'process_'+record.id} onClick={()=>{ onButtonClick(record) }}>Process</Button>);
       } //
       let viewDetailsButton = (null);
       const onBlockchain = globalCfg.api.isOnBlockchain(record);
       if(onBlockchain){
         const _href = api.dfuse.getBlockExplorerTxLink(onBlockchain);
-        viewDetailsButton = (<Button type="link" href={_href} target="_blank" key={'view-on-blockchain_'+record.id} icon="cloud" >View on Blockchain</Button>);
+        viewDetailsButton = (<Button size="small" type="link" href={_href} target="_blank" key={'view-on-blockchain_'+record.id} icon="cloud" title="View on Blockchain">B-Chain</Button>);
       } //
 
       if(!globalCfg.api.isFinished(record))

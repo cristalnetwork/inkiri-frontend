@@ -266,6 +266,20 @@ class CreateProvider extends Component {
                   })(<Input />)}
                 </Form.Item>
 
+                <Form.Item label="Category">
+                  {getFieldDecorator('category', {
+                    rules: [{ required: true, message: 'Please input a category' }],
+                    initialValue: category
+                  })(<Input style={{ width: '100%' }} />)}
+                </Form.Item>
+
+                <Form.Item label="Products/services">
+                  {getFieldDecorator('products_services', {
+                    rules: [{ required: true, message: 'Please input products/services!' }],
+                    initialValue: products_services
+                  })(<Input style={{ width: '100%' }} />)}
+                </Form.Item>
+
                 <Form.Item label="E-mail">
                   {getFieldDecorator('email', {
                     rules: [

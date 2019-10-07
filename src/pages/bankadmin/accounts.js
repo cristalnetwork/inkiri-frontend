@@ -382,8 +382,8 @@ class AdminAccounts extends Component {
       <>
         <PageHeader
           extra={[
-            <Button type="link" href={_href} target="_blank" key="view-on-blockchain_" icon="cloud" >View Accounts on Blockchain</Button>,
-            <Button key="_new_account" icon="plus" onClick={()=>{this.onNewAccount()}}> Account</Button>,
+            <Button size="small" type="link" href={_href} target="_blank" key="view-on-blockchain_" icon="cloud" >View Accounts on Blockchain</Button>,
+            <Button size="small" type="primary" key="_new_account" icon="plus" onClick={()=>{this.onNewAccount()}}> Account</Button>,
             
           ]}
           breadcrumb={{ routes }}

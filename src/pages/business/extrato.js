@@ -362,7 +362,7 @@ class Extrato extends Component {
       <>
         <PageHeader
           extra={[
-            <Button key="refresh" icon="redo" disabled={this.state.loading} onClick={()=>this.refreshCurrentTable()} ></Button>,
+            <Button size="small" key="refresh" icon="redo" disabled={this.state.loading} onClick={()=>this.refreshCurrentTable()} ></Button>,
             
           ]}
           breadcrumb={{ routes }}

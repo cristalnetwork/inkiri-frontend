@@ -1,5 +1,5 @@
 
-const language = "english";
+const language   = "english";
 
 const currency = {
   token:            "inkiritoken1",
@@ -88,7 +88,8 @@ const bank = {
 
 
 // const base_url    = 'http://localhost:3600';
-const base_url    = 'https://cristal-backend.herokuapp.com';
+const base_url    = process.env.API_ENDPOINT || 'https://cristal-backend.herokuapp.com';
+
 const api_version = '/api/v1';
 const api = {
   end_point                   : base_url+ api_version
@@ -105,10 +106,24 @@ const api = {
   , TYPE_SEND                 : 'type_send'
   , TYPE_WITHDRAW             : 'type_withdraw' 
   , TYPE_SERVICE              : 'type_service'
+  , typeToText : (request_type) => {
+      const types = {
+        [api.TYPE_DEPOSIT]     : 'deposit', 
+        [api.TYPE_EXCHANGE]    : 'exchange', 
+        [api.TYPE_PAYMENT]     : 'payment', 
+        [api.TYPE_PROVIDER]    : 'provider payment', 
+        [api.TYPE_SEND]        : 'send', 
+        [api.TYPE_WITHDRAW]    : 'withdraw', 
+        [api.TYPE_SERVICE]     : 'service payment'
+      } 
+      return types[request_type];
+    }
   , isDeposit          : (request) => { return (request.tx_type==api.TYPE_DEPOSIT)}
   , isIKDeposit        : (request) => { return (request.tx_type==api.TYPE_DEPOSIT && request.deposit_currency==api.FIAT_CURR_IK)}
   , isBRLDeposit       : (request) => { return (request.tx_type==api.TYPE_DEPOSIT && request.deposit_currency==api.FIAT_CURR_BRL)}
   , isWithdraw         : (request) => { return (request.tx_type==api.TYPE_WITHDRAW)}
+  , isProviderPayment  : (request) => { return (request.tx_type==api.TYPE_PROVIDER)}
+  , isExchange         : (request) => { return (request.tx_type==api.TYPE_EXCHANGE)}
   , getTypes           : () => { return [ api.TYPE_DEPOSIT, api.TYPE_EXCHANGE, api.TYPE_PAYMENT, api.TYPE_PROVIDER, api.TYPE_SEND, api.TYPE_WITHDRAW, api.TYPE_SERVICE];}
   , STATE_REQUESTED           : 'state_requested'
   , STATE_PROCESSING          : 'state_processing'
@@ -116,14 +131,48 @@ const api = {
   , STATE_ACCEPTED            : 'state_accepted'
   , STATE_ERROR               : 'state_error'
   , STATE_CONCLUDED           : 'state_concluded'
-  , getStates           : () => { return [api.STATE_REQUESTED, api.STATE_PROCESSING, api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_ERROR, api.STATE_CONCLUDED];}
+  , STATE_CANCELED            : 'state_canceled'
+  , stateToText : (request_state) => {
+      const states = {
+        [api.STATE_REQUESTED]    : 'requested', 
+        [api.STATE_PROCESSING]   : 'processing', 
+        
+        [api.STATE_ACCEPTED]     : 'accepted', 
+        [api.STATE_CONCLUDED]    : 'concluded',
+        
+
+        [api.STATE_REJECTED]     : 'rejected', 
+        [api.STATE_ERROR]        : 'error', 
+        [api.STATE_CANCELED]    : 'canceled',
+      } 
+      return states[request_state];
+    }
+  , stateToColor : (request_state) => {
+      const states = {
+        [api.STATE_REQUESTED]    : 'gold', 
+        [api.STATE_PROCESSING]   : 'green', 
+        [api.STATE_ACCEPTED]     : 'green', 
+        [api.STATE_CONCLUDED]    : '#87d068',
+        
+
+        [api.STATE_REJECTED]     : 'red', 
+        [api.STATE_ERROR]        : 'red', 
+        [api.STATE_CANCELED]     : 'red',
+      } 
+      return states[request_state];
+    }
+  , getStates           : () => { return [api.STATE_REQUESTED, api.STATE_PROCESSING, api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_ERROR, api.STATE_CONCLUDED, api.STATE_CANCELED];}
   , isOnBlockchain      : (request) => {
+      return api.getTXId(request);
+    }
+  , getTXId      : (request) => {
       return request.tx_id || request.transaction_id;
     }
   , isFinished         : (request) => {
       return [api.STATE_REJECTED, api.STATE_CONCLUDED, api.STATE_ERROR].indexOf(request.state)>=0;
     }
   , canCancel          : (request) => {
+      console.log(' ## CAN-CANCEL >> ', request.state)
       return [api.STATE_REQUESTED].indexOf(request.state)>=0;
     }
   , isProcessPending   : (request) => {
@@ -149,7 +198,8 @@ const eos = {
   /*
   * https://api.monitor.jungletestnet.io/#apiendpoints
   */
-  endpoint       : 'https://jungle2.cryptolions.io:443',
+  endpoint       : process.env.API_ENDPOINT || 'https://jungle2.cryptolions.io:443',
+  // endpoint       : 'http://127.0.0.1:8888/',
   node           : 'https://proxy.eosnode.tools/',
   create_account : 'https://api.monitor.jungletestnet.io/#account',
   // create_account: 'https://eos-account-creator.com/choose/'

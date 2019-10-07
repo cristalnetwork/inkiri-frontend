@@ -18,8 +18,9 @@ import { withRouter } from "react-router-dom";
 import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
-import './processRequest.css'; 
-import styles from './processRequest.less';
+import TransactionCard from '@app/components/TransactionCard';
+
+import './request.less'; 
 
 const { Paragraph, Text } = Typography;
 
@@ -38,6 +39,7 @@ const routes = routesService.breadcrumbForFile('external-transfers');
 class processExternal extends Component {
   constructor(props) {
     super(props);
+    const request       = (this.props && this.props.location && this.props.location.state && this.props.location.state.request)? this.props.location.state.request : undefined;
     this.state = {
       loading:      false,
       dataSource:   [],
@@ -48,10 +50,8 @@ class processExternal extends Component {
       result:       undefined,
       result_object:undefined,
       error:        {},
-      number_validateStatus : '',
-      number_help:  '',
        
-      request:{} 
+      request:       request
     
     };
 
@@ -59,7 +59,6 @@ class processExternal extends Component {
     this.onSelect                   = this.onSelect.bind(this); 
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.onChange                   = this.onChange.bind(this); 
     this.resetPage                  = this.resetPage.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderInfoForRequest       = this.renderInfoForRequest.bind(this);
@@ -75,7 +74,7 @@ class processExternal extends Component {
 
   componentDidMount(){
     const { match, location, history } = this.props;
-    // console.log( 'processRequest::router-params >>' , JSON.stringify(this.props.location.state.request) );
+    console.log( 'processRequest::router-params >>' , JSON.stringify(this.props.location.state.request) );
     if(this.props.location && this.props.location.state)
       this.setState({request : this.props.location.state.request})
   }
@@ -83,12 +82,6 @@ class processExternal extends Component {
   onSelect(value) {
     console.log('onSelect', value);
     this.setState({receipt:value})
-  }
-
-  onChange(e) {
-    e.preventDefault();
-    // console.log('changed', e);
-    this.setState({amount:e.target.value, number_validateStatus:'' , number_help:''})
   }
 
   // onSearch={this.handleSearch}
@@ -188,7 +181,7 @@ class processExternal extends Component {
           <Button  key="go-to-pda" onClick={()=>this.backToReferrer()}>
             Back to External Transfers
           </Button>,
-          <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" >View on Blockchain</Button>,
+          <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>,
           
         ]}
       />)
@@ -224,30 +217,16 @@ class processExternal extends Component {
     }
     
     // ** hack for sublime renderer ** //
-
-    const {amount, requested_by} = this.state.request;
-    const cant_process           = globalCfg.api.isFinished(this.state.request)
+    //<Button type="primary" htmlType="submit" className="login-form-button" disabled={cant_process}>Accept Deposit & Issue</Button>
     return (
-        <div style={{ margin: '0 auto', width:500, padding: 24, background: '#fff'}}>
-          <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-            <Form onSubmit={this.handleSubmit}>
-                
-              
-
-              <Form.Item>
-                <Button type="primary" htmlType="submit" className="login-form-button" disabled={cant_process}>
-                  Accept Deposit & Issue
-                </Button>
-                
-              </Form.Item>
-            </Form>
-          </Spin>
-        </div>
+        <></>
     );
   }
   //
   renderInfoForRequest(){
-    switch(this.state.request.requested_type) {
+    const {request} = this.state;
+    const request_type = (request&&request.requested_type)?request.requested_type:'';
+    switch(request_type) {
       case globalCfg.api.TYPE_DEPOSIT:
         return this.renderInfoForDeposit() 
         break;
@@ -269,7 +248,7 @@ class processExternal extends Component {
     if(tx_id)
       {
         const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
-        viewOnBlockchain = (<Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" >View on Blockchain</Button>)
+        viewOnBlockchain = (<Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>)
       }
     return (<Descriptions className="headerList" size="small" column={2}>
       <Descriptions.Item  label = " Requested By " > {requested_by.account_name} ({requested_by.email})</ Descriptions.Item >
@@ -314,6 +293,7 @@ class processExternal extends Component {
   //
   render() {
     let content = this.renderContent();
+    const {request} = this.state;
     
     return (
       <>
@@ -331,9 +311,16 @@ class processExternal extends Component {
 
         </PageHeader>
 
-        <div style={{ margin: '24px 0', padding: 0, background: '#fff'}}>
-           < Card  title = " Desposit "  style = { { marginBottom: 24 } } >
-          {content}
+        <TransactionCard request={request}/>
+        <div className="c-detail">
+          <Card style={ { marginBottom: 24 } }>
+            <Button type="primary" >
+              ACCEPT
+            </Button>
+            <Button style={{marginLeft:16}} type="danger" >
+              REJECT
+            </Button>
+            
           </Card>
         </div>
       </>

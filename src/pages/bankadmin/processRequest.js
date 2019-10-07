@@ -254,7 +254,7 @@ class processRequest extends Component {
           <Button  key="go-to-pda" onClick={()=>this.backToPDA()}>
             Back to PDA
           </Button>,
-          <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" >View on Blockchain</Button>,
+          <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>,
           
         ]}
       />)
@@ -358,7 +358,7 @@ class processRequest extends Component {
     if(tx_id)
       {
         const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
-        viewOnBlockchain = (<Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" >View on Blockchain</Button>)
+        viewOnBlockchain = (<Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>)
       }
     return (<Descriptions className="headerList" size="small" column={2}>
       <Descriptions.Item  label = " Requested By " > {requested_by.account_name} ({requested_by.email})</ Descriptions.Item >
@@ -420,7 +420,7 @@ class processRequest extends Component {
         </PageHeader>
 
         <div style={{ margin: '24px 0', padding: 0, background: '#fff'}}>
-           < Card  title = " Desposit "  style = { { marginBottom: 24 } } >
+           <Card title="Deposit"  style={ { marginBottom: 24 } } >
           {content}
           </Card>
         </div>

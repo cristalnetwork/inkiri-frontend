@@ -37,3 +37,10 @@ h3.fileds_header{
   padding-left: 50px;
   margin-top:20px;
 }
+
+
+/*HACK FOR TABLES*/
+.ant-divider-horizontal {
+    margin: 6px 0 !important;
+
+}

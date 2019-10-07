@@ -304,7 +304,7 @@ class Providers extends Component {
       <>
         <PageHeader
           extra={[
-            <Button key="_new_provider" icon="plus" onClick={()=>{this.onNewProvider()}}> Provider</Button>,
+            <Button key="_new_provider" size="small" type="primary" icon="plus" onClick={()=>{this.onNewProvider()}}> Provider</Button>,
             
           ]}
           breadcrumb={{ routes }}

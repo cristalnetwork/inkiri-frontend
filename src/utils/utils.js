@@ -9,6 +9,13 @@ export const firsts = (s, n) => {
   return s.toUpperCase().slice(0,n)
 }
 
+export const leadingZeros = (s, n) => {
+  if (typeof s !== 'string') 
+    s=s.toString();
+  if (typeof n !== 'number') n=3;
+  return ('00000000'+s).substr(n);
+}
+
 export const arrToObj  = (a = []) => a.reduce((prev,act) => { prev[act] = act; return prev; } , {});
 
 

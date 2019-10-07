@@ -23,7 +23,7 @@ class ProviderSearch extends Component {
     this.state = {
       fetching:         false,
       data:             [],
-      value:            undefined,
+      value:            undefined, // <- This shold receive value prop!
       selected:         undefined
     };
 

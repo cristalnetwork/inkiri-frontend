@@ -373,13 +373,25 @@ class Provider extends Component {
                   })(<Input />)}
                 </Form.Item>
 
-                <Form.Item
-                  label="CNPJ"
-                >
+                <Form.Item label="CNPJ">
                   {getFieldDecorator('cnpj', {
                     rules: [{ required: true, message: 'Please input CNPJ!', whitespace: true }],
                     initialValue: cnpj
                   })(<Input />)}
+                </Form.Item>
+                
+                <Form.Item label="Category">
+                  {getFieldDecorator('category', {
+                    rules: [{ required: true, message: 'Please input a category' }],
+                    initialValue: category
+                  })(<Input style={{ width: '100%' }} />)}
+                </Form.Item>
+
+                <Form.Item label="Products/services">
+                  {getFieldDecorator('products_services', {
+                    rules: [{ required: true, message: 'Please input products/services!' }],
+                    initialValue: products_services
+                  })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>
 
                 <Form.Item label="E-mail">
@@ -494,7 +506,7 @@ class Provider extends Component {
           subTitle={subTitle}
           
           extra={[
-            <Button key="_update_provider" icon="edit" onClick={()=>{this.onUpdateProvider()}}> Update Provider</Button>,
+            <Button size="small" type="primary" key="_update_provider" icon="edit" onClick={()=>{this.onUpdateProvider()}}> Update Provider</Button>,
           ]}
         >
          

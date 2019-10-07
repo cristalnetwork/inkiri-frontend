@@ -254,8 +254,8 @@ class PDA extends Component {
       <>
         <PageHeader
           extra={[
-            <Button key="_new_deposit"  icon="plus" disabled> Deposit</Button>,
-            <Button key="_new_withdraw" icon="plus" disabled> Withdraw</Button>,
+            <Button size="small" key="_new_deposit"  icon="plus" disabled> Deposit</Button>,
+            <Button size="small" key="_new_withdraw" icon="plus" disabled> Withdraw</Button>,
           ]}
           breadcrumb={{ routes }}
           title="PDA"

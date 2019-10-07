@@ -59,11 +59,15 @@ class Providers extends Component {
     this.onProcessRequestClick      = this.onProcessRequestClick.bind(this);
     this.refreshCurrentTable        = this.refreshCurrentTable.bind(this);
     this.renderFilterContent        = this.renderFilterContent.bind(this);
-    this.onButtonClick              = this.onButtonClick.bind(this);
+
+    this.operationDetails              = this.operationDetails.bind(this);
+    this.cancelOperation              = this.cancelOperation.bind(this);
+    
     this.getColumns                 = this.getColumns.bind(this);
   }
   
-  onButtonClick(record){
+  cancelOperation(record){}
+  operationDetails(record){
   
     this.props.history.push({
       pathname: `/${this.props.actualRole}/request-details`
@@ -122,7 +126,7 @@ class Providers extends Component {
                       {record.provider.name + ' - CNPJ:'+ record.provider.cnpj}
                </Tag>
                
-               <br/><br/><Tag color={'blue'} key={'files_1_'+record.id}>
+               <br/><br/><Tag color={'blue'} key={'blockchain_tx_'+record.id}>
                       Blockchain TX: {record.tx_id||'N/A'}
                </Tag>
 
@@ -147,31 +151,37 @@ class Providers extends Component {
         key: 'action',
         width: 100,
         render: (text, record) => {
-          // console.log('ADDING ROW >> ', record.id);
-          const processButton = (<Button key={'details_'+record.id} onClick={()=>{ this.onButtonClick(record) }}>Details</Button>);
-          //
-          let viewDetailsButton = (null);
-          const onBlockchain = globalCfg.api.isOnBlockchain(record);
-          if(onBlockchain){
-            const _href = api.dfuse.getBlockExplorerTxLink(onBlockchain);
-            viewDetailsButton = (<Button type="link" href={_href} target="_blank" key={'view-on-blockchain_'+record.id} icon="cloud" >View on Blockchain</Button>);
-          } //
 
-          if(!globalCfg.api.isFinished(record))
-          {
-            return (
-              <span>
-                {viewDetailsButton}
-                <Divider type="vertical" />
-                {processButton}
-              </span>  );
+          let buttons = [];
+          function addDivider(key){
+            buttons.push( (<Divider key={key} type="horizontal" />) );
+          }
+          // console.log('ADDING ROW >> ', record.id);
+          
+          const processButton = (<Button size="small" key={'details_'+record.id} onClick={()=>{ this.operationDetails(record) }}>Details</Button>);
+          //
+          buttons.push(processButton);
+          
+          if(globalCfg.api.canCancel(record)){
+            const cancelButton = (<Button size="small" type="primary" key={'cancel_'+record.id} onClick={()=>{ this.cancelOperation(record) }}>Cancel</Button>);
+            addDivider('cancel_divider_'+record.id);
+            buttons.push(cancelButton);
           }
           //
-          return(
-            <span>
-              {viewDetailsButton}
-            </span>
-          )},
+          if(globalCfg.api.isOnBlockchain(record)){
+            const _href = api.dfuse.getBlockExplorerTxLink(globalCfg.api.getTXId(record));
+            const viewDetailsButton = (<Button size="small" type="link" href={_href} target="_blank" key={'view-on-blockchain_'+record.id} icon="cloud" title="View on Blockchain">B-Chain</Button>);
+            //
+            addDivider('view-on-blockchain_divider_'+record.id);
+            buttons.push(viewDetailsButton);
+            
+          } //
+          
+          return (
+              <span>
+                {buttons.map(button => button  ) }
+              </span>  );
+          },
       },
     ];
   }
@@ -374,7 +384,7 @@ class Providers extends Component {
                   />
             </Col>
             <Col xs={24} sm={12} md={16} lg={16} xl={16}>
-              <Button style={{float:'right'}} key="_new_request" size="default" icon="plus" onClick={()=>this.onNewRequestClick()}> Request Payment to Provider</Button>
+              <Button style={{float:'right'}} key="_new_request" size="small" type="primary" icon="plus" onClick={()=>this.onNewRequestClick()}> Request Payment to Provider</Button>
             </Col>
           </Row>
         </Card>
@@ -393,7 +403,7 @@ class Providers extends Component {
       <>
         <PageHeader
           extra={[
-            <Button key="refresh" icon="redo" disabled={this.state.loading} onClick={()=>this.refreshCurrentTable()} ></Button>,
+            <Button key="refresh" size="small" icon="redo" disabled={this.state.loading} onClick={()=>this.refreshCurrentTable()} ></Button>,
             
           ]}
           breadcrumb={{ routes }}

@@ -78,7 +78,7 @@ class ExternalTransfers extends Component {
         dataIndex: 'sub_header',
         key: 'sub_header',
         render: (value, record) => {
-          return(<>{record.sub_header}</>)
+          return(<>{record.sub_header_admin}</>)
         }
       },
       //
@@ -112,7 +112,7 @@ class ExternalTransfers extends Component {
                       {record.provider.name + ' - CNPJ:'+ record.provider.cnpj}
                </Tag>
                
-               <br/><br/><Tag color={'blue'} key={'files_1_'+record.id}>
+               <br/><br/><Tag color={'blue'} key={'blockchain_tx_'+record.id}>
                       Blockchain TX: {record.tx_id||'N/A'}
                </Tag>
 
@@ -138,13 +138,13 @@ class ExternalTransfers extends Component {
         width: 100,
         render: (text, record) => {
           // console.log('ADDING ROW >> ', record.id);
-          const processButton = (<Button key={'details_'+record.id} onClick={()=>{ this.onProcessRequestClick(record) }}>Process</Button>);
+          const processButton = (<Button key={'details_'+record.id} size="small" onClick={()=>{ this.onProcessRequestClick(record) }}>Process</Button>);
           //
           let viewDetailsButton = (null);
           const onBlockchain = globalCfg.api.isOnBlockchain(record);
           if(onBlockchain){
             const _href = api.dfuse.getBlockExplorerTxLink(onBlockchain);
-            viewDetailsButton = (<Button type="link" href={_href} target="_blank" key={'view-on-blockchain_'+record.id} icon="cloud" >View on Blockchain</Button>);
+            viewDetailsButton = (<Button type="link" href={_href} size="small" target="_blank" key={'view-on-blockchain_'+record.id} icon="cloud" title="View on Blockchain">B-Chain</Button>);
           } //
 
           if(!globalCfg.api.isFinished(record))
@@ -273,8 +273,8 @@ class ExternalTransfers extends Component {
   }
 
   onProcessRequestClick(request){
-    console.log( ' PDA::onProcessRequestClick >> ', JSON.stringify(request) )
-
+    
+    // console.log( ' ExternalTransfers::onProcessRequestClick >> ', JSON.stringify(request) )
     this.props.history.push({
       pathname: `/${this.props.actualRole}/external-transfers-process-request`
       // , search: '?query=abc'

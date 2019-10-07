@@ -977,7 +977,7 @@ class CreateAccount extends Component {
             <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
               Go to dashboard
             </Button>,
-            <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" >View on Blockchain</Button>,
+            <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>,
             <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetPage(true)} />
            ]}
           />
