@@ -85,16 +85,19 @@ export const getAccount = async (account_name) => {
   return {data:response}
 }
 
-const getKeyAccounts = async (publicKey) => { 
-  // const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint);
-  const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url);
+// export const getKeyAccounts = (account_name) => dfuse.getKeyAccounts(public_key);
+export const getKeyAccounts = async (publicKey) => { 
+  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint);
+  // const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url);
+
+  // const response  = await jsonRpc.history_get_key_accounts(publicKey);
   const response  = await jsonRpc.history_get_key_accounts(publicKey);
+  
   console.log(' ########## getKeyAccounts:', JSON.stringify(response));
-  return {data:response}
+  return response?response.account_names:[];
 }
 
 // export const getAccountBalance = (account_name) =>  dfuse.getAccountBalance(account_name);
-
 export const getAccountBalance = async (account_name) => { 
   const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint);
   const params    = {
@@ -122,6 +125,11 @@ export const getAccountBalance = async (account_name) => {
 //   const response  = await jsonRpc.history_get_controlled_accounts(controllingAccount);
 //   return {data:response}
 // }
+
+export const listTransactions = (account_name, cursor) => dfuse.listTransactions(account_name, cursor);
+// export const listTransactions = (account_name, cursor) => new Promise((res,rej)=> { 
+
+// });  
 
 const pushTX = async (tx, privatekey) => { 
 	const signatureProvider = new JsSignatureProvider([privatekey])
@@ -597,8 +605,7 @@ export const login = async (account_name, private_key) => {
   const pubkey  = ecc.privateToPublic(private_key); 
   
   // 2.- Obtengo las controlling accounts.
-  const key_accounts = await dfuse.getKeyAccounts(pubkey);
-  // const key_accounts = await getKeyAccounts(pubkey);
+  const key_accounts = await getKeyAccounts(pubkey);
 
   // 3.- Valido que account_name en array de cuentas de la publica.
   if(key_accounts.indexOf(account_name)<0)

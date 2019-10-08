@@ -11,7 +11,7 @@ import * as api from '@app/services/inkiriApi';
 import * as routesService from '@app/services/routes';
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
-import moment from 'moment'
+import moment from 'moment';
 
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
@@ -246,6 +246,7 @@ class CreateAccount extends Component {
   // Events
   componentDidMount(){
     // this.loadDemoData();
+    this.props.loadAccounts;
   }
 
   handleAddPermissionSubmit = e => {
@@ -328,7 +329,7 @@ class CreateAccount extends Component {
     const seed = globalCfg.eos.generateSeed(do_generate);
     const keys = api.eosHelper.seedPrivate(seed);
     const that = this;
-    api.dfuse.getKeyAccounts(keys.pub_key)
+    api.getKeyAccounts(keys.pub_key)
       .then(()=>{
         that.setState({generated_keys:keys})
         if(callback)
@@ -1071,7 +1072,7 @@ export default Form.create() (withRouter(connect(
         balance:          balanceRedux.userBalanceFormatted(state),
     }),
     (dispatch)=>({
-        
+      loadAccounts: bindActionCreators(accountsRedux.loadAccounts, dispatch)        
     })
 )(CreateAccount) )
 );

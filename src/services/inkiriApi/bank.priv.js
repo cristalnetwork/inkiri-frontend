@@ -21,7 +21,7 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
   // console.log(' ******* BANK PRIV BEARER TOKEN >> ', token);
   if(!token)
   {
-    const challenge_endpoint = globalCfg.api.end_point+'/eos/challenge/'+account_name;
+    const challenge_endpoint = globalCfg.api.endpoint+'/eos/challenge/'+account_name;
     
     fetch(challenge_endpoint, {method: 'GET'})
     .then((response) => {
@@ -51,7 +51,7 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
           , 'challenge':  challenge
         };
         
-        const auth_endpoint      = globalCfg.api.end_point+'/eos/auth';    
+        const auth_endpoint      = globalCfg.api.endpoint+'/eos/auth';    
         
         console.log(' AUTH PARAMS:', auth_endpoint, JSON.stringify(auth_params))
 
@@ -109,7 +109,7 @@ export const listMyRequests = (account_name, page, limit, request_type) =>   new
   
   console.log(' BANKAPI::LIST MY REQUESTS>> account_name:', account_name
   , '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
-  const path    = globalCfg.api.end_point + '/requests';
+  const path    = globalCfg.api.endpoint + '/requests';
   const method  = 'GET';
   let query     = '?page='+(page|0); 
   query=query+'&limit='+(limit|10);
@@ -130,7 +130,7 @@ export const listRequests = (page, limit, request_type, account_name) =>   new P
   
   console.log(' BANKAPI::LIST MY REQUESTS>> account_name:', account_name
   , '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
-  const path    = globalCfg.api.end_point + '/requests';
+  const path    = globalCfg.api.endpoint + '/requests';
   const method  = 'GET';
   let query     = '?page='+(page|0); 
   query=query+'&limit='+(limit|10);
@@ -154,7 +154,7 @@ export const createDeposit = (account_name, amount, currency) =>   new Promise((
   // "amount": "500",
   // "envelope_id": "500",  
 
-  const path    = globalCfg.api.end_point + '/requests';
+  const path    = globalCfg.api.endpoint + '/requests';
   const method  = 'POST';
   const post_params = {
           'account_name':       account_name
@@ -179,7 +179,7 @@ export const setDepositOk = (request_id, tx_id) =>  updateRequest(request_id, gl
 
 export const updateRequest = (request_id, state, tx_id) =>   new Promise((res,rej)=> {
   
-  const path    = globalCfg.api.end_point + '/requests';
+  const path    = globalCfg.api.endpoint + '/requests';
   const method  = 'PATCH';
   const query   = `/${request_id}`;
   let post_params = {_id:         request_id};
@@ -263,7 +263,7 @@ export const nextRequestId = (account_name) =>   new Promise((res,rej)=> {
 */
 export const getMyUser = (account_name) =>   new Promise((res,rej)=> {
   
-  const path    = globalCfg.api.end_point + '/users';
+  const path    = globalCfg.api.endpoint + '/users';
   const method  = 'GET';
   let query     = '?page=0&limit=1&account_name='+account_name;
   jwtHelper.apiCall(path+query, method)
@@ -276,7 +276,7 @@ export const getMyUser = (account_name) =>   new Promise((res,rej)=> {
 
 export const createUser = (account_name) =>   new Promise((res,rej)=> {
   
-  const path    = globalCfg.api.end_point + '/users';
+  const path    = globalCfg.api.endpoint + '/users';
   const method  = 'POST';
   const post_params = {
           'account_name':  account_name
@@ -298,7 +298,7 @@ export const createUser = (account_name) =>   new Promise((res,rej)=> {
 // export const createFullUser = (account_name, first_name, last_name, email, legal_id, birthday, phone, address) =>   new Promise((res,rej)=> {
 
 export const createFullUser = (account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name) =>   new Promise((res,rej)=> {  
-  const path    = globalCfg.api.end_point + '/users';
+  const path    = globalCfg.api.endpoint + '/users';
   const method  = 'POST';
   const account_type_string = globalCfg.bank.getAccountType(account_type);
   
@@ -330,7 +330,7 @@ export const createFullUser = (account_type, account_name, first_name, last_name
 export const listProviders = (name, cnpj, page, limit) =>   new Promise((res,rej)=> {
   
   // console.log(' BANKAPI::LIST MY REQUESTS>> account_name:', account_name, '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
-  const path    = globalCfg.api.end_point + '/providers';
+  const path    = globalCfg.api.endpoint + '/providers';
   const method  = 'GET';
   let query     = '?page='+(page|0); 
   query=query+'&limit='+(limit|10);
@@ -356,7 +356,7 @@ export const listProviders = (name, cnpj, page, limit) =>   new Promise((res,rej
 export const createOrUpdateProvider = (providerId, name, cnpj, email, phone, address, category, products_services, bank_accounts) =>   new Promise((res,rej)=> {  
 
   const postfix = providerId ? `/providers/${providerId}` : '/providers';
-  const path    = globalCfg.api.end_point + postfix;
+  const path    = globalCfg.api.endpoint + postfix;
   const method  = providerId?'PATCH':'POST';
   const post_params = {
           name: name
@@ -390,7 +390,7 @@ export const listRequestsForProvider = (page, limit, provider_id) =>   new Promi
   console.log(' BANKAPI::LIST REQUESTS FOR PROVIDER >> provider_id:', provider_id
     , '| page: ', page
     , ' | limit:', limit,);
-  const path    = globalCfg.api.end_point + '/requests';
+  const path    = globalCfg.api.endpoint + '/requests';
   const method  = 'GET';
   let query     = '?page='+(page|0); 
   query=query+'&limit='+(limit|10);
@@ -413,7 +413,7 @@ export const listRequestsForProvider = (page, limit, provider_id) =>   new Promi
 
 export const createProviderPayment = (account_name, amount, provider_id) =>   new Promise((res,rej)=> {
   
-  const path    = globalCfg.api.end_point + '/requests';
+  const path    = globalCfg.api.endpoint + '/requests';
   const method  = 'POST';
   const post_params = {
           'from':               account_name
@@ -433,3 +433,5 @@ export const createProviderPayment = (account_name, amount, provider_id) =>   ne
 });
 
 export const updateProviderPayment = (request_id, state, tx_id) => updateRequest(request_id, state, tx_id);
+export const acceptProviderPayment = (request_id) => updateRequest(request_id, globalCfg.api.STATE_ACCEPTED, undefined);
+

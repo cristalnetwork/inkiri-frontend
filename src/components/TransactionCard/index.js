@@ -297,7 +297,7 @@ class TransactionCard extends Component {
                             <div className="ui-action-row__description">
                                 <div className="ui-info-row__details">
                                     <ul>
-                                        <li>x1 Unidad</li>
+                                        <li>-</li>
                                     </ul>
                                 </div>
                             </div>
@@ -308,46 +308,51 @@ class TransactionCard extends Component {
           </ul>
       </div>
       
-      <div className="ui-list">
-            <ul className="ui-list__content">
-                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                    <div className="ui-row__col ui-row__col--heading">
-                        <div className="ui-avatar ">
-                            <div className="ui-avatar__content ui-avatar__content--icon">
-                              <Icon type="file" theme="twoTone" style={{fontSize:30}} />
+      {  
+        request.nota_fiscal_url?
+          (<div className="ui-list">
+                    <ul className="ui-list__content">
+                        <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
+                            <div className="ui-row__col ui-row__col--heading">
+                                <div className="ui-avatar ">
+                                    <div className="ui-avatar__content ui-avatar__content--icon">
+                                      <Icon type="file" theme="twoTone" style={{fontSize:30}} />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div className="ui-row__col ui-row__col--content">
-                      <div className="ui-info-row__content">
-                          <div className="ui-info-row__title">
-                            <Button type="link">Nota fiscal</Button>
+                            <div className="ui-row__col ui-row__col--content">
+                              <div className="ui-info-row__content">
+                                  <div className="ui-info-row__title">
+                                    <Button type="link">Nota fiscal</Button>
+                                  </div>
+                              </div>
                           </div>
-                      </div>
-                  </div>
-                </li>
-            </ul>
-        </div>
+                        </li>
+                    </ul>
+                </div>)
+          :    
+          (<div className="ui-list">
+                  <ul className="ui-list__content">
+                    <div className="ui-list c-notes">
+                      <ul className="ui-list__content">
+                        <li id="addNote" className="c-notes__container-add-note">
+                          <Dragger {...props}>
+                            <p className="ant-upload-drag-icon">
+                              <Icon type="cloud" />
+                            </p>
+                            <p className="ant-upload-text">Click or drag <b>Nota Fiscal</b> file to this area to upload</p>
+                          </Dragger>    
 
-        <div className="ui-list">
-          <ul className="ui-list__content">
-            <div className="ui-list c-notes">
-              <ul className="ui-list__content">
-                <li id="addNote" className="c-notes__container-add-note">
-                  <Dragger {...props}>
-                    <p className="ant-upload-drag-icon">
-                      <Icon type="cloud" />
-                    </p>
-                    <p className="ant-upload-text">Click or drag <b>Nota Fiscal</b> file to this area to upload</p>
-                  </Dragger>    
+                        </li>
+                      </ul>
+                    </div>
+                  </ul>
+              </div>)
+      }
 
-                </li>
-              </ul>
-            </div>
-          </ul>
-      </div>
-
-      <div className="ui-list">
+      {  
+        request.boleto_pagamento?
+          (<div className="ui-list">
             <ul className="ui-list__content">
                 <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
                     <div className="ui-row__col ui-row__col--heading">
@@ -366,8 +371,9 @@ class TransactionCard extends Component {
                   </div>
                 </li>
             </ul>
-        </div>
-        <div className="ui-list">
+        </div>)
+        :
+        (<div className="ui-list">
           <ul className="ui-list__content">
             <div className="ui-list c-notes">
               <ul className="ui-list__content">
@@ -383,8 +389,12 @@ class TransactionCard extends Component {
               </ul>
             </div>
           </ul>
-      </div>
+        </div>)
+      }
 
+      {  
+        request.comprobante_url?
+          (
         <div className="ui-list">
             <ul className="ui-list__content">
                 <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
@@ -404,8 +414,9 @@ class TransactionCard extends Component {
                   </div>
                 </li>
             </ul>
-        </div>
-        <div className="ui-list">
+        </div>)
+        :
+        (<div className="ui-list">
           <ul className="ui-list__content">
             <div className="ui-list c-notes">
               <ul className="ui-list__content">
@@ -421,7 +432,8 @@ class TransactionCard extends Component {
               </ul>
             </div>
           </ul>
-      </div>
+      </div>)
+    }
 
         <div className="ui-list hidden">
             <ul className="ui-list__content">

@@ -15,7 +15,7 @@ import * as utils from '@app/utils/utils';
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
-import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
+import { Modal, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
 import TransactionCard from '@app/components/TransactionCard';
@@ -23,6 +23,7 @@ import TransactionCard from '@app/components/TransactionCard';
 import './request.less'; 
 
 const { Paragraph, Text } = Typography;
+const { confirm } = Modal;
 
 
 const Description = ({ term, children, span = 12 }) => (
@@ -61,8 +62,6 @@ class processExternal extends Component {
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetPage                  = this.resetPage.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
-    this.renderInfoForRequest       = this.renderInfoForRequest.bind(this);
-    this.renderInfoForDeposit       = this.renderInfoForDeposit.bind(this);
     this.issueMoney                 = this.issueMoney.bind(this);
   }
 
@@ -223,78 +222,84 @@ class processExternal extends Component {
     );
   }
   //
-  renderInfoForRequest(){
-    const {request} = this.state;
-    const request_type = (request&&request.requested_type)?request.requested_type:'';
-    switch(request_type) {
-      case globalCfg.api.TYPE_DEPOSIT:
-        return this.renderInfoForDeposit() 
-        break;
-      case globalCfg.api.TYPE_WITHDRAW:
-        return this.renderInfoForWithdraw() 
-        break;
-      default:
-        return (<></>);
+  
+  acceptRequest(){
+    let that = this;  
+    that.setState({pushingTx:true});
+    
+    confirm({
+      title: 'You will accept the request',
+      content: 'After accepting the request, please send the required payment and upload the bank receipt.',
+      onOk() {
+        const {request} = that.state;
+        api.bank.acceptProviderPayment(request.id)
+        .then( (data) => {
+            request.state = api.bank.STATE_ACCEPTED;
+            that.setState({pushingTx:false, request:request})
+          },
+          (ex) => {
+            console.log(' ** ERROR @ acceptRequest', JSON.stringify(ex))
+          }  
+        );
+        
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+    
+    
+  }
+
+  doneRequest(){}
+  
+  cancelRequest(){}
+  
+  rejectRequest(){}
+  
+  revertRequest(){}
+
+  getActions(){
+    const {request}    = this.state;
+    const acceptButton = (<Button onClick={() => this.acceptRequest()} key="acceptButton" type="primary" title="" >ACCEPT</Button>);
+    //
+    const doneButton   = (<Button onClick={() => this.doneRequest()} key="doneButton" style={{marginLeft:16}} type="primary" >UPLOAD COMPROBANTE AND FINISH</Button>);
+    //
+    const cancelButton = (<Button onClick={() => this.cancelRequest()} key="cancelButton" style={{marginLeft:16}} type="danger" >CANCEL</Button>);
+    //
+    const rejectButton = (<Button onClick={() => this.rejectRequest()} key="rejectButton" style={{marginLeft:16}} type="danger" >REJECT</Button>);
+    //
+    const revertButton = (<Button onClick={() => this.revertRequest()} key="revertButton" style={{marginLeft:16}} type="danger" >REVERT AND REFUND</Button>);
+    //
+
+    switch (request.state){
+      case globalCfg.api.STATE_REQUESTED:
+        return [acceptButton, rejectButton];
+      break;
+      case globalCfg.api.STATE_PROCESSING:
+        return [];
+      break;
+      case globalCfg.api.STATE_REJECTED:
+        return [];
+      break;
+      case globalCfg.api.STATE_ACCEPTED:
+        return [doneButton, revertButton];
+      break;
+      case globalCfg.api.STATE_ERROR:
+      break;
+      case globalCfg.api.STATE_CONCLUDED:
+        return [];
+      break;
+      case globalCfg.api.STATE_CANCELED:
+        return [];
+      break;
     }
   }
-  // ** hack for sublime renderer ** //
-  renderInfoForDeposit() 
-  {
-    const {tx_id, deposit_currency, requested_type, amount, quantity_txt, state, created_at, requestCounterId, subheader, requested_by} = this.state.request;
-    const envelope_id = api.bank.envelopeIdFromRequest(this.state.request);
-    const _requested_type = requested_type.split('_')[1].toUpperCase();
-    const _state          = state.split('_')[1].toUpperCase();
-    let viewOnBlockchain = (<></>);
-    if(tx_id)
-      {
-        const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
-        viewOnBlockchain = (<Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>)
-      }
-    return (<Descriptions className="headerList" size="small" column={2}>
-      <Descriptions.Item  label = " Requested By " > {requested_by.account_name} ({requested_by.email})</ Descriptions.Item >
-      <Descriptions.Item  label = " Request type " > <Tag color="#108ee9">{_requested_type}</Tag> </ Descriptions.Item >
-      <Descriptions.Item  label = " Created at " >{created_at}</ Descriptions.Item >
-      <Descriptions.Item  label = " Amount " >{quantity_txt}</ Descriptions.Item >
-      <Descriptions.Item  label = " Associated Documents " >
-        <a href="#"><i>nothing yet</i></a>
-      </Descriptions.Item>
-      <Descriptions.Item  label = " Envelope Id " >{envelope_id}</ Descriptions.Item >
-      <Descriptions.Item  label = " Status " >{_state}</ Descriptions.Item >
-      <Descriptions.Item  label = " Blockchain Link" >
-        {viewOnBlockchain}
-      </ Descriptions.Item >
-    </Descriptions>);
-
-    // const current_stats = this.currentStats();
-    // return (
-    //   <Row>
-    //     <Description term="Entradas"><Tag color="green">IK$ {current_stats.money_in.toFixed(2)}</Tag></Description>
-    //     <Description term="Variacao de caja"><Tag color="red">IK$ {(current_stats.money_in - current_stats.money_out).toFixed(2)}</Tag></Description>
-    //     <Description term="Saidas"><Tag color="red">-IK$ {current_stats.money_out.toFixed(2)}</Tag></Description>
-    //     <Description term="Lançamentos">{current_stats.count|0}</Description>
-    //   </Row>
-    // );
-  }  
-  // ** hack for sublime renderer ** //
-
-  renderExtraContent ()
-  {
-    return(
-      <Row>
-        
-        <Col xs={24} sm={24}>
-          <div className ="textSecondary" > Customer Balance ({globalCfg.currency.symbol}) </div>
-          <div className ="heading" >{Number(0).toFixed(2)}</div>
-        </Col>
-      </Row>
-    );
-  }
-  
   //
   render() {
     let content = this.renderContent();
     const {request} = this.state;
-    
+    const buttons   = this.getActions();
     return (
       <>
         <PageHeader
@@ -304,23 +309,12 @@ class processExternal extends Component {
           
         >
          
-         <div className="wrap">
-            <div className="content padding">{this.renderInfoForRequest()}</div>
-            <div className="extraContent">{this.renderExtraContent()}</div>
-          </div>
-
         </PageHeader>
 
         <TransactionCard request={request}/>
         <div className="c-detail">
           <Card style={ { marginBottom: 24 } }>
-            <Button type="primary" >
-              ACCEPT
-            </Button>
-            <Button style={{marginLeft:16}} type="danger" >
-              REJECT
-            </Button>
-            
+          { buttons.map(button=>button)}
           </Card>
         </div>
       </>

@@ -50,7 +50,7 @@ class ExternalTransfers extends Component {
       active_tab:     DISPLAY_ALL_TXS
     };
 
-    this.loadTransactionsForPDA     = this.loadTransactionsForPDA.bind(this);  
+    this.loadExternalTxs            = this.loadExternalTxs.bind(this);  
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderFooter               = this.renderFooter.bind(this); 
     this.onNewData                  = this.onNewData.bind(this);
@@ -60,7 +60,7 @@ class ExternalTransfers extends Component {
   }
   
   componentDidMount(){
-    this.loadTransactionsForPDA();  
+    this.loadExternalTxs();  
   } 
 
   getColumns(){
@@ -165,7 +165,8 @@ class ExternalTransfers extends Component {
       },
     ];
   }
-  loadTransactionsForPDA(){
+  //
+  loadExternalTxs(){
 
     let can_get_more   = this.state.can_get_more;
     if(!can_get_more)
@@ -290,7 +291,7 @@ class ExternalTransfers extends Component {
   }
 
   renderFooter(){
-    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadTransactionsForPDA()}>More!!</Button> </>)
+    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadExternalTxs()}>More!!</Button> </>)
   }
 
   //

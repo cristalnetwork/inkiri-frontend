@@ -1,5 +1,7 @@
+const env        = "dev";
 
 const language   = "english";
+
 
 const currency = {
   token:            "inkiritoken1",
@@ -87,12 +89,11 @@ const bank = {
 };
 
 
-// const base_url    = 'http://localhost:3600';
-const base_url    = process.env.API_ENDPOINT || 'https://cristal-backend.herokuapp.com';
+const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristal-backend.herokuapp.com';
 
 const api_version = '/api/v1';
 const api = {
-  end_point                   : base_url+ api_version
+  endpoint                    : base_url+ api_version
   , default_page_size         : 25
   , FIAT_CURR_BRL             : 'BRL'
   , FIAT_CURR_IK              : 'IK$'
@@ -175,6 +176,9 @@ const api = {
       console.log(' ## CAN-CANCEL >> ', request.state)
       return [api.STATE_REQUESTED].indexOf(request.state)>=0;
     }
+  , canAddComprobante  : (request) => {
+      return [api.STATE_ACCEPTED, api.STATE_CONCLUDED].indexOf(request.state)>=0;
+    }
   , isProcessPending   : (request) => {
       return [api.STATE_REQUESTED].indexOf(request.state)>=0;
     }
@@ -198,7 +202,7 @@ const eos = {
   /*
   * https://api.monitor.jungletestnet.io/#apiendpoints
   */
-  endpoint       : process.env.API_ENDPOINT || 'https://jungle2.cryptolions.io:443',
+  endpoint       : env=='dev' ? 'http://127.0.0.1:8888' : 'https://jungle2.cryptolions.io:443',
   // endpoint       : 'http://127.0.0.1:8888/',
   node           : 'https://proxy.eosnode.tools/',
   create_account : 'https://api.monitor.jungletestnet.io/#account',
@@ -209,4 +213,7 @@ const eos = {
     return eos.security_prefix + seed;
   }
 }
+
+console.log(' *** EOS.ENDPOINT', eos.endpoint)
+console.log(' *** API.ENDPOINT', api.endpoint)
 export { language, api, currency, dfuse, bank, eos };

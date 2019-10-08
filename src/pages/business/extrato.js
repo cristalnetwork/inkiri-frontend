@@ -86,7 +86,7 @@ class Extrato extends Component {
     let that = this;
     this.setState({loading:true});
     // console.log(' <><><><><><><><><> this.state.cursor:', this.state.cursor)
-    api.dfuse.listTransactions(account_name, (is_first===true?undefined:this.state.cursor) )
+    api.listTransactions(account_name, (is_first===true?undefined:this.state.cursor) )
     .then( (res) => {
             that.onNewData(res.data);
     } ,(ex) => {

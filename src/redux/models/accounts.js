@@ -8,27 +8,27 @@ const LOAD_ACCOUNTS = 'accounts/LOAD_ACCOUNTS'
 const SET_ACCOUNTS = 'accounts/SET_ACCOUNTS'
 
 // Creadores de acciones (se pueden usar desde los compoenentes)
-export const loadAccunts = () =>({ type: LOAD_ACCOUNTS });
-export const setAccunts = (accounts = []) =>({ type: SET_ACCOUNTS, payload: {accounts}});
+export const loadAccounts = () =>({ type: LOAD_ACCOUNTS });
+export const setAccounts = (accounts = []) =>({ type: SET_ACCOUNTS, payload: {accounts}});
 
 //Eventos que requieren del async
-function* loadAccounts() {
+function* loadAccountsSaga() {
   const {data} = yield listBankAccounts();
   if(data) {
-    yield put(setAccunts(data.accounts))
+    yield put(setAccounts(data.accounts))
   }
 }
 
 function* initLoadAccounts () {
   yield put({type: core.ACTION_START, payload: { loadAccounts: 'Loading accounts'}})
-  yield call(loadAccounts)
+  yield call(loadAccountsSaga)
   yield put({type: core.ACTION_END, payload: 'loadAccounts'})
 }
 
 //Se envan las sagas a redux estableciendo que y cuantas veces dispara la funcià¸£à¸“n
 store.injectSaga('accounts', [
   takeEvery(core.INIT, initLoadAccounts),
-  takeEvery(LOAD_ACCOUNTS, loadAccounts),
+  takeEvery(LOAD_ACCOUNTS, loadAccountsSaga),
 ]);
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
