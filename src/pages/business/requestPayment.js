@@ -44,11 +44,15 @@ class RequestPayment extends Component {
       invoice_file:       undefined,
       payment_slip_file:  undefined,
 
-      pushingTx:    false,
       
-      result:       undefined,
-      result_object:undefined,
-      error:        {}
+      fileList:           [],
+      uploading:          false,
+
+      pushingTx:          false,
+      
+      result:             undefined,
+      result_object:      undefined,
+      error:              {}
     };
 
     this.renderContent              = this.renderContent.bind(this); 
@@ -59,6 +63,52 @@ class RequestPayment extends Component {
     this.handleProviderChange       = this.handleProviderChange.bind(this);
   }
 
+  handleUpload = () => {
+    const { fileList } = this.state;
+    const formData = new FormData();
+    // fileList.forEach(file => {
+    //   formData.append('files[]', file);
+    // });
+
+    formData.append('file', fileList[0]);
+    formData.append('account', this.props.actualAccountName);
+
+    console.log('ABOUT TO POST!')
+    console.log(fileList[0])
+    this.setState({
+      uploading: true,
+    });
+
+
+    const bearer_token = api.jwt.getBearerTokenByKey();
+    fetch(globalCfg.api.endpoint + '/files', { // Your POST endpoint
+        method: 'POST',
+        headers: {
+          // Content-Type may need to be completely **omitted**
+          // or you may need something
+          // "Content-Type": "You will perhaps need to define a content-type here"
+          Authorization: bearer_token
+        },
+        body: formData // This is your file object
+      }).then(
+        response => response.json() // if the response is a JSON object
+      ).then(
+        (success) => {
+          this.setState({
+            fileList: [],
+            uploading: false,
+          });
+          console.log(success) // Handle the success response object
+        }
+      ).catch(
+        (error) => {
+          this.setState({
+            uploading: false,
+          });
+          console.log(error) // Handle the error response object
+        }
+      );
+  };
   
   onChange(e) {
     e.preventDefault();
@@ -252,7 +302,30 @@ class RequestPayment extends Component {
     }
     
     // ** hack for sublime renderer ** //
-    const{ amount, provider, invoice_file, payment_slip_file} = this.state;
+    const { amount, provider, invoice_file, payment_slip_file} = this.state;
+    const { uploading, fileList } = this.state;
+    const props = {
+      onRemove: file => {
+        this.setState(state => {
+          const index = state.fileList.indexOf(file);
+          const newFileList = state.fileList.slice();
+          newFileList.splice(index, 1);
+          return {
+            fileList: newFileList,
+          };
+        });
+      },
+      beforeUpload: file => {
+        if(this.state.fileList && this.state.fileList.length>0)
+          return false;
+        this.setState(state => ({
+          fileList: [...state.fileList, file],
+        }));
+        return false;
+      },
+      fileList,
+    };
+
     return (
         <div style={{ margin: '0 auto', width:500, padding: 24, background: '#fff'}}>
           <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
@@ -287,18 +360,14 @@ class RequestPayment extends Component {
               </Form.Item>
 
               <Form.Item style={{marginTop:'20px'}}>
-                {getFieldDecorator('invoice_file', {
-                  valuePropName: 'fileList',
-                  getValueFromEvent: this.normalizeFile,
-                })(
-                  <Upload.Dragger name="invoice_file_dragger" action="#" multiple={false}>
+                  <Upload.Dragger name="invoice_file_dragger" {...props} multiple={false}>
                     <p className="ant-upload-drag-icon">
                       <Icon type="inbox" />
                     </p>
                     <p className="ant-upload-text">Nota Fiscal</p>
                     <p className="ant-upload-hint">Click or drag file to this area to upload</p>
                   </Upload.Dragger>,
-                )}
+                
               </Form.Item>
 
               <Form.Item style={{marginTop:'20px'}}>
@@ -318,6 +387,16 @@ class RequestPayment extends Component {
 
 
               <Form.Item>
+                <Button
+                  type="primary"
+                  onClick={this.handleUpload}
+                  disabled={fileList.length === 0}
+                  loading={uploading}
+                  style={{ marginTop: 16 }}
+                >
+                  {uploading ? 'Uploading' : 'Start Upload'}
+                </Button>
+
                 <Button style={{marginTop:'20px'}} type="primary" htmlType="submit" className="login-form-button">
                   Request Payment
                 </Button>

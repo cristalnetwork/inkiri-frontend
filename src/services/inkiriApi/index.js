@@ -4,6 +4,7 @@ import * as globalCfg from '@app/configs/global';
 import * as eosHelper from './eosHelper.js';
 import * as dfuse from './dfuse.js';
 import * as bank from './bank.priv.js';
+import * as jwt from './jwtHelper.js';
 import ecc from 'eosjs-ecc';
 
 import * as txsHelper from './transactionHelper';
@@ -16,6 +17,7 @@ import _ from 'lodash';
 export {eosHelper};
 export {dfuse};
 export {bank};
+export {jwt};
 
 function formatAmount(amount){
   return Number(amount).toFixed(4) + ' ' + globalCfg.currency.eos_symbol;
@@ -25,6 +27,10 @@ function prettyJson(input){
   return JSON.stringify(input, null, 2)
 }
 
+/*
+* Retrieves Smart Contract's Bank accounts profile list.
+
+*/
 // export const listBankAccounts  = () => dfuse.listBankAccounts();
 export const listBankAccounts  = () => listAllBankAccounts();
 
@@ -50,6 +56,10 @@ const listAllBankAccounts = async () => {
   return {data:{accounts:accounts, more:response.more}};
 }
 
+
+/*
+* Search an account on the Smart Contract's Bank account's table.
+*/
 export const findBankAccount = async (account_name) => { 
   const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
   const response = await jsonRpc.get_table_rows({
@@ -71,34 +81,54 @@ export const findBankAccount = async (account_name) => {
   return _found?{...response.rows[0]}:undefined;
 }
 
+
+/*
+* Retrieves a bank  an account on the Smart Contract's Bank account's table.
+*/
 // export const getBankAccount = (account_name) => dfuse.searchBankAccount(account_name);
 export const getBankAccount = (account_name) => findBankAccount(account_name);
 
-export const isBankCustomer = async (account_name) => { 
+/*
+* Retrieves if given account name is a customer (aka: account exists in SmartContract account table?).
+*/
+export const isBankCustomer = (account_name) => isBankCustomerImpl(account_name); 
+const isBankCustomerImpl = async (account_name) => { 
   const customer = await getBankAccount(account_name);
   return customer!==undefined;
 }
 
-export const getAccount = async (account_name) => { 
+/*
+* Retrieves EOS account structure for a given accoutn name.
+*/
+export const getAccount = (account_name) => getAccountImpl(account_name);
+const getAccountImpl = async (account_name) => { 
   const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
   const response  = await jsonRpc.get_account(account_name)
   return {data:response}
 }
 
-// export const getKeyAccounts = (account_name) => dfuse.getKeyAccounts(public_key);
-export const getKeyAccounts = async (publicKey) => { 
+/*
+* Retrieves account names related to a given public key.
+*/
+export const getKeyAccounts = (public_key) => dfuse.getKeyAccounts(public_key);
+// export const getKeyAccounts = (public_key) => getKeyAccountsImpl(public_key);
+const getKeyAccountsImpl = async (public_key) => { 
   const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint);
   // const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url);
-
-  // const response  = await jsonRpc.history_get_key_accounts(publicKey);
-  const response  = await jsonRpc.history_get_key_accounts(publicKey);
+  
+  const response  = await jsonRpc.history_get_key_accounts(public_key);
   
   console.log(' ########## getKeyAccounts:', JSON.stringify(response));
   return response?response.account_names:[];
 }
 
+
+/*
+* Retrieves account Balance for DApp's Token for a given account name.
+*/
 // export const getAccountBalance = (account_name) =>  dfuse.getAccountBalance(account_name);
-export const getAccountBalance = async (account_name) => { 
+export const getAccountBalance = (account_name) =>  getAccountBalanceImpl(account_name);
+const getAccountBalanceImpl = async (account_name) => { 
   const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint);
   const params    = {
     "code" : globalCfg.currency.token,
@@ -125,6 +155,7 @@ export const getAccountBalance = async (account_name) => {
 //   const response  = await jsonRpc.history_get_controlled_accounts(controllingAccount);
 //   return {data:response}
 // }
+
 
 export const listTransactions = (account_name, cursor) => dfuse.listTransactions(account_name, cursor);
 // export const listTransactions = (account_name, cursor) => new Promise((res,rej)=> { 

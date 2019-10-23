@@ -33,6 +33,12 @@ const isTokenExpired = (token) => {
   return true;
 }
 
+export const getBearerTokenByKey = (key) => {
+  if(!key)
+    key=BANK_AUTH_TOKEN_KEY
+  return getBearerToken(getTokenIfNotExpired(key));
+}
+
 export const getBearerToken = (token) => {
   if(!token)
     return null;

@@ -198,12 +198,13 @@ const dfuse = {
   account_url               : 'https://jungle.bloks.io/account/'
 }
 
-const eos = {
   /*
-  * https://api.monitor.jungletestnet.io/#apiendpoints
+  * I should take a look at: https://api.monitor.jungletestnet.io/#apiendpoints
   */
-  endpoint       : env=='dev' ? 'http://127.0.0.1:8888' : 'https://jungle2.cryptolions.io:443',
-  // endpoint       : 'http://127.0.0.1:8888/',
+  const eos = {
+  // endpoint       : env=='dev' ? 'http://127.0.0.1:8888' : 'https://jungle2.cryptolions.io:443',
+  /* HACK */
+  endpoint       : 'https://jungle2.cryptolions.io:443',
   node           : 'https://proxy.eosnode.tools/',
   create_account : 'https://api.monitor.jungletestnet.io/#account',
   // create_account: 'https://eos-account-creator.com/choose/'

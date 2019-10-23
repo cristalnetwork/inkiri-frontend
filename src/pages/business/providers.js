@@ -60,8 +60,8 @@ class Providers extends Component {
     this.refreshCurrentTable        = this.refreshCurrentTable.bind(this);
     this.renderFilterContent        = this.renderFilterContent.bind(this);
 
-    this.operationDetails              = this.operationDetails.bind(this);
-    this.cancelOperation              = this.cancelOperation.bind(this);
+    this.operationDetails           = this.operationDetails.bind(this);
+    this.cancelOperation            = this.cancelOperation.bind(this);
     
     this.getColumns                 = this.getColumns.bind(this);
   }

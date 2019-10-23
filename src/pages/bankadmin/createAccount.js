@@ -246,7 +246,7 @@ class CreateAccount extends Component {
   // Events
   componentDidMount(){
     // this.loadDemoData();
-    this.props.loadAccounts;
+    this.props.loadAccounts();
   }
 
   handleAddPermissionSubmit = e => {
