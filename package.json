@@ -4,6 +4,10 @@
   "private": true,
   "dependencies": {
     "@dfuse/client": "^0.2.10",
+    "@fortawesome/fontawesome-svg-core": "^1.2.25",
+    "@fortawesome/free-regular-svg-icons": "^5.11.2",
+    "@fortawesome/free-solid-svg-icons": "^5.11.2",
+    "@fortawesome/react-fontawesome": "^0.1.7",
     "@loadable/component": "^5.10.2",
     "antd": "^3.22.0",
     "babel-plugin-import": "^1.12.0",

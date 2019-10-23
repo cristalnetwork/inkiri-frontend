@@ -261,15 +261,15 @@ class processExternal extends Component {
 
   getActions(){
     const {request}    = this.state;
-    const acceptButton = (<Button onClick={() => this.acceptRequest()} key="acceptButton" type="primary" title="" >ACCEPT</Button>);
+    const acceptButton = (<Button size="large" onClick={() => this.acceptRequest()} key="acceptButton" type="primary" title="" >ACCEPT</Button>);
     //
-    const doneButton   = (<Button onClick={() => this.doneRequest()} key="doneButton" style={{marginLeft:16}} type="primary" >UPLOAD COMPROBANTE AND FINISH</Button>);
+    const doneButton   = (<Button size="large" onClick={() => this.doneRequest()} key="doneButton" style={{marginLeft:16}} type="primary" >UPLOAD COMPROBANTE AND FINISH</Button>);
     //
-    const cancelButton = (<Button onClick={() => this.cancelRequest()} key="cancelButton" style={{marginLeft:16}} type="danger" >CANCEL</Button>);
+    const cancelButton = (<Button size="large" onClick={() => this.cancelRequest()} key="cancelButton" className="danger_color" style={{marginLeft:16}} type="link" >CANCEL</Button>);
     //
-    const rejectButton = (<Button onClick={() => this.rejectRequest()} key="rejectButton" style={{marginLeft:16}} type="danger" >REJECT</Button>);
+    const rejectButton = (<Button size="large" onClick={() => this.rejectRequest()} key="rejectButton" className="danger_color" style={{marginLeft:16}} type="link" >REJECT</Button>);
     //
-    const revertButton = (<Button onClick={() => this.revertRequest()} key="revertButton" style={{marginLeft:16}} type="danger" >REVERT AND REFUND</Button>);
+    const revertButton = (<Button size="large" onClick={() => this.revertRequest()} key="revertButton" className="danger_color" style={{marginLeft:16}} type="link" >REVERT AND REFUND</Button>);
     //
 
     switch (request.state){
@@ -312,8 +312,8 @@ class processExternal extends Component {
         </PageHeader>
 
         <TransactionCard request={request}/>
-        <div className="c-detail">
-          <Card style={ { marginBottom: 24 } }>
+        <div className="c-detail bottom">
+          <Card style={ { marginBottom: 24, textAlign:'center' } }>
           { buttons.map(button=>button)}
           </Card>
         </div>

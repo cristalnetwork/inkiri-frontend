@@ -479,8 +479,7 @@ class CreateAccount extends Component {
         <>
           <h3 className="fileds_header">PROFILE SECTION</h3>
           <Form.Item
-            label="Nome"
-            >
+            label="Nome">
               {getFieldDecorator('first_name', {
                 rules: [{ required: true, message: 'Please input first name!', whitespace: true }],
                 initialValue: first_name
@@ -488,8 +487,7 @@ class CreateAccount extends Component {
             </Form.Item>
 
             <Form.Item
-              label="Sobrenome"
-            >
+              label="Sobrenome">
               {getFieldDecorator('last_name', {
                 rules: [{ required: true, message: 'Please input last name!', whitespace: true }],
                 initialValue: last_name

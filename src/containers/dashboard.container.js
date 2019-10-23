@@ -3,6 +3,7 @@ import { Layout, PageHeader } from 'antd';
 
 import InkiriHeader from '@app/components/InkiriHeader';
 import * as menuRedux from '@app/redux/models/menu'
+// import * as coreRedux from '@app/redux/models/core'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -30,6 +31,7 @@ export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, 
       query: '(max-width: 599px)',
     })[0];
 
+    // setIsMobile(isMobile);
 
     const onCollapse = collapsed => {
         setCollapse(collapsed)
@@ -75,6 +77,7 @@ export default connect(
       menuIsCollapsed :  menuRedux.isCollapsed(state)
     }),
     dispatch => ({
-      collapseMenu:       bindActionCreators(menuRedux.collapseMenu, dispatch)        
+      collapseMenu:      bindActionCreators(menuRedux.collapseMenu, dispatch),
+      // setIsMobile:       bindActionCreators(coreRedux.setIsMobile, dispatch),
     })
 )(DashboardContainer)

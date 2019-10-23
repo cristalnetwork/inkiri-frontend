@@ -8,13 +8,13 @@ import * as api from '@app/services/inkiriApi';
 import history from '@app/history.js';
 
 // Constantes
-const TRY_LOGIN = 'login/TRY_LOGIN';
-const TRY_LOGIN_END = 'login/TRY_LOGIN_END';
-const SET_LOGIN = 'login/SET_LOGIN'
-const LOGOUT = 'login/LOGOUT'
+const TRY_LOGIN         = 'login/TRY_LOGIN';
+const TRY_LOGIN_END     = 'login/TRY_LOGIN_END';
+const SET_LOGIN         = 'login/SET_LOGIN'
+const LOGOUT            = 'login/LOGOUT'
 
-const TRY_SWITCH = 'login/TRY_SWITCH';
-const TRY_SWITCH_END = 'login/TRY_SWITCH_END';
+const TRY_SWITCH        = 'login/TRY_SWITCH';
+const TRY_SWITCH_END    = 'login/TRY_SWITCH_END';
 
 
 // Creadores de acciones (se pueden usar desde los compoenentes)

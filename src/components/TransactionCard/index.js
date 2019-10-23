@@ -10,8 +10,7 @@ import * as api from '@app/services/inkiriApi';
 
 import debounce from 'lodash/debounce';
 
-import './style.less'; 
-import styles from './style.less';
+// import './style.less'; 
 
 import * as utils from '@app/utils/utils';
 
@@ -137,7 +136,7 @@ class TransactionCard extends Component {
                                           <div className="c-ticket__title "><b>{globalCfg.api.typeToText(request.requested_type).toUpperCase()}</b> request</div>
                                             <div className="c-ticket__amount ">
                                               <span className="price-tag price-tag-billing">
-                                                <span className="price-tag price-tag-symbol-text">{globalCfg.currency.fiat.plural}</span>
+                                                <span className="price-tag price-tag-symbol-text hidden">{globalCfg.currency.fiat.plural}</span>
                                                 <span className="price-tag price-tag-symbol">{globalCfg.currency.fiat.symbol} </span>
                                                 <span className="price-tag price-tag-fraction">400</span>
                                               </span>

@@ -14,17 +14,26 @@ import * as globalCfg from '@app/configs/global';
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
-import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
+import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
 import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
 import ProviderSearch from '@app/components/ProviderSearch';
 
 import './requestPayment.css'; 
 
-const { Paragraph, Text } = Typography;
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+const { Paragraph, Text } = Typography;
+const { TextArea } = Input;
 const routes = routesService.breadcrumbForFile('providers-payments');
 
+const PAYMENT_VEHICLE       = 'payment_vehicle';
+const PAYMENT_CATEGORY      = 'payment_category';
+const PAYMENT_TYPE          = 'payment_type';
+const PAYMENT_MODE          = 'payment_mode';
+const PAYMENT_MODE_TRANSFER = 'payment_mode_transfer';
+const PAYMENT_MODE_BOLETO   = 'payment_mode_boleto';
 /*
 * Invoice Management via:
 * 
@@ -44,6 +53,10 @@ class RequestPayment extends Component {
       invoice_file:       undefined,
       payment_slip_file:  undefined,
 
+      [PAYMENT_VEHICLE]   : '',
+      [PAYMENT_CATEGORY]  : '',
+      [PAYMENT_TYPE]      : '',
+      [PAYMENT_MODE]      : '',
       
       fileList:           [],
       uploading:          false,
@@ -52,7 +65,15 @@ class RequestPayment extends Component {
       
       result:             undefined,
       result_object:      undefined,
-      error:              {}
+      error:              {},
+
+
+      input_amount     :
+                          {  
+                            style   : {maxWidth: 370, fontSize: 100, width: 60}
+                             , value : undefined 
+                             , symbol_style : {fontSize: 60}
+                           }
     };
 
     this.renderContent              = this.renderContent.bind(this); 
@@ -61,6 +82,10 @@ class RequestPayment extends Component {
     this.resetPage                  = this.resetPage.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.handleProviderChange       = this.handleProviderChange.bind(this);
+    this.onInputAmount              = this.onInputAmount.bind(this);
+    this.renderPaymentOption        = this.renderPaymentOption.bind(this);
+    this.handleChange               = this.handleChange.bind(this);
+    
   }
 
   handleUpload = () => {
@@ -73,8 +98,6 @@ class RequestPayment extends Component {
     formData.append('file', fileList[0]);
     formData.append('account', this.props.actualAccountName);
 
-    console.log('ABOUT TO POST!')
-    console.log(fileList[0])
     this.setState({
       uploading: true,
     });
@@ -84,9 +107,6 @@ class RequestPayment extends Component {
     fetch(globalCfg.api.endpoint + '/files', { // Your POST endpoint
         method: 'POST',
         headers: {
-          // Content-Type may need to be completely **omitted**
-          // or you may need something
-          // "Content-Type": "You will perhaps need to define a content-type here"
           Authorization: bearer_token
         },
         body: formData // This is your file object
@@ -128,18 +148,15 @@ class RequestPayment extends Component {
       callback();
       return;
     }
-    // if (value && value.key) {
-    //   callback();
-    //   return;
-    // }
     callback('Please select a provider!');
   };
 
-  // onSearch={this.handleSearch}
-  handleSearch(value){
-    // this.setState({
-    //   dataSource: !value ? [] : [value, value + value, value + value + value],
-    // });
+  checkPrice = (rule, value, callback) => {
+    if (value > 0) {
+      callback();
+      return;
+    }
+    callback('Amount must greater than zero!');
   };
 
   openNotificationWithIcon(type, title, message) {
@@ -149,15 +166,16 @@ class RequestPayment extends Component {
     });
   }
 
-
   handleSubmit = e => {
     e.preventDefault();
+    
     this.props.form.validateFields((err, values) => {
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen0!")    
+        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
         console.log(' ERRORS!! >> ', err)
         return;
       }
+      
       if(isNaN(this.state.amount))
       {
         this.openNotificationWithIcon("error", this.state.amount + " > valid number required","Please type a valid number greater than 0!")    
@@ -170,6 +188,9 @@ class RequestPayment extends Component {
         return;
       }
       
+      this.openNotificationWithIcon("error", `Hasta aca llegamos`); 
+      return;
+
       // const privateKey = api.dummyPrivateKeys[this.props.actualAccountName] 
       const privateKey = this.props.actualPrivateKey;
       // HACK! >> La tenemos que traer de localStorage? <<
@@ -240,15 +261,298 @@ class RequestPayment extends Component {
     this.setState({result: undefined, result_object: undefined, error: {}});
   }
 
-   normalizeFile = e => {
-    console.log('Upload event:', e);
-    if (Array.isArray(e)) {
-      return e;
+  // normalizeFile = e => {
+  //   console.log('Upload event:', e);
+  //   if (Array.isArray(e)) {
+  //     return e;
+  //   }
+  //   return e && e.fileList;
+  // };
+
+  handleChange = (value, name) => {
+    this.setState({
+      [name]: value
+    });
+  }
+
+  onInputAmount(event){
+    event.preventDefault();
+    const the_value = event.target.value;
+    const _input_amount = this.state.input_amount;
+    this.setState({input_amount: {..._input_amount, value: the_value}}, 
+      () => {
+        if(the_value && the_value.toString().length){
+          const value = the_value.toString();
+          var digitCount = value.length > 0 ? value.replace(/\./g,"").replace(/,/g,"").length : 1
+          var symbolCount = value.length > 0 ? value.length - digitCount : 0;
+          const isMobile = false;
+          var size = isMobile ? 48 : 100
+
+          if(digitCount > 7){
+            size = isMobile ? 40 : 48
+          } else if(digitCount > 4){
+            size = isMobile ? 48 : 70
+          }
+
+          const {input_amount} = this.state;
+          this.setState({
+                  input_amount : {
+                    ...input_amount
+                    , style :         {fontSize: size, width:(digitCount * (size*0.6))+(symbolCount * (size*0.2)) }
+                    , symbol_style: {fontSize:  (size*0.6)}
+                  }
+                });
+          // $("#amount").css({'font-size': size+'px'})
+          // $(".input-price__currency").css({'font-size':  (size*0.6)+'px'});
+          // $("#amount").width((digitCount * (size*0.6))+(symbolCount * (size*0.2)) +"px")
+        }
+      });
+  }
+
+
+  renderPaymentOption(option_type){
+
+    const option_types = {
+      [PAYMENT_VEHICLE] : { 
+        title : 'Pagamento via'
+        , options: [
+          {
+            key: 'inkiri',
+            label:'Inkiri'
+          }, 
+          {
+            key: 'instituto',
+            label:'Instituto'
+          }
+        ]
+      }
+      , [PAYMENT_CATEGORY] : { 
+        title : 'Category'
+        , options: [
+          {
+            key: 'alugel',
+            label:'Alugel'
+          }, 
+          {
+            key: 'investimento',
+            label:'Investimento'
+          }, 
+          {
+            key: 'insumos',
+            label:'Insumos'
+          }, 
+          {
+            key: 'another',
+            label:'Another...'
+          }
+        ]
+      }
+      , [PAYMENT_TYPE] : { 
+        title : 'Tipo saida'
+        , options: [
+          {
+            key: 'despesa',
+            label:'Despesa'
+          }, 
+          {
+            key: 'investimento',
+            label:'Investimento'
+          }
+        ]
+      }
+      , [PAYMENT_MODE] : { 
+        title : 'Modo de Pagamento'
+        , options: [
+          {
+            key: PAYMENT_MODE_TRANSFER,
+            label:'Bank transfer'
+          }, 
+          {
+            key: PAYMENT_MODE_BOLETO,
+            label:'Boleto Pagamento'
+          }
+        ]
+      }
     }
-    return e && e.fileList;
-  };
+    const my_options = option_types[option_type];
+    if(!my_options)
+      return (<></>);
+    //
+    const { getFieldDecorator } = this.props.form;
+    
+    return (
+      <Form.Item className="money-transfer__row">
+          {getFieldDecorator(option_type, {
+            rules: [{ required: true, message: 'Please select a/an'+ my_options.title}]
+            , onChange: (e) => this.handleChange(e, option_type)
+          })(
+            <Select name={option_type} placeholder={'Choose ' + my_options.title} optionLabelProp="label">
+            {my_options.options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.label}>{ opt.label } </Select.Option> )}
+            </Select>
+          )}
+      </Form.Item>
+    )
+
+    // return (
+    //   <div className="money-transfer__row" >
+    //     <div className="custom-selectNO money-transfer-select ch-hide">
+    //       <Form.Item >
+    //           {getFieldDecorator(option_type, {
+    //             rules: [{ required: true, message: 'Please select a/an'+ my_options.title}]
+    //             , onChange: (e) => this.handleChange(e, option_type)
+    //           })(
+    //             <Select name={option_type} placeholder={'Choose ' + my_options.title} optionLabelProp="label">
+    //             {my_options.options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.label}>{ opt.label } </Select.Option> )}
+    //             </Select>
+    //           )}
+    //       </Form.Item>
+    //     </div>
+    //   </div>
+    // )
+  }
+  //
 
   renderContent() {
+    
+    const { input_amount, provider, invoice_file, payment_slip_file} = this.state;
+    const { uploading, fileList } = this.state;
+    const props = {
+      onRemove: file => {
+        this.setState(state => {
+          const index         = state.fileList.indexOf(file);
+          const newFileList   = state.fileList.slice();
+          newFileList.splice(index, 1);
+          return {
+            fileList: newFileList,
+          };
+        });
+      },
+      beforeUpload: file => {
+        if(this.state.fileList && this.state.fileList.length>0)
+        {
+          this.openNotificationWithIcon("info", "Only 1 file allowed")    
+          return false;
+        }
+        this.setState(state => ({
+          fileList: [...state.fileList, file],
+        }));
+        return false;
+      },
+      fileList,
+    };
+
+    const { getFieldDecorator } = this.props.form;
+
+    return (
+      <div className="ly-main-content content-spacing cards">
+        <section className="mp-box mp-box__shadow money-transfer__box">
+          <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+            <Form onSubmit={this.handleSubmit}>
+                <div className="money-transfer">
+                  
+                  <div className="money-transfer__row row-complementary" >
+                      <div className="badge badge-extra-small badge-circle addresse-avatar">
+                          <span className="picture">
+                            <FontAwesomeIcon icon="truck-moving" size="lg" color="gray"/>
+                          </span>
+                      </div>
+                      <div className="money-transfer__input money-transfer__select">
+                        <Form.Item>
+                          {getFieldDecorator('provider', {
+                            rules: [{ validator: this.validateProvider }],
+                          })(
+                            <ProviderSearch onProviderSelected={this.handleProviderChange} style={{ width: '100%' }} autoFocus />
+                          )}
+                        </Form.Item>
+                      </div>
+                  </div>
+
+                    
+                    <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+                        {getFieldDecorator('amount', {
+                          rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
+                          initialValue: input_amount.value,
+
+                        })( 
+                          <>  
+                            <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
+                              {globalCfg.currency.fiat.symbol}
+                            </span>
+                            
+                            <Input 
+                              type="tel" 
+                              step="0.01" 
+                              name="amount" 
+                              className="money-transfer__input input-amount placeholder-big" 
+                              id="amount"
+                              placeholder="0" 
+                              value={input_amount.value} 
+                              onChange={this.onInputAmount}  
+                              style={input_amount.style}  
+                            />
+                          </>
+                        )}
+                    </Form.Item>
+                    
+                    <div className="money-transfer__row file_selector">
+                      <Form.Item>
+                          <Upload.Dragger name="invoice_file_dragger" {...props} multiple={false}>
+                            <p className="ant-upload-drag-icon">
+                              <Icon type="inbox" />
+                            </p>
+                            <p className="ant-upload-text">Nota Fiscal</p>
+                          </Upload.Dragger>,
+                      </Form.Item>
+                    </div>
+
+                    {this.renderPaymentOption(PAYMENT_VEHICLE)}
+                    {this.renderPaymentOption(PAYMENT_CATEGORY)}
+                    {this.renderPaymentOption(PAYMENT_TYPE)}
+                    
+                    {this.renderPaymentOption(PAYMENT_MODE)}
+                    
+                    <div className="money-transfer__row file_selector">
+                      <Form.Item>
+                        {getFieldDecorator('payment_slip_file', {
+                          valuePropName: 'fileList'
+                        })(
+                          <Upload.Dragger name="payment_slip_file_dragger" multiple={false} disabled={this.state[PAYMENT_MODE]!=PAYMENT_MODE_BOLETO} >
+                            <p className="ant-upload-drag-icon">
+                              <Icon type="inbox" />
+                            </p>
+                            <p className="ant-upload-text">Boleto Pagamento</p>
+                          </Upload.Dragger>,
+                        )}
+                      </Form.Item>
+                    </div>
+
+                    <div className="money-transfer__row row-expandable row-complementary-bottom"  id="divNote">
+                      <Form.Item label="Memo">
+                        {getFieldDecorator('memo', {})(
+                        <TextArea 
+                          className="money-transfer__input" 
+                          placeholder="Memo or Note" autosize={{ minRows: 3, maxRows: 6 }} 
+                          style={{overflow: 'hidden', overflowWrap: 'break-word', height: 31}}
+                          />
+                        )}
+                      </Form.Item>
+                        
+                    </div>
+                </div>
+                <div className="mp-box__actions mp-box__shore">
+                    <Button size="large" key="requestButton" htmlType="submit" type="primary" title="" >REQUEST PAYMENT</Button>
+                </div>
+            </Form>
+          </Spin>
+        </section>
+    </div>      
+    );
+
+  }
+  
+
+  // 
+  renderContentOLD() {
   
     const { getFieldDecorator } = this.props.form;
     
@@ -327,10 +631,14 @@ class RequestPayment extends Component {
     };
 
     return (
-        <div style={{ margin: '0 auto', width:500, padding: 24, background: '#fff'}}>
+        <div className="ly-main-content content-spacing cards">
+        <section className="mp-box mp-box__shadow money-transfer__box">
+
           <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
             <Form onSubmit={this.handleSubmit}>
-                
+              
+              <div className="money-transfer">
+
               <Form.Item style={{minHeight:60, marginBottom:12}}>
                 {getFieldDecorator('provider', {
                   rules: [{ validator: this.validateProvider }],
@@ -372,10 +680,9 @@ class RequestPayment extends Component {
 
               <Form.Item style={{marginTop:'20px'}}>
                 {getFieldDecorator('payment_slip_file', {
-                  valuePropName: 'fileList',
-                  getValueFromEvent: this.normalizeFile,
+                  valuePropName: 'fileList'
                 })(
-                  <Upload.Dragger name="payment_slip_file_dragger" action="/google_drive" multiple={false} >
+                  <Upload.Dragger name="payment_slip_file_dragger" multiple={false} >
                     <p className="ant-upload-drag-icon">
                       <Icon type="inbox" />
                     </p>
@@ -396,14 +703,21 @@ class RequestPayment extends Component {
                 >
                   {uploading ? 'Uploading' : 'Start Upload'}
                 </Button>
-
-                <Button style={{marginTop:'20px'}} type="primary" htmlType="submit" className="login-form-button">
-                  Request Payment
-                </Button>
-                
               </Form.Item>
+              
+              </div>
+
+              <div className="mp-box__actions mp-box__shore">
+                  <Button size="large" type="primary" htmlType="submit">
+                  REQUEST PAYMENT
+                </Button>
+              </div>
+
+              
             </Form>
           </Spin>
+        
+        </section>
         </div>
     );
   }
@@ -423,7 +737,8 @@ class RequestPayment extends Component {
   // ** hack for sublime renderer ** //
 
   render() {
-    let content = this.renderContent();
+    let content     = this.renderContent();
+    // let contentOLD  = this.renderContentOLD();
     return (
       <>
         <PageHeader
@@ -437,7 +752,7 @@ class RequestPayment extends Component {
           </div>
         </PageHeader>
 
-        <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24}}>
+        <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           {content}
         </div>
       </>

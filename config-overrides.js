@@ -9,7 +9,12 @@ module.exports = override(
     }),
     addLessLoader({
       javascriptEnabled: true,
-      modifyVars: { '@primary-color': '#1DA57A' },
+      modifyVars: { 
+        '@primary-color': '#1DA57A' 
+        , '@font-family': "'Proxima Nova', -apple-system,'Helvetica Neue',Helvetica,Roboto,Arial,sans-serif ;"
+        , '@code-family': "'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;"
+
+      },
       ident: 'postcss',
       sourceMap: true, // should skip in production
       importLoaders: true,

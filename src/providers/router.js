@@ -48,8 +48,8 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           else {
             if(actualRole=='business') 
             {    
-              // history.push(`/${actualRole}/providers-payments-request`);
-              history.push(`/${actualRole}/providers-payments`);
+              history.push(`/${actualRole}/providers-payments-request`);
+              // history.push(`/${actualRole}/providers-payments`);
               //history.push(`/${actualRole}/external-transfers`);
             } else {
                 // history.push(`/${actualRole}/dashboard`);

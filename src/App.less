@@ -1,4 +1,15 @@
+/* HACK FOR COLORS AND BUTTONS */
+@import '~antd/es/style/themes/default.less';
+.danger_color{
+  color: color(~`colorPalette('@{error-color}', 5) `);
+}
 
+.danger_color:hover{
+  color: color(~`colorPalette('@{error-color}', 4) `);
+}
+
+
+/* ROBADO DE MP */
 /*div, span, li {
   font-family: Proxima Nova,-apple-system,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif ;
   font-weight: 400 ;
@@ -6,6 +17,7 @@
   line-height: 1.4 ;
 }
 */
+
 .u-button-link {
     color: #009ee3;
     cursor: pointer;
@@ -60,6 +72,10 @@
   .ui-info-row--background-gray {
       background-color: #f8f8f8;
   }
+}
+
+.c-detail.bottom{
+  padding: 0;
 }
 
 .ui-row, .ui-row__link {
@@ -166,8 +182,8 @@
 */
 
 .c-ticket-payment .c-ticket__title, .c-ticket-payment .price-tag, .c-ticket-subtotal .c-ticket__title, .c-ticket-subtotal .price-tag {
-    /*font-weight: 400;*/
-    font-weight: 600;
+    font-weight: 400;
+    
 }
 
 ol, ul {
