@@ -14,11 +14,11 @@ const AccountSelector = ({allAccounts, actualAccountName, currentAccount, onChan
       if(!account_item)
         return 'NA';
       const account_type       = account_item.permissioner.account_type_description.toUpperCase();
-      const account_name       = account_item.permissioner.account_name.toUpperCase();
+      const account_name       = account_item.permissioner.account_name;
       const account_permission = account_item.permission.replace('active', 'gestor').toUpperCase(); 
       // return `${account_name} - Conta ${account_type} [${account_permission}] `
       // return `${account_name}[${account_type}]${account_permission} `
-      return (<><span className="bold">{account_permission}</span><span>@{account_name}</span><span>.{account_type}</span></>)
+      return (<><span className="bold">{account_permission}</span><span>@</span><span className="bold">{account_name}</span><span>.{account_type}</span></>)
     }
 
     const getIconForAccountType = (account_item) => {

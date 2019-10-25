@@ -158,7 +158,7 @@ export const createDeposit = (account_name, amount, currency) =>   new Promise((
   const method  = 'POST';
   const post_params = {
           'account_name':       account_name
-          , 'requested_type':   'type_deposit'
+          , 'requested_type':   globalCfg.api.TYPE_DEPOSIT
           , 'amount':           Number(amount).toFixed(2)
           , 'deposit_currency': currency
         };
@@ -417,7 +417,7 @@ export const createProviderPayment = (account_name, amount, provider_id) =>   ne
   const method  = 'POST';
   const post_params = {
           'from':               account_name
-          , 'requested_type':   'type_provider'
+          , 'requested_type':   globalCfg.api.TYPE_PROVIDER
           , 'amount':           Number(amount).toFixed(2)
           , 'provider':         provider_id
         };
@@ -430,6 +430,80 @@ export const createProviderPayment = (account_name, amount, provider_id) =>   ne
         console.log(' inkiriApi::createProviderPayment >> ERROR ', JSON.stringify(ex))
         rej(ex);
       });
+});
+
+export const createProviderPaymentEx = (account_name, amount, provider_id, values_array, attachments) =>   new Promise((res,rej)=> {
+  
+  delete values_array['provider']; // Hack :(
+  const path    = globalCfg.api.endpoint + '/requests_files';
+  const method  = 'POST';
+  const post_params = {
+          ...values_array
+          , 'from':               account_name
+          , 'requested_type':   globalCfg.api.TYPE_PROVIDER
+          , 'amount':           Number(amount).toFixed(2)
+          , 'provider':         provider_id
+          
+        };
+
+  let formData = new FormData();
+
+  formData.append('request', JSON.stringify(post_params));
+  formData.append('from', account_name); // The folder name for GDrive!
+  formData.append('requested_type', globalCfg.api.TYPE_PROVIDER); 
+
+  Object.keys(attachments).forEach(function (key) {
+    formData.append(key, attachments[key]);
+  });    
+
+  const bearer_token = jwtHelper.getBearerTokenByKey();
+      
+  fetch(globalCfg.api.endpoint + '/requests_files', { // Your POST endpoint
+      method: 'POST',
+      headers: {
+        Authorization: bearer_token
+      },
+      body: formData 
+    }).then(
+        (response) => response.json() // if the response is a JSON object
+      , (ex) => { rej(ex) }
+    ).then(
+      (success) => {
+        if(!success)
+        {
+          rej('UNKNOWN ERROR!'); return;
+        }
+        else
+        if(success && success.error)
+        {
+          rej (success.error); return;
+        }
+        else
+        if(success && success.errors)
+        {
+          rej (success.errors[0]); return;
+        }
+        console.log(success);
+        res(success);
+      }
+    ).catch(
+      (error) => {
+        console.log(JSON.stringify(error));
+        res(error);
+        
+      }
+    );
+  
+      
+  // console.log(' inkiriApi::createProviderPayment >> ABOUT TO POST', JSON.stringify(post_params))
+  // jwtHelper.apiCall(path, method, post_params)
+  //   .then((data) => {
+  //       console.log(' inkiriApi::createProviderPayment >> RESPONSE', JSON.stringify(data))
+  //       res(data)
+  //     }, (ex) => {
+  //       console.log(' inkiriApi::createProviderPayment >> ERROR ', JSON.stringify(ex))
+  //       rej(ex);
+  //     });
 });
 
 export const updateProviderPayment = (request_id, state, tx_id) => updateRequest(request_id, state, tx_id);

@@ -7,13 +7,13 @@ import './App.css';
 import './App.less';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faTruckMoving } from '@fortawesome/free-solid-svg-icons'
+import { faTruckMoving, faFileInvoiceDollar, faReceipt } from '@fortawesome/free-solid-svg-icons'
 
 
 const App = () =>{
     
 
-    library.add(faTruckMoving)
+    library.add(faTruckMoving, faFileInvoiceDollar, faReceipt)
 
     return (
       <div className="App">

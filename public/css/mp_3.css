@@ -66,7 +66,8 @@ a.ch-btn-skin:hover,
 .nav a.nav__link:visited,
 .nav a.nav__link:link,
 .nav a.nav__link:hover {
-  color: #009ee3; }
+  /*color: #009ee3; */
+}
 
 a.ch-btn,
 a.ch-btn-skin,

@@ -73,9 +73,17 @@ h3.fileds_header{
 
 /* HACK for SELECT CONTROLS*/
 
-.money-transfer__select .ant-select-selection, .money-transfer__row .ant-select-selection{
+.money-transfer__select .ant-select-selection, .money-transfer__row .ant-select-selection
+,.money-transfer__select .ant-input:hover, .money-transfer__row .ant-input:hover{
   border:none!important;
 }
+.money-transfer__select .ant-select-focused .ant-select-selection, .money-transfer__select .ant-select-selection:focus, .money-transfer__select .ant-select-selection:active
+, .money-transfer__row .ant-select-focused ,.money-transfer__row .ant-select-selection:focus, .money-transfer__row .ant-select-selection:active
+, .money-transfer__select .ant-input:hover, .money-transfer__row .ant-input:hover
+{
+  box-shadow: none!important;
+}
+
 .money-transfer__select .ant-select, .money-transfer__row .ant-select{
   font-size: 15px!important;
 }

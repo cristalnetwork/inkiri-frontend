@@ -28,12 +28,28 @@ const { Paragraph, Text } = Typography;
 const { TextArea } = Input;
 const routes = routesService.breadcrumbForFile('providers-payments');
 
-const PAYMENT_VEHICLE       = 'payment_vehicle';
-const PAYMENT_CATEGORY      = 'payment_category';
-const PAYMENT_TYPE          = 'payment_type';
-const PAYMENT_MODE          = 'payment_mode';
-const PAYMENT_MODE_TRANSFER = 'payment_mode_transfer';
-const PAYMENT_MODE_BOLETO   = 'payment_mode_boleto';
+
+const PAYMENT_VEHICLE               = 'payment_vehicle';
+const PAYMENT_VEHICLE_INKIRI        = 'payment_vehicle_inkiri';
+const PAYMENT_VEHICLE_INSTITUTO     = 'payment_vehicle_institute';
+
+const PAYMENT_CATEGORY              = 'payment_category';
+const PAYMENT_CATEGORY_ALUGEL       = 'payment_category_alugel';
+const PAYMENT_CATEGORY_INVESTIMENTO = 'payment_category_investimento';
+const PAYMENT_CATEGORY_INSUMOS      = 'payment_category_insumos';
+const PAYMENT_CATEGORY_ANOTHER      = 'payment_category_another';
+
+const PAYMENT_TYPE                  = 'payment_type';
+const PAYMENT_TYPE_DESPESA          = 'payment_type_despesa';
+const PAYMENT_TYPE_INVESTIMENTO     = 'payment_type_investimento';
+
+const PAYMENT_MODE                  = 'payment_mode';
+const PAYMENT_MODE_TRANSFER         = 'payment_mode_transfer';
+const PAYMENT_MODE_BOLETO           = 'payment_mode_boleto';
+
+
+const NOTA_FISCAL                   = 'attach_nota_fiscal';
+const BOLETO_PAGAMENTO              = 'attach_boleto_pagamento';
 /*
 * Invoice Management via:
 * 
@@ -53,11 +69,17 @@ class RequestPayment extends Component {
       invoice_file:       undefined,
       payment_slip_file:  undefined,
 
-      [PAYMENT_VEHICLE]   : '',
-      [PAYMENT_CATEGORY]  : '',
-      [PAYMENT_TYPE]      : '',
-      [PAYMENT_MODE]      : '',
-      
+      provider_extra      : {     
+        [PAYMENT_VEHICLE]   : '',
+        [PAYMENT_CATEGORY]  : '',
+        [PAYMENT_TYPE]      : '',
+        [PAYMENT_MODE]      : ''
+      },
+      attachments:       {
+        [NOTA_FISCAL]       : undefined,
+        [BOLETO_PAGAMENTO]  : undefined,
+      },
+
       fileList:           [],
       uploading:          false,
 
@@ -85,7 +107,15 @@ class RequestPayment extends Component {
     this.onInputAmount              = this.onInputAmount.bind(this);
     this.renderPaymentOption        = this.renderPaymentOption.bind(this);
     this.handleChange               = this.handleChange.bind(this);
+    this.getPropsForUploader        = this.getPropsForUploader.bind(this);
     
+  }
+
+  clearAttachments(){
+    this.setState({ attachments:       {
+        [NOTA_FISCAL]       : undefined,
+        [BOLETO_PAGAMENTO]  : undefined,
+      }});
   }
 
   handleUpload = () => {
@@ -137,13 +167,13 @@ class RequestPayment extends Component {
   }
 
   handleProviderChange(provider){
-    console.log(' ** handleProviderChange: ', provider);
-    this.setState({provider:provider})
+    console.log(' #evt() handleProviderChange: ', provider);
+    this.setState({provider: provider })
   }
 
   validateProvider = (rule, value, callback) => {
-    console.log(' >> validateProvider >> provider:', this.state.provider)
-    console.log(' >> validateProvider >> value: ', value)
+    console.log(' #fn() validateProvider >> provider:', this.state.provider)
+    // console.log(' >> validateProvider >> value: ', value)
     if (this.state.provider && this.state.provider.key) {
       callback();
       return;
@@ -166,10 +196,15 @@ class RequestPayment extends Component {
     });
   }
 
+  paymentModeRequiresBoleto(){
+    return this.state.payment_mode==PAYMENT_MODE_BOLETO;
+  }
+
   handleSubmit = e => {
     e.preventDefault();
     
     this.props.form.validateFields((err, values) => {
+      
       if (err) {
         this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
         console.log(' ERRORS!! >> ', err)
@@ -187,22 +222,44 @@ class RequestPayment extends Component {
         this.openNotificationWithIcon("error", `Amount must be equal or less than balance ${balance_txt}!`); //`
         return;
       }
+
+      if(!this.state.provider || !this.state.provider.key)
+      {
+        this.openNotificationWithIcon("error", 'You must choose a provider!');
+        return;
+      }
       
-      this.openNotificationWithIcon("error", `Hasta aca llegamos`); 
-      return;
+      const attachments         = this.state.attachments;
+      const my_NOTA_FISCAL      = (attachments[NOTA_FISCAL] && attachments[NOTA_FISCAL].length>0) ? attachments[NOTA_FISCAL][0] : undefined;
+      const my_BOLETO_PAGAMENTO = (attachments[BOLETO_PAGAMENTO] && attachments[BOLETO_PAGAMENTO].length>0) ? attachments[BOLETO_PAGAMENTO][0] : undefined;
+      
+      let attachments_array = {};
+      if(my_NOTA_FISCAL) 
+        attachments_array[NOTA_FISCAL] = my_NOTA_FISCAL;
+      const has_boleto = (my_BOLETO_PAGAMENTO);
+      if(this.paymentModeRequiresBoleto() && !has_boleto)
+      {
+        this.openNotificationWithIcon("error", 'BOLETO PAGAMENTO Payment MODE', 'Please attach Boleto Pagamento file.');
+        return;
+      }  
+
+      if(this.paymentModeRequiresBoleto() && has_boleto)
+        attachments_array[BOLETO_PAGAMENTO] = my_BOLETO_PAGAMENTO;
+      
+
+      this.setState({
+        uploading: true,
+      });
 
       // const privateKey = api.dummyPrivateKeys[this.props.actualAccountName] 
-      const privateKey = this.props.actualPrivateKey;
+      const privateKey   = this.props.actualPrivateKey;
       // HACK! >> La tenemos que traer de localStorage? <<
-      const provider_id = this.state.provider.key;
-      const sender     = this.props.actualAccountName;
-      const signer     = this.props.personalAccount.permissioner.account_name;
+      const provider_id  = this.state.provider.key;
+      const sender       = this.props.actualAccountName;
+      const signer       = this.props.personalAccount.permissioner.account_name;
+      const amount       = values.amount;
+      let that           = this;
       
-       
-      const amount     = values.amount;
-      let that         = this;
-      
-      // console.log('**createProviderPayment >> account_name:', sender, ' | amount:', amount, ' | provider_id:', provider_id)
       that.setState({pushingTx:true});
       /*
       * ToDo: improve this steps!
@@ -211,13 +268,22 @@ class RequestPayment extends Component {
       * 2.- get Id and send $IK to payment_account
       * 3.- update request
       */
-      api.bank.createProviderPayment(sender, amount, provider_id)
+      // api.bank.createProviderPayment(sender, amount, provider_id)
+      console.log(sender, amount, provider_id, values, attachments_array);
+      api.bank.createProviderPaymentEx(sender, amount, provider_id, values, attachments_array)
         .then((data) => {
           console.log(' createProviderPayment::send (then#1) >>  ', JSON.stringify(data));
            
+           if(!data || !data.id)
+           {
+              that.setState({result:'error', uploading: false, pushingTx:false, error:'Cant create request nor upload files.'});
+              return;
+           }
+
            const request_id       = data.id;
            const provider_account = globalCfg.bank.provider_account; 
-           const memo             = 'prv|' + request_id
+           const memo             = 'prv|' + request_id;
+
            api.sendMoney(sender, privateKey, provider_account, amount, memo, signer)
             .then((data1) => {
 
@@ -227,25 +293,24 @@ class RequestPayment extends Component {
               api.bank.updateProviderPayment(request_id, undefined, send_tx.data.transaction_id)
                 .then((data2) => {
 
-                    that.setState({result:'ok', pushingTx:false, result_object:{blockchain_id : send_tx.data.transaction_id, request_id:request_id} });
+                    this.clearAttachments();
+                    that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{blockchain_id : send_tx.data.transaction_id, request_id:request_id} });
 
                   }, (ex2) => {
                     console.log(' createProviderPayment::send (error#3) >>  ', JSON.stringify(ex2));
-                    that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex2)});
+                    that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
                 });
 
             }, (ex1) => {
               
               console.log(' SendMoney::send (error#2) >>  ', JSON.stringify(ex1));
-              that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex1)});
+              that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
 
             });
 
-
-          // that.setState({result:'ok', pushingTx:false, result_object:data});
         }, (ex) => {
           console.log(' createProviderPayment::send (error#1) >>  ', JSON.stringify(ex));
-          that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+          that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex)});
         });
       
     });
@@ -271,7 +336,7 @@ class RequestPayment extends Component {
 
   handleChange = (value, name) => {
     this.setState({
-      [name]: value
+      provider_extra : {[name]: value}
     });
   }
 
@@ -317,11 +382,11 @@ class RequestPayment extends Component {
         title : 'Pagamento via'
         , options: [
           {
-            key: 'inkiri',
+            key: PAYMENT_VEHICLE_INKIRI,
             label:'Inkiri'
           }, 
           {
-            key: 'instituto',
+            key: PAYMENT_VEHICLE_INSTITUTO,
             label:'Instituto'
           }
         ]
@@ -330,19 +395,19 @@ class RequestPayment extends Component {
         title : 'Category'
         , options: [
           {
-            key: 'alugel',
+            key: PAYMENT_CATEGORY_ALUGEL,
             label:'Alugel'
           }, 
           {
-            key: 'investimento',
+            key: PAYMENT_CATEGORY_INVESTIMENTO,
             label:'Investimento'
           }, 
           {
-            key: 'insumos',
+            key: PAYMENT_CATEGORY_INSUMOS,
             label:'Insumos'
           }, 
           {
-            key: 'another',
+            key: PAYMENT_CATEGORY_ANOTHER,
             label:'Another...'
           }
         ]
@@ -351,11 +416,11 @@ class RequestPayment extends Component {
         title : 'Tipo saida'
         , options: [
           {
-            key: 'despesa',
+            key: PAYMENT_TYPE_DESPESA,
             label:'Despesa'
           }, 
           {
-            key: 'investimento',
+            key: PAYMENT_TYPE_INVESTIMENTO,
             label:'Investimento'
           }
         ]
@@ -382,65 +447,55 @@ class RequestPayment extends Component {
     
     return (
       <Form.Item className="money-transfer__row">
-          {getFieldDecorator(option_type, {
+          {getFieldDecorator( 'provider_extra.'+option_type, {
             rules: [{ required: true, message: 'Please select a/an'+ my_options.title}]
             , onChange: (e) => this.handleChange(e, option_type)
           })(
-            <Select name={option_type} placeholder={'Choose ' + my_options.title} optionLabelProp="label">
+            <Select placeholder={'Choose ' + my_options.title} optionLabelProp="label">
             {my_options.options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.label}>{ opt.label } </Select.Option> )}
             </Select>
           )}
       </Form.Item>
     )
-
-    // return (
-    //   <div className="money-transfer__row" >
-    //     <div className="custom-selectNO money-transfer-select ch-hide">
-    //       <Form.Item >
-    //           {getFieldDecorator(option_type, {
-    //             rules: [{ required: true, message: 'Please select a/an'+ my_options.title}]
-    //             , onChange: (e) => this.handleChange(e, option_type)
-    //           })(
-    //             <Select name={option_type} placeholder={'Choose ' + my_options.title} optionLabelProp="label">
-    //             {my_options.options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.label}>{ opt.label } </Select.Option> )}
-    //             </Select>
-    //           )}
-    //       </Form.Item>
-    //     </div>
-    //   </div>
-    // )
   }
   //
+
+  getPropsForUploader(name){
+    const filelist = this.state.attachments[name] || [];
+    // console.log(' FILELIST OF '+name, JSON.stringify(filelist) )
+    return {
+      onRemove: file => {
+        this.setState(state => {
+          const index         = state.attachments[name].indexOf(file);
+          const newFileList   = state.attachments[name].slice();
+          newFileList.splice(index, 1);
+          return {
+            attachments: {[name]: newFileList}
+          };
+        });
+      },
+      beforeUpload: file => {
+        if(this.state.attachments[name] && this.state.attachments[name].length>0)
+        {
+          this.openNotificationWithIcon("info", "Only 1 file allowed")    
+          return false;
+        }
+
+        this.setState(state => ({
+          attachments : {[name]: [file]}
+        }));
+        return false;
+      },
+      fileList: filelist,
+    };
+  }
 
   renderContent() {
     
     const { input_amount, provider, invoice_file, payment_slip_file} = this.state;
     const { uploading, fileList } = this.state;
-    const props = {
-      onRemove: file => {
-        this.setState(state => {
-          const index         = state.fileList.indexOf(file);
-          const newFileList   = state.fileList.slice();
-          newFileList.splice(index, 1);
-          return {
-            fileList: newFileList,
-          };
-        });
-      },
-      beforeUpload: file => {
-        if(this.state.fileList && this.state.fileList.length>0)
-        {
-          this.openNotificationWithIcon("info", "Only 1 file allowed")    
-          return false;
-        }
-        this.setState(state => ({
-          fileList: [...state.fileList, file],
-        }));
-        return false;
-      },
-      fileList,
-    };
-
+    const notaUploaderProps   = this.getPropsForUploader(NOTA_FISCAL);
+    const boletoUploaderProps = this.getPropsForUploader(BOLETO_PAGAMENTO);
     const { getFieldDecorator } = this.props.form;
 
     return (
@@ -496,9 +551,9 @@ class RequestPayment extends Component {
                     
                     <div className="money-transfer__row file_selector">
                       <Form.Item>
-                          <Upload.Dragger name="invoice_file_dragger" {...props} multiple={false}>
+                          <Upload.Dragger {...notaUploaderProps} multiple={false}>
                             <p className="ant-upload-drag-icon">
-                              <Icon type="inbox" />
+                              <FontAwesomeIcon icon="receipt" size="3x" color="#3db389"/>
                             </p>
                             <p className="ant-upload-text">Nota Fiscal</p>
                           </Upload.Dragger>,
@@ -513,16 +568,12 @@ class RequestPayment extends Component {
                     
                     <div className="money-transfer__row file_selector">
                       <Form.Item>
-                        {getFieldDecorator('payment_slip_file', {
-                          valuePropName: 'fileList'
-                        })(
-                          <Upload.Dragger name="payment_slip_file_dragger" multiple={false} disabled={this.state[PAYMENT_MODE]!=PAYMENT_MODE_BOLETO} >
-                            <p className="ant-upload-drag-icon">
-                              <Icon type="inbox" />
-                            </p>
-                            <p className="ant-upload-text">Boleto Pagamento</p>
-                          </Upload.Dragger>,
-                        )}
+                        <Upload.Dragger multiple={false} disabled={this.state.provider_extra[PAYMENT_MODE]!=PAYMENT_MODE_BOLETO} {...boletoUploaderProps}>
+                          <p className="ant-upload-drag-icon">
+                            <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={(this.state.provider_extra[PAYMENT_MODE]!=PAYMENT_MODE_BOLETO)?"gray":"#3db389"}/>
+                          </p>
+                          <p className="ant-upload-text">Boleto Pagamento</p>
+                        </Upload.Dragger>,
                       </Form.Item>
                     </div>
 
@@ -540,7 +591,7 @@ class RequestPayment extends Component {
                     </div>
                 </div>
                 <div className="mp-box__actions mp-box__shore">
-                    <Button size="large" key="requestButton" htmlType="submit" type="primary" title="" >REQUEST PAYMENT</Button>
+                    <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={this.state.uploading} title="" >REQUEST PAYMENT</Button>
                 </div>
             </Form>
           </Spin>

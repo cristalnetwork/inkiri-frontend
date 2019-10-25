@@ -13,6 +13,7 @@ module.exports = override(
         '@primary-color': '#1DA57A' 
         , '@font-family': "'Proxima Nova', -apple-system,'Helvetica Neue',Helvetica,Roboto,Arial,sans-serif ;"
         , '@code-family': "'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;"
+        // , '@shadow-color' : 'transparent'
 
       },
       ident: 'postcss',
