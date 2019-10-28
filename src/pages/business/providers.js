@@ -131,13 +131,13 @@ class Providers extends Component {
                </Tag>
 
                <br/><br/><Tag color={'purple'} key={'files_1_'+record.id}>
-                      Nota Fiscal: {record.provider.nota_fiscal_url||'N/A'}
+                      Nota Fiscal: {record.provider.attach_nota_fiscal_id||'N/A'}
                </Tag>
                <br/><Tag color={'purple'} key={'files_2_'+record.id}>
-                      Boleto Pagamento: {record.provider.boleto_pagamento||'N/A'}
+                      Boleto Pagamento: {record.provider.attach_boleto_pagamento_id||'N/A'}
                </Tag>
                <br/><Tag color={'purple'} key={'files_3_'+record.id}>
-                      Comprobante Bancario: {record.provider.comprobante_url||'N/A'}
+                      Comprobante Bancario: {record.provider.attach_comprobante_id||'N/A'}
                </Tag>
                 
                 

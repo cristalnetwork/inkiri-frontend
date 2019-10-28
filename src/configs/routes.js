@@ -130,6 +130,7 @@ const bankadmin = [
     },
     {
        key: pathNames.bankadminExternalTransfers_ProcessExternal,
+       father_key : pathNames.bankadminExternalTransfers,
        fileName: 'processExternal',
        area: 'bankadmin',
        path: 'external-transfers-process-request',

@@ -739,7 +739,7 @@ class CreateAccount extends Component {
               <h3 className="fileds_header">KEYS GENERATED FROM PASSWORD</h3>
               <Form.Item label="Private Key" extra="You can copy and keep this private key for security reasons.">
                 <Input readOnly addonAfter={
-                    <CopyToClipboard text={generated_keys.wif} onCopy={() => this.openNotificationWithIcon("success", "Key copied successfuly","") }>
+                    <CopyToClipboard text={generated_keys.wif} onCopy={() => this.openNotificationWithIcon("success", "Key copied successfully","") }>
                        <Button type="link" icon="copy" />
                     </CopyToClipboard>
                 } value={generated_keys.wif} />

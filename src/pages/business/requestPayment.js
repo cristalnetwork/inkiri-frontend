@@ -29,27 +29,6 @@ const { TextArea } = Input;
 const routes = routesService.breadcrumbForFile('providers-payments');
 
 
-const PAYMENT_VEHICLE               = 'payment_vehicle';
-const PAYMENT_VEHICLE_INKIRI        = 'payment_vehicle_inkiri';
-const PAYMENT_VEHICLE_INSTITUTO     = 'payment_vehicle_institute';
-
-const PAYMENT_CATEGORY              = 'payment_category';
-const PAYMENT_CATEGORY_ALUGEL       = 'payment_category_alugel';
-const PAYMENT_CATEGORY_INVESTIMENTO = 'payment_category_investimento';
-const PAYMENT_CATEGORY_INSUMOS      = 'payment_category_insumos';
-const PAYMENT_CATEGORY_ANOTHER      = 'payment_category_another';
-
-const PAYMENT_TYPE                  = 'payment_type';
-const PAYMENT_TYPE_DESPESA          = 'payment_type_despesa';
-const PAYMENT_TYPE_INVESTIMENTO     = 'payment_type_investimento';
-
-const PAYMENT_MODE                  = 'payment_mode';
-const PAYMENT_MODE_TRANSFER         = 'payment_mode_transfer';
-const PAYMENT_MODE_BOLETO           = 'payment_mode_boleto';
-
-
-const NOTA_FISCAL                   = 'attach_nota_fiscal';
-const BOLETO_PAGAMENTO              = 'attach_boleto_pagamento';
 /*
 * Invoice Management via:
 * 
@@ -63,21 +42,20 @@ class RequestPayment extends Component {
       loading:            false,
       dataSource:         [],
       
-      provider:           undefined,
       amount:             0,
-      memo:               '',
+      description:        '',
       invoice_file:       undefined,
       payment_slip_file:  undefined,
 
       provider_extra      : {     
-        [PAYMENT_VEHICLE]   : '',
-        [PAYMENT_CATEGORY]  : '',
-        [PAYMENT_TYPE]      : '',
-        [PAYMENT_MODE]      : ''
+        [globalCfg.api.PAYMENT_VEHICLE]   : '',
+        [globalCfg.api.PAYMENT_CATEGORY]  : '',
+        [globalCfg.api.PAYMENT_TYPE]      : '',
+        [globalCfg.api.PAYMENT_MODE]      : ''
       },
       attachments:       {
-        [NOTA_FISCAL]       : undefined,
-        [BOLETO_PAGAMENTO]  : undefined,
+        [globalCfg.api.NOTA_FISCAL]       : undefined,
+        [globalCfg.api.BOLETO_PAGAMENTO]  : undefined,
       },
 
       fileList:           [],
@@ -113,51 +91,48 @@ class RequestPayment extends Component {
 
   clearAttachments(){
     this.setState({ attachments:       {
-        [NOTA_FISCAL]       : undefined,
-        [BOLETO_PAGAMENTO]  : undefined,
+        [globalCfg.api.NOTA_FISCAL]       : undefined,
+        [globalCfg.api.BOLETO_PAGAMENTO]  : undefined,
       }});
   }
 
   handleUpload = () => {
-    const { fileList } = this.state;
-    const formData = new FormData();
-    // fileList.forEach(file => {
-    //   formData.append('files[]', file);
+    // const { fileList } = this.state;
+    // const formData = new FormData();
+    
+    // formData.append('file', fileList[0]);
+    // formData.append('account', this.props.actualAccountName);
+
+    // this.setState({
+    //   uploading: true,
     // });
 
-    formData.append('file', fileList[0]);
-    formData.append('account', this.props.actualAccountName);
 
-    this.setState({
-      uploading: true,
-    });
-
-
-    const bearer_token = api.jwt.getBearerTokenByKey();
-    fetch(globalCfg.api.endpoint + '/files', { // Your POST endpoint
-        method: 'POST',
-        headers: {
-          Authorization: bearer_token
-        },
-        body: formData // This is your file object
-      }).then(
-        response => response.json() // if the response is a JSON object
-      ).then(
-        (success) => {
-          this.setState({
-            fileList: [],
-            uploading: false,
-          });
-          console.log(success) // Handle the success response object
-        }
-      ).catch(
-        (error) => {
-          this.setState({
-            uploading: false,
-          });
-          console.log(error) // Handle the error response object
-        }
-      );
+    // const bearer_token = api.jwt.getBearerTokenByKey();
+    // fetch(globalCfg.api.endpoint + '/files', { // Your POST endpoint
+    //     method: 'POST',
+    //     headers: {
+    //       Authorization: bearer_token
+    //     },
+    //     body: formData // This is your file object
+    //   }).then(
+    //     response => response.json() // if the response is a JSON object
+    //   ).then(
+    //     (success) => {
+    //       this.setState({
+    //         fileList: [],
+    //         uploading: false,
+    //       });
+    //       console.log(success) // Handle the success response object
+    //     }
+    //   ).catch(
+    //     (error) => {
+    //       this.setState({
+    //         uploading: false,
+    //       });
+    //       console.log(error) // Handle the error response object
+    //     }
+    //   );
   };
   
   onChange(e) {
@@ -197,7 +172,7 @@ class RequestPayment extends Component {
   }
 
   paymentModeRequiresBoleto(){
-    return this.state.payment_mode==PAYMENT_MODE_BOLETO;
+    return this.state.provider_extra.payment_mode==globalCfg.api.PAYMENT_MODE_BOLETO;
   }
 
   handleSubmit = e => {
@@ -230,12 +205,12 @@ class RequestPayment extends Component {
       }
       
       const attachments         = this.state.attachments;
-      const my_NOTA_FISCAL      = (attachments[NOTA_FISCAL] && attachments[NOTA_FISCAL].length>0) ? attachments[NOTA_FISCAL][0] : undefined;
-      const my_BOLETO_PAGAMENTO = (attachments[BOLETO_PAGAMENTO] && attachments[BOLETO_PAGAMENTO].length>0) ? attachments[BOLETO_PAGAMENTO][0] : undefined;
+      const my_NOTA_FISCAL      = (attachments[globalCfg.api.NOTA_FISCAL] && attachments[globalCfg.api.NOTA_FISCAL].length>0) ? attachments[globalCfg.api.NOTA_FISCAL][0] : undefined;
+      const my_BOLETO_PAGAMENTO = (attachments[globalCfg.api.BOLETO_PAGAMENTO] && attachments[globalCfg.api.BOLETO_PAGAMENTO].length>0) ? attachments[globalCfg.api.BOLETO_PAGAMENTO][0] : undefined;
       
       let attachments_array = {};
       if(my_NOTA_FISCAL) 
-        attachments_array[NOTA_FISCAL] = my_NOTA_FISCAL;
+        attachments_array[globalCfg.api.NOTA_FISCAL] = my_NOTA_FISCAL;
       const has_boleto = (my_BOLETO_PAGAMENTO);
       if(this.paymentModeRequiresBoleto() && !has_boleto)
       {
@@ -244,8 +219,7 @@ class RequestPayment extends Component {
       }  
 
       if(this.paymentModeRequiresBoleto() && has_boleto)
-        attachments_array[BOLETO_PAGAMENTO] = my_BOLETO_PAGAMENTO;
-      
+        attachments_array[globalCfg.api.BOLETO_PAGAMENTO] = my_BOLETO_PAGAMENTO;
 
       this.setState({
         uploading: true,
@@ -269,7 +243,7 @@ class RequestPayment extends Component {
       * 3.- update request
       */
       // api.bank.createProviderPayment(sender, amount, provider_id)
-      console.log(sender, amount, provider_id, values, attachments_array);
+      // console.log(sender, amount, provider_id, values, attachments_array);
       api.bank.createProviderPaymentEx(sender, amount, provider_id, values, attachments_array)
         .then((data) => {
           console.log(' createProviderPayment::send (then#1) >>  ', JSON.stringify(data));
@@ -295,6 +269,7 @@ class RequestPayment extends Component {
 
                     this.clearAttachments();
                     that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{blockchain_id : send_tx.data.transaction_id, request_id:request_id} });
+                    this.openNotificationWithIcon("success", 'Provider Payment requested successfully');
 
                   }, (ex2) => {
                     console.log(' createProviderPayment::send (error#3) >>  ', JSON.stringify(ex2));
@@ -378,62 +353,62 @@ class RequestPayment extends Component {
   renderPaymentOption(option_type){
 
     const option_types = {
-      [PAYMENT_VEHICLE] : { 
+      [globalCfg.api.PAYMENT_VEHICLE] : { 
         title : 'Pagamento via'
         , options: [
           {
-            key: PAYMENT_VEHICLE_INKIRI,
+            key: globalCfg.api.PAYMENT_VEHICLE_INKIRI,
             label:'Inkiri'
           }, 
           {
-            key: PAYMENT_VEHICLE_INSTITUTO,
+            key: globalCfg.api.PAYMENT_VEHICLE_INSTITUTO,
             label:'Instituto'
           }
         ]
       }
-      , [PAYMENT_CATEGORY] : { 
+      , [globalCfg.api.PAYMENT_CATEGORY] : { 
         title : 'Category'
         , options: [
           {
-            key: PAYMENT_CATEGORY_ALUGEL,
+            key: globalCfg.api.PAYMENT_CATEGORY_ALUGEL,
             label:'Alugel'
           }, 
           {
-            key: PAYMENT_CATEGORY_INVESTIMENTO,
+            key: globalCfg.api.PAYMENT_CATEGORY_INVESTIMENTO,
             label:'Investimento'
           }, 
           {
-            key: PAYMENT_CATEGORY_INSUMOS,
+            key: globalCfg.api.PAYMENT_CATEGORY_INSUMOS,
             label:'Insumos'
           }, 
           {
-            key: PAYMENT_CATEGORY_ANOTHER,
+            key: globalCfg.api.PAYMENT_CATEGORY_ANOTHER,
             label:'Another...'
           }
         ]
       }
-      , [PAYMENT_TYPE] : { 
+      , [globalCfg.api.PAYMENT_TYPE] : { 
         title : 'Tipo saida'
         , options: [
           {
-            key: PAYMENT_TYPE_DESPESA,
+            key: globalCfg.api.PAYMENT_TYPE_DESPESA,
             label:'Despesa'
           }, 
           {
-            key: PAYMENT_TYPE_INVESTIMENTO,
+            key: globalCfg.api.PAYMENT_TYPE_INVESTIMENTO,
             label:'Investimento'
           }
         ]
       }
-      , [PAYMENT_MODE] : { 
+      , [globalCfg.api.PAYMENT_MODE] : { 
         title : 'Modo de Pagamento'
         , options: [
           {
-            key: PAYMENT_MODE_TRANSFER,
+            key: globalCfg.api.PAYMENT_MODE_TRANSFER,
             label:'Bank transfer'
           }, 
           {
-            key: PAYMENT_MODE_BOLETO,
+            key: globalCfg.api.PAYMENT_MODE_BOLETO,
             label:'Boleto Pagamento'
           }
         ]
@@ -494,8 +469,8 @@ class RequestPayment extends Component {
     
     const { input_amount, provider, invoice_file, payment_slip_file} = this.state;
     const { uploading, fileList } = this.state;
-    const notaUploaderProps   = this.getPropsForUploader(NOTA_FISCAL);
-    const boletoUploaderProps = this.getPropsForUploader(BOLETO_PAGAMENTO);
+    const notaUploaderProps   = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
+    const boletoUploaderProps = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
     const { getFieldDecorator } = this.props.form;
 
     return (
@@ -560,17 +535,17 @@ class RequestPayment extends Component {
                       </Form.Item>
                     </div>
 
-                    {this.renderPaymentOption(PAYMENT_VEHICLE)}
-                    {this.renderPaymentOption(PAYMENT_CATEGORY)}
-                    {this.renderPaymentOption(PAYMENT_TYPE)}
+                    {this.renderPaymentOption(globalCfg.api.PAYMENT_VEHICLE)}
+                    {this.renderPaymentOption(globalCfg.api.PAYMENT_CATEGORY)}
+                    {this.renderPaymentOption(globalCfg.api.PAYMENT_TYPE)}
                     
-                    {this.renderPaymentOption(PAYMENT_MODE)}
+                    {this.renderPaymentOption(globalCfg.api.PAYMENT_MODE)}
                     
                     <div className="money-transfer__row file_selector">
                       <Form.Item>
-                        <Upload.Dragger multiple={false} disabled={this.state.provider_extra[PAYMENT_MODE]!=PAYMENT_MODE_BOLETO} {...boletoUploaderProps}>
+                        <Upload.Dragger multiple={false} disabled={this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO} {...boletoUploaderProps}>
                           <p className="ant-upload-drag-icon">
-                            <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={(this.state.provider_extra[PAYMENT_MODE]!=PAYMENT_MODE_BOLETO)?"gray":"#3db389"}/>
+                            <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={(this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO)?"gray":"#3db389"}/>
                           </p>
                           <p className="ant-upload-text">Boleto Pagamento</p>
                         </Upload.Dragger>,
@@ -579,7 +554,7 @@ class RequestPayment extends Component {
 
                     <div className="money-transfer__row row-expandable row-complementary-bottom"  id="divNote">
                       <Form.Item label="Memo">
-                        {getFieldDecorator('memo', {})(
+                        {getFieldDecorator('description', {})(
                         <TextArea 
                           className="money-transfer__input" 
                           placeholder="Memo or Note" autosize={{ minRows: 3, maxRows: 6 }} 

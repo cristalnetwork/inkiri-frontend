@@ -15,7 +15,7 @@ const currency = {
                     },
   asset_precision:  4,
 
-  toCurrencyString: (value) => { return currency.symbol + ' ' + parseFloat(isNaN(value)?0:value) ; }
+  toCurrencyString: (value) => { return currency.symbol + ' ' + parseFloat(isNaN(value)?0:value).toFixed(2) ; }
 };
 
 const bank = {
@@ -170,10 +170,12 @@ const api = {
       return request.tx_id || request.transaction_id;
     }
   , isFinished         : (request) => {
-      return [api.STATE_REJECTED, api.STATE_CONCLUDED, api.STATE_ERROR].indexOf(request.state)>=0;
+      return [api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_CONCLUDED, api.STATE_ERROR].indexOf(request.state)>=0;
+    }
+  , isProcessing       : (request) => {
+      return [api.STATE_PROCESSING].indexOf(request.state)>=0;
     }
   , canCancel          : (request) => {
-      console.log(' ## CAN-CANCEL >> ', request.state)
       return [api.STATE_REQUESTED].indexOf(request.state)>=0;
     }
   , canAddComprobante  : (request) => {
@@ -182,6 +184,29 @@ const api = {
   , isProcessPending   : (request) => {
       return [api.STATE_REQUESTED].indexOf(request.state)>=0;
     }
+
+  , PAYMENT_VEHICLE               : 'payment_vehicle'
+  , PAYMENT_VEHICLE_INKIRI        : 'payment_vehicle_inkiri'
+  , PAYMENT_VEHICLE_INSTITUTO     : 'payment_vehicle_institute'
+
+  , PAYMENT_CATEGORY              : 'payment_category'
+  , PAYMENT_CATEGORY_ALUGEL       : 'payment_category_alugel'
+  , PAYMENT_CATEGORY_INVESTIMENTO : 'payment_category_investimento'
+  , PAYMENT_CATEGORY_INSUMOS      : 'payment_category_insumos'
+  , PAYMENT_CATEGORY_ANOTHER      : 'payment_category_another'
+
+  , PAYMENT_TYPE                  : 'payment_type'
+  , PAYMENT_TYPE_DESPESA          : 'payment_type_despesa'
+  , PAYMENT_TYPE_INVESTIMENTO     : 'payment_type_investimento'
+
+  , PAYMENT_MODE                  : 'payment_mode'
+  , PAYMENT_MODE_TRANSFER         : 'payment_mode_transfer'
+  , PAYMENT_MODE_BOLETO           : 'payment_mode_boleto'
+
+
+  , NOTA_FISCAL                   : 'attach_nota_fiscal'
+  , BOLETO_PAGAMENTO              : 'attach_boleto_pagamento'
+  , COMPROBANTE                   : 'attach_comprobante'
 };
 
 // ToDo: Traer DFuse config from private server!

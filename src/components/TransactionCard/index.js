@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { Upload, Tag, Spin, Icon, Autocomplete, Button, message } from 'antd';
+import { Alert, Upload, Tag, Spin, Icon, Autocomplete, Button, message } from 'antd';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -16,7 +16,14 @@ import * as utils from '@app/utils/utils';
 
 import moment from 'moment';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import * as request_helper from '@app/components/TransactionCard/helper';
+
 const { Dragger } = Upload;
+
+const icon_color = '#1890ff';
+const icon_color_green = '#3db389';
 
 const props = {
   name: 'file',
@@ -107,408 +114,413 @@ class TransactionCard extends Component {
     if(!request)
       return(<></>);
     //
+    
+    let alert = (null);
+    if(globalCfg.api.isProcessing(request))
+      alert = ( <Alert
+                  message="Bank transfer required!"
+                  description={(<>
+                      <span>Please complete the following tasks required for this operation:</span>
+                      <br/><span>1.- Log into your Commercial Bank online service and proceed to send the money by wire transfer.</span>
+                      <br/><span>2.- Attach a copy of the bank transfer voucher/receipt pdf file.</span>
+                      <br/><span>3.- Press 'Finish' button</span>
+                    </>)} 
+                  type="warning"
+                  style={{marginTop: '24px'}}
+                  banner
+                  closable
+                  showIcon
+              />)
+
     return (
-      <div className="c-detail">
-        <div className="c-header-detail ">
-            <div className="c-header-detail__head u-clearfix">
-                <div className="c-header-detail__title">Operation #<b>{utils.leadingZeros(request.requestCounterId, 5)}</b> • Created on <b>{moment(request.created_at).format('LLLL')}</b></div>
-                <div className="c-header-detail__actions">
-                  <Tag color={globalCfg.api.stateToColor(request.state)}>{utils.capitalize(globalCfg.api.stateToText(request.state))}</Tag>
-                </div>
-            </div>
-        </div>
-        <div className="c-header-detail hidden">
-            <div className="c-header-detail__head u-clearfix">
-                <div className="c-header-detail__title">Operación {utils.leadingZeros(request.requestCounterId, 5)} • Creada el {moment(request.created_at).format('LLLL')}</div>
-                <div className="c-header-detail__actions"><button className="u-button-link">Imprimir</button></div>
-            </div>
-        </div>
-
-        <div className="ui-list">
-            <ul className="ui-list__content">
-                <li>
-                    <div className="c-ticket ">
-                        <ul>
-                            <li className="c-ticket__section ">
-                                <ul>
-                                    <li className="c-ticket__item c-ticket-subtotal">
-                                        <div className="c-ticket__row">
-                                          <div className="c-ticket__title "><b>{globalCfg.api.typeToText(request.requested_type).toUpperCase()}</b> request</div>
-                                            <div className="c-ticket__amount ">
-                                              <span className="price-tag price-tag-billing">
-                                                <span className="price-tag price-tag-symbol-text hidden">{globalCfg.currency.fiat.plural}</span>
-                                                <span className="price-tag price-tag-symbol">{globalCfg.currency.fiat.symbol} </span>
-                                                <span className="price-tag price-tag-fraction">400</span>
-                                              </span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
-        </div>
-
-        <div className="ui-list">
-          <ul className="ui-list__content">
-              <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
-                  <div className="ui-row__col ui-row__col--heading">
-                      <div className="ui-avatar">
-                          <div className="ui-avatar__content ui-avatar__content--initials"><span>{utils.firsts(request.requested_by.account_name, 1)}</span></div>
-                      </div>
+      <>
+      {alert}
+        <div className="c-detail">
+          <div className="c-header-detail ">
+              <div className="c-header-detail__head u-clearfix">
+                  <div className="c-header-detail__title">Op. #<b>{utils.leadingZeros(request.requestCounterId, 5)}</b> • Created on <b>{moment(request.created_at).format('LLLL')}</b></div>
+                  <div className="c-header-detail__actions">
+                    {request_helper.getStateTag(request)}
                   </div>
-                  <div className="ui-row__col ui-row__col--content">
-                      <div className="ui-info-row__content">
-                          <div className="ui-info-row__title">Requested by: <b>{request.requested_by.business_name}</b></div>
-                            <div className="ui-info-row__details">
-                                <ul>
-                                    <li>@{request.requested_by.account_name}</li>
-                                </ul>
-                            </div>
-                      </div>
-                  </div>
-              </li>
-          </ul>
-        </div>
+              </div>
+          </div>
 
-        <div className="ui-list hidden">
+          <div className="c-header-detail hidden">
+              <div className="c-header-detail__head u-clearfix">
+                  <div className="c-header-detail__title">Operación {utils.leadingZeros(request.requestCounterId, 5)} • Creada el {moment(request.created_at).format('LLLL')}</div>
+                  <div className="c-header-detail__actions"><button className="u-button-link">Imprimir</button></div>
+              </div>
+          </div>
+
+          <div className="ui-list">
+              <ul className="ui-list__content">
+                  <li>
+                      <div className="c-ticket ">
+                          <ul>
+                              <li className="c-ticket__section ">
+                                  <ul>
+                                      <li className="c-ticket__item c-ticket-subtotal">
+                                          <div className="c-ticket__row">
+                                            <div className="c-ticket__title "><b>{globalCfg.api.typeToText(request.requested_type).toUpperCase()}</b> request</div>
+                                              <div className="c-ticket__amount ">
+                                                <span className="price-tag price-tag-billing">
+                                                  <span className="price-tag price-tag-symbol-text hidden">{globalCfg.currency.fiat.plural}</span>
+                                                  <span className="price-tag price-tag-symbol">{globalCfg.currency.fiat.symbol} </span>
+                                                  <span className="price-tag price-tag-fraction">{request.amount}</span>
+                                                </span>
+                                              </div>
+                                          </div>
+                                      </li>
+                                  </ul>
+                              </li>
+                          </ul>
+                      </div>
+                  </li>
+              </ul>
+          </div>
+
+          <div className="ui-list">
             <ul className="ui-list__content">
-                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
+                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
                     <div className="ui-row__col ui-row__col--heading">
-                        <div className="ui-avatar rectangle-avatar">
-                            <div className="ui-avatar__content ui-avatar__content--border">
-                              <img className="ui-avatar__content--img" src="https://http2.mlstatic.com/storage/logos-api-admin/312238e0-571b-11e8-823a-758d95db88db-xl.png" />
-                            </div>
+                        <div className="ui-avatar">
+                            <div className="ui-avatar__content ui-avatar__content--initials"><span>{utils.firsts(request.requested_by.account_name, 1)}</span></div>
                         </div>
                     </div>
                     <div className="ui-row__col ui-row__col--content">
                         <div className="ui-info-row__content">
-                            <div className="ui-info-row__title">Visa Argentina S.A. terminada en 1305</div>
-                            <div className="ui-info-row__details">
-                                <ul>
-                                    <li>#5256233277</li>
-                                    <li>Pago aprobado</li>
-                                </ul>
-                            </div>
+                            <div className="ui-info-row__title">Requested by: <b>{request.requested_by.business_name}</b></div>
+                              <div className="ui-info-row__details">
+                                  <ul>
+                                      <li>@{request.requested_by.account_name}</li>
+                                  </ul>
+                              </div>
                         </div>
                     </div>
                 </li>
             </ul>
           </div>
-
         
-          <div className="ui-list hidden">
+          <div className="ui-list">
             <ul className="ui-list__content">
-              <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                  <div className="ui-row__col ui-row__col--heading">
-                      <div className="ui-avatar">
-                          <div className="ui-avatar__content ui-avatar__content--icon">
-                            <Icon type="message" theme="twoTone" style={{fontSize:30}} />
-                          </div>
-                      </div>
-                  </div>
-                  <div className="ui-row__col ui-row__col--content">
-                      <div className="ui-info-row__content">
-                          <div className="ui-info-row__title">devolvemela!</div>
-                      </div>
-                  </div>
-              </li>
-              <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                  <div className="ui-row__col ui-row__col--heading">
-                      <div className="ui-avatar">
-                          <div className="ui-avatar__content ui-avatar__content--initials"><span>M</span></div>
-                      </div>
-                  </div>
-                  <div className="ui-row__col ui-row__col--content">
-                      <div className="ui-info-row__content">
-                          <div className="ui-info-row__title">Memotes</div>
-                      </div>
-                  </div>
-              </li>
-          </ul>
-        </div>
-      
-        <div className="ui-list">
-          <ul className="ui-list__content">
-              <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
-                  <div className="ui-row__col ui-row__col--heading">
-                      <div className="ui-avatar">
-                          <div className="ui-avatar__content ui-avatar__content--icon">
-                            <Icon type="build" theme="twoTone" style={{fontSize:30}} />
-                          </div>
-                      </div>
-                  </div>
-                  <div className="ui-row__col ui-row__col--content">
-                        <div className="ui-info-row__content">
-                            <div className="ui-info-row__title">{request.provider.name} ({request.provider.cnpj})</div>
-                            <div className="ui-info-row__details name_value_row">
-                               <div className="row_name">Category</div> 
-                               <div className="row_value">{request.provider.category}</div> 
-                            </div>
-                            <div className="ui-info-row__details name_value_row">
-                              <div className="row_name">Products/services</div> 
-                               <div className="row_value">{request.provider.products_services}</div> 
-                            </div>
-
-                            <div className="ui-info-row__details">
-                                <ul>
-                                    <li>Provider</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-              </li>
-              <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
-                    <div className="ui-row__col ui-row__col--heading">
-                        <div className="ui-avatar ">
-                            <div className="ui-avatar__content ui-avatar__content--icon">
-                              <Icon type="bank" theme="twoTone" style={{fontSize:30}} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="ui-row__col ui-row__col--content">
-                        <div className="ui-info-row__content">
-                            <div className="ui-info-row__title">{bank_account.bank_name}</div>
-                            <div className="ui-info-row__details name_value_row">
-                               <div className="row_name">Agency</div> 
-                               <div className="row_value">{bank_account.agency}</div> 
-                            </div>
-                            <div className="ui-info-row__details name_value_row">
-                              <div className="row_name">CC</div> 
-                               <div className="row_value">{bank_account.cc}</div> 
-                            </div>
-                        </div>
-                    </div>
-                </li>
-              <li className="ui-row ui-action-row ui-action-row--no-truncate">
+                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
                     <div className="ui-row__col ui-row__col--heading">
                         <div className="ui-avatar">
                             <div className="ui-avatar__content ui-avatar__content--icon">
-                              <Icon type="shopping" theme="twoTone" style={{fontSize:30}} />
+                              <FontAwesomeIcon icon="truck-moving" size="lg" color={icon_color}/>
                             </div>
                         </div>
                     </div>
                     <div className="ui-row__col ui-row__col--content">
-                        <div className="ui-action-row__content">
-                            <div className="ui-action-row__title u-truncate">Materiales para la construcción</div>
-                            <div className="ui-action-row__description">
-                                <div className="ui-info-row__details">
-                                    <ul>
-                                        <li>-</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </li>
+                          <div className="ui-info-row__content">
+                              <div className="ui-info-row__title">{request.provider.name} ({request.provider.cnpj})</div>
+                              <div className="ui-info-row__details name_value_row">
+                                 <div className="row_name">Category</div> 
+                                 <div className="row_value">{request.provider.category}</div> 
+                              </div>
+                              <div className="ui-info-row__details name_value_row">
+                                <div className="row_name">Products/services</div> 
+                                 <div className="row_value">{request.provider.products_services}</div> 
+                              </div>
 
-          </ul>
-      </div>
-      
-      {  
-        request.nota_fiscal_url?
-          (<div className="ui-list">
-                    <ul className="ui-list__content">
-                        <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                            <div className="ui-row__col ui-row__col--heading">
-                                <div className="ui-avatar ">
-                                    <div className="ui-avatar__content ui-avatar__content--icon">
-                                      <Icon type="file" theme="twoTone" style={{fontSize:30}} />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="ui-row__col ui-row__col--content">
-                              <div className="ui-info-row__content">
-                                  <div className="ui-info-row__title">
-                                    <Button type="link">Nota fiscal</Button>
+                              <div className="ui-info-row__details">
+                                  <ul>
+                                      <li>Provider</li>
+                                  </ul>
+                              </div>
+                          </div>
+                      </div>
+                </li>
+                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
+                      <div className="ui-row__col ui-row__col--heading">
+                          <div className="ui-avatar ">
+                              <div className="ui-avatar__content ui-avatar__content--icon">
+                                <Icon type="bank" theme="twoTone" style={{fontSize:30}} />
+                              </div>
+                          </div>
+                      </div>
+                      <div className="ui-row__col ui-row__col--content">
+                          <div className="ui-info-row__content">
+                              <div className="ui-info-row__title">{bank_account.bank_name}</div>
+                              <div className="ui-info-row__details name_value_row">
+                                 <div className="row_name">Agency</div> 
+                                 <div className="row_value">{bank_account.agency}</div> 
+                              </div>
+                              <div className="ui-info-row__details name_value_row">
+                                <div className="row_name">CC</div> 
+                                 <div className="row_value">{bank_account.cc}</div> 
+                              </div>
+                          </div>
+                      </div>
+                </li>
+                <li className="ui-row ui-action-row ui-action-row--no-truncate">
+                      <div className="ui-row__col ui-row__col--heading">
+                          <div className="ui-avatar">
+                              <div className="ui-avatar__content ui-avatar__content--icon">
+                                <Icon type="shopping" theme="twoTone" style={{fontSize:30}} />
+                              </div>
+                          </div>
+                      </div>
+                      <div className="ui-row__col ui-row__col--content">
+                          <div className="ui-action-row__content">
+                              <div className="ui-action-row__title u-truncate" title="Description">{request.description || 'Product/Service description Not Available'}</div>
+                              <div className="ui-action-row__description hidden">
+                                  <div className="ui-info-row__details">
+                                      <ul>
+                                          <li></li>
+                                      </ul>
                                   </div>
                               </div>
                           </div>
-                        </li>
+                      </div>
+                </li>
+
+                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
+                      <div className="ui-row__col ui-row__col--heading">
+                          <div className="ui-avatar ">
+                              <div className="ui-avatar__content ui-avatar__content--icon">
+                                <Icon type="unordered-list" theme="twoTone" style={{fontSize:30}} />
+                              </div>
+                          </div>
+                      </div>
+                      <div className="ui-row__col ui-row__col--content">
+                          <div className="ui-info-row__content">
+                              <div className="ui-info-row__title">Payment details</div>
+                              <div className="ui-info-row__details name_value_row">
+                                 <div className="row_name">Vehicle</div> 
+                                 <div className="row_value">{request.provider_extra.payment_vehicle}</div> 
+                              </div>
+                              <div className="ui-info-row__details name_value_row">
+                                 <div className="row_name">Category</div> 
+                                 <div className="row_value">{request.provider_extra.payment_category}</div> 
+                              </div>
+                              <div className="ui-info-row__details name_value_row">
+                                 <div className="row_name">Type</div> 
+                                 <div className="row_value">{request.provider_extra.payment_type}</div> 
+                              </div>
+                              <div className="ui-info-row__details name_value_row">
+                                 <div className="row_name">Mode</div> 
+                                 <div className="row_value">{request.provider_extra.payment_mode}</div> 
+                              </div>
+                          </div>
+                      </div>
+                </li>
+                
+                <div className="ui-accordion ui-accordion--close ui-accordion--gray hidden">
+                  <ul>
+                    <li className="ui-row ui-accordion__row" role="presentation">
+                      <div className="ui-row__col ui-row__col--content">
+                        <div className="ui-accordion__content">
+                          <div className="ui-accordion__title">Payment details</div>
+                        </div>
+                      </div>
+                      <div className="ui-row__col ui-row__col--content">
+                          <div className="ui-info-row__content">
+                              
+
+                              <div className="ui-info-row__details name_value_row">
+                                 <div className="row_name">Vehicle</div> 
+                                 <div className="row_value">{request.provider_extra.payment_vehicle}</div> 
+                              </div>
+                              <div className="ui-info-row__details name_value_row">
+                                 <div className="row_name">Category</div> 
+                                 <div className="row_value">{request.provider_extra.payment_category}</div> 
+                              </div>
+                              <div className="ui-info-row__details name_value_row">
+                                 <div className="row_name">Type</div> 
+                                 <div className="row_value">{request.provider_extra.payment_type}</div> 
+                              </div>
+                              <div className="ui-info-row__details name_value_row">
+                                 <div className="row_name">Mode</div> 
+                                 <div className="row_value">{request.provider_extra.payment_mode}</div> 
+                              </div>
+                          </div>
+                      </div>
+
+                    </li>
+                  </ul>
+                </div>
+            </ul>
+          </div>
+
+          <div className="c-header-detail ">
+            <div className="c-header-detail__head u-clearfix">
+                <div className="c-header-detail__title">Blockchain</div>
+                <div className="c-header-detail__actions">
+                </div>
+            </div>
+        </div>
+
+          <div className="ui-list">
+              <ul className="ui-list__content">
+                  <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
+                      <div className="ui-row__col ui-row__col--heading">
+                          <div className="ui-avatar ">
+                              <div className="ui-avatar__content ui-avatar__content--icon">
+                                <FontAwesomeIcon icon="cloud" size="2x" color={icon_color_green}/>
+                              </div>
+                          </div>
+                      </div>
+                      <div className="ui-row__col ui-row__col--content">
+                        <div className="ui-info-row__content">
+                            <div className="ui-info-row__title">
+                              {request_helper.getBlockchainLink(request, false, 'large')}
+                            </div>
+                        </div>
+                      </div>
+
+                      <div className="ui-row__col ui-row__col--actions">
+                          <FontAwesomeIcon icon="chevron-right"  color="gray"/>
+                      </div>
+                  </li>
+              </ul>
+          </div>
+
+        <div className="c-header-detail ">
+            <div className="c-header-detail__head u-clearfix">
+                <div className="c-header-detail__title">Attachments</div>
+                <div className="c-header-detail__actions">
+                </div>
+            </div>
+        </div>
+
+        {  
+          request.attach_nota_fiscal_id?
+            (<div className="ui-list">
+                      <ul className="ui-list__content">
+                          <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
+                              <div className="ui-row__col ui-row__col--heading">
+                                  <div className="ui-avatar ">
+                                      <div className="ui-avatar__content ui-avatar__content--icon">
+                                        <FontAwesomeIcon icon="receipt" size="2x" color={icon_color_green}/>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div className="ui-row__col ui-row__col--content">
+                                <div className="ui-info-row__content">
+                                    <div className="ui-info-row__title">
+                                      {request_helper.getGoogleDocLink(request.attach_nota_fiscal_id, true, 'Nota fiscal', 'large')}
+                                    </div>
+                                </div>
+                              </div>
+
+                              <div className="ui-row__col ui-row__col--actions">
+                                  <FontAwesomeIcon icon="chevron-right"  color="gray"/>
+                              </div>
+                          </li>
+                      </ul>
+                  </div>)
+            :    
+            (<div className="ui-list">
+                    <ul className="ui-list__content">
+                      <div className="ui-list c-notes">
+                        <ul className="ui-list__content">
+                          <li id="addNote" className="c-notes__container-add-note">
+                            <Dragger {...this.props.uploder[globalCfg.api.NOTA_FISCAL]}  multiple={false}>
+                              <p className="ant-upload-drag-icon">
+                                <FontAwesomeIcon icon="receipt" size="3x" color={icon_color}/>
+                              </p>
+                              <p className="ant-upload-text">Click or drag <b>Nota Fiscal</b> file to this area to upload</p>
+                            </Dragger>    
+
+                          </li>
+                        </ul>
+                      </div>
                     </ul>
                 </div>)
-          :    
+        }
+
+        {  
+          request.attach_boleto_pagamento_id?
+            (<div className="ui-list">
+              <ul className="ui-list__content">
+                  <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
+                      <div className="ui-row__col ui-row__col--heading">
+                          <div className="ui-avatar ">
+                              <div className="ui-avatar__content ui-avatar__content--icon">
+                                <FontAwesomeIcon icon="file-invoice-dollar" size="2x" color={icon_color_green}/>
+                              </div>
+                          </div>
+                      </div>
+                      <div className="ui-row__col ui-row__col--content">
+                        <div className="ui-info-row__content">
+                            <div className="ui-info-row__title">
+                              {request_helper.getGoogleDocLink(request.attach_boleto_pagamento_id, true, 'Boleto de pagamento', 'large')}
+                            </div>
+                        </div>
+                    </div>
+                  </li>
+              </ul>
+          </div>)
+          :
+          (request.provider_extra.payment_mode==globalCfg.api.PAYMENT_MODE_BOLETO)?
           (<div className="ui-list">
+            <ul className="ui-list__content">
+              <div className="ui-list c-notes">
+                <ul className="ui-list__content">
+                  <li id="addNote" className="c-notes__container-add-note">
+                    <Dragger {...this.props.uploder[globalCfg.api.BOLETO_PAGAMENTO]}  multiple={false}>
+                      <p className="ant-upload-drag-icon">
+                        <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={icon_color}/>
+                      </p>
+                      <p className="ant-upload-text">Click or drag <b>Boleto de Pagamento</b> file to this area to upload</p>
+                    </Dragger>    
+
+                  </li>
+                </ul>
+              </div>
+            </ul>
+          </div>):(null)
+        }
+
+        {  
+          request.attach_comprobante_id?
+            (
+          <div className="ui-list">
+              <ul className="ui-list__content">
+                  <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
+                      <div className="ui-row__col ui-row__col--heading">
+                          <div className="ui-avatar ">
+                              <div className="ui-avatar__content ui-avatar__content--icon">
+                                <FontAwesomeIcon icon="file-pdf" size="2x" color={icon_color_green}/>
+                              </div>
+                          </div>
+                      </div>
+                      <div className="ui-row__col ui-row__col--content">
+                        <div className="ui-info-row__content">
+                            <div className="ui-info-row__title">
+                              {request_helper.getGoogleDocLink(request.attach_comprobante_id, true, 'Comprobante', 'large')}
+                            </div>
+                        </div>
+                    </div>
+                  </li>
+              </ul>
+          </div>)
+          :
+          globalCfg.api.isProcessing(request)?
+            (<div className="ui-list">
+              <ul className="ui-list__content">
+                <div className="ui-list c-notes">
                   <ul className="ui-list__content">
-                    <div className="ui-list c-notes">
-                      <ul className="ui-list__content">
-                        <li id="addNote" className="c-notes__container-add-note">
-                          <Dragger {...props}>
-                            <p className="ant-upload-drag-icon">
-                              <Icon type="cloud" />
-                            </p>
-                            <p className="ant-upload-text">Click or drag <b>Nota Fiscal</b> file to this area to upload</p>
-                          </Dragger>    
+                    <li id="addNote" className="c-notes__container-add-note">
+                      <Dragger {...this.props.uploder[globalCfg.api.COMPROBANTE]}  multiple={false}>
+                        <p className="ant-upload-drag-icon">
+                          <FontAwesomeIcon icon="file-pdf" size="3x" color={icon_color}/>
+                        </p>
+                        <p className="ant-upload-text">Click or drag <b>Comprobante</b> file to this area to upload</p>
+                      </Dragger>    
 
-                        </li>
-                      </ul>
-                    </div>
+                    </li>
                   </ul>
-              </div>)
+                </div>
+              </ul>
+          </div>) : (null)
       }
 
-      {  
-        request.boleto_pagamento?
-          (<div className="ui-list">
-            <ul className="ui-list__content">
-                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                    <div className="ui-row__col ui-row__col--heading">
-                        <div className="ui-avatar ">
-                            <div className="ui-avatar__content ui-avatar__content--icon">
-                              <Icon type="file" theme="twoTone" style={{fontSize:30}} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="ui-row__col ui-row__col--content">
-                      <div className="ui-info-row__content">
-                          <div className="ui-info-row__title">
-                            <Button type="link">Boleto de pagamento</Button>
-                          </div>
-                      </div>
-                  </div>
-                </li>
-            </ul>
-        </div>)
-        :
-        (<div className="ui-list">
-          <ul className="ui-list__content">
-            <div className="ui-list c-notes">
-              <ul className="ui-list__content">
-                <li id="addNote" className="c-notes__container-add-note">
-                  <Dragger {...props}>
-                    <p className="ant-upload-drag-icon">
-                      <Icon type="cloud" />
-                    </p>
-                    <p className="ant-upload-text">Click or drag <b>Boleto de Pagamento</b> file to this area to upload</p>
-                  </Dragger>    
-
-                </li>
-              </ul>
-            </div>
-          </ul>
-        </div>)
-      }
-
-      {  
-        request.comprobante_url?
-          (
-        <div className="ui-list">
-            <ul className="ui-list__content">
-                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                    <div className="ui-row__col ui-row__col--heading">
-                        <div className="ui-avatar ">
-                            <div className="ui-avatar__content ui-avatar__content--icon">
-                              <Icon type="file" theme="twoTone" style={{fontSize:30}} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="ui-row__col ui-row__col--content">
-                      <div className="ui-info-row__content">
-                          <div className="ui-info-row__title">
-                            <Button type="link">Comprobante</Button>
-                          </div>
-                      </div>
-                  </div>
-                </li>
-            </ul>
-        </div>)
-        :
-        (<div className="ui-list">
-          <ul className="ui-list__content">
-            <div className="ui-list c-notes">
-              <ul className="ui-list__content">
-                <li id="addNote" className="c-notes__container-add-note">
-                  <Dragger {...props}>
-                    <p className="ant-upload-drag-icon">
-                      <Icon type="cloud" />
-                    </p>
-                    <p className="ant-upload-text">Click or drag <b>Comprobante</b> file to this area to upload</p>
-                  </Dragger>    
-
-                </li>
-              </ul>
-            </div>
-          </ul>
-      </div>)
-    }
-
-        <div className="ui-list hidden">
-            <ul className="ui-list__content">
-                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                    <div className="ui-row__col ui-row__col--heading">
-                        <div className="ui-avatar ">
-                            <div className="ui-avatar__content ui-avatar__content--icon">
-                              <Icon type="bank" theme="twoTone" style={{fontSize:30}} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="ui-row__col ui-row__col--content">
-                        <div className="ui-info-row__content">
-                            <div className="ui-info-row__title">{bank_account.bank_name}</div>
-                            <div className="ui-info-row__details name_value_row">
-                               <div className="row_name">Agency</div> 
-                               <div className="row_value">{bank_account.agency}</div> 
-                            </div>
-                            <div className="ui-info-row__details name_value_row">
-                              <div className="row_name">CC</div> 
-                               <div className="row_value">{bank_account.cc}</div> 
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-        </div>
-
-        <div className="ui-list hidden">
-            <ul className="ui-list__content">
-                <li className="ui-row ui-action-row ui-action-row--no-truncate">
-                    <div className="ui-row__col ui-row__col--heading">
-                        <div className="ui-avatar">
-                            <div className="ui-avatar__content ui-avatar__content--icon">
-                              <Icon type="shopping" theme="twoTone" style={{fontSize:30}} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="ui-row__col ui-row__col--content">
-                        <div className="ui-action-row__content">
-                            <div className="ui-action-row__title u-truncate">Materiales para la construcción</div>
-                            <div className="ui-action-row__description">
-                                <div className="ui-info-row__details">
-                                    <ul>
-                                        <li>x1 Unidad</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                    <div className="ui-row__col ui-row__col--heading">
-                        <div className="ui-avatar">
-                            <div className="ui-avatar__content ui-avatar__content--border">
-                              <img className="ui-avatar__content--img" src="https://mla-s1-p.mlstatic.com/897068-MLA31484381127_072019-O.jpg" alt="TS" />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="ui-row__col ui-row__col--content">
-                        <div className="ui-info-row__content">
-                            <div className="ui-info-row__title">TOTALGNC S.R.L.</div>
-                            <div className="ui-info-row__details">
-                                <ul></ul>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-        </div>
-        
-                
-
-        
-     </div>
-    );
+          
+          
+      </div>
+    </>);
   }
 
 }

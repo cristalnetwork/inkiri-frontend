@@ -147,6 +147,20 @@ export const listRequests = (page, limit, request_type, account_name) =>   new P
       });
 });
 
+export const getRequestById = (request_id) =>   new Promise((res,rej)=> {
+  
+  // const path    = globalCfg.api.endpoint + '/requests';
+  const path    = globalCfg.api.endpoint + `/requests/${request_id}`;
+  const method  = 'GET';
+  
+  jwtHelper.apiCall(path, method)
+    .then((data) => {
+        res(data)
+      }, (ex) => {
+        rej(ex);
+      });
+});
+
 export const createDeposit = (account_name, amount, currency) =>   new Promise((res,rej)=> {
   
   // "from": "inkiritoken1",
@@ -439,7 +453,7 @@ export const createProviderPaymentEx = (account_name, amount, provider_id, value
   const method  = 'POST';
   const post_params = {
           ...values_array
-          , 'from':               account_name
+          , 'from':             account_name
           , 'requested_type':   globalCfg.api.TYPE_PROVIDER
           , 'amount':           Number(amount).toFixed(2)
           , 'provider':         provider_id
@@ -493,19 +507,68 @@ export const createProviderPaymentEx = (account_name, amount, provider_id, value
         
       }
     );
-  
-      
-  // console.log(' inkiriApi::createProviderPayment >> ABOUT TO POST', JSON.stringify(post_params))
-  // jwtHelper.apiCall(path, method, post_params)
-  //   .then((data) => {
-  //       console.log(' inkiriApi::createProviderPayment >> RESPONSE', JSON.stringify(data))
-  //       res(data)
-  //     }, (ex) => {
-  //       console.log(' inkiriApi::createProviderPayment >> ERROR ', JSON.stringify(ex))
-  //       rej(ex);
-  //     });
 });
 
-export const updateProviderPayment = (request_id, state, tx_id) => updateRequest(request_id, state, tx_id);
-export const acceptProviderPayment = (request_id) => updateRequest(request_id, globalCfg.api.STATE_ACCEPTED, undefined);
+export const updateProviderPayment      = (request_id, state, tx_id) => updateRequest(request_id, state, tx_id);
+export const processProviderPayment     = (request_id) => updateRequest(request_id, globalCfg.api.STATE_PROCESSING, undefined);
+// export const acceptProviderPayment    = (request_id) => updateRequest(request_id, globalCfg.api.STATE_ACCEPTED, undefined);
+export const acceptProviderPayment      = (request_id, attachments) => acceptExternal(request_id, globalCfg.api.TYPE_PROVIDER, attachments);
+export const updateProviderPaymentFiles = (request_id, attachments) => acceptExternal(request_id, globalCfg.api.TYPE_PROVIDER, attachments);
+export const acceptExternal             = (request_id, request_type, attachments) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.endpoint + `/requests_files/${request_id}`;
+  const method  = 'POST';
+  let post_params = {
+    state:            globalCfg.api.STATE_ACCEPTED,
+    requested_type:   request_type
+  };
 
+  let formData = new FormData();
+
+  formData.append('request', JSON.stringify(post_params));
+  Object.keys(attachments).forEach(function (key) {
+    formData.append(key, attachments[key]);
+  });
+  console.log(' *********** ACCEPT REQUEST')
+  console.log(' formData: ', JSON.stringify(formData))
+  console.log(' post_params: ', JSON.stringify(post_params))
+  
+  const bearer_token = jwtHelper.getBearerTokenByKey();
+  
+  fetch(path, { 
+      method: method,
+      headers: {
+        Authorization: bearer_token
+      },
+      body: formData 
+    }).then(
+        (response) => response.json() // if the response is a JSON object
+      , (ex) => { rej(ex) }
+    ).then(
+      (success) => {
+        if(!success)
+        {
+          rej('UNKNOWN ERROR!'); return;
+        }
+        else
+        if(success && success.error)
+        {
+          rej (success.error); return;
+        }
+        else
+        if(success && success.errors)
+        {
+          rej (success.errors[0]); return;
+        }
+        console.log(success);
+        res(success);
+      }
+    ).catch(
+      (error) => {
+        console.log(JSON.stringify(error));
+        res(error);
+        
+      }
+    );
+  
+})

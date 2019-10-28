@@ -4360,7 +4360,8 @@ body {
 }
 
 .ui-info-row--medium .ui-info-row__title {
-    font-size: 18px
+    font-size: 18px;
+    margin-bottom: 12px;
 }
 
 .ui-info-row__details li {
