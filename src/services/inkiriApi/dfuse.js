@@ -335,7 +335,7 @@ export const listTransactions = (account_name, cursor) => new Promise((res,rej)=
 */
 export const getBlockExplorerTxLink = (tx_id) => {
 
-  return globalCfg.dfuse.tx_url + tx_id;
+  return globalCfg.dfuse.getBlockExplorerTxLink( tx_id);
 }
 
 export const getTxId = (result_tx) => {

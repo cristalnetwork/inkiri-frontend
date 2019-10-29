@@ -11,8 +11,6 @@ import * as loginRedux from '@app/redux/models/login'
 import styles from './index.less';
 import styles_right from './right_content.less';
 
-import UserSelector from './userSelector'
-
 import AccountSelector from '@app/components/InkiriHeader/accountSelector';
 
 import * as globalCfg from '@app/configs/global';

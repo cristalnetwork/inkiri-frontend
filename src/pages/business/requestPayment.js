@@ -18,17 +18,41 @@ import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spi
 import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
 import ProviderSearch from '@app/components/ProviderSearch';
-
+import TxResult from '@app/components/TxResult';
+import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 import './requestPayment.css'; 
 
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-const { Paragraph, Text } = Typography;
 const { TextArea } = Input;
 const routes = routesService.breadcrumbForFile('providers-payments');
 
+const DEFAULT_STATE = {
+      input_amount     :
+                          {  
+                            style   : {maxWidth: 370, fontSize: 100, width: 60}
+                             , value : undefined 
+                             , symbol_style : {fontSize: 60}
+                           },
+      description:        '',
+      provider_extra      : {     
+        [globalCfg.api.PAYMENT_VEHICLE]   : '',
+        [globalCfg.api.PAYMENT_CATEGORY]  : '',
+        [globalCfg.api.PAYMENT_TYPE]      : '',
+        [globalCfg.api.PAYMENT_MODE]      : ''
+      },
+      attachments:       {
+        [globalCfg.api.NOTA_FISCAL]       : undefined,
+        [globalCfg.api.BOLETO_PAGAMENTO]  : undefined,
+      }
+    };
 
+const DEFAULT_RESULT = {
+  result:             undefined,
+  result_object:      undefined,
+  error:              {},
+}
 /*
 * Invoice Management via:
 * 
@@ -39,47 +63,19 @@ class RequestPayment extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading:            false,
-      dataSource:         [],
       
-      amount:             0,
-      description:        '',
-      invoice_file:       undefined,
-      payment_slip_file:  undefined,
-
-      provider_extra      : {     
-        [globalCfg.api.PAYMENT_VEHICLE]   : '',
-        [globalCfg.api.PAYMENT_CATEGORY]  : '',
-        [globalCfg.api.PAYMENT_TYPE]      : '',
-        [globalCfg.api.PAYMENT_MODE]      : ''
-      },
-      attachments:       {
-        [globalCfg.api.NOTA_FISCAL]       : undefined,
-        [globalCfg.api.BOLETO_PAGAMENTO]  : undefined,
-      },
-
-      fileList:           [],
+      ...DEFAULT_STATE,
+      ...DEFAULT_RESULT,
+      
       uploading:          false,
-
-      pushingTx:          false,
+      pushingTx:          false
       
-      result:             undefined,
-      result_object:      undefined,
-      error:              {},
-
-
-      input_amount     :
-                          {  
-                            style   : {maxWidth: 370, fontSize: 100, width: 60}
-                             , value : undefined 
-                             , symbol_style : {fontSize: 60}
-                           }
     };
 
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.onChange                   = this.onChange.bind(this); 
-    this.resetPage                  = this.resetPage.bind(this); 
+    this.resetResult                  = this.resetResult.bind(this); 
+
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.handleProviderChange       = this.handleProviderChange.bind(this);
     this.onInputAmount              = this.onInputAmount.bind(this);
@@ -87,6 +83,7 @@ class RequestPayment extends Component {
     this.handleChange               = this.handleChange.bind(this);
     this.getPropsForUploader        = this.getPropsForUploader.bind(this);
     
+    this.userResultEvent            = this.userResultEvent.bind(this); 
   }
 
   clearAttachments(){
@@ -94,51 +91,6 @@ class RequestPayment extends Component {
         [globalCfg.api.NOTA_FISCAL]       : undefined,
         [globalCfg.api.BOLETO_PAGAMENTO]  : undefined,
       }});
-  }
-
-  handleUpload = () => {
-    // const { fileList } = this.state;
-    // const formData = new FormData();
-    
-    // formData.append('file', fileList[0]);
-    // formData.append('account', this.props.actualAccountName);
-
-    // this.setState({
-    //   uploading: true,
-    // });
-
-
-    // const bearer_token = api.jwt.getBearerTokenByKey();
-    // fetch(globalCfg.api.endpoint + '/files', { // Your POST endpoint
-    //     method: 'POST',
-    //     headers: {
-    //       Authorization: bearer_token
-    //     },
-    //     body: formData // This is your file object
-    //   }).then(
-    //     response => response.json() // if the response is a JSON object
-    //   ).then(
-    //     (success) => {
-    //       this.setState({
-    //         fileList: [],
-    //         uploading: false,
-    //       });
-    //       console.log(success) // Handle the success response object
-    //     }
-    //   ).catch(
-    //     (error) => {
-    //       this.setState({
-    //         uploading: false,
-    //       });
-    //       console.log(error) // Handle the error response object
-    //     }
-    //   );
-  };
-  
-  onChange(e) {
-    e.preventDefault();
-    // console.log('changed', e);
-    this.setState({amount:e.target.value})
   }
 
   handleProviderChange(provider){
@@ -186,12 +138,12 @@ class RequestPayment extends Component {
         return;
       }
       
-      if(isNaN(this.state.amount))
+      if(isNaN(this.state.input_amount.value))
       {
-        this.openNotificationWithIcon("error", this.state.amount + " > valid number required","Please type a valid number greater than 0!")    
+        this.openNotificationWithIcon("error", this.state.input_amount.value + " > valid number required","Please type a valid number greater than 0!")    
         return;
       }
-      if(parseFloat(this.state.amount)>parseFloat(this.props.balance))
+      if(parseFloat(this.state.input_amount.value)>parseFloat(this.props.balance))
       {
         const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
         this.openNotificationWithIcon("error", `Amount must be equal or less than balance ${balance_txt}!`); //`
@@ -231,7 +183,7 @@ class RequestPayment extends Component {
       const provider_id  = this.state.provider.key;
       const sender       = this.props.actualAccountName;
       const signer       = this.props.personalAccount.permissioner.account_name;
-      const amount       = values.amount;
+      const amount       = this.state.input_amount.value;
       let that           = this;
       
       that.setState({pushingTx:true});
@@ -243,7 +195,6 @@ class RequestPayment extends Component {
       * 3.- update request
       */
       // api.bank.createProviderPayment(sender, amount, provider_id)
-      // console.log(sender, amount, provider_id, values, attachments_array);
       api.bank.createProviderPaymentEx(sender, amount, provider_id, values, attachments_array)
         .then((data) => {
           console.log(' createProviderPayment::send (then#1) >>  ', JSON.stringify(data));
@@ -297,17 +248,25 @@ class RequestPayment extends Component {
     })
   }
 
-  resetPage(){
-    this.setState({result: undefined, result_object: undefined, error: {}});
+  resetResult(){
+    this.setState({...DEFAULT_RESULT});
   }
 
-  // normalizeFile = e => {
-  //   console.log('Upload event:', e);
-  //   if (Array.isArray(e)) {
-  //     return e;
-  //   }
-  //   return e && e.fileList;
-  // };
+  resetPage(){
+    
+    this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
+  }
+
+  userResultEvent = (evt_type) => {
+    console.log(' ** userResultEvent -> EVT: ', evt_type)
+    if(evt_type==DASHBOARD)
+      this.backToDashboard();
+    if(evt_type==RESET_RESULT)
+      this.resetResult();
+    if(evt_type==RESET_PAGE)
+      this.resetPage();
+    
+  }
 
   handleChange = (value, name) => {
     this.setState({
@@ -342,9 +301,6 @@ class RequestPayment extends Component {
                     , symbol_style: {fontSize:  (size*0.6)}
                   }
                 });
-          // $("#amount").css({'font-size': size+'px'})
-          // $(".input-price__currency").css({'font-size':  (size*0.6)+'px'});
-          // $("#amount").width((digitCount * (size*0.6))+(symbolCount * (size*0.2)) +"px")
         }
       });
   }
@@ -467,319 +423,137 @@ class RequestPayment extends Component {
 
   renderContent() {
     
-    const { input_amount, provider, invoice_file, payment_slip_file} = this.state;
+    if(this.state.result)
+    {
+      const result_type = this.state.result;
+      const title       = null;
+      const message     = null;
+      const tx_id       = this.state.result_object?this.state.result_object.blockchain_id:null;
+      const error       = this.state.error
+      
+      return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
+    }
+
+    const { input_amount, provider } = this.state;
     const { uploading, fileList } = this.state;
     const notaUploaderProps   = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
     const boletoUploaderProps = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
     const { getFieldDecorator } = this.props.form;
 
     return (
-      <div className="ly-main-content content-spacing cards">
-        <section className="mp-box mp-box__shadow money-transfer__box">
-          <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-            <Form onSubmit={this.handleSubmit}>
-                <div className="money-transfer">
-                  
-                  <div className="money-transfer__row row-complementary" >
-                      <div className="badge badge-extra-small badge-circle addresse-avatar">
-                          <span className="picture">
-                            <FontAwesomeIcon icon="truck-moving" size="lg" color="gray"/>
-                          </span>
-                      </div>
-                      <div className="money-transfer__input money-transfer__select">
-                        <Form.Item>
-                          {getFieldDecorator('provider', {
-                            rules: [{ validator: this.validateProvider }],
-                          })(
-                            <ProviderSearch onProviderSelected={this.handleProviderChange} style={{ width: '100%' }} autoFocus />
-                          )}
-                        </Form.Item>
-                      </div>
+      <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+        <Form onSubmit={this.handleSubmit}>
+            <div className="money-transfer">
+              
+              <div className="money-transfer__row row-complementary" >
+                  <div className="badge badge-extra-small badge-circle addresse-avatar">
+                      <span className="picture">
+                        <FontAwesomeIcon icon="truck-moving" size="lg" color="gray"/>
+                      </span>
                   </div>
-
-                    
-                    <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
-                        {getFieldDecorator('amount', {
-                          rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
-                          initialValue: input_amount.value,
-
-                        })( 
-                          <>  
-                            <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
-                              {globalCfg.currency.fiat.symbol}
-                            </span>
-                            
-                            <Input 
-                              type="tel" 
-                              step="0.01" 
-                              name="amount" 
-                              className="money-transfer__input input-amount placeholder-big" 
-                              id="amount"
-                              placeholder="0" 
-                              value={input_amount.value} 
-                              onChange={this.onInputAmount}  
-                              style={input_amount.style}  
-                            />
-                          </>
-                        )}
+                  <div className="money-transfer__input money-transfer__select">
+                    <Form.Item>
+                      {getFieldDecorator('provider', {
+                        rules: [{ validator: this.validateProvider }],
+                      })(
+                        <ProviderSearch onProviderSelected={this.handleProviderChange} style={{ width: '100%' }} autoFocus />
+                      )}
                     </Form.Item>
-                    
-                    <div className="money-transfer__row file_selector">
-                      <Form.Item>
-                          <Upload.Dragger {...notaUploaderProps} multiple={false}>
-                            <p className="ant-upload-drag-icon">
-                              <FontAwesomeIcon icon="receipt" size="3x" color="#3db389"/>
-                            </p>
-                            <p className="ant-upload-text">Nota Fiscal</p>
-                          </Upload.Dragger>,
-                      </Form.Item>
-                    </div>
+                  </div>
+              </div>
 
-                    {this.renderPaymentOption(globalCfg.api.PAYMENT_VEHICLE)}
-                    {this.renderPaymentOption(globalCfg.api.PAYMENT_CATEGORY)}
-                    {this.renderPaymentOption(globalCfg.api.PAYMENT_TYPE)}
-                    
-                    {this.renderPaymentOption(globalCfg.api.PAYMENT_MODE)}
-                    
-                    <div className="money-transfer__row file_selector">
-                      <Form.Item>
-                        <Upload.Dragger multiple={false} disabled={this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO} {...boletoUploaderProps}>
-                          <p className="ant-upload-drag-icon">
-                            <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={(this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO)?"gray":"#3db389"}/>
-                          </p>
-                          <p className="ant-upload-text">Boleto Pagamento</p>
-                        </Upload.Dragger>,
-                      </Form.Item>
-                    </div>
-
-                    <div className="money-transfer__row row-expandable row-complementary-bottom"  id="divNote">
-                      <Form.Item label="Memo">
-                        {getFieldDecorator('description', {})(
-                        <TextArea 
-                          className="money-transfer__input" 
-                          placeholder="Memo or Note" autosize={{ minRows: 3, maxRows: 6 }} 
-                          style={{overflow: 'hidden', overflowWrap: 'break-word', height: 31}}
-                          />
-                        )}
-                      </Form.Item>
-                        
-                    </div>
-                </div>
-                <div className="mp-box__actions mp-box__shore">
-                    <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={this.state.uploading} title="" >REQUEST PAYMENT</Button>
-                </div>
-            </Form>
-          </Spin>
-        </section>
-    </div>      
-    );
-
-  }
-  
-
-  // 
-  renderContentOLD() {
-  
-    const { getFieldDecorator } = this.props.form;
-    
-    if(this.state.result=='ok')
-    {
-      const request_id  = this.state.result_object?this.state.result_object.request_id:'';
-      const tx_id       = this.state.result_object?this.state.result_object.blockchain_id:'';
-      const _href       = api.dfuse.getBlockExplorerTxLink(tx_id);
-      
-      return (<Result
-        status="success"
-        title="Transaction completed successfully!"
-        subTitle={`Request id ${request_id}. Transaction id ${tx_id}. Cloud server takes up to 30 seconds, please wait.`}
-        extra={[
-          <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
-            Go to dashboard
-          </Button>,
-          <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>,
-          <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetPage()} />
-        ]}
-      />)
-    }
-    //`
-    if(this.state.result=='error')
-    {
-
-      // <Button key="re-send">Try sending again</Button>,
-      return (<Result
-                status="error"
-                title="Transaction Failed"
-                subTitle="Please check and modify the following information before resubmitting."
-                extra={[
-                  <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>Go to dashboard</Button>,
-                  <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetPage()} />
-                ]}
-              >
-                <div className="desc">
-                  <Paragraph>
-                    <Text
-                      strong
-                      style={{ fontSize: 16, }}
-                    >
-                      The content you submitted has the following error:
-                    </Text>
-                  </Paragraph>
-                  <Paragraph>
-                    <Icon style={{ color: 'red' }} type="close-circle" /> {this.state.error}
-                  </Paragraph>
-                </div>
-              </Result>)
-    }
-    
-    // ** hack for sublime renderer ** //
-    const { amount, provider, invoice_file, payment_slip_file} = this.state;
-    const { uploading, fileList } = this.state;
-    const props = {
-      onRemove: file => {
-        this.setState(state => {
-          const index = state.fileList.indexOf(file);
-          const newFileList = state.fileList.slice();
-          newFileList.splice(index, 1);
-          return {
-            fileList: newFileList,
-          };
-        });
-      },
-      beforeUpload: file => {
-        if(this.state.fileList && this.state.fileList.length>0)
-          return false;
-        this.setState(state => ({
-          fileList: [...state.fileList, file],
-        }));
-        return false;
-      },
-      fileList,
-    };
-
-    return (
-        <div className="ly-main-content content-spacing cards">
-        <section className="mp-box mp-box__shadow money-transfer__box">
-
-          <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-            <Form onSubmit={this.handleSubmit}>
-              
-              <div className="money-transfer">
-
-              <Form.Item style={{minHeight:60, marginBottom:12}}>
-                {getFieldDecorator('provider', {
-                  rules: [{ validator: this.validateProvider }],
-                })(
-                  <ProviderSearch onProviderSelected={this.handleProviderChange} style={{ width: '100%' }} />
-                    
-                )}
-              </Form.Item>
-
-              
-              <Form.Item style={{minHeight:60, marginBottom:12}}>
-                {getFieldDecorator('amount', {
-                  rules: [{ required: true, message: 'Please input an amount!' }],
-                  initialValue: 0
-                })(
-                  <Input
-                    size="large"
-                    style={{ width: '100%' }}
-                    onChange={this.onChange}
-                    className="input-money extra-large"
-                    allowClear
-                    prefix={<Icon type="dollar-circle" theme="filled" style={{fontSize:34}} className="certain-category-icon" />} 
-                    
-                  />
-                  
-                )}
-              </Form.Item>
-
-              <Form.Item style={{marginTop:'20px'}}>
-                  <Upload.Dragger name="invoice_file_dragger" {...props} multiple={false}>
-                    <p className="ant-upload-drag-icon">
-                      <Icon type="inbox" />
-                    </p>
-                    <p className="ant-upload-text">Nota Fiscal</p>
-                    <p className="ant-upload-hint">Click or drag file to this area to upload</p>
-                  </Upload.Dragger>,
                 
-              </Form.Item>
+                <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+                    {getFieldDecorator('input_amount.value', {
+                      rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
+                      initialValue: input_amount.value,
 
-              <Form.Item style={{marginTop:'20px'}}>
-                {getFieldDecorator('payment_slip_file', {
-                  valuePropName: 'fileList'
-                })(
-                  <Upload.Dragger name="payment_slip_file_dragger" multiple={false} >
-                    <p className="ant-upload-drag-icon">
-                      <Icon type="inbox" />
-                    </p>
-                    <p className="ant-upload-text">Boleto Pagamento</p>
-                    <p className="ant-upload-hint">Click or drag file to this area to upload</p>
-                  </Upload.Dragger>,
-                )}
-              </Form.Item>
+                    })( 
+                      <>  
+                        <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
+                          {globalCfg.currency.fiat.symbol}
+                        </span>
+                        
+                        <Input 
+                          type="tel" 
+                          step="0.01" 
+                          className="money-transfer__input input-amount placeholder-big" 
+                          id="amount"
+                          placeholder="0" 
+                          value={input_amount.value} 
+                          onChange={this.onInputAmount}  
+                          style={input_amount.style}  
+                        />
+                      </>
+                    )}
+                </Form.Item>
+                
+                <div className="money-transfer__row file_selector">
+                  <Form.Item>
+                      <Upload.Dragger {...notaUploaderProps} multiple={false}>
+                        <p className="ant-upload-drag-icon">
+                          <FontAwesomeIcon icon="receipt" size="3x" color="#3db389"/>
+                        </p>
+                        <p className="ant-upload-text">Nota Fiscal</p>
+                      </Upload.Dragger>,
+                  </Form.Item>
+                </div>
 
+                {this.renderPaymentOption(globalCfg.api.PAYMENT_VEHICLE)}
+                {this.renderPaymentOption(globalCfg.api.PAYMENT_CATEGORY)}
+                {this.renderPaymentOption(globalCfg.api.PAYMENT_TYPE)}
+                
+                {this.renderPaymentOption(globalCfg.api.PAYMENT_MODE)}
+                
+                <div className="money-transfer__row file_selector">
+                  <Form.Item>
+                    <Upload.Dragger multiple={false} disabled={this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO} {...boletoUploaderProps}>
+                      <p className="ant-upload-drag-icon">
+                        <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={(this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO)?"gray":"#3db389"}/>
+                      </p>
+                      <p className="ant-upload-text">Boleto Pagamento</p>
+                    </Upload.Dragger>,
+                  </Form.Item>
+                </div>
 
-              <Form.Item>
-                <Button
-                  type="primary"
-                  onClick={this.handleUpload}
-                  disabled={fileList.length === 0}
-                  loading={uploading}
-                  style={{ marginTop: 16 }}
-                >
-                  {uploading ? 'Uploading' : 'Start Upload'}
-                </Button>
-              </Form.Item>
-              
-              </div>
-
-              <div className="mp-box__actions mp-box__shore">
-                  <Button size="large" type="primary" htmlType="submit">
-                  REQUEST PAYMENT
-                </Button>
-              </div>
-
-              
-            </Form>
-          </Spin>
-        
-        </section>
-        </div>
+                <div className="money-transfer__row row-expandable row-complementary-bottom"  id="divNote">
+                  <Form.Item label="Memo">
+                    {getFieldDecorator('description', {})(
+                    <TextArea 
+                      className="money-transfer__input" 
+                      placeholder="Description, Memo or Note" autosize={{ minRows: 3, maxRows: 6 }} 
+                      style={{overflow: 'hidden', overflowWrap: 'break-word', height: 31}}
+                      />
+                    )}
+                  </Form.Item>
+                    
+                </div>
+            </div>
+            <div className="mp-box__actions mp-box__shore">
+                <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={this.state.uploading} title="" >REQUEST PAYMENT</Button>
+            </div>
+        </Form>
+      </Spin>
     );
-  }
-  
-  /*
-  
-  */
-  
-  // ** hack for sublime renderer ** //
 
-  renderExtraContent ()
-  {
-    return (<></>);
-  
   }
   
-  // ** hack for sublime renderer ** //
 
   render() {
     let content     = this.renderContent();
-    // let contentOLD  = this.renderContentOLD();
     return (
       <>
         <PageHeader
           breadcrumb={{ routes }}
-          title="Request a payment to a provider"
-          subTitle=""
-          
-        >
-          <div className="wrap">
-            <div className="extraContent">{this.renderExtraContent()}</div>
-          </div>
+          title="Request a payment to a provider">
         </PageHeader>
 
         <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-          {content}
+          <div className="ly-main-content content-spacing cards">
+            <section className="mp-box mp-box__shadow money-transfer__box">
+              {content}
+            </section>
+          </div>      
         </div>
       </>
     );

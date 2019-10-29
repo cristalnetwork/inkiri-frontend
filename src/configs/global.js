@@ -220,7 +220,10 @@ const dfuse = {
   websocket_url             : 'wss://jungle.eos.dfuse.io/v1/stream',
   default_page_size         : 25,
   tx_url                    : 'https://jungle.bloks.io/transaction/',
-  account_url               : 'https://jungle.bloks.io/account/'
+  account_url               : 'https://jungle.bloks.io/account/',
+  getBlockExplorerTxLink : (tx_id) => {
+    return dfuse.tx_url + tx_id;
+  }
 }
 
   /*

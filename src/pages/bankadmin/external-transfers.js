@@ -137,7 +137,7 @@ class ExternalTransfers extends Component {
                 <Divider type="vertical" />
                 {processButton}
               </span>  );
-          }
+        }
       },
     ];
   }
