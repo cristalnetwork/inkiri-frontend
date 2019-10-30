@@ -107,15 +107,15 @@ class SendMoney extends Component {
       }
       console.log('Received values of form: ', values);
 
-      // const privateKey = api.dummyPrivateKeys[this.props.actualAccountName] 
       const privateKey = this.props.actualPrivateKey;
       // HACK! >> La tenemos que traer de localStorage? <<
       const receiver   = values.receipt;
       const sender     = this.props.actualAccountName;
       const amount     = values.amount;
+      const memo       = '';
       let that         = this;
       that.setState({pushingTx:true});
-      api.sendMoney(sender, privateKey, receiver, amount)
+      api.sendMoney(sender, privateKey, receiver, amount, memo)
       .then((data) => {
         console.log(' SendMoney::send (then#1) >>  ', JSON.stringify(data));
         that.setState({result:'ok', pushingTx:false, result_object:data});

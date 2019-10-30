@@ -20,6 +20,8 @@ import styles from './providers.less';
 
 import TransactionTable from '@app/components/TransactionTable';
 import {DISPLAY_ALL_TXS, DISPLAY_PAYMENTS, DISPLAY_PROVIDER} from '@app/components/TransactionTable';
+import * as request_helper from '@app/components/TransactionCard/helper';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import * as utils from '@app/utils/utils';
 
@@ -67,17 +69,86 @@ class Providers extends Component {
   }
   
   cancelOperation(record){}
-  operationDetails(record){
   
+  operationDetails(record){
+    console.log(' ## operationDetails(record):', JSON.stringify(record))
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/request-details`
-      // , search: '?query=abc'
+      pathname: `/${this.props.actualRole}/provider-payment-request-details`
       , state: { request: record }
     })
 
   }
 
   getColumns(){
+    return [
+      {
+        title: 'Description',
+        dataIndex: 'sub_header',
+        key: 'sub_header',
+        render: (value, record) => {
+          // <br/>{request_helper.getTypeTag(record)}
+          // <br/>{request_helper.getStateTag(record)}
+          // <br/>{request_helper.getStateLabel(record)}
+          // <span>{utils.capitalize(globalCfg.api.stateToText(record.state))}</span>
+          return(
+            <span className="name_value_row">
+              <div className="row_name centered" >
+                <FontAwesomeIcon icon="truck-moving" color={'gray'}/>
+              </div>
+              <div className="row_value wider">
+                <span className="row_tx_description">{record.sub_header}</span> 
+                 <br/>{request_helper.getStateLabel(record)}
+              </div>   
+            </span>)
+        }
+      },
+      {
+        title: 'Tags',
+        key: 'tx_type',
+        dataIndex: 'tx_type',
+        render: (tx_type, record) => {
+
+          return (
+            <span key={'tags'+record.id}>
+               <Tag key={'provider_'+record.id}>
+                  {record.provider.name + ' - CNPJ:'+ record.provider.cnpj}
+               </Tag>
+               {request_helper.getGoogleDocLinkOrNothing(record.attach_nota_fiscal_id, true, 'Nota fiscal')}
+               {request_helper.getGoogleDocLinkOrNothing(record.attach_boleto_pagamento_id, true, 'Boleto Pagamento')}
+               {request_helper.getGoogleDocLinkOrNothing(record.attach_comprobante_id, true, 'Comprobante Bancario')}
+            </span>
+            )}
+      },
+      //
+      {
+        title: 'Action',
+        key: 'action',
+        width: 100,
+        render: (text, record) => {
+          return request_helper.getProcessButton(record, this.operationDetails, 'Details');
+          // const processButton = (<Button size="small" key={'details_'+record.id} onClick={()=>{ this.operationDetails(record) }}>Details</Button>);
+        }
+      },
+
+      {
+        title: 'Amount and date',
+        
+        dataIndex: 'block_time',
+        key: 'block_time',
+        sortDirections: ['descend'],
+        defaultSortOrder: 'descend',
+        sorter: (a, b) => a.block_time_number - b.block_time_number,
+        align: 'right',
+        render: (block_time, record) => (
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin">
+            {request_helper.getStyledAmount(record, false, true)}
+            {request_helper.getStyledDate(record)}
+          </div>
+          )
+      }
+    ];
+  }
+  getColumnsOLD(){
     return [
       {
         title: 'Date',
@@ -220,7 +291,7 @@ class Providers extends Component {
     api.bank.listMyRequests(this.props.actualAccountName, page, limit, DISPLAY_PROVIDER)
     .then( (res) => {
         that.onNewData(res, first_call);
-        console.log('---- listMyRequests:', JSON.stringify(res));
+        // console.log('---- listMyRequests:', JSON.stringify(res));
       } ,(ex) => {
         // console.log('---- ERROR:', JSON.stringify(ex));
         that.setState({loading:false});  
@@ -243,28 +314,31 @@ class Providers extends Component {
     {
       this.openNotificationWithIcon("info", "End of transactions","You have reached the end of transaction list!")
     }
-    // else
-    //   this.computeStats();
+    else
+      this.computeStats();
   }
 
   computeStats(txs){
     let stats = this.currentStats();
     if(txs===undefined)
       txs = this.state.txs;
-    const money_in  = txs.filter( tx => tx.i_sent)
+    const money_pending  = txs.filter( tx => [globalCfg.api.STATE_REQUESTED, globalCfg.api.STATE_PROCESSING].includes(tx.state))
                     .map(tx =>tx.quantity)
                     .reduce((acc, amount) => acc + Number(amount), 0);
-    const money_out = txs.filter( tx => !tx.i_sent)
+    const count_pending = txs.filter( tx => [globalCfg.api.STATE_REQUESTED, globalCfg.api.STATE_PROCESSING].includes(tx.state)).length;
+
+    const money_out = txs.filter( tx => [globalCfg.api.STATE_ACCEPTED].includes(tx.state))
                     .map(tx =>tx.quantity)
                     .reduce((acc, amount) => acc + Number(amount), 0);
-    
-    stats[this.state.active_tab] = {money_out:money_out, money_in:money_in, count:txs.length}
+    const count = txs.filter( tx => [globalCfg.api.STATE_ACCEPTED].includes(tx.state)).length;
+
+    stats[this.state.active_tab] = { money_pending : money_pending , count_pending : count_pending , money_out : money_out , count : count }
     this.setState({stats:stats})
   }
 
   currentStats(){
     const x = this.state.stats[this.state.active_tab];
-    const _default = {money_in:  0,money_out: 0, count:0};
+    const _default = {money_pending : 0 , count_pending : 0 , money_out : 0 , count : 0};
     return x?x:_default;
   }
 
@@ -361,7 +435,7 @@ class Providers extends Component {
   //
   renderTableViewStats() 
   {
-    const {money_in, money_out, count} = this.currentStats();
+    const {count_pending, money_pending, money_out, count} = this.currentStats();
     return (
       <div className="styles standardList" style={{ marginTop: 24 }}>
         <Card key="the_card_key" bordered={false}>
@@ -383,7 +457,24 @@ class Providers extends Component {
                     
                   />
             </Col>
-            <Col xs={24} sm={12} md={16} lg={16} xl={16}>
+            <Col xs={24} sm={12} md={4} lg={4} xl={4}>
+              <Statistic
+                    title="Pending"
+                    value={money_pending}
+                    precision={2}
+                    valueStyle={{ color: 'yellow' }}
+                    prefix={<Icon type="arrow-down" />}
+                  />
+            </Col>
+            <Col xs={24} sm={12} md={4} lg={4} xl={4}>
+              <Statistic
+                    title="Transações Pending"
+                    value={count_pending|0}
+                    precision={0}
+                    
+                  />
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={8} xl={8}>
               <Button style={{float:'right'}} key="_new_request" size="small" type="primary" icon="plus" onClick={()=>this.onNewRequestClick()}> Request Payment to Provider</Button>
             </Col>
           </Row>

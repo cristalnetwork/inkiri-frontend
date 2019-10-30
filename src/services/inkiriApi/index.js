@@ -339,22 +339,18 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
   return pushTX(actions, creator_priv);
 }
 
-  
-export const sendMoney = async (sender_account, sender_priv, receiver_account, amount, memo, signer_account) => { 
-	console.log(' inkiriApi::sendMoney ', 
-		'param@sender_account:', sender_account,
-		'param@sender_priv:', sender_priv,
-		'param@receiver_account:', receiver_account,
-		'param@amount:', amount,
-    'param@memo:', memo
-		);
+export const refund                 = (sender_account, sender_priv, receiver_account, amount, request_id, tx_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('bck|' + request_id + '|' + tx_id));
+export const sendMoney              = (sender_account, sender_priv, receiver_account, amount, memo)       => transferMoney(sender_account, sender_priv, receiver_account, amount, ('snd|'+memo)); 
+export const requestProviderPayment = (sender_account, sender_priv, receiver_account, amount, request_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('prv|' + request_id)); 
+
+export const transferMoney          = async (sender_account, sender_priv, receiver_account, amount, memo) => { 
 
   const transferAction = {
     account: globalCfg.currency.token,
     name: "transfer",
     authorization: [
       {
-        actor:         sender_account, //signer_account || 
+        actor:         sender_account,
         permission:    'active'
       }
     ],
@@ -362,11 +358,11 @@ export const sendMoney = async (sender_account, sender_priv, receiver_account, a
       from: sender_account,
       to: receiver_account,
       quantity: formatAmount(amount),
-      memo: memo||'snd'
+      memo: memo
     }
   }
 
-  console.log(' InkiriApi::sendMoney >> About to send >> ', prettyJson(transferAction));
+  console.log(' InkiriApi::transferMoney >> About to send >> ', prettyJson(transferAction));
 
   return pushTX(transferAction, sender_priv);
 
@@ -562,6 +558,7 @@ const getMaxPermissionForAccount = async (account_name, permissioner_account) =>
     return _arr;
   } ,[] )
 
+  // ToDo: I have to move this to another file and a config file. 
   const perms_hierarchy = ['viewer', 'pda', 'active', 'owner',]
   return perms.length<1 ? undefined : perms.sort(function(a, b){return perms_hierarchy.indexOf(a.perm_name)<perms_hierarchy.indexOf(b.perm_name)})[0];
 }
@@ -581,21 +578,15 @@ const getPermissionedAccountsForAccount = (account_name) => new Promise((res, re
       
       let isCustomerPromises = [];
       let bank_customer_tmp  = {};
-      // console.log(' ************* #2 isBankCustomer ??')
       permissioning_accounts.forEach((perm) => {
-        // console.log(' ++ iterator: ', perm.permissioner)
-        // isCustomerPromises.push(getBankAccount(perm.permissioner)) // OLD VERSION
         isCustomerPromises.push(getBankAccount(perm))
       })
       Promise.all(isCustomerPromises).then((values) => {
-        // console.log(JSON.stringify(values))
         let permissionPromises = [];
-        // console.log(' ************* #3 getMaxPermissionForAccount ??')
         values.forEach((bank_customer, index) => {
           if(bank_customer) 
           {
             bank_customer_tmp[bank_customer.key] = bank_customer;
-            // permissionPromises.push(getMaxPermissionForAccount(account_name, permissioning_accounts[index].permissioner)) // OLD VERSION
             permissionPromises.push(getMaxPermissionForAccount(account_name, permissioning_accounts[index]))
           }
         })

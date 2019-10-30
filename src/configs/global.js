@@ -126,43 +126,47 @@ const api = {
   , isProviderPayment  : (request) => { return (request.tx_type==api.TYPE_PROVIDER)}
   , isExchange         : (request) => { return (request.tx_type==api.TYPE_EXCHANGE)}
   , getTypes           : () => { return [ api.TYPE_DEPOSIT, api.TYPE_EXCHANGE, api.TYPE_PAYMENT, api.TYPE_PROVIDER, api.TYPE_SEND, api.TYPE_WITHDRAW, api.TYPE_SERVICE];}
-  , STATE_REQUESTED           : 'state_requested'
-  , STATE_PROCESSING          : 'state_processing'
-  , STATE_REJECTED            : 'state_rejected'
-  , STATE_ACCEPTED            : 'state_accepted'
-  , STATE_ERROR               : 'state_error'
-  , STATE_CONCLUDED           : 'state_concluded'
-  , STATE_CANCELED            : 'state_canceled'
+  , STATE_REQUESTED             : 'state_requested'
+  , STATE_PROCESSING            : 'state_processing'
+  , STATE_REJECTED              : 'state_rejected'
+  , STATE_ACCEPTED              : 'state_accepted'
+  , STATE_ERROR                 : 'state_error'
+  , STATE_CANCELED              : 'state_canceled'
+  , STATE_REFUNDED              : 'state_refunded'
+  , STATE_REVERTED              : 'state_reverted'
+
   , stateToText : (request_state) => {
       const states = {
         [api.STATE_REQUESTED]    : 'requested', 
         [api.STATE_PROCESSING]   : 'processing', 
         
         [api.STATE_ACCEPTED]     : 'accepted', 
-        [api.STATE_CONCLUDED]    : 'concluded',
+        [api.STATE_REFUNDED]     : 'refunded',
+        [api.STATE_REVERTED]     : 'reverted',
         
-
         [api.STATE_REJECTED]     : 'rejected', 
         [api.STATE_ERROR]        : 'error', 
-        [api.STATE_CANCELED]    : 'canceled',
+        [api.STATE_CANCELED]     : 'canceled',
       } 
       return states[request_state];
     }
   , stateToColor : (request_state) => {
       const states = {
-        [api.STATE_REQUESTED]    : 'gold', 
+        [api.STATE_REQUESTED]    : '#fa8c16', //'magenta', 
         [api.STATE_PROCESSING]   : 'green', 
         [api.STATE_ACCEPTED]     : 'green', 
-        [api.STATE_CONCLUDED]    : '#87d068',
         
+        [api.STATE_REFUNDED]     : '#2f54eb', //'geekblue',
+        [api.STATE_REVERTED]     : '#2f54eb', //'geekblue',
 
         [api.STATE_REJECTED]     : 'red', 
         [api.STATE_ERROR]        : 'red', 
-        [api.STATE_CANCELED]     : 'red',
+
+        [api.STATE_CANCELED]     : '#fa541c' //'red',
       } 
       return states[request_state];
     }
-  , getStates           : () => { return [api.STATE_REQUESTED, api.STATE_PROCESSING, api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_ERROR, api.STATE_CONCLUDED, api.STATE_CANCELED];}
+  , getStates           : () => { return [api.STATE_REQUESTED, api.STATE_PROCESSING, api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_ERROR, api.STATE_REFUNDED, api.STATE_REVERTED, api.STATE_CANCELED];}
   , isOnBlockchain      : (request) => {
       return api.getTXId(request);
     }
@@ -170,7 +174,7 @@ const api = {
       return request.tx_id || request.transaction_id;
     }
   , isFinished         : (request) => {
-      return [api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_CONCLUDED, api.STATE_ERROR].indexOf(request.state)>=0;
+      return [api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR].indexOf(request.state)>=0;
     }
   , isProcessing       : (request) => {
       return [api.STATE_PROCESSING].indexOf(request.state)>=0;
@@ -179,10 +183,13 @@ const api = {
       return [api.STATE_REQUESTED].indexOf(request.state)>=0;
     }
   , canAddComprobante  : (request) => {
-      return [api.STATE_ACCEPTED, api.STATE_CONCLUDED].indexOf(request.state)>=0;
+      return [api.STATE_ACCEPTED, api.STATE_REQUESTED, api.STATE_PROCESSING].indexOf(request.state)>=0;
     }
   , isProcessPending   : (request) => {
       return [api.STATE_REQUESTED].indexOf(request.state)>=0;
+    }
+  , onOkPath   : (request) => {
+      return ![api.STATE_REJECTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR, api.STATE_CANCELED].includes(request.state);
     }
 
   , PAYMENT_VEHICLE               : 'payment_vehicle'

@@ -277,8 +277,20 @@ ol, ul {
   flex-direction: row;
   justify-content: space-evenly;
   align-items: flex-start;
-  .row_name{  flex:1;}
-  .row_value{ flex:2; font-weight: 600; }
+  .row_name{  
+    flex:1;
+    &.centered{
+      align-self: center;
+      justify-self: center;
+    }
+  }
+  .row_value{ 
+    flex:2; 
+    font-weight: 600; 
+    &.wider{
+      flex:6; 
+    }
+  }
 }
 
 
@@ -357,12 +369,4 @@ ui-avatar__icon {
 .c-notes__add-notes {
     width: 100%;
     border: 0;
-}
-.andes-button--small {
-    min-width: 0;
-}
-.andes-button {
-    display: inline-block;
-    width: auto;
-    min-width: 7.88889em;
 }

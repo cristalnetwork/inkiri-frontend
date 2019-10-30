@@ -187,14 +187,7 @@ class RequestPayment extends Component {
       let that           = this;
       
       that.setState({pushingTx:true});
-      /*
-      * ToDo: improve this steps!
-      * 1.- create request.
-      *   ** missing -> post files
-      * 2.- get Id and send $IK to payment_account
-      * 3.- update request
-      */
-      // api.bank.createProviderPayment(sender, amount, provider_id)
+      
       api.bank.createProviderPaymentEx(sender, amount, provider_id, values, attachments_array)
         .then((data) => {
           console.log(' createProviderPayment::send (then#1) >>  ', JSON.stringify(data));
@@ -207,15 +200,15 @@ class RequestPayment extends Component {
 
            const request_id       = data.id;
            const provider_account = globalCfg.bank.provider_account; 
-           const memo             = 'prv|' + request_id;
+           // const memo             = 'prv|' + request_id;
 
-           api.sendMoney(sender, privateKey, provider_account, amount, memo, signer)
+           api.requestProviderPayment(sender, privateKey, provider_account, amount, request_id)
             .then((data1) => {
 
               const send_tx             = data1;
               console.log(' SendMoney::send (then#2) >>  ', JSON.stringify(send_tx));
               
-              api.bank.updateProviderPayment(request_id, undefined, send_tx.data.transaction_id)
+              api.bank.updateProviderPayment(sender, request_id, undefined, send_tx.data.transaction_id)
                 .then((data2) => {
 
                     this.clearAttachments();

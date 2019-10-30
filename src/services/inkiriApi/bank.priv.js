@@ -187,23 +187,26 @@ export const createDeposit = (account_name, amount, currency) =>   new Promise((
       });
 });
 
-export const setDepositOk = (request_id, tx_id) =>  updateRequest(request_id, globalCfg.api.STATE_CONCLUDED , tx_id);
+export const setDepositOk = (sender, request_id, tx_id) =>  updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED , tx_id);
 
-// export const updateDeposit = (request_id, state, tx_id) =>   new Promise((res,rej)=> {
-
-export const updateRequest = (request_id, state, tx_id) =>   new Promise((res,rej)=> {
+export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id) => new Promise((res,rej)=> {
   
-  const path    = globalCfg.api.endpoint + '/requests';
+  const path    = globalCfg.api.endpoint + `/requests/${request_id}`;
   const method  = 'PATCH';
-  const query   = `/${request_id}`;
-  let post_params = {_id:         request_id};
+  let post_params = {
+    _id:      request_id,
+    sender:   sender
+  };
+  console.log(' bank_api.updateRequest -> ', request_id, ' | STATE:', state);
   if(state)
     post_params['state'] = state;
   if(tx_id)
     post_params['tx_id'] = tx_id;
+  if(refund_tx_id)
+    post_params['refund_tx_id'] = refund_tx_id;
 
   console.log(' inkiriApi::updateRequest >> ABOUT TO POST', JSON.stringify(post_params))
-  jwtHelper.apiCall(path+query, method, post_params)
+  jwtHelper.apiCall(path, method, post_params)
     .then((data) => {
         console.log(' inkiriApi::updateRequest >> RESPONSE', JSON.stringify(data))
         res(data)
@@ -509,18 +512,22 @@ export const createProviderPaymentEx = (account_name, amount, provider_id, value
     );
 });
 
-export const updateProviderPayment      = (request_id, state, tx_id) => updateRequest(request_id, state, tx_id);
-export const processProviderPayment     = (request_id) => updateRequest(request_id, globalCfg.api.STATE_PROCESSING, undefined);
-// export const acceptProviderPayment    = (request_id) => updateRequest(request_id, globalCfg.api.STATE_ACCEPTED, undefined);
-export const acceptProviderPayment      = (request_id, attachments) => acceptExternal(request_id, globalCfg.api.TYPE_PROVIDER, attachments);
-export const updateProviderPaymentFiles = (request_id, attachments) => acceptExternal(request_id, globalCfg.api.TYPE_PROVIDER, attachments);
-export const acceptExternal             = (request_id, request_type, attachments) =>   new Promise((res,rej)=> {
+export const refundProviderPayment      = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, state, undefined, tx_id);
+export const updateProviderPayment      = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, state, tx_id);
+export const cancelProviderPayment      = (sender, request_id)               => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined);
+
+export const processProviderPayment     = (sender, request_id) => updateRequest(sender, request_id, globalCfg.api.STATE_PROCESSING, undefined);
+export const acceptProviderPayment      = (sender, request_id, attachments) => acceptExternal(sender, request_id, globalCfg.api.TYPE_PROVIDER, attachments);
+export const updateProviderPaymentFiles = (sender, request_id, attachments) => acceptExternal(sender, request_id, globalCfg.api.TYPE_PROVIDER, attachments);
+
+export const acceptExternal             = (sender, request_id, request_type, attachments) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.endpoint + `/requests_files/${request_id}`;
   const method  = 'POST';
   let post_params = {
     state:            globalCfg.api.STATE_ACCEPTED,
-    requested_type:   request_type
+    requested_type:   request_type,
+    sender:           sender
   };
 
   let formData = new FormData();

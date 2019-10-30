@@ -40,7 +40,7 @@ class processRequest extends Component {
     super(props);
     this.state = {
       loading:      false,
-      dataSource:   [],
+      
       receipt:      '',
       amount:       0,
       memo:         '',
@@ -51,56 +51,7 @@ class processRequest extends Component {
       number_validateStatus : '',
       number_help:  ''
       
-      , request:     {
-                        "nota_fiscal_url": "",
-                        "comprobante_url": "",
-                        "deposit_currency": "",
-                        "_id": "",
-                        "requested_type": "type_deposit",
-                        "amount": "0",
-                        "created_by":
-                        {
-                            "_id": "",
-                            "account_name": "n/a",
-                            "first_name": "n/a",
-                            "last_name": "n/a",
-                            "email": "n/a",
-                            "created_at": "n/a",
-                            "updatedAt": "n/a",
-                            "userCounterId": 0,
-                            "__v": 0,
-                            "to_sign": "n/a",
-                            "id": ""
-                        },
-                        "from": "n/a",
-                        "requested_by":
-                        {
-                            "_id": "",
-                            "account_name": "n/a",
-                            "first_name": "n/a",
-                            "last_name": "n/a",
-                            "email": "n/a",
-                            "created_at": "n/a",
-                            "updatedAt": "n/a",
-                            "userCounterId": 0,
-                            "__v": 0,
-                            "to_sign": "n/a",
-                            "id": "n/a"
-                        },
-                        "state": "state_concluded",
-                        "created_at": "n/a",
-                        "updatedAt": "n/a",
-                        "requestCounterId": 0,
-                        "__v": 0,
-                        "block_time": "n/a",
-                        "sub_header": "n/a",
-                        "quantity": "0",
-                        "tx_type": "type_deposit",
-                        "i_sent": true,
-                        "id": "n/a",
-                        "quantity_txt": "0.00 IK$"
-}
-      //  {"nota_fiscal_url":"","comprobante_url":"","deposit_currency":"IK$","_id":"5d5c152c8c3a466b65e3c2f3","requested_type":"type_deposit","amount":"44.00","created_by":{"_id":"5d5bf05ffe092b38101f018f","account_name":"inkpersonal1","first_name":"fn","last_name":"ln","email":"inkpersonal1@gmail.com","created_at":"2019-08-20T13:06:39.506Z","updatedAt":"2019-08-21T14:28:17.695Z","userCounterId":6,"__v":0,"to_sign":"5JwpxVLD6XCMMxFsxZsAGynjvZeD4kf9sMVpb1dhjFzkJDWpits","id":"5d5bf05ffe092b38101f018f"},"from":"inkpersonal1","requested_by":{"_id":"5d5bf05ffe092b38101f018f","account_name":"inkpersonal1","first_name":"fn","last_name":"ln","email":"inkpersonal1@gmail.com","created_at":"2019-08-20T13:06:39.506Z","updatedAt":"2019-08-21T14:28:17.695Z","userCounterId":6,"__v":0,"to_sign":"5JwpxVLD6XCMMxFsxZsAGynjvZeD4kf9sMVpb1dhjFzkJDWpits","id":"5d5bf05ffe092b38101f018f"},"state":"state_requested","created_at":"2019-08-20T15:43:40.266Z","updatedAt":"2019-08-20T15:43:40.266Z","requestCounterId":1,"__v":0,"block_time":"2019-08-20T15:43:40","sub_header":"Solicitud de type_deposit","quantity":"44.00","tx_type":"type_deposit","i_sent":true,"id":"5d5c152c8c3a466b65e3c2f3","quantity_txt":"44.00 IK$"}
+      , request:     undefined
     };
 
     // this.handleSearch = this.handleSearch.bind(this); 
@@ -142,13 +93,6 @@ class processRequest extends Component {
     this.setState({amount:e.target.value, number_validateStatus:'' , number_help:''})
   }
 
-  // onSearch={this.handleSearch}
-  handleSearch(value){
-    // this.setState({
-    //   dataSource: !value ? [] : [value, value + value, value + value + value],
-    // });
-  };
-
   openNotificationWithIcon(type, title, message) {
     notification[type]({
       message: title,
@@ -157,27 +101,10 @@ class processRequest extends Component {
   }
 
   issueMoney = async () => {
-    // let thato = this;
-    // const x_id = this.state.request._id;
-    // const x_tx_id= 'ea19c171cd3f07e2233d28469c0c2344503cf974368116e01037caa856fc88b2';
-    // api.bank.setDepositOk(x_id, x_tx_id).then(
-    //   // muestro resultado
-    //   (update_res) => {
-        
-    //     console.log('OK')
-    //     const xx = {data:{transaction_id:x_tx_id}};
-    //     thato.setState({result:'ok', pushingTx:false, result_object:xx});
-    //   }, (err) => {
-    //     console.log('ERROR', JSON.stringify(err))
-    //     thato.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
-    //   }
-    // )
-
-    // return;
     const {_id, amount, requested_by, requestCounterId, deposit_currency} = this.state.request;
     const privateKey = this.props.actualPrivateKey;
     const receiver   = requested_by.account_name;
-    const sender     = globalCfg.currency.issuer; //this.props.actualAccountName;
+    const sender     = this.props.actualAccountName; //globalCfg.currency.issuer
     
     const fiat       = globalCfg.api.fiatSymbolToMemo(deposit_currency)
     const memo       = `dep|${fiat}|${requestCounterId.toString()}`;
@@ -190,7 +117,7 @@ class processRequest extends Component {
         if(data && data.data && data.data.transaction_id)
         {
           // updeteo la tx
-          api.bank.setDepositOk(_id, data.data.transaction_id).then(
+          api.bank.setDepositOk(sender, _id, data.data.transaction_id).then(
             // muestro resultado
             (update_res) => {
               console.log(' processRequest::issue (then#2) >> update_res ', JSON.stringify(update_res), JSON.stringify(data));

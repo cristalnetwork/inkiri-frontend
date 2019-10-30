@@ -20,7 +20,7 @@ import { notification, Table, Divider, Spin } from 'antd';
 import './pda.css'; 
 import styles from './style.less'; 
 
-import {columns,  DISPLAY_ALL_TXS, DISPLAY_PROVIDER, DISPLAY_EXCHANGES} from '@app/components/TransactionTable';
+import {DISPLAY_ALL_TXS, DISPLAY_PROVIDER, DISPLAY_EXCHANGES} from '@app/components/TransactionTable';
 
 import * as utils from '@app/utils/utils';
 
@@ -28,8 +28,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import * as request_helper from '@app/components/TransactionCard/helper';
 
-const { TabPane } = Tabs;
-const FormItem = Form.Item;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const { Option } = Select;
@@ -69,34 +67,47 @@ class ExternalTransfers extends Component {
 
   getColumns(){
     return [
-      {
-        title: 'Date',
-        dataIndex: 'block_time',
-        key: 'block_time',
-        sortDirections: ['descend'],
-        defaultSortOrder: 'descend',
-        sorter: (a, b) => a.block_time_number - b.block_time_number,
-      },
+      // {
+      //   title: 'Date',
+      //   dataIndex: 'block_time',
+      //   key: 'block_time',
+      //   sortDirections: ['descend'],
+      //   defaultSortOrder: 'descend',
+      //   sorter: (a, b) => a.block_time_number - b.block_time_number,
+      // },
       {
         title: 'Description',
         dataIndex: 'sub_header',
         key: 'sub_header',
         render: (value, record) => {
-          return(<>{record.sub_header_admin}</>)
+          // <br/>{request_helper.getTypeTag(record)}
+          // <br/>{request_helper.getStateTag(record)}
+          // <br/>{request_helper.getStateLabel(record)}
+          // <span>{utils.capitalize(globalCfg.api.stateToText(record.state))}</span>
+          return(
+            <span className="name_value_row">
+              <div className="row_name centered" >
+                <FontAwesomeIcon icon="truck-moving" color={'gray'}/>
+              </div>
+              <div className="row_value wider">
+                <span className="row_tx_description">{record.sub_header_admin}</span> 
+                 <br/>{request_helper.getStateLabel(record)}
+              </div>   
+            </span>)
         }
       },
       //
-      {
-        title: 'Amount',
-        dataIndex: 'quantity',
-        key: 'quantity',
-        align: 'right',
-        render: (quantity, record) => (
-          <span>
-            {globalCfg.currency.toCurrencyString(quantity)}
-          </span>
-          )
-      },
+      // {
+      //   title: 'Amount',
+      //   dataIndex: 'quantity',
+      //   key: 'quantity',
+      //   align: 'right',
+      //   render: (quantity, record) => (
+      //     <span>
+      //       {globalCfg.currency.toCurrencyString(quantity)}
+      //     </span>
+      //     )
+      // },
       //
       {
         title: 'Tags',
@@ -105,21 +116,15 @@ class ExternalTransfers extends Component {
         render: (tx_type, record) => {
 
           return (
-              <span key={'tags'+record.id}>
-               {request_helper.getTypeTag(record)}
-               <br/>
-               {request_helper.getStateTag(record)}
-               <br/><br/>
-               <Tag color={'magenta'} key={'provider_'+record.id}>
-                      {record.provider.name + ' - CNPJ:'+ record.provider.cnpj}
+            <span key={'tags'+record.id}>
+               <Tag key={'provider_'+record.id}>
+                  {record.provider.name + ' - CNPJ:'+ record.provider.cnpj}
                </Tag>
-               
-               <br/><br/>
                {request_helper.getGoogleDocLinkOrNothing(record.attach_nota_fiscal_id, true, 'Nota fiscal')}
                {request_helper.getGoogleDocLinkOrNothing(record.attach_boleto_pagamento_id, true, 'Boleto Pagamento')}
                {request_helper.getGoogleDocLinkOrNothing(record.attach_comprobante_id, true, 'Comprobante Bancario')}
-              </span>
-              )}
+            </span>
+            )}
       },
       //
       {
@@ -127,18 +132,26 @@ class ExternalTransfers extends Component {
         key: 'action',
         width: 100,
         render: (text, record) => {
-          // const processButton = (<Button key={'details_'+record.id} size="small" onClick={()=>{ this.onProcessRequestClick(record) }}>Process</Button>);
-          const processButton     = request_helper.getProcessButton(record, this.onProcessRequestClick);
-          const viewDetailsButton = request_helper.getBlockchainLink(record, true, 'small');
-
-            return (
-              <span>
-                {viewDetailsButton}
-                <Divider type="vertical" />
-                {processButton}
-              </span>  );
+          return request_helper.getProcessButton(record, this.onProcessRequestClick);
         }
       },
+
+      {
+        title: 'Amount and date',
+        
+        dataIndex: 'block_time',
+        key: 'block_time',
+        sortDirections: ['descend'],
+        defaultSortOrder: 'descend',
+        sorter: (a, b) => a.block_time_number - b.block_time_number,
+        align: 'right',
+        render: (block_time, record) => (
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin">
+            {request_helper.getStyledAmount(record, false, true)}
+            {request_helper.getStyledDate(record)}
+          </div>
+          )
+      }
     ];
   }
   

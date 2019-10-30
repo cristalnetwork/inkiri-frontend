@@ -121,6 +121,8 @@ export const actualRole = (state) => (state.login.current_account) ? globalCfg.b
 export const actualRoleId = (state) => (state.login.current_account) ? state.login.current_account.permissioner.account_type : undefined
 export const currentAccount = (state) => state.login.current_account
 
+export const isAdmin = (state) => globalCfg.bank.isAdminAccount(state.login.current_account.permissioner.account_type);
+export const isBusiness = (state) => globalCfg.bank.isBusinessAccount(state.login.current_account.permissioner.account_type);
 
 export const personalAccount = (state) => state.login.accounts.personalAccount
 export const otherPersonalAccounts = (state) => state.login.accounts.otherPersonalAccounts

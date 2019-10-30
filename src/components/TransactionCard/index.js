@@ -22,25 +22,9 @@ import * as request_helper from '@app/components/TransactionCard/helper';
 
 const { Dragger } = Upload;
 
-const icon_color = '#1890ff';
+const icon_color       = '#1890ff';
 const icon_color_green = '#3db389';
 
-const props = {
-  name: 'file',
-  multiple: true,
-  action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
-  onChange(info) {
-    const { status } = info.file;
-    if (status !== 'uploading') {
-      console.log(info.file, info.fileList);
-    }
-    if (status === 'done') {
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (status === 'error') {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-};
 /*
 * ToDo: We should re read https://github.com/ant-design/ant-design/blob/master/components/form/demo/customized-form-controls.md
 * up to provide decorator's validation.
@@ -49,64 +33,59 @@ class TransactionCard extends Component {
   constructor(props) {
     super(props);
     const request       = props.request || undefined;
-    const bank_account  = request?((globalCfg.api.isProviderPayment(request))? request.provider.bank_accounts[0] : request.bank_account):undefined;
+    const bank_account  = this.getBank(request);
     this.state = {
       request:         request,
       bank_account:    bank_account
     };
 
-    // this.fetchProvider = debounce(this.fetchProvider, 800);
-    
   }
 
-  fetchProvider = value => {
-    // this.lastFetchId += 1;
-    // const fetchId = this.lastFetchId;
-    // this.setState({ data: [], fetching: true });
-    // api.bank.listProviders(value, value)
-    //   .then(providers => {
-    //     if (fetchId !== this.lastFetchId) {
-    //       // for fetch callback order
-    //       return;
-    //     }
-    //     const data = providers.map(provider => ({
-    //       text: `${provider.name} - CNPJ: ${provider.cnpj}`,
-    //       value: provider.id,
-    //     }));
-    //     this.setState({ data:data, fetching: false });
-    //   });
-  };
+  getBank = (request) => {
+    return request?((globalCfg.api.isProviderPayment(request))? request.provider.bank_accounts[0] : request.bank_account):undefined;
+  }
 
-  handleChange = changedValue => {
-    // this.setState({});
-    this.triggerChange(changedValue);
-  };
-
-  triggerChange = changedValue => {
-    // Should provide an event to pass value to Form.
-    const { onChange } = this.props;
-    if (onChange) {
-      onChange(
-        changedValue
-      );
+  componentDidUpdate(prevProps, prevState) 
+    {
+      const {request} = this.props;
+      if(prevProps.request !== request) {
+        const bank_account  = this.getBank(request);
+        this.setState({request:         request,
+                      bank_account:    bank_account}
+        );
+      }
     }
-  };
 
-  handleClick = something => {
-    // this.setState({});
-    const event = 'The_Event';
-    this.triggerChange(something, event);
-  };
+  // handleChange = changedValue => {
+  //   // this.setState({});
+  //   this.triggerChange(changedValue);
+  // };
 
-  triggerEvent = (eventValue, event) => {
-    // Should provide an event to pass value to Form.
-    const { onEvent } = this.props;
-    if (onEvent) {
-      onEvent(
-        eventValue, event
-      );
-    }
-  };
+  // triggerChange = changedValue => {
+  //   // Should provide an event to pass value to Form.
+  //   const { onChange } = this.props;
+  //   if (onChange) {
+  //     onChange(
+  //       changedValue
+  //     );
+  //   }
+  // };
+
+  // handleClick = something => {
+  //   // this.setState({});
+  //   const event = 'The_Event';
+  //   this.triggerChange(something, event);
+  // };
+
+  // triggerEvent = (eventValue, event) => {
+  //   // Should provide an event to pass value to Form.
+  //   const { onEvent } = this.props;
+  //   if (onEvent) {
+  //     onEvent(
+  //       eventValue, event
+  //     );
+  //   }
+  // };
 
   render() {
     const { request, bank_account }   = this.state;
@@ -316,8 +295,6 @@ class TransactionCard extends Component {
                       </div>
                       <div className="ui-row__col ui-row__col--content">
                           <div className="ui-info-row__content">
-                              
-
                               <div className="ui-info-row__details name_value_row">
                                  <div className="row_name">Vehicle</div> 
                                  <div className="row_value">{request.provider_extra.payment_vehicle}</div> 
@@ -386,138 +363,26 @@ class TransactionCard extends Component {
 
         {  
           request.attach_nota_fiscal_id?
-            (<div className="ui-list">
-                      <ul className="ui-list__content">
-                          <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                              <div className="ui-row__col ui-row__col--heading">
-                                  <div className="ui-avatar ">
-                                      <div className="ui-avatar__content ui-avatar__content--icon">
-                                        <FontAwesomeIcon icon="receipt" size="2x" color={icon_color_green}/>
-                                      </div>
-                                  </div>
-                              </div>
-                              <div className="ui-row__col ui-row__col--content">
-                                <div className="ui-info-row__content">
-                                    <div className="ui-info-row__title">
-                                      {request_helper.getGoogleDocLink(request.attach_nota_fiscal_id, true, 'Nota fiscal', 'large')}
-                                    </div>
-                                </div>
-                              </div>
-
-                              <div className="ui-row__col ui-row__col--actions">
-                                  <FontAwesomeIcon icon="chevron-right"  color="gray"/>
-                              </div>
-                          </li>
-                      </ul>
-                  </div>)
+            request_helper.getFileLink(request.attach_nota_fiscal_id, 'Nota Fiscal', icon_color_green)
             :    
-            (<div className="ui-list">
-                    <ul className="ui-list__content">
-                      <div className="ui-list c-notes">
-                        <ul className="ui-list__content">
-                          <li id="addNote" className="c-notes__container-add-note">
-                            <Dragger {...this.props.uploder[globalCfg.api.NOTA_FISCAL]}  multiple={false}>
-                              <p className="ant-upload-drag-icon">
-                                <FontAwesomeIcon icon="receipt" size="3x" color={icon_color}/>
-                              </p>
-                              <p className="ant-upload-text">Click or drag <b>Nota Fiscal</b> file to this area to upload</p>
-                            </Dragger>    
-
-                          </li>
-                        </ul>
-                      </div>
-                    </ul>
-                </div>)
+            request_helper.getFileUploader('Nota Fiscal', this.props.uploder[globalCfg.api.NOTA_FISCAL], icon_color)
         }
 
         {  
           request.attach_boleto_pagamento_id?
-            (<div className="ui-list">
-              <ul className="ui-list__content">
-                  <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                      <div className="ui-row__col ui-row__col--heading">
-                          <div className="ui-avatar ">
-                              <div className="ui-avatar__content ui-avatar__content--icon">
-                                <FontAwesomeIcon icon="file-invoice-dollar" size="2x" color={icon_color_green}/>
-                              </div>
-                          </div>
-                      </div>
-                      <div className="ui-row__col ui-row__col--content">
-                        <div className="ui-info-row__content">
-                            <div className="ui-info-row__title">
-                              {request_helper.getGoogleDocLink(request.attach_boleto_pagamento_id, true, 'Boleto de pagamento', 'large')}
-                            </div>
-                        </div>
-                    </div>
-                  </li>
-              </ul>
-          </div>)
+            request_helper.getFileLink(request.attach_boleto_pagamento_id, 'Boleto de pagamento', icon_color_green)
           :
           (request.provider_extra.payment_mode==globalCfg.api.PAYMENT_MODE_BOLETO)?
-          (<div className="ui-list">
-            <ul className="ui-list__content">
-              <div className="ui-list c-notes">
-                <ul className="ui-list__content">
-                  <li id="addNote" className="c-notes__container-add-note">
-                    <Dragger {...this.props.uploder[globalCfg.api.BOLETO_PAGAMENTO]}  multiple={false}>
-                      <p className="ant-upload-drag-icon">
-                        <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={icon_color}/>
-                      </p>
-                      <p className="ant-upload-text">Click or drag <b>Boleto de Pagamento</b> file to this area to upload</p>
-                    </Dragger>    
-
-                  </li>
-                </ul>
-              </div>
-            </ul>
-          </div>):(null)
+            request_helper.getFileUploader('Boleto de Pagamento', this.props.uploder[globalCfg.api.BOLETO_PAGAMENTO], icon_color):(null)
         }
 
         {  
           request.attach_comprobante_id?
-            (
-          <div className="ui-list">
-              <ul className="ui-list__content">
-                  <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                      <div className="ui-row__col ui-row__col--heading">
-                          <div className="ui-avatar ">
-                              <div className="ui-avatar__content ui-avatar__content--icon">
-                                <FontAwesomeIcon icon="file-pdf" size="2x" color={icon_color_green}/>
-                              </div>
-                          </div>
-                      </div>
-                      <div className="ui-row__col ui-row__col--content">
-                        <div className="ui-info-row__content">
-                            <div className="ui-info-row__title">
-                              {request_helper.getGoogleDocLink(request.attach_comprobante_id, true, 'Comprobante', 'large')}
-                            </div>
-                        </div>
-                    </div>
-                  </li>
-              </ul>
-          </div>)
+            request_helper.getFileLink(request.attach_comprobante_id, 'Comprobante', icon_color_green)
           :
-          globalCfg.api.isProcessing(request)?
-            (<div className="ui-list">
-              <ul className="ui-list__content">
-                <div className="ui-list c-notes">
-                  <ul className="ui-list__content">
-                    <li id="addNote" className="c-notes__container-add-note">
-                      <Dragger {...this.props.uploder[globalCfg.api.COMPROBANTE]}  multiple={false}>
-                        <p className="ant-upload-drag-icon">
-                          <FontAwesomeIcon icon="file-pdf" size="3x" color={icon_color}/>
-                        </p>
-                        <p className="ant-upload-text">Click or drag <b>Comprobante</b> file to this area to upload</p>
-                      </Dragger>    
-
-                    </li>
-                  </ul>
-                </div>
-              </ul>
-          </div>) : (null)
+          (globalCfg.api.isProcessing(request)&&this.props.isAdmin)?
+            request_helper.getFileUploader('Comprobante', this.props.uploder[globalCfg.api.COMPROBANTE], icon_color):(null)
       }
-
-          
           
       </div>
     </>);

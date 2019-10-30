@@ -71,6 +71,11 @@ h3.fileds_header{
 
 }
 
+.row_tx_description{
+  font-size: 16px;
+  font-weight: 600;
+}
+
 /* HACK for SELECT CONTROLS*/
 
 .money-transfer__select .ant-select-selection, .money-transfer__row .ant-select-selection
