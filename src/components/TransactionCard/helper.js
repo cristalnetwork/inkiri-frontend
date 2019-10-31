@@ -29,9 +29,15 @@ export const getStateTag = (request) => {
   return (<Tag color={globalCfg.api.stateToColor(request.state)} key={'state_'+request.id}>{text}</Tag>)
 }
 //
-export const getStateLabel = (request) => {
-  // const icon = with_icon?(<FontAwesomeIcon icon={['fab', 'google-drive']} />):null;
-  return (<span style={{color:globalCfg.api.stateToColor(request.state)}} key={'state_'+request.id}>{utils.capitalize(globalCfg.api.stateToText(request.state))}</span>)
+export const getStateLabel = (request, with_waiting_icon) => {
+  const color = globalCfg.api.stateToColor(request.state);
+  let icon = null;
+  if(with_waiting_icon)
+  {
+    const fa_icon = globalCfg.api.isFinished(request)?'flag-checkered':'user-clock';
+    icon = (<FontAwesomeIcon icon={fa_icon} size="xs" color="gray" />);
+  }
+  return (<span style={{color:color}} key={'state_'+request.id}>{utils.capitalize(globalCfg.api.stateToText(request.state))}&nbsp;{icon}</span>)
 }
 //
 export const getTypeTag = (request) => {

@@ -86,10 +86,6 @@ class Providers extends Component {
         dataIndex: 'sub_header',
         key: 'sub_header',
         render: (value, record) => {
-          // <br/>{request_helper.getTypeTag(record)}
-          // <br/>{request_helper.getStateTag(record)}
-          // <br/>{request_helper.getStateLabel(record)}
-          // <span>{utils.capitalize(globalCfg.api.stateToText(record.state))}</span>
           return(
             <span className="name_value_row">
               <div className="row_name centered" >
@@ -97,7 +93,7 @@ class Providers extends Component {
               </div>
               <div className="row_value wider">
                 <span className="row_tx_description">{record.sub_header}</span> 
-                 <br/>{request_helper.getStateLabel(record)}
+                 <br/>{request_helper.getStateLabel(record, true)} 
               </div>   
             </span>)
         }
@@ -146,114 +142,6 @@ class Providers extends Component {
           </div>
           )
       }
-    ];
-  }
-  getColumnsOLD(){
-    return [
-      {
-        title: 'Date',
-        dataIndex: 'block_time',
-        key: 'block_time',
-        sortDirections: ['descend'],
-        defaultSortOrder: 'descend',
-        sorter: (a, b) => a.block_time_number - b.block_time_number,
-      },
-      {
-        title: 'Description',
-        dataIndex: 'sub_header',
-        key: 'sub_header',
-        render: (value, record) => {
-          return(<>{record.sub_header}</>)
-        }
-      },
-      //
-      {
-        title: 'Amount',
-        dataIndex: 'quantity',
-        key: 'quantity',
-        align: 'right',
-        render: (quantity, record) => (
-          <span>
-            {globalCfg.currency.toCurrencyString(quantity)}
-          </span>
-          )
-      },
-      //
-      {
-        title: 'Tags',
-        key: 'tx_type',
-        dataIndex: 'tx_type',
-        render: (tx_type, record) => {
-
-          return (
-              <span key={'tags'+record.id}>
-               <Tag color={'geekblue'} key={'type_'+record.id}>
-                      {tx_type.toUpperCase()}
-               </Tag>
-               <br/><Tag color={'geekblue'} key={'state_'+record.id}>
-                      {(record.state||'COMPLETED').toUpperCase()}
-               </Tag>
-               <br/><br/><Tag color={'magenta'} key={'provider_'+record.id}>
-                      {record.provider.name + ' - CNPJ:'+ record.provider.cnpj}
-               </Tag>
-               
-               <br/><br/><Tag color={'blue'} key={'blockchain_tx_'+record.id}>
-                      Blockchain TX: {record.tx_id||'N/A'}
-               </Tag>
-
-               <br/><br/><Tag color={'purple'} key={'files_1_'+record.id}>
-                      Nota Fiscal: {record.provider.attach_nota_fiscal_id||'N/A'}
-               </Tag>
-               <br/><Tag color={'purple'} key={'files_2_'+record.id}>
-                      Boleto Pagamento: {record.provider.attach_boleto_pagamento_id||'N/A'}
-               </Tag>
-               <br/><Tag color={'purple'} key={'files_3_'+record.id}>
-                      Comprobante Bancario: {record.provider.attach_comprobante_id||'N/A'}
-               </Tag>
-                
-                
-
-              </span>
-              )}
-      },
-      //
-      {
-        title: 'Action',
-        key: 'action',
-        width: 100,
-        render: (text, record) => {
-
-          let buttons = [];
-          function addDivider(key){
-            buttons.push( (<Divider key={key} type="horizontal" />) );
-          }
-          // console.log('ADDING ROW >> ', record.id);
-          
-          const processButton = (<Button size="small" key={'details_'+record.id} onClick={()=>{ this.operationDetails(record) }}>Details</Button>);
-          //
-          buttons.push(processButton);
-          
-          if(globalCfg.api.canCancel(record)){
-            const cancelButton = (<Button size="small" type="primary" key={'cancel_'+record.id} onClick={()=>{ this.cancelOperation(record) }}>Cancel</Button>);
-            addDivider('cancel_divider_'+record.id);
-            buttons.push(cancelButton);
-          }
-          //
-          if(globalCfg.api.isOnBlockchain(record)){
-            const _href = api.dfuse.getBlockExplorerTxLink(globalCfg.api.getTXId(record));
-            const viewDetailsButton = (<Button size="small" type="link" href={_href} target="_blank" key={'view-on-blockchain_'+record.id} icon="cloud" title="View on Blockchain">B-Chain</Button>);
-            //
-            addDivider('view-on-blockchain_divider_'+record.id);
-            buttons.push(viewDetailsButton);
-            
-          } //
-          
-          return (
-              <span>
-                {buttons.map(button => button  ) }
-              </span>  );
-          },
-      },
     ];
   }
   //
