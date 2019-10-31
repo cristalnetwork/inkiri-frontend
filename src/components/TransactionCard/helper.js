@@ -4,6 +4,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as utils from '@app/utils/utils';
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
+import moment from 'moment';
+
+export const getRequestId = (request) => {
+  return utils.leadingZeros(request.requestCounterId, 5);
+}
+
+export const getRequestDate = (request) => {
+  return moment(request.created_at).format('LLLL');
+}
+
+export const getRequestProviderDesc = (request) => {
+  return request.provider.name + ' - [CNPJ:'+ request.provider.cnpj+']';
+}
 
 export const getGoogleDocUrl = (google_doc_id) => {
   return "https://drive.google.com/open?id="+google_doc_id;
@@ -34,8 +47,9 @@ export const getStateLabel = (request, with_waiting_icon) => {
   let icon = null;
   if(with_waiting_icon)
   {
-    const fa_icon = globalCfg.api.isFinished(request)?'flag-checkered':'user-clock';
-    icon = (<FontAwesomeIcon icon={fa_icon} size="xs" color="gray" />);
+    const fa_icon  = globalCfg.api.isFinished(request)?'flag-checkered':'user-clock';
+    const alt_text = globalCfg.api.isFinished(request)?'Done!':'Operation pending/required!';
+    icon = (<FontAwesomeIcon icon={fa_icon} size="xs" color="gray" title={alt_text}/>);
   }
   return (<span style={{color:color}} key={'state_'+request.id}>{utils.capitalize(globalCfg.api.stateToText(request.state))}&nbsp;{icon}</span>)
 }
@@ -45,14 +59,19 @@ export const getTypeTag = (request) => {
   return (<Tag key={'type_'+request.id}>{utils.capitalize(globalCfg.api.typeToText(request.requested_type))}</Tag>)
 }
 //
-export const getBlockchainLink = (request, withIcon, size) => {
-  // const icon = with_icon?(<FontAwesomeIcon icon={['fab', 'google-drive']} />):null;
-  const onBlockchain = globalCfg.api.isOnBlockchain(request);
-  if(!onBlockchain)
+export const getBlockchainLink = (tx_id, withIcon, size, text) => {
+  if(!tx_id)
     return (null);
-  const _href = api.dfuse.getBlockExplorerTxLink(onBlockchain);
-  return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+request.id} icon={withIcon?'cloud':null} title="View on Blockchain">B-Chain</Button>)
+  const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
+  return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} icon={withIcon?'cloud':null} title="View on Blockchain">{text||'B-Chain'}</Button>)
 }
+// export const getBlockchainLink = (request, withIcon, size) => {
+//   const onBlockchain = globalCfg.api.isOnBlockchain(request);
+//   if(!onBlockchain)
+//     return (null);
+//   const _href = api.dfuse.getBlockExplorerTxLink(onBlockchain);
+//   return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+request.id} icon={withIcon?'cloud':null} title="View on Blockchain">B-Chain</Button>)
+// }
 //
 export const getProcessButton = (request, cb, text) => {
   const title = text?text:((globalCfg.api.isFinished(request))?"Details":"Process");

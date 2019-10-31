@@ -212,7 +212,7 @@ class RequestPayment extends Component {
                 .then((data2) => {
 
                     this.clearAttachments();
-                    that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{blockchain_id : send_tx.data.transaction_id, request_id:request_id} });
+                    that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
                     this.openNotificationWithIcon("success", 'Provider Payment requested successfully');
 
                   }, (ex2) => {
@@ -421,7 +421,7 @@ class RequestPayment extends Component {
       const result_type = this.state.result;
       const title       = null;
       const message     = null;
-      const tx_id       = this.state.result_object?this.state.result_object.blockchain_id:null;
+      const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error
       
       return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)

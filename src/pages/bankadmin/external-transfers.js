@@ -91,7 +91,7 @@ class ExternalTransfers extends Component {
               </div>
               <div className="row_value wider">
                 <span className="row_tx_description">{record.sub_header_admin}</span> 
-                 <br/>{request_helper.getStateLabel(record)}
+                 <br/>{request_helper.getStateLabel(record, true)} 
               </div>   
             </span>)
         }
@@ -117,8 +117,11 @@ class ExternalTransfers extends Component {
 
           return (
             <span key={'tags'+record.id}>
-               <Tag key={'provider_'+record.id}>
-                  {record.provider.name + ' - CNPJ:'+ record.provider.cnpj}
+               Provider:&nbsp;<Tag key={'provider_'+record.id}>
+                  { request_helper.getRequestProviderDesc(record)}
+               </Tag>
+               Op.&nbsp;#<Tag key={'request_id_'+record.id}>
+                  { request_helper.getRequestId(record)}
                </Tag>
                {request_helper.getGoogleDocLinkOrNothing(record.attach_nota_fiscal_id, true, 'Nota fiscal')}
                {request_helper.getGoogleDocLinkOrNothing(record.attach_boleto_pagamento_id, true, 'Boleto Pagamento')}

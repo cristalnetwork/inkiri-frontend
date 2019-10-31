@@ -14,8 +14,6 @@ import debounce from 'lodash/debounce';
 
 import * as utils from '@app/utils/utils';
 
-import moment from 'moment';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import * as request_helper from '@app/components/TransactionCard/helper';
@@ -95,7 +93,7 @@ class TransactionCard extends Component {
     //
     
     let alert = (null);
-    if(globalCfg.api.isProcessing(request))
+    if(globalCfg.api.isProcessing(request) && this.props.isAdmin)
       alert = ( <Alert
                   message="Bank transfer required!"
                   description={(<>
@@ -114,20 +112,14 @@ class TransactionCard extends Component {
     return (
       <>
       {alert}
+
         <div className="c-detail">
           <div className="c-header-detail ">
               <div className="c-header-detail__head u-clearfix">
-                  <div className="c-header-detail__title">Op. #<b>{utils.leadingZeros(request.requestCounterId, 5)}</b> • Created on <b>{moment(request.created_at).format('LLLL')}</b></div>
+                  <div className="c-header-detail__title">Op. #<b>{request_helper.getRequestId(request)}</b> • Created on <b>{request_helper.getRequestDate(request)}</b></div>
                   <div className="c-header-detail__actions">
                     {request_helper.getStateTag(request)}
                   </div>
-              </div>
-          </div>
-
-          <div className="c-header-detail hidden">
-              <div className="c-header-detail__head u-clearfix">
-                  <div className="c-header-detail__title">Operación {utils.leadingZeros(request.requestCounterId, 5)} • Creada el {moment(request.created_at).format('LLLL')}</div>
-                  <div className="c-header-detail__actions"><button className="u-button-link">Imprimir</button></div>
               </div>
           </div>
 
@@ -319,39 +311,71 @@ class TransactionCard extends Component {
                 </div>
             </ul>
           </div>
+          
 
-          <div className="c-header-detail ">
-            <div className="c-header-detail__head u-clearfix">
-                <div className="c-header-detail__title">Blockchain</div>
-                <div className="c-header-detail__actions">
+          {
+            (request.tx_id||request.refund_tx_id)?
+              (<>
+
+                <div className="c-header-detail ">
+                  <div className="c-header-detail__head u-clearfix">
+                      <div className="c-header-detail__title">Blockchain</div>
+                      <div className="c-header-detail__actions">
+                      </div>
+                  </div>
                 </div>
-            </div>
-        </div>
+                <div className="ui-list">
+                  <ul className="ui-list__content">
+                    {(request.tx_id)?
+                      (
+                              <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
+                                  <div className="ui-row__col ui-row__col--heading">
+                                      <div className="ui-avatar ">
+                                          <div className="ui-avatar__content ui-avatar__content--icon">
+                                            <FontAwesomeIcon icon="cloud" size="2x" color={icon_color_green}/>
+                                          </div>
+                                      </div>
+                                  </div>
+                                  <div className="ui-row__col ui-row__col--content">
+                                    <div className="ui-info-row__content">
+                                        <div className="ui-info-row__title">
+                                          {request_helper.getBlockchainLink(request.tx_id, false, 'large', 'Customer payment')}
+                                        </div>
+                                    </div>
+                                  </div>
+            
+                                  <div className="ui-row__col ui-row__col--actions">
+                                      <FontAwesomeIcon icon="chevron-right"  color="gray"/>
+                                  </div>
+                              </li>
+                  ):(null)}
 
-          <div className="ui-list">
-              <ul className="ui-list__content">
-                  <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                      <div className="ui-row__col ui-row__col--heading">
-                          <div className="ui-avatar ">
-                              <div className="ui-avatar__content ui-avatar__content--icon">
-                                <FontAwesomeIcon icon="cloud" size="2x" color={icon_color_green}/>
-                              </div>
-                          </div>
-                      </div>
-                      <div className="ui-row__col ui-row__col--content">
-                        <div className="ui-info-row__content">
-                            <div className="ui-info-row__title">
-                              {request_helper.getBlockchainLink(request, false, 'large')}
+                {request.refund_tx_id?
+                  (<li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
+                            <div className="ui-row__col ui-row__col--heading">
+                                <div className="ui-avatar ">
+                                    <div className="ui-avatar__content ui-avatar__content--icon">
+                                      <FontAwesomeIcon icon="cloud" size="2x" color={icon_color_green}/>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                      </div>
-
-                      <div className="ui-row__col ui-row__col--actions">
-                          <FontAwesomeIcon icon="chevron-right"  color="gray"/>
-                      </div>
-                  </li>
-              </ul>
-          </div>
+                            <div className="ui-row__col ui-row__col--content">
+                              <div className="ui-info-row__content">
+                                  <div className="ui-info-row__title">
+                                    {request_helper.getBlockchainLink(request.refund_tx_id, false, 'large', 'Bank refund')}
+                                  </div>
+                              </div>
+                            </div>
+      
+                            <div className="ui-row__col ui-row__col--actions">
+                                <FontAwesomeIcon icon="chevron-right"  color="gray"/>
+                            </div>
+                        </li>
+                    ):(null)}
+                </ul>
+              </div>
+            </>):(null)
+          }
 
         <div className="c-header-detail ">
             <div className="c-header-detail__head u-clearfix">
@@ -389,5 +413,20 @@ class TransactionCard extends Component {
   }
 
 }
-//
-export default (TransactionCard)
+
+// export default (TransactionCard)
+
+export default (connect(
+    (state)=> ({
+        actualAccountName:  loginRedux.actualAccountName(state),
+        actualRole:         loginRedux.actualRole(state),
+        actualPrivateKey:   loginRedux.actualPrivateKey(state),
+        isLoading:          loginRedux.isLoading(state),
+        isAdmin:            loginRedux.isAdmin(state),
+        isBusiness:         loginRedux.isBusiness(state)
+    }),
+    (dispatch)=>({
+        // isAdmin:    bindActionCreators(loginRedux.isAdmin, dispatch),
+        // isBusiness: bindActionCreators(loginRedux.isBusiness, dispatch)
+    })
+)(TransactionCard) );

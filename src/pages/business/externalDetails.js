@@ -253,7 +253,7 @@ class externalDetails extends Component {
       (ex) => {
         console.log(' ** ERROR @ updateRequest', JSON.stringify(ex))
         that.setState({pushingTx:false})
-            that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
+        that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
       }  
     );
     
@@ -267,7 +267,7 @@ class externalDetails extends Component {
       content: 'You will cancel the request. The money will be available at your balance in 24/48hs.',
       onOk() {
         const {request} = that.state;
-        api.bank.cancelProviderPayment(this.props.actualAccountName, request.id)
+        api.bank.cancelProviderPayment(that.props.actualAccountName, request.id)
         .then( (data) => {
             that.setState({pushingTx:false})
             that.openNotificationWithIcon("success", 'Request canceled successfully');
@@ -282,6 +282,7 @@ class externalDetails extends Component {
         
       },
       onCancel() {
+        that.setState({pushingTx:false})
         console.log('Cancel');
       },
     });

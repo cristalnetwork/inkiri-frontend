@@ -22,10 +22,18 @@ import TransactionCard from '@app/components/TransactionCard';
 
 import './request.less'; 
 
+import TxResult from '@app/components/TxResult';
+import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
+
 const { Paragraph, Text } = Typography;
 const { confirm } = Modal;
 
 
+const DEFAULT_RESULT = {
+  result:             undefined,
+  result_object:      undefined,
+  error:              {},
+}
 class processExternal extends Component {
   constructor(props) {
     super(props);
@@ -36,9 +44,8 @@ class processExternal extends Component {
       amount:       0,
       memo:         '',
       pushingTx:    false,
-      result:       undefined,
-      result_object:undefined,
-      error:        {},
+      
+      ...DEFAULT_RESULT,
        
       request:       request,
       
@@ -54,6 +61,7 @@ class processExternal extends Component {
     this.renderContent              = this.renderContent.bind(this); 
     this.resetPage                  = this.resetPage.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
+    this.userResultEvent            = this.userResultEvent.bind(this); 
   }
 
   static propTypes = {
@@ -78,6 +86,8 @@ class processExternal extends Component {
             that.setState({pushingTx:false, request:data})
           },
           (ex) => {
+            that.openNotificationWithIcon("error", 'An error occurred reloading request', JSON.stringify(ex));
+            that.setState({pushingTx:false});
             console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
           }  
         );
@@ -140,72 +150,74 @@ class processExternal extends Component {
   }
 
   resetPage(){
-    this.setState({result: undefined, result_object: undefined, error: {}});
+    this.setState({...DEFAULT_RESULT});
+    // this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
+  }
+
+  resetResult(){
+    this.setState({...DEFAULT_RESULT});
+  }
+
+    
+  
+  userResultEvent = (evt_type) => {
+    console.log(' ** userResultEvent -> EVT: ', evt_type)
+    if(evt_type==DASHBOARD)
+      this.backToDashboard();
+    if(evt_type==RESET_RESULT)
+      this.resetResult();
+    if(evt_type==RESET_PAGE)
+      this.resetPage();
+    
   }
 
   renderContent() {
-  
-    const { getFieldDecorator } = this.props.form;
     
-    if(this.state.result=='ok')
+    if(this.state.result)
     {
-      const tx_id = api.dfuse.getTxId(this.state.result_object?this.state.result_object.data:{});
-      const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
-      // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
+      const result_type = this.state.result;
+      const title       = null;
+      const message     = null;
+      const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
+      const error       = this.state.error
       
-      return (<Result
-        status="success"
-        title="Transaction completed successfully!"
-        subTitle={`Transaction id ${tx_id}. Cloud server takes up to 30 seconds, please wait.`}
-        extra={[
-          <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
-            Go to dashboard
-          </Button>,
-          <Button  key="go-to-pda" onClick={()=>this.backToReferrer()}>
-            Back to External Transfers
-          </Button>,
-          <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>,
-          
-        ]}
-      />)
+      const result = (<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />);
+      return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+                <div className="ly-main-content content-spacing cards">
+                  <section className="mp-box mp-box__shadow money-transfer__box">
+                    {result}
+                  </section>
+                </div>      
+              </div>);
     }
-    //`
-    if(this.state.result=='error')
-    {
 
-      // <Button key="re-send">Try sending again</Button>,
-      return (<Result
-                status="error"
-                title="Transaction Failed"
-                subTitle="Please check and modify the following information before resubmitting."
-                extra={[
-                  <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>Go to dashboard</Button>,
-                  <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetPage()} />
-                ]}
-              >
-                <div className="desc">
-                  <Paragraph>
-                    <Text
-                      strong
-                      style={{ fontSize: 16, }}
-                    >
-                      The content you submitted has the following error:
-                    </Text>
-                  </Paragraph>
-                  <Paragraph>
-                    <Icon style={{ color: 'red' }} type="close-circle" /> {this.state.error}
-                  </Paragraph>
-                </div>
-              </Result>)
-    }
+          // <Button  key="go-to-pda" onClick={()=>this.backToReferrer()}>
+          //   Back to External Transfers
+          // </Button>,
+
+    const {request, pushingTx}      = this.state;
+    const buttons                   = this.getActions();
+    const notaUploaderProps         = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
+    const boletoUploaderProps       = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
+    const comprobanteUploaderProps  = this.getPropsForUploader(globalCfg.api.COMPROBANTE);
     
-    // ** hack for sublime renderer ** //
-    //<Button type="primary" htmlType="submit" className="login-form-button" disabled={cant_process}>Accept Deposit & Issue</Button>
     return (
-        <></>
-    );
+      <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+        <TransactionCard 
+                request={request} 
+                admin={this.props.isAdmin}
+                uploder={{
+                  [globalCfg.api.NOTA_FISCAL] :notaUploaderProps
+                  ,[globalCfg.api.BOLETO_PAGAMENTO] :boletoUploaderProps
+                  ,[globalCfg.api.COMPROBANTE] :comprobanteUploaderProps }}
+        />
+        <div className="c-detail bottom">
+          <Card style={ { marginBottom: 24, textAlign:'center' } }>
+          { buttons?buttons.map(button=>button):(<></>)}
+          </Card>
+        </div>
+      </Spin>);
   }
-  //
   
   processRequest(){
     let that = this;  
@@ -218,12 +230,13 @@ class processExternal extends Component {
         const {request} = that.state;
         api.bank.processProviderPayment(that.props.actualAccountName, request.id)
         .then( (data) => {
-            request.state = api.bank.STATE_PROCESSING;
-            that.setState({pushingTx:false, request:request})
+            that.setState({pushingTx:false})
             that.openNotificationWithIcon("success", 'Request changed successfully');
             that.reload();
           },
           (ex) => {
+            that.setState({pushingTx:false})
+            that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
             console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
           }  
         );
@@ -231,6 +244,7 @@ class processExternal extends Component {
       },
       onCancel() {
         console.log('Cancel');
+        that.setState({pushingTx:false})
       },
     });
     
@@ -243,8 +257,6 @@ class processExternal extends Component {
 
   acceptRequest(){
     let that = this;  
-    that.setState({pushingTx:true});
-    
     // Check Comprobante
     
     const my_COMPROBANTE   = this.getAttach(globalCfg.api.COMPROBANTE);
@@ -254,9 +266,11 @@ class processExternal extends Component {
       return;
     }  
 
+    that.setState({pushingTx:true});
+    
     confirm({
       title: 'You will accept the request',
-      content: 'After accepting the request, please send the required payment and upload the bank receipt.',
+      content: 'Please confirm if you already have sent the money via wire transfer/boleto pagamento.',
       onOk() {
         const {request} = that.state;
         
@@ -266,18 +280,20 @@ class processExternal extends Component {
         console.log(' >> Request:', request.id)
         api.bank.acceptProviderPayment(that.props.actualAccountName, request.id, {[globalCfg.api.COMPROBANTE]:my_COMPROBANTE})
         .then( (data) => {
-            request.state = api.bank.STATE_ACCEPTED;
-            that.setState({pushingTx:false, request:request})
+            that.setState({pushingTx:false})
             that.openNotificationWithIcon("success", 'Request accepted successfully');
             that.reload();
           },
           (ex) => {
-            console.log(' ** ERROR @ acceptRequest', JSON.stringify(ex))
+            console.log(' ** ERROR @ acceptRequest', JSON.stringify(ex));
+            that.setState({pushingTx:false})
+            that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
           }  
         );
         
       },
       onCancel() {
+        that.setState({pushingTx:false})
         console.log('Cancel');
       },
     });  
@@ -288,11 +304,35 @@ class processExternal extends Component {
   }
   
   rejectRequest(){
-    this.doRefund(globalCfg.api.STATE_REJECTED);  
+    const that       = this;
+    confirm({
+      title: 'You will REJECT the request',
+      content: 'The payment request will be rejected and the amount will be refunded to the customer account.',
+      onOk() {
+        that.doRefund(globalCfg.api.STATE_REJECTED);
+      },
+      onCancel() {
+        that.setState({pushingTx:false})
+        console.log('Cancel');
+      },
+    });  
+    
   }
   
   revertRequest(){
-    this.doRefund(globalCfg.api.STATE_REVERTED);  
+    const that       = this;
+    confirm({
+      title: 'You will REVERT the request',
+      content: 'The payment request will be rejected and reverted, and the amount will be refunded to the customer account.',
+      onOk() {
+        that.doRefund(globalCfg.api.STATE_REVERTED);  
+      },
+      onCancel() {
+        that.setState({pushingTx:false})
+        console.log('Cancel');
+      },
+    });  
+    
   }
 
   doRefund(new_state){
@@ -316,7 +356,8 @@ class processExternal extends Component {
           .then((data2) => {
 
               // that.clearAttachments();
-              that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{blockchain_id : send_tx.data.transaction_id, request_id:request.id} });
+              that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request.id} });
+              that.reload();
               that.openNotificationWithIcon("success", 'Payment refunded successfully');
 
             }, (ex2) => {
@@ -336,18 +377,14 @@ class processExternal extends Component {
       
   }
   attachNota(){
-    let that = this;  
-    that.setState({pushingTx:true});
-    
-    // Check Comprobante
-    
     const my_NOTA_FISCAL   = this.getAttach(globalCfg.api.NOTA_FISCAL);
     if(!my_NOTA_FISCAL)
     {
       this.openNotificationWithIcon("error", 'Nota Fiscal attachment is required', 'Please attach a Nota Fiscal PDF file.');
       return;
     }   
-
+    let that = this;  
+    that.setState({pushingTx:true});
     const {request} = that.state;
     
     api.bank.updateProviderPaymentFiles(this.props.actualAccountName ,request.id, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
@@ -357,6 +394,8 @@ class processExternal extends Component {
         that.reload();
       },
       (ex) => {
+        that.setState({pushingTx:false})
+        that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
         console.log(' ** ERROR @ updateRequest', JSON.stringify(ex))
       }  
     );
@@ -422,12 +461,7 @@ class processExternal extends Component {
   }
   //
   render() {
-    let content = this.renderContent();
-    const {request}                 = this.state;
-    const buttons                   = this.getActions();
-    const notaUploaderProps         = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
-    const boletoUploaderProps       = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
-    const comprobanteUploaderProps  = this.getPropsForUploader(globalCfg.api.COMPROBANTE);
+    let content                     = this.renderContent();
     const routes                    = routesService.breadcrumbForFile(this.props.isAdmin?'external-transfers':'providers');
     const title                     = this.props.isAdmin?'Process External Transfer':'Request details';
     const subTitle                  = this.props.isAdmin?'Process customer request':'';
@@ -439,18 +473,8 @@ class processExternal extends Component {
           subTitle={subTitle}>
         </PageHeader>
 
-        <TransactionCard request={request} 
-                admin={this.props.isAdmin}
-                uploder={{
-                  [globalCfg.api.NOTA_FISCAL] :notaUploaderProps
-                  ,[globalCfg.api.BOLETO_PAGAMENTO] :boletoUploaderProps
-                  ,[globalCfg.api.COMPROBANTE] :comprobanteUploaderProps }}
-        />
-        <div className="c-detail bottom">
-          <Card style={ { marginBottom: 24, textAlign:'center' } }>
-          { buttons?buttons.map(button=>button):(<></>)}
-          </Card>
-        </div>
+        {content}
+
       </>
     );
   }
