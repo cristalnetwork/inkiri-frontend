@@ -34,6 +34,14 @@ const DEFAULT_RESULT = {
   result_object:      undefined,
   error:              {},
 }
+
+const DEFAULT_ATTACHS = {
+  attachments:       {
+        [globalCfg.api.NOTA_FISCAL]       : undefined,
+        [globalCfg.api.BOLETO_PAGAMENTO]  : undefined,
+        [globalCfg.api.COMPROBANTE]       : undefined,
+      }
+}
 class processExternal extends Component {
   constructor(props) {
     super(props);
@@ -49,11 +57,7 @@ class processExternal extends Component {
        
       request:       request,
       
-      attachments:       {
-        [globalCfg.api.NOTA_FISCAL]       : undefined,
-        [globalCfg.api.BOLETO_PAGAMENTO]  : undefined,
-        [globalCfg.api.COMPROBANTE]       : undefined,
-      },
+      ...DEFAULT_ATTACHS,
     };
 
     // this.handleSearch = this.handleSearch.bind(this); 
@@ -74,8 +78,18 @@ class processExternal extends Component {
     const { match, location, history } = this.props;
     // console.log( 'processRequest::router-params >>' , JSON.stringify(this.props.location.state.request) );
     if(this.props.location && this.props.location.state)
-      this.setState({request : this.props.location.state.request})
+    {
+      console.log(' PAGE :: UDATEING EVERYTHING !!! (attachments are ZERO)')
+      this.setState({request : this.props.location.state.request, ...DEFAULT_ATTACHS})
+    }
   }
+
+  // componentDidUpdate(prevProps, prevState) {
+  //   // Typical usage (don't forget to compare props):
+  //   if (this.props.request && prevProps.request && (this.props.request.id !== prevProps.request.id) ) {
+  //   this.setState({...DEFAULT_ATTACHS})   
+  //   }
+  // }
   
   reload(){
     const that      = this;
@@ -83,11 +97,11 @@ class processExternal extends Component {
     this.setState({pushingTx:true});
     api.bank.getRequestById(request.id)
         .then( (data) => {
-            that.setState({pushingTx:false, request:data})
+            that.setState({pushingTx:false, request:data, ...DEFAULT_ATTACHS})
           },
           (ex) => {
             that.openNotificationWithIcon("error", 'An error occurred reloading request', JSON.stringify(ex));
-            that.setState({pushingTx:false});
+            that.setState({pushingTx:false, ...DEFAULT_ATTACHS});
             console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
           }  
         );
@@ -126,8 +140,10 @@ class processExternal extends Component {
           return false;
         }
 
+        let attachments = this.state.attachments || {};
+        attachments[name]= [file];
         this.setState(state => ({
-          attachments : {[name]: [file]}
+          ...attachments
         }));
         return false;
       },
@@ -150,7 +166,7 @@ class processExternal extends Component {
   }
 
   resetPage(){
-    this.setState({...DEFAULT_RESULT});
+    this.setState({...DEFAULT_RESULT, ...DEFAULT_ATTACHS});
     // this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
   }
 
@@ -158,8 +174,6 @@ class processExternal extends Component {
     this.setState({...DEFAULT_RESULT});
   }
 
-    
-  
   userResultEvent = (evt_type) => {
     console.log(' ** userResultEvent -> EVT: ', evt_type)
     if(evt_type==DASHBOARD)
@@ -200,16 +214,17 @@ class processExternal extends Component {
     const notaUploaderProps         = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
     const boletoUploaderProps       = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
     const comprobanteUploaderProps  = this.getPropsForUploader(globalCfg.api.COMPROBANTE);
-    
+    const uploader                  = {
+                  [globalCfg.api.NOTA_FISCAL] :notaUploaderProps
+                  ,[globalCfg.api.BOLETO_PAGAMENTO] :boletoUploaderProps
+                  ,[globalCfg.api.COMPROBANTE] :comprobanteUploaderProps };
+                   
     return (
       <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
         <TransactionCard 
                 request={request} 
                 admin={this.props.isAdmin}
-                uploder={{
-                  [globalCfg.api.NOTA_FISCAL] :notaUploaderProps
-                  ,[globalCfg.api.BOLETO_PAGAMENTO] :boletoUploaderProps
-                  ,[globalCfg.api.COMPROBANTE] :comprobanteUploaderProps }}
+                uploder={uploader}
         />
         <div className="c-detail bottom">
           <Card style={ { marginBottom: 24, textAlign:'center' } }>
@@ -265,6 +280,14 @@ class processExternal extends Component {
       this.openNotificationWithIcon("error", 'Comprobante attachments is required', 'Please attach a Comprobante pdf file.');
       return;
     }  
+    let attachs = {[globalCfg.api.COMPROBANTE]:my_COMPROBANTE};
+
+    const my_NOTA          = this.getAttach(globalCfg.api.NOTA_FISCAL);
+    if(my_NOTA)
+      attachs[globalCfg.api.NOTA_FISCAL]=my_NOTA;
+    // console.log(attachs)
+    
+    
 
     that.setState({pushingTx:true});
     
@@ -278,7 +301,7 @@ class processExternal extends Component {
         console.log(' ABOUT TO CALL API.BANK ')
         console.log(' >> Comprobante:', my_COMPROBANTE);
         console.log(' >> Request:', request.id)
-        api.bank.acceptProviderPayment(that.props.actualAccountName, request.id, {[globalCfg.api.COMPROBANTE]:my_COMPROBANTE})
+        api.bank.acceptProviderPayment(that.props.actualAccountName, request.id, attachs)
         .then( (data) => {
             that.setState({pushingTx:false})
             that.openNotificationWithIcon("success", 'Request accepted successfully');
@@ -377,17 +400,19 @@ class processExternal extends Component {
       
   }
   attachNota(){
+    
     const my_NOTA_FISCAL   = this.getAttach(globalCfg.api.NOTA_FISCAL);
     if(!my_NOTA_FISCAL)
     {
       this.openNotificationWithIcon("error", 'Nota Fiscal attachment is required', 'Please attach a Nota Fiscal PDF file.');
       return;
     }   
-    let that = this;  
+    
+    const that = this;  
     that.setState({pushingTx:true});
     const {request} = that.state;
     
-    api.bank.updateProviderPaymentFiles(this.props.actualAccountName ,request.id, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
+    api.bank.updateProviderPaymentFiles(this.props.actualAccountName ,request.id, request.state, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
     .then( (data) => {
         that.setState({pushingTx:false})
         that.openNotificationWithIcon("success", 'Nota uploaded successfully');
@@ -416,7 +441,7 @@ class processExternal extends Component {
     //
     const revertButton = (<Button loading={pushingTx} size="large" onClick={() => this.revertRequest()} key="revertButton" className="danger_color" style={{marginLeft:16}} type="link" >REVERT AND REFUND</Button>);
     //
-    const updateFiles  = (<Button loading={pushingTx} size="large" onClick={() => this.attachNota()} key="updateButton" type="primary" style={{marginLeft:16}} type="primary" >UPLOAD NOTA</Button>);
+    const attachNotaButton  = (<Button loading={pushingTx} size="large" onClick={() => this.attachNota()} key="updateButton" type="primary" style={{marginLeft:16}} type="primary" >UPLOAD NOTA</Button>);
     //
     const attachFiles  = (<Button loading={pushingTx} size="large" onClick={() => this.attachFiles()} key="attachButton" type="primary" style={{marginLeft:16}} type="primary" >ATTACH FILES</Button>);
     //
@@ -425,13 +450,22 @@ class processExternal extends Component {
 
     switch (request.state){
       case globalCfg.api.STATE_REQUESTED:
+        // if(this.props.isBusiness)
+        //   return [attachFiles, cancelButton];
+        // return [processButton, rejectButton];
         if(this.props.isBusiness)
-          return [attachFiles, cancelButton];
+        {
+          if(!request.attach_nota_fiscal_id)
+            return [attachNotaButton, cancelButton];
+          return [cancelButton];
+        }
+        if(!request.attach_nota_fiscal_id)
+          return [processButton, attachNotaButton, rejectButton];
         return [processButton, rejectButton];
       break;
       case globalCfg.api.STATE_PROCESSING:
         if(this.props.isBusiness)
-          return [];
+          return [attachNotaButton];
         return [acceptButton, revertButton];
       break;
       case globalCfg.api.STATE_REJECTED:
@@ -446,7 +480,7 @@ class processExternal extends Component {
       break;
       case globalCfg.api.STATE_ACCEPTED:
         if(!request.attach_nota_fiscal_id)
-          return [updateFiles];
+          return [attachNotaButton];
         return [];
       break;
       case globalCfg.api.STATE_ERROR:

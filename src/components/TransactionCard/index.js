@@ -36,7 +36,7 @@ class TransactionCard extends Component {
       request:         request,
       bank_account:    bank_account
     };
-
+    console.log(' CONTROL##1 :: ', props.uploader)
   }
 
   getBank = (request) => {
@@ -44,47 +44,24 @@ class TransactionCard extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) 
-    {
-      const {request} = this.props;
-      if(prevProps.request !== request) {
-        const bank_account  = this.getBank(request);
-        this.setState({request:         request,
-                      bank_account:    bank_account}
-        );
-      }
+  {
+    const {request, uploader} = this.props;
+    if(prevProps.request !== request) {
+      console.log(' CONTROL :: REQUEST IS DIFFERENT !!!')
+      const bank_account  = this.getBank(request);
+      this.setState({request:         request,
+                    bank_account:    bank_account}
+      );
     }
 
-  // handleChange = changedValue => {
-  //   // this.setState({});
-  //   this.triggerChange(changedValue);
-  // };
+    if(prevProps.uploader!==uploader)
+    {
+      console.log(' CONTROL :: UPLOADERS ARE DIFFERENT !!!')
+    }
 
-  // triggerChange = changedValue => {
-  //   // Should provide an event to pass value to Form.
-  //   const { onChange } = this.props;
-  //   if (onChange) {
-  //     onChange(
-  //       changedValue
-  //     );
-  //   }
-  // };
-
-  // handleClick = something => {
-  //   // this.setState({});
-  //   const event = 'The_Event';
-  //   this.triggerChange(something, event);
-  // };
-
-  // triggerEvent = (eventValue, event) => {
-  //   // Should provide an event to pass value to Form.
-  //   const { onEvent } = this.props;
-  //   if (onEvent) {
-  //     onEvent(
-  //       eventValue, event
-  //     );
-  //   }
-  // };
-
+    console.log(' CONTROL##2 :: ', uploader)
+  }
+  
   render() {
     const { request, bank_account }   = this.state;
     
@@ -92,6 +69,8 @@ class TransactionCard extends Component {
       return(<></>);
     //
     
+    console.log(' CONTROL##3 :: ', this.props.uploader)
+
     let alert = (null);
     if(globalCfg.api.isProcessing(request) && this.props.isAdmin)
       alert = ( <Alert

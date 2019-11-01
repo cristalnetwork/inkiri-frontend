@@ -405,8 +405,10 @@ class RequestPayment extends Component {
           return false;
         }
 
+        let attachments = this.state.attachments || {};
+        attachments[name]= [file];
         this.setState(state => ({
-          attachments : {[name]: [file]}
+          ...attachments
         }));
         return false;
       },

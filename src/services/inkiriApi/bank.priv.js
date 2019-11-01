@@ -517,15 +517,15 @@ export const updateProviderPayment      = (sender, request_id, state, tx_id) => 
 export const cancelProviderPayment      = (sender, request_id)               => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined);
 
 export const processProviderPayment     = (sender, request_id) => updateRequest(sender, request_id, globalCfg.api.STATE_PROCESSING, undefined);
-export const acceptProviderPayment      = (sender, request_id, attachments) => acceptExternal(sender, request_id, globalCfg.api.TYPE_PROVIDER, attachments);
-export const updateProviderPaymentFiles = (sender, request_id, attachments) => acceptExternal(sender, request_id, globalCfg.api.TYPE_PROVIDER, attachments);
+export const acceptProviderPayment      = (sender, request_id, attachments) => updateExternal(sender, request_id, globalCfg.api.TYPE_PROVIDER, globalCfg.api.STATE_ACCEPTED, attachments);
+export const updateProviderPaymentFiles = (sender, request_id, state, attachments) => updateExternal(sender, request_id, globalCfg.api.TYPE_PROVIDER, state, attachments);
 
-export const acceptExternal             = (sender, request_id, request_type, attachments) =>   new Promise((res,rej)=> {
+export const updateExternal             = (sender, request_id, request_type, state, attachments) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.endpoint + `/requests_files/${request_id}`;
   const method  = 'POST';
   let post_params = {
-    state:            globalCfg.api.STATE_ACCEPTED,
+    state:            state,
     requested_type:   request_type,
     sender:           sender
   };

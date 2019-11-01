@@ -156,8 +156,8 @@ const api = {
         [api.STATE_PROCESSING]   : 'green', 
         [api.STATE_ACCEPTED]     : 'green', 
         
-        [api.STATE_REFUNDED]     : '#2f54eb', //'geekblue',
-        [api.STATE_REVERTED]     : '#2f54eb', //'geekblue',
+        [api.STATE_REFUNDED]     : 'red', //'#2f54eb', //'geekblue',
+        [api.STATE_REVERTED]     : 'red', //'#2f54eb', //'geekblue',
 
         [api.STATE_REJECTED]     : 'red', 
         [api.STATE_ERROR]        : 'red', 

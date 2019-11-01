@@ -22,9 +22,18 @@ import TransactionCard from '@app/components/TransactionCard';
 
 import '../bankadmin/request.less';
 
+import TxResult from '@app/components/TxResult';
+import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
+
 const { Paragraph, Text } = Typography;
 const { confirm } = Modal;
 
+
+const DEFAULT_RESULT = {
+  result:             undefined,
+  result_object:      undefined,
+  error:              {},
+}
 
 class externalDetails extends Component {
   constructor(props) {
@@ -36,9 +45,8 @@ class externalDetails extends Component {
       amount:       0,
       memo:         '',
       pushingTx:    false,
-      result:       undefined,
-      result_object:undefined,
-      error:        {},
+      
+      ...DEFAULT_RESULT,
        
       request:       request,
       
@@ -54,6 +62,7 @@ class externalDetails extends Component {
     this.renderContent              = this.renderContent.bind(this); 
     this.resetPage                  = this.resetPage.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
+    this.userResultEvent            = this.userResultEvent.bind(this); 
   }
 
   static propTypes = {
@@ -126,8 +135,10 @@ class externalDetails extends Component {
           return false;
         }
 
+        let attachments = this.state.attachments || {};
+        attachments[name]= [file];
         this.setState(state => ({
-          attachments : {[name]: [file]}
+          ...attachments
         }));
         return false;
       },
@@ -136,17 +147,36 @@ class externalDetails extends Component {
   }
   
 
-  
   backToDashboard = async () => {
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/dashboard`
+      pathname: `/${this.props.actualRole}/extrato`
     })
   }
 
   backToReferrer = async () => {
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/external-transfers`
+      pathname: `/${this.props.actualRole}/providers-payments`
     })
+  }
+
+  resetPage(){
+    this.setState({...DEFAULT_RESULT});
+    // this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
+  }
+
+  resetResult(){
+    this.setState({...DEFAULT_RESULT});
+  }
+
+  userResultEvent = (evt_type) => {
+    console.log(' ** userResultEvent -> EVT: ', evt_type)
+    if(evt_type==DASHBOARD)
+      this.backToDashboard();
+    if(evt_type==RESET_RESULT)
+      this.resetResult();
+    if(evt_type==RESET_PAGE)
+      this.resetPage();
+    
   }
 
   resetPage(){
@@ -155,65 +185,48 @@ class externalDetails extends Component {
 
   renderContent() {
   
-    const { getFieldDecorator } = this.props.form;
-    
-    if(this.state.result=='ok')
+    if(this.state.result)
     {
-      const tx_id = api.dfuse.getTxId(this.state.result_object?this.state.result_object.data:{});
-      const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
-      // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
+      const result_type = this.state.result;
+      const title       = null;
+      const message     = null;
+      const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
+      const error       = this.state.error
       
-      return (<Result
-        status="success"
-        title="Transaction completed successfully!"
-        subTitle={`Transaction id ${tx_id}. Cloud server takes up to 30 seconds, please wait.`}
-        extra={[
-          <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
-            Go to dashboard
-          </Button>,
-          <Button  key="go-to-pda" onClick={()=>this.backToReferrer()}>
-            Back to External Transfers
-          </Button>,
-          <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>,
-          
-        ]}
-      />)
+      const result = (<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />);
+      return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+                <div className="ly-main-content content-spacing cards">
+                  <section className="mp-box mp-box__shadow money-transfer__box">
+                    {result}
+                  </section>
+                </div>      
+              </div>);
     }
-    //`
-    if(this.state.result=='error')
-    {
+    //
 
-      // <Button key="re-send">Try sending again</Button>,
-      return (<Result
-                status="error"
-                title="Transaction Failed"
-                subTitle="Please check and modify the following information before resubmitting."
-                extra={[
-                  <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>Go to dashboard</Button>,
-                  <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetPage()} />
-                ]}
-              >
-                <div className="desc">
-                  <Paragraph>
-                    <Text
-                      strong
-                      style={{ fontSize: 16, }}
-                    >
-                      The content you submitted has the following error:
-                    </Text>
-                  </Paragraph>
-                  <Paragraph>
-                    <Icon style={{ color: 'red' }} type="close-circle" /> {this.state.error}
-                  </Paragraph>
-                </div>
-              </Result>)
-    }
-    
-    // ** hack for sublime renderer ** //
-    //<Button type="primary" htmlType="submit" className="login-form-button" disabled={cant_process}>Accept Deposit & Issue</Button>
-    return (
-        <></>
-    );
+    const {request, pushingTx}      = this.state;
+    const buttons                   = this.getActions();
+    const notaUploaderProps         = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
+    const boletoUploaderProps       = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
+    const comprobanteUploaderProps  = this.getPropsForUploader(globalCfg.api.COMPROBANTE);
+    const uploader                  = {
+                  [globalCfg.api.NOTA_FISCAL] :notaUploaderProps
+                  ,[globalCfg.api.BOLETO_PAGAMENTO] :boletoUploaderProps
+                  ,[globalCfg.api.COMPROBANTE] :comprobanteUploaderProps };
+                  
+    return(
+      <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+        <TransactionCard 
+              request={request} 
+              admin={this.props.isAdmin}
+              uploder={uploader}
+        />
+        <div className="c-detail bottom">
+          <Card style={ { marginBottom: 24, textAlign:'center' } }  >
+          { buttons?buttons.map(button=>button):(<></>)}
+          </Card>
+        </div>
+      </Spin>);
   }
   //
   
@@ -230,10 +243,6 @@ class externalDetails extends Component {
   }
 
   attachNota(){
-    let that = this;  
-    that.setState({pushingTx:true});
-    
-    // Check Comprobante
     
     const my_NOTA_FISCAL   = this.getAttach(globalCfg.api.NOTA_FISCAL);
     if(!my_NOTA_FISCAL)
@@ -241,17 +250,19 @@ class externalDetails extends Component {
       this.openNotificationWithIcon("error", 'Nota Fiscal attachment is required', 'Please attach a Nota Fiscal PDF file.');
       return;
     }   
-
+    const that      = this;  
     const {request} = that.state;
     
-    api.bank.updateProviderPaymentFiles(this.props.actualAccountName, request.id, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
+    that.setState({pushingTx:true});
+
+    api.bank.updateProviderPaymentFiles(this.props.actualAccountName, request.id, request.state, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
     .then( (data) => {
         that.setState({pushingTx:false})
         that.openNotificationWithIcon("success", 'Nota uploaded successfully');
         that.reload();
       },
       (ex) => {
-        console.log(' ** ERROR @ updateRequest', JSON.stringify(ex))
+        console.log(' ** ERROR @ attachNota', JSON.stringify(ex))
         that.setState({pushingTx:false})
         that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
       }  
@@ -274,7 +285,7 @@ class externalDetails extends Component {
             that.reload();
           },
           (ex) => {
-            console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
+            console.log(' ** ERROR @ cancelRequest', JSON.stringify(ex))
             that.setState({pushingTx:false})
             that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
           }  
@@ -312,7 +323,7 @@ class externalDetails extends Component {
     //
     const revertButton = (<Button loading={pushingTx} size="large" onClick={() => this.revertRequest()} key="revertButton" className="danger_color" style={{marginLeft:16}} type="link" >REVERT AND REFUND</Button>);
     //
-    const updateFiles  = (<Button loading={pushingTx} size="large" onClick={() => this.attachNota()} key="updateButton" type="primary" style={{marginLeft:16}} type="primary" >UPLOAD NOTA</Button>);
+    const attachNotaButton  = (<Button loading={pushingTx} size="large" onClick={() => this.attachNota()} key="updateButton" type="primary" style={{marginLeft:16}} type="primary" >UPLOAD NOTA</Button>);
     //
     const attachFiles  = (<Button loading={pushingTx} size="large" onClick={() => this.attachFiles()} key="attachButton" type="primary" style={{marginLeft:16}} type="primary" >ATTACH FILES</Button>);
     //
@@ -321,12 +332,22 @@ class externalDetails extends Component {
     switch (request.state){
       case globalCfg.api.STATE_REQUESTED:
         if(this.props.isBusiness)
-          return [attachFiles, cancelButton];
+        {
+          if(!request.attach_nota_fiscal_id)
+            return [attachNotaButton, cancelButton];
+          return [cancelButton];
+        }
+
+        if(!request.attach_nota_fiscal_id)
+          return [processButton, attachNotaButton, rejectButton];
         return [processButton, rejectButton];
       break;
       case globalCfg.api.STATE_PROCESSING:
         if(this.props.isBusiness)
-          return [];
+          if(!request.attach_nota_fiscal_id)
+            return [attachNotaButton];
+          else
+            return [];
         return [acceptButton, revertButton];
       break;
       case globalCfg.api.STATE_REJECTED:
@@ -341,7 +362,7 @@ class externalDetails extends Component {
       break;
       case globalCfg.api.STATE_ACCEPTED:
         if(!request.attach_nota_fiscal_id)
-          return [updateFiles];
+          return [attachNotaButton];
         return [];
       break;
       case globalCfg.api.STATE_ERROR:
@@ -357,18 +378,10 @@ class externalDetails extends Component {
   //
   render() {
 
-    let content = this.renderContent();
-    const {request, pushingTx}      = this.state;
-    
-    // console.log('render content', JSON.stringify(request))
-
-    const buttons                   = this.getActions();
-    const notaUploaderProps         = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
-    const boletoUploaderProps       = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
-    const comprobanteUploaderProps  = this.getPropsForUploader(globalCfg.api.COMPROBANTE);
-    const routes                    = routesService.breadcrumbForFile(this.props.isAdmin?'external-transfers':'providers');
-    const title                     = this.props.isAdmin?'Process External Transfer':'Request details';
-    const subTitle                  = this.props.isAdmin?'Process customer request':'';
+    let content         = this.renderContent();
+    const routes        = routesService.breadcrumbForFile(this.props.isAdmin?'external-transfers':'providers');
+    const title         = this.props.isAdmin?'Process External Transfer':'Request details';
+    const subTitle      = this.props.isAdmin?'Process customer request':'';
     return (
       <>
         <PageHeader
@@ -376,21 +389,9 @@ class externalDetails extends Component {
           title={title}
           subTitle={subTitle}>
         </PageHeader>
-
-        <TransactionCard 
-                loading={pushingTx}
-                request={request} 
-                admin={this.props.isAdmin}
-                uploder={{
-                  [globalCfg.api.NOTA_FISCAL] :notaUploaderProps
-                  ,[globalCfg.api.BOLETO_PAGAMENTO] :boletoUploaderProps
-                  ,[globalCfg.api.COMPROBANTE] :comprobanteUploaderProps }}
-        />
-        <div className="c-detail bottom">
-          <Card style={ { marginBottom: 24, textAlign:'center' } } loading={pushingTx} >
-          { buttons?buttons.map(button=>button):(<></>)}
-          </Card>
-        </div>
+        
+        {content}
+        
       </>
     );
   }
