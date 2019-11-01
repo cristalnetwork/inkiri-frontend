@@ -20,8 +20,7 @@ import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typ
 import ProviderSearch from '@app/components/ProviderSearch';
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
-import './requestPayment.css'; 
-
+// import './requestPayment.css'; 
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -458,7 +457,7 @@ class RequestPayment extends Component {
               </div>
 
                 
-                <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+              <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
                       rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
                       initialValue: input_amount.value,
@@ -481,48 +480,48 @@ class RequestPayment extends Component {
                         />
                       </>
                     )}
-                </Form.Item>
+              </Form.Item>
                 
-                <div className="money-transfer__row file_selector">
-                  <Form.Item>
-                      <Upload.Dragger {...notaUploaderProps} multiple={false}>
-                        <p className="ant-upload-drag-icon">
-                          <FontAwesomeIcon icon="receipt" size="3x" color="#3db389"/>
-                        </p>
-                        <p className="ant-upload-text">Nota Fiscal</p>
-                      </Upload.Dragger>,
-                  </Form.Item>
-                </div>
-
-                {this.renderPaymentOption(globalCfg.api.PAYMENT_VEHICLE)}
-                {this.renderPaymentOption(globalCfg.api.PAYMENT_CATEGORY)}
-                {this.renderPaymentOption(globalCfg.api.PAYMENT_TYPE)}
-                
-                {this.renderPaymentOption(globalCfg.api.PAYMENT_MODE)}
-                
-                <div className="money-transfer__row file_selector">
-                  <Form.Item>
-                    <Upload.Dragger multiple={false} disabled={this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO} {...boletoUploaderProps}>
+              <div className="money-transfer__row file_selector">
+                <Form.Item>
+                    <Upload.Dragger {...notaUploaderProps} multiple={false}>
                       <p className="ant-upload-drag-icon">
-                        <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={(this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO)?"gray":"#3db389"}/>
+                        <FontAwesomeIcon icon="receipt" size="3x" color="#3db389"/>
                       </p>
-                      <p className="ant-upload-text">Boleto Pagamento</p>
+                      <p className="ant-upload-text">Nota Fiscal</p>
                     </Upload.Dragger>,
-                  </Form.Item>
-                </div>
+                </Form.Item>
+              </div>
 
-                <div className="money-transfer__row row-expandable row-complementary-bottom"  id="divNote">
-                  <Form.Item label="Memo">
-                    {getFieldDecorator('description', {})(
-                    <TextArea 
-                      className="money-transfer__input" 
-                      placeholder="Description, Memo or Note" autosize={{ minRows: 3, maxRows: 6 }} 
-                      style={{overflow: 'hidden', overflowWrap: 'break-word', height: 31}}
-                      />
-                    )}
-                  </Form.Item>
-                    
-                </div>
+              {this.renderPaymentOption(globalCfg.api.PAYMENT_VEHICLE)}
+              {this.renderPaymentOption(globalCfg.api.PAYMENT_CATEGORY)}
+              {this.renderPaymentOption(globalCfg.api.PAYMENT_TYPE)}
+              
+              {this.renderPaymentOption(globalCfg.api.PAYMENT_MODE)}
+              
+              <div className="money-transfer__row file_selector">
+                <Form.Item>
+                  <Upload.Dragger multiple={false} disabled={this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO} {...boletoUploaderProps}>
+                    <p className="ant-upload-drag-icon">
+                      <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={(this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO)?"gray":"#3db389"}/>
+                    </p>
+                    <p className="ant-upload-text">Boleto Pagamento</p>
+                  </Upload.Dragger>,
+                </Form.Item>
+              </div>
+
+              <div className="money-transfer__row row-expandable row-complementary-bottom"  id="divNote">
+                <Form.Item label="Memo">
+                  {getFieldDecorator('description', {})(
+                  <TextArea 
+                    className="money-transfer__input" 
+                    placeholder="Description, Memo or Note" autosize={{ minRows: 3, maxRows: 6 }} 
+                    style={{overflow: 'hidden', overflowWrap: 'break-word', height: 31}}
+                    />
+                  )}
+                </Form.Item>
+                  
+              </div>
             </div>
             <div className="mp-box__actions mp-box__shore">
                 <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={this.state.uploading} title="" >REQUEST PAYMENT</Button>

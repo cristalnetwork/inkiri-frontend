@@ -13,41 +13,57 @@ import * as globalCfg from '@app/configs/global';
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
-import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
+import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Modal} from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
 import * as routesService from '@app/services/routes';
 
-import './deposit.css'; 
+// import './deposit.css'; 
 
-const { Paragraph, Text } = Typography;
+import TxResult from '@app/components/TxResult';
+import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const routes = routesService.breadcrumbForFile('deposit');
 
+const DEFAULT_RESULT = {
+  result:             undefined,
+  result_object:      undefined,
+  error:              {},
+}
+
+const DEFAULT_STATE = {
+  envelope_id     : '--loading--',
+  input_amount    : {  
+                      style   : {maxWidth: 370, fontSize: 100, width: 60}
+                       , value : undefined 
+                       , symbol_style : {fontSize: 60}
+                       , symbol: globalCfg.currency.symbol
+                     },
+
+}
 class DepositMoney extends Component {
   constructor(props) {
     super(props);
     this.state = {
       loading:      true,
-      value:       {amount:0, currency:''},
       pushingTx:    false,
-      envelope_id:  '--loading--',
-      result:       undefined,
-      result_object:undefined,
-      error:        {},
-      number_validateStatus : '',
-      number_help:  ''
-                    
+      
+      ...DEFAULT_STATE,
+      ...DEFAULT_RESULT,
+
     };
 
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.onChange                   = this.onChange.bind(this); 
     this.resetResult                = this.resetResult.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderConfirmRequest       = this.renderConfirmRequest.bind(this);
     this.getNextEnvelopeId          = this.getNextEnvelopeId.bind(this);
+    this.userResultEvent            = this.userResultEvent.bind(this); 
+    this.symbolChange               = this.symbolChange.bind(this);
+    this.onInputAmount              = this.onInputAmount.bind(this);
   }
 
   static propTypes = {
@@ -76,13 +92,11 @@ class DepositMoney extends Component {
       },
     )
   }
-  onChange(e) {
-    // e.preventDefault();
-    console.log(' amountInput --> changed', JSON.stringify(e));
-    this.setState({value : e})
-
+  symbolChange = (e) =>{
+    let input_amount = this.state.input_amount;
+    input_amount.symbol = e;
+    this.setState({input_amount:input_amount})
   }
-
 
   openNotificationWithIcon(type, title, message) {
     notification[type]({
@@ -97,168 +111,230 @@ class DepositMoney extends Component {
     })
   }
 
-   handleSubmit = e => {
+  resetResult(){
+    this.setState({...DEFAULT_RESULT});
+    
+  }
+
+  resetPage(){
+    this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
+    this.getNextEnvelopeId();
+  }
+
+  userResultEvent = (evt_type) => {
+    console.log(' ** userResultEvent -> EVT: ', evt_type)
+    if(evt_type==DASHBOARD)
+      this.backToDashboard();
+    if(evt_type==RESET_RESULT)
+      this.resetResult();
+    if(evt_type==RESET_PAGE)
+      this.resetPage();
+    
+  }
+
+
+  onInputAmount(event){
+    event.preventDefault();
+    const the_value = event.target.value;
+    const _input_amount = this.state.input_amount;
+    this.setState({input_amount: {..._input_amount, value: the_value}}, 
+      () => {
+        if(the_value && the_value.toString().length){
+          const value = the_value.toString();
+          var digitCount = value.length > 0 ? value.replace(/\./g,"").replace(/,/g,"").length : 1
+          var symbolCount = value.length > 0 ? value.length - digitCount : 0;
+          const isMobile = false;
+          var size = isMobile ? 48 : 100
+
+          if(digitCount > 7){
+            size = isMobile ? 40 : 48
+          } else if(digitCount > 4){
+            size = isMobile ? 48 : 70
+          }
+
+          const {input_amount} = this.state;
+          this.setState({
+                  input_amount : {
+                    ...input_amount
+                    , style :         {fontSize: size, width:(digitCount * (size*0.6))+(symbolCount * (size*0.2)) }
+                    , symbol_style: {fontSize:  (size*0.6)}
+                  }
+                });
+        }
+      });
+  }
+
+  inputAmountToString(){
+    const {input_amount} = this.state;
+    return input_amount.symbol + parseFloat(input_amount.value||0).toFixed(2);
+  }
+  handleSubmit = e => {
     e.preventDefault();
+    const that = this;
     this.props.form.validateFields((err, values) => {
-      if (!err) {
-        console.log('Received values of form: ', values);
-        this.setState({result:'should-confirm'});
+      // if (!err) {
+      //   console.log('Received values of form: ', values);
+      //   this.setState({result:'should-confirm'});
+      // }
+      if(err){
+        that.openNotificationWithIcon("error", 'Form error ', 'Please verify on screen errors.');
+        that.setState({pushingTx:false});
+        return;
       }
+
+      const {input_amount} = this.state;
+      const sender         = that.props.actualAccountName;
+      Modal.confirm({
+        title: 'Confirm deposit request',
+        content: 'Please confirm deposit for '+this.inputAmountToString(),
+        onOk() {
+          const {input_amount} = that.state;
+
+          api.bank.createDeposit(sender, input_amount.value, input_amount.symbol)
+            .then((res)=>{
+              console.log(' >> doDeposit >> ', JSON.stringify(res));
+              that.setState({pushingTx:false, result:'ok'})
+              that.openNotificationWithIcon("success", 'Deposit requested successfully');
+
+            }, (err)=>{
+              that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
+              that.setState({result:'error', error:err});
+            })
+          
+        },
+        onCancel() {
+          console.log('Cancel');
+          that.setState({pushingTx:false})
+        },
+      });
     });
   };
 
   checkPrice = (rule, value, callback) => {
-    if (value.amount > 0) {
+    if (value > 0) {
       callback();
       return;
     }
     callback('Amount must greater than zero!');
   };
 
-  resetResult(){
-    this.setState({result: undefined, result_object: undefined, error: {}});
-    this.getNextEnvelopeId();
-  }
-
   doDeposit(){
-    // guarda
-    api.bank.createDeposit(this.props.actualAccountName, this.state.value.amount, this.state.value.currency)
-    .then((res)=>{
-      console.log(' >> doDeposit >> ', JSON.stringify(res));
-      this.setState({result:'ok'});
-    }, (err)=>{
-      this.setState({result:'error', error:err});
-    })
-    
-
+    // // guarda
+    // api.bank.createDeposit(this.props.actualAccountName, this.state.value.amount, this.state.value.currency)
+    // .then((res)=>{
+    //   console.log(' >> doDeposit >> ', JSON.stringify(res));
+    //   this.setState({result:'ok'});
+    // }, (err)=>{
+    //   this.setState({result:'error', error:err});
+    // })
   }
 
   renderContent() {
   
-    const { getFieldDecorator } = this.props.form;
-    
-    let result_or_confirm = null;
     if(this.state.result=='should-confirm'){
-      result_or_confirm = this.renderConfirmRequest();
-    }
-
-    if(this.state.result=='ok')
-    {
-      const tx_id = api.dfuse.getTxId(this.state.result_object?this.state.result_object.data:{});
-      const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
-      // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
-      
-      result_or_confirm = (<Result
-        status="success"
-        title="Deposit Requested Succesfully!"
-        subTitle="Please wait until deposit is validated and cedited to your account."
-        extra={[
-          <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
-            Go to dashboard
-          </Button>,
-          <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetResult()} />
-        ]}
-      />)
-    }
-
-    if(this.state.result=='error')
-    {
-      result_or_confirm = (<Result
-                status="error"
-                title="Transaction Failed"
-                subTitle="Please check and modify the following information before resubmitting."
-                extra={[
-                  <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
-                    Go to dashboard
-                  </Button>,
-                  <Button key="re-send">Try deposit again</Button>,
-                  <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetResult()} />
-                ]}
-              >
-                <div className="desc">
-                  <Paragraph>
-                    <Text
-                      strong
-                      style={{ fontSize: 16, }}
-                    >
-                      The content you submitted has the following error:
-                    </Text>
-                  </Paragraph>
-                  <Paragraph>
-                    <Icon style={{ color: 'red' }} type="close-circle" /> {JSON.stringify(this.state.error)}
-                  </Paragraph>
-                </div>
-              </Result>)
-    }
-    //
-    
-    if(result_or_confirm)
+      const _confirm = this.renderConfirmRequest();
       return(
         <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24  }}>
-          {result_or_confirm}
+          {_confirm}
         </div>);
+    }
+    //
+    if(this.state.result)
+    {
+      const result_type = this.state.result;
+      const title       = null;
+      const message     = null;
+      const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
+      const error       = this.state.error
+      
+      return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
+    }
 
-    // ** hack for sublime renderer ** //
-    const envelope = this.renderEnvelopeId();
-    const {pushingTx, loading} = this.state;
-    const loading_text = pushingTx?'Pushing transaction...':(loading?'Loading...':'');
+    const { getFieldDecorator }               = this.props.form;
+    const { input_amount, pushingTx, loading, envelope_id} = this.state;
+    const my_currencies                       = [globalCfg.currency.symbol, globalCfg.currency.fiat.symbol];
+    /*
+      title="Type this ID onto the envelope" 
+      value={this.state.envelope_id} formatter={(value)=>{return value.toString()}}  />
+    */
+    const loading_text                        = pushingTx?'Pushing transaction...':(loading?'Loading...':'');
     return (
-        <>
-          {envelope}
-          
-          <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24  }}>
-            <div className="dashboard_page_content">
-              <Spin spinning={pushingTx||loading} delay={500} tip={loading_text}>
-                <Form onSubmit={this.handleSubmit}>
-                  
-                  <Form.Item>
-                    {getFieldDecorator('amount', {
-                      initialValue: { amount: 0, currency: globalCfg.currency.symbol },
-                      rules: [{ validator: this.checkPrice }],
-                    })(<AmountInput size="large" onChange={this.onChange} />)}
-                  </Form.Item>
+        <Spin spinning={pushingTx||loading} delay={500} tip={loading_text}>
+          <Form onSubmit={this.handleSubmit}>
+            <div className="money-transfer">    
+              
+              <div className="money-transfer__row row-complementary money-transfer__select row-complementary-bottom" >
+                  <div className="badge badge-extra-small badge-circle addresse-avatar">
+                      <span className="picture">
+                        <FontAwesomeIcon icon="envelope" size="lg" color="gray"/>
+                      </span>
+                  </div>
+                  <div className="money-transfer__input money-transfer__select">
+                    Type this ID onto the envelope:&nbsp;
+                    <strong style={{fontWeight:600, fontSize:24}}>{envelope_id}</strong>
+                  </div>
+              </div>
+              
+              <div className="money-transfer__row row-complementary money-transfer__select" >
+                  <div className="badge badge-extra-small badge-circle addresse-avatar">
+                      <span className="picture">
+                        <FontAwesomeIcon icon="dollar-sign" size="lg" color="gray"/>
+                      </span>
+                  </div>
+                  <div className="money-transfer__input money-transfer__select">
+                    <Form.Item>
+                        {getFieldDecorator( 'input_amount.symbol', {
+                          rules: [{ required: true, message: 'Please select currency'}]
+                          , initialValue: input_amount.symbol
+                          , onChange: this.symbolChange
+                        })(
+                          <Select placeholder={'Choose a currency'} optionLabelProp="label">
+                          {my_currencies.map( opt => <Select.Option key={opt} value={opt} label={opt}>{ opt } </Select.Option> )}
+                          </Select>
+                        )}
+                    </Form.Item>
+                  </div>
+              </div>
 
-                  <Form.Item>
-                    <Button type="primary" htmlType="submit" className="login-form-button">
-                      Deposit
-                    </Button>
-                    
-                  </Form.Item>
-                </Form>
-              </Spin>
-            </div>    
-          </div>
-        </>
+              <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+                    {getFieldDecorator('input_amount.value', {
+                      rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
+                      initialValue: input_amount.value,
+
+                    })( 
+                      <>  
+                        <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
+                          {input_amount.symbol}
+                        </span>
+                        
+                        <Input 
+                          type="tel" 
+                          step="0.01" 
+                          className="money-transfer__input input-amount placeholder-big" 
+                          id="amount"
+                          placeholder="0" 
+                          value={input_amount.value} 
+                          onChange={this.onInputAmount}  
+                          style={input_amount.style}  
+                        />
+                      </>
+                    )}
+              </Form.Item>
+              <div><br/><br/></div>
+            </div>
+
+            <div className="mp-box__actions mp-box__shore">
+              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={pushingTx||loading} >REQUEST DEPOSIT</Button>
+            </div>
+
+          </Form>  
+          
+        </Spin>
     );
   }
   
   // ** hack for sublime renderer ** //
 
-  renderEnvelopeId ()
-  {
-    if(this.state.result)
-    {  
-      return (<></>);
-    }
-    //
-    return(
-      <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24  }}>
-        <div className="dashboard_page_content">
-          <Row>
-            <Col span={24}>
-              <Card>
-              <Statistic 
-                title="Type this ID onto the envelope" 
-                value={this.state.envelope_id} formatter={(value)=>{return value.toString()}}  />
-                </Card>
-            </Col>
-          </Row>
-        </div>
-      </div>
-    );
-  
-  }
-  //
   render() {
     let content = this.renderContent();
     
@@ -272,14 +348,17 @@ class DepositMoney extends Component {
         >
           
         </PageHeader>
-
-        
-          {content}
-        
+          <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+            <div className="ly-main-content content-spacing cards">
+              <section className="mp-box mp-box__shadow money-transfer__box">
+                {content}
+              </section>
+            </div>      
+          </div>
       </>
     );
   }
-
+  //
   renderConfirmRequest(){
     const {amount, currency}      = this.state.value;
     const env                     = this.state.envelope_id;

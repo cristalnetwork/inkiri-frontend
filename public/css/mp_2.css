@@ -190,12 +190,14 @@
   overflow:hidden;
   border-top: 1px solid #ddd;
   padding: 15px 15px 15px 5px;
-  height: 70px;
+  height: auto;
+  min-height: 70px;
   position: relative; }
 
 .ant-form-item-with-help.money-transfer__row {
     height: 90px!important;
   }
+
 
   .money-transfer__row.money-transfer__row-add {
     background-color: #F6F6F6;
