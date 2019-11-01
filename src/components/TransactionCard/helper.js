@@ -6,6 +6,9 @@ import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 import moment from 'moment';
 
+export const envelopeIdFromRequest = (request) =>{
+  return api.bank.envelopeIdFromRequest(request);
+}
 export const getRequestId = (request) => {
   return utils.leadingZeros(request.requestCounterId, 5);
 }
@@ -106,7 +109,7 @@ export const getFileLink = (attach_id, title, icon_color) => {
                       <div className="ui-row__col ui-row__col--heading">
                           <div className="ui-avatar ">
                               <div className="ui-avatar__content ui-avatar__content--icon">
-                                <FontAwesomeIcon icon="receipt" size="2x" color={icon_color}/>
+                                <FontAwesomeIcon icon="receipt" size="2x" className={icon_color}/>
                               </div>
                           </div>
                       </div>
@@ -134,7 +137,7 @@ export const getFileUploader = (title, props, icon_color) => {
                   <li id="addNote" className="c-notes__container-add-note">
                     <Upload.Dragger {...props}  multiple={false}>
                       <p className="ant-upload-drag-icon">
-                        <FontAwesomeIcon icon="receipt" size="3x" color={icon_color}/>
+                        <FontAwesomeIcon icon="receipt" size="3x" className={icon_color}/>
                       </p>
                       <p className="ant-upload-text">Click or drag <b>{title}</b> file to this area to upload</p>
                     </Upload.Dragger>    

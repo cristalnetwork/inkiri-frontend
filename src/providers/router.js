@@ -34,8 +34,8 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           {
               // history.push(`/${actualRole}/provider-profile`);
               // history.push(`/${actualRole}/providers`);
-              history.push(`/${actualRole}/external-transfers`);
-              // history.push(`/${actualRole}/pda`);
+              // history.push(`/${actualRole}/external-transfers`);
+              history.push(`/${actualRole}/pda`);
               // history.push(`/${actualRole}/accounts`);
               // history.push(`/${actualRole}/create-account`);
               
@@ -81,7 +81,7 @@ const CheckRole = connect((state)=>({
 const CheckLogin = () => <CheckRole role={undefined}><Login/></CheckRole>
 //
 
-const loadableComponent = (area, fileName, container, role)=> {
+const loadableComponent = (area, fileName, container, role, itemPath)=> {
     // console.log(' **** loadableComponent:', role, '@', area, '/', fileName)
     const ayncComponent = loadable(() => import(`../pages/${area}/${fileName}`), {
         fallback: <Spin style={{marginTop: '100px'}}/>,
@@ -89,7 +89,7 @@ const loadableComponent = (area, fileName, container, role)=> {
     let Container;
     if(container === 'dashboard') {
         // console.log('ABOUT TO RENDER SIDE MENU')
-        Container = ()=> <DashboardContainer footerText=""  TopMenu="" Children={ayncComponent} Menu={MenuByRole} area={area} fileName={fileName} />
+        Container = ()=> <DashboardContainer footerText=""  TopMenu="" Children={ayncComponent} Menu={MenuByRole} area={area} fileName={fileName} itemPath={itemPath} />
         
     } else {
         Container = ()=> <BlankContainer Children={ayncComponent} />
@@ -105,7 +105,7 @@ export const DashboardRouter = ({routes}) => {
   return (
     <Router history={history}>
         <Route path="/login" component={CheckLogin} />
-        {routes.map(item => <Route key={'/'+item.area+'/'+item.path} path={'/'+item.area+'/'+item.path} component={loadableComponent(item.area, item.fileName, item.container, item.role)} /> )}
+        {routes.map(item => <Route key={'/'+item.area+'/'+item.path} path={'/'+item.area+'/'+item.path} component={loadableComponent(item.area, item.fileName, item.container, item.role, item.path)} /> )}
         <Route path={'/'} component={()=><Redirect to={'/login'} />} />
     </Router>
   );

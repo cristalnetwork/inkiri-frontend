@@ -153,20 +153,10 @@ class Providers extends Component {
   }
 
   onButtonClick(provider){
-    console.log( ' ACCOUNTS::onButtonClick >> ', JSON.stringify(provider) )
-
     this.props.history.push({
       pathname: `/${this.props.actualRole}/provider-profile`
-      // , search: '?query=abc'
       , state: { provider: provider }
     })
-
-    // this.props.history.push({
-    //   pathname: '/template',
-    //   search: '?query=abc',
-    //   state: { detail: response.data }
-    // })
-    // READ >> this.props.location.state.detail
   }
 
 

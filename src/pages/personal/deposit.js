@@ -59,7 +59,6 @@ class DepositMoney extends Component {
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetResult                = this.resetResult.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
-    this.renderConfirmRequest       = this.renderConfirmRequest.bind(this);
     this.getNextEnvelopeId          = this.getNextEnvelopeId.bind(this);
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.symbolChange               = this.symbolChange.bind(this);
@@ -129,7 +128,6 @@ class DepositMoney extends Component {
       this.resetResult();
     if(evt_type==RESET_PAGE)
       this.resetPage();
-    
   }
 
 
@@ -172,10 +170,6 @@ class DepositMoney extends Component {
     e.preventDefault();
     const that = this;
     this.props.form.validateFields((err, values) => {
-      // if (!err) {
-      //   console.log('Received values of form: ', values);
-      //   this.setState({result:'should-confirm'});
-      // }
       if(err){
         that.openNotificationWithIcon("error", 'Form error ', 'Please verify on screen errors.');
         that.setState({pushingTx:false});
@@ -197,7 +191,7 @@ class DepositMoney extends Component {
               that.openNotificationWithIcon("success", 'Deposit requested successfully');
 
             }, (err)=>{
-              that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
+              that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
               that.setState({result:'error', error:err});
             })
           
@@ -231,14 +225,6 @@ class DepositMoney extends Component {
 
   renderContent() {
   
-    if(this.state.result=='should-confirm'){
-      const _confirm = this.renderConfirmRequest();
-      return(
-        <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24  }}>
-          {_confirm}
-        </div>);
-    }
-    //
     if(this.state.result)
     {
       const result_type = this.state.result;
@@ -253,30 +239,27 @@ class DepositMoney extends Component {
     const { getFieldDecorator }               = this.props.form;
     const { input_amount, pushingTx, loading, envelope_id} = this.state;
     const my_currencies                       = [globalCfg.currency.symbol, globalCfg.currency.fiat.symbol];
-    /*
-      title="Type this ID onto the envelope" 
-      value={this.state.envelope_id} formatter={(value)=>{return value.toString()}}  />
-    */
     const loading_text                        = pushingTx?'Pushing transaction...':(loading?'Loading...':'');
     return (
         <Spin spinning={pushingTx||loading} delay={500} tip={loading_text}>
           <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">    
               
-              <div className="money-transfer__row row-complementary money-transfer__select row-complementary-bottom" >
-                  <div className="badge badge-extra-small badge-circle addresse-avatar">
+              <div className="money-transfer__row row-complementary money-transfer__select row-complementary-bottom flex_row" >
+                  <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
                       <span className="picture">
                         <FontAwesomeIcon icon="envelope" size="lg" color="gray"/>
                       </span>
                   </div>
                   <div className="money-transfer__input money-transfer__select">
-                    Type this ID onto the envelope:&nbsp;
-                    <strong style={{fontWeight:600, fontSize:24}}>{envelope_id}</strong>
+                    <span>Type this ID onto the envelope:<br/>
+                      <strong style={{fontWeight:600, fontSize:24}}>{envelope_id}</strong>
+                    </span>
                   </div>
               </div>
               
-              <div className="money-transfer__row row-complementary money-transfer__select" >
-                  <div className="badge badge-extra-small badge-circle addresse-avatar">
+              <div className="money-transfer__row row-complementary money-transfer__select flex_row" >
+                  <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
                       <span className="picture">
                         <FontAwesomeIcon icon="dollar-sign" size="lg" color="gray"/>
                       </span>
@@ -288,7 +271,7 @@ class DepositMoney extends Component {
                           , initialValue: input_amount.symbol
                           , onChange: this.symbolChange
                         })(
-                          <Select placeholder={'Choose a currency'} optionLabelProp="label">
+                          <Select placeholder={'Choose a currency'} optionLabelProp="label" className="input-price__currency select-price__currency">
                           {my_currencies.map( opt => <Select.Option key={opt} value={opt} label={opt}>{ opt } </Select.Option> )}
                           </Select>
                         )}
@@ -358,25 +341,14 @@ class DepositMoney extends Component {
       </>
     );
   }
-  //
-  renderConfirmRequest(){
-    const {amount, currency}      = this.state.value;
-    const env                     = this.state.envelope_id;
-    return (<Result
-      icon={<Icon type="question-circle" theme="twoTone" />}
-      title={`You will deposit ${currency} ${amount} on envelope ${env}`} 
-      subTitle="Please confirm operation."
-      extra={[<Button key="do_deposit" type="primary" onClick={() => {this.doDeposit()} }>Confirm Deposit</Button>,
-              <Button key="cancel" onClick={() => {this.resetResult()} }>Cancel</Button>]}/>)
-  }
 }
 
 //
 export default Form.create() (withRouter(connect(
     (state)=> ({
-        actualAccountName:    loginRedux.actualAccountName(state),
-        actualRole:       loginRedux.actualRole(state),
-        isLoading:        loginRedux.isLoading(state)
+        actualAccountName:  loginRedux.actualAccountName(state),
+        actualRole:         loginRedux.actualRole(state),
+        isLoading:          loginRedux.isLoading(state)
     }),
     (dispatch)=>({
         

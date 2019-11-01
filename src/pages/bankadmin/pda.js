@@ -173,20 +173,16 @@ class PDA extends Component {
   }
 
   onProcessRequestClick(request){
-    console.log( ' PDA::onProcessRequestClick >> ', JSON.stringify(request) )
+    
+    // this.props.history.push({
+    //   pathname: `/${this.props.actualRole}/pda-process-request`
+    //   , state: { request: request }
+    // })
 
     this.props.history.push({
       pathname: `/${this.props.actualRole}/pda-process-request`
-      // , search: '?query=abc'
       , state: { request: request }
     })
-
-    // this.props.history.push({
-    //   pathname: '/template',
-    //   search: '?query=abc',
-    //   state: { detail: response.data }
-    // })
-    // READ >> this.props.location.state.detail
   }
 
   renderFooter(){

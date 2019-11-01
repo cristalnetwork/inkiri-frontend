@@ -33,7 +33,7 @@ const renderItem = (item) => {
     }
 }
 //
-export const MenuByRole = ({area, fileName, items = [], getMenu, actualAccountName, actualRole }) => {
+export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actualAccountName, actualRole }) => {
         useEffect(()=>{
             getMenu(actualAccountName, actualRole)
         })
@@ -41,7 +41,8 @@ export const MenuByRole = ({area, fileName, items = [], getMenu, actualAccountNa
         
         // ToDo: Here goes default selected item menu logic!!!
         // const aa = [(fileName=='dashboard')?fileName:fileName];
-        const selected = getItemByAreaNFilename(area, fileName)
+        // console.log(' ** MENU - area:', area, ' | fileName:',fileName, ' | itemPath:',itemPath)
+        const selected = getItemByAreaNFilename(area, fileName, itemPath)
         const aa = selected?[(selected.father_key?selected.father_key:selected.key)]:['dashboard'];
         const bb = getRootKeys(area);
 

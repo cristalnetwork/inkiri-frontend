@@ -215,16 +215,25 @@ const bankadmin = [
        container: 'dashboard',
        role: 'bankadmin'
     },
+    // {
+    //    key: pathNames.bankadminPDA_ProcessRequest,
+    //    father_key : pathNames.bankadminPDA,
+    //    fileName: 'processRequest',
+    //    area: 'bankadmin',
+    //    path: 'pda-process-request',
+    //    container: 'dashboard',
+    //    role: 'bankadmin'
+    // },
     {
        key: pathNames.bankadminPDA_ProcessRequest,
        father_key : pathNames.bankadminPDA,
-       fileName: 'processRequest',
+       fileName: 'processExternal',
        area: 'bankadmin',
        path: 'pda-process-request',
        container: 'dashboard',
        role: 'bankadmin'
     },
-    
+
     {
        key: pathNames.bankadminSalaries,
        fileName: 'under-construction',
@@ -387,14 +396,19 @@ export const getPath = (key) => {
     return `/${area}/${path}` 
 }
 
-export const getItem = (path) => {
-    const item  = merged.find(routeItem => routeItem.path === path )
+export const getItem = (path, key) => {
+    let item  = null;
+    if(path)
+      item = merged.find(routeItem => routeItem.path === path )
+    else
+      item = merged.find(routeItem => routeItem.key === key )
     const title = item.path.split('-').map(obj => utils.capitalize(obj)).join(' ') 
     return {...item, fullpath:`/${item.area}/${item.path}`, title:title}
 }
 
-export const getItemByAreaNFilename = (area, filename) => {
-    const item  = merged.find(routeItem => routeItem.area===area && routeItem.fileName===filename )
+
+export const getItemByAreaNFilename = (area, filename, itemPath) => {
+    const item  = merged.find(routeItem => routeItem.area===area && routeItem.fileName===filename && routeItem.path==itemPath)
     return {...item}
 } 
 

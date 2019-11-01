@@ -17,11 +17,18 @@ import * as utils from '@app/utils/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import * as request_helper from '@app/components/TransactionCard/helper';
+import TransactionHeader from '@app/components/TransactionCard/header';
+import TransactionTypeAndAmount from '@app/components/TransactionCard/type_and_amount';
+import TransactionPetitioner from '@app/components/TransactionCard/petitioner';
+import TransactionProvider from '@app/components/TransactionCard/provider';
+import TransactionBlockchain from '@app/components/TransactionCard/blockchain';
+import TransactionAttachments from '@app/components/TransactionCard/attachments';
+import TransactionEnvelope from '@app/components/TransactionCard/envelope';
 
 const { Dragger } = Upload;
 
-const icon_color       = '#1890ff';
-const icon_color_green = '#3db389';
+// const icon_color_default = '#1890ff';
+// const icon_color_green   = '#3db389';
 
 /*
 * ToDo: We should re read https://github.com/ant-design/ant-design/blob/master/components/form/demo/customized-form-controls.md
@@ -34,9 +41,9 @@ class TransactionCard extends Component {
     const bank_account  = this.getBank(request);
     this.state = {
       request:         request,
-      bank_account:    bank_account
+      bank_account:    bank_account,
+      uploader:        props.uploader||{}
     };
-    console.log(' CONTROL##1 :: ', props.uploader)
   }
 
   getBank = (request) => {
@@ -46,34 +53,19 @@ class TransactionCard extends Component {
   componentDidUpdate(prevProps, prevState) 
   {
     const {request, uploader} = this.props;
-    if(prevProps.request !== request) {
-      console.log(' CONTROL :: REQUEST IS DIFFERENT !!!')
+    if(prevProps.request !== request || prevProps.uploader!=uploader) {
+      
       const bank_account  = this.getBank(request);
-      this.setState({request:         request,
-                    bank_account:    bank_account}
+      this.setState({request:        request,
+                    bank_account:    bank_account,
+                    uploader:         uploader}
       );
     }
-
-    if(prevProps.uploader!==uploader)
-    {
-      console.log(' CONTROL :: UPLOADERS ARE DIFFERENT !!!')
-    }
-
-    console.log(' CONTROL##2 :: ', uploader)
   }
   
-  render() {
-    const { request, bank_account }   = this.state;
-    
-    if(!request)
-      return(<></>);
-    //
-    
-    console.log(' CONTROL##3 :: ', this.props.uploader)
-
-    let alert = (null);
-    if(globalCfg.api.isProcessing(request) && this.props.isAdmin)
-      alert = ( <Alert
+  getAlert(request){
+    if(globalCfg.api.isProcessing(request) && globalCfg.api.isProviderPayment(request) && this.props.isAdmin)
+      return ( <Alert
                   message="Bank transfer required!"
                   description={(<>
                       <span>Please complete the following tasks required for this operation:</span>
@@ -87,305 +79,38 @@ class TransactionCard extends Component {
                   closable
                   showIcon
               />)
+    return (null);
+  }
 
+  render() {
+    const { request, bank_account, uploader }   = this.state;
+    
+    if(!request)
+      return(<></>);
+    //
+      
+    console.log('rendering..........................')
+    const alert = this.getAlert(request);
+    
     return (
       <>
       {alert}
 
         <div className="c-detail">
-          <div className="c-header-detail ">
-              <div className="c-header-detail__head u-clearfix">
-                  <div className="c-header-detail__title">Op. #<b>{request_helper.getRequestId(request)}</b> • Created on <b>{request_helper.getRequestDate(request)}</b></div>
-                  <div className="c-header-detail__actions">
-                    {request_helper.getStateTag(request)}
-                  </div>
-              </div>
-          </div>
-
-          <div className="ui-list">
-              <ul className="ui-list__content">
-                  <li>
-                      <div className="c-ticket ">
-                          <ul>
-                              <li className="c-ticket__section ">
-                                  <ul>
-                                      <li className="c-ticket__item c-ticket-subtotal">
-                                          <div className="c-ticket__row">
-                                            <div className="c-ticket__title "><b>{globalCfg.api.typeToText(request.requested_type).toUpperCase()}</b> request</div>
-                                              <div className="c-ticket__amount ">
-                                                <span className="price-tag price-tag-billing">
-                                                  <span className="price-tag price-tag-symbol-text hidden">{globalCfg.currency.fiat.plural}</span>
-                                                  <span className="price-tag price-tag-symbol">{globalCfg.currency.fiat.symbol} </span>
-                                                  <span className="price-tag price-tag-fraction">{request.amount}</span>
-                                                </span>
-                                              </div>
-                                          </div>
-                                      </li>
-                                  </ul>
-                              </li>
-                          </ul>
-                      </div>
-                  </li>
-              </ul>
-          </div>
-
-          <div className="ui-list">
-            <ul className="ui-list__content">
-                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
-                    <div className="ui-row__col ui-row__col--heading">
-                        <div className="ui-avatar">
-                            <div className="ui-avatar__content ui-avatar__content--initials"><span>{utils.firsts(request.requested_by.account_name, 1)}</span></div>
-                        </div>
-                    </div>
-                    <div className="ui-row__col ui-row__col--content">
-                        <div className="ui-info-row__content">
-                            <div className="ui-info-row__title">Requested by: <b>{request.requested_by.business_name}</b></div>
-                              <div className="ui-info-row__details">
-                                  <ul>
-                                      <li>@{request.requested_by.account_name}</li>
-                                  </ul>
-                              </div>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-          </div>
-        
-          <div className="ui-list">
-            <ul className="ui-list__content">
-                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
-                    <div className="ui-row__col ui-row__col--heading">
-                        <div className="ui-avatar">
-                            <div className="ui-avatar__content ui-avatar__content--icon">
-                              <FontAwesomeIcon icon="truck-moving" size="lg" color={icon_color}/>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="ui-row__col ui-row__col--content">
-                          <div className="ui-info-row__content">
-                              <div className="ui-info-row__title">{request.provider.name} ({request.provider.cnpj})</div>
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Category</div> 
-                                 <div className="row_value">{request.provider.category}</div> 
-                              </div>
-                              <div className="ui-info-row__details name_value_row">
-                                <div className="row_name">Products/services</div> 
-                                 <div className="row_value">{request.provider.products_services}</div> 
-                              </div>
-
-                              <div className="ui-info-row__details">
-                                  <ul>
-                                      <li>Provider</li>
-                                  </ul>
-                              </div>
-                          </div>
-                      </div>
-                </li>
-                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
-                      <div className="ui-row__col ui-row__col--heading">
-                          <div className="ui-avatar ">
-                              <div className="ui-avatar__content ui-avatar__content--icon">
-                                <Icon type="bank" theme="twoTone" style={{fontSize:30}} />
-                              </div>
-                          </div>
-                      </div>
-                      <div className="ui-row__col ui-row__col--content">
-                          <div className="ui-info-row__content">
-                              <div className="ui-info-row__title">{bank_account.bank_name}</div>
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Agency</div> 
-                                 <div className="row_value">{bank_account.agency}</div> 
-                              </div>
-                              <div className="ui-info-row__details name_value_row">
-                                <div className="row_name">CC</div> 
-                                 <div className="row_value">{bank_account.cc}</div> 
-                              </div>
-                          </div>
-                      </div>
-                </li>
-                <li className="ui-row ui-action-row ui-action-row--no-truncate">
-                      <div className="ui-row__col ui-row__col--heading">
-                          <div className="ui-avatar">
-                              <div className="ui-avatar__content ui-avatar__content--icon">
-                                <Icon type="shopping" theme="twoTone" style={{fontSize:30}} />
-                              </div>
-                          </div>
-                      </div>
-                      <div className="ui-row__col ui-row__col--content">
-                          <div className="ui-action-row__content">
-                              <div className="ui-action-row__title u-truncate" title="Description">{request.description || 'Product/Service description Not Available'}</div>
-                              <div className="ui-action-row__description hidden">
-                                  <div className="ui-info-row__details">
-                                      <ul>
-                                          <li></li>
-                                      </ul>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                </li>
-
-                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
-                      <div className="ui-row__col ui-row__col--heading">
-                          <div className="ui-avatar ">
-                              <div className="ui-avatar__content ui-avatar__content--icon">
-                                <Icon type="unordered-list" theme="twoTone" style={{fontSize:30}} />
-                              </div>
-                          </div>
-                      </div>
-                      <div className="ui-row__col ui-row__col--content">
-                          <div className="ui-info-row__content">
-                              <div className="ui-info-row__title">Payment details</div>
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Vehicle</div> 
-                                 <div className="row_value">{request.provider_extra.payment_vehicle}</div> 
-                              </div>
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Category</div> 
-                                 <div className="row_value">{request.provider_extra.payment_category}</div> 
-                              </div>
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Type</div> 
-                                 <div className="row_value">{request.provider_extra.payment_type}</div> 
-                              </div>
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Mode</div> 
-                                 <div className="row_value">{request.provider_extra.payment_mode}</div> 
-                              </div>
-                          </div>
-                      </div>
-                </li>
-                
-                <div className="ui-accordion ui-accordion--close ui-accordion--gray hidden">
-                  <ul>
-                    <li className="ui-row ui-accordion__row" role="presentation">
-                      <div className="ui-row__col ui-row__col--content">
-                        <div className="ui-accordion__content">
-                          <div className="ui-accordion__title">Payment details</div>
-                        </div>
-                      </div>
-                      <div className="ui-row__col ui-row__col--content">
-                          <div className="ui-info-row__content">
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Vehicle</div> 
-                                 <div className="row_value">{request.provider_extra.payment_vehicle}</div> 
-                              </div>
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Category</div> 
-                                 <div className="row_value">{request.provider_extra.payment_category}</div> 
-                              </div>
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Type</div> 
-                                 <div className="row_value">{request.provider_extra.payment_type}</div> 
-                              </div>
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Mode</div> 
-                                 <div className="row_value">{request.provider_extra.payment_mode}</div> 
-                              </div>
-                          </div>
-                      </div>
-
-                    </li>
-                  </ul>
-                </div>
-            </ul>
-          </div>
           
+          <TransactionHeader request={request}/>
 
-          {
-            (request.tx_id||request.refund_tx_id)?
-              (<>
+          <TransactionTypeAndAmount request={request}/>
 
-                <div className="c-header-detail ">
-                  <div className="c-header-detail__head u-clearfix">
-                      <div className="c-header-detail__title">Blockchain</div>
-                      <div className="c-header-detail__actions">
-                      </div>
-                  </div>
-                </div>
-                <div className="ui-list">
-                  <ul className="ui-list__content">
-                    {(request.tx_id)?
-                      (
-                              <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                                  <div className="ui-row__col ui-row__col--heading">
-                                      <div className="ui-avatar ">
-                                          <div className="ui-avatar__content ui-avatar__content--icon">
-                                            <FontAwesomeIcon icon="cloud" size="2x" color={icon_color_green}/>
-                                          </div>
-                                      </div>
-                                  </div>
-                                  <div className="ui-row__col ui-row__col--content">
-                                    <div className="ui-info-row__content">
-                                        <div className="ui-info-row__title">
-                                          {request_helper.getBlockchainLink(request.tx_id, false, 'large', 'Customer payment')}
-                                        </div>
-                                    </div>
-                                  </div>
-            
-                                  <div className="ui-row__col ui-row__col--actions">
-                                      <FontAwesomeIcon icon="chevron-right"  color="gray"/>
-                                  </div>
-                              </li>
-                  ):(null)}
-
-                {request.refund_tx_id?
-                  (<li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
-                            <div className="ui-row__col ui-row__col--heading">
-                                <div className="ui-avatar ">
-                                    <div className="ui-avatar__content ui-avatar__content--icon">
-                                      <FontAwesomeIcon icon="cloud" size="2x" color={icon_color_green}/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="ui-row__col ui-row__col--content">
-                              <div className="ui-info-row__content">
-                                  <div className="ui-info-row__title">
-                                    {request_helper.getBlockchainLink(request.refund_tx_id, false, 'large', 'Bank refund')}
-                                  </div>
-                              </div>
-                            </div>
-      
-                            <div className="ui-row__col ui-row__col--actions">
-                                <FontAwesomeIcon icon="chevron-right"  color="gray"/>
-                            </div>
-                        </li>
-                    ):(null)}
-                </ul>
-              </div>
-            </>):(null)
-          }
-
-        <div className="c-header-detail ">
-            <div className="c-header-detail__head u-clearfix">
-                <div className="c-header-detail__title">Attachments</div>
-                <div className="c-header-detail__actions">
-                </div>
-            </div>
-        </div>
-
-        {  
-          request.attach_nota_fiscal_id?
-            request_helper.getFileLink(request.attach_nota_fiscal_id, 'Nota Fiscal', icon_color_green)
-            :    
-            request_helper.getFileUploader('Nota Fiscal', this.props.uploder[globalCfg.api.NOTA_FISCAL], icon_color)
-        }
-
-        {  
-          request.attach_boleto_pagamento_id?
-            request_helper.getFileLink(request.attach_boleto_pagamento_id, 'Boleto de pagamento', icon_color_green)
-          :
-          (request.provider_extra.payment_mode==globalCfg.api.PAYMENT_MODE_BOLETO)?
-            request_helper.getFileUploader('Boleto de Pagamento', this.props.uploder[globalCfg.api.BOLETO_PAGAMENTO], icon_color):(null)
-        }
-
-        {  
-          request.attach_comprobante_id?
-            request_helper.getFileLink(request.attach_comprobante_id, 'Comprobante', icon_color_green)
-          :
-          (globalCfg.api.isProcessing(request)&&this.props.isAdmin)?
-            request_helper.getFileUploader('Comprobante', this.props.uploder[globalCfg.api.COMPROBANTE], icon_color):(null)
-      }
+          <TransactionPetitioner request={request}/>
+          
+          <TransactionEnvelope request={request} />
+          
+          <TransactionProvider request={request}/>
+        
+          <TransactionBlockchain request={request}/>
+          
+          <TransactionAttachments request={request} uploader={uploader}/>
           
       </div>
     </>);

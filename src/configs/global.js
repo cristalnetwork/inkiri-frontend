@@ -182,8 +182,8 @@ const api = {
   , canCancel          : (request) => {
       return [api.STATE_REQUESTED].indexOf(request.state)>=0;
     }
-  , canAddComprobante  : (request) => {
-      return [api.STATE_ACCEPTED, api.STATE_REQUESTED, api.STATE_PROCESSING].indexOf(request.state)>=0;
+  , canAddAttachment  : (request) => {
+      return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER].includes(request.tx_type);
     }
   , isProcessPending   : (request) => {
       return [api.STATE_REQUESTED].indexOf(request.state)>=0;

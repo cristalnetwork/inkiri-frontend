@@ -226,7 +226,6 @@ class CreateAccount extends Component {
         /*
         * Step #2: create account on private servers 
         */
-        // api.bank.createFullUser (account_name, first_name, last_name, email, legal_id, birthday, phone, address)
         api.bank.createFullUser (account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name)
           .then((res2)=>{
             that.setState({result:'ok', pushingTx:false, result_object:{account_name:account_name}});

@@ -14,17 +14,14 @@ import { notification, Table, Divider, Spin } from 'antd';
 
 
 export const  DISPLAY_ALL_TXS    = 'all_txs';
-export const  DISPLAY_DEPOSIT    = 'type_deposit';
-export const  DISPLAY_EXCHANGES  = 'type_exchange';
-export const  DISPLAY_PAYMENTS   = 'type_payment';
 export const  DISPLAY_REQUESTS   = 'type_all';
-export const  DISPLAY_WITHDRAWS  = 'type_withdraw';
-export const  DISPLAY_PROVIDER   = 'type_provider';
-export const  DISPLAY_SEND       = 'type_send';
-export const  DISPLAY_SERVICE    = 'type_service';
-
-
-// deposit, exchange, payment, withdraw, provider, send, service
+export const  DISPLAY_DEPOSIT    = globalCfg.api.TYPE_DEPOSIT;
+export const  DISPLAY_EXCHANGES  = globalCfg.api.TYPE_EXCHANGE;
+export const  DISPLAY_PAYMENTS   = globalCfg.api.TYPE_PAYMENT;
+export const  DISPLAY_PROVIDER   = globalCfg.api.TYPE_PROVIDER;
+export const  DISPLAY_WITHDRAWS  = globalCfg.api.TYPE_WITHDRAW;
+export const  DISPLAY_SEND       = globalCfg.api.TYPE_SEND;
+export const  DISPLAY_SERVICE    = globalCfg.api.TYPE_SERVICE;
 
 export const columns = (account_type, onButtonClick) => {
   return [

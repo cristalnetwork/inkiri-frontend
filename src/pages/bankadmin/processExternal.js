@@ -46,6 +46,7 @@ class processExternal extends Component {
   constructor(props) {
     super(props);
     const request       = (this.props && this.props.location && this.props.location.state && this.props.location.state.request)? this.props.location.state.request : undefined;
+    const pathname      = props.location?props.location.pathname.split('/').slice(-1)[0]:'';
     this.state = {
       loading:      false,
       receipt:      '',
@@ -54,7 +55,8 @@ class processExternal extends Component {
       pushingTx:    false,
       
       ...DEFAULT_RESULT,
-       
+      
+      pathname:      pathname,   
       request:       request,
       
       ...DEFAULT_ATTACHS,
@@ -79,8 +81,9 @@ class processExternal extends Component {
     // console.log( 'processRequest::router-params >>' , JSON.stringify(this.props.location.state.request) );
     if(this.props.location && this.props.location.state)
     {
-      console.log(' PAGE :: UDATEING EVERYTHING !!! (attachments are ZERO)')
-      this.setState({request : this.props.location.state.request, ...DEFAULT_ATTACHS})
+      this.setState({request : this.props.location.state.request
+                      , pathname : this.props.location?this.props.location.pathname.split('/').slice(-1)[0]:''
+                      , ...DEFAULT_ATTACHS})
     }
   }
 
@@ -224,7 +227,7 @@ class processExternal extends Component {
         <TransactionCard 
                 request={request} 
                 admin={this.props.isAdmin}
-                uploder={uploader}
+                uploader={uploader}
         />
         <div className="c-detail bottom">
           <Card style={ { marginBottom: 24, textAlign:'center' } }>
@@ -496,15 +499,14 @@ class processExternal extends Component {
   //
   render() {
     let content                     = this.renderContent();
-    const routes                    = routesService.breadcrumbForFile(this.props.isAdmin?'external-transfers':'providers');
-    const title                     = this.props.isAdmin?'Process External Transfer':'Request details';
-    const subTitle                  = this.props.isAdmin?'Process customer request':'';
+
+    const routes                    = routesService.breadcrumbForFatherOf(this.state.pathname);
+    const title                     = 'Process request';
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes }}
-          title={title}
-          subTitle={subTitle}>
+          breadcrumb={{ routes }}      
+          title={title}>
         </PageHeader>
 
         {content}

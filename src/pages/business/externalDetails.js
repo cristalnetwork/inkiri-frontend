@@ -219,7 +219,7 @@ class externalDetails extends Component {
         <TransactionCard 
               request={request} 
               admin={this.props.isAdmin}
-              uploder={uploader}
+              uploader={uploader}
         />
         <div className="c-detail bottom">
           <Card style={ { marginBottom: 24, textAlign:'center' } }  >

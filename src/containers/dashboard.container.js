@@ -17,7 +17,7 @@ import useMedia from 'react-media-hook2';
 
 const { Header, Content, Footer, Sider } = Layout;
 
-export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, menuIsCollapsed, collapseMenu}) => {
+export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, itemPath, menuIsCollapsed, collapseMenu}) => {
     
     const [collapsed, setCollapse] = useState(0);
 
@@ -56,7 +56,7 @@ export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, 
             <div className="logo">
               <img src="/favicons/favicon-32x32.png" />
             </div>
-            { Menu? <Menu area={area} fileName={fileName} />: false }
+            { Menu? <Menu area={area} fileName={fileName} itemPath={itemPath} />: false }
         </Sider>
         <Layout>
           <Header style={{ background: '#fff', padding: 0 }}>

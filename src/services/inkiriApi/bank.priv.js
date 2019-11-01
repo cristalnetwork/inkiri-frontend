@@ -322,8 +322,9 @@ export const createFullUser = (account_type, account_name, first_name, last_name
   const post_params = {
           account_type:    account_type_string
           , account_name:  account_name
-          , email:         first_name
+          , first_name:    first_name
           , last_name:     last_name
+          , email:         email
           , legal_id:      legal_id
           // , birthday:    birthday
           , phone:         phone
