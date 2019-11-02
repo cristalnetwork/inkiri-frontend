@@ -12,6 +12,7 @@ import * as api from '@app/services/inkiriApi';
 import { Tag, Button, Statistic, Row, Col } from 'antd';
 import { notification, Table, Divider, Spin } from 'antd';
 
+import * as request_helper from '@app/components/TransactionCard/helper';
 
 export const  DISPLAY_ALL_TXS    = 'all_txs';
 export const  DISPLAY_REQUESTS   = 'type_all';
@@ -55,6 +56,7 @@ export const columns = (account_type, onButtonClick) => {
       </span>
       )
   },
+  //
   {
     title: 'Tags',
     key: 'tx_type',
@@ -86,33 +88,34 @@ export const columns = (account_type, onButtonClick) => {
     fixed: 'right',
     width: 100,
     render: (text, record) => {
-      // console.log('ADDING ROW >> ', record.id);
-      let processButton = (null);
-      if(typeof onButtonClick === 'function' && globalCfg.bank.isAdminAccount(account_type)){
-        processButton = (<Button size="small" key={'process_'+record.id} onClick={()=>{ onButtonClick(record) }}>Process</Button>);
-      } //
-      let viewDetailsButton = (null);
-      const onBlockchain = globalCfg.api.isOnBlockchain(record);
-      if(onBlockchain){
-        const _href = api.dfuse.getBlockExplorerTxLink(onBlockchain);
-        viewDetailsButton = (<Button size="small" type="link" href={_href} target="_blank" key={'view-on-blockchain_'+record.id} icon="cloud" title="View on Blockchain">B-Chain</Button>);
-      } //
+      return request_helper.getProcessButton(record, onButtonClick);
+      // let processButton = (null);
+      // if(typeof onButtonClick === 'function' && globalCfg.bank.isAdminAccount(account_type)){
+      //   processButton = (<Button size="small" key={'process_'+record.id} onClick={()=>{ onButtonClick(record) }}>Process</Button>);
+      // } //
+      // let viewDetailsButton = (null);
+      // const onBlockchain = globalCfg.api.isOnBlockchain(record);
+      // if(onBlockchain){
+      //   const _href = api.dfuse.getBlockExplorerTxLink(onBlockchain);
+      //   viewDetailsButton = (<Button size="small" type="link" href={_href} target="_blank" key={'view-on-blockchain_'+record.id} icon="cloud" title="View on Blockchain">B-Chain</Button>);
+      // } //
 
-      if(!globalCfg.api.isFinished(record))
-      {
-        return (
-          <span>
-            {viewDetailsButton}
-            <Divider type="vertical" />
-            {processButton}
-          </span>  );
-      }
-      //
-      return(
-        <span>
-          {viewDetailsButton}
-        </span>
-      )},
+      // if(!globalCfg.api.isFinished(record))
+      // {
+      //   return (
+      //     <span>
+      //       {viewDetailsButton}
+      //       <Divider type="vertical" />
+      //       {processButton}
+      //     </span>  );
+      // }
+      // //
+      // return(
+      //   <span>
+      //     {viewDetailsButton}
+      //   </span>
+      // )
+    },
   },
 ]};
 

@@ -79,6 +79,13 @@ const personal =[
        container: 'dashboard' 
     },
     {
+       key: pathNames.personalWithdraw,
+       fileName: 'withdraw',
+       area: 'personal',
+       path: 'withdraw',
+       container: 'dashboard' 
+    },
+    {
        key: pathNames.personalExtracto,
        fileName: 'extrato',
        area: 'personal',

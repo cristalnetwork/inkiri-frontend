@@ -40,7 +40,8 @@ class Extrato extends Component {
     this.state = {
       loading:                      false,
       txs:                          [],
-      deposits:                     [],
+      // deposits:                     [],
+      // withdraws:                    [],
 
       stats:                        {},
       
@@ -332,7 +333,16 @@ class Extrato extends Component {
           onChange={this.onTableChange}/>
       );
     }
-    
+    //
+    if(this.state.active_tab==DISPLAY_WITHDRAWS){
+      content = (
+        <TransactionTable 
+          key={'table_'+DISPLAY_WITHDRAWS} 
+          need_refresh={this.state.need_refresh[DISPLAY_WITHDRAWS]}
+          request_type={DISPLAY_WITHDRAWS} 
+          onChange={this.onTableChange}/>
+      );
+    }
     //
 
     if(this.state.active_tab==DISPLAY_ALL_TXS){
@@ -378,7 +388,7 @@ class Extrato extends Component {
             <Tabs  defaultActiveKey={DISPLAY_ALL_TXS} onChange={this.onTabChange}>
               <TabPane tab="All"       key={DISPLAY_ALL_TXS} />
               <TabPane tab="Deposits"  key={DISPLAY_DEPOSIT} />
-              <TabPane tab="Withdraws" key={DISPLAY_WITHDRAWS} disabled />
+              <TabPane tab="Withdraws" key={DISPLAY_WITHDRAWS} />
               <TabPane tab="Exchanges" key={DISPLAY_EXCHANGES} disabled />
               <TabPane tab="Payments"  key={DISPLAY_PAYMENTS} disabled />
               <TabPane tab="Requests"  key={DISPLAY_REQUESTS} disabled />

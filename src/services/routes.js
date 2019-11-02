@@ -27,7 +27,7 @@ const routes  = {
                     },
                     {
                         key: pathNames.personalWithdraw,
-                        path: pathNames.personalUnderConstruction,
+                        path: pathNames.personalWithdraw,
                         title: 'Withdraw',
                     },
                     {

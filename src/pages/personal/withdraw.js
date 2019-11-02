@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
+import * as balanceRedux from '@app/redux/models/balance'
 
 import AmountInput from '@app/components/AmountInput';
 
@@ -18,14 +19,12 @@ import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography 
 
 import * as routesService from '@app/services/routes';
 
-// import './deposit.css'; 
-
 import TxResult from '@app/components/TxResult';
 import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-const routes = routesService.breadcrumbForFile('deposit');
+const routes = routesService.breadcrumbForFile('withdraw');
 
 const DEFAULT_RESULT = {
   result:             undefined,
@@ -34,20 +33,17 @@ const DEFAULT_RESULT = {
 }
 
 const DEFAULT_STATE = {
-  envelope_id     : '--loading--',
   input_amount    : {  
                       style   : {maxWidth: 370, fontSize: 100, width: 60}
                        , value : undefined 
                        , symbol_style : {fontSize: 60}
-                       , symbol: globalCfg.currency.symbol
                      },
 
 }
-class DepositMoney extends Component {
+class WithdrawMoney extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading:      true,
       pushingTx:    false,
       
       ...DEFAULT_STATE,
@@ -59,9 +55,7 @@ class DepositMoney extends Component {
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetResult                = this.resetResult.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
-    this.getNextEnvelopeId          = this.getNextEnvelopeId.bind(this);
     this.userResultEvent            = this.userResultEvent.bind(this); 
-    this.symbolChange               = this.symbolChange.bind(this);
     this.onInputAmount              = this.onInputAmount.bind(this);
   }
 
@@ -73,29 +67,6 @@ class DepositMoney extends Component {
     location: PropTypes.object,
     history: PropTypes.object
   };
-
-  componentDidMount(){
-    
-    this.getNextEnvelopeId();
-  }
-  
-  getNextEnvelopeId(){
-    api.bank.nextEnvelopeId (this.props.actualAccountName).then(  
-      (res)=>{
-        this.setState ({loading:false, envelope_id: res});
-      },
-      (err)=>{
-        // console.log(' ERROR FETCHING ENV ID ->', err);
-        this.setState ({loading:false});
-        this.openNotificationWithIcon("error", "Cant fetch next envelope ID", "Please check if you are logged in bank service. " + JSON.stringify(err))      
-      },
-    )
-  }
-  symbolChange = (e) =>{
-    let input_amount = this.state.input_amount;
-    input_amount.symbol = e;
-    this.setState({input_amount:input_amount})
-  }
 
   openNotificationWithIcon(type, title, message) {
     notification[type]({
@@ -117,7 +88,6 @@ class DepositMoney extends Component {
 
   resetPage(){
     this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
-    this.getNextEnvelopeId();
   }
 
   userResultEvent = (evt_type) => {
@@ -164,7 +134,7 @@ class DepositMoney extends Component {
 
   inputAmountToString(){
     const {input_amount} = this.state;
-    return input_amount.symbol + parseFloat(input_amount.value||0).toFixed(2);
+    return globalCfg.currency.symbol + parseFloat(input_amount.value||0).toFixed(2);
   }
   handleSubmit = e => {
     e.preventDefault();
@@ -177,18 +147,71 @@ class DepositMoney extends Component {
       }
 
       const {input_amount} = this.state;
-      const sender         = that.props.actualAccountName;
-      Modal.confirm({
-        title: 'Confirm deposit request',
-        content: 'Please confirm deposit for '+this.inputAmountToString(),
-        onOk() {
-          const {input_amount} = that.state;
+      if(isNaN(input_amount.value) || parseFloat(input_amount.value)<=0)
+      {
+        that.openNotificationWithIcon("error", this.state.input_amount.value + " > valid number required","Please type a valid number greater than 0!")    
+        return;
+      }
+      
+      if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
+      {
+        const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
+        that.openNotificationWithIcon("error", `Amount must be equal or less than your balance ${balance_txt}!`); //`
+        return;
+      }
 
-          api.bank.createDeposit(sender, input_amount.value, input_amount.symbol)
-            .then((res)=>{
-              console.log(' >> doDeposit >> ', JSON.stringify(res));
-              that.setState({pushingTx:false, result:'ok'})
-              that.openNotificationWithIcon("success", 'Deposit requested successfully');
+
+      
+      const sender         = this.props.actualAccountName;
+      const privateKey     = this.props.actualPrivateKey;
+      
+      // const signer       = this.props.personalAccount.permissioner.account_name;
+      const amount       = input_amount.value;
+      let that           = this;
+
+      Modal.confirm({
+        title: 'Confirm withdraw request',
+        content: 'Please confirm withdraw for '+this.inputAmountToString(),
+        onOk() {
+
+          api.bank.createWithdraw(sender, amount)
+            .then((data)=>{
+              console.log(' >> doWithdraw >> ', JSON.stringify(data));
+              // that.setState({pushingTx:false, result:'ok'})
+              // that.openNotificationWithIcon("success", 'Withdraw requested successfully');
+
+              if(!data || !data.id)
+              {
+                that.setState({result:'error', uploading: false, pushingTx:false, error:'Cant create request.'});
+                return;
+              }
+
+              const request_id       = data.id;
+              const withdraw_account = globalCfg.bank.withdraw_account; 
+
+              api.requestWithdraw(sender, privateKey, withdraw_account, amount, request_id)
+                .then((data1) => {
+
+                  const send_tx             = data1;
+                  console.log(' withdrawMoney::send (then#2) >>  ', JSON.stringify(send_tx));
+                  
+                  api.bank.updateWithdraw(sender, request_id, undefined, send_tx.data.transaction_id)
+                    .then((data2) => {
+
+                        that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
+                        that.openNotificationWithIcon("success", 'Withdraw requested successfully');
+
+                      }, (ex2) => {
+                        console.log(' withdrawMoney::send (error#3) >>  ', JSON.stringify(ex2));
+                        that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
+                    });
+
+                }, (ex1) => {
+                  
+                  console.log(' withdrawMoney::send (error#2) >>  ', JSON.stringify(ex1));
+                  that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
+
+                });
 
             }, (err)=>{
               that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
@@ -217,8 +240,8 @@ class DepositMoney extends Component {
     if(this.state.result)
     {
       const result_type = this.state.result;
-      const title       = null;
-      const message     = null;
+      const title       = 'Request completed succesfully.';
+      const message     = 'Please receive the paper money at the closest PDA.';
       const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error
       
@@ -226,49 +249,13 @@ class DepositMoney extends Component {
     }
 
     const { getFieldDecorator }               = this.props.form;
-    const { input_amount, pushingTx, loading, envelope_id} = this.state;
-    const my_currencies                       = [globalCfg.currency.symbol, globalCfg.currency.fiat.symbol];
-    const loading_text                        = pushingTx?'Pushing transaction...':(loading?'Loading...':'');
+    const { input_amount, pushingTx}           = this.state;
     return (
-        <Spin spinning={pushingTx||loading} delay={500} tip={loading_text}>
+        <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
           <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">    
               
-              <div className="money-transfer__row row-complementary money-transfer__select row-complementary-bottom flex_row" >
-                  <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
-                      <span className="picture">
-                        <FontAwesomeIcon icon="envelope" size="lg" color="gray"/>
-                      </span>
-                  </div>
-                  <div className="money-transfer__input money-transfer__select">
-                    <span>Type this ID onto the envelope:<br/>
-                      <strong style={{fontWeight:600, fontSize:24}}>{envelope_id}</strong>
-                    </span>
-                  </div>
-              </div>
-              
-              <div className="money-transfer__row row-complementary money-transfer__select flex_row" >
-                  <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
-                      <span className="picture">
-                        <FontAwesomeIcon icon="dollar-sign" size="lg" color="gray"/>
-                      </span>
-                  </div>
-                  <div className="money-transfer__input money-transfer__select">
-                    <Form.Item>
-                        {getFieldDecorator( 'input_amount.symbol', {
-                          rules: [{ required: true, message: 'Please select currency'}]
-                          , initialValue: input_amount.symbol
-                          , onChange: this.symbolChange
-                        })(
-                          <Select placeholder={'Choose a currency'} optionLabelProp="label" className="input-price__currency select-price__currency">
-                          {my_currencies.map( opt => <Select.Option key={opt} value={opt} label={opt}>{ opt } </Select.Option> )}
-                          </Select>
-                        )}
-                    </Form.Item>
-                  </div>
-              </div>
-
-              <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+              <Form.Item label="Amount" className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
                       rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
                       initialValue: input_amount.value,
@@ -276,7 +263,7 @@ class DepositMoney extends Component {
                     })( 
                       <>  
                         <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
-                          {input_amount.symbol}
+                          {globalCfg.currency.symbol}
                         </span>
                         
                         <Input 
@@ -296,7 +283,7 @@ class DepositMoney extends Component {
             </div>
 
             <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={pushingTx||loading} >REQUEST DEPOSIT</Button>
+              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={pushingTx} >REQUEST WITHDRAW</Button>
             </div>
 
           </Form>  
@@ -314,8 +301,8 @@ class DepositMoney extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes }}
-          title="Deposit money"
-          subTitle="Deposit paper money and receive Inkiri on your account"
+          title="Withdraw money"
+          subTitle="Withdraw paper money at the nearest PDA"
           
         >
           
@@ -337,9 +324,12 @@ export default Form.create() (withRouter(connect(
     (state)=> ({
         actualAccountName:  loginRedux.actualAccountName(state),
         actualRole:         loginRedux.actualRole(state),
-        isLoading:          loginRedux.isLoading(state)
+        actualPrivateKey:   loginRedux.actualPrivateKey(state),
+        isLoading:          loginRedux.isLoading(state),
+        personalAccount:    loginRedux.personalAccount(state),
+        balance:            balanceRedux.userBalance(state),
     }),
     (dispatch)=>({
         
     })
-)(DepositMoney) ));
+)(WithdrawMoney) ));

@@ -9,6 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const TransactionEnvelope = ({request}) => {
     const envelope_id = request_helper.envelopeIdFromRequest(request);
+    if(!globalCfg.api.isDeposit(request))
+        return (null);
     return(
       <div className="ui-list">
         <ul className="ui-list__content">

@@ -273,7 +273,7 @@ class processExternal extends Component {
     return (attachments[attach_name] && attachments[attach_name].length>0) ? attachments[attach_name][0] : undefined; 
   }
 
-  acceptRequest(){
+  acceptWithComprobanteRequest(){
     let that = this;  
     // Check Comprobante
     
@@ -311,7 +311,7 @@ class processExternal extends Component {
             that.reload();
           },
           (ex) => {
-            console.log(' ** ERROR @ acceptRequest', JSON.stringify(ex));
+            console.log(' ** ERROR @ acceptWithComprobanteRequest', JSON.stringify(ex));
             that.setState({pushingTx:false})
             that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
           }  
@@ -399,9 +399,8 @@ class processExternal extends Component {
         that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
 
       });
-
-      
   }
+
   attachNota(){
     
     const my_NOTA_FISCAL   = this.getAttach(globalCfg.api.NOTA_FISCAL);
@@ -427,11 +426,86 @@ class processExternal extends Component {
         console.log(' ** ERROR @ updateRequest', JSON.stringify(ex))
       }  
     );
-    
   }
   
   cancelRequest(){}
 
+  /*
+  * WITHDRAW
+  */
+  acceptRequest(){
+    const that = this;
+    that.setState({pushingTx:true});
+    
+    confirm({
+      title: 'You will accept the request',
+      content: 'Please confirm if you already gave the paper money to the customer.',
+      onOk() {
+        const {request} = that.state;
+          
+        api.bank.acceptWithdrawRequest(that.props.actualAccountName, request.id)
+        .then( (data) => {
+            that.setState({pushingTx:false})
+            that.openNotificationWithIcon("success", 'Withdraw request accepted successfully');
+            that.reload();
+          },
+          (ex) => {
+            console.log(' ** ERROR @ acceptWithdraw', JSON.stringify(ex));
+            that.setState({pushingTx:false})
+            that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
+          }  
+        );
+        
+      },
+      onCancel() {
+        that.setState({pushingTx:false})
+        console.log('Cancel');
+      },
+    });  
+  }
+
+  doRejectAndRefundWithdraw(){
+    
+    const that       = this;
+    const {request}  = that.state;
+
+    that.setState({pushingTx:true});
+    
+    const sender      = this.props.actualAccountName;
+    const amount      = request.amount;
+    const privateKey  = this.props.actualPrivateKey;
+    api.refund(sender, privateKey, request.from, amount, request.id, '')
+      .then((data) => {
+
+        const send_tx             = data;
+        console.log(' processExternal::refund (then#1) >>  ', JSON.stringify(send_tx));
+        
+        api.bank.refundWithdrawRequest(sender, request.id, send_tx.data.transaction_id)
+          .then((data2) => {
+
+              // that.clearAttachments();
+              that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request.id} });
+              that.reload();
+              that.openNotificationWithIcon("success", 'Payment refunded successfully');
+
+            }, (ex2) => {
+              console.log(' processExternal::refund (error#2) >>  ', JSON.stringify(ex2));
+              that.openNotificationWithIcon("error", 'Refund completed succesfully but could not update request', JSON.stringify(ex2));
+              that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
+          });
+
+      }, (ex1) => {
+        
+        console.log(' processExternal::refund (error#1) >>  ', JSON.stringify(ex1));
+        that.openNotificationWithIcon("error", 'Refund could not be completed', JSON.stringify(ex1));
+        that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
+
+      });
+  }
+
+  /*
+  * DEPOSIT
+  */
   acceptDepositAndIssue(){
     const {id, amount, requested_by, requestCounterId, deposit_currency} = this.state.request;
     const privateKey = this.props.actualPrivateKey;
@@ -493,7 +567,7 @@ class processExternal extends Component {
     const {request, pushingTx}    = this.state;
     const processButton = (<Button loading={pushingTx} size="large" onClick={() => this.processRequest()} key="processButton" type="primary" title="" >PROCESS REQUEST</Button>);
     //
-    const acceptButton = (<Button loading={pushingTx} size="large" onClick={() => this.acceptRequest()} key="acceptButton" type="primary" title="" >ACCEPT</Button>);
+    const acceptWithComprobanteButton = (<Button loading={pushingTx} size="large" onClick={() => this.acceptWithComprobanteRequest()} key="acceptWithComprobanteButton" type="primary" title="" >ACCEPT</Button>);
     //
     const cancelButton = (<Button loading={pushingTx} size="large" onClick={() => this.cancelRequest()} key="cancelButton" className="danger_color" style={{marginLeft:16}} type="link" >CANCEL</Button>);
     //
@@ -507,13 +581,25 @@ class processExternal extends Component {
     //
     const refundButton = (<Button loading={pushingTx} size="large" onClick={() => this.refundRequest()} key="refundButton" type="primary" style={{marginLeft:16}} type="primary" >REFUND</Button>);
     //
+
+    //Deposit
     const acceptAndIssueButton = (<Button loading={pushingTx} size="large" onClick={() => this.acceptDepositAndIssue()} key="acceptAndIssueButton" type="primary" style={{marginLeft:16}} type="primary" >ACCEPT AND ISSUE</Button>);
+    //
+
+    // Withdraw
+    const acceptButton = (<Button loading={pushingTx} size="large" onClick={() => this.acceptRequest()} key="acceptButton" style={{marginLeft:16}} type="primary" >ACCEPT</Button>);
+    //
+    const rejectWithdrawButton = (<Button loading={pushingTx} size="large" onClick={() => this.doRejectAndRefundWithdraw()} key="rejectWithdrawButton" className="danger_color" style={{marginLeft:16}} type="link" >REJECT AND REFUND</Button>);
     //
     switch (request.state){
       case globalCfg.api.STATE_REQUESTED:
         if(globalCfg.api.isDeposit(request))
         {
           return [acceptAndIssueButton, rejectButton];
+        }
+        if(globalCfg.api.isWithdraw(request))
+        {
+          return [acceptButton, rejectWithdrawButton];
         }
 
         if(!request.attach_nota_fiscal_id)
@@ -522,8 +608,8 @@ class processExternal extends Component {
       break;
       case globalCfg.api.STATE_PROCESSING:
         if(!request.attach_nota_fiscal_id)
-          return [acceptButton, attachNotaButton, revertButton];
-        return [acceptButton, revertButton];
+          return [acceptWithComprobanteButton, attachNotaButton, revertButton];
+        return [acceptWithComprobanteButton, revertButton];
       break;
       case globalCfg.api.STATE_REJECTED:
         return [];
@@ -535,6 +621,8 @@ class processExternal extends Component {
         return [];
       break;
       case globalCfg.api.STATE_ACCEPTED:
+        if(globalCfg.api.isWithdraw(request) || globalCfg.api.isDeposit(request))
+          return [];
         if(!request.attach_nota_fiscal_id)
           return [attachNotaButton];
         return [];
