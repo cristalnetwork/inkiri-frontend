@@ -139,6 +139,7 @@ class WithdrawMoney extends Component {
   handleSubmit = e => {
     e.preventDefault();
     const that = this;
+    that.setState({pushingTx:true});
     this.props.form.validateFields((err, values) => {
       if(err){
         that.openNotificationWithIcon("error", 'Form error ', 'Please verify on screen errors.');
@@ -149,12 +150,14 @@ class WithdrawMoney extends Component {
       const {input_amount} = this.state;
       if(isNaN(input_amount.value) || parseFloat(input_amount.value)<=0)
       {
+        that.setState({pushingTx:false});
         that.openNotificationWithIcon("error", this.state.input_amount.value + " > valid number required","Please type a valid number greater than 0!")    
         return;
       }
       
       if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
       {
+        that.setState({pushingTx:false});
         const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
         that.openNotificationWithIcon("error", `Amount must be equal or less than your balance ${balance_txt}!`); //`
         return;
@@ -182,7 +185,7 @@ class WithdrawMoney extends Component {
 
               if(!data || !data.id)
               {
-                that.setState({result:'error', uploading: false, pushingTx:false, error:'Cant create request.'});
+                that.setState({result:'error',  pushingTx:false, error:'Cant create request.'});
                 return;
               }
 
@@ -198,18 +201,18 @@ class WithdrawMoney extends Component {
                   api.bank.updateWithdraw(sender, request_id, undefined, send_tx.data.transaction_id)
                     .then((data2) => {
 
-                        that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
+                        that.setState({ result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
                         that.openNotificationWithIcon("success", 'Withdraw requested successfully');
 
                       }, (ex2) => {
                         console.log(' withdrawMoney::send (error#3) >>  ', JSON.stringify(ex2));
-                        that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
+                        that.setState({result:'error',  pushingTx:false, error:JSON.stringify(ex2)});
                     });
 
                 }, (ex1) => {
                   
                   console.log(' withdrawMoney::send (error#2) >>  ', JSON.stringify(ex1));
-                  that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
+                  that.setState({result:'error',  pushingTx:false, error:JSON.stringify(ex1)});
 
                 });
 
