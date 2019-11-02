@@ -213,7 +213,7 @@ class processExternal extends Component {
           // </Button>,
 
     const {request, pushingTx}      = this.state;
-    const buttons                   = this.getActions();
+    const buttons                   = this.getActionsForRequest();
     const notaUploaderProps         = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
     const boletoUploaderProps       = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
     const comprobanteUploaderProps  = this.getPropsForUploader(globalCfg.api.COMPROBANTE);
@@ -431,8 +431,65 @@ class processExternal extends Component {
   }
   
   cancelRequest(){}
+
+  acceptDepositAndIssue(){
+    const {id, amount, requested_by, requestCounterId, deposit_currency} = this.state.request;
+    const privateKey = this.props.actualPrivateKey;
+    const receiver   = requested_by.account_name;
+    const sender     = globalCfg.currency.issuer; //this.props.actualAccountName;
+    const admin_name = this.props.actualAccountName;
+
+    const fiat       = globalCfg.api.fiatSymbolToMemo(deposit_currency)
+    const memo       = `dep|${fiat}|${requestCounterId.toString()}`;
+
+    const that       = this;
+    const content    = `You will ISSUE ${globalCfg.currency.symbol}${amount} to ${requested_by.account_name}`;
+    confirm({
+      title: 'Please confirm issue operation ' + this.props.actualAccountName,
+      content: content,
+      onOk() {
+      
+          that.setState({pushingTx:true});
+          api.issueMoney(sender, privateKey, receiver, amount, memo)
+            .then(data => {
+              console.log(' processRequest::issue (then#1) >>  ', JSON.stringify(data));
+              if(data && data.data && data.data.transaction_id)
+              {
+                // updeteo la tx
+                api.bank.setDepositOk(admin_name, id, data.data.transaction_id)
+                .then( (update_res) => {
+                    console.log(' processRequest::issue (then#2) >> update_res ', JSON.stringify(update_res), JSON.stringify(data));
+                    console.log(' processRequest::issue (then#2) >> data ', JSON.stringify(data));
+                    that.reload();
+                    that.setState({result:'ok', pushingTx:false, result_object:data});
+
+                  }, (err) => {
+                    
+                    that.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
+                    that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
+                  }
+                )
+              }
+              else{
+                that.setState({result:'error', pushingTx:false, error:'UNKNOWN!'});
+                that.openNotificationWithIcon("error", 'An error occurred', 'UNKNOWN!'+JSON.stringify(data));
+              }
+              
+            }, (ex)=>{
+              console.log(' processRequest::issue (error#1) >>  ', JSON.stringify(ex));
+              that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+              that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
+
+            });
+        },
+      onCancel() {
+        that.setState({pushingTx:false})
+        console.log('Cancel');
+      },
+    });
+  }
   
-  getActions(){
+  getActionsForRequest(){
     const {request, pushingTx}    = this.state;
     const processButton = (<Button loading={pushingTx} size="large" onClick={() => this.processRequest()} key="processButton" type="primary" title="" >PROCESS REQUEST</Button>);
     //
@@ -450,25 +507,22 @@ class processExternal extends Component {
     //
     const refundButton = (<Button loading={pushingTx} size="large" onClick={() => this.refundRequest()} key="refundButton" type="primary" style={{marginLeft:16}} type="primary" >REFUND</Button>);
     //
-
+    const acceptAndIssueButton = (<Button loading={pushingTx} size="large" onClick={() => this.acceptDepositAndIssue()} key="acceptAndIssueButton" type="primary" style={{marginLeft:16}} type="primary" >ACCEPT AND ISSUE</Button>);
+    //
     switch (request.state){
       case globalCfg.api.STATE_REQUESTED:
-        // if(this.props.isBusiness)
-        //   return [attachFiles, cancelButton];
-        // return [processButton, rejectButton];
-        if(this.props.isBusiness)
+        if(globalCfg.api.isDeposit(request))
         {
-          if(!request.attach_nota_fiscal_id)
-            return [attachNotaButton, cancelButton];
-          return [cancelButton];
+          return [acceptAndIssueButton, rejectButton];
         }
+
         if(!request.attach_nota_fiscal_id)
           return [processButton, attachNotaButton, rejectButton];
         return [processButton, rejectButton];
       break;
       case globalCfg.api.STATE_PROCESSING:
-        if(this.props.isBusiness)
-          return [attachNotaButton];
+        if(!request.attach_nota_fiscal_id)
+          return [acceptButton, attachNotaButton, revertButton];
         return [acceptButton, revertButton];
       break;
       case globalCfg.api.STATE_REJECTED:
@@ -479,7 +533,6 @@ class processExternal extends Component {
         break;
       case globalCfg.api.STATE_REFUNDED:
         return [];
-      break;
       break;
       case globalCfg.api.STATE_ACCEPTED:
         if(!request.attach_nota_fiscal_id)
@@ -496,6 +549,7 @@ class processExternal extends Component {
       break;
     }
   }
+
   //
   render() {
     let content                     = this.renderContent();
