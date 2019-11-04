@@ -67,7 +67,59 @@ class Exchange extends Component {
   }
 
   handleSubmit = e => {
+    // console.log(' Exchange for submitted ', JSON.stringify(e))
+
+    const {amount, bank_account, bank_account_object, attachments_array} = e;
+    const privateKey   = this.props.actualPrivateKey;
+    const sender       = this.props.actualAccountName;
+    let that           = this;
     
+    that.setState({pushingTx:true});
+      
+    api.bank.createExchangeRequest(sender, amount, bank_account_object, attachments_array)
+      .then((data) => {
+        console.log(' createExchangeRequest::send (then#1) >>  ', JSON.stringify(data));
+         
+         if(!data || !data.id)
+         {
+            that.setState({result:'error', uploading: false, pushingTx:false, error:'Cant create request nor upload files.'});
+            return;
+         }
+
+         const request_id       = data.id;
+         const exchange_account = globalCfg.bank.exchange_account; 
+
+         api.requestExchange(sender, privateKey, exchange_account, amount, request_id, bank_account)
+          .then((data1) => {
+
+            const send_tx             = data1;
+            console.log(' createExchangeRequest::send (then#2) >>  ', JSON.stringify(send_tx));
+            
+            api.bank.updateExchangeRequest(sender, request_id, undefined, send_tx.data.transaction_id)
+              .then((data2) => {
+
+                  that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
+                  this.openNotificationWithIcon("success", 'Exchange requested successfully');
+
+                }, (ex2) => {
+                  console.log(' createExchangeRequest::send (error#3) >>  ', JSON.stringify(ex2));
+                  that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
+              });
+
+          }, (ex1) => {
+            
+            console.log(' SendMoney::send (error#2) >>  ', JSON.stringify(ex1));
+            that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
+
+          });
+
+      }, (ex) => {
+        console.log(' createProviderPayment::send (error#1) >>  ', JSON.stringify(ex));
+        that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex)});
+      });
+    
+    
+
   };
 
   backToDashboard = async () => {
@@ -113,7 +165,7 @@ class Exchange extends Component {
     
     return (
       <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-        <ExchangeForm alone_component={false} button_text="REQUEST EXCHANGE" callback={this.handleSubmit} />    
+        <ExchangeForm key="exchange_form" alone_component={false} button_text="REQUEST EXCHANGE" callback={this.handleSubmit} />    
       </Spin>
     );
 

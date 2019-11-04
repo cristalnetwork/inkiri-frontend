@@ -67,23 +67,11 @@ class ExternalTransfers extends Component {
 
   getColumns(){
     return [
-      // {
-      //   title: 'Date',
-      //   dataIndex: 'block_time',
-      //   key: 'block_time',
-      //   sortDirections: ['descend'],
-      //   defaultSortOrder: 'descend',
-      //   sorter: (a, b) => a.block_time_number - b.block_time_number,
-      // },
       {
         title: 'Description',
         dataIndex: 'sub_header',
         key: 'sub_header',
         render: (value, record) => {
-          // <br/>{request_helper.getTypeTag(record)}
-          // <br/>{request_helper.getStateTag(record)}
-          // <br/>{request_helper.getStateLabel(record)}
-          // <span>{utils.capitalize(globalCfg.api.stateToText(record.state))}</span>
           return(
             <span className="name_value_row">
               <div className="row_name centered" >
@@ -96,30 +84,16 @@ class ExternalTransfers extends Component {
             </span>)
         }
       },
-      //
-      // {
-      //   title: 'Amount',
-      //   dataIndex: 'quantity',
-      //   key: 'quantity',
-      //   align: 'right',
-      //   render: (quantity, record) => (
-      //     <span>
-      //       {globalCfg.currency.toCurrencyString(quantity)}
-      //     </span>
-      //     )
-      // },
-      //
       {
         title: 'Tags',
         key: 'tx_type',
         dataIndex: 'tx_type',
         render: (tx_type, record) => {
-
+          
           return (
             <span key={'tags'+record.id}>
-               Provider:&nbsp;<Tag key={'provider_'+record.id}>
-                  { request_helper.getRequestProviderDesc(record)}
-               </Tag>
+               
+               {request_helper.getExternalRequestDesc(record)}
                Op.&nbsp;#<Tag key={'request_id_'+record.id}>
                   { request_helper.getRequestId(record)}
                </Tag>

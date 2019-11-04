@@ -59,8 +59,8 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
               // history.push(`/${actualRole}/external-transfers`);
             } else {
                 // if(actualRole=='personal')
-                // history.push(`/${actualRole}/exchange`);
-                history.push(`/${actualRole}/account-settings`);
+                history.push(`/${actualRole}/exchange`);
+                // history.push(`/${actualRole}/account-settings`);
                 // history.push(`/${actualRole}/withdraw`);
                 // history.push(`/${actualRole}/dashboard`);
                 // history.push(`/${actualRole}/deposit`);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Empty, Button, Icon, message } from 'antd';
 import { connect } from 'react-redux'
 // import * as loginRedux from '@app/redux/models/login'
@@ -19,8 +19,16 @@ export const ENUM_EVENT_EDIT_PROFILE      = 'event_edit_profile';
 export const ENUM_EVENT_EDIT_BANK_ACCOUNT = 'event_edit_bank_account';
 export const ENUM_EVENT_NEW_BANK_ACCOUNT  = 'event_new_bank_account';
 
-const ConfigurationProfile = ({profile, onEvent}) => {
+const ConfigurationProfile = (props) => {
     
+    const [profile, setProfile]       = useState(null);
+    const [onEvent, setOnEvent]       = useState(true);
+
+    useEffect(() => {
+        setProfile(props.profile);
+        setOnEvent(props.onEvent||null);
+    });
+
     const fireEvent = (eventType, object) => {
       if(typeof onEvent === 'function') {
           onEvent(eventType, object)
@@ -29,7 +37,7 @@ const ConfigurationProfile = ({profile, onEvent}) => {
 
     const size = 'small'; // 
     const editProfileButton     = (<Button type="default" icon="edit" size={size} onClick={() => fireEvent(ENUM_EVENT_EDIT_PROFILE, profile)} title="Edit profile information" />)
-    const newBankAccountButton  = (<Button type="default" icon="plus" size={size} onClick={() => fireEvent(ENUM_EVENT_NEW_BANK_ACCOUNT)} title="Add new bank account" />)
+    const newBankAccountButton  = (<Button type="default" icon="plus" size={size} onClick={() => fireEvent(ENUM_EVENT_NEW_BANK_ACCOUNT, null)} title="Add new bank account" />)
     
     const printAddress = () => {
       return Object.values(profile.address).join(', ')
@@ -41,7 +49,7 @@ const ConfigurationProfile = ({profile, onEvent}) => {
     }
 
     const renderBankAccounts = () => {
-      if(!profile.bank_accounts || profile.bank_accounts.length<=0)
+      if(!profile || !profile.bank_accounts || profile.bank_accounts.length<=0)
       {
         const emptyBankAccount = (
           <div className="ui-list">
@@ -62,7 +70,8 @@ const ConfigurationProfile = ({profile, onEvent}) => {
         }</>);
     }
     //
-
+    if(!profile)
+      return (null);
     return(
 
       <Skeleton 

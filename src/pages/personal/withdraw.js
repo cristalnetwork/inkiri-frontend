@@ -105,6 +105,7 @@ class WithdrawMoney extends Component {
     event.preventDefault();
     const the_value = event.target.value;
     const _input_amount = this.state.input_amount;
+    this.props.form.setFieldsValue({'input_amount.value':the_value})
     this.setState({input_amount: {..._input_amount, value: the_value}}, 
       () => {
         if(the_value && the_value.toString().length){
@@ -136,14 +137,16 @@ class WithdrawMoney extends Component {
     const {input_amount} = this.state;
     return globalCfg.currency.symbol + parseFloat(input_amount.value||0).toFixed(2);
   }
+
   handleSubmit = e => {
     e.preventDefault();
     const that = this;
-    that.setState({pushingTx:true});
+    // that.setState({pushingTx:true});
+    
     this.props.form.validateFields((err, values) => {
       if(err){
-        that.openNotificationWithIcon("error", 'Form error ', 'Please verify on screen errors.');
-        that.setState({pushingTx:false});
+        this.openNotificationWithIcon("error", 'Form error ', 'Please verify on screen errors.');
+        // that.setState({pushingTx:false});
         return;
       }
 
@@ -261,8 +264,7 @@ class WithdrawMoney extends Component {
               <Form.Item label="Amount" className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
                       rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
-                      initialValue: input_amount.value,
-
+                      initialValue: input_amount.value
                     })( 
                       <>  
                         <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
@@ -273,7 +275,6 @@ class WithdrawMoney extends Component {
                           type="tel" 
                           step="0.01" 
                           className="money-transfer__input input-amount placeholder-big" 
-                          id="amount"
                           placeholder="0" 
                           value={input_amount.value} 
                           onChange={this.onInputAmount}  

@@ -566,20 +566,20 @@ export const createProviderPaymentEx = (account_name, amount, provider_id, value
     );
 });
 
-export const refundProviderPayment      = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, state, undefined, tx_id);
-export const updateProviderPayment      = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, state, tx_id);
-export const cancelProviderPayment      = (sender, request_id)               => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined);
-export const processProviderPayment     = (sender, request_id) => updateRequest(sender, request_id, globalCfg.api.STATE_PROCESSING, undefined);
-export const acceptProviderPayment      = (sender, request_id, attachments) => updateExternal(sender, request_id, globalCfg.api.TYPE_PROVIDER, globalCfg.api.STATE_ACCEPTED, attachments);
-export const updateProviderPaymentFiles = (sender, request_id, state, attachments) => updateExternal(sender, request_id, globalCfg.api.TYPE_PROVIDER, state, attachments);
+export const refundExternal             = (sender, request_id, state, tx_id)       => updateRequest(sender, request_id, state, undefined, tx_id);
+export const updateProviderPayment      = (sender, request_id, state, tx_id)       => updateRequest(sender, request_id, state, tx_id);
+export const cancelExternal             = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined);
+export const processExternal            = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_PROCESSING, undefined);
+export const acceptExternal             = (sender, request_id, attachments)        => updateExternal(sender, request_id, globalCfg.api.STATE_ACCEPTED, attachments);
+export const updateExternalFiles        = (sender, request_id, state, attachments) => updateExternal(sender, request_id, state, attachments);
 
-export const updateExternal             = (sender, request_id, request_type, state, attachments) =>   new Promise((res,rej)=> {
-  
+//export const updateExternal             = (sender, request_id, request_type, state, attachments) =>   new Promise((res,rej)=> {
+export const updateExternal             = (sender, request_id, state, attachments) =>   new Promise((res,rej)=> {  
   const path    = globalCfg.api.endpoint + `/requests_files/${request_id}`;
   const method  = 'POST';
   let post_params = {
     state:            state,
-    requested_type:   request_type,
+    // requested_type:   request_type,
     sender:           sender
   };
 
@@ -631,4 +631,67 @@ export const updateExternal             = (sender, request_id, request_type, sta
       }
     );
   
-})
+});
+
+export const createExchangeRequest      = (account_name, amount, bank_account, attachments) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.endpoint + '/requests_files';
+  const method  = 'POST';
+  const post_params = {
+          'from':             account_name
+          , 'requested_type':   globalCfg.api.TYPE_EXCHANGE
+          , 'amount':           Number(amount).toFixed(2)
+          , 'bank_account':     bank_account
+          
+        };
+
+  let formData = new FormData();
+
+  formData.append('request', JSON.stringify(post_params));
+  formData.append('from', account_name); // The folder name for GDrive!
+  formData.append('requested_type', globalCfg.api.TYPE_PROVIDER); 
+
+  Object.keys(attachments).forEach(function (key) {
+    formData.append(key, attachments[key]);
+  });    
+
+  const bearer_token = jwtHelper.getBearerTokenByKey();
+      
+  fetch(globalCfg.api.endpoint + '/requests_files', { // Your POST endpoint
+      method: 'POST',
+      headers: {
+        Authorization: bearer_token
+      },
+      body: formData 
+    }).then(
+        (response) => response.json() // if the response is a JSON object
+      , (ex) => { rej(ex) }
+    ).then(
+      (success) => {
+        if(!success)
+        {
+          rej('UNKNOWN ERROR!'); return;
+        }
+        else
+        if(success && success.error)
+        {
+          rej (success.error); return;
+        }
+        else
+        if(success && success.errors)
+        {
+          rej (success.errors[0]); return;
+        }
+        console.log(success);
+        res(success);
+      }
+    ).catch(
+      (error) => {
+        console.log(JSON.stringify(error));
+        res(error);
+        
+      }
+    );
+});
+
+export const updateExchangeRequest      = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, state, tx_id);

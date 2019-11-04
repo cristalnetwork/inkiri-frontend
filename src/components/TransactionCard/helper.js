@@ -17,6 +17,23 @@ export const getRequestDate = (request) => {
   return moment(request.created_at).format('LLLL');
 }
 
+export const getExternalRequestDesc = (request) => {
+
+  if(globalCfg.api.isProviderPayment(request))
+    return (<>
+          Provider:&nbsp;<Tag key={'provider_'+request.id}> { getRequestProviderDesc(request)} </Tag>
+          </>);
+
+  if(globalCfg.api.isExchange(request))
+    return(<>Bank account:&nbsp;<Tag key={'bank_account_'+request.id}>
+          { getBankAccountDesc(request.bank_account)}
+       </Tag></>)
+}
+
+export const getBankAccountDesc = (bank_account) => {
+  return [bank_account.bank_name, bank_account.agency, bank_account.cc].join(', ')
+}
+
 export const getRequestProviderDesc = (request) => {
   return request.provider.name + ' - [CNPJ:'+ request.provider.cnpj+']';
 }

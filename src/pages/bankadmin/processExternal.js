@@ -243,10 +243,10 @@ class processExternal extends Component {
     
     confirm({
       title: 'Confirm process request step',
-      content: 'You will now send the required payment and upload the bank receipt.',
+      content: 'You will now send the wire transfer and upload the bank receipt.',
       onOk() {
         const {request} = that.state;
-        api.bank.processProviderPayment(that.props.actualAccountName, request.id)
+        api.bank.processExternal(that.props.actualAccountName, request.id)
         .then( (data) => {
             that.setState({pushingTx:false})
             that.openNotificationWithIcon("success", 'Request changed successfully');
@@ -304,7 +304,7 @@ class processExternal extends Component {
         console.log(' ABOUT TO CALL API.BANK ')
         console.log(' >> Comprobante:', my_COMPROBANTE);
         console.log(' >> Request:', request.id)
-        api.bank.acceptProviderPayment(that.props.actualAccountName, request.id, attachs)
+        api.bank.acceptExternal(that.props.actualAccountName, request.id, attachs)
         .then( (data) => {
             that.setState({pushingTx:false})
             that.openNotificationWithIcon("success", 'Request accepted successfully');
@@ -333,7 +333,7 @@ class processExternal extends Component {
     const that       = this;
     confirm({
       title: 'You will REJECT the request',
-      content: 'The payment request will be rejected and the amount will be refunded to the customer account.',
+      content: 'The request will be rejected and the amount will be refunded to the customer account.',
       onOk() {
         that.doRefund(globalCfg.api.STATE_REJECTED);
       },
@@ -349,7 +349,7 @@ class processExternal extends Component {
     const that       = this;
     confirm({
       title: 'You will REVERT the request',
-      content: 'The payment request will be rejected and reverted, and the amount will be refunded to the customer account.',
+      content: 'The request will be rejected and reverted, and the amount will be refunded to the customer account.',
       onOk() {
         that.doRefund(globalCfg.api.STATE_REVERTED);  
       },
@@ -378,13 +378,13 @@ class processExternal extends Component {
         const send_tx             = data;
         console.log(' processExternal::refund (then#1) >>  ', JSON.stringify(send_tx));
         
-        api.bank.refundProviderPayment(sender, request.id, new_state, send_tx.data.transaction_id)
+        api.bank.refundExternal(sender, request.id, new_state, send_tx.data.transaction_id)
           .then((data2) => {
 
               // that.clearAttachments();
               that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request.id} });
               that.reload();
-              that.openNotificationWithIcon("success", 'Payment refunded successfully');
+              that.openNotificationWithIcon("success", 'Request refunded successfully');
 
             }, (ex2) => {
               console.log(' processExternal::refund (error#2) >>  ', JSON.stringify(ex2));
@@ -414,7 +414,8 @@ class processExternal extends Component {
     that.setState({pushingTx:true});
     const {request} = that.state;
     
-    api.bank.updateProviderPaymentFiles(this.props.actualAccountName ,request.id, request.state, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
+    // api.bank.updateProviderPaymentFiles(this.props.actualAccountName ,request.id, request.state, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
+    api.bank.updateExternalFiles(this.props.actualAccountName ,request.id, request.state, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
     .then( (data) => {
         that.setState({pushingTx:false})
         that.openNotificationWithIcon("success", 'Nota uploaded successfully');
@@ -486,7 +487,7 @@ class processExternal extends Component {
               // that.clearAttachments();
               that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request.id} });
               that.reload();
-              that.openNotificationWithIcon("success", 'Payment refunded successfully');
+              that.openNotificationWithIcon("success", 'Request refunded successfully');
 
             }, (ex2) => {
               console.log(' processExternal::refund (error#2) >>  ', JSON.stringify(ex2));

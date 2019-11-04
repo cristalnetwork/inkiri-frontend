@@ -41,9 +41,10 @@ function* loadLoginData() {
     if (data && data.account_name && data.password) {
         //yield put(tryLogin(data.account_name, data.password, false))
         const stateData = getLoginDataFromStorage(data);
+        // console.log(' >> LOGIN REDUX loadLoginData: ', JSON.stringify(stateData.profile))
         yield put(setLoginData(stateData))
     } else {
-        console.log(' -- redux::models::login::loadLoginData >> could NOT LOGIN', JSON.stringify(data))
+        console.log(' -- redux::login::loadLoginData >> could NOT LOGIN', JSON.stringify(data))
     }
     yield put({ type: core.ACTION_END, payload: 'login' })
 }
@@ -105,10 +106,13 @@ function* trySwitchAccountSaga({ type, payload }) {
 
 function* loadProfileSaga({ type, payload }) {
   const { account_name } = payload;
+  // console.log(' ** LOGIN-REDUX::loadProfileSaga account_name: ', account_name)
   if(!account_name) return;
   const profile = yield api.bank.getProfile(account_name);
+  // console.log(' ** LOGIN-REDUX::loadProfileSaga profile: ', JSON.stringify(profile))
   if(profile) {
     const { data } = yield getStorage(ACCOUNT_DATA);
+    // console.log(' ** LOGIN-REDUX::loadProfileSaga getStorage: ', JSON.stringify(data))
     setStorage(ACCOUNT_DATA, { account_name: account_name
                                , password: data.password
                                , remember: data.remember
@@ -126,13 +130,14 @@ function* logoutSaga() {
 }
 
 function getLoginDataFromStorage(storageData, switch_to) {
-    const account_name = storageData.account_name;
-    const master_account = storageData.master_account;
-    const password = storageData.password;
-    const new_account = switch_to !== undefined ? switch_to : account_name;
-    const account = accountsToArray(storageData.accounts).filter(acc => acc.permissioner.account_name == new_account)[0]
+    const account_name    = storageData.account_name;
+    const master_account  = storageData.master_account;
+    const password        = storageData.password;
+    const new_account     = (switch_to !== undefined) ? switch_to : account_name;
+    const account         = accountsToArray(storageData.accounts).filter(acc => acc.permissioner.account_name == new_account)[0]
+    const profile         = storageData.profile;
 
-    const _loginData = { userId: new_account, accounts: storageData.accounts, master_account: master_account, current_account: account, password: password };
+    const _loginData = { userId: new_account, accounts: storageData.accounts, master_account: master_account, current_account: account, password: password, profile:profile};
     // console.log(' lodingREDUX::getLoginDataFromStorage >> ', _loginData)
     return _loginData;
 }
@@ -210,7 +215,7 @@ function reducer(state = defaultState, action = {}) {
                 accounts: action.payload.accounts,
                 master_account: action.payload.master_account,
                 current_account: action.payload.current_account,
-                profile: action.payload.accounts.profile
+                profile: action.payload.profile
             }
         case SET_PROFILE:
            return  {

@@ -135,6 +135,7 @@ class DepositMoney extends Component {
     event.preventDefault();
     const the_value = event.target.value;
     const _input_amount = this.state.input_amount;
+    this.props.form.setFieldsValue({'input_amount.value':the_value})
     this.setState({input_amount: {..._input_amount, value: the_value}}, 
       () => {
         if(the_value && the_value.toString().length){

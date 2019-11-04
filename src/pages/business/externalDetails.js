@@ -255,7 +255,7 @@ class externalDetails extends Component {
     
     that.setState({pushingTx:true});
 
-    api.bank.updateProviderPaymentFiles(this.props.actualAccountName, request.id, request.state, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
+    api.bank.updateExternalFiles(this.props.actualAccountName, request.id, request.state, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
     .then( (data) => {
         that.setState({pushingTx:false})
         that.openNotificationWithIcon("success", 'Nota uploaded successfully');
@@ -278,7 +278,7 @@ class externalDetails extends Component {
       content: 'You will cancel the request. The money will be available at your balance in 24/48hs.',
       onOk() {
         const {request} = that.state;
-        api.bank.cancelProviderPayment(that.props.actualAccountName, request.id)
+        api.bank.cancelExternal(that.props.actualAccountName, request.id)
         .then( (data) => {
             that.setState({pushingTx:false})
             that.openNotificationWithIcon("success", 'Request canceled successfully');

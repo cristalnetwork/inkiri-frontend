@@ -108,7 +108,7 @@ class BankAccountForm extends Component {
       <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">
               
-              <div className="money-transfer__row row-expandable" >
+              <div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
                 <Form.Item label="Bank Name">
                   {getFieldDecorator('bank_account.bank_name', {
                     rules: [{ required: true, message: 'Please input a Bank name!', whitespace: true }],
@@ -119,7 +119,7 @@ class BankAccountForm extends Component {
                 </Form.Item>
               </div>
 
-              <div className="money-transfer__row row-expandable" >
+              <div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
                 <Form.Item label="Agency">
                   {getFieldDecorator('bank_account.agency', {
                     rules: [{ required: true, message: 'Please input an Agency!', whitespace: true }],
@@ -130,7 +130,7 @@ class BankAccountForm extends Component {
                 </Form.Item>
               </div>
 
-              <div className="money-transfer__row row-expandable" >
+              <div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
                 <Form.Item label="CC">
                   {getFieldDecorator('bank_account.cc', {
                     rules: [{ required: true, message: 'Please input a CC!', whitespace: true }],

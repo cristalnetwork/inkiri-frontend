@@ -269,6 +269,7 @@ class RequestPayment extends Component {
   onInputAmount(event){
     event.preventDefault();
     const the_value = event.target.value;
+    this.props.form.setFieldsValue({'input_amount.value':the_value})
     const _input_amount = this.state.input_amount;
     this.setState({input_amount: {..._input_amount, value: the_value}}, 
       () => {

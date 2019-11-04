@@ -47,7 +47,8 @@ class Configuration extends Component {
       pushingTx:           false,
       active_tab:          ACTIVE_TAB_PROFILE,
       active_tab_action:   ACTIVE_TAB_PROFILE,
-      active_tab_object:   null
+      active_tab_object:   null,
+      profile:             props.actualAccountProfile
     };
 
     this.renderContent              = this.renderContent.bind(this); 
@@ -70,11 +71,21 @@ class Configuration extends Component {
   * Components Events
   */
 
+  componentDidUpdate(prevProps, prevState) 
+  {
+    const {actualAccountProfile} = this.props;
+    if(prevProps.actualAccountProfile !== actualAccountProfile) {
+      this.setState({ profile:actualAccountProfile});
+    }
+  }
+    
   onConfigurationEvents = (event_type, object) => {
 
-    console.log(' >> onConfigurationEvents::event_type: ', event_type);
+    // console.log(' >> onConfigurationEvents::event_type: ', event_type, object);
     switch (event_type){
       case ENUM_EVENT_EDIT_PROFILE:
+        console.log(' >> onConfigurationEvents::ENUM_EVENT_EDIT_PROFILE: reload profile');
+        this.props.loadProfile(this.props.actualAccountName);
         this.setState({active_tab_action:ACTIVE_TAB_PROFILE_EDIT_PROFILE, active_tab_object:null});
         break;
       case ENUM_EVENT_EDIT_BANK_ACCOUNT:
@@ -140,7 +151,10 @@ class Configuration extends Component {
   onAddOrUpdateBankAccount(error, cancel, values){
     if(cancel)
     {
-      this.setState({active_tab_action:   ACTIVE_TAB_PROFILE, active_tab_object:   null});
+      this.setState({  
+          active_tab_action:   ACTIVE_TAB_PROFILE, 
+          active_tab_object:   null
+      });
       return;
     }
     if(error)
@@ -148,17 +162,17 @@ class Configuration extends Component {
       return;
     }
     const that = this;
-    const profile = this.props.actualAccountProfile;
+    const {profile} = this.state;
     this.setState({active_tab_object:values, pushingTx:true})
-    console.log(' >> onAddOrUpdateBankAccount::values: ', JSON.stringify(values))
-    let bank_accounts = profile.bank_accounts||[values];
-    console.log(' >> onAddOrUpdateBankAccount:: bank_accounts: ', JSON.stringify(bank_accounts))
+    // console.log(' >> onAddOrUpdateBankAccount::values: ', JSON.stringify(values))
+    let bank_accounts = [...profile.bank_accounts, values];
+    // console.log(' >> onAddOrUpdateBankAccount:: bank_accounts: ', JSON.stringify(bank_accounts))
     api.bank.updateUserBankAccounts(profile.id, bank_accounts)
       .then((res)=>{
         that.props.loadProfile(that.props.actualAccountName);
         that.openNotificationWithIcon("success", "Bank account saved successfully")    
         that.resetPage(ACTIVE_TAB_PROFILE);
-        console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(res));
+        // console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(res));
         // that.setState({result:'ok'});
 
       }, (err)=>{
@@ -204,13 +218,12 @@ class Configuration extends Component {
       //   return;
 
       return (
-        <ConfigurationProfile profile={this.props.actualAccountProfile} onEvent={this.onConfigurationEvents}/>
+        <ConfigurationProfile profile={this.state.profile} onEvent={()=>this.onConfigurationEvents}/>
       );
     }
 
     return (null);
   }
-  
 
   render() {
     let content     = this.renderContent();
