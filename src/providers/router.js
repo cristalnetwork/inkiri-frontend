@@ -34,8 +34,8 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           {
               // history.push(`/${actualRole}/provider-profile`);
               // history.push(`/${actualRole}/providers`);
-              history.push(`/${actualRole}/external-transfers`);
-              // history.push(`/${actualRole}/pda`);
+              // history.push(`/${actualRole}/external-transfers`);
+              history.push(`/${actualRole}/pda`);
               // history.push(`/${actualRole}/accounts`);
               // history.push(`/${actualRole}/create-account`);
               
@@ -59,12 +59,12 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
               // history.push(`/${actualRole}/external-transfers`);
             } else {
                 // if(actualRole=='personal')
-                history.push(`/${actualRole}/exchange`);
+                // history.push(`/${actualRole}/exchange`);
                 // history.push(`/${actualRole}/account-settings`);
                 // history.push(`/${actualRole}/withdraw`);
                 // history.push(`/${actualRole}/dashboard`);
                 // history.push(`/${actualRole}/deposit`);
-                // history.push(`/${actualRole}/extrato`);
+                history.push(`/${actualRole}/extrato`);
                 // history.push(`/${actualRole}/send-money`);
             }
           }

@@ -10,7 +10,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 const TransactionProfile = ({profile}) => {
     
     const printAddress = () => {
-      return Object.values(profile.address).join(', ')
+      if(profile.address)
+        return Object.values(profile.address).join(', ')
+      return 'N/A'
     }
 
     return(
