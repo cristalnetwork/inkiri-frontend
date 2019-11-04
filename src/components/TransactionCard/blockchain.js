@@ -7,6 +7,8 @@ import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
+import TransactionTitle from '@app/components/TransactionCard/title';
+
 const TransactionBlockchain = (props) => {
     
     const [request, setRequest]          = useState(props.request);    
@@ -44,13 +46,7 @@ const TransactionBlockchain = (props) => {
       return (null);
     
     return( <>
-        <div className="c-header-detail ">
-          <div className="c-header-detail__head u-clearfix">
-              <div className="c-header-detail__title">Blockchain</div>
-              <div className="c-header-detail__actions">
-              </div>
-          </div>
-        </div>
+        <TransactionTitle title="Blobkchain" />
         
         <div className="ui-list">
           <ul className="ui-list__content">

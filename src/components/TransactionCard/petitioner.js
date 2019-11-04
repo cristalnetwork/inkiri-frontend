@@ -6,12 +6,12 @@ import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
 
-const TransactionPetitioner = ({request}) => {
+const TransactionPetitioner = ({profile, title}) => {
     
     const petitionerName = () => {
-      if(request.requested_by.account_type=='business')
-        return request.requested_by.business_name;
-      return request.requested_by.first_name + ' ' + request.requested_by.last_name;
+      if(profile.account_type=='business')
+        return profile.business_name;
+      return profile.first_name + ' ' + profile.last_name;
     }
     return(
       <div className="ui-list">
@@ -20,16 +20,16 @@ const TransactionPetitioner = ({request}) => {
                 <div className="ui-row__col ui-row__col--heading">
                     <div className="ui-avatar">
                       <div className="ui-avatar__content ui-avatar__content--initials">
-                        <span>{utils.firsts(request.requested_by.account_name, 1)}</span>
+                        <span>{utils.firsts(profile.account_name, 1)}</span>
                       </div>
                     </div>
                 </div>
                 <div className="ui-row__col ui-row__col--content">
                     <div className="ui-info-row__content">
-                        <div className="ui-info-row__title">Requested by: <b>{petitionerName()}</b></div>
+                        <div className="ui-info-row__title">{title||'Requested by' }:&nbsp;<b>{petitionerName()}</b></div>
                           <div className="ui-info-row__details">
                               <ul>
-                                  <li>@{request.requested_by.account_name}</li>
+                                  <li>Account name: @{profile.account_name}</li>
                               </ul>
                           </div>
                     </div>

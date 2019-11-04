@@ -6,18 +6,10 @@ import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import TransactionTitle from '@app/components/TransactionCard/title';
 
 const TransactionAttachments = (props) => {
     
-    const Header = (<div className="c-header-detail ">
-            <div className="c-header-detail__head u-clearfix">
-                <div className="c-header-detail__title">Attachments</div>
-                <div className="c-header-detail__actions">
-                </div>
-            </div>
-        </div>)
-    
-
     const [request, setRequest]          = useState(props.request);    
     const [uploader, setUploader]        = useState(props.uploader);    
 
@@ -34,7 +26,7 @@ const TransactionAttachments = (props) => {
 
     return( 
       <>
-          {Header}
+          <TransactionTitle title="Attachments" />
         
           {  
             request.attach_nota_fiscal_id?

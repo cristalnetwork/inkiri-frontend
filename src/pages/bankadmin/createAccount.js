@@ -226,7 +226,7 @@ class CreateAccount extends Component {
         /*
         * Step #2: create account on private servers 
         */
-        api.bank.createFullUser (account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name)
+        api.bank.createOrUpdateUser(null, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name)
           .then((res2)=>{
             that.setState({result:'ok', pushingTx:false, result_object:{account_name:account_name}});
             console.log(' doCreateAccount() MONGO OK ',JSON.stringify(res2))

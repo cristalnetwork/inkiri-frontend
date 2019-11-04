@@ -71,7 +71,14 @@ const personal =[
        path: 'send-money',
        container: 'dashboard' 
     },
-     {
+    {
+       key: pathNames.personalConfiguration,
+       fileName: 'configuration',
+       area: 'personal',
+       path: 'account-settings',
+       container: 'dashboard' 
+    },
+   {
        key: pathNames.personalDeposit,
        fileName: 'deposit',
        area: 'personal',
@@ -83,6 +90,13 @@ const personal =[
        fileName: 'withdraw',
        area: 'personal',
        path: 'withdraw',
+       container: 'dashboard' 
+    },
+    {
+       key: pathNames.personalExchange,
+       fileName: 'exchange',
+       area: 'personal',
+       path: 'exchange',
        container: 'dashboard' 
     },
     {

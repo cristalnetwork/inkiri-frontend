@@ -13,13 +13,9 @@ export const setBalance = ({key, balance}) =>({ type: SET_BALANCE, payload: { ke
 //Eventos que requieren del async
 function* loadBalanceSaga({action, payload}) {
   const { key } = payload;
-  // console.log('*********************', '*********************', ' LOADEANDO BALANCE CON USER:', key);
   if(!key) return;
-  // console.log('*********************', '*********************', ' LOADEANDO BALANCE CON USER:', key);
   const { data }= yield getAccountBalance(key);
-  // console.log('*********************', '*********************', ' RECEIVED BALANCE DE USER:', key, JSON.stringify(data));
   if(data) {
-    // console.log('*********************', '*********************', ' LLAMANDO a >>setBalance<< CON USER:', key);
     yield put(setBalance({key, balance: data}))
   }
 }

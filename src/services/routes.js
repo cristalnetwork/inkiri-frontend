@@ -32,7 +32,7 @@ const routes  = {
                     },
                     {
                         key: pathNames.personalExchange,
-                        path: pathNames.personalUnderConstruction,
+                        path: pathNames.personalExchange,
                         title: 'Exchange',
                     }
                 ]
@@ -70,15 +70,16 @@ const routes  = {
             ,
             {
                 key: pathNames.personalConfiguration,
-                title: 'Configuration',
+                title: 'Account settings',
                 icon: 'setting',
-                items: [
-                    {
-                        key: pathNames.personalConfiguration,
-                        path: pathNames.personalUnderConstruction,
-                        title: 'Configuration'
-                    }
-                ]
+                path: pathNames.personalConfiguration,
+                // items: [
+                //     {
+                //         key: pathNames.personalConfiguration,
+                //         path: pathNames.personalUnderConstruction,
+                //         title: 'Configuration'
+                //     }
+                // ]
             }
         ]
     },

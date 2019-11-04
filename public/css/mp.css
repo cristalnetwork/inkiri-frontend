@@ -733,7 +733,7 @@ body {
 }
 
 p {
-    font-size: .875em;
+    /*font-size: .875em;*/ /*HACK*/
     color: #999
 }
 

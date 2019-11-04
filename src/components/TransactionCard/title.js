@@ -5,19 +5,17 @@ import { connect } from 'react-redux'
 import * as globalCfg from '@app/configs/global';
 import * as request_helper from '@app/components/TransactionCard/helper';
 
-const TransactionHeader = ({request}) => {
+const TransactionTitle = ({title, button}) => {
     
     return(
       <div className="c-header-detail ">
-        <div className="c-header-detail__head u-clearfix">
-            <div className="c-header-detail__title">
-              Op. #<b>{request_helper.getRequestId(request)}</b> • Created on <b>{request_helper.getRequestDate(request)}</b>
-            </div>
-            <div className="c-header-detail__actions">
-              {request_helper.getStateTag(request)}
-            </div>
-        </div>
-      </div>)
+          <div className="c-header-detail__head u-clearfix">
+              <div className="c-header-detail__title">{title}</div>
+              <div className="c-header-detail__actions">
+                {button}
+              </div>
+          </div>
+        </div>)
     
 }
 
@@ -28,4 +26,4 @@ export default connect(
         // currentAccount:  loginRedux.currentAccount(state),
         // isLoading:       loginRedux.isLoading(state)
     })
-)(TransactionHeader)
+)(TransactionTitle)

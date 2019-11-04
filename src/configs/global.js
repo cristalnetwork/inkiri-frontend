@@ -61,6 +61,8 @@ const bank = {
     return (parseInt(account_state)<bank.ACCOUNT_STATES.length)?bank.ACCOUNT_STATES[parseInt(account_state)]:undefined;
   },
   getAccountType : (account_type) => {
+    if(isNaN(account_type))
+      return account_type;
     return (parseInt(account_type)<bank.ACCOUNT_TYPES.length)?bank.ACCOUNT_TYPES[parseInt(account_type)]:undefined;
   },
   isPersonalAccount : (param) => {
@@ -251,6 +253,6 @@ const dfuse = {
   }
 }
 
-console.log(' *** EOS.ENDPOINT', eos.endpoint)
-console.log(' *** API.ENDPOINT', api.endpoint)
+// console.log(' *** EOS.ENDPOINT', eos.endpoint)
+// console.log(' *** API.ENDPOINT', api.endpoint)
 export { language, api, currency, dfuse, bank, eos };

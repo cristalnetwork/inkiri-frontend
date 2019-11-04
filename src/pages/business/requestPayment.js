@@ -45,7 +45,7 @@ const DEFAULT_STATE = {
         [globalCfg.api.NOTA_FISCAL]       : undefined,
         [globalCfg.api.BOLETO_PAGAMENTO]  : undefined,
       }
-    };
+};
 
 const DEFAULT_RESULT = {
   result:             undefined,

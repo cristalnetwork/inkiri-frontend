@@ -216,19 +216,21 @@ return {
 // This is an amazing HACK!
 // Check https://github.com/cristalnetwork/inkiri-eos-contracts/blob/master/inkiribank.cpp
 function getStateDescription(state_id){
-  const states = globalCfg.bank.ACCOUNT_STATES;
-  if(state_id>=states.length)
-    return states[0];
-  return states[state_id];
+  // const states = globalCfg.bank.ACCOUNT_STATES;
+  // if(state_id>=states.length)
+  //   return states[0];
+  // return states[state_id];
+  return globalCfg.bank.getAccountState(state_id)
 }
 
 // This is another amazing HACK!
 // Check https://github.com/cristalnetwork/inkiri-eos-contracts/blob/master/inkiribank.cpp
 function getAccountTypeDescription(account_type_id){
-  const account_types = globalCfg.bank.ACCOUNT_TYPES;
-  if(account_type_id>=account_types.length)
-    return account_types[0];
-  return account_types[account_type_id];
+  // const account_types = globalCfg.bank.ACCOUNT_TYPES;
+  // if(account_type_id>=account_types.length)
+  //   return account_types[0];
+  // return account_types[account_type_id];
+  return globalCfg.bank.getAccountType(account_type_id)
 }
 
 export { getTxMetadata, getEOSQuantityToNumber, getStateDescription, getAccountTypeDescription };

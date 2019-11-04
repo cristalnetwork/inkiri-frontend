@@ -7,6 +7,8 @@ import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
+import TransactionBankAccount from '@app/components/TransactionCard/bank_account';
+
 const TransactionProvider = (props) => {
     
     const [request, setRequest]          = useState(null);
@@ -56,7 +58,10 @@ const TransactionProvider = (props) => {
                           </div>
                       </div>
                 </li>
-                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
+                
+                <TransactionBankAccount bank_account={bank_account} alone_component={false} />
+
+                <li className="hidden ui-row ui-info-row ui-info-row--medium ui-info-row">
                       <div className="ui-row__col ui-row__col--heading">
                           <div className="ui-avatar ">
                               <div className="ui-avatar__content ui-avatar__content--icon">

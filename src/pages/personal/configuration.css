@@ -1,0 +1,108 @@
+ .mp-app-wrapper {
+        background: #f7f7f7;
+    }
+    .mp-main {
+        font-size: 16px;
+    }
+
+    .mp-main.compact {
+        padding: 0;
+        margin:0;    
+    }
+
+    a.mp-nav__menu-item,
+    a.mp-nav__menu-item span,
+    .mp-nav__user-menu a,
+    .mp-nav__user-menu a:visited {
+        color: #333;
+    }
+
+    .mp-nav__menu-item.is-active span,
+    .mp-nav__menu-item.is-active:visited span {
+        color: #009ee3;
+    }
+    .mp-nav__menu-title.is-disabled {
+        color: #333;
+        opacity: 0.25;
+    }
+    .mp-nav__menu-item.is-disabled {
+        pointer-events: none;
+        cursor: default;
+        color: #333;
+        opacity: 0.25;
+    }
+    .mp-nav__menu-item.is-disabled svg path {
+        fill: #333;
+    }
+
+    .mp-nav__user-menu a:hover {
+        color: #009ee3;
+    }
+    .mp-nav a:hover,
+    .mp-nav a:active,
+    .mp-nav a:focus {
+        text-decoration: none;
+    }
+
+    .mp-main__content {
+        position: relative;
+        z-index: 1;
+        max-width: 1020px;
+        margin: 0 auto;
+        min-height: 100%;
+    }
+
+    .mp-main__header-back {
+        height: 100%;
+        margin-right: 16px;
+        line-height: 64px;
+    }
+
+    .mp-main__header-title {
+        margin: 0;
+        border: 0;
+    }
+    .mp-nav__user-operator-info {
+        padding: 0.875em 1.125em 1.250em 1.125em;
+        border-bottom: 1px solid #EEEEEE;
+        margin-bottom: 0.500em;
+    }
+    .mp-nav__user-operator-name {
+        font-size: 1.125em;
+        color: #666666;
+    }
+    .mp-nav__user-operator-email {
+        color: #9ba9bb;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .mp-nav__user-menu a {
+        display: block;
+        padding-left: 1.200em;
+        font-size: 0.9375em;
+        line-height: 2.286em;
+        color: #666;
+    }
+
+    @media (min-width: 768px) {
+        .mp-main.compact {
+            padding-top: 4em;
+        }
+        .mp-main__header-back {
+            line-height: 68px;
+        }
+        .mp-nav__user-operator-info {
+            padding: 0.750em 1em 1em 1em;
+        }
+        .mp-nav__user-operator-name {
+            font-size: 1em;
+        }
+        .mp-nav__user-operator-email {
+            font-size: 0.750em;
+        }
+        .mp-nav__user-menu a {
+            line-height: 2em;
+            font-size: 0.875em;
+        }
+
+    }

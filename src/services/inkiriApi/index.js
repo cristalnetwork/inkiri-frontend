@@ -654,7 +654,7 @@ export const login = async (account_name, private_key) => {
     throw new Error('Your account should be an enabled and a Personal type account!')
     return; 
   }
-  
+
   const bchain_account_info = await getAccount(account_name);
   const personalAccount   = { 
 
@@ -666,7 +666,7 @@ export const login = async (account_name, private_key) => {
       , permissioner     : {
           account_name               : account_name
           , account_type             : customer_info.account_type
-          , account_type_description : txsHelper.getAccountTypeDescription(customer_info.account_type)
+          , account_type_description : globalCfg.bank.getAccountType(customer_info.account_type) // txsHelper.getAccountTypeDescription(customer_info.account_type)
           // FOR TESTING PURPOSES
           // , account_type             : globalCfg.bank.ACCOUNT_TYPE_BANKADMIN 
           // , account_type_description : txsHelper.getAccountTypeDescription(globalCfg.bank.ACCOUNT_TYPE_BANKADMIN)
@@ -719,7 +719,7 @@ export const login = async (account_name, private_key) => {
   if(!bank_auth&&need_creation)
   {
     try{
-      let bank_create = await bank.createUser(account_name);
+      let bank_create = await bank.createUser(account_name, globalCfg.bank.getAccountType(customer_info.account_type));
       bank_auth = await bank.auth(account_name, private_key);
     }
     catch(ex){
@@ -727,10 +727,21 @@ export const login = async (account_name, private_key) => {
       throw new Error('Account is not on private servers!'); 
       return;
     }
-      
   }
    
+  
+  let profile = null;
+  try{
+    profile = await bank.getProfile(account_name);
+  }
+  catch(ex){
+    // if(ex && ex.error && parseInt(ex.error)==404){
+      
+    // }
+  }
+
   const ret= {
+    profile               : profile,
     personalAccount       : personalAccount,
     // persmissionedAccounts : persmissionedAccounts,
     corporateAccounts     : corporateAccounts.length>0?corporateAccounts:undefined,

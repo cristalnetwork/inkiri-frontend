@@ -16,13 +16,20 @@ const LOGOUT            = 'login/LOGOUT'
 const TRY_SWITCH        = 'login/TRY_SWITCH';
 const TRY_SWITCH_END    = 'login/TRY_SWITCH_END';
 
+const LOAD_PROFILE      = 'login/LOAD_PROFILE';
+const SET_PROFILE       = 'login/SET_PROFILE';
+
 
 // Creadores de acciones (se pueden usar desde los compoenentes)
 // export const tryLogin = (account, save) =>({ type: TRY_LOGIN, payload: {account, save } });
-export const trySwitchAccount = (account_name) => ({ type: TRY_SWITCH, payload: { account_name } });
+export const trySwitchAccount = (account_name)             => ({ type: TRY_SWITCH, payload: { account_name } });
 export const tryLogin = (account_name, password, remember) => ({ type: TRY_LOGIN, payload: { account_name, password, remember } });
-export const logout = () => ({ type: LOGOUT });
-export const setLoginData = (loginData) => ({ type: SET_LOGIN, payload: loginData });
+export const logout = ()                                   => ({ type: LOGOUT });
+export const setLoginData = (loginData)                    => ({ type: SET_LOGIN, payload: loginData });
+
+export const loadProfile = (account_name)                  =>({ type: LOAD_PROFILE, payload: {account_name} });
+export const setProfile = ({account_name, profile})        =>({ type: SET_PROFILE, payload: { account_name, profile }});
+
 
 const ACCOUNT_DATA = 'account_data'
 
@@ -51,10 +58,16 @@ function* tryLoginSaga({ type, payload }) {
 
         if (payload.remember) {
             let master_account = account_name;
-            setStorage(ACCOUNT_DATA, { account_name, password, remember, accounts, master_account })
-            // setStorage(ACCOUNT_DATA, {account_name, password, remember, accounts, account_name})
+            const profile = accounts.profile;
+            setStorage(ACCOUNT_DATA, { account_name, password, remember, accounts, master_account, profile })
         }
-        yield put(setLoginData({ userId: account_name, accounts: accounts, master_account: account_name, current_account: accounts.personalAccount, password: password }))
+        yield put(setLoginData({ 
+                userId:             account_name
+                , accounts:         accounts
+                , master_account:   account_name
+                , current_account:  accounts.personalAccount
+                , password:         password
+                , profile:          accounts.profile }))
     } catch (e) {
         console.log(' >> LOGIN REDUX ERROR#1', e)
     }
@@ -75,13 +88,37 @@ function* trySwitchAccountSaga({ type, payload }) {
 
     const stateData = getLoginDataFromStorage(data, account_name);
 
+    const profile = yield api.bank.getProfile(account_name);
+    stateData['profile'] = profile;
     console.log(' LOGIN REDUX >> trySwitchAccountSaga >>putting new data', JSON.stringify(stateData));
-    setStorage(ACCOUNT_DATA, { account_name: account_name, password: data.password, remember: data.remember, accounts: stateData.accounts, master_account: stateData.master_account })
+    setStorage(ACCOUNT_DATA, { account_name: account_name
+                               , password: data.password
+                               , remember: data.remember
+                               , accounts: stateData.accounts
+                               , master_account: stateData.master_account
+                               , profile:profile })
     yield put(setLoginData(stateData))
     yield put({ type: TRY_SWITCH_END })
     history.replace('/');
 
 }
+
+function* loadProfileSaga({ type, payload }) {
+  const { account_name } = payload;
+  if(!account_name) return;
+  const profile = yield api.bank.getProfile(account_name);
+  if(profile) {
+    const { data } = yield getStorage(ACCOUNT_DATA);
+    setStorage(ACCOUNT_DATA, { account_name: account_name
+                               , password: data.password
+                               , remember: data.remember
+                               , accounts: data.accounts
+                               , master_account: data.master_account
+                               , profile:profile });
+    yield put(setProfile({account_name:account_name, profile:profile}))
+  }
+}
+
 
 function* logoutSaga() {
     yield clearStorage();
@@ -109,26 +146,28 @@ store.injectSaga('login', [
     takeEvery(core.INIT, loadLoginData),
     takeEvery(TRY_LOGIN, tryLoginSaga),
     takeEvery(TRY_SWITCH, trySwitchAccountSaga),
+    takeEvery(LOAD_PROFILE, loadProfileSaga),
     takeEvery(LOGOUT, logoutSaga)
 ]);
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
 export const isLoading = (state) => state.login.loading > 0
 // export const actualAccountName         = (state) => (state.login.current_account)?state.login.current_account.permissioned.actor:undefined
-export const actualAccountName = (state) => (state.login.current_account) ? state.login.current_account.permissioner.account_name : undefined
-export const actualPrivateKey = (state) => state.login.private_key
-export const actualRole = (state) => (state.login.current_account) ? globalCfg.bank.getAccountType(state.login.current_account.permissioner.account_type) : undefined
-export const actualRoleId = (state) => (state.login.current_account) ? state.login.current_account.permissioner.account_type : undefined
-export const currentAccount = (state) => state.login.current_account
+export const actualAccountName     = (state) => (state.login.current_account) ? state.login.current_account.permissioner.account_name : undefined
+export const actualAccountProfile  = (state) => state.login.profile;
+export const actualPrivateKey      = (state) => state.login.private_key;
+export const actualRole            = (state) => (state.login.current_account) ? globalCfg.bank.getAccountType(state.login.current_account.permissioner.account_type) : undefined
+export const actualRoleId          = (state) => (state.login.current_account) ? state.login.current_account.permissioner.account_type : undefined
+export const currentAccount        = (state) => state.login.current_account
 
-export const isAdmin = (state) => globalCfg.bank.isAdminAccount(state.login.current_account.permissioner.account_type);
-export const isBusiness = (state) => globalCfg.bank.isBusinessAccount(state.login.current_account.permissioner.account_type);
+export const isAdmin               = (state) => globalCfg.bank.isAdminAccount(state.login.current_account.permissioner.account_type);
+export const isBusiness            = (state) => globalCfg.bank.isBusinessAccount(state.login.current_account.permissioner.account_type);
 
-export const personalAccount = (state) => state.login.accounts.personalAccount
+export const personalAccount       = (state) => state.login.accounts.personalAccount
 export const otherPersonalAccounts = (state) => state.login.accounts.otherPersonalAccounts
-export const corporateAccounts = (state) => state.login.accounts.corporateAccounts
-export const adminAccount = (state) => state.login.accounts.adminAccount
-export const allAccounts = (state) => accountsToArray(state.login.accounts)
+export const corporateAccounts     = (state) => state.login.accounts.corporateAccounts
+export const adminAccount          = (state) => state.login.accounts.adminAccount
+export const allAccounts           = (state) => accountsToArray(state.login.accounts)
 
 // El reducer del modelo
 const defaultState = {
@@ -170,7 +209,13 @@ function reducer(state = defaultState, action = {}) {
                 private_key: action.payload.password,
                 accounts: action.payload.accounts,
                 master_account: action.payload.master_account,
-                current_account: action.payload.current_account
+                current_account: action.payload.current_account,
+                profile: action.payload.accounts.profile
+            }
+        case SET_PROFILE:
+           return  {
+                ...state
+                , profile:     action.payload.profile 
             }
         case LOGOUT:
             return defaultState;
