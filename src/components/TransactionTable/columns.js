@@ -1,0 +1,74 @@
+import React from 'react'
+import { Tag } from 'antd';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import * as request_helper from '@app/components/TransactionCard/helper';
+
+export const columnsForPDA      = (callback) => getColumns(callback);
+export const columnsForExternal = (callback) => getColumns(callback);
+export const getColumns         = (callback) => {
+    // return columns(this.props.actualRoleId, this.onProcessRequestClick)
+    return [
+      {
+        title: 'Description',
+        dataIndex: 'sub_header',
+        key: 'sub_header',
+        render: (value, record) => {
+          return(
+            <span className="name_value_row">
+              <div className="row_name centered" >
+                {request_helper.getTypeIcon(record)} 
+              </div>
+              <div className="row_value wider">
+                <span className="row_tx_description">{record.sub_header_admin}</span> 
+                 <br/>{request_helper.getStateLabel(record, true)} 
+              </div>   
+            </span>)
+        }
+      },
+      {
+        title: 'Tags',
+        key: 'tx_type',
+        dataIndex: 'tx_type',
+        render: (tx_type, record) => {
+          
+          return (
+            <span key={'tags'+record.id}>
+               
+               {request_helper.getExternalRequestDesc(record)}
+               Op.&nbsp;#<Tag key={'request_id_'+record.id}>
+                  { request_helper.getRequestId(record)}
+               </Tag>
+               {request_helper.getGoogleDocLinkOrNothing(record.attach_nota_fiscal_id, true, 'Nota fiscal')}
+               {request_helper.getGoogleDocLinkOrNothing(record.attach_boleto_pagamento_id, true, 'Boleto Pagamento')}
+               {request_helper.getGoogleDocLinkOrNothing(record.attach_comprobante_id, true, 'Comprobante Bancario')}
+            </span>
+            )}
+      },
+      //
+      {
+        title: 'Action',
+        key: 'action',
+        width: 100,
+        render: (text, record) => {
+          return request_helper.getProcessButton(record, callback);
+        }
+      },
+
+      {
+        title: 'Amount and date',
+        
+        dataIndex: 'block_time',
+        key: 'block_time',
+        sortDirections: ['descend'],
+        defaultSortOrder: 'descend',
+        sorter: (a, b) => a.block_time_number - b.block_time_number,
+        align: 'right',
+        render: (block_time, record) => (
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin">
+            {request_helper.getStyledAmount(record, false, false)}
+            {request_helper.getStyledDate(record)}
+          </div>
+          )
+      }
+    ];
+  }

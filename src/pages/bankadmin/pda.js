@@ -20,9 +20,10 @@ import { notification, Table, Divider, Spin } from 'antd';
 import './pda.css'; 
 import styles from './style.less'; 
 
-// import TransactionTable from '@app/components/TransactionTable';
-//import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
-import {columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_WITHDRAWS} from '@app/components/TransactionTable';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import * as request_helper from '@app/components/TransactionCard/helper';
+import * as columns_helper from '@app/components/TransactionTable/columns';
+import {columns,  DISPLAY_DEPOSIT, DISPLAY_WITHDRAWS} from '@app/components/TransactionTable';
 
 import * as utils from '@app/utils/utils';
 
@@ -48,16 +49,13 @@ class PDA extends Component {
       limit:           globalCfg.api.default_page_size,
       can_get_more:    true,
 
-      stats:          {},
-      active_tab:     DISPLAY_ALL_TXS
+      stats:          {}
     };
 
     this.loadTransactionsForPDA     = this.loadTransactionsForPDA.bind(this);  
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderFooter               = this.renderFooter.bind(this); 
     this.onNewData                  = this.onNewData.bind(this);
-    // this.onTabChange                = this.onTabChange.bind(this);
-    this.onTableChange              = this.onTableChange.bind(this);
     this.onProcessRequestClick      = this.onProcessRequestClick.bind(this);
   }
   
@@ -65,6 +63,16 @@ class PDA extends Component {
     this.loadTransactionsForPDA();  
   } 
 
+  getColumns(){
+    // return columns(this.props.actualRoleId, this.onProcessRequestClick)
+    return columns_helper.columnsForPDA(this.onProcessRequestClick);
+  }
+
+  //
+  
+  /*
+  * Retrieves transactions
+  */
   loadTransactionsForPDA(){
 
     let can_get_more   = this.state.can_get_more;
@@ -135,7 +143,7 @@ class PDA extends Component {
     const pending      = txs.filter( tx => globalCfg.api.isProcessPending(tx))
                     .map(tx =>tx.quantity).length;
 
-    stats[this.state.active_tab] = {
+    stats = {
         withdraws:     withdraws
         , deposits:    deposits
         , count:       txs.length
@@ -147,7 +155,7 @@ class PDA extends Component {
   }
 
   currentStats(){
-    const x = this.state.stats[this.state.active_tab];
+    const x = this.state.stats;
     const _default = {deposits:0 
               , withdraws:0
               , count:0
@@ -165,20 +173,12 @@ class PDA extends Component {
   }
   // Component Events
   
-  onTableChange(key, txs) {
-    // console.log(key);
-    // this.setState({active_tab:key})
-    if(key==this.state.active_tab )
-      this.computeStats(txs);
-  }
-
   onProcessRequestClick(request){
-    
     // this.props.history.push({
     //   pathname: `/${this.props.actualRole}/pda-process-request`
     //   , state: { request: request }
     // })
-
+    
     this.props.history.push({
       pathname: `/${this.props.actualRole}/pda-process-request`
       , state: { request: request }
@@ -338,7 +338,7 @@ class PDA extends Component {
             key="table_all_requests" 
             rowKey={record => record.id} 
             loading={this.state.loading} 
-            columns={columns(this.props.actualRoleId, this.onProcessRequestClick)} 
+            columns={this.getColumns()} 
             dataSource={this.state.txs} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}

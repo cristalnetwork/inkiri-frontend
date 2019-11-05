@@ -79,6 +79,24 @@ export const getTypeTag = (request) => {
   return (<Tag key={'type_'+request.id}>{utils.capitalize(globalCfg.api.typeToText(request.requested_type))}</Tag>)
 }
 //
+export const getTypeIcon = (request, size, color) => {
+  const iconForRequest = {
+      [globalCfg.api.TYPE_DEPOSIT]     : {icon:'arrow-up', rotation: 0, style: {borderTop: '1px solid gray'}},
+      [globalCfg.api.TYPE_WITHDRAW]    : {icon:'arrow-down', rotation: 0, style: {borderTop: '1px solid gray'}},
+      [globalCfg.api.TYPE_EXCHANGE]    : {icon:'exchange-alt',  rotation:90, style: {}},
+      [globalCfg.api.TYPE_PAYMENT]     : {icon:'shopping-bag', rotation: 0, style: {}},
+      [globalCfg.api.TYPE_PROVIDER]    : {icon:'truck-moving', rotation: 0, style: {}},
+      [globalCfg.api.TYPE_SEND]        : {icon:'paper-plane', rotation: 0, style: {}},
+      [globalCfg.api.TYPE_SERVICE]     : {icon:'store', rotation: 0, style: {}},
+      'IUGU'                           : {icon:'credit-card', rotation: 0, style: {}},
+  }
+  const my_icon = iconForRequest[request.requested_type]; 
+  // style={my_icon.style} 
+  if(my_icon.rotation>0)
+    return (<FontAwesomeIcon icon={my_icon.icon} rotation={my_icon.rotation} style={my_icon.style} size={size||'1x'} color={color||'gray'}/>);
+  return (<FontAwesomeIcon icon={my_icon.icon} style={my_icon.style} size={size||'1x'} color={color||'gray'}/>);
+}
+//
 export const getBlockchainLink = (tx_id, withIcon, size, text) => {
   if(!tx_id)
     return (null);
@@ -93,10 +111,20 @@ export const getBlockchainLink = (tx_id, withIcon, size, text) => {
 //   return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+request.id} icon={withIcon?'cloud':null} title="View on Blockchain">B-Chain</Button>)
 // }
 //
-export const getProcessButton = (request, cb, text) => {
+export const getProcessButton = (request, callback, text) => {
   const title = text?text:((globalCfg.api.isFinished(request))?"Details":"Process");
 
-  return (<Button key={'details_'+request.id} size="small" onClick={()=>{ if(cb) cb(request) }}>{title}</Button>);
+  const buttonClick = (callback, request) => {
+    if(typeof callback === 'function')
+    {
+      console.log(' == about to fire...')  
+      callback(request)
+      return;
+    }
+    console.log(' NOT firing...')  
+  }
+  // if(typeof  callback === 'function')
+  return (<Button key={'details_'+request.id} size="small" onClick={()=>{ buttonClick(callback, request) }}>{title}</Button>);
 }
 //
 export const getStyledAmount = (request, mp_style, negative) => {
