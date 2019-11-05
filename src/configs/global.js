@@ -110,6 +110,14 @@ const api = {
   , TYPE_SEND                 : 'type_send'
   , TYPE_WITHDRAW             : 'type_withdraw' 
   , TYPE_SERVICE              : 'type_service'
+
+  , TYPE_ISSUE                : 'type_issue'
+  , TYPE_IUGU                 : 'type_iugu'
+  , TYPE_REFUND               : 'type_refund'
+  , TYPE_RECEIVE              : 'type_receive'
+  , TYPE_UPSERT               : 'type_upsert'
+  , TYPE_UNKNOWN              : 'type_unknown'
+
   , typeToText : (request_type) => {
       const types = {
         [api.TYPE_DEPOSIT]     : 'deposit', 
@@ -122,9 +130,9 @@ const api = {
       } 
       return types[request_type];
     }
-  , isDeposit          : (request) => { return (request.tx_type==api.TYPE_DEPOSIT)}
-  , isIKDeposit        : (request) => { return (request.tx_type==api.TYPE_DEPOSIT && request.deposit_currency==api.FIAT_CURR_IK)}
-  , isBRLDeposit       : (request) => { return (request.tx_type==api.TYPE_DEPOSIT && request.deposit_currency==api.FIAT_CURR_BRL)}
+  , isDeposit          : (request) => { return (request.tx_type==api.TYPE_DEPOSIT||request.requested_type==api.TYPE_DEPOSIT)}
+  , isIKDeposit        : (request) => { return (api.isDeposit(request) && request.deposit_currency==api.FIAT_CURR_IK)}
+  , isBRLDeposit       : (request) => { return (api.isDeposit(request) && request.deposit_currency==api.FIAT_CURR_BRL)}
   , isWithdraw         : (request) => { return (request.tx_type==api.TYPE_WITHDRAW)}
   , isProviderPayment  : (request) => { return (request.tx_type==api.TYPE_PROVIDER)}
   , isExchange         : (request) => { return (request.tx_type==api.TYPE_EXCHANGE)}
@@ -137,7 +145,7 @@ const api = {
   , STATE_CANCELED              : 'state_canceled'
   , STATE_REFUNDED              : 'state_refunded'
   , STATE_REVERTED              : 'state_reverted'
-
+  
   , stateToText : (request_state) => {
       const states = {
         [api.STATE_REQUESTED]    : 'requested', 
@@ -150,8 +158,8 @@ const api = {
         [api.STATE_REJECTED]     : 'rejected', 
         [api.STATE_ERROR]        : 'error', 
         [api.STATE_CANCELED]     : 'canceled',
-      } 
-      return states[request_state];
+      }
+      return states[request_state] || request_state;
     }
   , stateToColor : (request_state) => {
       const states = {
@@ -167,7 +175,7 @@ const api = {
 
         [api.STATE_CANCELED]     : '#fa541c' //'red',
       } 
-      return states[request_state];
+      return states[request_state] || 'gray';
     }
   , getStates           : () => { return [api.STATE_REQUESTED, api.STATE_PROCESSING, api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_ERROR, api.STATE_REFUNDED, api.STATE_REVERTED, api.STATE_CANCELED];}
   , isOnBlockchain      : (request) => {
@@ -177,7 +185,7 @@ const api = {
       return request.tx_id || request.transaction_id;
     }
   , isFinished         : (request) => {
-      return [api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR].indexOf(request.state)>=0;
+      return [api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR].includes(request.state);
     }
   , isProcessing       : (request) => {
       return [api.STATE_PROCESSING].indexOf(request.state)>=0;

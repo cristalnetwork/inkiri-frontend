@@ -42,3 +42,9 @@ export const tailFormItemLayout = {
         },
       },
     };
+
+export const objectToString = (obj) => {
+  return Object.keys(obj).map(function(key, index) {
+    return `${key}:${obj[key]}`
+  }).join(', ');
+}

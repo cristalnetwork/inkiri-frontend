@@ -14,6 +14,8 @@ import { notification, Table, Divider, Spin } from 'antd';
 
 import * as request_helper from '@app/components/TransactionCard/helper';
 
+import * as columns_helper from '@app/components/TransactionTable/columns';
+
 export const  DISPLAY_ALL_TXS    = 'all_txs';
 export const  DISPLAY_REQUESTS   = 'type_all';
 export const  DISPLAY_DEPOSIT    = globalCfg.api.TYPE_DEPOSIT;
@@ -23,101 +25,6 @@ export const  DISPLAY_PROVIDER   = globalCfg.api.TYPE_PROVIDER;
 export const  DISPLAY_WITHDRAWS  = globalCfg.api.TYPE_WITHDRAW;
 export const  DISPLAY_SEND       = globalCfg.api.TYPE_SEND;
 export const  DISPLAY_SERVICE    = globalCfg.api.TYPE_SERVICE;
-
-export const columns = (account_type, onButtonClick) => {
-  return [
-  {
-    title: 'Date',
-    dataIndex: 'block_time',
-    key: 'block_time',
-    sortDirections: ['descend'],
-    defaultSortOrder: 'descend',
-    sorter: (a, b) => a.block_time_number - b.block_time_number,
-  },
-  {
-    title: 'Description',
-    dataIndex: 'sub_header',
-    key: 'sub_header',
-    render: (value, record) => {
-      if(globalCfg.bank.isAdminAccount(account_type))
-        return(<>{record.sub_header_admin||record.sub_header}</>)  
-      return(<>{record.sub_header}</>)
-    }
-  },
-  //
-  {
-    title: 'Amount',
-    dataIndex: 'quantity',
-    key: 'quantity',
-    align: 'right',
-    render: (quantity, record) => (
-      <span>
-        {globalCfg.currency.toCurrencyString(quantity)}
-      </span>
-      )
-  },
-  //
-  {
-    title: 'Tags',
-    key: 'tx_type',
-    dataIndex: 'tx_type',
-    render: (tx_type, record) => {
-      let extras = null;
-      if(globalCfg.api.isDeposit(record))
-      {
-        const envelope_id = api.bank.envelopeIdFromRequest(record);
-        extras = (< ><br/><span key={'envelope_'+record.id}>ENVELOPE ID: <b>{envelope_id}</b></span></>);
-      }
-      //
-      return (
-          <span key={'tags'+record.id}>
-           <Tag color={'geekblue'} key={'type_'+record.id}>
-                  {tx_type.toUpperCase()}
-           </Tag><br/>
-           <Tag color={'geekblue'} key={'state_'+record.id}>
-                  {(record.state||'COMPLETED').toUpperCase()}
-           </Tag>
-           {extras}
-          </span>
-          )}
-  },
-  //
-  {
-    title: 'Action',
-    key: 'action',
-    fixed: 'right',
-    width: 100,
-    render: (text, record) => {
-      return request_helper.getProcessButton(record, onButtonClick);
-      // let processButton = (null);
-      // if(typeof onButtonClick === 'function' && globalCfg.bank.isAdminAccount(account_type)){
-      //   processButton = (<Button size="small" key={'process_'+record.id} onClick={()=>{ onButtonClick(record) }}>Process</Button>);
-      // } //
-      // let viewDetailsButton = (null);
-      // const onBlockchain = globalCfg.api.isOnBlockchain(record);
-      // if(onBlockchain){
-      //   const _href = api.dfuse.getBlockExplorerTxLink(onBlockchain);
-      //   viewDetailsButton = (<Button size="small" type="link" href={_href} target="_blank" key={'view-on-blockchain_'+record.id} icon="cloud" title="View on Blockchain">B-Chain</Button>);
-      // } //
-
-      // if(!globalCfg.api.isFinished(record))
-      // {
-      //   return (
-      //     <span>
-      //       {viewDetailsButton}
-      //       <Divider type="vertical" />
-      //       {processButton}
-      //     </span>  );
-      // }
-      // //
-      // return(
-      //   <span>
-      //     {viewDetailsButton}
-      //   </span>
-      // )
-    },
-  },
-]};
 
 //
 
@@ -221,13 +128,14 @@ class TransactionTable extends Component {
     });
   }
 
+
   render(){
     return (
       <Table 
         key={'tx_table__'+this.props.request_type}
         rowKey={record => record.id} 
         loading={this.state.loading} 
-        columns={columns(this.props.actualRoleId)} 
+        columns={columns_helper.getDefaultColumns(this.props.actualRoleId, this.props.callback)} 
         dataSource={this.state.txs} 
         footer={() => this.renderFooter()}
         pagination={this.state.pagination}

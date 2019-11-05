@@ -9,8 +9,10 @@ function getTxMetadata(account_name, fullTx){
   const tx_code    = getTxCode(tx);
   const tx_subcode = getTxSubCode(tx);
   const i_sent     = isSender(account_name, tx)
+  const request    = getRequestMetadata(tx, tx_type, tx_code)
   return {
     tx_type:               tx_type,
+    request:               request,
     tx_name:               tx_name,
     tx_code:               tx_code, 
     tx_subcode:            tx_subcode, 
@@ -25,19 +27,95 @@ function getTxMetadata(account_name, fullTx){
   };
 }
 
+
+// BUSINESS
+// "memo": "prv|5d925b3cb1651e30fd49eb9f",
+// "memo": "prv|undefined",
+// "memo": "bck|5db7616e780dab1a00f54d3f|",
+//
+// PERSONAL
+// "memo": "snd",
+// "memo": "dep|brls|43",
+// "memo": "dep|iks|44",
+// "memo": "wth|5dbcf5251cb05e4cda1ca6e0",
+// "memo": "bck|5dbcf5691cb05e4cda1ca6e1|",
+// "memo": "xch|5dbfca1541450422692e792c|5dbfa68fcae447637f2bbe46",
+
+function getRequestMetadata(tx, tx_type, tx_code){
+  if(!tx_type) tx_type   = combineTxNameCode(tx);
+  if(!tx_code) tx_code   = getTxCode(tx);
+  
+  const requested_type   = keyCodeToRequestType(tx_type);
+  
+  const _default = (request_id, request_counter) => {
+      return {
+            requested_type:        requested_type,
+            request_id:            request_id||null,
+            request_counter:       request_counter||null
+      };
+    }
+  
+  const memo = getTxMemoSplitted(tx)
+  if(!memo) return _default();
+    
+  switch(memo[0]){
+    case MEMO_KEY_DEP:
+      return _default(null, memo[2])
+      break;
+    case MEMO_KEY_IUG:
+      return _default()
+      break;
+    case MEMO_KEY_OFT:
+      return _default()
+      break;
+    case MEMO_KEY_BCK:
+      return _default(memo[1], null)
+      break;
+    case MEMO_KEY_WTH:
+      return _default(memo[1], null)
+      break;
+    case MEMO_KEY_XCH:
+      // memo[2] -> commercial bank account id
+      return _default(memo[1], null);
+      break;
+    case MEMO_KEY_PRV:
+      return _default(memo[1], null);
+      break;
+    case MEMO_KEY_SND:
+    return _default();
+      break;
+    case MEMO_KEY_PAY:
+      return _default();
+      break;
+    case MEMO_KEY_PAP:
+      return _default();
+      break;
+    default:
+      return _default();
+  }
+}
+
 function getEOSQuantityToNumber(quantity){ 
 	return !quantity?0:Number(quantity.replace(globalCfg.currency.eos_symbol, ''));
+}
+
+const getTxMemo = (tx) =>{
+  return (tx.data && tx.data.memo)?tx.data.memo:''; 
+}
+const getTxMemoSplitted = (tx) =>{
+  return getTxMemo(tx).split('|'); 
 }
 
 function getTxQuantity(tx)             { return tx.data.quantity;}
 function getTxQuantityToNumber(tx)     { return getEOSQuantityToNumber(tx.data.quantity); }
 function getTxName(tx)                 { return tx.name ; }
-function getTxCode(tx)                 { return (tx.data && tx.data.memo)?tx.data.memo.split('|')[0]:''; }
-function getTxSubCode(tx)              { return (!tx.data.memo)?'':(tx.data.memo.split('|').length>1 ? tx.data.memo.split('|')[1] : '');}
+function getTxCode(tx)                 { return getTxMemoSplitted(tx)[0]; }
+function getTxSubCode(tx)              { const memo = getTxMemoSplitted(tx); return (!memo||memo.length<1)?'':memo[1];}
 function combineTxNameCode(tx)         { return getTxName(tx) + '_' + getTxCode(tx) ; }
 function isTransfer(param)             { return param=='transfer';}
 function isIssue(param)                { return param=='issue'; }
 function isSender(account_name, tx_act){ return tx_act.data.to!=account_name; }
+
 function mayTxHaveNewerTx(tx_code){
   const search = ['transfer_bck']; 
   return search.indexOf(tx_code)>=0;
@@ -50,61 +128,89 @@ function isVisibleTx(tx_code){
   return true;
 }
 
-const tx_keycodes = [
-  'issue_dep',
-  'issue_iug',
-  'issue_oft',
-  'transfer_bck',
-  'transfer_wth',
-  'transfer_xch',
-  'transfer_prv', //provider
-  'transfer_snd',
-  'transfer_pay',
-  'transfer_pap'
-]
+ 
+const  MEMO_KEY_DEP =  'dep';
+const  MEMO_KEY_IUG =  'iug';
+const  MEMO_KEY_OFT =  'oft';
+const  MEMO_KEY_BCK =  'bck';
+const  MEMO_KEY_WTH =  'wth';
+const  MEMO_KEY_XCH =  'xch';
+const  MEMO_KEY_PRV =  'prv';
+const  MEMO_KEY_SND =  'snd';
+const  MEMO_KEY_PAY =  'pay';
+const  MEMO_KEY_PAP =  'pap';
+
+const KEY_ISSUE_DEP    =  'issue_'+MEMO_KEY_DEP;
+const KEY_ISSUE_IUG    =  'issue_'+MEMO_KEY_IUG;
+const KEY_ISSUE_OFT    =  'issue_'+MEMO_KEY_OFT;
+const KEY_TRANSFER_BCK =  'transfer_'+MEMO_KEY_BCK;
+const KEY_TRANSFER_WTH =  'transfer_'+MEMO_KEY_WTH;
+const KEY_TRANSFER_XCH =  'transfer_'+MEMO_KEY_XCH;
+const KEY_TRANSFER_PRV =  'transfer_'+MEMO_KEY_PRV;
+const KEY_TRANSFER_SND =  'transfer_'+MEMO_KEY_SND;
+const KEY_TRANSFER_PAY =  'transfer_'+MEMO_KEY_PAY;
+const KEY_TRANSFER_PAP =  'transfer_'+MEMO_KEY_PAP;
+const KEY_UPSERT       =  'upsertikacc_';
+
+const typesMap = {
+  [KEY_ISSUE_DEP]     : globalCfg.api.TYPE_DEPOSIT,
+  [KEY_ISSUE_IUG]     : globalCfg.api.TYPE_PAYMENT,
+  [KEY_ISSUE_OFT]     : globalCfg.api.TYPE_ISSUE,
+  [KEY_TRANSFER_BCK]  : globalCfg.api.TYPE_REFUND,
+  [KEY_TRANSFER_WTH]  : globalCfg.api.TYPE_WITHDRAW,
+  [KEY_TRANSFER_XCH]  : globalCfg.api.TYPE_EXCHANGE,
+  [KEY_TRANSFER_PRV]  : globalCfg.api.TYPE_PROVIDER,
+  [KEY_TRANSFER_SND]  : globalCfg.api.TYPE_SEND,
+  [KEY_TRANSFER_PAY]  : globalCfg.api.TYPE_PAYMENT,
+  [KEY_TRANSFER_PAP]  : globalCfg.api.TYPE_SERVICE,
+  [KEY_UPSERT]        : globalCfg.api.TYPE_UPSERT
+}
+const keyCodeToRequestType = (key_code) => {
+  const my_type = typesMap[key_code];
+  if(!my_type)
+    console.log(' ** keyCodeToRequestType ->', key_code )
+  console.log(' ** keyCodeToRequestType:: ', key_code , ' -> ' , my_type )
+  return my_type || globalCfg.api.TYPE_UNKNOWN;
+}
+
 function getTxHeaderText(account_name, tx, i_sent){
   return 'header';
 }
+
 function getTxSubHeaderText(account_name, tx, i_sent, tx_type, tx_name, tx_code, tx_subcode){
-  
 
   switch(tx_type) {
-    case 'issue_iss': //ToDo: Remove case.
-      return i_sent?'Emisión por depósito en '+tx_subcode:'Depositaste en '+tx_subcode
+    // case 'issue_iss': //ToDo: Remove case.
+    //   return i_sent?'Emisión por depósito en '+tx_subcode:'Depositaste en '+tx_subcode
+    //   break;
+    case KEY_ISSUE_DEP:
+      return i_sent?'Emisión por depósito.':'Depositaste'
       break;
-    case 'issue_dep':
-      return i_sent?'Emisión por depósito en '+tx_subcode:'Depositaste en '+tx_subcode
-      break;
-    case 'issue_iug':
+    case KEY_ISSUE_IUG:
       return i_sent?'Emisión por recibimento en IUGU':'Recibiste pago via IUGU'
       break;
-    case 'issue_oft':
+    case KEY_ISSUE_OFT:
       return i_sent?'Emisión por seteo de descubierto en cuenta':'Acreditación de descubierto en cuenta'
       break;
-    case 'transfer_bck':
-      const data_transfer_bck = getBackInfo(tx);
-      return i_sent?'Restituiste monto de transacción '+data_transfer_bck.opration:'Te restituyeron monto por transacción '+data_transfer_bck.opration
+    case KEY_TRANSFER_BCK:
+      return i_sent?'Restituiste monto de transacción.':'Te restituyeron monto por transacción.'
       break;
-    case 'transfer_wth':
+    case KEY_TRANSFER_WTH:
       return i_sent?'Solicitaste retiro en billete':'Solicitaron retiro en billete'
       break;
-    case 'transfer_xch':
-      const data_transfer_xch = getExchangeInfo(tx);
-      return i_sent?'Solicitaste cambio a banco '+data_transfer_xch.bank_id:'Solicitaron cambio a banco '+data_transfer_xch.bank_id
+    case KEY_TRANSFER_XCH:
+      return i_sent?'Solicitaste cambio a banco.':'Solicitaron cambio a banco.'
       break;
-    case 'transfer_prv':
-      const data_transfer_prv = getProviderPaymentInfo(tx);
-      return i_sent?'Solicitaste pago a proveedor. Request_id:'+data_transfer_prv.request_id:'Solicitaron pago a proveedor. Request_id:'+data_transfer_prv.request_id
+    case KEY_TRANSFER_PRV:
+      return i_sent?'Solicitaste pago a proveedor.':'Solicitaron pago a proveedor.'
       break;
-    
-    case 'transfer_snd':
+    case KEY_TRANSFER_SND:
       return i_sent?'Enviaste dinero':'Te enviaron dinero'
       break;
-    case 'transfer_pay':
+    case KEY_TRANSFER_PAY:
       return i_sent?'Realizaste un pago':'Te realizaron un pago'
       break;
-    case 'transfer_pap':
-      const data_transfer_pap = getPreAuthPaymentInfo(tx);
+    case KEY_TRANSFER_PAP:
       return i_sent?'Pago preacordado':'Pago preacordado'
       break;
     default:
@@ -112,106 +218,6 @@ function getTxSubHeaderText(account_name, tx, i_sent, tx_type, tx_name, tx_code,
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-// LIST OF POSSIBLE TRANSACTIONS ////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-// ISSUE
-// iss: depositar       >> issue_dep
-//   dep|brl|deposit_tx_id  
-//   dep|iks|deposit_tx_id  
-// iss: iugu            >> issue_iug
-//   iug|iugu_tx_id
-// iss: overdraft
-//   oft|               >> issue_oft
-// TRANSFER
-// [X] dep: depositar
-// bck: devolucion      >> transfer_bck
-//   bck|wth|tx_id
-//   bck|xch|tx_id
-//   bck|pay|tx_id
-//   bck|pap|tx_id
-const backOperationInfo = {
-  'wth': 'Withdraw',
-  'xch': 'Exchange',
-  'pay': 'Payment',
-  'pap': 'Withdraw',
-}
-function getBackInfo(tx){
-  const sub_code = getTxSubCode(tx);
-  return {
-    tx_id :           'tx_id',
-    operation_code:   sub_code,
-    operation:        backOperationInfo[sub_code]
-  }
-}
-// wth: retirar         >> transfer_wth
-// xch: exchange        >> transfer_xch
-//   xch|bank_id
-function getExchangeInfo(tx){
-  return {
-    bank_id : 'BANK_ID'
-    // ,bank : {} ToDo: retrieve bank information from private server!!!
-  }
-}
-// prv: provider payment        >> transfer_prv
-//   prv|request_id
-function getProviderPaymentInfo(tx){
-  return {
-    request_id : (tx && tx.data && tx.data.memo && tx.data.memo.split('|').length>1)?tx.data.memo.split('|')[1]:'N/A'
-    // ,bank : {} ToDo: retrieve bank information from private server!!!
-  }
-}
-// req: request
-// snd: send            >> transfer_snd
-// rcv: receive and me as receipt
-// pay: payment         >> transfer_pay
-//   pay|description
-// pap:                 >> transfer_pap
-// * pre-authorized payment 
-//   pap|contract_id
-function getPreAuthPaymentInfo(tx){
-  return {
-    contract :          '??'
-    ,customer:          '??'
-    ,service_provider:  '??'
-    ,service:           '??'
-    //ToDo: retrieve contract information, customer and service provider from Blockchain!
-  }
-}
-//END////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//PRIVATE API TXs HELPER/////////////////////////////////////////////////////////////////////////////
-
-// [{"nota_fiscal_url":"","comprobante_url":"","deposit_currency":"IK$","_id":"5d5c152c8c3a466b65e3c2f3","requested_type":"type_deposit","amount":"44.00","created_by":{"_id":"5d5bf05ffe092b38101f018f","account_name":"inkpersonal1","first_name":"fn","last_name":"ln","email":"inkpersonal1@gmail.com","created_at":"2019-08-20T13:06:39.506Z","updatedAt":"2019-08-20T14:08:04.153Z","userCounterId":6,"__v":0,"to_sign":"5KHxDfqZBrHgR5i1Nw82LB8J2TcyveRh9ZndzaMhzUvyQEwiaW7","id":"5d5bf05ffe092b38101f018f"},"from":"inkpersonal1","requested_by":{"_id":"5d5bf05ffe092b38101f018f","account_name":"inkpersonal1","first_name":"fn","last_name":"ln","email":"inkpersonal1@gmail.com","created_at":"2019-08-20T13:06:39.506Z","updatedAt":"2019-08-20T14:08:04.153Z","userCounterId":6,"__v":0,"to_sign":"5KHxDfqZBrHgR5i1Nw82LB8J2TcyveRh9ZndzaMhzUvyQEwiaW7","id":"5d5bf05ffe092b38101f018f"},"state":"state_requested","created_at":"2019-08-20T15:43:40.266Z","updatedAt":"2019-08-20T15:43:40.266Z","requestCounterId":1,"__v":0,"id":"5d5c152c8c3a466b65e3c2f3"}]
-/*
-  block_time
-  sub_header
-  quantity
-  tx_type
-  
-*/
-/*
-return {
-    tx_type:               tx_type,
-    tx_name:               tx_name,
-    tx_code:               tx_code, 
-    tx_subcode:            tx_subcode, 
-    i_sent:                i_sent,
-    header:                getTxHeaderText(account_name, tx, i_sent),
-    sub_header:            getTxSubHeaderText(account_name, tx, i_sent, tx_type, tx_name, tx_code, tx_subcode),
-    quantity:              getTxQuantityToNumber(tx),
-    quantity_txt:          getTxQuantity(tx)
-    // may_have_newer_tx:     mayTxHaveNewerTx(tx_code),
-    // may_have_private_data: mayTxHavePrivateData(tx_code),
-    // visible:               isVisibleTx(tx_code)
-  };
-*/
-//END////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // This is an amazing HACK!
 // Check https://github.com/cristalnetwork/inkiri-eos-contracts/blob/master/inkiribank.cpp

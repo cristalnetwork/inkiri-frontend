@@ -81,16 +81,22 @@ export const getTypeTag = (request) => {
 //
 export const getTypeIcon = (request, size, color) => {
   const iconForRequest = {
-      [globalCfg.api.TYPE_DEPOSIT]     : {icon:'arrow-up', rotation: 0, style: {borderTop: '1px solid gray'}},
-      [globalCfg.api.TYPE_WITHDRAW]    : {icon:'arrow-down', rotation: 0, style: {borderTop: '1px solid gray'}},
-      [globalCfg.api.TYPE_EXCHANGE]    : {icon:'exchange-alt',  rotation:90, style: {}},
-      [globalCfg.api.TYPE_PAYMENT]     : {icon:'shopping-bag', rotation: 0, style: {}},
-      [globalCfg.api.TYPE_PROVIDER]    : {icon:'truck-moving', rotation: 0, style: {}},
-      [globalCfg.api.TYPE_SEND]        : {icon:'paper-plane', rotation: 0, style: {}},
-      [globalCfg.api.TYPE_SERVICE]     : {icon:'store', rotation: 0, style: {}},
-      'IUGU'                           : {icon:'credit-card', rotation: 0, style: {}},
+      [globalCfg.api.TYPE_DEPOSIT]     : {icon:'arrow-up',     rotation: 0,  style: {borderTop: '1px solid gray'}},
+      [globalCfg.api.TYPE_WITHDRAW]    : {icon:'arrow-down',   rotation: 0,  style: {borderTop: '1px solid gray'}},
+      [globalCfg.api.TYPE_EXCHANGE]    : {icon:'exchange-alt', rotation: 90, style: {}},
+      [globalCfg.api.TYPE_PAYMENT]     : {icon:'shopping-bag', rotation: 0,  style: {}},
+      [globalCfg.api.TYPE_PROVIDER]    : {icon:'truck-moving', rotation: 0,  style: {}},
+      [globalCfg.api.TYPE_SEND]        : {icon:'paper-plane',  rotation: 0,  style: {}},
+      [globalCfg.api.TYPE_SERVICE]     : {icon:'store',        rotation: 0,  style: {}},
+      [globalCfg.api.TYPE_ISSUE]       : {icon:'credit-card',        rotation: 0,  style: {}},
+      [globalCfg.api.TYPE_IUGU]        : {icon:'credit-card',  rotation: 0,  style: {}},
+      [globalCfg.api.TYPE_REFUND]      : {icon:'credit-card',  rotation: 0,  style: {}},
+      [globalCfg.api.TYPE_UPSERT]      : {icon:'magic',  rotation: 0,  style: {}},
+      [globalCfg.api.TYPE_UNKNOWN]     : {icon:'credit-card',  rotation: 0,  style: {}}
   }
   const my_icon = iconForRequest[request.requested_type]; 
+  if(!my_icon)
+    return (<FontAwesomeIcon icon="question-circle" size="1x" color="gray" />);
   // style={my_icon.style} 
   if(my_icon.rotation>0)
     return (<FontAwesomeIcon icon={my_icon.icon} rotation={my_icon.rotation} style={my_icon.style} size={size||'1x'} color={color||'gray'}/>);
@@ -121,7 +127,8 @@ export const getProcessButton = (request, callback, text) => {
       callback(request)
       return;
     }
-    console.log(' NOT firing...')  
+    else
+      console.log(' NOT firing...')  
   }
   // if(typeof  callback === 'function')
   return (<Button key={'details_'+request.id} size="small" onClick={()=>{ buttonClick(callback, request) }}>{title}</Button>);
@@ -192,4 +199,34 @@ export const getFileUploader = (title, props, icon_color) => {
               </div>
             </ul>
         </div>);
+}
+
+/*
+* Helper functions for blockchain transcations
+*/
+//
+export const blockchain = {
+  isValidTransaction : (tx) => {
+    const request = tx.request?tx.request:tx;
+    return request.state?globalCfg.api.onOkPath(request):true;
+  },
+  isNegativeTransaction : (tx) => {
+    const request = tx.request?tx.request:tx;
+    if(!tx.i_send&& globalCfg.api.isDeposit(request)) return false;
+
+    return [
+    globalCfg.api.TYPE_WITHDRAW, 
+    globalCfg.api.TYPE_EXCHANGE, 
+    globalCfg.api.TYPE_PAYMENT, 
+    globalCfg.api.TYPE_PROVIDER, 
+    globalCfg.api.TYPE_SEND, 
+    globalCfg.api.TYPE_SERVICE].includes(request.requested_type);
+    
+    // TYPE_DEPOSIT
+    // TYPE_ISSUE
+    // TYPE_IUGU
+    // TYPE_REFUND
+    // TYPE_UPSERT
+    // TYPE_UNKNOWN
+  }
 }

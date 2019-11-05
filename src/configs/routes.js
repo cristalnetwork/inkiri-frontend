@@ -52,6 +52,8 @@ export const pathNames = utils.arrToObj([
 
     'businessUnderConstruction',
 
+    'commonRequestDetails',
+
     'dashboard'
 ])
 
@@ -401,7 +403,17 @@ const business = [
     
   ];
 
-const common = [];
+const common = [
+  {
+       key:       pathNames.commonRequestDetails,
+       fileName:  'requestDetails',
+       area:      'common',
+       path:      'request-details',
+       container: 'dashboard',
+       role:      'business',
+
+    },
+];
 
 
 const merged  = [

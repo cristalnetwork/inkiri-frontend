@@ -20,11 +20,13 @@ import { withRouter } from "react-router-dom";
 import { Badge, Skeleton, List, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
 import { Table, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
+import * as columns_helper from '@app/components/TransactionTable/columns';
+
 // import styles from './account.less';
 import styles from './style.less';
 import './pda.css'; 
 
-import {columns,  DISPLAY_PROVIDER } from '@app/components/TransactionTable';
+import {DISPLAY_PROVIDER } from '@app/components/TransactionTable';
 
 import {formItemLayout,tailFormItemLayout } from '@app/utils/utils';
 
@@ -311,7 +313,7 @@ class Provider extends Component {
             key="table_all_requests" 
             rowKey={record => record.id} 
             loading={this.state.loading} 
-            columns={columns()} 
+            columns={columns_helper.getDefaultColumns()} 
             dataSource={this.state.txs} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
