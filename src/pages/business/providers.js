@@ -8,10 +8,12 @@ import * as loginRedux from '@app/redux/models/login'
 import * as menuRedux from '@app/redux/models/menu';
 
 import * as globalCfg from '@app/configs/global';
-
 import * as api from '@app/services/inkiriApi';
+
 import * as routesService from '@app/services/routes';
 import { Route, Redirect, withRouter } from "react-router-dom";
+import * as components_helper from '@app/components/helper';
+
 import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
 
 import { notification, Table, Divider, Spin } from 'antd';
@@ -34,12 +36,11 @@ const { TabPane } = Tabs;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
-const routes = routesService.breadcrumbForFile('providers-payments');
-
 class Providers extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      routes :         routesService.breadcrumbForPaths(props.location.pathname),
       loading:         false,
       txs:             [],
       page:            -1, 
@@ -396,8 +397,9 @@ class Providers extends Component {
   }
 
   render() {
-    const stats = this.renderTableViewStats();
-    const filters = this.renderFilterContent();
+    const {routes} = this.state; 
+    const stats    = this.renderTableViewStats();
+    const filters  = this.renderFilterContent();
     return (
       <>
         <PageHeader
@@ -405,7 +407,7 @@ class Providers extends Component {
             <Button key="refresh" size="small" icon="redo" disabled={this.state.loading} onClick={()=>this.refreshCurrentTable()} ></Button>,
             
           ]}
-          breadcrumb={{ routes }}
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Providers"
           subTitle="List of payments"
           footer={

@@ -8,7 +8,8 @@ import { Menu, Icon } from 'antd';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 
-import { getPath, getItemByAreaNFilename } from '@app/configs/routes'
+import * as routes_config from '@app/configs/routes'
+
 import { getRootKeys } from '@app/services/routes'
 
 const  { SubMenu } = Menu;
@@ -24,7 +25,7 @@ const renderItem = (item) => {
     } else {
         return  (
         <Menu.Item key={item.key} disabled={item.path!=item.key}>
-            <Link to={getPath(item.path || item.key)}>
+            <Link to={routes_config.getPath(item.path || item.key)}>
                 { item.icon? <Icon type={item.icon} />: false }
                 <span>{item.title}</span>
             </Link>
@@ -33,7 +34,7 @@ const renderItem = (item) => {
     }
 }
 //
-export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actualAccountName, actualRole }) => {
+export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actualAccountName, actualRole , lastRootMenu}) => {
         useEffect(()=>{
             getMenu(actualAccountName, actualRole)
         })
@@ -42,7 +43,10 @@ export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actua
         // ToDo: Here goes default selected item menu logic!!!
         // const aa = [(fileName=='dashboard')?fileName:fileName];
         console.log(' ** MENU - area:', area, ' | fileName:',fileName, ' | itemPath:',itemPath)
-        const selected = getItemByAreaNFilename(area, fileName, itemPath)
+        const selected = routes_config.getItemByAreaNFilename(area, fileName, itemPath)
+        if(!selected && area==='common' && lastRootMenu)
+            lastRootMenu = routes_config.getItemByFullpath(null, lastRootMenu, null);
+        
         const aa = selected?[(selected.father_key?selected.father_key:selected.key)]:['dashboard'];
         // const bb = getRootKeys(area);
         const bb = getRootKeys(actualRole); 
@@ -62,11 +66,14 @@ export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actua
         )
 };
 
+//
+
 export default connect(
     state => ({
         items:                 menuRedux.getMenuItems(state),
         actualAccountName:     loginRedux.actualAccountName(state),
         actualRole:            loginRedux.actualRole(state),
+        lastRootMenu:          menuRedux.lastRootMenu(state)
     }),
     dispatch => ({
         getMenu:               bindActionCreators( menuRedux.getMenu, dispatch)

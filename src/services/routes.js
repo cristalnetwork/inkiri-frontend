@@ -1,67 +1,67 @@
 import _ from 'lodash'
-import { pathNames, getItem } from '@app/configs/routes'
+import * as routes_config from '@app/configs/routes'
 
 const routes  = {
     personal: {
         items: [
             {
-                // key: pathNames.personalDashboard,
-                key:  pathNames.dashboard,
+                // key: routes_config.pathNames.personalDashboard,
+                key:  routes_config.pathNames.dashboard,
                 title: 'My money',
                 icon: 'wallet',
                 items: [
                     // {
-                    //     key: pathNames.personalAllInOne,
-                    //     path: pathNames.personalAllInOne,
+                    //     key: routes_config.pathNames.personalAllInOne,
+                    //     path: routes_config.pathNames.personalAllInOne,
                     //     title: 'All In One',
                     // },
                     {
-                        key: pathNames.personalExtracto,
-                        path: pathNames.personalExtracto,
+                        key: routes_config.pathNames.personalExtracto,
+                        path: routes_config.pathNames.personalExtracto,
                         title: 'Extrato',
                     },
                     {
-                        key: pathNames.personalDeposit,
-                        path: pathNames.personalDeposit,
+                        key: routes_config.pathNames.personalDeposit,
+                        path: routes_config.pathNames.personalDeposit,
                         title: 'Deposit',
                     },
                     {
-                        key: pathNames.personalWithdraw,
-                        path: pathNames.personalWithdraw,
+                        key: routes_config.pathNames.personalWithdraw,
+                        path: routes_config.pathNames.personalWithdraw,
                         title: 'Withdraw',
                     },
                     {
-                        key: pathNames.personalExchange,
-                        path: pathNames.personalExchange,
+                        key: routes_config.pathNames.personalExchange,
+                        path: routes_config.pathNames.personalExchange,
                         title: 'Exchange',
                     }
                 ]
             },
             {
-                key: pathNames.personalRequestMoney,
+                key: routes_config.pathNames.personalRequestMoney,
                 title: 'Receive',
                 icon: 'plus-square',
                 items: [
                     {
-                        key: pathNames.personalRequestMoney,
-                        path: pathNames.personalUnderConstruction,
+                        key: routes_config.pathNames.personalRequestMoney,
+                        path: routes_config.pathNames.personalUnderConstruction,
                         title: 'Request money',
                     }
                 ]
             },
             {
-                key: pathNames.personalSendMoney,
+                key: routes_config.pathNames.personalSendMoney,
                 title: 'Pay',
                 icon: 'minus-square',
                 items: [
                     {
-                        key: pathNames.personalSendMoney,
-                        path: pathNames.personalSendMoney,
+                        key: routes_config.pathNames.personalSendMoney,
+                        path: routes_config.pathNames.personalSendMoney,
                         title: 'Send money',
                     },
                     {
-                        key: pathNames.personalPaymentsAndServices,
-                        path: pathNames.personalUnderConstruction,
+                        key: routes_config.pathNames.personalPaymentsAndServices,
+                        path: routes_config.pathNames.personalUnderConstruction,
                         title: 'Payment and services',
                         icon: 'shop',
                     }
@@ -69,14 +69,14 @@ const routes  = {
             }
             ,
             {
-                key: pathNames.personalConfiguration,
+                key: routes_config.pathNames.personalConfiguration,
                 title: 'Account settings',
                 icon: 'setting',
-                path: pathNames.personalConfiguration,
+                path: routes_config.pathNames.personalConfiguration,
                 // items: [
                 //     {
-                //         key: pathNames.personalConfiguration,
-                //         path: pathNames.personalUnderConstruction,
+                //         key: routes_config.pathNames.personalConfiguration,
+                //         path: routes_config.pathNames.personalUnderConstruction,
                 //         title: 'Configuration'
                 //     }
                 // ]
@@ -86,86 +86,86 @@ const routes  = {
     bankadmin: {
         items: [
             {
-                // key:  pathNames.bankadminDashboard,
-                key:  pathNames.dashboard,
+                // key:  routes_config.pathNames.bankadminDashboard,
+                key:  routes_config.pathNames.dashboard,
                 title: 'Dashboard',
-                path: pathNames.bankadminUnderConstruction,
+                path: routes_config.pathNames.bankadminUnderConstruction,
                 icon: 'dashboard'
             },
             {
-                key: pathNames.bankadminTransactions,
+                key: routes_config.pathNames.bankadminTransactions,
                 title: 'Transactions',
                 icon: 'bank',
                 items: [
                     {
-                        key: pathNames.bankadminOperations,
-                        path: pathNames.bankadminUnderConstruction,
+                        key: routes_config.pathNames.bankadminOperations,
+                        path: routes_config.pathNames.bankadminUnderConstruction,
                         title: 'Operations',
                         
                     },
                     {
-                        key: pathNames.bankadminExternalTransfers,
-                        path: pathNames.bankadminExternalTransfers,
+                        key: routes_config.pathNames.bankadminExternalTransfers,
+                        path: routes_config.pathNames.bankadminExternalTransfers,
                         title: 'External Transfers',
 
                     },
                     {
-                        key: pathNames.bankadminPAP,
-                        path: pathNames.bankadminUnderConstruction,
+                        key: routes_config.pathNames.bankadminPAP,
+                        path: routes_config.pathNames.bankadminUnderConstruction,
                         title: 'Pre-Auth Payments',
                     }
 
                 ]
             },
             {
-                key: pathNames.bankadminAdministration,
+                key: routes_config.pathNames.bankadminAdministration,
                 title: 'Administration',
                 icon: 'table',
                 items: [
                     {
-                        key: pathNames.bankadminAccounts,
-                        path: pathNames.bankadminAccounts,
+                        key: routes_config.pathNames.bankadminAccounts,
+                        path: routes_config.pathNames.bankadminAccounts,
                         title: 'Accounts',
                     },
                     {
-                        key: pathNames.bankadminProfiles,
-                        path: pathNames.bankadminUnderConstruction,
+                        key: routes_config.pathNames.bankadminProfiles,
+                        path: routes_config.pathNames.bankadminUnderConstruction,
                         title: 'Profiles',
                     },
                     {
-                        key: pathNames.bankadminProviders,
-                        path: pathNames.bankadminProviders,
+                        key: routes_config.pathNames.bankadminProviders,
+                        path: routes_config.pathNames.bankadminProviders,
                         title: 'Providers',
                     },
                     {
-                        key: pathNames.bankadminPDA,
-                        path: pathNames.bankadminPDA,
+                        key: routes_config.pathNames.bankadminPDA,
+                        path: routes_config.pathNames.bankadminPDA,
                         title: 'PDA',
                     }
 
                 ]
             },
             {
-                key: pathNames.bankadminStaff,
+                key: routes_config.pathNames.bankadminStaff,
                 title: 'Staff',
                 icon: 'profile',
                 items: [
                     {
-                        key: pathNames.bankadminSalaries,
-                        path: pathNames.bankadminUnderConstruction,
+                        key: routes_config.pathNames.bankadminSalaries,
+                        path: routes_config.pathNames.bankadminUnderConstruction,
                         title: 'Salaries',
                     },
                     {
-                        key: pathNames.bankadminCrew,
-                        path: pathNames.bankadminUnderConstruction,
+                        key: routes_config.pathNames.bankadminCrew,
+                        path: routes_config.pathNames.bankadminUnderConstruction,
                         title: 'Crew',
                     }
 
                 ]
             },
             {
-                key: pathNames.bankadminConfiguration,
-                path: pathNames.bankadminUnderConstruction,
+                key: routes_config.pathNames.bankadminConfiguration,
+                path: routes_config.pathNames.bankadminUnderConstruction,
                 title: 'Configuration',
                 icon: 'setting',
             }
@@ -179,18 +179,18 @@ const routes  = {
                 icon: 'wallet',
                 items: [
                     {
-                        key: pathNames.businessExtracto,
-                        path: pathNames.businessExtracto,
+                        key: routes_config.pathNames.businessExtracto,
+                        path: routes_config.pathNames.businessExtracto,
                         title: 'Transaction History',
                     },
                     {
-                        key: pathNames.businessDeposit,
-                        path: pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.businessDeposit,
+                        path: routes_config.pathNames.businessUnderConstruction,
                         title: 'Deposit',
                     },
                     {
-                        key: pathNames.businessWithdraw,
-                        path: pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.businessWithdraw,
+                        path: routes_config.pathNames.businessUnderConstruction,
                         title: 'Withdraw',
                     }
                 ]
@@ -201,13 +201,13 @@ const routes  = {
                 icon: 'plus-square',
                 items: [
                     {
-                        key: pathNames.businessPDV,
-                        path: pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.businessPDV,
+                        path: routes_config.pathNames.businessUnderConstruction,
                         title: 'Vendas - PDV',
                     },
                     {
-                        key: pathNames.businessPreAuthSales,
-                        path: pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.businessPreAuthSales,
+                        path: routes_config.pathNames.businessUnderConstruction,
                         title: 'Taxa de serviços',
                     }
                 ]
@@ -218,18 +218,18 @@ const routes  = {
                 icon: 'minus-square',
                 items: [
                     {
-                        key: pathNames.businessSendMoney,
-                        path: pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.businessSendMoney,
+                        path: routes_config.pathNames.businessUnderConstruction,
                         title: 'Send money',
                     },
                     {
-                        key: pathNames.businessPaymentsAndServices,
-                        path: pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.businessPaymentsAndServices,
+                        path: routes_config.pathNames.businessUnderConstruction,
                         title: 'Services',
                     },
                     {
-                        key: pathNames.businessProvidersPayments,
-                        path: pathNames.businessProvidersPayments,
+                        key: routes_config.pathNames.businessProvidersPayments,
+                        path: routes_config.pathNames.businessProvidersPayments,
                         title: 'Providers Payments',
                     }
                 ]
@@ -240,21 +240,21 @@ const routes  = {
                 icon: 'profile',
                 items: [
                     {
-                        key: pathNames.businessSalaries,
-                        path: pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.businessSalaries,
+                        path: routes_config.pathNames.businessUnderConstruction,
                         title: 'Salaries',
                     },
                     {
-                        key: pathNames.businessCrew,
-                        path: pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.businessCrew,
+                        path: routes_config.pathNames.businessUnderConstruction,
                         title: 'Crew',
                     }
 
                 ]
             },
             {
-                key: pathNames.businessConfiguration,
-                path: pathNames.businessUnderConstruction,
+                key: routes_config.pathNames.businessConfiguration,
+                path: routes_config.pathNames.businessUnderConstruction,
                 title: 'Configuration',
                 icon: 'setting',
             }
@@ -276,8 +276,38 @@ export const getRootKeys = (area) => {
     return routes[area].items.map( item => item.key );
 }
 
+export const breadcrumbForPaths = (fullpaths, include_root) => {
+    
+    const my_fullpaths = Array.isArray(fullpaths)?fullpaths:[fullpaths];
+    console.log(' >> breadcrumbForPaths : ', JSON.stringify(my_fullpaths));
+    const breadcrumbs = my_fullpaths.map(
+        (fullpath)=> {
+            const path_parts = fullpath.split('/'); 
+            const area = path_parts[1];
+            const path = path_parts[2];
+            console.log(' >> breadcrumbForPaths >> >> :', area, path)
+            const menuItem = routes_config.getItemByFullpath(area, path, null)
+
+            return {
+                // path: menuItem.fullpath,
+                path: fullpath,
+                breadcrumbName: menuItem.title,
+              }
+        });
+    
+    if(include_root===false)
+        return breadcrumbs;
+    return [
+      {
+        path: '/',
+        breadcrumbName: 'Inkiri BANK',
+      },
+      ...breadcrumbs
+    ];
+}
+
 export const breadcrumbForFile = (file) => {
-    const menuItem = getItem(file);
+    const menuItem = routes_config.getItem(file);
     
     return [
       {
@@ -292,14 +322,9 @@ export const breadcrumbForFile = (file) => {
 }
 
 export const breadcrumbForFatherOf = (path) => {
-    // console.log(' breadcrumbForFatherOf >> #1  :: ', path)
-    const childItem = getItem(path);
-    // console.log(' breadcrumbForFatherOf >> #2  :: ', childItem)
-    // const father    = findParent(childItem.path);
-    // console.log(' breadcrumbForFatherOf >> #3', father)
-    // const menuItem  = getItem(null, father.key);
-
-    const menuItem  = getItem(null, childItem.father_key);
+    const childItem = routes_config.getItem(path);
+    
+    const menuItem  = routes_config.getItem(null, childItem.father_key);
 
     return [
       {
@@ -313,7 +338,7 @@ export const breadcrumbForFatherOf = (path) => {
     ];
 }
 
-function findParent(child_path){
+const findParent = (child_path) => {
   let _parent = null;
   const keys = Object.keys(routes);
   for(var j=0; j < keys.length; j++)

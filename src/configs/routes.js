@@ -277,7 +277,7 @@ const bankadmin = [
 
 const business = [
     {
-        key: pathNames.businessUnderConstruction,
+        key: pathNames  .businessUnderConstruction,
         fileName: 'under-construction',
         area: 'business',
         path: 'proximamente',
@@ -411,7 +411,7 @@ const common = [
        path:      'request-details',
        container: 'dashboard',
        role:      'business',
-
+       
     },
 ];
 
@@ -429,20 +429,32 @@ export const getPath = (key) => {
     return `/${area}/${path}` 
 }
 
+const getItemTitle = (item) => {
+  return item.path.split('-').map(obj => utils.capitalize(obj)).join(' ') ;
+}
+
 export const getItem = (path, key) => {
     let item  = null;
     if(path)
       item = merged.find(routeItem => routeItem.path === path )
     else
       item = merged.find(routeItem => routeItem.key === key )
-    const title = item.path.split('-').map(obj => utils.capitalize(obj)).join(' ') 
+    const title = getItemTitle(item);
     return {...item, fullpath:`/${item.area}/${item.path}`, title:title}
 }
 
-
 export const getItemByAreaNFilename = (area, filename, itemPath) => {
-    const item  = merged.find(routeItem => routeItem.area===area && routeItem.fileName===filename && routeItem.path==itemPath)
-    return {...item}
+    const item  = merged.find(routeItem => routeItem.area===area && routeItem.fileName===filename && (!itemPath || routeItem.path==itemPath))
+    const title = getItemTitle(item);
+    return {...item, fullpath:`/${item.area}/${item.path}`, title:title}
+}
+
+export const getItemByFullpath = (area, itemPath, filename) => {
+    const item  = merged.find(routeItem => (!area || routeItem.area===area)  && routeItem.path==itemPath && (!filename || routeItem.fileName===filename))
+    console.log(' >> getItemByFullpath:: area:',area, ' |itemPath:', itemPath, ' |filename:',filename)
+    console.log(' >>>> item: ', JSON.stringify(item));
+    const title = getItemTitle(item);
+    return {...item, fullpath:`/${item.area}/${item.path}`, title:title}
 } 
 
 export default merged

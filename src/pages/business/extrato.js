@@ -8,9 +8,11 @@ import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
 
 import * as globalCfg from '@app/configs/global';
-import { Route, Redirect, withRouter } from "react-router-dom";
 import * as api from '@app/services/inkiriApi';
+
+import { Route, Redirect, withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
 
 import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
 
@@ -34,24 +36,23 @@ const { TabPane } = Tabs;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
-const routes = routesService.breadcrumbForFile('extrato');
-
 class Extrato extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading:                      false,
-      txs:                          [],
-      deposits:                     [],
+      routes :             routesService.breadcrumbForPaths(props.location.pathname),
+      loading:             false,
+      txs:                 [],
+      deposits:            [],
 
-      stats:                        {},
+      stats:               {},
       
-      need_refresh:                 {},  
+      need_refresh:        {},  
 
-      cursor:                       '',
-      balance:                      {},
-      pagination:                   { pageSize: 0 , total: 0 },
-      active_tab:                   DISPLAY_ALL_TXS
+      cursor:              '',
+      balance:             {},
+      pagination:          { pageSize: 0 , total: 0 },
+      active_tab:          DISPLAY_ALL_TXS
     };
 
     this.loadTransactionsForAccount = this.loadTransactionsForAccount.bind(this);  
@@ -434,6 +435,7 @@ class Extrato extends Component {
   }
   //
   render() {
+    const {routes} = this.state;
     const content = this.renderContent();
     const stats = this.renderTableViewStats();
     const filters = this.renderFilterContent();
@@ -444,7 +446,7 @@ class Extrato extends Component {
             <Button size="small" key="refresh" icon="redo" disabled={this.state.loading} onClick={()=>this.refreshCurrentTable()} ></Button>,
             
           ]}
-          breadcrumb={{ routes }}
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Extrato"
           subTitle="List of transactions"
           footer={

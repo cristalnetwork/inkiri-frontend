@@ -9,9 +9,11 @@ import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
 
 import * as api from '@app/services/inkiriApi';
-import * as routesService from '@app/services/routes';
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
+
+import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
 
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
@@ -76,8 +78,8 @@ class requestDetails extends Component {
 
   componentDidMount(){
     const { match, location, history, lastRootMenu } = this.props;
-    console.log(' requestDetails::referrer:', JSON.stringify(location.state.referrer));
-    console.log(' requestDetails::lastRootMenu:', JSON.stringify(lastRootMenu));
+    // console.log(' requestDetails::referrer:', JSON.stringify(location.state.referrer));
+    // console.log(' requestDetails::lastRootMenu:', JSON.stringify(lastRootMenu));
     // console.log( 'processRequest::router-params >>' , JSON.stringify(this.props.location.state.request) );
     if(location && location.state && location.state.request)
     {
@@ -181,7 +183,7 @@ class requestDetails extends Component {
   }
 
   userResultEvent = (evt_type) => {
-    console.log(' ** userResultEvent -> EVT: ', evt_type)
+    // console.log(' ** userResultEvent -> EVT: ', evt_type)
     if(evt_type==DASHBOARD)
       this.backToDashboard();
     if(evt_type==RESET_RESULT)
@@ -274,7 +276,7 @@ class requestDetails extends Component {
         that.reload();
       },
       (ex) => {
-        console.log(' ** ERROR @ attachNota', JSON.stringify(ex))
+        // console.log(' ** ERROR @ attachNota', JSON.stringify(ex))
         that.setState({pushingTx:false})
         that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
       }  
@@ -306,7 +308,7 @@ class requestDetails extends Component {
       },
       onCancel() {
         that.setState({pushingTx:false})
-        console.log('Cancel');
+        // console.log('Cancel');
       },
     });
   }
@@ -397,16 +399,17 @@ class requestDetails extends Component {
     let routes       = routesService.breadcrumbForFile(this.props.isAdmin?'external-transfers':'providers');
     if(referrer)
     {
-      console.log(' >> ABOUT TO GET BREADCUMBS FOR ... ', referrer);
+      // console.log(' >> ABOUT TO GET BREADCUMBS FOR ... ', referrer);
       const xpath    = referrer.split('/');
-      routes         = routesService.breadcrumbForFile(xpath[xpath.length-1]);
+      // routes         = routesService.breadcrumbForFile(xpath[xpath.length-1]);
+      routes         = routesService.breadcrumbForPaths([referrer, this.props.location.pathname]);
     }
     const title         = this.props.isAdmin?'Process External Transfer':'Request details';
     const subTitle      = this.props.isAdmin?'Process customer request':'';
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes }}
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={title}
           subTitle={subTitle}>
         </PageHeader>
