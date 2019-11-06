@@ -45,7 +45,7 @@ export const pathNames = utils.arrToObj([
     'businessPaymentsAndServices',
     'businessProvidersPayments',
     'businessProvidersPayments_Request',
-    'businessProvidersPayments_Request_Details',
+    // 'businessProvidersPayments_Request_Details',
     'businessSalaries',
     'businessCrew',
     'businessConfiguration',
@@ -68,7 +68,7 @@ const personal =[
     },
     {
        key: pathNames.personalSendMoney,
-       fileName: 'sendMoney',
+       fileName: 'send', // fileName: 'sendMoney',
        area: 'personal',
        path: 'send-money',
        container: 'dashboard' 
@@ -359,24 +359,6 @@ const business = [
        role:      'business'
     },
     {
-       key:       pathNames.businessProvidersPayments_Request_Details,
-       father_key: pathNames.businessProvidersPayments,
-       fileName:  'externalDetails',
-       area:      'business',
-       path:      'provider-payment-request-details',
-       container: 'dashboard',
-       role:      'business'
-    },
-    // {
-    //    key:       pathNames.businessProvidersPayments_Request_Details,
-    //    father_key: pathNames.businessProvidersPayments,
-    //    fileName:  'processExternal',
-    //    area:      'bankadmin',
-    //    path:      'provider-payment-request-details',
-    //    container: 'dashboard',
-    //    role:      'business'
-    // },
-    {
        key: pathNames.businessSalaries,
        fileName: 'under-construction',
        area: 'business',
@@ -450,9 +432,11 @@ export const getItemByAreaNFilename = (area, filename, itemPath) => {
 }
 
 export const getItemByFullpath = (area, itemPath, filename) => {
-    const item  = merged.find(routeItem => (!area || routeItem.area===area)  && routeItem.path==itemPath && (!filename || routeItem.fileName===filename))
-    console.log(' >> getItemByFullpath:: area:',area, ' |itemPath:', itemPath, ' |filename:',filename)
-    console.log(' >>>> item: ', JSON.stringify(item));
+    const item  = merged.find(routeItem => (!area || routeItem.area===area)  
+        && routeItem.path==itemPath 
+        && (!filename || routeItem.fileName===filename))
+    // console.log(' >> getItemByFullpath:: area:',area, ' |itemPath:', itemPath, ' |filename:',filename)
+    // console.log(' >>>> item: ', JSON.stringify(item));
     const title = getItemTitle(item);
     return {...item, fullpath:`/${item.area}/${item.path}`, title:title}
 } 

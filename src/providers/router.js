@@ -20,7 +20,7 @@ import * as loginRedux from '@app/redux/models/login'
 
 const _checkRole = ({role, actualRole, children, history, location}) => {
     
-    console.log( ' ************ ', ' ROUTER -> role:', role, '=== actualRole:', actualRole );
+    // console.log( ' ************ ', ' ROUTER -> role:', role, '=== actualRole:', actualRole );
 
     if (role === actualRole) {
 
@@ -65,8 +65,8 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
                 // history.push(`/${actualRole}/withdraw`);
                 // history.push(`/${actualRole}/dashboard`);
                 // history.push(`/${actualRole}/deposit`);
-                history.push(`/${actualRole}/extrato`);
-                // history.push(`/${actualRole}/send-money`);
+                // history.push(`/${actualRole}/extrato`);
+                history.push(`/${actualRole}/send-money`);
             }
           }
         }

@@ -39,21 +39,23 @@ export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actua
             getMenu(actualAccountName, actualRole)
         })
 
+        let selected = routes_config.getItemByAreaNFilename(area, fileName, itemPath)
         
-        // ToDo: Here goes default selected item menu logic!!!
-        // const aa = [(fileName=='dashboard')?fileName:fileName];
-        console.log(' ** MENU - area:', area, ' | fileName:',fileName, ' | itemPath:',itemPath)
-        const selected = routes_config.getItemByAreaNFilename(area, fileName, itemPath)
-        if(!selected && area==='common' && lastRootMenu)
-            lastRootMenu = routes_config.getItemByFullpath(null, lastRootMenu, null);
+        if(area==='common' && lastRootMenu)
+        {
+            const path_parts = lastRootMenu.split('/'); 
+            const area = path_parts[1];
+            const path = path_parts[2];
+            selected = routes_config.getItemByFullpath(area, path, null)
+        }
+        
+        // console.log(' >> menu >> selected:', JSON.stringify(selected))
         
         const aa = selected?[(selected.father_key?selected.father_key:selected.key)]:['dashboard'];
+        
         // const bb = getRootKeys(area);
         const bb = getRootKeys(actualRole); 
 
-        // console.log(' *************** ', ' ************ RENDERING MENU area:', area, '|fileName:', fileName);
-        // console.log(' ************ RENDERING MENU selected:', JSON.stringify(aa));
-        // console.log(' ************ RENDERING MENU open:', JSON.stringify(bb));
         return (
                 <Menu
                     defaultSelectedKeys={aa}

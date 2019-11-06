@@ -21,7 +21,7 @@ export const getMenuFail              = (error)                      =>({ type: 
 export const setMenu                  = ({ role, menu })             =>({ type: SET, payload: { role, menu }});
 export const cleanMenu                = ()                           =>({ type: CLEAN_MENU });
 export const collapseMenu             = (is_collapsed)               =>({ type: TRY_COLLAPSE, payload: { is_collapsed } });
-export const setLastRootMenuFullpath  = (fullpath)               =>({ type: TRY_SET_MENU_FATHER, payload: { fullpath }});
+export const setLastRootMenuFullpath  = (fullpath)                   =>({ type: TRY_SET_MENU_FATHER, payload: { fullpath }});
 
 //Eventos que requieren del async
 function* getMenuSaga({ type, payload }) {

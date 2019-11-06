@@ -11,21 +11,19 @@ import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
 import PropTypes from "prop-types";
+
 import { withRouter } from "react-router-dom";
+import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
+
 
 import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Modal} from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
-
-import * as routesService from '@app/services/routes';
-
-// import './deposit.css'; 
 
 import TxResult from '@app/components/TxResult';
 import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-const routes = routesService.breadcrumbForFile('deposit');
 
 const DEFAULT_RESULT = {
   result:             undefined,
@@ -47,8 +45,10 @@ class DepositMoney extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading:      true,
-      pushingTx:    false,
+      routes :             routesService.breadcrumbForPaths(props.location.pathname),
+
+      loading:             true,
+      pushingTx:           false,
       
       ...DEFAULT_STATE,
       ...DEFAULT_RESULT,
@@ -309,12 +309,13 @@ class DepositMoney extends Component {
   // ** hack for sublime renderer ** //
 
   render() {
-    let content = this.renderContent();
-    
+    let content    = this.renderContent();
+    const {routes} = this.state;
+
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes }}
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Deposit money"
           subTitle="Deposit paper money and receive Inkiri on your account"
           

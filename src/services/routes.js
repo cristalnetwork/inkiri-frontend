@@ -259,8 +259,7 @@ const routes  = {
                 icon: 'setting',
             }
         ]
-    },
-    guest: {}
+    }
 }
 
 export const getRoutesByRole = (role) => {
@@ -273,19 +272,22 @@ export const getRoutesByRole = (role) => {
 // }
 
 export const getRootKeys = (area) => {
+    // console.log(' -- getRootKeys = (area):', area)
+    if(!area)
+        return [];
     return routes[area].items.map( item => item.key );
 }
 
 export const breadcrumbForPaths = (fullpaths, include_root) => {
     
     const my_fullpaths = Array.isArray(fullpaths)?fullpaths:[fullpaths];
-    console.log(' >> breadcrumbForPaths : ', JSON.stringify(my_fullpaths));
+    // console.log(' >> breadcrumbForPaths : ', JSON.stringify(my_fullpaths));
     const breadcrumbs = my_fullpaths.map(
         (fullpath)=> {
             const path_parts = fullpath.split('/'); 
             const area = path_parts[1];
             const path = path_parts[2];
-            console.log(' >> breadcrumbForPaths >> >> :', area, path)
+            // console.log(' >> breadcrumbForPaths >> >> :', area, path)
             const menuItem = routes_config.getItemByFullpath(area, path, null)
 
             return {

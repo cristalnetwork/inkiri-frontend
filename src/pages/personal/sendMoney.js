@@ -28,7 +28,6 @@ class SendMoney extends Component {
     super(props);
     this.state = {
       loading:      false,
-      dataSource:   [],
       receipt:      '',
       amount:       0,
       memo:         '',
@@ -41,7 +40,6 @@ class SendMoney extends Component {
                     
     };
 
-    // this.handleSearch = this.handleSearch.bind(this); 
     this.onSelect     = this.onSelect.bind(this); 
     this.renderContent   = this.renderContent.bind(this); 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -76,13 +74,6 @@ class SendMoney extends Component {
     // console.log('changed', e);
     this.setState({amount:e.target.value, number_validateStatus:'' , number_help:''})
   }
-
-  // onSearch={this.handleSearch}
-  handleSearch(value){
-    // this.setState({
-    //   dataSource: !value ? [] : [value, value + value, value + value + value],
-    // });
-  };
 
   openNotificationWithIcon(type, title, message) {
     notification[type]({
@@ -294,12 +285,12 @@ class SendMoney extends Component {
 //
 export default Form.create() (withRouter(connect(
     (state)=> ({
-        accounts:         accountsRedux.accounts(state),
-        actualAccountName:    loginRedux.actualAccountName(state),
-        actualRole:       loginRedux.actualRole(state),
-        actualPrivateKey: loginRedux.actualPrivateKey(state),
-        isLoading:        loginRedux.isLoading(state),
-        balance:          balanceRedux.userBalanceFormatted(state),
+        accounts:           accountsRedux.accounts(state),
+        actualAccountName:  loginRedux.actualAccountName(state),
+        actualRole:         loginRedux.actualRole(state),
+        actualPrivateKey:   loginRedux.actualPrivateKey(state),
+        isLoading:          loginRedux.isLoading(state),
+        balance:            balanceRedux.userBalanceFormatted(state),
     }),
     (dispatch)=>({
         
