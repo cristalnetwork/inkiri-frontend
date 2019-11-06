@@ -123,12 +123,12 @@ export const getProcessButton = (request, callback, text) => {
   const buttonClick = (callback, request) => {
     if(typeof callback === 'function')
     {
-      console.log(' == about to fire...')  
+      // console.log(' == about to fire...')  
       callback(request)
       return;
     }
-    else
-      console.log(' NOT firing...')  
+    // else
+    //   console.log(' NOT firing...')  
   }
   // if(typeof  callback === 'function')
   return (<Button key={'details_'+request.id} size="small" onClick={()=>{ buttonClick(callback, request) }}>{title}</Button>);

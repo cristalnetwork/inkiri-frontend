@@ -174,11 +174,6 @@ class PDA extends Component {
   // Component Events
   
   onProcessRequestClick(request){
-    // this.props.history.push({
-    //   pathname: `/${this.props.actualRole}/pda-process-request`
-    //   , state: { request: request }
-    // })
-    
     this.props.history.push({
       pathname: `/${this.props.actualRole}/pda-process-request`
       , state: { request: request }

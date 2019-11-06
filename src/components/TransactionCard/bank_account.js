@@ -16,7 +16,7 @@ const TransactionBankAccount = (props) => {
     useEffect(() => {
         // console.log(' >> useEffect >> me llamaring');
         setBankAccount(props.bank_account);
-        setAloneComponent(props.alone_component||true);
+        setAloneComponent(props.alone_component);
         setEditButton(props.button||null);
     });
 

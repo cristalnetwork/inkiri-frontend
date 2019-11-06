@@ -3,12 +3,12 @@ import React, {useState, Component} from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
-// import * as userRedux from '@app/redux/models/user';
+import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
 
 import * as globalCfg from '@app/configs/global';
-
+import { Route, Redirect, withRouter } from "react-router-dom";
 import * as api from '@app/services/inkiriApi';
 import * as routesService from '@app/services/routes';
 
@@ -83,11 +83,23 @@ class Extrato extends Component {
     console.log( ' EXTRATO::onRequestClick >> ', JSON.stringify(request) )
 
     // this.props.history.push({
-    //   pathname: `/common/?`
-    //   // , search: '?query=abc'
+    //   // pathname: `/${this.props.actualRole}/pda-process-request`
+    //   pathname: `/${this.props.actualRole}/request-details`
     //   , state: { request: request }
     // })
-    // READ >> this.props.location.state.detail
+
+    console.log(' >> this.props.setLastRootMenuFullpath:', this.props.location.pathname)
+    // HACK
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
+    this.props.history.push({
+      pathname: '/common/request-details'
+      , state: { 
+          request: request 
+          , referrer: this.props.location.pathname
+        }
+    })
+    
   }
 
   componentDidMount(){
@@ -127,7 +139,7 @@ class Extrato extends Component {
     pagination.pageSize = _txs.length;
     pagination.total    = _txs.length;
 
-    console.log(' >> BUSINESS EXTRATO >> data:', JSON.stringify(data.txs));
+    // console.log(' >> BUSINESS EXTRATO >> data:', JSON.stringify(data.txs));
     // console.log(' >>>>>>>>>>> this.state.cursor:', this.state.cursor)
     // console.log(' >>>>>>>>>>> data.cursor:', data.cursor)
     this.setState({pagination:pagination, txs:_txs, cursor:data.cursor, loading:false})
@@ -464,14 +476,14 @@ class Extrato extends Component {
   }
 }
 
-export default connect(
+export default  (withRouter(connect(
     (state)=> ({
         actualAccountName:    loginRedux.actualAccountName(state),
-        actualRole:       loginRedux.actualRole(state),
-        actualRoleId:     loginRedux.actualRoleId(state),
-        balance:          balanceRedux.userBalanceFormatted(state),
+        actualRole:           loginRedux.actualRole(state),
+        actualRoleId:         loginRedux.actualRoleId(state),
+        balance:              balanceRedux.userBalanceFormatted(state),
     }),
     (dispatch)=>({
-        // tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
+        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(Extrato)
+)(Extrato)));

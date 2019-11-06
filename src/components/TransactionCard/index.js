@@ -88,10 +88,7 @@ class TransactionCard extends Component {
     if(!request)
       return(<></>);
     //
-      
-    console.log('rendering..........................')
     const alert = this.getAlert(request);
-    
     return (
       <>
       {alert}

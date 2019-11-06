@@ -18,7 +18,7 @@ const routes  = {
                     {
                         key: pathNames.personalExtracto,
                         path: pathNames.personalExtracto,
-                        title: 'Transaction History',
+                        title: 'Extrato',
                     },
                     {
                         key: pathNames.personalDeposit,
@@ -230,7 +230,7 @@ const routes  = {
                     {
                         key: pathNames.businessProvidersPayments,
                         path: pathNames.businessProvidersPayments,
-                        title: 'Providers',
+                        title: 'Providers Payments',
                     }
                 ]
             },

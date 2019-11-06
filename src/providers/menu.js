@@ -41,10 +41,11 @@ export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actua
         
         // ToDo: Here goes default selected item menu logic!!!
         // const aa = [(fileName=='dashboard')?fileName:fileName];
-        // console.log(' ** MENU - area:', area, ' | fileName:',fileName, ' | itemPath:',itemPath)
+        console.log(' ** MENU - area:', area, ' | fileName:',fileName, ' | itemPath:',itemPath)
         const selected = getItemByAreaNFilename(area, fileName, itemPath)
         const aa = selected?[(selected.father_key?selected.father_key:selected.key)]:['dashboard'];
-        const bb = getRootKeys(area);
+        // const bb = getRootKeys(area);
+        const bb = getRootKeys(actualRole); 
 
         // console.log(' *************** ', ' ************ RENDERING MENU area:', area, '|fileName:', fileName);
         // console.log(' ************ RENDERING MENU selected:', JSON.stringify(aa));

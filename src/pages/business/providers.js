@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 
 // import * as userRedux from '@app/redux/models/user';
 import * as loginRedux from '@app/redux/models/login'
+import * as menuRedux from '@app/redux/models/menu';
 
 import * as globalCfg from '@app/configs/global';
 
@@ -33,7 +34,7 @@ const { TabPane } = Tabs;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
-const routes = routesService.breadcrumbForFile('providers');
+const routes = routesService.breadcrumbForFile('providers-payments');
 
 class Providers extends Component {
   constructor(props) {
@@ -71,12 +72,28 @@ class Providers extends Component {
   cancelOperation(record){}
   
   operationDetails(record){
-    console.log(' ## operationDetails(record):', JSON.stringify(record))
-    this.props.history.push({
-      pathname: `/${this.props.actualRole}/provider-payment-request-details`
-      , state: { request: record }
-    })
+    // console.log(' ## operationDetails(record):', JSON.stringify(record))
+    // this.props.history.push({
+    //   pathname: `/${this.props.actualRole}/provider-payment-request-details`
+    //   , state: { request: record }
+    // })
 
+    // this.props.history.push({
+    //   pathname: `/${this.props.actualRole}/request-details`
+    //   , state: { request: record }
+    // })
+
+    // console.log(' >> this.props.setLastRootMenuFullpath:', this.props.location.pathname)
+    // HACK
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
+    this.props.history.push({
+      pathname: '/common/request-details'
+      , state: { 
+          request: record 
+          , referrer: this.props.location.pathname
+        }
+    })
   }
 
   getColumns(){
@@ -420,11 +437,11 @@ class Providers extends Component {
 
 export default  (withRouter(connect(
     (state)=> ({
-        actualAccountName:    loginRedux.actualAccountName(state),
-        actualRole:       loginRedux.actualRole(state),
-        actualRoleId:     loginRedux.actualRoleId(state)
+        actualAccountName: loginRedux.actualAccountName(state),
+        actualRole:        loginRedux.actualRole(state),
+        actualRoleId:      loginRedux.actualRoleId(state)
     }),
     (dispatch)=>({
-        // tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
+        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(Providers)));
