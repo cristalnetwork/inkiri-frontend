@@ -43,8 +43,8 @@
 	text-align: center!important;
 }
 
-
-
+/* HACK FOR PAGEHEADER */
+.ant-page-header-ghost {background-color: #fff!important;}
 /*HACK FOR FILTERS*/
 .filter_form.ant-form-inline{
   display: flex!important;
@@ -135,3 +135,4 @@ h3.fileds_header{
 }
 .display_block{display:block!important;}
 .display_block.addresse-avatar{top:0px;}
+

@@ -68,7 +68,7 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
               // history.push(`/common/withdraw`);
               // history.push(`/${actualRole}/dashboard`);
               // history.push(`/common/deposit`);
-              history.push(`/$common/extrato`);
+              history.push(`/${actualRole}/extrato`);
               // history.push(`/${actualRole}/send`);
           }
           

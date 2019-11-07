@@ -439,7 +439,7 @@ class Extrato extends Component {
         <div className="styles standardList" style={{ marginTop: 0 }}>
           <Card key="tabs_card" bordered={false}>
             <Tabs  defaultActiveKey={DISPLAY_ALL_TXS} onChange={this.onTabChange}>
-              <TabPane tab="All"       key={DISPLAY_ALL_TXS} />
+              <TabPane tab="Movements" key={DISPLAY_ALL_TXS} />
               <TabPane tab="Deposits"  key={DISPLAY_DEPOSIT} />
               <TabPane tab="Withdraws" key={DISPLAY_WITHDRAWS} />
               <TabPane tab="Exchanges" key={DISPLAY_EXCHANGES} />

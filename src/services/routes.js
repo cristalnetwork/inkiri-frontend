@@ -181,7 +181,7 @@ const routes  = {
                     {
                         key: routes_config.pathNames.businessExtracto,
                         path: routes_config.pathNames.businessExtracto,
-                        title: 'Transaction History',
+                        title: 'Extrato',
                     },
                     {
                         key: routes_config.pathNames.commonDeposit,
