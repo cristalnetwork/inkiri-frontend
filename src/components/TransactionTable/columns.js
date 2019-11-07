@@ -93,10 +93,11 @@ export const getColumnsForPersonalExtrato = (callback, account_type) => {
           </div>
           <div className="row_value wider">
             <span className="row_tx_description">{record.sub_header}</span> 
-             <div className="ui-info-row__details" style={{maxWidth:400, overflowWrap:'normal'}}>
+             <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
                <ul>
-                 <li>{utils.objectToString(record.data)}</li>
-                 <li>{utils.objectToString(record.request)}</li>
+                 <li className="hidden">{utils.objectToString(record.data)}</li>
+                 <li className="hidden">{utils.objectToString(record.request)}</li>
+                 <li><Tag color="volcano" key={'warning_'+Math.random()}>Open to view details</Tag></li>
                </ul>
              </div>
           </div>   

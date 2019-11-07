@@ -154,7 +154,7 @@ export const getStyledDate = (request) => {
 export const getFileLink = (attach_id, title, icon_color) => {
   return (<div className="ui-list">
               <ul className="ui-list__content">
-                  <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-gray">
+                  <li className="ui-row ui-info-row ui-info-row--medium ui-info-row--background-grayNOHACK">
                       <div className="ui-row__col ui-row__col--heading">
                           <div className="ui-avatar ">
                               <div className="ui-avatar__content ui-avatar__content--icon">
@@ -164,9 +164,7 @@ export const getFileLink = (attach_id, title, icon_color) => {
                       </div>
                       <div className="ui-row__col ui-row__col--content">
                         <div className="ui-info-row__content">
-                            <div className="ui-info-row__title">
-                              {getGoogleDocLink(attach_id, true, title, 'large')}
-                            </div>
+                          {getGoogleDocLink(attach_id, true, title, 'large')}
                         </div>
                       </div>
 

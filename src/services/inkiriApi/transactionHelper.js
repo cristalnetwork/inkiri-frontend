@@ -196,7 +196,8 @@ function getTxSubHeaderText(account_name, tx, i_sent, tx_type, tx_name, tx_code,
       return i_sent?'Restituiste monto de transacción.':'Te restituyeron monto por transacción.'
       break;
     case KEY_TRANSFER_WTH:
-      return i_sent?'Solicitaste retiro en billete':'Solicitaron retiro en billete'
+      // return i_sent?'Solicitaste retiro en billete':'Solicitaron retiro en billete'
+      return i_sent?'Solicitud de retiro en billete':'Solicitaron retiro en billete'
       break;
     case KEY_TRANSFER_XCH:
       return i_sent?'Solicitaste cambio a banco.':'Solicitaron cambio a banco.'

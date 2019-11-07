@@ -46,9 +46,6 @@ class requestDetails extends Component {
     const referrer   = (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined;
     this.state = {
       loading:      false,
-      receipt:      '',
-      amount:       0,
-      memo:         '',
       pushingTx:    false,
       
       ...DEFAULT_RESULT,
@@ -91,15 +88,15 @@ class requestDetails extends Component {
 
   reload(id){
     const that      = this;
-    this.setState({pushingTx:true});
+    this.setState({loading:true});
     const key = id?id:this.state.request.id;
     api.bank.getRequestById(key)
         .then( (data) => {
             // console.log(' ** fetched request object', JSON.stringify(data))
-            that.setState({pushingTx:false, request:data})
+            that.setState({loading:false, request:data})
           },
           (ex) => {
-            this.setState({pushingTx:false});
+            this.setState({loading:false});
             this.openNotificationWithIcon("error", "Cant fetch request", JSON.stringify(ex))    
             // console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
           }  
@@ -202,18 +199,18 @@ class requestDetails extends Component {
     }
     //
 
-    const {request, pushingTx}      = this.state;
-    const buttons                   = this.getActions();
-    const notaUploaderProps         = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
-    const boletoUploaderProps       = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
-    const comprobanteUploaderProps  = this.getPropsForUploader(globalCfg.api.COMPROBANTE);
-    const uploader                  = {
+    const {request, pushingTx, loading} = this.state;
+    const buttons                       = this.getActions();
+    const notaUploaderProps             = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
+    const boletoUploaderProps           = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
+    const comprobanteUploaderProps      = this.getPropsForUploader(globalCfg.api.COMPROBANTE);
+    const uploader                      = {
                   [globalCfg.api.NOTA_FISCAL] :notaUploaderProps
                   ,[globalCfg.api.BOLETO_PAGAMENTO] :boletoUploaderProps
                   ,[globalCfg.api.COMPROBANTE] :comprobanteUploaderProps };
                   
     return(
-      <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+      <Spin spinning={pushingTx||loading} delay={500} tip={loading?'Loading...':'Pushing transaction...'}>
         <TransactionCard 
               request={request} 
               admin={this.props.isAdmin}
@@ -270,11 +267,11 @@ class requestDetails extends Component {
 
   cancelRequest(){
     let that = this;  
-    that.setState({pushingTx:true});
     confirm({
       title: 'Cancel request',
       content: 'You will cancel the request. The money will be available at your balance in 24/48hs.',
       onOk() {
+        that.setState({pushingTx:true});
         const {request} = that.state;
         api.bank.cancelExternal(that.props.actualAccountName, request.id)
         .then( (data) => {
@@ -291,7 +288,7 @@ class requestDetails extends Component {
         
       },
       onCancel() {
-        that.setState({pushingTx:false})
+        // that.setState({pushingTx:false})
         // console.log('Cancel');
       },
     });
@@ -329,7 +326,7 @@ class requestDetails extends Component {
     //
     switch (request.state){
       case globalCfg.api.STATE_REQUESTED:
-        if(this.props.isBusiness)
+        if(this.props.isBusiness || this.props.isPersonal)
         {
           if(!request.attach_nota_fiscal_id)
             return [attachNotaButton, cancelButton];
@@ -341,7 +338,7 @@ class requestDetails extends Component {
         return [processButton, rejectButton];
       break;
       case globalCfg.api.STATE_PROCESSING:
-        if(this.props.isBusiness)
+        if(this.props.isBusiness || this.props.isPersonal)
           if(!request.attach_nota_fiscal_id)
             return [attachNotaButton];
           else
@@ -367,7 +364,7 @@ class requestDetails extends Component {
         return [];
       break;
       case globalCfg.api.STATE_CANCELED:
-        if(this.props.isBusiness)
+        if(this.props.isBusiness || this.props.isPersonal)
           return [];
         return [refundButton];
       break;
@@ -417,12 +414,10 @@ export default Form.create() (withRouter(connect(
         balance:            balanceRedux.userBalanceFormatted(state),
         isAdmin:            loginRedux.isAdmin(state),
         isBusiness:         loginRedux.isBusiness(state),
-
+        isPersonal:         loginRedux.isPersonal(state),
         lastRootMenu:       menuRedux.lastRootMenu(state)
     }),
     (dispatch)=>({
-        // isAdmin:    bindActionCreators(loginRedux.isAdmin, dispatch),
-        // isBusiness: bindActionCreators(loginRedux.isBusiness, dispatch)
     })
 )(requestDetails) )
 );
