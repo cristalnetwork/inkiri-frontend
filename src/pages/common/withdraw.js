@@ -12,19 +12,19 @@ import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
 import PropTypes from "prop-types";
+
 import { withRouter } from "react-router-dom";
+import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
+
 
 import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Modal} from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
-
-import * as routesService from '@app/services/routes';
 
 import TxResult from '@app/components/TxResult';
 import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-const routes = routesService.breadcrumbForFile('withdraw');
 
 const DEFAULT_RESULT = {
   result:             undefined,
@@ -45,7 +45,7 @@ class WithdrawMoney extends Component {
     super(props);
     this.state = {
       pushingTx:    false,
-      
+      routes :             routesService.breadcrumbForPaths(props.location.pathname),
       ...DEFAULT_STATE,
       ...DEFAULT_RESULT,
 
@@ -300,11 +300,12 @@ class WithdrawMoney extends Component {
 
   render() {
     let content = this.renderContent();
+    const {routes} = this.state;
     
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes }}
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Withdraw money"
           subTitle="Withdraw paper money at the nearest PDA"
           

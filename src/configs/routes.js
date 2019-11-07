@@ -8,7 +8,7 @@ export const pathNames = utils.arrToObj([
     // 'personalWithdraw',
     'personalExchange',
     'personalRequestMoney',
-    'personalSendMoney',
+    // 'personalSendMoney',
     'personalPaymentsAndServices',
     'personalConfiguration',
 
@@ -41,7 +41,7 @@ export const pathNames = utils.arrToObj([
     // 'businessWithdraw',
     'businessPDV',
     'businessPreAuthSales',
-    'businessSendMoney',
+    // 'businessSendMoney',
     'businessPaymentsAndServices',
     'businessProvidersPayments',
     'businessProvidersPayments_Request',
@@ -56,6 +56,7 @@ export const pathNames = utils.arrToObj([
     'commontransactionDetails',
     'commonDeposit',
     'commonWithdraw',
+    'commonSend',
 
     'dashboard'
 ])
@@ -69,13 +70,13 @@ const personal =[
        container: 'dashboard',
        role: 'personal'
     },
-    {
-       key: pathNames.personalSendMoney,
-       fileName: 'send', // fileName: 'sendMoney',
-       area: 'personal',
-       path: 'send-money',
-       container: 'dashboard' 
-    },
+    // {
+    //    key: pathNames.personalSendMoney, 
+    //    fileName: 'send', // fileName: 'sendMoney',
+    //    area: 'personal',
+    //    path: 'send-money',
+    //    container: 'dashboard' 
+    // },
     {
        key: pathNames.personalConfiguration,
        fileName: 'configuration',
@@ -328,14 +329,14 @@ const business = [
        container: 'dashboard',
        role: 'business'
     },
-    {
-       key: pathNames.businessSendMoney,
-       fileName: 'under-construction',
-       area: 'business',
-       path: 'send-money',
-       container: 'dashboard',
-       role: 'business'
-    },
+    // {
+    //    key: pathNames.businessSendMoney,
+    //    fileName: 'under-construction',
+    //    area: 'business',
+    //    path: 'send-money',
+    //    container: 'dashboard',
+    //    role: 'business'
+    // },
     {
        key: pathNames.businessPaymentsAndServices,
        fileName: 'under-construction',
@@ -421,8 +422,15 @@ const common = [
      container: 'dashboard',
      role:      '*', 
   },
+  {
+     key:       pathNames.commonSend,
+     fileName:  'send', // fileName: 'sendMoney',
+     area:      'common',
+     path:      'send',
+     container: 'dashboard' ,
+     role:      '*' 
+  }
   
-    
 ];
 
 

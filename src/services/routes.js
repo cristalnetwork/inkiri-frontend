@@ -55,8 +55,8 @@ const routes  = {
                 icon: 'minus-square',
                 items: [
                     {
-                        key: routes_config.pathNames.personalSendMoney,
-                        path: routes_config.pathNames.personalSendMoney,
+                        key: routes_config.pathNames.commonSend,
+                        path: routes_config.pathNames.commonSend,
                         title: 'Send money',
                     },
                     {
@@ -218,8 +218,8 @@ const routes  = {
                 icon: 'minus-square',
                 items: [
                     {
-                        key: routes_config.pathNames.businessSendMoney,
-                        path: routes_config.pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.commonSend,
+                        path: routes_config.pathNames.commonSend,
                         title: 'Send money',
                     },
                     {
