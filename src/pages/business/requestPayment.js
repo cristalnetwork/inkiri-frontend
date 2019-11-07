@@ -300,70 +300,10 @@ class RequestPayment extends Component {
 
 
   renderPaymentOption(option_type){
-
-    const option_types = {
-      [globalCfg.api.PAYMENT_VEHICLE] : { 
-        title : 'Pagamento via'
-        , options: [
-          {
-            key: globalCfg.api.PAYMENT_VEHICLE_INKIRI,
-            label:'Inkiri'
-          }, 
-          {
-            key: globalCfg.api.PAYMENT_VEHICLE_INSTITUTO,
-            label:'Instituto'
-          }
-        ]
-      }
-      , [globalCfg.api.PAYMENT_CATEGORY] : { 
-        title : 'Category'
-        , options: [
-          {
-            key: globalCfg.api.PAYMENT_CATEGORY_ALUGEL,
-            label:'Alugel'
-          }, 
-          {
-            key: globalCfg.api.PAYMENT_CATEGORY_INVESTIMENTO,
-            label:'Investimento'
-          }, 
-          {
-            key: globalCfg.api.PAYMENT_CATEGORY_INSUMOS,
-            label:'Insumos'
-          }, 
-          {
-            key: globalCfg.api.PAYMENT_CATEGORY_ANOTHER,
-            label:'Another...'
-          }
-        ]
-      }
-      , [globalCfg.api.PAYMENT_TYPE] : { 
-        title : 'Tipo saida'
-        , options: [
-          {
-            key: globalCfg.api.PAYMENT_TYPE_DESPESA,
-            label:'Despesa'
-          }, 
-          {
-            key: globalCfg.api.PAYMENT_TYPE_INVESTIMENTO,
-            label:'Investimento'
-          }
-        ]
-      }
-      , [globalCfg.api.PAYMENT_MODE] : { 
-        title : 'Modo de Pagamento'
-        , options: [
-          {
-            key: globalCfg.api.PAYMENT_MODE_TRANSFER,
-            label:'Bank transfer'
-          }, 
-          {
-            key: globalCfg.api.PAYMENT_MODE_BOLETO,
-            label:'Boleto Pagamento'
-          }
-        ]
-      }
-    }
+    const option_types = globalCfg.api.getPaymentOptions();
+    
     const my_options = option_types[option_type];
+    
     if(!my_options)
       return (<></>);
     //

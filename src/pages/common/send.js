@@ -60,6 +60,7 @@ class SendMoney extends Component {
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.onInputAmount              = this.onInputAmount.bind(this);
+    this.handleChange               = this.handleChange.bind(this);
   }
 
   static propTypes = {
@@ -73,6 +74,11 @@ class SendMoney extends Component {
     this.setState({receipt:value})
   }
 
+  handleChange = (value, name) => {
+    this.setState({
+      transfer_extra : {[name]: value}
+    });
+  }
   openNotificationWithIcon(type, title, message) {
     notification[type]({
       message: title,
@@ -105,7 +111,31 @@ class SendMoney extends Component {
       this.resetPage();
   }
 
-
+  renderTransferReason(){
+    const option_type  = globalCfg.api.TRANSFER_REASON;
+    const option_types = globalCfg.api.getTransferReasons();
+    
+    const my_options = option_types[option_type];
+    
+    if(!my_options)
+      return (<></>);
+    //
+    const { getFieldDecorator } = this.props.form;
+    
+    return (
+      <Form.Item className="money-transfer__row">
+          {getFieldDecorator( 'transfer_extra.'+option_type, {
+            rules: [{ required: true, message: 'Please select a/an'+ my_options.title}]
+            , onChange: (e) => this.handleChange(e, option_type)
+          })(
+            <Select placeholder={'Choose ' + my_options.title} optionLabelProp="label">
+            {my_options.options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.label}>{ opt.label } </Select.Option> )}
+            </Select>
+          )}
+      </Form.Item>
+    )
+  }
+  //
   onInputAmount(event){
     event.preventDefault();
     const the_value = event.target.value;
@@ -220,6 +250,7 @@ class SendMoney extends Component {
       
       return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
     }
+    const option = this.props.isBusiness?this.renderTransferReason():(null);
 
     const { getFieldDecorator }               = this.props.form;
     const { input_amount, pushingTx}           = this.state;
@@ -279,6 +310,7 @@ class SendMoney extends Component {
                     )}
               </Form.Item>
               <div><br/><br/></div>
+              {option}
             </div>
 
             <div className="mp-box__actions mp-box__shore">
@@ -330,6 +362,8 @@ export default Form.create() (withRouter(connect(
         balance:            balanceRedux.userBalance(state),
 
         accounts:           accountsRedux.accounts(state),
+
+        isBusiness:         loginRedux.isBusiness(state)
     }),
     (dispatch)=>({
         

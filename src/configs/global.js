@@ -203,7 +203,45 @@ const api = {
   , onOkPath   : (request) => {
       return ![api.STATE_REJECTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR, api.STATE_CANCELED].includes(request.state);
     }
-
+  
+  , TRANSFER_REASON:                    'tx_r'
+  , TRANSFER_REASON_DISTRIBUTE_PROFIT : 'tx_r_distribute_profit'
+  , TRANSFER_REASON_ADJUSTMENT :        'tx_r_adjustment'
+  , TRANSFER_REASON_RENT :              'tx_r_rent'
+  , TRANSFER_REASON_INVESTMENT :        'tx_r_investment'
+  , TRANSFER_REASON_SUPPLIES :          'tx_r_supplies'
+  , TRANSFER_REASON_ANOTHER :           'tx_r_another'
+  , getTransferReasons : () => {
+    return {[api.TRANSFER_REASON] : { 
+                  title : 'Transfer reason'
+                  , options: [
+                    { 
+                      key: api.TRANSFER_REASON_DISTRIBUTE_PROFIT,
+                      label: 'Repasse Lucro'
+                    },
+                    { 
+                      key: api.TRANSFER_REASON_ADJUSTMENT,
+                      label: 'Repasse Ajuste'
+                    },
+                    { 
+                      key: api.TRANSFER_REASON_RENT,
+                      label: 'Aluguel'
+                    },
+                    { 
+                      key: api.TRANSFER_REASON_INVESTMENT,
+                      label: 'Investimento'
+                    },
+                    { 
+                      key: api.TRANSFER_REASON_SUPPLIES,
+                      label: 'Insumos'
+                    },
+                    { 
+                      key: api.TRANSFER_REASON_ANOTHER,
+                      label: 'Another...'
+                    },
+                  ]
+                }}
+  }
   , PAYMENT_VEHICLE               : 'payment_vehicle'
   , PAYMENT_VEHICLE_INKIRI        : 'payment_vehicle_inkiri'
   , PAYMENT_VEHICLE_INSTITUTO     : 'payment_vehicle_institute'
@@ -222,7 +260,70 @@ const api = {
   , PAYMENT_MODE_TRANSFER         : 'payment_mode_transfer'
   , PAYMENT_MODE_BOLETO           : 'payment_mode_boleto'
 
-
+  , getPaymentOptions             : () => {
+      return {
+                [api.PAYMENT_VEHICLE] : { 
+                  title : 'Pagamento via'
+                  , options: [
+                    {
+                      key: api.PAYMENT_VEHICLE_INKIRI,
+                      label:'Inkiri'
+                    }, 
+                    {
+                      key: api.PAYMENT_VEHICLE_INSTITUTO,
+                      label:'Instituto'
+                    }
+                  ]
+                }
+                , [api.PAYMENT_CATEGORY] : { 
+                  title : 'Category'
+                  , options: [
+                    {
+                      key: api.PAYMENT_CATEGORY_ALUGEL,
+                      label:'Alugel'
+                    }, 
+                    {
+                      key: api.PAYMENT_CATEGORY_INVESTIMENTO,
+                      label:'Investimento'
+                    }, 
+                    {
+                      key: api.PAYMENT_CATEGORY_INSUMOS,
+                      label:'Insumos'
+                    }, 
+                    {
+                      key: api.PAYMENT_CATEGORY_ANOTHER,
+                      label:'Another...'
+                    }
+                  ]
+                }
+                , [api.PAYMENT_TYPE] : { 
+                  title : 'Tipo saida'
+                  , options: [
+                    {
+                      key: api.PAYMENT_TYPE_DESPESA,
+                      label:'Despesa'
+                    }, 
+                    {
+                      key: api.PAYMENT_TYPE_INVESTIMENTO,
+                      label:'Investimento'
+                    }
+                  ]
+                }
+                , [api.PAYMENT_MODE] : { 
+                  title : 'Modo de Pagamento'
+                  , options: [
+                    {
+                      key: api.PAYMENT_MODE_TRANSFER,
+                      label:'Bank transfer'
+                    }, 
+                    {
+                      key: api.PAYMENT_MODE_BOLETO,
+                      label:'Boleto Pagamento'
+                    }
+                  ]
+                }
+      }
+  }
   , NOTA_FISCAL                   : 'attach_nota_fiscal'
   , BOLETO_PAGAMENTO              : 'attach_boleto_pagamento'
   , COMPROBANTE                   : 'attach_comprobante'
