@@ -14,7 +14,11 @@ export const getRequestId = (request) => {
 }
 
 export const getRequestDate = (request) => {
-  return moment(request.created_at).format('LLLL');
+  return formatDate(request.created_at);
+}
+
+export const formatDate = (date) => {
+  return moment(date).format('LLLL');
 }
 
 export const getExternalRequestDesc = (request) => {
@@ -109,13 +113,6 @@ export const getBlockchainLink = (tx_id, withIcon, size, text) => {
   const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
   return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} icon={withIcon?'cloud':null} title="View on Blockchain">{text||'B-Chain'}</Button>)
 }
-// export const getBlockchainLink = (request, withIcon, size) => {
-//   const onBlockchain = globalCfg.api.isOnBlockchain(request);
-//   if(!onBlockchain)
-//     return (null);
-//   const _href = api.dfuse.getBlockExplorerTxLink(onBlockchain);
-//   return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+request.id} icon={withIcon?'cloud':null} title="View on Blockchain">B-Chain</Button>)
-// }
 //
 export const getProcessButton = (request, callback, text) => {
   const title = text?text:((globalCfg.api.isFinished(request))?"Details":"Process");

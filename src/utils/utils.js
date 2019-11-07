@@ -3,6 +3,13 @@ export const capitalize = (s) => {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
+export const trimCenter = (s, start, end) => {
+  if (typeof s !== 'string') return ''
+  if (typeof start !== 'number') start=4;
+  if (typeof end !== 'number') end=4;
+  return s.toUpperCase().slice(0,start) + '...' + s.toUpperCase().slice(s.length-end,s.length)
+}
+
 export const firsts = (s, n) => {
   if (typeof s !== 'string') return ''
   if (typeof n !== 'number') n=3;

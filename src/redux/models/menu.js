@@ -56,7 +56,7 @@ function* trySetMenuFatherSaga({ type, payload }) {
 
   const { fullpath } = payload
   // console.log(' MENU REDUX >> tryCollapseMenuSaga >> payload: ', payload)
-  console.log(' MENU REDUX >> trySetMenuFatherSaga >> fullpath: ', fullpath)
+  // console.log(' MENU REDUX >> trySetMenuFatherSaga >> fullpath: ', fullpath)
   yield put({type: SET_MENU_FATHER, payload: {fullpath:fullpath} })
 }
 

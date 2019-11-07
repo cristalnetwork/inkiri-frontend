@@ -128,7 +128,8 @@ const api = {
         [api.TYPE_WITHDRAW]    : 'withdraw', 
         [api.TYPE_SERVICE]     : 'service payment'
       } 
-      return types[request_type];
+      const ret = types[request_type];
+      return ret?ret:request_type;
     }
   , isDeposit          : (request) => { return (request.tx_type==api.TYPE_DEPOSIT||request.requested_type==api.TYPE_DEPOSIT)}
   , isIKDeposit        : (request) => { return (api.isDeposit(request) && request.deposit_currency==api.FIAT_CURR_IK)}

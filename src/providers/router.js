@@ -20,7 +20,7 @@ import * as loginRedux from '@app/redux/models/login'
 
 const _checkRole = ({role, actualRole, children, history, location}) => {
     
-    console.log( ' ************ ', ' ROUTER -> role:', role, '=== actualRole:', actualRole );
+    // console.log( ' ************ ', ' ROUTER -> role:', role, '=== actualRole:', actualRole );
 
     if (role==='*' || role=== actualRole) {
 

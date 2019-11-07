@@ -53,6 +53,7 @@ export const pathNames = utils.arrToObj([
     'businessUnderConstruction',
 
     'commonRequestDetails',
+    'commontransactionDetails',
 
     'dashboard'
 ])
@@ -387,14 +388,23 @@ const business = [
 
 const common = [
   {
-       key:       pathNames.commonRequestDetails,
-       fileName:  'requestDetails',
-       area:      'common',
-       path:      'request-details',
-       container: 'dashboard',
-       role:      '*',
-       
-    },
+     key:       pathNames.commonRequestDetails,
+     fileName:  'requestDetails',
+     area:      'common',
+     path:      'request-details',
+     container: 'dashboard',
+     role:      '*', 
+  },
+  {
+     key:       pathNames.commonTransactionDetails,
+     fileName:  'transactionDetails',
+     area:      'common',
+     path:      'transaction-details',
+     container: 'dashboard',
+     role:      '*', 
+  },
+
+    
 ];
 
 

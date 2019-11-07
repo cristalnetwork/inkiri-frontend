@@ -53,8 +53,9 @@ class requestDetails extends Component {
       
       ...DEFAULT_RESULT,
        
-      request:       request,
-      
+      request:      request,
+      referrer:     referrer,
+
       attachments:       {
         [globalCfg.api.NOTA_FISCAL]       : undefined,
         [globalCfg.api.BOLETO_PAGAMENTO]  : undefined,
@@ -63,7 +64,6 @@ class requestDetails extends Component {
     };
 
     // this.handleSearch = this.handleSearch.bind(this); 
-    this.onSelect                   = this.onSelect.bind(this); 
     this.renderContent              = this.renderContent.bind(this); 
     this.resetPage                  = this.resetPage.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
@@ -78,9 +78,6 @@ class requestDetails extends Component {
 
   componentDidMount(){
     const { match, location, history, lastRootMenu } = this.props;
-    // console.log(' requestDetails::referrer:', JSON.stringify(location.state.referrer));
-    // console.log(' requestDetails::lastRootMenu:', JSON.stringify(lastRootMenu));
-    // console.log( 'processRequest::router-params >>' , JSON.stringify(this.props.location.state.request) );
     if(location && location.state && location.state.request)
     {
       // console.log(' WHAT????')
@@ -89,10 +86,6 @@ class requestDetails extends Component {
           , referrer : location.state.referrer
         })
     }
-    // else{
-    //   // console.log(' COOL!')
-    //   this.reload('5db7627d780dab1a00f54d40')
-    // }
   }
   
 
@@ -111,11 +104,6 @@ class requestDetails extends Component {
             // console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
           }  
         );
-  }
-
-  onSelect(value) {
-    // console.log('onSelect', value);
-    this.setState({receipt:value})
   }
 
   openNotificationWithIcon(type, title, message) {
@@ -191,10 +179,6 @@ class requestDetails extends Component {
     if(evt_type==RESET_PAGE)
       this.resetPage();
     
-  }
-
-  resetPage(){
-    this.setState({result: undefined, result_object: undefined, error: {}});
   }
 
   renderContent() {

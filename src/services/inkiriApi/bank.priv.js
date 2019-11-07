@@ -161,6 +161,21 @@ export const getRequestById = (request_id) =>   new Promise((res,rej)=> {
       });
 });
 
+export const getRequestByCounter = (counter) =>   new Promise((res,rej)=> {
+  
+  // const path    = globalCfg.api.endpoint + '/requests';
+  const path    = globalCfg.api.endpoint + `//requests_by_counter/${counter}`;
+  const method  = 'GET';
+  
+  jwtHelper.apiCall(path, method)
+    .then((data) => {
+        res(data)
+      }, (ex) => {
+        rej(ex);
+      });
+});
+
+
 export const createDeposit = (account_name, amount, currency) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.endpoint + '/requests';

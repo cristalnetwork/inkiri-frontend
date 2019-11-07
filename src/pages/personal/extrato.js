@@ -69,14 +69,17 @@ class Extrato extends Component {
   }
   
   onTransactionClick(transaction){
-    console.log( ' EXTRATO::onTransactionClick >> ', JSON.stringify(transaction) )
+    // console.log( ' EXTRATO::onTransactionClick >> transaction', JSON.stringify(transaction) )
+    console.log( ' EXTRATO::onTransactionClick >> referrer: ', this.props.location.pathname)
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
-    // this.props.history.push({
-    //   pathname: `/common/?`
-    //   // , search: '?query=abc'
-    //   , state: { request: request }
-    // })
-    // READ >> this.props.location.state.detail
+    this.props.history.push({
+      pathname: '/common/transaction-details'
+      , state: { 
+          transaction: transaction
+          , referrer: this.props.location.pathname
+        }
+    })
   }
 
   onRequestClick(request){
