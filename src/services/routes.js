@@ -21,13 +21,13 @@ const routes  = {
                         title: 'Extrato',
                     },
                     {
-                        key: routes_config.pathNames.personalDeposit,
-                        path: routes_config.pathNames.personalDeposit,
+                        key: routes_config.pathNames.commonDeposit,
+                        path: routes_config.pathNames.commonDeposit,
                         title: 'Deposit',
                     },
                     {
-                        key: routes_config.pathNames.personalWithdraw,
-                        path: routes_config.pathNames.personalWithdraw,
+                        key: routes_config.pathNames.commonWithdraw,
+                        path: routes_config.pathNames.commonWithdraw,
                         title: 'Withdraw',
                     },
                     {
@@ -184,13 +184,13 @@ const routes  = {
                         title: 'Transaction History',
                     },
                     {
-                        key: routes_config.pathNames.businessDeposit,
-                        path: routes_config.pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.commonDeposit,
+                        path: routes_config.pathNames.commonDeposit,
                         title: 'Deposit',
                     },
                     {
-                        key: routes_config.pathNames.businessWithdraw,
-                        path: routes_config.pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.commonWithdraw,
+                        path: routes_config.pathNames.commonWithdraw,
                         title: 'Withdraw',
                     }
                 ]

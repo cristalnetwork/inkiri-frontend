@@ -167,9 +167,9 @@ const typesMap = {
 }
 const keyCodeToRequestType = (key_code) => {
   const my_type = typesMap[key_code];
-  if(!my_type)
-    console.log(' ** keyCodeToRequestType ->', key_code )
-  console.log(' ** keyCodeToRequestType:: ', key_code , ' -> ' , my_type )
+  // if(!my_type)
+  //   console.log(' ** keyCodeToRequestType ->', key_code )
+  // console.log(' ** keyCodeToRequestType:: ', key_code , ' -> ' , my_type )
   return my_type || globalCfg.api.TYPE_UNKNOWN;
 }
 

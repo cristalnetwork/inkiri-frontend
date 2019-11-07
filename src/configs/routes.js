@@ -4,8 +4,8 @@ export const pathNames = utils.arrToObj([
     'personalDashboard',
     'personalUnderConstruction',
     'personalExtracto',
-    'personalDeposit',
-    'personalWithdraw',
+    // 'personalDeposit',
+    // 'personalWithdraw',
     'personalExchange',
     'personalRequestMoney',
     'personalSendMoney',
@@ -38,7 +38,7 @@ export const pathNames = utils.arrToObj([
 
     'businessExtracto',
     'businessDeposit',
-    'businessWithdraw',
+    // 'businessWithdraw',
     'businessPDV',
     'businessPreAuthSales',
     'businessSendMoney',
@@ -54,6 +54,8 @@ export const pathNames = utils.arrToObj([
 
     'commonRequestDetails',
     'commontransactionDetails',
+    'commonDeposit',
+    'commonWithdraw',
 
     'dashboard'
 ])
@@ -81,13 +83,13 @@ const personal =[
        path: 'account-settings',
        container: 'dashboard' 
     },
-   {
-       key: pathNames.personalDeposit,
-       fileName: 'deposit',
-       area: 'personal',
-       path: 'deposit',
-       container: 'dashboard' 
-    },
+   // {
+   //     key: pathNames.personalDeposit,
+   //     fileName: 'deposit',
+   //     area: 'personal',
+   //     path: 'deposit',
+   //     container: 'dashboard' 
+   //  },
     {
        key: pathNames.personalWithdraw,
        fileName: 'withdraw',
@@ -294,14 +296,14 @@ const business = [
        role: 'business'
     },
 
-    {
-       key: pathNames.businessDeposit,
-       fileName: 'under-construction',
-       area: 'business',
-       path: 'deposit',
-       container: 'dashboard',
-       role: 'business'
-    },
+    // {
+    //    key: pathNames.businessDeposit,
+    //    fileName: 'under-construction',
+    //    area: 'business',
+    //    path: 'deposit',
+    //    container: 'dashboard',
+    //    role: 'business'
+    // },
     {
        key: pathNames.businessWithdraw,
        fileName: 'under-construction',
@@ -403,7 +405,23 @@ const common = [
      container: 'dashboard',
      role:      '*', 
   },
-
+  {
+     key:       pathNames.commonDeposit,
+     fileName:  'deposit',
+     area:      'common',
+     path:      'deposit',
+     container: 'dashboard',
+     role:      '*', 
+  },
+  {
+     key:       pathNames.commonWithdraw,
+     fileName:  'withdraw',
+     area:      'common',
+     path:      'withdraw',
+     container: 'dashboard',
+     role:      '*', 
+  },
+  
     
 ];
 

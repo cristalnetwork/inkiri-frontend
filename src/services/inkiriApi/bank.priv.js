@@ -181,7 +181,8 @@ export const createDeposit = (account_name, amount, currency) =>   new Promise((
   const path    = globalCfg.api.endpoint + '/requests';
   const method  = 'POST';
   const post_params = {
-          'account_name':       account_name
+          // 'account_name':       account_name
+          'from':               account_name
           , 'requested_type':   globalCfg.api.TYPE_DEPOSIT
           , 'amount':           Number(amount).toFixed(2)
           , 'deposit_currency': currency
@@ -533,19 +534,17 @@ export const createProviderPaymentEx = (account_name, amount, provider_id, value
         };
 
   let formData = new FormData();
-
   formData.append('request', JSON.stringify(post_params));
   formData.append('from', account_name); // The folder name for GDrive!
   formData.append('requested_type', globalCfg.api.TYPE_PROVIDER); 
-
   Object.keys(attachments).forEach(function (key) {
     formData.append(key, attachments[key]);
   });    
 
   const bearer_token = jwtHelper.getBearerTokenByKey();
       
-  fetch(globalCfg.api.endpoint + '/requests_files', { // Your POST endpoint
-      method: 'POST',
+  fetch(path, { // Your POST endpoint
+      method: method,
       headers: {
         Authorization: bearer_token
       },

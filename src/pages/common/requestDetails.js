@@ -14,9 +14,9 @@ import * as utils from '@app/utils/utils';
 
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
+import { withRouter } from "react-router-dom";
 
 import PropTypes from "prop-types";
-import { withRouter } from "react-router-dom";
 
 import { Modal, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';

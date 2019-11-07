@@ -176,12 +176,12 @@ class DepositMoney extends Component {
         that.setState({pushingTx:false});
         return;
       }
-
+      
       const {input_amount} = this.state;
       const sender         = that.props.actualAccountName;
       Modal.confirm({
         title: 'Confirm deposit request',
-        content: 'Please confirm deposit for '+this.inputAmountToString(),
+        content: 'Please confirm deposit for '+this.inputAmountToString()+' to ' + sender,
         onOk() {
           const {input_amount} = that.state;
 
