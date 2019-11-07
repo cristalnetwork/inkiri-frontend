@@ -392,7 +392,7 @@ const common = [
        area:      'common',
        path:      'request-details',
        container: 'dashboard',
-       role:      'business',
+       role:      '*',
        
     },
 ];

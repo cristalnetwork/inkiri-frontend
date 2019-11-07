@@ -200,101 +200,6 @@ class SendMoney extends Component {
     });
   };
 
-  handleSubmitX = e => {
-    e.preventDefault();
-    const that = this;
-    // that.setState({pushingTx:true});
-    
-    this.props.form.validateFields((err, values) => {
-      if(err){
-        this.openNotificationWithIcon("error", 'Form error ', 'Please verify on screen errors.');
-        // that.setState({pushingTx:false});
-        return;
-      }
-
-      const {input_amount} = this.state;
-      if(isNaN(input_amount.value) || parseFloat(input_amount.value)<=0)
-      {
-        that.setState({pushingTx:false});
-        that.openNotificationWithIcon("error", this.state.input_amount.value + " > valid number required","Please type a valid number greater than 0!")    
-        return;
-      }
-      
-      if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
-      {
-        that.setState({pushingTx:false});
-        const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-        that.openNotificationWithIcon("error", `Amount must be equal or less than your balance ${balance_txt}!`); //`
-        return;
-      }
-
-
-      
-      const sender         = this.props.actualAccountName;
-      const privateKey     = this.props.actualPrivateKey;
-      
-      // const signer       = this.props.personalAccount.permissioner.account_name;
-      const amount       = input_amount.value;
-      let that           = this;
-
-      Modal.confirm({
-        title: 'Confirm withdraw request',
-        content: 'Please confirm withdraw for '+this.inputAmountToString(),
-        onOk() {
-
-          api.bank.createWithdraw(sender, amount)
-            .then((data)=>{
-              console.log(' >> doWithdraw >> ', JSON.stringify(data));
-              // that.setState({pushingTx:false, result:'ok'})
-              // that.openNotificationWithIcon("success", 'Withdraw requested successfully');
-
-              if(!data || !data.id)
-              {
-                that.setState({result:'error',  pushingTx:false, error:'Cant create request.'});
-                return;
-              }
-
-              const request_id       = data.id;
-              const withdraw_account = globalCfg.bank.withdraw_account; 
-
-              api.requestWithdraw(sender, privateKey, withdraw_account, amount, request_id)
-                .then((data1) => {
-
-                  const send_tx             = data1;
-                  console.log(' SendMoney::send (then#2) >>  ', JSON.stringify(send_tx));
-                  
-                  api.bank.updateWithdraw(sender, request_id, undefined, send_tx.data.transaction_id)
-                    .then((data2) => {
-
-                        that.setState({ result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
-                        that.openNotificationWithIcon("success", 'Withdraw requested successfully');
-
-                      }, (ex2) => {
-                        console.log(' SendMoney::send (error#3) >>  ', JSON.stringify(ex2));
-                        that.setState({result:'error',  pushingTx:false, error:JSON.stringify(ex2)});
-                    });
-
-                }, (ex1) => {
-                  
-                  console.log(' SendMoney::send (error#2) >>  ', JSON.stringify(ex1));
-                  that.setState({result:'error',  pushingTx:false, error:JSON.stringify(ex1)});
-
-                });
-
-            }, (err)=>{
-              that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
-              that.setState({result:'error', error:err});
-            })
-          
-        },
-        onCancel() {
-          console.log('Cancel');
-          that.setState({pushingTx:false})
-        },
-      });
-    });
-  };
-
   checkPrice = (rule, value, callback) => {
     if (value > 0) {
       callback();
@@ -308,8 +213,8 @@ class SendMoney extends Component {
     if(this.state.result)
     {
       const result_type = this.state.result;
-      const title       = 'Request completed succesfully.';
-      const message     = 'Please receive the paper money at the closest PDA.';
+      const title       = 'Transfer completed succesfully.';
+      const message     = null;
       const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error
       
