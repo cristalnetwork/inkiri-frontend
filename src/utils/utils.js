@@ -1,3 +1,13 @@
+export const sliceAndJoinMemo = (s, extra) => {
+  if (typeof s !== 'string') return ''
+  return cleanMemo(s) + '|' + extra.trim().slice(0,20)
+}
+
+export const cleanMemo = (s) => {
+  if (typeof s !== 'string') return ''
+  return s.trim().replace(/\|/g, "-").slice(0,50);
+}
+
 export const capitalize = (s) => {
   if (typeof s !== 'string') return ''
   return s.charAt(0).toUpperCase() + s.slice(1)

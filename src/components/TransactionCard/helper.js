@@ -209,13 +209,14 @@ export const blockchain = {
     const request = tx.request?tx.request:tx;
     if(!tx.i_send&& globalCfg.api.isDeposit(request)) return false;
 
+    // ToDo: Review this function !!!!!!!!!!!!!!!!!!!
     return [
-    globalCfg.api.TYPE_WITHDRAW, 
-    globalCfg.api.TYPE_EXCHANGE, 
-    globalCfg.api.TYPE_PAYMENT, 
-    globalCfg.api.TYPE_PROVIDER, 
-    globalCfg.api.TYPE_SEND, 
-    globalCfg.api.TYPE_SERVICE].includes(request.requested_type);
+      globalCfg.api.TYPE_WITHDRAW, 
+      globalCfg.api.TYPE_EXCHANGE, 
+      globalCfg.api.TYPE_PAYMENT, 
+      globalCfg.api.TYPE_PROVIDER, 
+      globalCfg.api.TYPE_SEND, 
+      globalCfg.api.TYPE_SERVICE].includes(request.requested_type);
     
     // TYPE_DEPOSIT
     // TYPE_ISSUE

@@ -23,7 +23,7 @@ import styles from './providers.less';
 
 import TransactionTable from '@app/components/TransactionTable';
 import { DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
-
+import * as request_helper from '@app/components/TransactionCard/helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
 import * as utils from '@app/utils/utils';
@@ -148,14 +148,16 @@ class Extrato extends Component {
     let stats = this.currentStats();
     if(txs===undefined)
       txs = this.state.txs;
-    const money_in  = txs.filter( tx => tx.i_sent)
+    const money_in  = txs.filter( tx => request_helper.blockchain.isNegativeTransaction(tx)===false 
+                                        && request_helper.blockchain.isValidTransaction(tx))
                     .map(tx =>tx.quantity)
                     .reduce((acc, amount) => acc + Number(amount), 0);
-    const money_out = txs.filter( tx => !tx.i_sent)
+    const money_out = txs.filter( tx => request_helper.blockchain.isNegativeTransaction(tx)
+                                        && request_helper.blockchain.isValidTransaction(tx))
                     .map(tx =>tx.quantity)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     
-    stats[this.state.active_tab] = {money_out:money_out, money_in:money_in, count:txs.length}
+    stats[this.state.active_tab] = {money_out:money_out||0, money_in:money_in||0, count:txs.length}
     this.setState({stats:stats})
   }
 

@@ -10,6 +10,8 @@ import * as balanceRedux from '@app/redux/models/balance';
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
+import * as utils from '@app/utils/utils';
+
 import PropTypes from "prop-types";
 
 import { withRouter } from "react-router-dom";
@@ -61,6 +63,7 @@ class SendMoney extends Component {
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.onInputAmount              = this.onInputAmount.bind(this);
     this.handleChange               = this.handleChange.bind(this);
+    this.handleMessageChange        = this.handleMessageChange.bind(this);
   }
 
   static propTypes = {
@@ -79,6 +82,13 @@ class SendMoney extends Component {
       transfer_extra : {[name]: value}
     });
   }
+  handleMessageChange = (e) => {
+    e.preventDefault();
+    this.setState({
+      transfer_extra : {message: e.target.value}
+    });
+  }
+
   openNotificationWithIcon(type, title, message) {
     notification[type]({
       message: title,
@@ -125,7 +135,7 @@ class SendMoney extends Component {
     return (
       <Form.Item className="money-transfer__row">
           {getFieldDecorator( 'transfer_extra.'+option_type, {
-            rules: [{ required: true, message: 'Please select a/an'+ my_options.title}]
+            rules: [{ required: true, message: 'Please select a '+ my_options.title}]
             , onChange: (e) => this.handleChange(e, option_type)
           })(
             <Select placeholder={'Choose ' + my_options.title} optionLabelProp="label">
@@ -180,27 +190,42 @@ class SendMoney extends Component {
         //
         return;
       }
-      if(isNaN(this.state.input_amount.value))
+
+      const { input_amount, transfer_extra } = this.state; 
+      
+      if(isNaN(input_amount.value))
       {
-        this.openNotificationWithIcon("error", this.state.amount + "Valid number required","Please type a validnumber greater than 0!")    
+        this.openNotificationWithIcon("error", "Valid number required for amount","Please type a validnumber greater than 0!")    
         return;
       }
-      if(parseFloat(this.state.input_amount.value)>parseFloat(this.props.balance))
+      if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
       {
         const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
         this.openNotificationWithIcon("error", `Amount must be equal or less than balance ${balance_txt}!`); //`
         return;
       }
 
+      if(this.props.isBusiness && !(transfer_extra || transfer_extra[globalCfg.api.TRANSFER_REASON]))
+      {
+        this.openNotificationWithIcon("error", 'Please choose a transfer reason.');
+        return;
+      }
+
       console.log('Received values of form: ', values);
 
-      const privateKey = this.props.actualPrivateKey;
-      // HACK! >> La tenemos que traer de localStorage? <<
-      const receiver   = values.receipt;
-      const sender     = this.props.actualAccountName;
-      const amount     = this.state.input_amount.value;
-      const memo       = '';
-      let that         = this;
+      const privateKey       = this.props.actualPrivateKey;
+      const receiver         = values.receipt;
+      const sender           = this.props.actualAccountName;
+      const amount           = input_amount.value;
+      let memo               = '';
+      
+      if(transfer_extra)
+        memo = utils.sliceAndJoinMemo (transfer_extra.message, transfer_extra[globalCfg.api.TRANSFER_REASON])
+      
+      console.log('* transfer_extra: ', transfer_extra);
+      console.log('* memo:', memo);
+      return;
+      const that         = this;
 
       Modal.confirm({
         title: 'Confirm money transfer',
@@ -310,7 +335,25 @@ class SendMoney extends Component {
                     )}
               </Form.Item>
               <div><br/><br/></div>
+              
+
               {option}
+
+              <div className="money-transfer__row row-expandable row-complementary-bottom"  id="divNote">
+                <Form.Item label="Memo">
+                  {getFieldDecorator('transfer_extra.message', {
+                    onChange: (e) => this.handleMessageChange(e)
+                  })(
+                  <Input.TextArea 
+                    maxLength="50"
+                    className="money-transfer__input" 
+                    placeholder="Message, Memo or Note" autosize={{ minRows: 3, maxRows: 6 }} 
+                    style={{overflow: 'hidden', overflowWrap: 'break-word', height: 31}}
+                    />
+                  )}
+                </Form.Item>
+              </div>
+
             </div>
 
             <div className="mp-box__actions mp-box__shore">

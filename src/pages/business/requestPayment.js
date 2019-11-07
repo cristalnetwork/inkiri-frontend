@@ -199,8 +199,7 @@ class RequestPayment extends Component {
 
            const request_id       = data.id;
            const provider_account = globalCfg.bank.provider_account; 
-           // const memo             = 'prv|' + request_id;
-
+           
            api.requestProviderPayment(sender, privateKey, provider_account, amount, request_id)
             .then((data1) => {
 
@@ -312,7 +311,7 @@ class RequestPayment extends Component {
     return (
       <Form.Item className="money-transfer__row">
           {getFieldDecorator( 'provider_extra.'+option_type, {
-            rules: [{ required: true, message: 'Please select a/an'+ my_options.title}]
+            rules: [{ required: true, message: 'Please select a/an '+ my_options.title}]
             , onChange: (e) => this.handleChange(e, option_type)
           })(
             <Select placeholder={'Choose ' + my_options.title} optionLabelProp="label">
