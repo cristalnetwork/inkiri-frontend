@@ -61,6 +61,17 @@
   text-align: left!important;
 }
 
+.filter_wrap {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+
+  margin: 0 0px;
+  padding-bottom: 24px;
+  background-color: #fff;
+}
+
+
 /* form styling */
 h3.fileds_header{
   padding-left: 50px;
@@ -71,12 +82,17 @@ h3.fileds_header{
 /*HACK FOR TABLES*/
 .ant-divider-horizontal {
     margin: 6px 0 !important;
-
 }
 
 .row_tx_description{
   font-size: 16px;
   font-weight: 600;
+}
+
+.ant-pagination {display: none!important;}
+.ant-table-footer {
+    display: flex;
+    justify-content: flex-end;
 }
 
 /*

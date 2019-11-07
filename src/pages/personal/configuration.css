@@ -1,3 +1,7 @@
+.__configuration .cards {
+    max-width: 768px;
+}
+
  .mp-app-wrapper {
         background: #f7f7f7;
     }

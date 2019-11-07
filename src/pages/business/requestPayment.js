@@ -8,10 +8,12 @@ import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
 
 import * as api from '@app/services/inkiriApi';
-import * as routesService from '@app/services/routes';
 import * as globalCfg from '@app/configs/global';
 
 import PropTypes from "prop-types";
+
+import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
 import { withRouter } from "react-router-dom";
 
 import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
@@ -20,7 +22,6 @@ import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typ
 import ProviderSearch from '@app/components/ProviderSearch';
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
-// import './requestPayment.css'; 
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -67,8 +68,9 @@ class RequestPayment extends Component {
       ...DEFAULT_RESULT,
       
       uploading:          false,
-      pushingTx:          false
+      pushingTx:          false,
       
+      referrer:           (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined
     };
 
     this.renderContent              = this.renderContent.bind(this); 
@@ -475,10 +477,11 @@ class RequestPayment extends Component {
 
   render() {
     let content     = this.renderContent();
+    const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes }}
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Request a payment to a provider">
         </PageHeader>
 

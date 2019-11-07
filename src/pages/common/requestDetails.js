@@ -380,9 +380,6 @@ class requestDetails extends Component {
     let routes       = routesService.breadcrumbForFile(this.props.isAdmin?'external-transfers':'providers');
     if(referrer)
     {
-      // console.log(' >> ABOUT TO GET BREADCUMBS FOR ... ', referrer);
-      const xpath    = referrer.split('/');
-      // routes         = routesService.breadcrumbForFile(xpath[xpath.length-1]);
       routes         = routesService.breadcrumbForPaths([referrer, this.props.location.pathname]);
     }
     const title         = this.props.isAdmin?'Process External Transfer':'Request details';

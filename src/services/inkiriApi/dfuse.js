@@ -278,8 +278,11 @@ export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
 
 export const listTransactions = (account_name, cursor) => new Promise((res,rej)=> {
 	
-	const query = 'account:' + globalCfg.currency.token + ' (data.from:'+account_name+' OR data.to:'+account_name+')'
-  // const query = '(data.from:'+account_name+' OR data.to:'+account_name+')'
+	
+  // const query = 'account:' + globalCfg.currency.token + ' (data.from:'+account_name+' OR data.to:'+account_name+')'
+  const query = (account_name)
+    ?`account: ${globalCfg.currency.token} (data.from:${account_name} OR data.to:${account_name})`
+    :`account: ${globalCfg.currency.token} `;
 
 	console.log('dfuse::listTransactions >> ', 'About to retrieve listTransactions >>', query);	
 

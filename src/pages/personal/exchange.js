@@ -8,11 +8,13 @@ import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
 
 import * as api from '@app/services/inkiriApi';
-import * as routesService from '@app/services/routes';
 import * as globalCfg from '@app/configs/global';
 
 import PropTypes from "prop-types";
+
 import { withRouter } from "react-router-dom";
+import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
 
 import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
 import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
@@ -26,7 +28,6 @@ import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const { TextArea } = Input;
-const routes = routesService.breadcrumbForFile('providers-payments');
 
 const DEFAULT_RESULT = {
   result:             undefined,
@@ -44,6 +45,8 @@ class Exchange extends Component {
     super(props);
     this.state = {
       
+      routes :             routesService.breadcrumbForPaths(props.location.pathname),
+
       ...DEFAULT_RESULT,
       
       uploading:          false,
@@ -174,10 +177,11 @@ class Exchange extends Component {
 
   render() {
     let content     = this.renderContent();
+    const {routes}  = this.state;
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes }}
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Request a payment to a provider">
         </PageHeader>
 

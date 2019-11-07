@@ -18,9 +18,6 @@ import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statist
 
 import { notification, Table, Divider, Spin } from 'antd';
 
-import './providers.css'; 
-import styles from './providers.less';
-
 import TransactionTable from '@app/components/TransactionTable';
 import {DISPLAY_ALL_TXS, DISPLAY_PAYMENTS, DISPLAY_PROVIDER} from '@app/components/TransactionTable';
 import * as request_helper from '@app/components/TransactionCard/helper';
@@ -73,18 +70,6 @@ class Providers extends Component {
   cancelOperation(record){}
   
   operationDetails(record){
-    // console.log(' ## operationDetails(record):', JSON.stringify(record))
-    // this.props.history.push({
-    //   pathname: `/${this.props.actualRole}/provider-payment-request-details`
-    //   , state: { request: record }
-    // })
-
-    // this.props.history.push({
-    //   pathname: `/${this.props.actualRole}/request-details`
-    //   , state: { request: record }
-    // })
-
-    // console.log(' >> this.props.setLastRootMenuFullpath:', this.props.location.pathname)
     // HACK
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
@@ -167,8 +152,13 @@ class Providers extends Component {
   }
   //
   onNewRequestClick(){
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
     this.props.history.push({
       pathname: `/${this.props.actualRole}/providers-payments-request`
+      , state: { 
+          referrer: this.props.location.pathname
+        }
     })
   }
 

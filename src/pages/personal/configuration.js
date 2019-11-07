@@ -8,11 +8,13 @@ import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
 
 import * as api from '@app/services/inkiriApi';
-import * as routesService from '@app/services/routes';
 import * as globalCfg from '@app/configs/global';
 
 import PropTypes from "prop-types";
+
 import { withRouter } from "react-router-dom";
+import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
 
 import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
 import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
@@ -29,8 +31,6 @@ import BankAccountForm from '@app/components/Form/bank_account';
 import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from './configuration/profile';
 import Skeleton from '@app/pages/personal/configuration/skeleton';
 
-const routes = routesService.breadcrumbForFile('account-settings');
-
 
 const ACTIVE_TAB_PROFILE               = 'active_tab_profile';
 const ACTIVE_TAB_PROFILE_EDIT_PROFILE  = 'active_tab_profile_edit_profile';
@@ -44,6 +44,7 @@ class Configuration extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      routes :             routesService.breadcrumbForPaths(props.location.pathname),
       pushingTx:           false,
       active_tab:          ACTIVE_TAB_PROFILE,
       active_tab_action:   ACTIVE_TAB_PROFILE,
@@ -227,10 +228,11 @@ class Configuration extends Component {
 
   render() {
     let content     = this.renderContent();
+    const {routes}  = this.state;
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes }}
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Account Settings"
           footer={
             <Tabs defaultActiveKey="1" onChange={this.onTabChange}>
@@ -244,7 +246,7 @@ class Configuration extends Component {
         </PageHeader>
         
         <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-          <section className="mp-main__content">
+          <section className="mp-main__content __configuration">
             {content}      
           </section>      
         </div>

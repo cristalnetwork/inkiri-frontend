@@ -142,7 +142,7 @@ const bankadmin = [
     },
     {
        key: pathNames.bankadminOperations,
-       fileName: 'under-construction',
+       fileName: 'operations',
        area: 'bankadmin',
        path: 'operations',
        container: 'dashboard',

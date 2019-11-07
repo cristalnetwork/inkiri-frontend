@@ -5,7 +5,7 @@ const Skeleton = ({content, icon}) => {
     
     return(
 
-      <div className="cards" style={{maxWidth:'700px'}}>
+      <div className="cards">
         <section className="my-data my-data-firts info-account " style={{backgroundColor:'#fcfcfc'}}>
           <div className="info-personal">
             <div className="my-data-info add-picture">

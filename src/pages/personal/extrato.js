@@ -18,9 +18,6 @@ import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statist
 
 import { notification, Table, Divider, Spin } from 'antd';
 
-import './extrato.css'; 
-import styles from './extrato.less';
-
 import * as request_helper from '@app/components/TransactionCard/helper';
 import TransactionTable from '@app/components/TransactionTable';
 import { columns,  DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';

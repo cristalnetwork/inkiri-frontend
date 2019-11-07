@@ -62,7 +62,7 @@ const routes  = {
                     {
                         key: routes_config.pathNames.personalPaymentsAndServices,
                         path: routes_config.pathNames.personalUnderConstruction,
-                        title: 'Payment and services',
+                        title: 'Payments and services',
                         icon: 'shop',
                     }
                 ]
@@ -99,7 +99,7 @@ const routes  = {
                 items: [
                     {
                         key: routes_config.pathNames.bankadminOperations,
-                        path: routes_config.pathNames.bankadminUnderConstruction,
+                        path: routes_config.pathNames.bankadminOperations,
                         title: 'Operations',
                         
                     },
@@ -282,8 +282,10 @@ export const breadcrumbForPaths = (fullpaths, include_root) => {
     
     const my_fullpaths = Array.isArray(fullpaths)?fullpaths:[fullpaths];
     // console.log(' >> breadcrumbForPaths : ', JSON.stringify(my_fullpaths));
-    const breadcrumbs = my_fullpaths.map(
+    const breadcrumbs = my_fullpaths.filter(fullpath=> fullpath ).map(
         (fullpath)=> {
+            if(!fullpath)
+              return false
             const path_parts = fullpath.split('/'); 
             const area = path_parts[1];
             const path = path_parts[2];
