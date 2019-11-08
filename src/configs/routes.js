@@ -4,11 +4,8 @@ export const pathNames = utils.arrToObj([
     'personalDashboard',
     'personalUnderConstruction',
     'personalExtracto',
-    // 'personalDeposit',
-    // 'personalWithdraw',
     'personalExchange',
     'personalRequestMoney',
-    // 'personalSendMoney',
     'personalPaymentsAndServices',
     'personalConfiguration',
 
@@ -70,13 +67,6 @@ const personal =[
        container: 'dashboard',
        role: 'personal'
     },
-    // {
-    //    key: pathNames.personalSendMoney, 
-    //    fileName: 'send', // fileName: 'sendMoney',
-    //    area: 'personal',
-    //    path: 'send-money',
-    //    container: 'dashboard' 
-    // },
     {
        key: pathNames.personalConfiguration,
        fileName: 'configuration',
@@ -84,13 +74,6 @@ const personal =[
        path: 'account-settings',
        container: 'dashboard' 
     },
-   // {
-   //     key: pathNames.personalDeposit,
-   //     fileName: 'deposit',
-   //     area: 'personal',
-   //     path: 'deposit',
-   //     container: 'dashboard' 
-   //  },
     {
        key: pathNames.personalWithdraw,
        fileName: 'withdraw',
@@ -157,13 +140,13 @@ const bankadmin = [
        role: 'bankadmin'
     },
     {
-       key: pathNames.bankadminExternalTransfers_ProcessExternal,
-       father_key : pathNames.bankadminExternalTransfers,
-       fileName: 'processExternal',
-       area: 'bankadmin',
-       path: 'external-transfers-process-request',
-       container: 'dashboard',
-       role: 'bankadmin'
+       key:         pathNames.bankadminExternalTransfers_ProcessExternal,
+       father_key : '*',
+       fileName:    'processExternal',
+       area:        'bankadmin',
+       path:        'external-transfers-process-request',
+       container:   'dashboard',
+       role:        'bankadmin'
     },
     {
        key: pathNames.bankadminConfiguration,
@@ -253,7 +236,7 @@ const bankadmin = [
     // },
     {
        key: pathNames.bankadminPDA_ProcessRequest,
-       father_key : pathNames.bankadminPDA,
+       // father_key : pathNames.bankadminPDA,
        fileName: 'processExternal',
        area: 'bankadmin',
        path: 'pda-process-request',

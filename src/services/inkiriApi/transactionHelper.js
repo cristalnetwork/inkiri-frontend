@@ -10,6 +10,7 @@ function getTxMetadata(account_name, fullTx){
   const tx_subcode = getTxSubCode(tx);
   const i_sent     = isSender(account_name, tx)
   const request    = getRequestMetadata(tx, tx_type, tx_code)
+  const headers    = buildHeaders(account_name, tx, i_sent, tx_type, tx_name, tx_code, tx_subcode);
   return {
     tx_type:               tx_type,
     request:               request,
@@ -17,8 +18,9 @@ function getTxMetadata(account_name, fullTx){
     tx_code:               tx_code, 
     tx_subcode:            tx_subcode, 
     i_sent:                i_sent,
-    header:                getTxHeaderText(account_name, tx, i_sent),
-    sub_header:            getTxSubHeaderText(account_name, tx, i_sent, tx_type, tx_name, tx_code, tx_subcode),
+    // sub_header:            
+    // sub_header_admin:            
+    ...headers,
     quantity:              getTxQuantityToNumber(tx),
     quantity_txt:          getTxQuantity(tx)
     // may_have_newer_tx:     mayTxHaveNewerTx(tx_code),
@@ -116,18 +118,17 @@ function isTransfer(param)             { return param=='transfer';}
 function isIssue(param)                { return param=='issue'; }
 function isSender(account_name, tx_act){ return tx_act.data.to!=account_name; }
 
-function mayTxHaveNewerTx(tx_code){
-  const search = ['transfer_bck']; 
-  return search.indexOf(tx_code)>=0;
-}
-function mayTxHavePrivateData(tx_code){
-  const search = ['transfer_bck', 'transfer_xch', 'transfer_pap', 'issue_iug'];
-  return search.indexOf(tx_code)>=0;
-}
-function isVisibleTx(tx_code){
-  return true;
-}
-
+// function mayTxHaveNewerTx(tx_code){
+//   const search = ['transfer_bck']; 
+//   return search.indexOf(tx_code)>=0;
+// }
+// function mayTxHavePrivateData(tx_code){
+//   const search = ['transfer_bck', 'transfer_xch', 'transfer_pap', 'issue_iug'];
+//   return search.indexOf(tx_code)>=0;
+// }
+// function isVisibleTx(tx_code){
+//   return true;
+// }
  
 const  MEMO_KEY_DEP =  'dep';
 const  MEMO_KEY_IUG =  'iug';
@@ -173,49 +174,78 @@ const keyCodeToRequestType = (key_code) => {
   return my_type || globalCfg.api.TYPE_UNKNOWN;
 }
 
-function getTxHeaderText(account_name, tx, i_sent){
-  return 'header';
-}
-
-function getTxSubHeaderText(account_name, tx, i_sent, tx_type, tx_name, tx_code, tx_subcode){
+function buildHeaders(account_name, tx, i_sent, tx_type, tx_name, tx_code, tx_subcode){
 
   switch(tx_type) {
-    // case 'issue_iss': //ToDo: Remove case.
-    //   return i_sent?'Emisión por depósito en '+tx_subcode:'Depositaste en '+tx_subcode
-    //   break;
     case KEY_ISSUE_DEP:
-      return i_sent?'Emisión por depósito.':'Depositaste'
+      return { sub_header:        'Depositaste'
+              , sub_header_admin: 'Emisión por depósito.'
+              , sub_header_admin_ex: `Se le ha emitido dinero a @${tx.data.to} por depósito `
+            };
       break;
     case KEY_ISSUE_IUG:
-      return i_sent?'Emisión por recibimento en IUGU':'Recibiste pago via IUGU'
+      return { sub_header:           'Recibiste pago via IUGU'
+              , sub_header_admin:    'Emisión por recibimento en IUGU'
+              , sub_header_admin_ex: `Se le ha emitido dinero a @${tx.data.to} por pago recibido via IUGU `
+            };
       break;
     case KEY_ISSUE_OFT:
-      return i_sent?'Emisión por seteo de descubierto en cuenta':'Acreditación de descubierto en cuenta'
+      return { sub_header:           'Emisión por seteo de descubierto en cuenta'
+              , sub_header_admin:    'Acreditación de descubierto en cuenta'
+              , sub_header_admin_ex: `Se le ha emitido dinero a @${tx.data.to} por descubierto en cuenta `
+            };
       break;
     case KEY_TRANSFER_BCK:
-      return i_sent?'Restituiste monto de transacción.':'Te restituyeron monto por transacción.'
+      return { sub_header:           'Te restituyeron monto por transacción.'
+              , sub_header_admin:    'Restitución de monto por transacción.'
+              , sub_header_admin_ex: `Se le ha restituído a @${tx.data.from} por operación cancelada/invalidada`
+              , to: tx.data.to };
       break;
     case KEY_TRANSFER_WTH:
-      // return i_sent?'Solicitaste retiro en billete':'Solicitaron retiro en billete'
-      return i_sent?'Solicitud de retiro en billete':'Solicitaron retiro en billete'
+      return { sub_header:           'Solicitud de retiro en billete'
+              , sub_header_admin:    'Solicitaron retiro en billete'
+              , sub_header_admin_ex: `@${tx.data.from} ha solicitado/realizado un retiro`
+              , from: tx.data.from};
       break;
     case KEY_TRANSFER_XCH:
-      return i_sent?'Solicitaste cambio a banco.':'Solicitaron cambio a banco.'
+      return { sub_header:           'Solicitaste cambio a banco.'
+              , sub_header_admin:    'Solicitaron cambio a banco.'
+              , sub_header_admin_ex: `@${tx.data.from} ha solicitado cambio a banco`
+              , from: tx.data.from};
       break;
     case KEY_TRANSFER_PRV:
-      return i_sent?'Solicitaste pago a proveedor.':'Solicitaron pago a proveedor.'
-      break;
-    case KEY_TRANSFER_SND:
-      return i_sent?'Enviaste dinero':'Te enviaron dinero'
+      return { sub_header:           'Solicitaste pago a proveedor.'
+              , sub_header_admin:    'Solicitaron pago a proveedor.'
+              , sub_header_admin_ex: `@${tx.data.from} ha solicitado pago a proveedor`
+              , from: tx.data.from};
       break;
     case KEY_TRANSFER_PAY:
-      return i_sent?'Realizaste un pago':'Te realizaron un pago'
+      // return i_sent?'Realizaste un pago':'Te realizaron un pago'
+      return { sub_header:            i_sent?'Realizaste un pago':'Te realizaron un pago'
+              , sub_header_admin:     'Envío de pago'
+              , sub_header_admin_ex:  `@${tx.data.from} le ha realizado un pago a @${tx.data.to}`
+              , from: tx.data.from
+              , to:   tx.data.to};
       break;
     case KEY_TRANSFER_PAP:
-      return i_sent?'Pago preacordado':'Pago preacordado'
+      return { sub_header:           'Pago preacordado'
+              , sub_header_admin:    'Envío de pago preacordado'
+              , sub_header_admin_ex: `@${tx.data.from} le ha realizado un pago preacordado a @${tx.data.to}`
+              , from: tx.data.from
+              , to:   tx.data.to};
+      break;
+    case KEY_TRANSFER_SND:
+      return { sub_header:           i_sent?'Enviaste dinero':'Te enviaron dinero'
+              , sub_header_admin:    'Envío de dinero'
+              , sub_header_admin_ex: `@${tx.data.from} le ha enviado dinero a @${tx.data.to}`
+              , from: tx.data.from
+              , to:   tx.data.to
+            };
       break;
     default:
-      // code block
+      return { sub_header:         'N/A'
+            , sub_header_admin:    'N/A'
+            , sub_header_admin_ex: 'N/A'};
   }
 }
 

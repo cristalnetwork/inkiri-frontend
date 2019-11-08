@@ -325,50 +325,50 @@ export const breadcrumbForFile = (file) => {
     ];
 }
 
-export const breadcrumbForFatherOf = (path) => {
-    const childItem = routes_config.getItem(path);
+// export const breadcrumbForFatherOf = (path) => {
+//     const childItem = routes_config.getItem(path);
     
-    const menuItem  = routes_config.getItem(null, childItem.father_key);
+//     const menuItem  = routes_config.getItem(null, childItem.father_key);
 
-    return [
-      {
-        path: 'dashboard',
-        breadcrumbName: 'Inkiri BANK',
-      },
-      {
-        path: menuItem.fullpath,
-        breadcrumbName: menuItem.title,
-      }
-    ];
-}
+//     return [
+//       {
+//         path: 'dashboard',
+//         breadcrumbName: 'Inkiri BANK',
+//       },
+//       {
+//         path: menuItem.fullpath,
+//         breadcrumbName: menuItem.title,
+//       }
+//     ];
+// }
 
-const findParent = (child_path) => {
-  let _parent = null;
-  const keys = Object.keys(routes);
-  for(var j=0; j < keys.length; j++)
-  {
-      const parents = routes[keys[j]].items;
-      // console.log(parents)
-      if(parents)
-          for(var i=0; i < parents.length; i++){
-            const mainobject = parents[i]; 
-            // console.log(' > ', mainobject.title)
-            if(mainobject.items)
-                for(var k=0; k < mainobject.items.length; k++){
-                  const item = mainobject.items[k];
-                  // console.log(' > > > ', item.path , ' == ', child_path)
-                  if(item.path === child_path){ 
-                    _parent= mainobject;
-                    // console.log(' > > > > > > FOUND!!')
-                    break;
-                  }
-                }
-            if(_parent)
-                break;
-          }
-          if(_parent)
-            break;
-  }
-  // console.log('FINISHED!')
-  return _parent;
-}
+// const findParent = (child_path) => {
+//   let _parent = null;
+//   const keys = Object.keys(routes);
+//   for(var j=0; j < keys.length; j++)
+//   {
+//       const parents = routes[keys[j]].items;
+//       // console.log(parents)
+//       if(parents)
+//           for(var i=0; i < parents.length; i++){
+//             const mainobject = parents[i]; 
+//             // console.log(' > ', mainobject.title)
+//             if(mainobject.items)
+//                 for(var k=0; k < mainobject.items.length; k++){
+//                   const item = mainobject.items[k];
+//                   // console.log(' > > > ', item.path , ' == ', child_path)
+//                   if(item.path === child_path){ 
+//                     _parent= mainobject;
+//                     // console.log(' > > > > > > FOUND!!')
+//                     break;
+//                   }
+//                 }
+//             if(_parent)
+//                 break;
+//           }
+//           if(_parent)
+//             break;
+//   }
+//   // console.log('FINISHED!')
+//   return _parent;
+// }

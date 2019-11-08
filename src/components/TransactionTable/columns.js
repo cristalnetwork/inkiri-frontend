@@ -249,6 +249,84 @@ export const getDefaultColumns = (account_type, callback) => {
 };
 
 //
+
+export const getColumnsForOperations = (callback, account_type) => {
+  return [
+  {
+    title: '#',
+    dataIndex: 'sub_header',
+    key: 'sub_header',
+    render: (value, record) => {
+      return(
+        <span className="name_value_row">
+          <div className="row_name centered" >
+            {request_helper.getTypeIcon(record.request)} 
+          </div>
+          <div className="row_value wider">
+            <span className="row_tx_description">{record.sub_header_admin_ex}</span> 
+             <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
+               <ul>
+                 <li className="hidden">{utils.objectToString(record.data)}</li>
+                 <li className="hidden">{utils.objectToString(record.request)}</li>
+                 <li><Tag color="volcano" key={'warning_'+Math.random()}>Open to view details</Tag></li>
+               </ul>
+             </div>
+          </div>   
+        </span>)
+    }
+  },
+  //
+  // {
+  //   title: 'Tags',
+  //   key: 'tx_type',
+  //   dataIndex: 'tx_type',
+  //   render: (tx_type, record) => {
+  //     let extras = null;
+  //     if(globalCfg.api.isDeposit(record.request))
+  //     {
+  //       const envelope_id = api.bank.envelopeIdFromRequest(record);
+  //       extras = (< ><br/><span key={'envelope_'+record.id}>ENVELOPE ID: <b>{envelope_id}</b></span></>);
+  //     }
+  //     //
+  //     return (
+  //         <span key={'tags'+record.id}>
+  //          {extras}
+  //         </span>
+  //         )}
+  // },
+  //
+  {
+    title: 'Action',
+    key: 'action',
+    render: (text, record) => {
+      const process     = request_helper.getProcessButton(record, callback, 'Details');
+      const blockchain  = request_helper.getBlockchainLink(record.transaction_id, true);
+      return (<>{process}{blockchain}</>)
+    },
+  },
+  //
+  {
+    title: 'Amount and date',
+    // fixed: 'right',    
+    dataIndex: 'block_time',
+    key: 'block_time',
+    sortDirections: ['descend'],
+    defaultSortOrder: 'descend',
+    sorter: (a, b) => a.block_time_number - b.block_time_number,
+    align: 'right',
+    render: (block_time, record) => {
+      const negative = request_helper.blockchain.isNegativeTransaction(record)
+      return (
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin">
+            {request_helper.getStyledAmount(record, false, negative)}
+            {request_helper.getStyledDate(record)}
+          </div>
+          )
+      }
+  }
+]};
+
+//
 export const columnsForAccounts = (callback) => {
     
     return [

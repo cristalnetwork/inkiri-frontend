@@ -17,19 +17,13 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Modal, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
-import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { Modal, Card, PageHeader, Tag, Button, Spin } from 'antd';
+import { notification, Form, Icon, InputNumber, Input } from 'antd';
 
 import TransactionCard from '@app/components/TransactionCard';
 
-// import './request.less'; 
-
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
-
-const { Paragraph, Text } = Typography;
-const { confirm } = Modal;
-
 
 const DEFAULT_RESULT = {
   result:             undefined,
@@ -90,13 +84,6 @@ class processExternal extends Component {
     }
   }
 
-  // componentDidUpdate(prevProps, prevState) {
-  //   // Typical usage (don't forget to compare props):
-  //   if (this.props.request && prevProps.request && (this.props.request.id !== prevProps.request.id) ) {
-  //   this.setState({...DEFAULT_ATTACHS})   
-  //   }
-  // }
-  
   reload(){
     const that      = this;
     const {request} = this.state;
@@ -157,8 +144,6 @@ class processExternal extends Component {
     };
   }
   
-
-  
   backToDashboard = async () => {
     this.props.history.push({
       pathname: `/${this.props.actualRole}/dashboard`
@@ -173,7 +158,6 @@ class processExternal extends Component {
 
   resetPage(){
     this.setState({...DEFAULT_RESULT, ...DEFAULT_ATTACHS});
-    // this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
   }
 
   resetResult(){
@@ -210,11 +194,7 @@ class processExternal extends Component {
                 </div>      
               </div>);
     }
-
-          // <Button  key="go-to-pda" onClick={()=>this.backToReferrer()}>
-          //   Back to External Transfers
-          // </Button>,
-
+    //
     const {request, pushingTx}      = this.state;
     const buttons                   = this.getActionsForRequest();
     const notaUploaderProps         = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
@@ -244,7 +224,7 @@ class processExternal extends Component {
     let that = this;  
     that.setState({pushingTx:true});
     
-    confirm({
+    Modal.confirm({
       title: 'Confirm process request step',
       content: 'You will now send the wire transfer and upload the bank receipt.',
       onOk() {
@@ -297,7 +277,7 @@ class processExternal extends Component {
 
     that.setState({pushingTx:true});
     
-    confirm({
+    Modal.confirm({
       title: 'You will accept the request',
       content: 'Please confirm if you already have sent the money via wire transfer/boleto pagamento.',
       onOk() {
@@ -334,7 +314,7 @@ class processExternal extends Component {
   
   rejectRequest(){
     const that       = this;
-    confirm({
+    Modal.confirm({
       title: 'You will REJECT the request',
       content: 'The request will be rejected and the amount will be refunded to the customer account.',
       onOk() {
@@ -350,7 +330,7 @@ class processExternal extends Component {
   
   revertRequest(){
     const that       = this;
-    confirm({
+    Modal.confirm({
       title: 'You will REVERT the request',
       content: 'The request will be rejected and reverted, and the amount will be refunded to the customer account.',
       onOk() {
@@ -441,7 +421,7 @@ class processExternal extends Component {
     const that = this;
     that.setState({pushingTx:true});
     
-    confirm({
+    Modal.confirm({
       title: 'You will accept the request',
       content: 'Please confirm if you already gave the paper money to the customer.',
       onOk() {
@@ -522,7 +502,7 @@ class processExternal extends Component {
 
     const that       = this;
     const content    = `You will ISSUE ${globalCfg.currency.symbol}${amount} to ${requested_by.account_name}`;
-    confirm({
+    Modal.confirm({
       title: 'Please confirm issue operation ' + this.props.actualAccountName,
       content: content,
       onOk() {
@@ -644,8 +624,8 @@ class processExternal extends Component {
 
   //
   render() {
-    let content                     = this.renderContent();
-    const title                     = 'Process request';
+    let content     = this.renderContent();
+    const title     = 'Process request';
     const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     return (
       <>

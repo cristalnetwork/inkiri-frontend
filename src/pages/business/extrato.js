@@ -438,9 +438,6 @@ class Extrato extends Component {
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Extrato"
           subTitle="List of transactions"
-          footer={
-           <></>   
-          }
         >
         </PageHeader>
         <div className="styles standardList" style={{ marginTop: 0 }}>

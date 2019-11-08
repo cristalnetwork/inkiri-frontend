@@ -21,7 +21,7 @@ import { notification, Table, Divider, Spin } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
-import {columns,  DISPLAY_DEPOSIT, DISPLAY_WITHDRAWS} from '@app/components/TransactionTable';
+import {columns,  DISPLAY_PDA, DISPLAY_DEPOSIT, DISPLAY_WITHDRAWS} from '@app/components/TransactionTable';
 
 import * as utils from '@app/utils/utils';
 
@@ -170,10 +170,20 @@ class PDA extends Component {
   // Component Events
   
   onProcessRequestClick(request){
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
     this.props.history.push({
       pathname: `/${this.props.actualRole}/pda-process-request`
-      , state: { request: request }
+      , state: { 
+          request: request 
+          , referrer: this.props.location.pathname
+        }
     })
+
+    // this.props.history.push({
+    //   pathname: `/${this.props.actualRole}/pda-process-request`
+    //   , state: { request: request }
+    // })
   }
 
   renderFooter(){

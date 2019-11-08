@@ -26,6 +26,8 @@ export const  DISPLAY_WITHDRAWS  = globalCfg.api.TYPE_WITHDRAW;
 export const  DISPLAY_SEND       = globalCfg.api.TYPE_SEND;
 export const  DISPLAY_SERVICE    = globalCfg.api.TYPE_SERVICE;
 
+export const  DISPLAY_PDA        = globalCfg.api.TYPE_DEPOSIT+'|'+globalCfg.api.TYPE_WITHDRAW;
+export const  DISPLAY_EXTERNAL   = globalCfg.api.TYPE_EXCHANGE+'|'+globalCfg.api.TYPE_PROVIDER;
 //
 
 class TransactionTable extends Component {
@@ -36,7 +38,8 @@ class TransactionTable extends Component {
       loading:       false,
       page:          -1, 
       limit:         globalCfg.api.default_page_size,
-      can_get_more : true
+      can_get_more:  true,
+      for_admin:     props.i_am_admin
     };
     // this.handleChange      = this.handleChange.bind(this);
     this.onNewData         = this.onNewData.bind(this);
@@ -69,25 +72,43 @@ class TransactionTable extends Component {
     if (this.props.need_refresh !== prevProps.need_refresh && this.props.need_refresh) {
       this.refresh();
     }
+    if (this.props.i_am_admin !== prevProps.i_am_admin) {
+      this.setState({for_admin: this.props.i_am_admin});
+    }
+    
   }
   loadTxs(){
 
-    let can_get_more   = this.state.can_get_more;
+    const can_get_more   = this.state.can_get_more;
     if(!can_get_more)
     {
       this.setState({loading:false});
       return;
     }
 
-    let account_name = this.props.actualAccountName;
+    const account_name = this.props.actualAccountName;
     
     
     this.setState({loading:true});
 
-    let page           = (this.state.page<0)?0:(this.state.page+1);
-    let limit          = this.state.limit;
-    let that           = this;
+    const page           = (this.state.page<0)?0:(this.state.page+1);
+    const limit          = this.state.limit;
+    const that           = this;
     
+    if(this.state.for_admin)
+    {
+      const req_type = this.props.request_type;
+      api.bank.listRequests(page, limit, req_type)
+        .then( (res) => {
+            that.onNewData(res);
+          } ,(ex) => {
+            // console.log('---- ERROR:', JSON.stringify(ex));
+            that.setState({loading:false});  
+          } 
+        )
+      return;
+    }
+
     api.bank.listMyRequests(account_name, page, limit, this.props.request_type)
     .then( (res) => {
         that.onNewData(res);

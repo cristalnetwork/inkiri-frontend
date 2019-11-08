@@ -41,7 +41,7 @@ export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actua
 
         let selected = routes_config.getItemByAreaNFilename(area, fileName, itemPath)
         
-        if(area==='common' && lastRootMenu)
+        if(((!selected || selected.father_key==='*') || area==='common') && lastRootMenu)
         {
             const path_parts = lastRootMenu.split('/'); 
             const area = path_parts[1];
@@ -51,8 +51,9 @@ export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actua
         
         // console.log(' >> menu >> selected:', JSON.stringify(selected))
         
-        const aa = selected?[(selected.father_key?selected.father_key:selected.key)]:['dashboard'];
-        
+        // const aa = selected?[(selected.father_key?selected.father_key:selected.key)]:['dashboard'];
+        const aa = selected?[selected.key]:['dashboard'];
+
         // const bb = getRootKeys(area);
         const bb = getRootKeys(actualRole); 
 

@@ -19,7 +19,7 @@ import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statist
 import { notification, Table, Divider, Spin } from 'antd';
 
 import TransactionTable from '@app/components/TransactionTable';
-import { DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
+import { DISPLAY_PDA, DISPLAY_EXTERNAL, DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
@@ -82,12 +82,20 @@ class Operations extends Component {
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
     this.props.history.push({
-      pathname: '/common/request-details'
+      pathname: `/${this.props.actualRole}/external-transfers-process-request`
       , state: { 
           request: request 
           , referrer: this.props.location.pathname
         }
     })
+
+    // this.props.history.push({
+    //   pathname: '/common/request-details'
+    //   , state: { 
+    //       request: request 
+    //       , referrer: this.props.location.pathname
+    //     }
+    // })
   }
 
   componentDidMount(){
@@ -320,15 +328,7 @@ class Operations extends Component {
                     precision={0}
                     
                   />
-            </Col>
-            <Col xs={24} sm={12} md={5} lg={5} xl={5}>
-              <Statistic
-                title="Account Balance"
-                value={Number(this.props.balance)}
-                precision={2}
-                prefix={globalCfg.currency.symbol}
-              />
-            </Col>
+            </Col>            
           </Row>
         </Card>
       </div>
@@ -341,41 +341,31 @@ class Operations extends Component {
 
   renderContent(){
     let content = null;
-    if(this.state.active_tab==DISPLAY_DEPOSIT){
+    if(this.state.active_tab==DISPLAY_PDA){
       content = (
         <TransactionTable 
-          key={'table_'+DISPLAY_DEPOSIT} 
-          need_refresh={this.state.need_refresh[DISPLAY_DEPOSIT]}
-          request_type={DISPLAY_DEPOSIT} 
+          key={'table_'+DISPLAY_PDA} 
+          need_refresh={this.state.need_refresh[DISPLAY_PDA]}
+          request_type={DISPLAY_PDA} 
           onChange={this.onTableChange}
           callback={this.onRequestClick}
+          multiple={true}
+          i_am_admin={true}
           />
       );
     }
 
     //
-
-    if(this.state.active_tab==DISPLAY_WITHDRAWS){
+    if(this.state.active_tab==DISPLAY_EXTERNAL){
       content = (
         <TransactionTable 
-          key={'table_'+DISPLAY_WITHDRAWS} 
-          need_refresh={this.state.need_refresh[DISPLAY_WITHDRAWS]}
-          request_type={DISPLAY_WITHDRAWS} 
+          key={'table_'+DISPLAY_EXTERNAL} 
+          need_refresh={this.state.need_refresh[DISPLAY_EXTERNAL]}
+          request_type={DISPLAY_EXTERNAL} 
           onChange={this.onTableChange}
           callback={this.onRequestClick}
-          />
-      );
-    }
-    
-    //
-    if(this.state.active_tab==DISPLAY_PROVIDER){
-      content = (
-        <TransactionTable 
-          key={'table_'+DISPLAY_PROVIDER} 
-          need_refresh={this.state.need_refresh[DISPLAY_PROVIDER]}
-          request_type={DISPLAY_PROVIDER} 
-          onChange={this.onTableChange}
-          callback={this.onRequestClick}
+          multiple={true}
+          i_am_admin={true}
           />
       );
     }
@@ -384,25 +374,12 @@ class Operations extends Component {
 
 
     if(this.state.active_tab==DISPLAY_ALL_TXS){
-      // content = (
-      //   <Table
-      //     key={"table_"+DISPLAY_ALL_TXS} 
-      //     rowKey={record => record.id} 
-      //     loading={this.state.loading} 
-      //     columns={columns_helper.getDefaultColumns(this.props.actualRoleId, this.onTransactionClick)} 
-      //     dataSource={this.state.txs} 
-      //     footer={() => this.renderFooter()}
-      //     pagination={this.state.pagination}
-      //     scroll={{ x: 700 }}
-      //     />
-      // );
-
       content = (
         <Table
           key={"table_"+DISPLAY_ALL_TXS} 
           rowKey={record => record.id} 
           loading={this.state.loading} 
-          columns={ columns_helper.getColumnsForPersonalExtrato(this.onTransactionClick, this.props.actualRoleId)} 
+          columns={ columns_helper.getColumnsForOperations(this.onTransactionClick, this.props.actualRoleId)} 
           dataSource={this.state.txs} 
           footer={() => this.renderFooter()}
           pagination={this.state.pagination}
@@ -417,10 +394,10 @@ class Operations extends Component {
   }
   //
   render() {
-    const content = this.renderContent();
-    const stats = this.renderTableViewStats();
-    const filters = this.renderFilterContent();
-    const {routes} = this.state;
+    const content   = this.renderContent();
+    const stats     = this.renderTableViewStats();
+    const filters   = this.renderFilterContent();
+    const {routes}  = this.state;
     return (
       <>
         <PageHeader
@@ -429,22 +406,16 @@ class Operations extends Component {
             <Button size="small" key="refresh" icon="redo" disabled={this.state.loading} onClick={()=>this.refreshCurrentTable()} ></Button>,
             
           ]}
-          title="Extrato"
-          subTitle="List of transactions"
-          footer={
-           <></>   
-          }
+          title="Operations"
+          subTitle="List of blockchain transactions, Deposits & Withdraw requests, and Exchanges & Provider Payment requests"
         >
         </PageHeader>
-        <div className="styles standardList" style={{ marginTop: 0 }}>
+        <div className="styles standardList" style={{ marginTop: 24 }}>
           <Card key="tabs_card" bordered={false}>
             <Tabs  defaultActiveKey={DISPLAY_ALL_TXS} onChange={this.onTabChange}>
-              <TabPane tab="Movements"       key={DISPLAY_ALL_TXS} />
-              <TabPane tab="Deposits"        key={DISPLAY_DEPOSIT} />
-              <TabPane tab="Withdraws"       key={DISPLAY_WITHDRAWS} />
-              <TabPane tab="Provider payments"  key={DISPLAY_PROVIDER} />
-              <TabPane tab="Payments"        key={DISPLAY_PAYMENTS} disabled />
-              <TabPane tab="Requests"        key={DISPLAY_REQUESTS} disabled />
+              <TabPane tab="Blockchain transactions"                     key={DISPLAY_ALL_TXS} />
+              <TabPane tab="Deposits & Withdraws requests" key={DISPLAY_PDA} />
+              <TabPane tab="External transfers requests"   key={DISPLAY_EXTERNAL} />
             </Tabs>
           </Card>
         </div>

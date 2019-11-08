@@ -400,9 +400,6 @@ class Providers extends Component {
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Providers"
           subTitle="List of payments"
-          footer={
-           <></>   
-          }
         >
         </PageHeader>
         

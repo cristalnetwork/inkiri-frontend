@@ -31,6 +31,10 @@
   background-color: #ffffff;
 }
 
+/*.ant-page-header.has-footer{
+  padding-bottom:12px;
+}
+*/
 .dashboard_page_content
 , .dashboard_page_header_wrap{
 	margin: 0px auto;

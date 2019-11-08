@@ -184,12 +184,13 @@ class transactionDetails extends Component {
   }
 
   onViewRequest = (request) => {
-    console.log( ' >> this.props.location.referrer > ', this.props.location.referrer)
+    
+    const pathname = (this.props.isAdmin ? `/${this.props.actualRole}/external-transfers-process-request` : '/common/request-details')
     this.props.history.push({
-      pathname: '/common/request-details'
+      pathname: pathname
       , state: { 
-          request: request
-          , referrer: this.state.referrer
+          request:     request
+          , referrer:  this.state.referrer
         }
     })
   }
