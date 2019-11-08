@@ -3,22 +3,20 @@ import React, {useState, Component} from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
-// import * as userRedux from '@app/redux/models/user';
+import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
-import * as routesService from '@app/services/routes';
 
 import { Route, Redirect, withRouter } from "react-router-dom";
+import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
 
 import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col, List } from 'antd';
 import { Form, Input, Icon} from 'antd';
 import { notification, Table, Divider, Spin } from 'antd';
-
-import './pda.css'; 
-import styles from './style.less'; 
 
 import {DISPLAY_ALL_TXS} from '@app/components/TransactionTable';
 
@@ -33,13 +31,11 @@ const RadioGroup = Radio.Group;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
-const routes = routesService.breadcrumbForFile('providers');
-
-
 class Providers extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      routes :        routesService.breadcrumbForPaths(props.location.pathname),
       loading:        false,
       providers:      [],
       
@@ -147,16 +143,27 @@ class Providers extends Component {
   } 
 
   onNewProvider = () => {
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
     this.props.history.push({
       pathname: `/${this.props.actualRole}/create-provider`
-    })
+      , state: { 
+          referrer: this.props.location.pathname
+        }
+    })    
   }
 
   onButtonClick(provider){
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
     this.props.history.push({
       pathname: `/${this.props.actualRole}/provider-profile`
-      , state: { provider: provider }
+      , state: { 
+          provider: provider
+          , referrer: this.props.location.pathname
+        }
     })
+
   }
 
 
@@ -230,7 +237,7 @@ class Providers extends Component {
     const optTypes  = this.renderAccountTypeFilter();
     const optStates = this.renderAccountStateFilter();
     return(
-      <div className="wrap">
+      <div className="filter_wrap">
         <Row>
           <Col span={24}>
             <Form layout="inline" className="filter_form" onSubmit={this.handleSubmit}>
@@ -290,14 +297,15 @@ class Providers extends Component {
     const filters = (<></>); //this.renderFilterContent();
     const content = this.renderUMIContent();
     const _href   = globalCfg.bank.customers;
+    const {routes}  = this.state;
     return (
       <>
         <PageHeader
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={[
             <Button key="_new_provider" size="small" type="primary" icon="plus" onClick={()=>{this.onNewProvider()}}> Provider</Button>,
             
           ]}
-          breadcrumb={{ routes }}
           title="Providers"
           subTitle="Providers Administration"
         >
@@ -347,7 +355,7 @@ export default  (withRouter(connect(
         actualRole:       loginRedux.actualRole(state),
     }),
     (dispatch)=>({
-        // tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
+        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(Providers))
 );

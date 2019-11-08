@@ -139,37 +139,6 @@ export const getAccountBalance = (account) => new Promise((res,rej)=> {
 
 })	
 
-
-export const listBankAccounts = () => new Promise((res,rej)=> {
-	
-	// Can we cache this information?
-
-  let client = createClient();
-	client.stateTable(
-      globalCfg.bank.issuer,
-      globalCfg.bank.issuer,
-      "ikaccounts",
-      { blockNum: undefined }
-    )
-    .then((data) => {
-      console.log(' dfuse::listBankAccounts >> ', JSON.stringify(data));
-			var accounts = data.rows.map(account => 
-				({	...account.json
-									,'state_description' :        txsHelper.getStateDescription(account.json.state)
-									,'account_type_description' : txsHelper.getAccountTypeDescription(account.json.account_type) }));
-
-			let _res = {data:{accounts:accounts,more:false}};
-			// console.log(' dfuse::listBankAccounts >> ', JSON.stringify(_res));
-      res (_res);
-      client.release();
-    }, (ex)=>{
-      // console.log('dfuse::listBankAccounts >> ERROR ', JSON.stringify(ex));
-      rej(ex);
-      client.release();
-    });
-
-})	
-
 /**
  * Function that retrieves all blockchain transactions that includes
  * the account that was given authority over a permission.
@@ -219,29 +188,51 @@ export const searchPermissioningAccounts = (account_name) => new Promise( (res, 
   
 })
 
+// export const listBankAccounts = () => new Promise((res,rej)=> {
+//   // Can we cache this information?
+//   let client = createClient();
+//   client.stateTable(
+//       globalCfg.bank.issuer,
+//       globalCfg.bank.issuer,
+//       "ikaccounts",
+//       { blockNum: undefined }
+//     )
+//     .then((data) => {
+//       console.log(' dfuse::listBankAccounts >> ', JSON.stringify(data));
+//       var accounts = data.rows.map(account => 
+//         ({  ...account.json
+//                   ,'state_description' :        txsHelper.getStateDescription(account.json.state)
+//                   ,'account_type_description' : txsHelper.getAccountTypeDescription(account.json.account_type) }));
+//       let _res = {data:{accounts:accounts,more:false}};
+//       // console.log(' dfuse::listBankAccounts >> ', JSON.stringify(_res));
+//       res (_res);
+//       client.release();
+//     }, (ex)=>{
+//       // console.log('dfuse::listBankAccounts >> ERROR ', JSON.stringify(ex));
+//       rej(ex);
+//       client.release();
+//     });
+// })  
 
-export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
-	listBankAccounts()
-	.then((data) => {
-		// console.log(' dfuse::searchBankAccount >> ', JSON.stringify(data));
-  	var account = data.data.accounts.filter(account => account.key === account_name);
-    if(account && account.length>0)
-    {
-    	let _res = account[0];
-    	// console.log(' dfuse::searchBankAccount >> ', JSON.stringify(_res));	
-    	res (_res)
-    }
-    else
-  	{
-  		console.log(' dfuse::searchBankAccount >> ', 'Account not Found!');	
-  		// rej({error:'Account not found'});
-      res(undefined);
-  	}
-  }, (ex)=>{
-    console.log('dfuse::searchBankAccount >> ERROR ', JSON.stringify(ex));
-    rej(ex);
-  });
-})	
+// export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
+// 	listBankAccounts()
+// 	.then((data) => {
+// 		var account = data.data.accounts.filter(account => account.key === account_name);
+//     if(account && account.length>0)
+//     {
+//     	let _res = account[0];
+//     	res (_res)
+//     }
+//     else
+//   	{
+//   		console.log(' dfuse::searchBankAccount >> ', 'Account not Found!');	
+//   	  res(undefined);
+//   	}
+//   }, (ex)=>{
+//     console.log('dfuse::searchBankAccount >> ERROR ', JSON.stringify(ex));
+//     rej(ex);
+//   });
+// })	
 
 // export const searchOneBankAccount = (account_name) => new Promise((res,rej)=> {
 //   let client = createClient();

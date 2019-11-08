@@ -8,19 +8,21 @@ import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
 
 import * as api from '@app/services/inkiriApi';
-import * as routesService from '@app/services/routes';
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 
 import PropTypes from "prop-types";
+
 import { withRouter } from "react-router-dom";
+import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
 
 import { Modal, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
 import TransactionCard from '@app/components/TransactionCard';
 
-import './request.less'; 
+// import './request.less'; 
 
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
@@ -48,6 +50,7 @@ class processExternal extends Component {
     const request       = (this.props && this.props.location && this.props.location.state && this.props.location.state.request)? this.props.location.state.request : undefined;
     const pathname      = props.location?props.location.pathname.split('/').slice(-1)[0]:'';
     this.state = {
+      referrer:        (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined,
       loading:      false,
       receipt:      '',
       amount:       0,
@@ -642,13 +645,12 @@ class processExternal extends Component {
   //
   render() {
     let content                     = this.renderContent();
-
-    const routes                    = routesService.breadcrumbForFatherOf(this.state.pathname);
     const title                     = 'Process request';
+    const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes }}      
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={title}>
         </PageHeader>
 

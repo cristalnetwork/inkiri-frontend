@@ -8,23 +8,20 @@ import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
 
 import * as api from '@app/services/inkiriApi';
-import * as routesService from '@app/services/routes';
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 
 import _ from 'lodash';
-
 import PropTypes from "prop-types";
+
 import { withRouter } from "react-router-dom";
+import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
 
 import { Badge, Skeleton, List, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
 import { Table, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
-
-// import styles from './account.less';
-import styles from './style.less';
-import './pda.css'; 
 
 import {DISPLAY_PROVIDER } from '@app/components/TransactionTable';
 
@@ -32,14 +29,13 @@ import {formItemLayout,tailFormItemLayout } from '@app/utils/utils';
 
 const { Paragraph, Text } = Typography;
 
-const routes = routesService.breadcrumbForFile('providers');
-
-
 
 class Provider extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      referrer:        (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined,
+
       updating:        false,
       pushingTx:       false,
       
@@ -499,11 +495,12 @@ class Provider extends Component {
       subTitle = ""
     }
 
+    const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     return (
       <>
         <PageHeader
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           style={{marginBottom:'24px'}}
-          breadcrumb={{ routes }}
           title={title}
           subTitle={subTitle}
           

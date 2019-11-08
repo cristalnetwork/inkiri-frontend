@@ -3,22 +3,21 @@ import React, {useState, Component} from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
-// import * as userRedux from '@app/redux/models/user';
+import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
-import * as routesService from '@app/services/routes';
 
 import { Route, Redirect, withRouter } from "react-router-dom";
+import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
+
 
 import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col, List } from 'antd';
 import { Form, Input, Icon} from 'antd';
 import { notification, Table, Divider, Spin } from 'antd';
-
-import './pda.css'; 
-import styles from './style.less'; 
 
 import {DISPLAY_ALL_TXS, DISPLAY_PROVIDER, DISPLAY_EXCHANGES} from '@app/components/TransactionTable';
 
@@ -33,14 +32,11 @@ const RadioGroup = Radio.Group;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
-const routes = routesService.breadcrumbForFile('external-transfers');
-
-//
-
 class ExternalTransfers extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      routes :        routesService.breadcrumbForPaths(props.location.pathname),
       loading:        false,
       txs:            [],
       
@@ -178,11 +174,18 @@ class ExternalTransfers extends Component {
   }
 
   onProcessRequestClick(request){
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
+    // ToDo: Move to common
     this.props.history.push({
       pathname: `/${this.props.actualRole}/external-transfers-process-request`
-      // , search: '?query=abc'
-      , state: { request: request }
+      , state: { 
+          request:  request, 
+          referrer: this.props.location.pathname
+        }
     })
+
+
   }
 
   renderFooter(){
@@ -204,7 +207,7 @@ class ExternalTransfers extends Component {
   //
   renderFilterContent() {
     return (
-      <div className="wrap">
+      <div className="filter_wrap">
         <Row>
           <Col span={24}>
             <Form layout="inline" className="filter_form" onSubmit={this.handleSubmit}>
@@ -246,10 +249,11 @@ class ExternalTransfers extends Component {
     //
     const filters = this.renderFilterContent();
     const content = this.renderUMIContent();
+    const {routes} = this.state;
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes }}
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="External Transfers"
           subTitle="List of Provider Payments and Exchanges"
         >
@@ -365,7 +369,7 @@ export default  (withRouter(connect(
         actualRole:       loginRedux.actualRole(state),
     }),
     (dispatch)=>({
-        // tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
+        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(ExternalTransfers))
 );

@@ -8,28 +8,27 @@ import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
 
 import * as api from '@app/services/inkiriApi';
-import * as routesService from '@app/services/routes';
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 
 import _ from 'lodash';
 
 import PropTypes from "prop-types";
+
 import { withRouter } from "react-router-dom";
+import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
 
 import { Badge, Skeleton, List, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
-import styles from './account.less';
-
 const { Paragraph, Text } = Typography;
-
-const routes = routesService.breadcrumbForFile('accounts');
 
 class Account extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      referrer:        (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined,
       loading:         true,
       permissioned:    '',
       dataSource:      [],
@@ -569,11 +568,12 @@ class Account extends Component {
   render() {
     let content = this.renderContent();
     
+    const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     return (
       <>
         <PageHeader
-          style={{marginBottom:'24px'}}
-          breadcrumb={{ routes }}
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
+          style={{marginBottom:'24px'}}         
           title="Account details"
           subTitle="View and modifiy account profile and permissions"
           

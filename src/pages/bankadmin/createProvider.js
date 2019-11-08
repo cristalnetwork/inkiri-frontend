@@ -8,23 +8,25 @@ import * as loginRedux from '@app/redux/models/login'
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
-import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
+import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
+
+import PropTypes from "prop-types";
 
 import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
-import * as routesService from '@app/services/routes';
 import {formItemLayout,tailFormItemLayout } from '@app/utils/utils';
 
 const { Paragraph, Text } = Typography;
 
-const routes = routesService.breadcrumbForFile('providers');
 
 class CreateProvider extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      referrer:        (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined,
       loading:      true,
       pushingTx:    false,
       
@@ -370,10 +372,11 @@ class CreateProvider extends Component {
   render() {
     let content = this.renderContent();
     
+    const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes }}
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Create Provider"
           
         >

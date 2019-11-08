@@ -3,22 +3,19 @@ import React, {useState, Component} from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
-// import * as userRedux from '@app/redux/models/user';
+import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
-import * as routesService from '@app/services/routes';
-
 import { Route, Redirect, withRouter } from "react-router-dom";
+import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
 
 import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col, List } from 'antd';
 import { Form, Input, Icon} from 'antd';
 import { notification, Table, Divider, Spin } from 'antd';
-
-import './pda.css'; 
-import styles from './style.less'; 
 
 import {DISPLAY_ALL_TXS} from '@app/components/TransactionTable';
 
@@ -40,6 +37,7 @@ class AdminAccounts extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      routes :        routesService.breadcrumbForPaths(props.location.pathname),
       loading:        false,
       accounts:       [],
       
@@ -68,17 +66,12 @@ class AdminAccounts extends Component {
   getColumns(){
     return [
               {
-                title: 'Full Name',
+                title: 'Account Name',
                 dataIndex: 'key',
-                key: 'fullname',
+                key: 'account_name',
                 sortDirections: ['descend'],
                 defaultSortOrder: 'descend',
                 // sorter: (a, b) => a.block_time_number - b.block_time_number,
-              },
-              {
-                title: 'Account name',
-                dataIndex: 'key',
-                key: 'key'
               },
               //
               {
@@ -155,26 +148,30 @@ class AdminAccounts extends Component {
   } 
 
   onNewAccount = () => {
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
     this.props.history.push({
       pathname: `/${this.props.actualRole}/create-account`
+      , state: { 
+          referrer: this.props.location.pathname
+        }
     })
+
   }
 
   onButtonClick(account){
     console.log( ' ACCOUNTS::onButtonClick >> ', JSON.stringify(account) )
 
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
     this.props.history.push({
       pathname: `/${this.props.actualRole}/account`
-      // , search: '?query=abc'
-      , state: { account: account }
+      , state: { 
+          referrer: this.props.location.pathname,
+          account:  account
+        }
     })
 
-    // this.props.history.push({
-    //   pathname: '/template',
-    //   search: '?query=abc',
-    //   state: { detail: response.data }
-    // })
-    // READ >> this.props.location.state.detail
   }
 
 
@@ -318,7 +315,7 @@ class AdminAccounts extends Component {
     const optTypes  = this.renderAccountTypeFilter();
     const optStates = this.renderAccountStateFilter();
     return(
-      <div className="wrap">
+      <div className="filter_wrap">
         <Row>
           <Col span={24}>
             <Form layout="inline" className="filter_form" onSubmit={this.handleSubmit}>
@@ -378,15 +375,16 @@ class AdminAccounts extends Component {
     const filters = this.renderFilterContent();
     const content = this.renderUMIContent();
     const _href   = globalCfg.bank.customers;
+    const {routes}  = this.state;
     return (
       <>
         <PageHeader
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={[
             <Button size="small" type="link" href={_href} target="_blank" key="view-on-blockchain_" icon="cloud" >View Accounts on Blockchain</Button>,
             <Button size="small" type="primary" key="_new_account" icon="plus" onClick={()=>{this.onNewAccount()}}> Account</Button>,
             
           ]}
-          breadcrumb={{ routes }}
           title="Accounts"
           subTitle="Bank Accounts Administration"
         >
@@ -489,7 +487,7 @@ export default  (withRouter(connect(
         actualRole:       loginRedux.actualRole(state),
     }),
     (dispatch)=>({
-        // tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
+        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(AdminAccounts))
 );

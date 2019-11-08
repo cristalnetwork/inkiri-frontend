@@ -7,18 +7,16 @@ import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
-
 import * as api from '@app/services/inkiriApi';
+
 import * as routesService from '@app/services/routes';
+import * as components_helper from '@app/components/helper';
 
 import { Route, Redirect, withRouter } from "react-router-dom";
 
 import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col, List } from 'antd';
 import { Form, Input, Icon} from 'antd';
 import { notification, Table, Divider, Spin } from 'antd';
-
-import './pda.css'; 
-import styles from './style.less'; 
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as request_helper from '@app/components/TransactionCard/helper';
@@ -34,14 +32,12 @@ const RadioGroup = Radio.Group;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
-const routes = routesService.breadcrumbForFile('pda');
-
-//
 
 class PDA extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      routes :        routesService.breadcrumbForPaths(props.location.pathname),
       loading:        false,
       txs:            [],
       
@@ -199,7 +195,7 @@ class PDA extends Component {
   //
   renderFilterContent() {
     return (
-      <div className="wrap">
+      <div className="filter_wrap">
         <Row>
           <Col span={24}>
             <Form layout="inline" className="filter_form" onSubmit={this.handleSubmit}>
@@ -241,14 +237,15 @@ class PDA extends Component {
     //
     const filters = this.renderFilterContent();
     const content = this.renderUMIContent();
+    const {routes}  = this.state;
     return (
       <>
         <PageHeader
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={[
             <Button size="small" key="_new_deposit"  icon="plus" disabled> Deposit</Button>,
             <Button size="small" key="_new_withdraw" icon="plus" disabled> Withdraw</Button>,
           ]}
-          breadcrumb={{ routes }}
           title="PDA"
           subTitle="List of Deposits and Withdraws"
         >
