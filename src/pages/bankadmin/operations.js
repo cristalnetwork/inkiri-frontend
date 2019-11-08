@@ -33,6 +33,12 @@ const { TabPane } = Tabs;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
+const tabs = {
+  [DISPLAY_ALL_TXS] :   'Blockchain transactions',       
+  [DISPLAY_PDA] :       'Deposits & Withdraws requests', 
+  [DISPLAY_EXTERNAL] :  'External transfers requests',   
+}
+
 class Operations extends Component {
   constructor(props) {
     super(props);
@@ -104,14 +110,11 @@ class Operations extends Component {
 
   loadAllTransactions(is_first){
 
-    let account_name = this.props.actualAccountName;
-    // console.log(' pages::business::extrato >> this.props.actualAccountName:', this.props.actualAccountName, ' | fetching history for:', account_name)
-    
     let that = this;
     this.setState({loading:true});
     api.listTransactions(undefined, (is_first===true?undefined:this.state.cursor) )
       .then( (res) => {
-              that.onNewData(res.data);
+              that.onNewData(res.data, is_first);
       } ,(ex) => {
               // console.log(' -- extrato.js::listTransactions ERROR --');
               // console.log('---- ERROR:', JSON.stringify(ex));
@@ -121,9 +124,9 @@ class Operations extends Component {
     
   }
 
-  onNewData(data){
+  onNewData(data, is_first){
     
-    const _txs          = [...this.state.txs, ...data.txs];
+    const _txs          = (is_first===true)?data.txs:[...this.state.txs, ...data.txs];
     const pagination    = {...this.state.pagination};
     pagination.pageSize = _txs.length;
     pagination.total    = _txs.length;
@@ -166,9 +169,10 @@ class Operations extends Component {
   }
 
   refreshCurrentTable(){
-    const that = this;
-    
-    if(this.state.active_tab==DISPLAY_ALL_TXS)
+    const that         = this;
+    const {active_tab} = this.state;
+
+    if(active_tab==DISPLAY_ALL_TXS)
     {
       this.setState(
         {txs:[]}
@@ -179,11 +183,11 @@ class Operations extends Component {
     }
 
     let need_refresh = this.state.need_refresh;
-    need_refresh[this.state.active_tab]=true;
+    need_refresh[active_tab]=true;
     this.setState(
         {need_refresh:need_refresh}
         , ()=>{
-          need_refresh[this.state.active_tab]=false;
+          need_refresh[active_tab]=false;
           that.setState({need_refresh:need_refresh})
         })
   }
@@ -341,7 +345,10 @@ class Operations extends Component {
 
   renderContent(){
     let content = null;
-    if(this.state.active_tab==DISPLAY_PDA){
+    
+    const {active_tab} = this.state;
+    
+    if(active_tab==DISPLAY_PDA){
       content = (
         <TransactionTable 
           key={'table_'+DISPLAY_PDA} 
@@ -356,7 +363,7 @@ class Operations extends Component {
     }
 
     //
-    if(this.state.active_tab==DISPLAY_EXTERNAL){
+    if(active_tab==DISPLAY_EXTERNAL){
       content = (
         <TransactionTable 
           key={'table_'+DISPLAY_EXTERNAL} 
@@ -370,10 +377,7 @@ class Operations extends Component {
       );
     }
     
-    //
-
-
-    if(this.state.active_tab==DISPLAY_ALL_TXS){
+    if(active_tab==DISPLAY_ALL_TXS){
       content = (
         <Table
           key={"table_"+DISPLAY_ALL_TXS} 
@@ -386,18 +390,32 @@ class Operations extends Component {
           scroll={{ x: 700 }}
           />
       );
-    
     }
+    // className="styles listCard"
+    // style={{ marginTop: 24 }}
+
+    // return
+    //   (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360, marginTop: 24  }}>
+    //     hola amigossssssssssssssssssssssssssssss
+    //     <Card
+    //         key="card_table_all_requests"
+    //         bordered={false}
+    //         title={tabs[active_tab]}
+    //       >
+    //       {content}
+    //     </Card>
+    //   </div>);
 
     return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360, marginTop: 24  }}>
-      {content}</div>)
+        {content}
+      </div>)
   }
   //
   render() {
-    const content   = this.renderContent();
-    const stats     = this.renderTableViewStats();
-    const filters   = this.renderFilterContent();
-    const {routes}  = this.state;
+    const content               = this.renderContent();
+    const stats                 = this.renderTableViewStats();
+    const filters               = this.renderFilterContent();
+    const {routes, active_tab}  = this.state;
     return (
       <>
         <PageHeader
@@ -411,26 +429,33 @@ class Operations extends Component {
         >
         </PageHeader>
         <div className="styles standardList" style={{ marginTop: 24 }}>
-          <Card key="tabs_card" bordered={false}>
-            <Tabs  defaultActiveKey={DISPLAY_ALL_TXS} onChange={this.onTabChange}>
-              <TabPane tab="Blockchain transactions"                     key={DISPLAY_ALL_TXS} />
-              <TabPane tab="Deposits & Withdraws requests" key={DISPLAY_PDA} />
-              <TabPane tab="External transfers requests"   key={DISPLAY_EXTERNAL} />
-            </Tabs>
+          <Card key={'card_master'} style = { { marginBottom: 24 } } 
+            tabList={ Object.keys(tabs).map(key_tab => { return {key: key_tab, tab: tabs[key_tab]} } ) }
+            activeTabKey={active_tab}
+            onTabChange={ (key) => this.onTabChange(key)}
+            >
+          
+            {filters}
+            {stats}
+            {content}
+
           </Card>
         </div>
-        
-        {filters}
-
-        {stats}
-        
-        {content}
-
       </>
     );
   }
 }
 
+//
+/*
+<Card key="tabs_card" bordered={false}>
+            <Tabs  defaultActiveKey={DISPLAY_ALL_TXS} onChange={this.onTabChange}>
+              <TabPane tab={tabs[DISPLAY_ALL_TXS]}   key={DISPLAY_ALL_TXS} />
+              <TabPane tab={tabs[DISPLAY_PDA]}       key={DISPLAY_PDA} />
+              <TabPane tab={tabs[DISPLAY_EXTERNAL]}  key={DISPLAY_EXTERNAL} />
+            </Tabs>
+          </Card>
+*/
 export default  (withRouter(connect(
     (state)=> ({
         actualAccountName:    loginRedux.actualAccountName(state),

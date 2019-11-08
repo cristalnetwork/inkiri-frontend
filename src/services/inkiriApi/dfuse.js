@@ -297,13 +297,13 @@ export const listTransactions = (account_name, cursor) => new Promise((res,rej)=
         return;
       }
 
-      console.log(' ----------------------------------- ')
-      console.log(' -- DFUSE ')
-      console.log(' ---- query: ')
-      console.log(JSON.stringify(query));
-      console.log(' ---- txs: ')
-      console.log(JSON.stringify(data.transactions));
-      console.log(' ----------------------------------- ')
+      // console.log(' ----------------------------------- ')
+      // console.log(' -- DFUSE ')
+      // console.log(' ---- query: ')
+      // console.log(JSON.stringify(query));
+      // console.log(' ---- txs: ')
+      // console.log(JSON.stringify(data.transactions));
+      // console.log(' ----------------------------------- ')
       var txs = data.transactions.map(
         function (transaction) {
           const expandedTx = txsHelper.getTxMetadata(account_name, transaction.lifecycle.execution_trace);

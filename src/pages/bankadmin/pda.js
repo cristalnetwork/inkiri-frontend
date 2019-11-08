@@ -3,7 +3,7 @@ import React, {useState, Component} from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
-// import * as userRedux from '@app/redux/models/user';
+import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
@@ -361,7 +361,7 @@ export default  (withRouter(connect(
         actualRole:       loginRedux.actualRole(state),
     }),
     (dispatch)=>({
-        // tryUserState: bindActionCreators(userRedux.tryUserState , dispatch)
+        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(PDA))
 );

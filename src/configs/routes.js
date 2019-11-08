@@ -225,18 +225,10 @@ const bankadmin = [
        container: 'dashboard',
        role: 'bankadmin'
     },
-    // {
-    //    key: pathNames.bankadminPDA_ProcessRequest,
-    //    father_key : pathNames.bankadminPDA,
-    //    fileName: 'processRequest',
-    //    area: 'bankadmin',
-    //    path: 'pda-process-request',
-    //    container: 'dashboard',
-    //    role: 'bankadmin'
-    // },
     {
        key: pathNames.bankadminPDA_ProcessRequest,
        // father_key : pathNames.bankadminPDA,
+       father_key : '*',
        fileName: 'processExternal',
        area: 'bankadmin',
        path: 'pda-process-request',
