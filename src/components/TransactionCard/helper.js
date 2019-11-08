@@ -173,7 +173,7 @@ export const getStyledBalance = (record, full) => {
 
   return (
     <>
-      <span style={style} key={'amount_'+record.key}>{ (is_negative?'-':'') + globalCfg.currency.toCurrencyString(real_balance)}</span>
+      <span style={style} key={'amount_'+record.key}>{ globalCfg.currency.toCurrencyString(real_balance)}</span>
       <time className="c-activity-row__time">Balance: {globalCfg.currency.toCurrencyString(record.balance)}</time>
       <time className="c-activity-row__time">Overdraft: {globalCfg.currency.toCurrencyString(record.overdraft)}</time>
     </>

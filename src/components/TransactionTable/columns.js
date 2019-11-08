@@ -270,7 +270,7 @@ export const columnsForAccounts = (callback) => {
         }
       },
       {
-        title: 'Tags',
+        title: 'Fee & overdraft',
         key: 'fee',
         dataIndex: 'fee',
         render: (fee, record) => {

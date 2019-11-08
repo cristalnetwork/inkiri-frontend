@@ -177,9 +177,7 @@ class AdminAccounts extends Component {
       return;
     }
 
-    // const deposits      = accounts.filter( tx => globalCfg.api.isDeposit(tx))
-    //                 .map(tx =>tx.quantity)
-    //                 .reduce((acc, amount) => acc + Number(amount), 0);
+    const negative = accounts.filter( acc => (parseFloat(acc.balance) - parseFloat(acc.overdraft))<0).length;
     // const withdraws     = accounts.filter( tx => globalCfg.api.isWithdraw(tx))
     //                 .map(tx =>tx.quantity)
     //                 .reduce((acc, amount) => acc + Number(amount), 0);
@@ -194,26 +192,26 @@ class AdminAccounts extends Component {
                     .reduce((acc, amount) => acc + 1, 0);
 
     this.setState({stats:{
-        total : accounts?accounts.length:0
-        , pending:0 
-        , negative_balance:0
-        , admin:admin
-        , personal:personal
-        , business:business
-        , foundation:foundation
+        total :               accounts?accounts.length:0
+        , pending:            'N/A' 
+        , negative_balance:   negative
+        , admin:              admin
+        , personal:           personal
+        , business:           business
+        , foundation:         foundation
         }});
 
   }
 
   getDefaultStats(){
     return {
-        total:0
-        , pending:0 
-        , negative_balance:0
-        , admin:0
-        , personal:0
-        , business:0
-        , foundation:0 };
+        total:               0
+        , pending:           'N/A' 
+        , negative_balance:  0
+        , admin:             0
+        , personal:          0
+        , business:          0
+        , foundation:        0 };
   }
 
   currentStats(){
@@ -344,7 +342,6 @@ class AdminAccounts extends Component {
               <Statistic
                 title="PENDING"
                 value={pending}
-                precision={0}
                 valueStyle={{ color: '#fadb14' }}
                 prefix={<Icon type="clock-circle" />}
               />
