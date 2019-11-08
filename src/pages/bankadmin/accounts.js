@@ -13,6 +13,8 @@ import { Route, Redirect, withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
+import * as columns_helper from '@app/components/TransactionTable/columns';
+
 import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col, List } from 'antd';
 import { Form, Input, Icon} from 'antd';
 import { notification, Table, Divider, Spin } from 'antd';
@@ -64,85 +66,9 @@ class AdminAccounts extends Component {
   }
 
   getColumns(){
-    return [
-              {
-                title: 'Account Name',
-                dataIndex: 'key',
-                key: 'account_name',
-                sortDirections: ['descend'],
-                defaultSortOrder: 'descend',
-                // sorter: (a, b) => a.block_time_number - b.block_time_number,
-              },
-              //
-              {
-                title: 'Type',
-                dataIndex: 'account_type',
-                key: 'account_type',
-                render: (account_type, record) => (
-                  <span>
-                   
-                   <Tag key={record.key+account_type}>
-                     <Icon type={globalCfg.bank.ACCOUNT_ICONS[account_type]} />
-                      &nbsp;{globalCfg.bank.getAccountType(account_type).toUpperCase()}
-                   </Tag>
-                  </span>
-                  )
-              },
-              {
-                title: 'State',
-                dataIndex: 'state',
-                key: 'state',
-                render: (state, record) => (
-                  <span>
-                   <Tag key={record.key+state}>
-                        { globalCfg.bank.getAccountState(state).toUpperCase() }
-                   </Tag>
-                  </span>
-                  )
-              },
-              {
-                title: 'Tags',
-                key: 'fee',
-                dataIndex: 'fee',
-                render: (fee, record) => (
-                  <span>
-                   <Tag color={'geekblue'} key={record.key+fee}>
-                          fee: {globalCfg.currency.toCurrencyString(fee)}
-                   </Tag>
-                   <Tag color={'geekblue'} key={record.key+record.overdraft}>
-                          overdraft: {globalCfg.currency.toCurrencyString(record.overdraft)}
-                   </Tag>
-                  </span>
-                  )
-              },
-              //
-              {
-                title: 'Balance',
-                dataIndex: 'balance',
-                key: 'balance',
-                align: 'right',
-                render: (balance, record) => (
-                  <span>
-                    {globalCfg.currency.toCurrencyString(balance)}
-                  </span>
-                  )
-              },
-              //
-              {
-                title: 'Action',
-                fixed: 'right',
-                width: 100,
-                key: 'action',
-                render: (text, record) => {
-                  return(
-                    <span>
-                      <Button key={'process_'+record.key} onClick={()=>{ this.onButtonClick(record) }} icon="profile" size="small">Details</Button>
-                    </span>
-                  )},
-              },
-            ];
+    return columns_helper.columnsForAccounts(this.onButtonClick);
   }
-
+  
   componentDidMount(){
     this.loadAccounts();  
   } 

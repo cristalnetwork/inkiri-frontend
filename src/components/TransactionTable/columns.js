@@ -1,5 +1,5 @@
 import React from 'react'
-import { Tag } from 'antd';
+import { Button, Tag } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as request_helper from '@app/components/TransactionCard/helper';
 
@@ -248,3 +248,65 @@ export const getDefaultColumns = (account_type, callback) => {
   ]
 };
 
+//
+export const columnsForAccounts = (callback) => {
+    
+    return [
+      {
+        title: 'Account',
+        dataIndex: 'key',
+        key: 'account_name',
+        render: (value, record) => {
+          return(
+            <span className="name_value_row">
+              <div className="row_name centered" >
+                {request_helper.getAccountTypeIcon(record.account_type)} 
+              </div>
+              <div className="row_value wider">
+                <span className="row_tx_description">{record.key}</span> 
+                 {request_helper.getAccountStateTag(record, true)} 
+              </div>   
+            </span>)
+        }
+      },
+      {
+        title: 'Tags',
+        key: 'fee',
+        dataIndex: 'fee',
+        render: (fee, record) => {
+          
+          return (
+            <span>
+              <Tag color={'geekblue'} key={record.key+fee}>
+                    FEE: {globalCfg.currency.toCurrencyString(fee)}
+              </Tag>
+              <Tag color={'geekblue'} key={record.key+record.overdraft}>
+                    OVERDRAFT: {globalCfg.currency.toCurrencyString(record.overdraft)}
+              </Tag>
+            </span> 
+          )}
+      },
+      //
+      {
+        title: 'Action',
+        key: 'action',        
+        render: (text, record) => {
+          // return (<Button key={'details_'+request.id} size="small" onClick={()=>{ buttonClick(callback, request) }}>{title}</Button>);
+          return <Button key={'details_'+record.key} onClick={()=>{ callback(record) }} icon="profile" size="small">Details</Button>
+        }
+      },
+
+      {
+        title: 'Balance',
+        
+        dataIndex: 'balance',
+        key: 'balance',
+        align: 'right',
+        render: (balance, record) => (
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin">
+            {request_helper.getStyledBalance(record)}
+          </div>
+          )
+      }
+    ];
+}

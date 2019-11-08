@@ -1,5 +1,5 @@
 import React , {Component} from 'react';
-import { Upload, Tag, Button } from 'antd';
+import { Upload, Tag, Button, Icon } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as utils from '@app/utils/utils';
 import * as globalCfg from '@app/configs/global';
@@ -107,6 +107,20 @@ export const getTypeIcon = (request, size, color) => {
   return (<FontAwesomeIcon icon={my_icon.icon} style={my_icon.style} size={size||'1x'} color={color||'gray'}/>);
 }
 //
+export const getAccountTypeIcon = (account_type) => {
+  return (<Icon type={globalCfg.bank.ACCOUNT_ICONS[account_type]} />)
+}
+//
+export const getAccountStateTag = (account, include_br) => {
+  if(globalCfg.bank.isEnabledAccount(account.state))
+    return (null);
+  return (<><br/>
+      <Tag key={account.key+account.state}>
+        { globalCfg.bank.getAccountState(account.state).toUpperCase() }
+        </Tag>
+      </>)
+}
+//
 export const getBlockchainLink = (tx_id, withIcon, size, text) => {
   if(!tx_id)
     return (null);
@@ -150,6 +164,22 @@ export const getStyledAmount = (request, mp_style, negative) => {
 export const getStyledDate = (request) => {
   return (<time className="c-activity-row__time">{request.block_time.replace('T',' ')}</time>)
 }
+//
+export const getStyledBalance = (record, full) => {
+
+  const real_balance = parseFloat(record.balance) - parseFloat(record.overdraft);
+  const is_negative  = real_balance<0;
+  const style        = {color:(is_negative?'red':'inherit'), fontSize:16};
+
+  return (
+    <>
+      <span style={style} key={'amount_'+record.key}>{ (is_negative?'-':'') + globalCfg.currency.toCurrencyString(real_balance)}</span>
+      <time className="c-activity-row__time">Balance: {globalCfg.currency.toCurrencyString(record.balance)}</time>
+      <time className="c-activity-row__time">Overdraft: {globalCfg.currency.toCurrencyString(record.overdraft)}</time>
+    </>
+  )
+}
+
 //
 export const getFileLink = (attach_id, title, icon_color) => {
   return (<div className="ui-list">
