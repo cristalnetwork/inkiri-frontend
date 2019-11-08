@@ -20,6 +20,7 @@ import { Form, Input, Icon} from 'antd';
 import { notification, Table, Divider, Spin } from 'antd';
 
 import {DISPLAY_ALL_TXS, DISPLAY_PROVIDER, DISPLAY_EXCHANGES} from '@app/components/TransactionTable';
+import TableStats, { buildItemMoneyPending, buildItemUp, buildItemDown, buildItemCompute, buildItemSimple, buildItemMoney, buildItemPending} from '@app/components/TransactionTable/stats';
 
 import * as utils from '@app/utils/utils';
 
@@ -247,29 +248,37 @@ class ExternalTransfers extends Component {
   
   render() {
     //
-    const filters = this.renderFilterContent();
-    const content = this.renderUMIContent();
-    const {routes} = this.state;
+    const content               = this.renderContent();
+    const stats                 = this.renderTableViewStats();
+    const filters               = this.renderFilterContent();
+    const {routes}              = this.state;
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="External Transfers"
-          subTitle="List of Provider Payments and Exchanges"
+          subTitle="List of Provider Payments and Exchanges" />
+        
+        <Card
+          key="card_table_all_requests"
+          className="styles listCard"
+          bordered={false}
+          style={{ marginTop: 24 }}
+          headStyle={{display:'none'}}
+          extra={this.renderHeaderFilter()}
         >
-          
-        </PageHeader>
-        {filters}
-        {content}
-
+          {filters}
+          {stats}
+          {content}
+        </Card>
       </>
     );
   }
 //
-  renderExtraContent (){ 
-    
+
+  renderHeaderFilter(){ /* Currently hidden! */
     return(
-      <div className="styles extraContent" style={{display:'none'}}>
+      <div className="styles extraContent hidden" >
         <RadioGroup defaultValue="all">
           <RadioButton value="all">all</RadioButton>
           <RadioButton value="progress">progress</RadioButton>
@@ -278,72 +287,22 @@ class ExternalTransfers extends Component {
         <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
       </div>
     )};
-
     //
   
-  renderUMIContent(){
+  renderTableViewStats(){
     const {exchanges, exchanges_pending, providers, providers_pending, total_out} = this.currentStats();  
-    return  (<>
-      <div className="styles standardList" style={{ marginTop: 24 }}>
-        <Card key="the_card_key" bordered={false}>
-          <Row>
-            <Col xs={24} sm={12} md={6} lg={4} xl={4}>
-              <Statistic title="" value="STATS" />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={4} xl={4}>
-              <Statistic
-                title={"EXCHANGES"}
-                value={exchanges}
-                precision={2}
-                suffix={globalCfg.currency.symbol}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={4} xl={4}>
-              <Statistic
-                title={"EXCHANGES PENDING"}
-                value={exchanges_pending}
-                precision={2}
-                valueStyle={{ color: '#fadb14' }}
-                prefix={<Icon type="clock-circle" />}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={4} xl={4}>
-              <Statistic
-                title="PROVIDERS PAY"
-                value={providers}
-                precision={2}
-                suffix={globalCfg.currency.symbol}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={4} xl={4}>
-              <Statistic
-                title="PROVIDERS PAY PENDING"
-                value={providers_pending}
-                precision={2}
-                valueStyle={{ color: '#fadb14' }}
-                prefix={<Icon type="clock-circle" />}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={4} xl={4}>
-              <Statistic
-                title="TOTAL OUT"
-                value={total_out}
-                precision={0}
-                valueStyle={{ color: '#cf1322' }}
-                suffix={globalCfg.currency.symbol}
-              />
-            </Col>
-          </Row>
-        </Card>
+    const items = [
+        buildItemMoney('EXCHANGES', exchanges)
+        , buildItemMoneyPending('EXCHANGES PENDING', exchanges_pending)
+        , buildItemMoney('PROVIDERS PAY', providers)
+        , buildItemMoneyPending('PROVIDERS PAY PENDING', providers_pending)
+        , buildItemMoney('TOTAL OUT', total_out, '#cf1322')
+      ]
+    return (<TableStats title="STATS" stats_array={items}/>)
+  }
 
-        <Card
-          key="card_table_all_requests"
-          className="styles listCard"
-          bordered={false}
-          title="List of Provider Payments and Exchanges"
-          style={{ marginTop: 24 }}
-          extra={this.renderExtraContent()}
-        >
+  renderContent(){
+    return (<div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
           <Table
             key="table_all_requests" 
             rowKey={record => record.id} 
@@ -354,10 +313,7 @@ class ExternalTransfers extends Component {
             pagination={this.state.pagination}
             scroll={{ x: 700 }}
             />
-
-        </Card>
-      </div>
-    </>)
+          </div>);
   }
 
 }

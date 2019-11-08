@@ -358,7 +358,7 @@ class Operations extends Component {
     // className="styles listCard"
     // style={{ marginTop: 24 }}
 
-    return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360, marginTop: 24  }}>
+    return (<div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
         {content}
       </div>)
   }

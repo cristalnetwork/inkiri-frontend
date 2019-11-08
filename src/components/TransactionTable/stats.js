@@ -6,9 +6,12 @@ import * as utils from '@app/utils/utils';
 
 import './stats.css';
 
-export const STAT_UP_GREEN   = 'stat_up_green';
-export const STAT_DOWN_RED   = 'stat_down_red';
-export const STAT_DATA_ONLY  = 'stat_data_only';
+export const STAT_UP_GREEN             = 'stat_up_green';
+export const STAT_DOWN_RED             = 'stat_down_red';
+export const STAT_DATA_ONLY            = 'stat_data_only';
+export const STAT_DATA_MONEY           = 'stat_data_money';
+export const STAT_DATA_PENDING         = 'stat_data_pending';
+export const STAT_DATA_MONEY_PENDING   = 'stat_data_money_pending';
 
 const stats = {
   [STAT_UP_GREEN] : {
@@ -21,20 +24,41 @@ const stats = {
   },
   [STAT_DATA_ONLY]: {
     precision: 0
-  }
+  },
+  [STAT_DATA_MONEY]: {
+    precision: 2,
+    suffix:    globalCfg.currency.symbol
+  },
+  [STAT_DATA_PENDING]: {
+    precision: 2,
+    color:     '#fadb14',
+    suffix     : (<Icon type="clock-circle" />)
+  },
+  [STAT_DATA_MONEY_PENDING]: {
+    precision: 2,
+    color:     '#fadb14',
+    icon:      'clock-circle',
+    suffix:    globalCfg.currency.symbol
+  },
+    
 };
 
-export const buildItem        = (title, value, type)  => {
+export const buildItem        = (title, value, type, color)  => {
   let returnedTarget = Object.assign({}, stats[type]);
   returnedTarget.title = title;
   returnedTarget.value = value;
+  if(color!==undefined)
+    returnedTarget.color = color;
   return returnedTarget;
 }
 
-export const buildItemUp      = (title, value) => { return buildItem(title, value, STAT_UP_GREEN) }
-export const buildItemDown    = (title, value) => { return buildItem(title, value, STAT_DOWN_RED) }
-export const buildItemCompute = (title, value) => { return buildItem(title, value, (value>0)?STAT_UP_GREEN:STAT_DOWN_RED) }
-export const buildItemSimple  = (title, value) => { return buildItem(title, value, STAT_DATA_ONLY) }
+export const buildItemUp           = (title, value) => { return buildItem(title, value, STAT_UP_GREEN) }
+export const buildItemDown         = (title, value) => { return buildItem(title, value, STAT_DOWN_RED) }
+export const buildItemCompute      = (title, value) => { return buildItem(title, value, (value>0)?STAT_UP_GREEN:STAT_DOWN_RED) }
+export const buildItemSimple       = (title, value, color) => { return buildItem(title, value, STAT_DATA_ONLY, color) }
+export const buildItemMoney        = (title, value, color) => { return buildItem(title, value, STAT_DATA_MONEY, color) }
+export const buildItemPending      = (title, value) => { return buildItem(title, value, STAT_DATA_PENDING) }
+export const buildItemMoneyPending = (title, value) => { return buildItem(title, value, STAT_DATA_MONEY_PENDING) }
 
 const TableStats = ({stats_array, title, visible}) => {
     
@@ -67,9 +91,10 @@ const TableStats = ({stats_array, title, visible}) => {
                 <Statistic
                     title={item.title}
                     value={item.value}
-                    precision={item.precision||2}
+                    precision={(item.precision===undefined)?2:item.precision}
                     valueStyle={{ color: item.color||'inherit' }}
                     prefix={item.icon?(<Icon type={item.icon} />):(null)}
+                    suffix={item.suffix||null}
                   />
               </Col>);
     }

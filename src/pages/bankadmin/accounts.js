@@ -14,6 +14,8 @@ import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
+import TableStats from '@app/components/TransactionTable/stats'; 
+import * as stats_helper from '@app/components/TransactionTable/stats';
 
 import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col, List } from 'antd';
 import { Form, Input, Icon} from 'antd';
@@ -295,10 +297,14 @@ class AdminAccounts extends Component {
   }
   
   render() {
-    //
-    const filters = this.renderFilterContent();
-    const content = this.renderUMIContent();
+    const content               = this.renderContent();
+    const stats                 = this.renderTableViewStats();
+    const filters               = this.renderFilterContent();
+
+    // const filters = this.renderFilterContent();
+    // const content = this.renderUMIContent();
     const _href   = globalCfg.bank.customers;
+    
     const {routes}  = this.state;
     return (
       <>
@@ -307,22 +313,61 @@ class AdminAccounts extends Component {
           extra={[
             <Button size="small" type="link" href={_href} target="_blank" key="view-on-blockchain_" icon="cloud" >View Accounts on Blockchain</Button>,
             <Button size="small" type="primary" key="_new_account" icon="plus" onClick={()=>{this.onNewAccount()}}> Account</Button>,
-            
           ]}
           title="Accounts"
           subTitle="Bank Accounts Administration"
         >
           
         </PageHeader>
-        {filters}
-        {content}
+        
+        <Card
+          key="card_table_all_requests"
+          className="styles listCard"
+          bordered={false}
+          style={{ marginTop: 24 }}
+          headStyle={{display:'none'}}
+        >
+          {filters}
+          {stats}
+          {content}
+        </Card>
 
       </>
     );
   }
 
   //
-  
+  renderTableViewStats(){
+    const {total, pending, negative_balance, personal, business, admin, foundation} = this.currentStats();  
+    const items = [
+        stats_helper.buildItemSimple('TOTAL', total)
+        , stats_helper.buildItemPending('PENDING', pending)
+        , stats_helper.buildItemSimple('NEGATIVE', negative_balance, '#cf1322')
+        , stats_helper.buildItemSimple('PERSONAL', personal)
+        , stats_helper.buildItemSimple('BUSINESS', business)
+        , stats_helper.buildItemSimple('ADMIN', admin)
+      ]
+    return (<TableStats title="STATS" stats_array={items}/>)
+  }
+
+  renderContent(){
+
+    return (
+      <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
+        <Table
+            key="table_all_txs" 
+            rowKey={record => record.key} 
+            loading={this.state.loading} 
+            columns={this.getColumns()} 
+            dataSource={this.state.accounts} 
+            footer={() => this.renderFooter()}
+            pagination={this.state.pagination}
+            scroll={{ x: 700 }}
+            />
+      </div>
+      )
+  }
+
   renderUMIContent(){
     const {total, pending, negative_balance, personal, business, admin, foundation} = this.currentStats();  
     return  (<>
