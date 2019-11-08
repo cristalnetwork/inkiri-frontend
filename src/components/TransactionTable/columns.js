@@ -223,7 +223,8 @@ export const getDefaultColumns = (account_type, callback) => {
       title: 'Action',
       key: 'action',
       render: (text, record) => {
-        return request_helper.getProcessButton(record, callback);
+        const title = (globalCfg.bank.isAdminAccount(account_type))?null:'Details';
+        return request_helper.getProcessButton(record, callback, title);
       },
     },
     {
