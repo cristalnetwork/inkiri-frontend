@@ -320,8 +320,9 @@ class AdminAccounts extends Component {
       </>
     );
   }
-//
 
+  //
+  
   renderUMIContent(){
     const {total, pending, negative_balance, personal, business, admin, foundation} = this.currentStats();  
     return  (<>

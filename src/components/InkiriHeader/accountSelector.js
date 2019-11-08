@@ -67,8 +67,9 @@ const AccountSelector = ({allAccounts, actualAccountName, currentAccount, onChan
       return (<Dropdown overlay={getOptions()} className="accountSelector"  placement="bottomRight" >
         <Button size="small"><Icon type={getIconForAccountType(currentAccount)} /> {getDisplayAccountData(currentAccount)}</Button>
       </Dropdown>)
-    else
-      return (<>
+    
+
+    return (<>
         <Dropdown.Button overlay={getOptions()} trigger={['click']} className="accountSelector"  placement="bottomRight" >
           <Icon type={getIconForAccountType(currentAccount)} /> 
         </Dropdown.Button>

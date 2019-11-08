@@ -19,6 +19,7 @@ import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statist
 import { notification, Table, Divider, Spin } from 'antd';
 
 import TransactionTable from '@app/components/TransactionTable';
+import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimple} from '@app/components/TransactionTable/stats';
 import { DISPLAY_PDA, DISPLAY_EXTERNAL, DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
@@ -290,53 +291,16 @@ class Operations extends Component {
     );
   }
   //
-  renderTableViewStats() 
-  {
+  
+  renderTableViewStats(){
     const {money_in, money_out, count} = this.currentStats();
-    const variacion = money_in-money_out;
-    return (
-      <div className="styles standardList" style={{ marginTop: 24 }}>
-        <Card key="the_card_key" bordered={false}>
-          <Row>
-            <Col xs={24} sm={12} md={5} lg={5} xl={5}>
-            <Statistic
-                    title="Entradas"
-                    value={money_in}
-                    precision={2}
-                    valueStyle={{ color: 'green' }}
-                    prefix={<Icon type="arrow-up" />}
-                  />
-            </Col>
-            <Col xs={24} sm={12} md={5} lg={5} xl={5}>
-              <Statistic
-                    title="Saidas"
-                    value={money_out}
-                    precision={2}
-                    valueStyle={{ color: 'red' }}
-                    prefix={<Icon type="arrow-down" />}
-                  />
-            </Col>
-            <Col xs={24} sm={12} md={5} lg={5} xl={5}>
-              <Statistic
-                    title="Variacao de caja"
-                    value={variacion}
-                    precision={2}
-                    valueStyle={variacion>0?{ color: 'green' }:{ color: 'red' }}
-                    prefix={((variacion==0)?null:(variacion>0?<Icon type="arrow-up" />:<Icon type="arrow-down" />))}
-                  />
-            </Col>
-            <Col xs={24} sm={12} md={4} lg={4} xl={4}>
-              <Statistic
-                    title="Transações"
-                    value={count|0}
-                    precision={0}
-                    
-                  />
-            </Col>            
-          </Row>
-        </Card>
-      </div>
-    );
+    const items = [
+        buildItemUp('Entradas', money_in)
+        , buildItemDown('Saidas', money_out)
+        , buildItemCompute('Variacao de caja', (money_in-money_out))
+        , buildItemSimple('Transações', (count||0))
+      ]
+    return (<TableStats stats_array={items}/>)
   }
 
   renderFooter(){
@@ -394,18 +358,6 @@ class Operations extends Component {
     // className="styles listCard"
     // style={{ marginTop: 24 }}
 
-    // return
-    //   (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360, marginTop: 24  }}>
-    //     hola amigossssssssssssssssssssssssssssss
-    //     <Card
-    //         key="card_table_all_requests"
-    //         bordered={false}
-    //         title={tabs[active_tab]}
-    //       >
-    //       {content}
-    //     </Card>
-    //   </div>);
-
     return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360, marginTop: 24  }}>
         {content}
       </div>)
@@ -428,6 +380,7 @@ class Operations extends Component {
           subTitle="List of blockchain transactions, Deposits & Withdraw requests, and Exchanges & Provider Payment requests"
         >
         </PageHeader>
+        
         <div className="styles standardList" style={{ marginTop: 24 }}>
           <Card key={'card_master'} style = { { marginBottom: 24 } } 
             tabList={ Object.keys(tabs).map(key_tab => { return {key: key_tab, tab: tabs[key_tab]} } ) }

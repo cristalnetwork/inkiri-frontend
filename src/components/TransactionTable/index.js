@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
-import styles from './index.less';
 
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';

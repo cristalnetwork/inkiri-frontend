@@ -32,12 +32,21 @@ const { TabPane } = Tabs;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
+const tabs = {
+  [DISPLAY_ALL_TXS] : 'Movements',
+  [DISPLAY_DEPOSIT] : 'Deposits',
+  [DISPLAY_WITHDRAWS] : 'Withdraws',
+  [DISPLAY_EXCHANGES] : 'Exchanges',
+  [DISPLAY_PAYMENTS] : 'Payments',
+  [DISPLAY_REQUESTS] : 'Requests',
+}
+
 class Extrato extends Component {
   constructor(props) {
     super(props);
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
-
+      isMobile:            props.isMobile,
       loading:             false,
       txs:                 [],
       // deposits:         [],
@@ -92,6 +101,11 @@ class Extrato extends Component {
           , referrer: this.props.location.pathname
         }
     })
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if(this.props.isMobile!=prevProps.isMobile)
+      this.setState({isMobile:this.props.isMobile})
   }
 
   componentDidMount(){
@@ -240,6 +254,8 @@ class Extrato extends Component {
   }
   //
   renderFilterContent() {
+    if(this.state.isMobile)
+      return (null);
     const dateFormat = 'YYYY/MM/DD';
     return (
       <div className="filter_wrap">
@@ -296,11 +312,14 @@ class Extrato extends Component {
   //
   renderTableViewStats() 
   {
+    if(this.state.isMobile)
+      return (null);
+
     const {money_in, money_out, count} = this.currentStats();
     const variacion = money_in-money_out;
     return (
       <div className="styles standardList" style={{ marginTop: 24 }}>
-        <Card key="the_card_key" bordered={false}>
+        <Card key="the_card_key" bordered={false} style={{background: '#ECECEC'}}>
           <Row>
             <Col xs={24} sm={12} md={5} lg={5} xl={5}>
             <Statistic
@@ -414,10 +433,10 @@ class Extrato extends Component {
   }
   //
   render() {
-    const {routes} = this.state;
-    const content = this.renderContent();
-    const stats = this.renderTableViewStats();
-    const filters = this.renderFilterContent();
+    const {routes, active_tab} = this.state;
+    const content              = this.renderContent();
+    const stats                = this.renderTableViewStats();
+    const filters              = this.renderFilterContent();
     return (
       <>
         <PageHeader
@@ -430,28 +449,66 @@ class Extrato extends Component {
           subTitle="List of transactions"
         >
         </PageHeader>
-        <div className="styles standardList" style={{ marginTop: 0 }}>
-          <Card key="tabs_card" bordered={false}>
-            <Tabs  defaultActiveKey={DISPLAY_ALL_TXS} onChange={this.onTabChange}>
-              <TabPane tab="Movements" key={DISPLAY_ALL_TXS} />
-              <TabPane tab="Deposits"  key={DISPLAY_DEPOSIT} />
-              <TabPane tab="Withdraws" key={DISPLAY_WITHDRAWS} />
-              <TabPane tab="Exchanges" key={DISPLAY_EXCHANGES} />
-              <TabPane tab="Payments"  key={DISPLAY_PAYMENTS} disabled />
-              <TabPane tab="Requests"  key={DISPLAY_REQUESTS} disabled />
-            </Tabs>
+
+        <div className="styles standardList" style={{ marginTop: 24 }}>
+          <Card key={'card_master'}  
+            tabList={ Object.keys(tabs).map(key_tab => { return {key: key_tab, tab: tabs[key_tab]} } ) }
+            activeTabKey={active_tab}
+            onTabChange={ (key) => this.onTabChange(key)}
+            >
+
+              {filters}
+
+              {stats}
+              
+              {content}
+
           </Card>
         </div>
-        
-        {filters}
-
-        {stats}
-        
-        {content}
-
       </>
     );
   }
+  
+  // renderX() {
+  //   const {routes} = this.state;
+  //   const content = this.renderContent();
+  //   const stats = this.renderTableViewStats();
+  //   const filters = this.renderFilterContent();
+  //   return (
+  //     <>
+  //       <PageHeader
+  //         extra={[
+  //           <Button size="small" key="refresh" icon="redo" disabled={this.state.loading} onClick={()=>this.refreshCurrentTable()} ></Button>,
+            
+  //         ]}
+  //         breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
+  //         title="Extrato"
+  //         subTitle="List of transactions"
+  //       >
+  //       </PageHeader>
+
+  //       <div className="styles standardList" style={{ marginTop: 0 }}>
+  //         <Card key="tabs_card" bordered={false}>
+  //           <Tabs  defaultActiveKey={DISPLAY_ALL_TXS} onChange={this.onTabChange}>
+  //             <TabPane tab="Movements" key={DISPLAY_ALL_TXS} />
+  //             <TabPane tab="Deposits"  key={DISPLAY_DEPOSIT} />
+  //             <TabPane tab="Withdraws" key={DISPLAY_WITHDRAWS} />
+  //             <TabPane tab="Exchanges" key={DISPLAY_EXCHANGES} />
+  //             <TabPane tab="Payments"  key={DISPLAY_PAYMENTS} disabled />
+  //             <TabPane tab="Requests"  key={DISPLAY_REQUESTS} disabled />
+  //           </Tabs>
+  //         </Card>
+  //       </div>
+        
+  //       {filters}
+
+  //       {stats}
+        
+  //       {content}
+
+  //     </>
+  //   );
+  // }
 }
 
 export default  (withRouter(connect(
@@ -460,6 +517,7 @@ export default  (withRouter(connect(
         actualRole:               loginRedux.actualRole(state),
         actualRoleId:             loginRedux.actualRoleId(state),
         balance:                  balanceRedux.userBalanceFormatted(state),
+        isMobile :                menuRedux.isMobile(state)
     }),
     (dispatch)=>({
         setLastRootMenuFullpath:  bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)

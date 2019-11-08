@@ -1,23 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, PageHeader } from 'antd';
 
 import InkiriHeader from '@app/components/InkiriHeader';
 import * as menuRedux from '@app/redux/models/menu'
-// import * as coreRedux from '@app/redux/models/core'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import useMedia from 'react-media-hook2';
 
-// const isMobile = useMedia({
-//     id: 'DashboardContainer',
-//     query: '(max-width: 599px)',
-//   })[0];
-
 const { Header, Content, Footer, Sider } = Layout;
 
-export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, itemPath, menuIsCollapsed, collapseMenu}) => {
+const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, itemPath, menuIsCollapsed, collapseMenu, setIsMobile}) => {
     
     const [collapsed, setCollapse] = useState(0);
 
@@ -31,8 +25,15 @@ export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, 
       query: '(max-width: 599px)',
     })[0];
 
-    // setIsMobile(isMobile);
-
+    if(typeof setIsMobile === 'function' ) {
+      // console.log(' setIsMobile SETEADO!!!!!!!!!!', isMobile)
+      setIsMobile(isMobile)
+    }
+    // else{
+    //   console.log(' setIsMobile is NOT A FUNCTION')
+    //   console.log(' menuIsCollapsed => ', menuIsCollapsed)
+    // }
+    
     const onCollapse = collapsed => {
         setCollapse(collapsed)
       };
@@ -60,7 +61,7 @@ export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, 
         </Sider>
         <Layout>
           <Header style={{ background: '#fff', padding: 0 }}>
-            { TopMenu? <TopMenu/>: <InkiriHeader isMobile={isMobile} /> }
+            { TopMenu? <TopMenu/>: <InkiriHeader/> }
           </Header>
           <Content style={{ margin: '24px 16px 0' }}>
 
@@ -72,12 +73,15 @@ export const DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, 
     );
 }
 
-export default connect(
+const DashboardContainer =
+ connect(
     state => ({
       menuIsCollapsed :  menuRedux.isCollapsed(state)
     }),
     dispatch => ({
       collapseMenu:      bindActionCreators(menuRedux.collapseMenu, dispatch),
-      // setIsMobile:       bindActionCreators(coreRedux.setIsMobile, dispatch),
+      setIsMobile:       bindActionCreators(menuRedux.setIsMobile, dispatch),
     })
-)(DashboardContainer)
+)(_DashboardContainer)
+
+export default DashboardContainer;

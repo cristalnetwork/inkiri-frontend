@@ -20,10 +20,16 @@ const { Header } = Layout;
 class InkiriHeader extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      isMobile         : props.isMobile
+    }
     this.handleChange = this.handleChange.bind(this);
   }
 
-
+  componentDidUpdate(prevProps, prevState) {
+    if(this.props.isMobile!=prevProps.isMobile)
+      this.setState({isMobile:this.props.isMobile})
+  }
   toggle = () => {
     this.props.collapseMenu(!this.props.menuIsCollapsed);
     // this.setState({
@@ -43,7 +49,8 @@ class InkiriHeader extends Component {
 
   render(){
     let header_content ;
-    if(this.props.isMobile)
+    const {isMobile} = this.state;
+    if(isMobile)
     {
       header_content = (
         <>
@@ -51,7 +58,7 @@ class InkiriHeader extends Component {
           <img src="/favicons/favicon-32x32.png" alt="logo" />
         </a>
         <div className="right">
-          <AccountSelector onChange={this.handleChange} isMobile={this.props.isMobile}/>
+          <AccountSelector onChange={this.handleChange} isMobile={isMobile}/>
           <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
         </div>
         </>
@@ -62,7 +69,7 @@ class InkiriHeader extends Component {
       header_content=(
         <div className="right">
           <div className="header_element_container">
-            <AccountSelector onChange={this.handleChange} isMobile={this.props.isMobile}/>
+            <AccountSelector onChange={this.handleChange} isMobile={isMobile}/>
              &nbsp; <span> Account Balance ({globalCfg.currency.symbol}) <UserBalance userId={this.props.actualAccountName} /> </span>
            <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.props.logout} size="small">Logout</Button>
           </div>
@@ -84,7 +91,8 @@ class InkiriHeader extends Component {
 export default connect(
     (state)=> ({
       actualAccountName :   loginRedux.actualAccountName(state),
-      menuIsCollapsed : menuRedux.isCollapsed(state)
+      menuIsCollapsed :     menuRedux.isCollapsed(state),
+      isMobile :            menuRedux.isMobile(state)
     }),
     (dispatch)=>({
         // try: bindActionCreators(userRedux.tryUserState , dispatch),

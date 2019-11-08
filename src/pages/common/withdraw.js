@@ -6,8 +6,6 @@ import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
 
-import AmountInput from '@app/components/AmountInput';
-
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 

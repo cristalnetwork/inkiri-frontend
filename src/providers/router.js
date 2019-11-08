@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { Spin } from 'antd'
 
 import { BlankContainer } from '@app/containers/blank.container';
-import { DashboardContainer } from '@app/containers/dashboard.container';
+import DashboardContainer from '@app/containers/dashboard.container';
 
 import Login from '@app/pages/general/login'
 import MenuByRole from './menu';
