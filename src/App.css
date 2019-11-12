@@ -43,6 +43,13 @@
 	background: '#fff';
 }
 
+/*.ant-menu-sub.ant-menu-inline > .ant-menu-item
+, .ant-menu-inline > .ant-menu-submenu > .ant-menu-submenu-title */
+.ant-menu-inline .ant-menu-item, .ant-menu-inline .ant-menu-submenu-title
+{
+  text-transform:uppercase;
+}
+
 .dashboard_page_header_wrap .ant-statistic-content{
 	text-align: center!important;
 }

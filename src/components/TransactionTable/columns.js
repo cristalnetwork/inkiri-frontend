@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Tag } from 'antd';
+import { Button, Tag, Icon } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as request_helper from '@app/components/TransactionCard/helper';
 
@@ -386,6 +386,137 @@ export const columnsForAccounts = (callback) => {
             {request_helper.getStyledBalance(record)}
           </div>
           )
+      }
+    ];
+}
+
+//
+export const columnsForProviders = (callback) => {
+  return [
+              {
+                title: 'Name',
+                dataIndex: 'name',
+                key: 'name',
+                sortDirections: ['descend'],
+                defaultSortOrder: 'descend',
+                // sorter: (a, b) => a.block_time_number - b.block_time_number,
+              },
+              {
+                title: 'CNPJ',
+                dataIndex: 'cnpj',
+                key: 'cnpj'
+              },
+              //
+              {
+                title: 'Contact',
+                dataIndex: 'email',
+                key: 'email',
+                render: (email, record) => (
+                  <>
+                    <span key={'email_'+record.id}>
+                     <Icon type="mail" />&nbsp;{email}
+                    </span><br/>
+                    <span key={'phone_'+record.id}> 
+                      <Icon type="phone" />&nbsp;{record.phone}
+                    </span>
+                  </>)
+              },
+              {
+                title: 'Address',
+                dataIndex: 'address',
+                key: 'address',
+                render: (address, record) => (
+                  <span key={address._id}>
+                   <Icon type="environment" /> {address.street}, {address.city}, CP {address.zip}, {address.state}, {address.country}
+                  </span>
+                  )
+              },
+              {
+                title: 'Category',
+                key: 'category',
+                dataIndex: 'category',
+              },
+              //
+              {
+                title: 'Products/Services',
+                dataIndex: 'products_services',
+                key: 'products_services',
+                
+              },
+              {
+                title: 'Bank Accounts',
+                dataIndex: 'bank_accounts',
+                key: 'bank_accounts',
+                render: (bank_accounts, record) => (
+                  <span key={'bank_accounts_'+record.id}>
+                    <Icon type="bank" /> {bank_accounts.map(bank_account => <span key={'bank_accounts'+bank_account._id}>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</span>)} 
+                  </span>
+                  )
+              },
+              //
+              {
+                title: 'Action',
+                fixed: 'right',
+                width: 100,
+                key: 'action',
+                render: (record) => 
+                    (<>
+                     <Button key={'process_'+record.id} onClick={()=>{ callback(record) }} icon="profile" size="small">Profile</Button>
+                     </>)
+                  ,
+              },
+            ];
+
+}
+
+//
+export const columnsForProfiles = (callback) => {
+    
+    return [
+      {
+        title: 'Nome',
+        dataIndex: 'first_name',
+        key: 'first_name',
+        render: (first_name, record) => {
+          return(
+            <span className="name_value_row">
+              <div className="row_name centered" >
+                {request_helper.getAccountTypeIcon(record.account_type)} 
+              </div>
+              <div className="row_value wider">
+                <span className="row_tx_description">{request_helper.getProfileName(record)}</span> 
+                <br/>@{record.account_name} 
+              </div>   
+            </span>)
+        }
+      },
+      {
+        title: 'Email',
+        key: 'email',
+        dataIndex: 'email',
+        render: (email, record) => {
+          
+          return (
+            <span>
+              {record.email}
+            </span> 
+          )}
+      },
+      {
+        title: 'Cuentas',
+        dataIndex: 'userCounterId',
+        key: 'userCounterId',
+        render: (userCounterId, record) => (
+          <span>N/A</span>
+          )
+      },
+      {
+        title: 'Action',
+        key: 'action',        
+        align: 'right',
+        render: (text, record) => {
+          return <Button key={'details_'+record.key} onClick={()=>{ callback(record) }} icon="profile" size="small">Details</Button>
+        }
       }
     ];
 }

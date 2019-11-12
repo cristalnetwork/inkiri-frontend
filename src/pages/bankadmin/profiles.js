@@ -37,23 +37,22 @@ const { Search, TextArea } = Input;
 const routes = routesService.breadcrumbForFile('accounts');
 
 
-class AdminAccounts extends Component {
+class Profiles extends Component {
   constructor(props) {
     super(props);
     this.state = {
       routes :        routesService.breadcrumbForPaths(props.location.pathname),
       loading:        false,
-      accounts:       [],
+      profiles:       [],
       
       page:           -1, 
       limit:          globalCfg.api.default_page_size,
       can_get_more:   true,
       cursor:         '',
       stats:          undefined,
-      // active_tab:     DISPLAY_ALL_TXS
     };
 
-    this.loadAccounts               = this.loadAccounts.bind(this);  
+    this.loadProfiles               = this.loadProfiles.bind(this);  
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderFooter               = this.renderFooter.bind(this); 
     this.onNewData                  = this.onNewData.bind(this);
@@ -61,49 +60,58 @@ class AdminAccounts extends Component {
     // this.onTableChange              = this.onTableChange.bind(this);
     this.onButtonClick              = this.onButtonClick.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
-    this.onNewAccount               = this.onNewAccount.bind(this); 
+    this.onNewProfile               = this.onNewProfile.bind(this); 
     this.renderAccountTypeFilter    = this.renderAccountTypeFilter.bind(this);
     this.renderAccountStateFilter   = this.renderAccountStateFilter.bind(this);
     this.renderFilterContent        = this.renderFilterContent.bind(this);
   }
 
   getColumns(){
-    return columns_helper.columnsForAccounts(this.onButtonClick);
+    return columns_helper.columnsForProfiles(this.onButtonClick);
   }
   
   componentDidMount(){
-    this.loadAccounts();  
+    this.loadProfiles(true);  
   } 
 
-  onNewAccount = () => {
+  onNewProfile = () => {
+    
+    this.openNotificationWithIcon("warning", "Not implemented yet");    
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
+    // this.props.history.push({
+    //   pathname: `/${this.props.actualRole}/create-account`
+    //   , state: { 
+    //       referrer: this.props.location.pathname
+    //     }
+    // })
+
+  }
+
+  onButtonClick(profile){
+
+    // this.openNotificationWithIcon("warning", "Not implemented yet");    
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+    
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/create-account`
+      pathname: `/${this.props.actualRole}/profile`
       , state: { 
+          profile:  profile, 
           referrer: this.props.location.pathname
         }
     })
 
-  }
-
-  onButtonClick(account){
-    console.log( ' ACCOUNTS::onButtonClick >> ', JSON.stringify(account) )
-
-    this.props.setLastRootMenuFullpath(this.props.location.pathname);
-
-    this.props.history.push({
-      pathname: `/${this.props.actualRole}/account`
-      , state: { 
-          referrer: this.props.location.pathname,
-          account:  account
-        }
-    })
+    // this.props.history.push({
+    //   pathname: `/${this.props.actualRole}/account`
+    //   , state: { 
+    //       referrer: this.props.location.pathname,
+    //       account:  account
+    //     }
+    // })
 
   }
 
-
-  loadAccounts = async () => {
+  loadProfiles = async (first) => {
 
     let can_get_more   = this.state.can_get_more;
     if(!can_get_more)
@@ -112,58 +120,44 @@ class AdminAccounts extends Component {
       return;
     }
 
+    
     this.setState({loading:true});
 
+    let page           = (this.state.page<0)?0:(this.state.page+1);
+    const limit        = this.state.limit;
     
-    // let page           = (this.state.page<0)?0:(this.state.page+1);
-    // const limit          = this.state.limit;
-    let that           = this;
-    
-    api.listBankAccounts()
-    .then( (res) => {
+    let profiles = null;
 
-        console.log(' >> api.listBankAccounts >>', JSON.stringify(res.data))
-
-        api.dfuse.getAccountsBalances(res.data.accounts.map(acc=>acc.key))
-          .then( (balances) => {
-            console.log(' >> balances >> ', balances)
-            const _balances = _.reduce(balances, function(result, value, key) {
-                result[value.account] = value.balance;
-                return result;
-              }, {});
-            const _data = res.data.accounts.map(acc => {return{...acc, balance:_balances[acc.key] }})
-            console.log(JSON.stringify(_data))
-            // that.onNewData(res.data);
-            that.onNewData({accounts:_data, more:res.data.more});
-          } ,(ex2) => {
-            console.log(' dfuse.getAccountsBalances ERROR#2', JSON.stringify(ex2) )
-            that.setState({loading:false});  
-          });      
-        
-
-      } ,(ex) => {
-        console.log(' dfuse.getAccountsBalances ERROR#1', JSON.stringify(ex) )
-        that.setState({loading:false});  
-      } 
-    );
-    
+    try {
+      profiles = await api.bank.listProfiles(page, limit, null);
+    } catch (e) {
+      this.openNotificationWithIcon("error", "Error retrieveing profiles", JSON.stringify(e));
+      return;
+    } 
+    // console.log(profiles)
+    this.onNewData(profiles, first);
+      
   }
 
-  onNewData(data){
+  onNewData(profiles, first){
     
 
-    const _accounts       = [...this.state.accounts, ...data.accounts];
-    const pagination      = {...this.state.pagination};
-    pagination.pageSize   = _accounts.length;
-    pagination.total      = _accounts.length;
+    const _profiles             = [...this.state.profiles, ...profiles];
+    const pagination            = {...this.state.pagination};
+    pagination.pageSize         = _profiles.length;
+    pagination.total            = _profiles.length;
 
-    const has_received_new_data = (data.accounts && data.accounts.length>0);
+    const has_received_new_data = (profiles && profiles.length>0);
+    const can_get_more          = (has_received_new_data && profiles.length==this.state.limit)
 
-    this.setState({pagination:pagination, accounts:_accounts, can_get_more:data.more, loading:false})
+    this.setState({ pagination:pagination
+                    , profiles:_profiles
+                    , can_get_more:can_get_more
+                    , loading:false})
 
-    if(!has_received_new_data)
+    if(!has_received_new_data && !first)
     {
-      this.openNotificationWithIcon("info", "End of accounts","You have reached the end of account list!")
+      this.openNotificationWithIcon("info", "End of profiles","You have reached the end of profiles list!")
     }
     else
       this.computeStats();
@@ -171,37 +165,39 @@ class AdminAccounts extends Component {
 
   
   computeStats(){
-    let stats      = this.state.stats;
-    const accounts = this.state.accounts;
-    if(!accounts)
-    {
-      this.setState({stats:this.getDefaultStats()});
-      return;
-    }
+    return;
 
-    const negative = accounts.filter( acc => (parseFloat(acc.balance) - parseFloat(acc.overdraft))<0).length;
-    // const withdraws     = accounts.filter( tx => globalCfg.api.isWithdraw(tx))
-    //                 .map(tx =>tx.quantity)
-    //                 .reduce((acc, amount) => acc + Number(amount), 0);
+    // let stats      = this.state.stats;
+    // const profiles = this.state.profiles;
+    // if(!profiles)
+    // {
+    //   this.setState({stats:this.getDefaultStats()});
+    //   return;
+    // }
+
+    // const negative = accounts.filter( acc => (parseFloat(acc.balance) - parseFloat(acc.overdraft))<0).length;
+    // // const withdraws     = accounts.filter( tx => globalCfg.api.isWithdraw(tx))
+    // //                 .map(tx =>tx.quantity)
+    // //                 .reduce((acc, amount) => acc + Number(amount), 0);
     
-    const admin    = accounts.filter( acc => globalCfg.bank.isAdminAccount(acc))
-                    .reduce((acc, amount) => acc + 1, 0);
-    const business = accounts.filter( acc => globalCfg.bank.isBusinessAccount(acc))
-                    .reduce((acc, amount) => acc + 1, 0);
-    const personal = accounts.filter( acc => globalCfg.bank.isPersonalAccount(acc))
-                    .reduce((acc, amount) => acc + 1, 0);
-    const foundation = accounts.filter( acc => globalCfg.bank.isFoundationAccount(acc))
-                    .reduce((acc, amount) => acc + 1, 0);
+    // const admin    = accounts.filter( acc => globalCfg.bank.isAdminAccount(acc))
+    //                 .reduce((acc, amount) => acc + 1, 0);
+    // const business = accounts.filter( acc => globalCfg.bank.isBusinessAccount(acc))
+    //                 .reduce((acc, amount) => acc + 1, 0);
+    // const personal = accounts.filter( acc => globalCfg.bank.isPersonalAccount(acc))
+    //                 .reduce((acc, amount) => acc + 1, 0);
+    // const foundation = accounts.filter( acc => globalCfg.bank.isFoundationAccount(acc))
+    //                 .reduce((acc, amount) => acc + 1, 0);
 
-    this.setState({stats:{
-        total :               accounts?accounts.length:0
-        , pending:            'N/A' 
-        , negative_balance:   negative
-        , admin:              admin
-        , personal:           personal
-        , business:           business
-        , foundation:         foundation
-        }});
+    // this.setState({stats:{
+    //     total :               accounts?accounts.length:0
+    //     , pending:            'N/A' 
+    //     , negative_balance:   negative
+    //     , admin:              admin
+    //     , personal:           personal
+    //     , business:           business
+    //     , foundation:         foundation
+    //     }});
 
   }
 
@@ -232,7 +228,7 @@ class AdminAccounts extends Component {
 
   
   renderFooter(){
-    return (<Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadAccounts()}>More!!</Button>)
+    return (<Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadProfiles()}>More!!</Button>)
   }
 
   //
@@ -268,7 +264,7 @@ class AdminAccounts extends Component {
 
   // 
   renderAccountStateFilter(){
-    console.log(' ** renderAccountStateFilter')
+    // console.log(' ** renderAccountStateFilter')
     return (
       <Select placeholder="Account status"
                     mode="multiple"
@@ -282,7 +278,7 @@ class AdminAccounts extends Component {
   }
   //
   renderAccountTypeFilter(){
-    console.log(' ** renderAccountTypeFilter')
+    // console.log(' ** renderAccountTypeFilter')
     return (<Select placeholder="Account type"
                     mode="multiple"
                     style={{ minWidth: '250px' }}
@@ -309,11 +305,10 @@ class AdminAccounts extends Component {
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={[
-            <Button size="small" type="link" href={_href} target="_blank" key="view-on-blockchain_" icon="cloud" >View Accounts on Blockchain</Button>,
-            <Button size="small" type="primary" key="_new_account" icon="plus" onClick={()=>{this.onNewAccount()}}> Account</Button>,
+            <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewProfile()}}> Profile</Button>,
           ]}
-          title="Accounts"
-          subTitle="Bank Accounts Administration"
+          title="Profiles"
+          subTitle="Bank Profiles Administration"
         >
           
         </PageHeader>
@@ -336,6 +331,8 @@ class AdminAccounts extends Component {
 
   //
   renderTableViewStats(){
+    return (null);
+
     const {total, pending, negative_balance, personal, business, admin, foundation} = this.currentStats();  
     const items = [
         stats_helper.buildItemSimple('TOTAL', total)
@@ -354,10 +351,10 @@ class AdminAccounts extends Component {
       <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
         <Table
             key="table_all_txs" 
-            rowKey={record => record.key} 
+            rowKey={record => record.id} 
             loading={this.state.loading} 
             columns={this.getColumns()} 
-            dataSource={this.state.accounts} 
+            dataSource={this.state.profiles} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
             scroll={{ x: 700 }}
@@ -377,5 +374,5 @@ export default  (withRouter(connect(
     (dispatch)=>({
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(AdminAccounts))
+)(Profiles))
 );

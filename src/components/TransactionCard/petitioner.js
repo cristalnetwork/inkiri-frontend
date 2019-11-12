@@ -8,11 +8,6 @@ import * as request_helper from '@app/components/TransactionCard/helper';
 
 const TransactionPetitioner = ({profile, title}) => {
     
-    const petitionerName = () => {
-      if(profile.account_type=='business')
-        return profile.business_name;
-      return profile.first_name + ' ' + profile.last_name;
-    }
     return(
       <div className="ui-list">
         <ul className="ui-list__content">
@@ -26,7 +21,7 @@ const TransactionPetitioner = ({profile, title}) => {
                 </div>
                 <div className="ui-row__col ui-row__col--content">
                     <div className="ui-info-row__content">
-                        <div className="ui-info-row__title">{title||'Requested by' }:&nbsp;<b>{petitionerName()}</b></div>
+                        <div className="ui-info-row__title">{title||'Requested by' }:&nbsp;<b>{request_helper.getProfileName(profile)}</b></div>
                           <div className="ui-info-row__details">
                               <ul>
                                   <li>Account name: @{profile.account_name}</li>

@@ -108,6 +108,8 @@ export const getTypeIcon = (request, size, color) => {
 }
 //
 export const getAccountTypeIcon = (account_type) => {
+  if(isNaN(account_type))
+    account_type = globalCfg.bank.ACCOUNT_TYPES.indexOf(account_type);
   return (<Icon type={globalCfg.bank.ACCOUNT_ICONS[account_type]} />)
 }
 //
@@ -119,6 +121,12 @@ export const getAccountStateTag = (account, include_br) => {
         { globalCfg.bank.getAccountState(account.state).toUpperCase() }
         </Tag>
       </>)
+}
+//
+export const getProfileName = (profile) => {
+  if(globalCfg.bank.isBusinessAccount(profile.account_type))
+    return profile.business_name;
+  return profile.first_name + ' ' + profile.last_name;
 }
 //
 export const getBlockchainLink = (tx_id, withIcon, size, text) => {

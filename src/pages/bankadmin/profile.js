@@ -23,12 +23,12 @@ import { Tabs } from 'antd';
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
-import './configuration.css'; 
+// import './configuration.css'; 
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import BankAccountForm from '@app/components/Form/bank_account';
-import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from './configuration/profile';
+import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/pages/personal/configuration/profile';
 import Skeleton from '@app/pages/personal/configuration/skeleton';
 
 
@@ -40,7 +40,7 @@ const ACTIVE_TAB_ROLES                 = 'active_tab_roles';
 const ACTIVE_TAB_PREFERENCES           = 'active_tab_preferences';
 const ACTIVE_TAB_SECURITY              = 'active_tab_security';
 
-class Configuration extends Component {
+class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -49,7 +49,8 @@ class Configuration extends Component {
       active_tab:          ACTIVE_TAB_PROFILE,
       active_tab_action:   ACTIVE_TAB_PROFILE,
       active_tab_object:   null,
-      profile:             props.actualAccountProfile
+      
+      profile:            (props && props.location && props.location.state && props.location.state.profile)? props.location.state.profile : null
     };
 
     this.renderContent              = this.renderContent.bind(this); 
@@ -74,19 +75,17 @@ class Configuration extends Component {
 
   componentDidUpdate(prevProps, prevState) 
   {
-    const {actualAccountProfile} = this.props;
-    if(prevProps.actualAccountProfile !== actualAccountProfile) {
-      this.setState({ profile:actualAccountProfile});
+    const {profile} = this.props;
+    if(prevProps.profile !== profile) {
+      this.setState({ profile:profile});
     }
   }
     
   onConfigurationEvents = (event_type, object) => {
 
-    // console.log(' >> onConfigurationEvents::event_type: ', event_type, object);
     switch (event_type){
       case ENUM_EVENT_EDIT_PROFILE:
         console.log(' >> onConfigurationEvents::ENUM_EVENT_EDIT_PROFILE: reload profile');
-        this.props.loadProfile(this.props.actualAccountName);
         this.openNotificationWithIcon("info", "We are developing this function!")    
         this.setState({active_tab_action:ACTIVE_TAB_PROFILE_EDIT_PROFILE, active_tab_object:null});
         break;
@@ -121,9 +120,9 @@ class Configuration extends Component {
   };
 
   backToDashboard = async () => {
-    this.props.history.push({
-      pathname: `/${this.props.actualRole}/extrato`
-    })
+    // this.props.history.push({
+    //   pathname: `/${this.props.actualRole}/extrato`
+    // })
   }
 
   resetResult(){
@@ -151,6 +150,7 @@ class Configuration extends Component {
   }
 
   onAddOrUpdateBankAccount(error, cancel, values){
+    
     if(cancel)
     {
       this.setState({  
@@ -171,7 +171,6 @@ class Configuration extends Component {
     // console.log(' >> onAddOrUpdateBankAccount:: bank_accounts: ', JSON.stringify(bank_accounts))
     api.bank.updateUserBankAccounts(profile.id, bank_accounts)
       .then((res)=>{
-        that.props.loadProfile(that.props.actualAccountName);
         that.openNotificationWithIcon("success", "Bank account saved successfully")    
         that.resetPage(ACTIVE_TAB_PROFILE);
         // console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(res));
@@ -200,8 +199,7 @@ class Configuration extends Component {
 
     const { active_tab, active_tab_action, active_tab_object, pushingTx } = this.state;
     
-    if(active_tab==ACTIVE_TAB_PROFILE)
-    {
+    if(active_tab==ACTIVE_TAB_PROFILE){
       if(active_tab_action==ACTIVE_TAB_PROFILE_BANK_ACCOUNT)
       {
         const button_text = active_tab_object?'UPDATE BANK ACCOUNT':'ADD BANK ACCOUNT';
@@ -217,18 +215,14 @@ class Configuration extends Component {
               </Spin>} 
             icon="university" />  );
       }
-            
-      if(active_tab_action==ACTIVE_TAB_PROFILE_EDIT_PROFILE)
-      {
-        
-      
-      }
-      
+      // if(active_tab_action==ACTIVE_TAB_PROFILE_EDIT_PROFILE)
+      //   return;
+
       return (
         <ConfigurationProfile profile={this.state.profile} onEvent={()=>this.onConfigurationEvents}/>
       );
-      
     }
+
     return (null);
   }
 
@@ -239,7 +233,7 @@ class Configuration extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Account Settings"
+          title="Customer Profile"
           footer={
             <Tabs defaultActiveKey="1" onChange={this.onTabChange}>
               <Tabs.TabPane tab="Profile"     key={ACTIVE_TAB_PROFILE} />
@@ -278,8 +272,8 @@ export default Form.create() (withRouter(connect(
         
     }),
     (dispatch) => ({
-        loadProfile:          bindActionCreators(loginRedux.loadProfile, dispatch)
+        // loadProfile:          bindActionCreators(loginRedux.loadProfile, dispatch)
     })
 
-)(Configuration) )
+)(Profile) )
 );

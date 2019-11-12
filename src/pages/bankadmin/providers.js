@@ -19,6 +19,7 @@ import { Form, Input, Icon} from 'antd';
 import { notification, Table, Divider, Spin } from 'antd';
 
 import {DISPLAY_ALL_TXS} from '@app/components/TransactionTable';
+import * as columns_helper from '@app/components/TransactionTable/columns';
 
 import * as utils from '@app/utils/utils';
 
@@ -62,80 +63,7 @@ class Providers extends Component {
   }
 
   getColumns(){
-    return [
-              {
-                title: 'Name',
-                dataIndex: 'name',
-                key: 'name',
-                sortDirections: ['descend'],
-                defaultSortOrder: 'descend',
-                // sorter: (a, b) => a.block_time_number - b.block_time_number,
-              },
-              {
-                title: 'CNPJ',
-                dataIndex: 'cnpj',
-                key: 'cnpj'
-              },
-              //
-              {
-                title: 'Contact',
-                dataIndex: 'email',
-                key: 'email',
-                render: (email, record) => (
-                  <>
-                    <span key={'email_'+record.id}>
-                     <Icon type="mail" />&nbsp;{email}
-                    </span><br/>
-                    <span key={'phone_'+record.id}> 
-                      <Icon type="phone" />&nbsp;{record.phone}
-                    </span>
-                  </>)
-              },
-              {
-                title: 'Address',
-                dataIndex: 'address',
-                key: 'address',
-                render: (address, record) => (
-                  <span key={address._id}>
-                   <Icon type="environment" /> {address.street}, {address.city}, CP {address.zip}, {address.state}, {address.country}
-                  </span>
-                  )
-              },
-              {
-                title: 'Category',
-                key: 'category',
-                dataIndex: 'category',
-              },
-              //
-              {
-                title: 'Products/Services',
-                dataIndex: 'products_services',
-                key: 'products_services',
-                
-              },
-              {
-                title: 'Bank Accounts',
-                dataIndex: 'bank_accounts',
-                key: 'bank_accounts',
-                render: (bank_accounts, record) => (
-                  <span key={'bank_accounts_'+record.id}>
-                    <Icon type="bank" /> {bank_accounts.map(bank_account => <span key={'bank_accounts'+bank_account._id}>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</span>)} 
-                  </span>
-                  )
-              },
-              //
-              {
-                title: 'Action',
-                fixed: 'right',
-                width: 100,
-                key: 'action',
-                render: (record) => 
-                    (<>
-                     <Button key={'process_'+record.id} onClick={()=>{ this.onButtonClick(record) }} icon="profile" size="small">Profile</Button>
-                     </>)
-                  ,
-              },
-            ];
+    return columns_helper.columnsForProviders(this.onButtonClick); 
   }
 
   componentDidMount(){

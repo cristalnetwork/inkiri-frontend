@@ -98,13 +98,23 @@ const TableStats = ({stats_array, title, visible}) => {
                   />
               </Col>);
     }
-    //
-    console.log(' display stats? -> ', my_visible)
+    // size="small" 
+    // console.log(' display stats? -> ', my_visible)
+    /*  
+      checkedChildren={<Icon type="eye" />}
+      unCheckedChildren={<Icon type="eye-invisible" />}
+    */
     return (
       <div className="styles standardList statsWidget">
-        <Switch defaultChecked={my_visible} onChange={onChange} style={{zIndex:10, position:'absolute', top:6, right:6}} />
+        <Switch 
+          defaultChecked={my_visible} 
+          onChange={onChange} 
+          style={{zIndex:10, position:'absolute', top:6, right:6}} 
+          checkedChildren={<Icon type="eye" />}
+          unCheckedChildren={<>Stats&nbsp;<Icon type="eye-invisible" /></>}
+          />
 
-        <Card key="the_card_key" bordered={false} style={{background: '#ECECEC'}} className={(my_visible?'':'hidden')} >
+        <Card key="the_card_key" bordered={false} style={{background: '#F5F5F5'}} className={(my_visible?'':'hidden')} >
           <Row>
             
             { title?getTitle(title):(null) }

@@ -68,16 +68,22 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
   if(!path.startsWith(globalCfg.dfuse.base_url) )
     _key = BANK_AUTH_TOKEN_KEY;
   bearer_token = getBearerToken(getTokenIfNotExpired(_key));
+  method = method || "GET";
   let fetchOptions = {
-    method: method || "GET",
+    method: method,
     headers: {
       Accept: "application/json, text/plain, */*", "Content-Type": "application/json",
       Authorization: bearer_token
     }
   };
 
-  if (typeof data !== "undefined" && data) {
+  // POST PARAMS
+  if (typeof data !== "undefined" && data && method!="GET") {
     fetchOptions.body = JSON.stringify(data);
+  }
+
+  if (typeof data !== "undefined" && data && method=="GET") {
+    fetchOptions.qs = data;
   }
 
   if(do_log) console.log( ' ###### jwtHelper::apiCall >> path:', path);

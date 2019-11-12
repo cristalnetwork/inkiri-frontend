@@ -111,8 +111,8 @@ export const listMyRequests = (account_name, page, limit, request_type) =>   new
   , '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
   const path    = globalCfg.api.endpoint + '/requests';
   const method  = 'GET';
-  let query     = '?page='+(page|0); 
-  query=query+'&limit='+(limit|10);
+  let query     = '?page='+(page||0); 
+  query=query+'&limit='+(limit||10);
   if(account_name)
     query=query+'&from='+account_name;
   if(request_type!== undefined)
@@ -132,8 +132,8 @@ export const listRequests = (page, limit, request_type, account_name) =>   new P
   , '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
   const path    = globalCfg.api.endpoint + '/requests';
   const method  = 'GET';
-  let query     = '?page='+(page|0); 
-  query=query+'&limit='+(limit|10);
+  let query     = '?page='+(page||0); 
+  query=query+'&limit='+(limit||10);
   if(account_name!== undefined)
     query=query+'&from='+account_name;
   if(request_type!== undefined)
@@ -303,6 +303,32 @@ export const nextRequestId = (account_name) =>   new Promise((res,rej)=> {
 //       });
 // });
 
+export const listProfiles = (page, limit, filter) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.endpoint + '/users';
+  const method  = 'GET';
+  let qs = {
+      page       : (page||0)
+      , limit    : (limit||10),
+    };
+  if(filter)
+    qs = { ...qs , ...filter};
+
+  auth()
+    .then((token) => {
+      jwtHelper.apiCall(path, method, qs)
+        .then((data) => {
+            res(data)
+          }, (ex) => {
+            rej(ex);
+          });
+    }, (ex) => {
+        rej(ex);
+    });
+
+});
+
+
 export const getProfile = (account_name) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.endpoint + `/users_by_account/${account_name}`;
@@ -394,8 +420,8 @@ export const listProviders = (name, cnpj, page, limit) =>   new Promise((res,rej
   // console.log(' BANKAPI::LIST MY REQUESTS>> account_name:', account_name, '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
   const path    = globalCfg.api.endpoint + '/providers';
   const method  = 'GET';
-  let query     = '?page='+(page|0); 
-  query=query+'&limit='+(limit|10);
+  let query     = '?page='+(page||0); 
+  query=query+'&limit='+(limit||10);
   if(name!== undefined)
     query=query+'&name='+name;
   if(cnpj!== undefined)
@@ -454,8 +480,8 @@ export const listRequestsForProvider = (page, limit, provider_id) =>   new Promi
     , ' | limit:', limit,);
   const path    = globalCfg.api.endpoint + '/requests';
   const method  = 'GET';
-  let query     = '?page='+(page|0); 
-  query=query+'&limit='+(limit|10);
+  let query     = '?page='+(page||0); 
+  query=query+'&limit='+(limit||10);
   // query=query+'&requested_type=type_exchange';
   if(provider_id!== undefined)
     query=query+'&provider_id='+provider_id;
@@ -707,6 +733,13 @@ export const createExchangeRequest      = (account_name, amount, bank_account, a
         
       }
     );
+    /*
+    , (error) => {
+        console.log(JSON.stringify(error));
+        res(error);
+        
+      });
+      */
 });
 
 export const updateExchangeRequest      = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, state, tx_id);

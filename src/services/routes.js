@@ -129,7 +129,7 @@ const routes  = {
                     },
                     {
                         key: routes_config.pathNames.bankadminProfiles,
-                        path: routes_config.pathNames.bankadminUnderConstruction,
+                        path: routes_config.pathNames.bankadminProfiles,
                         title: 'Profiles',
                     },
                     {

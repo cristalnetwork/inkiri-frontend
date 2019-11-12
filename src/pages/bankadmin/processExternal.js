@@ -41,7 +41,7 @@ const DEFAULT_ATTACHS = {
 class processExternal extends Component {
   constructor(props) {
     super(props);
-    const request       = (this.props && this.props.location && this.props.location.state && this.props.location.state.request)? this.props.location.state.request : undefined;
+    const request       = (props && props.location && props.location.state && props.location.state.request)? props.location.state.request : undefined;
     const pathname      = props.location?props.location.pathname.split('/').slice(-1)[0]:'';
     this.state = {
       referrer:        (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined,

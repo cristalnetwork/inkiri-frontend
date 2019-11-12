@@ -29,7 +29,6 @@ function prettyJson(input){
 
 /*
 * Retrieves Smart Contract's Bank accounts profile list.
-
 */
 // export const listBankAccounts  = () => dfuse.listBankAccounts();
 export const listBankAccounts  = () => listAllBankAccounts();
