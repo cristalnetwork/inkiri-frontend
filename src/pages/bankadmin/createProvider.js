@@ -69,32 +69,16 @@ class CreateProvider extends Component {
   }
 
   componentDidMount(){
-    this.loadDemoData();
+    
   }
   
-  loadDemoData(){
-    // this.setState({
-    //   provider:{
-    //     name:        'Proveedor #1',
-    //     cnpj:        '123456789',
-    //     email:            'proveedor1@gmail.com',
-    //     phone:            '+025369875',
-    //     address:          { 
-    //                         street:  'Rua do Rey 1115', 
-    //                         city:    'Rio de Janeiro', 
-    //                         state:   'Rio de Janeiro', 
-    //                         zip:     '111222', 
-    //                         country: 'Brazil'
-    //                       },
-    //     category:      'Proveedor de conocimiento',
-    //     products_services:    'Conocimientos, ideas, y eso',
-    //     bank_account:     {  
-    //                         bank_name:    'Banco do Brasil',
-    //                         agency:       '1234',
-    //                         cc:           '987654321'
-    //                       }}
-    //   }
-    // );    
+  componentDidUpdate(prevProps, prevState) 
+  {
+    if(prevProps.referrer !== this.props.referrer) {
+      this.setState({
+        referrer         : this.props.referrer
+      });
+    }
   }
 
   resetForm(){

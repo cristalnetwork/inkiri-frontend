@@ -167,22 +167,22 @@ const bankadmin = [
        role: 'bankadmin'
     },
     {
-       key: pathNames.bankadminAccounts_Account,
-       father_key: pathNames.bankadminAccounts,
-       fileName: 'account',
-       area: 'bankadmin',
-       path: 'account',
-       container: 'dashboard',
-       role: 'bankadmin'
+       key:         pathNames.bankadminAccounts_Account,
+       father_key:  '*',
+       fileName:    'account',
+       area:        'bankadmin',
+       path:        'account',
+       container:   'dashboard',
+       role:        'bankadmin'
     },
     {
-       key: pathNames.bankadminAccounts_CreateAccount,
-       father_key: pathNames.bankadminAccounts,
-       fileName: 'createAccount',
-       area: 'bankadmin',
-       path: 'create-account',
-       container: 'dashboard',
-       role: 'bankadmin'
+       key:         pathNames.bankadminAccounts_CreateAccount,
+       father_key : '*',
+       fileName:    'createAccount',
+       area:        'bankadmin',
+       path:        'create-account',
+       container:   'dashboard',
+       role:        'bankadmin'
     },
     {
        key: pathNames.bankadminProfiles,
@@ -210,17 +210,17 @@ const bankadmin = [
        role: 'bankadmin'
     },
     {
-       key: pathNames.bankadminProviders_CreateProvider,
-       father_key : pathNames.bankadminProviders,
-       fileName: 'createProvider',
-       area: 'bankadmin',
-       path: 'create-provider',
-       container: 'dashboard',
-       role: 'bankadmin'
+       key:          pathNames.bankadminProviders_CreateProvider,
+       father_key :  '*',
+       fileName:     'createProvider',
+       area:         'bankadmin',
+       path:         'create-provider',
+       container:    'dashboard',
+       role:         'bankadmin'
     },
     {
        key: pathNames.bankadminProviders_ProviderProfile,
-       father_key : pathNames.bankadminProviders,
+       father_key : '*',
        fileName: 'provider',
        area: 'bankadmin',
        path: 'provider-profile',
@@ -237,7 +237,6 @@ const bankadmin = [
     },
     {
        key: pathNames.bankadminPDA_ProcessRequest,
-       // father_key : pathNames.bankadminPDA,
        father_key : '*',
        fileName: 'processExternal',
        area: 'bankadmin',

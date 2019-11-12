@@ -114,11 +114,11 @@ class Providers extends Component {
     api.bank.listProviders()
     .then( (res) => {
 
-        console.log(' >> api.bank.listProviders >>', JSON.stringify(res))
+        // console.log(' >> api.bank.listProviders >>', JSON.stringify(res))
         that.onNewData(res, first);
         
       } ,(ex) => {
-        console.log(' api.bank.listProviders ERROR#1', JSON.stringify(ex) )
+        // console.log(' api.bank.listProviders ERROR#1', JSON.stringify(ex) )
         that.setState({loading:false});  
       } 
     );

@@ -49,7 +49,7 @@ class Provider extends Component {
       result_object:   undefined,
       error:           {},
       
-      provider : undefined
+      provider:        (props && props.location && props.location.state && props.location.state.provider)? props.location.state.provider : undefined,
       
     };
 
@@ -61,6 +61,7 @@ class Provider extends Component {
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderProviderInfo         = this.renderProviderInfo.bind(this);
     this.onUpdateProvider           = this.onUpdateProvider.bind(this);
+    this.onPaymentClick             = this.onPaymentClick.bind(this);
   }
 
   static propTypes = {
@@ -72,24 +73,26 @@ class Provider extends Component {
     history: PropTypes.object
   };
 
+  componentDidUpdate(prevProps, prevState) 
+  {
+    if(prevProps.referrer !== this.props.referrer) {
+      this.setState({
+        referrer         : this.props.referrer,
+        provider         : this.props.provider
+      });
+    }
+  }
+
   componentDidMount(){
     const { match, location, history } = this.props;
-    if(this.props.location && this.props.location.state && this.props.location.state.provider)
+    if(location && location.state && location.state.provider)
     {  
-      // this.setState({provider : this.props.location.state.provider})
-
       this.setState(
           {provider : this.props.location.state.provider}
       , () => {
           this.loadProviderTxs(true);
       });
     }
-    else
-    {
-      // DEMO DATA!
-      // this.setState({provider : {"address":{"street":"Rua do Rey 1115","city":"Rio de Janeiro","state":"Rio de Janeiro","zip":"111222","country":"Brazil"},"_id":"5d8cba5b494b1a316b854d7c","name":"Proveedor #1","cnpj":"123456789","email":"proveedor1@gmail.com","phone":"+025369875","category":"Proveedor de conocimiento","products_services":"Conocimientos, ideas, y eso","bank_accounts":[{"_id":"5d8cba5b494b1a316b854d7d","bank_name":"Banco do Brasil","agency":"1234","cc":"987654321"}],"created_by":{"self_created":true,"_id":"5d67d2c78ed5673269c0a54c","account_name":"inkirimaster","email":"inkirimaster@inkiri.com","created_at":"2019-08-29T13:27:35.198Z","updatedAt":"2019-09-26T21:14:41.203Z","userCounterId":10,"__v":0,"to_sign":"5HvyTXD98nATUv1PfNg3xjPrZvww5DX7eh21kjPSm836hVGNb4Y","_type":"personal","account_type":"personal","id":"5d67d2c78ed5673269c0a54c"},"created_at":"2019-09-26T13:17:15.630Z","updatedAt":"2019-09-26T13:17:15.630Z","providerCounterId":1,"__v":0,"id":"5d8cba5b494b1a316b854d7c"} });
-    }
-
   }
   
   loadProviderTxs = async (first_call) => {
@@ -108,6 +111,7 @@ class Provider extends Component {
     let that                = this;
     
     // const req_type = DISPLAY_PROVIDER;
+    
     
     api.bank.listRequestsForProvider(page, limit, provider.id)
     .then( (res) => {
@@ -141,6 +145,10 @@ class Provider extends Component {
   /* ****************
    * EVENTS
   */
+
+  onPaymentClick = (record) => {
+
+  }
 
   onUpdateProvider(){
     const {updating, provider}=this.state;
@@ -309,7 +317,7 @@ class Provider extends Component {
             key="table_all_requests" 
             rowKey={record => record.id} 
             loading={this.state.loading} 
-            columns={columns_helper.getDefaultColumns()} 
+            columns={columns_helper.getDefaultColumns(this.props.actualRole, this.onPaymentClick)} 
             dataSource={this.state.txs} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
