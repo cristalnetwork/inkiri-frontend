@@ -129,7 +129,7 @@ class Profiles extends Component {
     let profiles = null;
 
     try {
-      profiles = await api.bank.listProfiles(page, limit, null);
+      profiles = await api.bank.listProfiles(page, limit, {account_type:'personal'});
     } catch (e) {
       this.openNotificationWithIcon("error", "Error retrieveing profiles", JSON.stringify(e));
       return;
