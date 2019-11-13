@@ -15,7 +15,7 @@ const TransactionPetitioner = ({profile, title}) => {
                 <div className="ui-row__col ui-row__col--heading">
                     <div className="ui-avatar">
                       <div className="ui-avatar__content ui-avatar__content--initials">
-                        <span>{utils.firsts(profile.account_name, 1)}</span>
+                        <span>{utils.firsts(profile.account_name, 1).toUpperCase()}</span>
                       </div>
                     </div>
                 </div>

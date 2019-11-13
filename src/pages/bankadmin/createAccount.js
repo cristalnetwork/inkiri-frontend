@@ -108,6 +108,7 @@ class CreateAccount extends Component {
                           country: ''
                         },
       business_name:    '',
+      alias:            '',
 
       // PERMS
       active_tab_key:  'owner',
@@ -207,7 +208,7 @@ class CreateAccount extends Component {
 
   doCreateAccount(){
     console.log(' FINALLY createAccount!!!')
-    const {permissions, business_name, account_name, password, confirm_password, generated_keys, account_type, account_overdraft, account_fee, first_name, last_name, email, legal_id, birthday, phone, address} = this.state;
+    const {permissions, business_name, alias, account_name, password, confirm_password, generated_keys, account_type, account_overdraft, account_fee, first_name, last_name, email, legal_id, birthday, phone, address} = this.state;
     const that             = this;
     that.setState({pushingTx:true})
     
@@ -228,7 +229,7 @@ class CreateAccount extends Component {
         /*
         * Step #2: create account on private servers 
         */
-        api.bank.createOrUpdateUser(null, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name)
+        api.bank.createOrUpdateUser(null, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias)
           .then((res2)=>{
             that.setState({result:'ok', pushingTx:false, result_object:{account_name:account_name}});
             console.log(' doCreateAccount() MONGO OK ',JSON.stringify(res2))
@@ -246,7 +247,6 @@ class CreateAccount extends Component {
 
   // Events
   componentDidMount(){
-    // this.loadDemoData();
     this.props.loadAccounts();
   }
 
@@ -565,7 +565,7 @@ class CreateAccount extends Component {
     //
     if(globalCfg.bank.isBusinessAccount(account_type))
     {
-      const {business_name} = this.state;
+      const {business_name, alias} = this.state;
       return (<>
           <h3 className="fileds_header">PROFILE SECTION</h3>
           <Form.Item
@@ -576,50 +576,19 @@ class CreateAccount extends Component {
                 initialValue: business_name
               })(<Input />)}
             </Form.Item>
+          <Form.Item
+            label="IUGU alias"
+            >
+              {getFieldDecorator('alias', {
+                rules: [{ required: true, message: 'Please input a valid IUGU alias!', whitespace: true }],
+                initialValue: alias
+              })(<Input />)}
+            </Form.Item>
       </>);
     }
   }
   //
   
-  loadDemoData = () => {
-    const default_state = {
-      account_name:     'qwertyasdfg1',
-      password:         '1234',
-      confirm_password: '1234',
-      default_keys:     {  
-                         wif:      'Generated Private Key',
-                         pub_key:  'Generated Public Key',
-                         seed:     ''}, 
-      generated_keys:   {
-                         wif:      'Generated Private Key',
-                         pub_key:  'Generated Public Key',
-                         seed:     ''} ,
-
-      account_type:     2,
-      account_overdraft:500,
-      account_fee:      5,
-      
-      first_name:       '',
-      last_name:        '',
-      email:            '',
-      legal_id:         '',
-      birthday:         '1980/11/06',
-      phone:            '',
-      address:          { 
-                          street:  '', 
-                          city:    '', 
-                          state:   '', 
-                          zip:     '', 
-                          country: ''
-                        },
-      business_name:    'Alto Rendimiento LTD',
-      permissions:      undefined
-    };
-    
-    this.setState({...default_state});
-    
-  }
-
   renderStep(current_step){
     const { getFieldDecorator } = this.props.form;
     

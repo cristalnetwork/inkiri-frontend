@@ -360,7 +360,7 @@ export const createUser = (account_name, account_type) =>   new Promise((res,rej
       });
 });
 
-export const createOrUpdateUser = (id, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, bank_accounts) =>   new Promise((res,rej)=> {  
+export const createOrUpdateUser = (id, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias, bank_accounts) =>   new Promise((res,rej)=> {  
 
   const domain              = globalCfg.api.endpoint + '/users';
   const path                = id?`/${id}`:'';
@@ -377,12 +377,13 @@ export const createOrUpdateUser = (id, account_type, account_name, first_name, l
           , phone:         phone
           , address:       address
           , business_name: business_name
+          , alias:         alias
         };
   if(bank_accounts)
     post_params.bank_accounts = bank_accounts;
 
   console.log(' inkiriApi::createUser >> ABOUT TO POST', JSON.stringify(post_params))
-  jwtHelper.apiCall(path, method, post_params)
+  jwtHelper.apiCall(domain+path, method, post_params)
     .then((data) => {
         console.log(' inkiriApi::createUser >> RESPONSE', JSON.stringify(data))
         res(data)

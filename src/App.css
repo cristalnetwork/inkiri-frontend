@@ -163,3 +163,22 @@ h3.fileds_header{
 .display_block{display:block!important;}
 .display_block.addresse-avatar{top:0px;}
 
+
+
+.with_labels .money-transfer__row:has(>input:placeholder-shown )  label
+{
+  background-color: #00ff00!important;
+  /*display:none!important;*/
+}
+.with_labels .money-transfer__row:has(>input:placeholder-shown ) label
+{
+  display:none!important;
+}
+.with_labels .money-transfer__row label{
+  display:block!important;
+  color:rgb(153, 153, 153);
+}
+.with_labels .money-transfer__row label::before,
+.with_labels .money-transfer__row label::after{
+  display:none!important;
+}

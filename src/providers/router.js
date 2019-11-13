@@ -32,10 +32,10 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
         {
           if(actualRole=='bankadmin') 
           {
-            // history.push(`/${actualRole}/profiles`);
+            history.push(`/${actualRole}/profiles`);
             // history.push(`/${actualRole}/operations`);
             // history.push(`/${actualRole}/provider-profile`);
-            history.push(`/${actualRole}/providers`);
+            // history.push(`/${actualRole}/providers`);
             // history.push(`/${actualRole}/external-transfers`);
             // history.push(`/${actualRole}/pda`);
             // history.push(`/${actualRole}/accounts`);

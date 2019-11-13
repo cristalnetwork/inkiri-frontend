@@ -65,26 +65,37 @@ const bank = {
       return account_type;
     return (parseInt(account_type)<bank.ACCOUNT_TYPES.length)?bank.ACCOUNT_TYPES[parseInt(account_type)]:undefined;
   },
-  isPersonalAccount : (param) => {
+  isAccountOfType : (param, type_ref) => {
     if(typeof param !== 'number' && typeof param !== 'string')
       param = param.account_type  
-    return parseInt(param) == bank.ACCOUNT_TYPE_PERSONAL;
+    if(typeof param === 'number')
+      return parseInt(param) == type_ref;
+    return param == bank.ACCOUNT_TYPES[type_ref];
     
   },
+  isPersonalAccount : (param) => {
+    // if(typeof param !== 'number' && typeof param !== 'string')
+    //   param = param.account_type  
+    // return parseInt(param) == bank.ACCOUNT_TYPE_PERSONAL;
+    return bank.isAccountOfType(param, bank.ACCOUNT_TYPE_PERSONAL)
+  },
   isBusinessAccount : (param) => {
-    if(typeof param !== 'number' && typeof param !== 'string')
-      param = param.account_type  
-    return parseInt(param) == bank.ACCOUNT_TYPE_BUSINESS;
+    // if(typeof param !== 'number' && typeof param !== 'string')
+    //   param = param.account_type  
+    // return parseInt(param) == bank.ACCOUNT_TYPE_BUSINESS;
+    return bank.isAccountOfType(param, bank.ACCOUNT_TYPE_BUSINESS)
   },
   isFoundationAccount : (param) => {
-    if(typeof param !== 'number' && typeof param !== 'string')
-      param = param.account_type  
-    return parseInt(param) == bank.ACCOUNT_TYPE_FOUNDATION;
+    // if(typeof param !== 'number' && typeof param !== 'string')
+    //   param = param.account_type  
+    // return parseInt(param) == bank.ACCOUNT_TYPE_FOUNDATION;
+    return bank.isAccountOfType(param, bank.ACCOUNT_TYPE_FOUNDATION)
   },
   isAdminAccount : (param) => {
-    if(typeof param !== 'number' && typeof param !== 'string')
-      param = param.account_type  
-    return parseInt(param) == bank.ACCOUNT_TYPE_BANKADMIN;
+    // if(typeof param !== 'number' && typeof param !== 'string')
+    //   param = param.account_type  
+    // return parseInt(param) == bank.ACCOUNT_TYPE_BANKADMIN;
+    return bank.isAccountOfType(param, bank.ACCOUNT_TYPE_BANKADMIN)
   },
   isEnabledAccount : (account_state) => {
     return parseInt(account_state) == bank.ACCOUNT_STATE_OK;
