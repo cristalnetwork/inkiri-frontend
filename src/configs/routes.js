@@ -21,6 +21,7 @@ export const pathNames = utils.arrToObj([
     'bankadminAdministration',
     'bankadminAccounts',
     'bankadminAccounts_Account',
+    'bankadminAccounts_AccountEx',
     'bankadminAccounts_CreateAccount',
     'bankadminProfiles',
     'bankadminProfiles_Profile',
@@ -172,6 +173,15 @@ const bankadmin = [
        fileName:    'account',
        area:        'bankadmin',
        path:        'account',
+       container:   'dashboard',
+       role:        'bankadmin'
+    },
+    {
+       key:         pathNames.bankadminAccounts_AccountEx,
+       father_key:  '*',
+       fileName:    'account_ex',
+       area:        'bankadmin',
+       path:        'account_ex',
        container:   'dashboard',
        role:        'bankadmin'
     },

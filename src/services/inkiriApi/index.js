@@ -403,9 +403,7 @@ export const issueMoney = async (issuer_account, issuer_priv, receiver_account, 
 export const setAccountPermission = async (account, account_priv, permission_name, authority_obj, parent) => { 
 
   if(!parent)
-    parent='owner';
-
-  // delete authority_obj.waits;
+    parent=""; //parent='owner';
 
   const permAction = {
     account: 'eosio',
@@ -433,7 +431,7 @@ export const setAccountPermission = async (account, account_priv, permission_nam
 
 const default_perm = {
             "perm_name": "active",
-            "parent": "owner",
+            "parent": "", //"parent": "owner",
             "required_auth":
             {
                 "threshold": 1,
@@ -463,6 +461,8 @@ export const getNewPermissionObj = (eos_account_object, permissioned, perm_name)
   if(!perm || perm.length==0)
   {
     perm = Object.assign({}, default_perm);
+    // if(perm_name==='owner')
+    //   delete perm.parent;
     perm.perm_name = perm_name;
     perm.required_auth.accounts.push(new_perm)
   }

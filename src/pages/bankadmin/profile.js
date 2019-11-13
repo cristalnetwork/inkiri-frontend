@@ -29,8 +29,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import BankAccountForm from '@app/components/Form/bank_account';
 import ProfileForm from '@app/components/Form/profile';
-import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/pages/personal/configuration/profile';
-import Skeleton from '@app/pages/personal/configuration/skeleton';
+import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/components/Views/profile';
+import Skeleton from '@app/components/Views/skeleton';
 
 
 const ACTIVE_TAB_PROFILE               = 'active_tab_profile';
@@ -173,7 +173,7 @@ class Profile extends Component {
     // console.log(' >> onAddOrUpdateBankAccount:: bank_accounts: ', JSON.stringify(bank_accounts))
     api.bank.updateUserBankAccounts(profile.id, bank_accounts)
       .then((res)=>{
-        that.props.loadProfile(that.props.actualAccountName);
+        that.reload();
         that.openNotificationWithIcon("success", "Bank account saved successfully")    
         that.resetPage(ACTIVE_TAB_PROFILE);
         // console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(res));

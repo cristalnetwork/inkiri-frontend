@@ -164,7 +164,7 @@ h3.fileds_header{
 .display_block.addresse-avatar{top:0px;}
 
 
-
+/* FORMS -> LABELS are shown if text is not empty ... NOT WORKING! */
 .with_labels .money-transfer__row:has(>input:placeholder-shown )  label
 {
   background-color: #00ff00!important;
@@ -181,4 +181,14 @@ h3.fileds_header{
 .with_labels .money-transfer__row label::before,
 .with_labels .money-transfer__row label::after{
   display:none!important;
+}
+
+/* AMOUNT DISPLAYS */
+.c-ticket__row .c-ticket__title_small
+, .c-ticket__row .price-tag_small
+, .c-ticket__row .price-tag_small .price-tag.price-tag-symbol
+, .c-ticket__row .price-tag_small .price-tag.price-tag-fraction{
+  font-weight: 400!important;
+  font-size: 1.2em!important;
+  line-height: 1.6em!important; 
 }

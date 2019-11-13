@@ -7,7 +7,7 @@ import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import Skeleton from '@app/pages/personal/configuration/skeleton';
+import Skeleton from '@app/components/Views/skeleton';
 
 import TransactionCard from '@app/components/TransactionCard';
 import TransactionPetitioner from '@app/components/TransactionCard/petitioner';

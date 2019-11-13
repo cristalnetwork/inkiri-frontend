@@ -28,8 +28,8 @@ import './configuration.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import BankAccountForm from '@app/components/Form/bank_account';
-import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from './configuration/profile';
-import Skeleton from '@app/pages/personal/configuration/skeleton';
+import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/components/Views/profile';
+import Skeleton from '@app/components/Views/skeleton';
 
 
 const ACTIVE_TAB_PROFILE               = 'active_tab_profile';

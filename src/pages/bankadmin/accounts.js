@@ -92,16 +92,23 @@ class AdminAccounts extends Component {
 
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
+    // this.props.history.push({
+    //   pathname: `/${this.props.actualRole}/account`
+    //   , state: { 
+    //       referrer: this.props.location.pathname,
+    //       account:  account
+    //     }
+    // })
+
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/account`
+      pathname: `/${this.props.actualRole}/account_ex`
       , state: { 
           referrer: this.props.location.pathname,
-          account:  account
+          account:  this.state.accounts[0]
         }
     })
 
   }
-
 
   loadAccounts = async () => {
 

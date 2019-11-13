@@ -68,7 +68,7 @@ export const getColumns              = (callback) => {
         sorter: (a, b) => a.block_time_number - b.block_time_number,
         align: 'right',
         render: (block_time, record) => (
-          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin">
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
             {request_helper.getStyledAmount(record, false, false)}
             {request_helper.getStyledDate(record)}
           </div>
@@ -146,7 +146,7 @@ export const getColumnsForPersonalExtrato = (callback, account_type) => {
     render: (block_time, record) => {
       const negative = request_helper.blockchain.isNegativeTransaction(record)
       return (
-          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin">
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
             {request_helper.getStyledAmount(record, false, negative)}
             {request_helper.getStyledDate(record)}
           </div>
@@ -239,7 +239,7 @@ export const getDefaultColumns = (account_type, callback) => {
     render: (block_time, record) => {
       const negative = request_helper.blockchain.isNegativeTransaction(record)
       return (
-          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin">
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
             {request_helper.getStyledAmount(record, false, negative)}
             {request_helper.getStyledDate(record)}
           </div>
@@ -318,7 +318,7 @@ export const getColumnsForOperations = (callback, account_type) => {
     render: (block_time, record) => {
       const negative = request_helper.blockchain.isNegativeTransaction(record)
       return (
-          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin">
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
             {request_helper.getStyledAmount(record, false, negative)}
             {request_helper.getStyledDate(record)}
           </div>
@@ -382,7 +382,7 @@ export const columnsForAccounts = (callback) => {
         key: 'balance',
         align: 'right',
         render: (balance, record) => (
-          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin">
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
             {request_helper.getStyledBalance(record)}
           </div>
           )

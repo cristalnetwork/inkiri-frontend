@@ -36,13 +36,14 @@ const bank = {
   //   return bank.ACCOUNT_TYPES.indexOf(account_string);
   // },
   ACCOUNT_ICONS:           ['none', 'user', 'shop', 'home', 'bank'],
-  listPermsByAccountType : () => {
-   return {
+  getPermsForAccountType : (account_type) => {
+   const perms = {
         [bank.ACCOUNT_TYPE_PERSONAL]     : ['owner', 'active', 'viewer']
         , [bank.ACCOUNT_TYPE_BUSINESS  ] : ['owner', 'active', 'pdv', 'viewer']
         , [bank.ACCOUNT_TYPE_FOUNDATION] : ['owner', 'active', 'viewer']
         , [bank.ACCOUNT_TYPE_BANKADMIN ] : ['owner', 'active', 'pda', 'viewer']
         }
+    return perms[account_type];
   },
   listAccountTypes   : () => { 
     //return [bank.ACCOUNT_TYPE_PERSONAL, bank.ACCOUNT_TYPE_BUSINESS, bank.ACCOUNT_TYPE_FOUNDATION, bank.ACCOUNT_TYPE_BANKADMIN];

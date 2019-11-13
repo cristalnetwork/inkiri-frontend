@@ -83,7 +83,10 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
   }
 
   if (typeof data !== "undefined" && data && method=="GET") {
-    fetchOptions.qs = data;
+    // console.log(' API CALL usando QS:', data); 
+    // fetchOptions.qs = data;
+    // path = path + $.param(qs)
+    path = path + '?' + Object.keys(data).map(key => `${key}=${data[key]}`).join('&')
   }
 
   if(do_log) console.log( ' ###### jwtHelper::apiCall >> path:', path);

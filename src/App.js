@@ -7,13 +7,13 @@ import './App.css';
 import './App.less';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faExternalLinkAlt, faQuestionCircle, faMagic, faCreditCard, faPaperPlane, faShoppingBag, faStore, faExchangeAlt, faArrowUp, faArrowDown, faArrowAltCircleUp, faUniversity, faPhone, faMapMarkerAlt, faIdCard, faUser, faUserCircle, faDollarSign, faEnvelope, faFlagCheckered, faUserClock, faCloud, faFilePdf, faTruckMoving, faFileInvoice, faFileInvoiceDollar, faReceipt, faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { faUserShield, faExternalLinkAlt, faQuestionCircle, faMagic, faCreditCard, faPaperPlane, faShoppingBag, faStore, faExchangeAlt, faArrowUp, faArrowDown, faArrowAltCircleUp, faUniversity, faPhone, faMapMarkerAlt, faIdCard, faUser, faUserCircle, faDollarSign, faEnvelope, faFlagCheckered, faUserClock, faCloud, faFilePdf, faTruckMoving, faFileInvoice, faFileInvoiceDollar, faReceipt, faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { fab } from '@fortawesome/free-brands-svg-icons';
 
 const App = () =>{
     
 
-    library.add(fab, faExternalLinkAlt, faQuestionCircle, faMagic, faCreditCard, faPaperPlane, faShoppingBag, faStore, faExchangeAlt, faArrowUp, faArrowDown, faArrowAltCircleUp, faUniversity, faMapMarkerAlt, faPhone, faIdCard, faUser, faUserCircle, faDollarSign, faEnvelope, faFlagCheckered, faUserClock, faCloud, faTruckMoving, faFileInvoiceDollar, faFileInvoice, faReceipt, faFilePdf, faChevronRight)
+    library.add(fab, faUserShield, faExternalLinkAlt, faQuestionCircle, faMagic, faCreditCard, faPaperPlane, faShoppingBag, faStore, faExchangeAlt, faArrowUp, faArrowDown, faArrowAltCircleUp, faUniversity, faMapMarkerAlt, faPhone, faIdCard, faUser, faUserCircle, faDollarSign, faEnvelope, faFlagCheckered, faUserClock, faCloud, faTruckMoving, faFileInvoiceDollar, faFileInvoice, faReceipt, faFilePdf, faChevronRight)
 
     return (
       <div className="App">

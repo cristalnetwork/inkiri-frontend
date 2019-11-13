@@ -19,10 +19,12 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Badge, Skeleton, List, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
+import TxResult from '@app/components/TxResult';
+import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
+
+import { Result, Badge, Skeleton, List, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
-const { Paragraph, Text } = Typography;
 
 class Account extends Component {
   constructor(props) {
@@ -300,31 +302,23 @@ class Account extends Component {
         </Card>
       ); 
     }
-    if(result=='ok')
+
+    if(['ok', 'error'].includes(result))
     {
-      const tx_id = api.dfuse.getTxId(result_object?result_object.data:{});
-      const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
-      // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
+      const result_type = this.state.result;
+      const title       = null;
+      const message     = null;
+      const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
+      const error       = this.state.error
       
-      return (
-        <div style={{ margin: '0 0px', padding: 24, background: '#fff'}}>
-          <Result
-            status="success"
-            title="Transaction completed successfully!"
-            subTitle={`Transaction id "+tx_id+". Cloud server takes up to 30 seconds, please wait.`}
-            extra={[
-              <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
-                Go to dashboard
-              </Button>,
-              <Button  key="go-to-accounts" onClick={()=>this.backToAccount()}>
-                Back to Accounts
-              </Button>,
-              <Button shape="circle" icon="close" key="close" onClick={()=>this.resetPage()} />,
-              <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>,
-              
-            ]}
-          />
-        </div>)
+      const result = (<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />);
+      return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+                <div className="ly-main-content content-spacing cards">
+                  <section className="mp-box mp-box__shadow money-transfer__box">
+                    {result}
+                  </section>
+                </div>      
+              </div>);
     }
 
     //
@@ -345,46 +339,6 @@ class Account extends Component {
               </Result>
         </div>)
     }
-
-    if(result=='error')
-    {
-      const {title, content} = this.state.error;
-      // <Button key="re-send">Try sending again</Button>,
-      return (
-        <div style={{ margin: '0 0px', padding: 24, background: '#fff'}}>
-          <Result
-                status="error"
-                title={title}
-                subTitle="Please check and modify the following information before resubmitting."
-                extra={[
-                  <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>Go to dashboard</Button>,
-                  <Button shape="circle" icon="close" key="close" onClick={()=>this.resetPage()} />
-                ]}
-              >
-                <div className="desc">
-                  <Paragraph>
-                    <Text
-                      strong
-                      style={{ fontSize: 16, }}
-                    >
-                      The content you submitted has the following error:
-                    </Text>
-                  </Paragraph>
-                  <Paragraph>
-                    <Icon style={{ color: 'red' }} type="close-circle" /> {title}
-                  </Paragraph>
-                </div>
-              </Result>
-        </div>)
-    }
-    
-    // ** hack for sublime renderer ** //
-    /*
-      <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-        <Form onSubmit={this.handleSubmit}>
-        </Form>
-      </Spin>
-    */
     if(!this.state.account)
       return(null);
 
@@ -392,8 +346,8 @@ class Account extends Component {
 
     const {account_type} = this.state.account;
     const permConf = globalCfg.bank.listPermsByAccountType();
-    
     const xx = this.renderAllPerms(permConf[account_type]);
+    const permConf       = globalCfg.bank.getPermsForAccountType(account_type);
     return <>{xx}</>;
 
   }
