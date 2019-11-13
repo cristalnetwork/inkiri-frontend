@@ -43,6 +43,7 @@ class ProfileForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      mode            : props.mode || 'full',
       profile         : props.profile || DEFAULT_STATE,
       alone_component : props.alone_component || false,
       button_text     : props.button_text || 'SUBMIT',
@@ -58,6 +59,7 @@ class ProfileForm extends Component {
   {
       if(prevProps.profile !== this.props.profile) {
           this.setState({
+            mode            : this.props.mode || 'full',
             profile         : this.props.profile || DEFAULT_STATE,
             alone_component : this.props.alone_component || false,
             button_text     : this.props.button_text || 'SUBMIT',
@@ -142,10 +144,11 @@ class ProfileForm extends Component {
   }
 
   renderContent() {  
-    const { profile, button_text } = this.state;
+    const { mode, profile, button_text } = this.state;
     const { getFieldDecorator }    = this.props.form;
-    return (
-      <Form onSubmit={this.handleSubmit} className="with_labels">
+    if(mode=='full')
+      return (
+        <Form onSubmit={this.handleSubmit} className="with_labels">
             <div className="money-transfer">
               {this.getStringItem(profile , 'account_name'  , 'Account name' , 'Please input a valid account name!', true)}
 
@@ -175,9 +178,24 @@ class ProfileForm extends Component {
             </div>
 
         </Form>
-     
     );
+    //
 
+    return (<Form onSubmit={this.handleSubmit} className="with_labels">
+            <div className="money-transfer">
+              {this.getStringItem(profile , 'account_name'  , 'Account name' , 'Please input a valid account name!', true)}
+
+              {this.getStringItem(profile , 'business_name'    , 'Business name' , 'Please input a valid business name!')}
+              {this.getStringItem(profile , 'alias'    , 'IUGU alias'   , 'Please input a valid alias!')}
+
+            </div>
+            
+            <div className="mp-box__actions mp-box__shore">
+                <Button size="large" key="updateProfile" htmlType="submit" type="primary" >{button_text}</Button>
+                <Button size="large" key="cancelProfile" type="link" onClick={ () => this.fireEvent(null, true, null)}>CANCEL</Button>
+            </div>
+
+        </Form>);
   }
   //
 

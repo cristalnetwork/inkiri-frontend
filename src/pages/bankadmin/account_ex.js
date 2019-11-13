@@ -30,7 +30,6 @@ import * as utils from '@app/utils/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import ProfileForm from '@app/components/Form/profile';
-import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/components/Views/profile';
 import Skeleton from '@app/components/Views/skeleton';
 import AccountView , {ENUM_EVENT_EDIT_PROFILE_ALIAS}from '@app/components/Views/account';
 import AccountRolesView, {ENUM_EVENT_NEW_PERMISSION, ENUM_EVENT_DELETE_PERMISSION} from '@app/components/Views/roles';
@@ -40,6 +39,7 @@ import AddRoleForm from '@app/components/Form/add_role';
 // const ACTIVE_TAB_PROFILE_EDIT_PROFILE  = 'active_tab_profile_edit_profile';
 // const ACTIVE_TAB_PROFILE_BANK_ACCOUNT  = 'active_tab_profile_add_or_update_bank_account';
 const ACTIVE_TAB_INFO                  = 'active_tab_info';
+const ACTIVE_TAB_INFO_EDIT_ALIAS       = 'active_tab_info_edit_alias';
 const ACTIVE_TAB_EXTRATO               = 'active_tab_extrato';
 const ACTIVE_TAB_ROLES                 = 'active_tab_roles';
 const ACTIVE_TAB_ROLES_NEW             = 'active_tab_roles_new';
@@ -79,6 +79,8 @@ class Profile extends Component {
     this.onCancelNewPermission      = this.onCancelNewPermission.bind(this);
     this.addPermission              = this.addPermission.bind(this);
     this.onAddPermission            = this.onAddPermission.bind(this);
+    this.onUpdateProfile            = this.onUpdateProfile.bind(this);
+    
     
   }
  
@@ -214,6 +216,7 @@ class Profile extends Component {
     switch (event_type){
       case ENUM_EVENT_EDIT_PROFILE_ALIAS:
       console.log(' EVENTO -> ', ENUM_EVENT_EDIT_PROFILE_ALIAS);
+      this.setState({active_tab_action:ACTIVE_TAB_INFO_EDIT_ALIAS, active_tab_object:this.state.profile});
       break;
       // case ENUM_EVENT_EDIT_PROFILE:
       //   // this.openNotificationWithIcon("info", "We are developing this function!")    
@@ -228,6 +231,47 @@ class Profile extends Component {
       default:
         break;
     }
+  }
+
+  onUpdateProfile(error, cancel, values){
+    if(cancel)
+    {
+      this.setState({  
+          active_tab_action:   ACTIVE_TAB_INFO, 
+          active_tab_object:   null
+      });
+      return;
+    }
+    if(error)
+    {
+      return;
+    }
+  
+    const that                = this;
+    const {id, account_name, account_type, first_name, last_name, email, legal_id, birthday, phone, address}  = this.state.profile;
+    const new_profile         = values;
+    const {business_name, alias} = new_profile;
+    
+    this.setState({active_tab_object:values, pushingTx:true})
+    // console.log(' >> profile::OLD values: ', JSON.stringify(profile))
+    // console.log(' >> profile::NEW values: ', JSON.stringify(new_profile))
+    
+    api.bank.createOrUpdateUser(id, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias)
+      .then((res)=>{
+        that.openNotificationWithIcon("success", "Alias updated successfully")    
+        that.reloadProfile();
+        that.resetPage(ACTIVE_TAB_INFO);
+        // console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(res));
+        // that.setState({result:'ok'});
+        // that.setState({pushingTx:false});
+
+      }, (err)=>{
+        console.log(' >> onUpdateProfile >> ', JSON.stringify(err));
+        that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
+        that.setState({pushingTx:false});
+      })
+
+
   }
 
   onTabChange(key) {
@@ -304,21 +348,22 @@ class Profile extends Component {
     const { account, active_tab, active_tab_action, active_tab_object, pushingTx } = this.state;
     
     if(active_tab==ACTIVE_TAB_INFO){
-      // if(active_tab_action==ACTIVE_TAB_PROFILE_EDIT_PROFILE)
-      // {
-      //   const button_text = active_tab_object?'UPDATE BANK ACCOUNT':'ADD BANK ACCOUNT';
-      //   return (
-      //     <Skeleton 
-      //       content={
-      //         <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
-      //           <ProfileForm 
-      //             profile={this.state.profile} 
-      //             alone_component={false} 
-      //             button_text={'SAVE CHANGES'} 
-      //             callback={this.onUpdateProfile}/>
-      //         </Spin>} 
-      //       icon="user" />  );
-      // }
+      if(active_tab_action==ACTIVE_TAB_INFO_EDIT_ALIAS)
+      {
+        const button_text = 'UPDATE ALIAS';
+        return (
+          <Skeleton 
+            content={
+              <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+                <ProfileForm 
+                  profile={this.state.profile} 
+                  alone_component={false} 
+                  button_text={button_text} 
+                  callback={this.onUpdateProfile}
+                  mode="alias" />
+              </Spin>} 
+            icon="user" />  );
+      }
 
       return (
         <AccountView profile={this.state.profile} account={this.state.account} onEvent={()=>this.onAccountEvents}/>
