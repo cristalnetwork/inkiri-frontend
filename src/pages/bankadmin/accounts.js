@@ -336,6 +336,40 @@ class AdminAccounts extends Component {
 
   //
   renderTableViewStats(){
+<<<<<<< HEAD
+=======
+    const {total, pending, negative_balance, personal, business, admin, foundation} = this.currentStats();  
+    const items = [
+        stats_helper.buildItemSimple('TOTAL', total)
+        , stats_helper.buildItemPending('PENDING', pending)
+        , stats_helper.buildItemSimple('NEGATIVE', negative_balance, '#cf1322')
+        , stats_helper.buildItemSimple('PERSONAL', personal)
+        , stats_helper.buildItemSimple('BUSINESS', business)
+        , stats_helper.buildItemSimple('ADMIN', admin)
+      ]
+    return (<TableStats title="STATS" stats_array={items}/>)
+  }
+
+  renderContent(){
+
+    return (
+      <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
+        <Table
+            key="table_all_txs" 
+            rowKey={record => record.key} 
+            loading={this.state.loading} 
+            columns={this.getColumns()} 
+            dataSource={this.state.accounts} 
+            footer={() => this.renderFooter()}
+            pagination={this.state.pagination}
+            scroll={{ x: 700 }}
+            />
+      </div>
+      )
+  }
+
+  renderUMIContent(){
+>>>>>>> 3b3f17e3f4441382512e418abb05354d4f04ba07
     const {total, pending, negative_balance, personal, business, admin, foundation} = this.currentStats();  
     const items = [
         stats_helper.buildItemSimple('TOTAL', total)
