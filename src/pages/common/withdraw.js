@@ -139,45 +139,37 @@ class WithdrawMoney extends Component {
   handleSubmit = e => {
     e.preventDefault();
     const that = this;
-    // that.setState({pushingTx:true});
     
     this.props.form.validateFields((err, values) => {
       if(err){
         this.openNotificationWithIcon("error", 'Form error ', 'Please verify on screen errors.');
-        // that.setState({pushingTx:false});
         return;
       }
 
       const {input_amount} = this.state;
       if(isNaN(input_amount.value) || parseFloat(input_amount.value)<=0)
       {
-        that.setState({pushingTx:false});
         that.openNotificationWithIcon("error", this.state.input_amount.value + " > valid number required","Please type a valid number greater than 0!")    
         return;
       }
       
       if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
       {
-        that.setState({pushingTx:false});
         const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
         that.openNotificationWithIcon("error", `Amount must be equal or less than your balance ${balance_txt}!`); //`
         return;
       }
 
-
       
       const sender         = this.props.actualAccountName;
       const privateKey     = this.props.actualPrivateKey;
-      
-      // const signer       = this.props.personalAccount.permissioner.account_name;
       const amount       = input_amount.value;
-      let that           = this;
-
+      
       Modal.confirm({
         title: 'Confirm withdraw request',
         content: 'Please confirm withdraw for '+this.inputAmountToString(),
         onOk() {
-
+          that.setState({pushingTx:true});
           api.bank.createWithdraw(sender, amount)
             .then((data)=>{
               console.log(' >> doWithdraw >> ', JSON.stringify(data));
@@ -225,7 +217,7 @@ class WithdrawMoney extends Component {
         },
         onCancel() {
           console.log('Cancel');
-          that.setState({pushingTx:false})
+          // that.setState({pushingTx:false})
         },
       });
     });
@@ -244,12 +236,12 @@ class WithdrawMoney extends Component {
     if(this.state.result)
     {
       const result_type = this.state.result;
-      const title       = 'Request completed succesfully.';
-      const message     = 'Please receive the paper money at the closest PDA.';
+      // const title       = 'Request completed succesfully.';
+      const message     = result_type=='ok'?'Please pick up the paper money at the closest PDA.':null;
       const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error
       
-      return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
+      return(<TxResult result_type={result_type} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
     }
 
     const { getFieldDecorator }               = this.props.form;

@@ -171,7 +171,7 @@ class DepositMoney extends Component {
     this.props.form.validateFields((err, values) => {
       if(err){
         that.openNotificationWithIcon("error", 'Form error ', 'Please verify on screen errors.');
-        that.setState({pushingTx:false});
+        // that.setState({pushingTx:false});
         return;
       }
       
@@ -182,7 +182,7 @@ class DepositMoney extends Component {
         content: 'Please confirm deposit for '+this.inputAmountToString()+' to ' + sender,
         onOk() {
           const {input_amount} = that.state;
-
+          that.setState({pushingTx:true});
           api.bank.createDeposit(sender, input_amount.value, input_amount.symbol)
             .then((res)=>{
               console.log(' >> doDeposit >> ', JSON.stringify(res));
@@ -191,7 +191,7 @@ class DepositMoney extends Component {
 
             }, (err)=>{
               that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
-              that.setState({result:'error', error:err});
+              that.setState({result:'error', error:err, pushingTx:true});
             })
           
         },
