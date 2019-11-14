@@ -345,9 +345,9 @@ class Account extends Component {
     // (<div style={{ margin: '24px 0', padding: 0, background: '#fff'}}></div>)
 
     const {account_type} = this.state.account;
-    const permConf = globalCfg.bank.listPermsByAccountType();
-    const xx = this.renderAllPerms(permConf[account_type]);
     const permConf       = globalCfg.bank.getPermsForAccountType(account_type);
+    const xx             = this.renderAllPerms(permConf);
+    
     return <>{xx}</>;
 
   }

@@ -170,7 +170,8 @@ export const getStyledAmount = (request, mp_style, negative) => {
 }
 //
 export const getStyledDate = (request) => {
-  return (<time className="c-activity-row__time">{request.block_time.replace('T',' ')}</time>)
+  const my_date = (request.block_time?request.block_time:request.paid_at)
+  return (<time className="c-activity-row__time">{my_date.replace('T',' ')}</time>)
 }
 //
 export const getStyledBalance = (record, full) => {
@@ -262,5 +263,48 @@ export const blockchain = {
     // TYPE_REFUND
     // TYPE_UPSERT
     // TYPE_UNKNOWN
+  }
+}
+
+/*
+* Helper functions for blockchain transcations
+*/
+//
+export const iugu = {
+  STATE_NOT_PROCESSED : 'state_not_processed'
+  , STATE_ISSUED        : 'state_issued'
+  , STATE_ERROR         : 'state_error'
+  , STATE_ISSUE_ERROR   : 'state_issue_error'
+  , stateIcon : (invoice) => {return (<img src="/images/iugu_logovertical.png" width="125%" alt="iugu" />)}
+  , header : (invoice) => { return `${globalCfg.currency.toCurrencyString(invoice.amount)} paid to ${invoice.receipt_alias}`}
+  , stateLabel : (invoice) => { 
+      const states = { 
+        [iugu.STATE_NOT_PROCESSED] : { color:'#fa8c16', icon:'user-clock' , description: 'NOT PROCESSED YET'},
+        [iugu.STATE_ISSUED]        : { color:'green',   icon:'flag-checkered' , description: 'ISSUED!'},
+        [iugu.STATE_ERROR]         : { color:'red',     icon:'exclamation-circle' , description: 'ERROR'},
+        [iugu.STATE_ISSUE_ERROR]   : { color:'red',     icon:'exclamation-circle' , description: 'ISSUE ERROR'},
+      };
+      const my_state = states[invoice.state];                    
+      const icon     = (<FontAwesomeIcon icon={my_state.icon} size="xs" color={my_state.color} />);
+      return (<span style={{color:my_state.color}} key={'state_'+invoice.id}>{my_state.description}&nbsp;{icon}</span>)
+
+    }
+    //
+  , iuguLink : (invoice) => {
+      const icon = (<FontAwesomeIcon icon="external-link-alt" />);
+      // const icon = (<img src="/images/iugu_logovertical.png" width="40px" alt="iugu" />);
+      const href = invoice.original.secure_url;
+      const key = 'key_iugu_link_'+Math.random(); 
+      return (<Button type="link" href={href} target="_blank" key={key} size={'default'} style={{color:'inherit', paddingLeft:0}}>IUGU invoice &nbsp; {icon}</Button>)
+    }
+ //
+  , styledAmount : (invoice, negative) => {
+    const style = {color:(negative?'red':'inherit'), fontSize:16};
+    return (<span style={style} key={'amount_'+invoice.id}>{ (negative?'-':'') + globalCfg.currency.toCurrencyString(invoice.amount)}</span>)
+  }
+//
+  , styledDate : (invoice) => {
+    const my_date = invoice.paid_at.replace('T',' ').split('.')[0];
+    return (<time className="c-activity-row__time">{my_date}</time>)
   }
 }

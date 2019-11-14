@@ -520,3 +520,71 @@ export const columnsForProfiles = (callback) => {
       }
     ];
 }
+
+//
+
+export const columnsForIUGU = (callback) => {
+    
+    return [
+      {
+        title: 'Description',
+        dataIndex: 'sub_header',
+        key: 'sub_header',
+        render: (value, record) => {
+          return(
+            <span className="name_value_row">
+              <div className="row_name centered" >
+                {request_helper.iugu.stateIcon(record)} 
+              </div>
+              <div className="row_value wider">
+                <span className="row_tx_description">
+                  {request_helper.iugu.header(record)}
+                </span> 
+                <br/>{request_helper.iugu.stateLabel(record)}
+              </div>   
+            </span>)
+        }
+      },
+      {
+        title: 'Tags',
+        key: 'tx_type',
+        dataIndex: 'tx_type',
+        render: (tx_type, record) => {
+          
+          return (
+            <span key={'tags'+record.id}>
+               {record.error}
+            </span>
+            )}
+      },
+      //
+      {
+        title: 'Action',
+        key: 'action',
+        width: 100,
+        render: (text, record) => {
+          const iugu        = request_helper.iugu.iuguLink(record);
+          const process     = request_helper.getProcessButton(record, callback, 'Details');
+          const blockchain  = record.issued_tx_id?request_helper.getBlockchainLink(record.issued_tx_id, true):(null);
+          return (<>{process}{iugu}{blockchain}</>)
+        }
+      },
+
+      {
+        title: 'Amount and date',
+        
+        dataIndex: 'paid_at',
+        key: 'paid_at',
+        sortDirections: ['descend'],
+        defaultSortOrder: 'descend',
+        sorter: (a, b) => a.paid_at - b.paid_at,
+        align: 'right',
+        render: (paid_at, record) => (
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
+            {request_helper.iugu.styledAmount(record, false)}
+            {request_helper.iugu.styledDate(record)}
+          </div>
+          )
+      }
+    ];
+}

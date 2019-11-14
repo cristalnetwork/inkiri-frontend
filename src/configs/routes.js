@@ -15,6 +15,8 @@ export const pathNames = utils.arrToObj([
     'bankadminOperations',
     'bankadminExternalTransfers',
     'bankadminExternalTransfers_ProcessExternal',
+    'bankadminIugu',
+    'bankadminIugu_Details',
     'bankadminConfiguration',
     'bankadminPAP',
 
@@ -149,6 +151,23 @@ const bankadmin = [
        path:        'external-transfers-process-request',
        container:   'dashboard',
        role:        'bankadmin'
+    },
+    {
+       key: pathNames.bankadminIugu,
+       fileName: 'iugu',
+       area: 'bankadmin',
+       path: 'iugu',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+    {
+       key: pathNames.bankadminIugu_Details,
+       father_key : '*',
+       fileName: 'iugu_details',
+       area: 'bankadmin',
+       path: 'iugu-invoice',
+       container: 'dashboard',
+       role: 'bankadmin'
     },
     {
        key: pathNames.bankadminConfiguration,

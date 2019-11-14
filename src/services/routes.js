@@ -113,6 +113,11 @@ const routes  = {
                         key: routes_config.pathNames.bankadminPAP,
                         path: routes_config.pathNames.bankadminUnderConstruction,
                         title: 'Pre-Auth Payments',
+                    },
+                    {
+                        key: routes_config.pathNames.bankadminIugu,
+                        path: routes_config.pathNames.bankadminIugu,
+                        title: 'Iugu',
                     }
 
                 ]

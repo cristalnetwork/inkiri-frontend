@@ -744,3 +744,29 @@ export const createExchangeRequest      = (account_name, amount, bank_account, a
 });
 
 export const updateExchangeRequest      = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, state, tx_id);
+
+
+export const listIuguInvoices = (page, limit, filter) =>   new Promise((res,rej)=> {
+  
+  // alias
+  // account_name
+  // iugu_id
+  // state
+
+  console.log(' BANKAPI::LIST IUGU >> filter:', filter, '| page: ', page, ' | limit:', limit);
+  const path    = globalCfg.api.endpoint + '/iugu';
+  const method  = 'GET';
+  let qs = {
+      page       : (page||0)
+      , limit    : (limit||10),
+    };
+  if(filter)
+    qs = { ...qs , ...filter};
+
+  jwtHelper.apiCall(path, method, qs)
+    .then((data) => {
+        res(data)
+      }, (ex) => {
+        rej(ex);
+      });
+});

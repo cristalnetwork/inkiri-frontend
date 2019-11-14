@@ -189,12 +189,10 @@ class ProfileForm extends Component {
               {this.getStringItem(profile , 'alias'    , 'IUGU alias'   , 'Please input a valid alias!')}
 
             </div>
-            
             <div className="mp-box__actions mp-box__shore">
                 <Button size="large" key="updateProfile" htmlType="submit" type="primary" >{button_text}</Button>
                 <Button size="large" key="cancelProfile" type="link" onClick={ () => this.fireEvent(null, true, null)}>CANCEL</Button>
             </div>
-
         </Form>);
   }
   //
