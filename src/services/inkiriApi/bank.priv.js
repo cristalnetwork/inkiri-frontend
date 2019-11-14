@@ -746,6 +746,32 @@ export const createExchangeRequest      = (account_name, amount, bank_account, a
 export const updateExchangeRequest      = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, state, tx_id);
 
 
+export const processIuguInvoiceById = (iugu_invoice_id) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.endpoint + `/iugu_process/${iugu_invoice_id}`;
+  const method  = 'GET';
+  
+  jwtHelper.apiCall(path, method)
+    .then((data) => {
+        res(data)
+      }, (ex) => {
+        rej(ex);
+      });
+});
+
+export const getIuguInvoiceById = (iugu_invoice_id) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.endpoint + `/iugu/${iugu_invoice_id}`;
+  const method  = 'GET';
+  
+  jwtHelper.apiCall(path, method)
+    .then((data) => {
+        res(data)
+      }, (ex) => {
+        rej(ex);
+      });
+});
+
 export const listIuguInvoices = (page, limit, filter) =>   new Promise((res,rej)=> {
   
   // alias

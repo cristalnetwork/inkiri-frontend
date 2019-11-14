@@ -146,9 +146,9 @@ const api = {
   , isDeposit          : (request) => { return (request.tx_type==api.TYPE_DEPOSIT||request.requested_type==api.TYPE_DEPOSIT)}
   , isIKDeposit        : (request) => { return (api.isDeposit(request) && request.deposit_currency==api.FIAT_CURR_IK)}
   , isBRLDeposit       : (request) => { return (api.isDeposit(request) && request.deposit_currency==api.FIAT_CURR_BRL)}
-  , isWithdraw         : (request) => { return (request.tx_type==api.TYPE_WITHDRAW)}
-  , isProviderPayment  : (request) => { return (request.tx_type==api.TYPE_PROVIDER)}
-  , isExchange         : (request) => { return (request.tx_type==api.TYPE_EXCHANGE)}
+  , isWithdraw         : (request) => { return (request.tx_type==api.TYPE_WITHDRAW||request.requested_type==api.TYPE_WITHDRAW)}
+  , isProviderPayment  : (request) => { return (request.tx_type==api.TYPE_PROVIDER||request.requested_type==api.TYPE_PROVIDER)}
+  , isExchange         : (request) => { return (request.tx_type==api.TYPE_EXCHANGE||request.requested_type==api.TYPE_EXCHANGE)}
   , getTypes           : () => { return [ api.TYPE_DEPOSIT, api.TYPE_EXCHANGE, api.TYPE_PAYMENT, api.TYPE_PROVIDER, api.TYPE_SEND, api.TYPE_WITHDRAW, api.TYPE_SERVICE];}
   , STATE_REQUESTED             : 'state_requested'
   , STATE_PROCESSING            : 'state_processing'

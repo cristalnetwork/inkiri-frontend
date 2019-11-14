@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Tag, Icon } from 'antd';
+import { Alert, Button, Tag, Icon } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as request_helper from '@app/components/TransactionCard/helper';
 
@@ -550,10 +550,10 @@ export const columnsForIUGU = (callback) => {
         key: 'tx_type',
         dataIndex: 'tx_type',
         render: (tx_type, record) => {
-          
+          const error = (record.error)?(<Alert message={record.error} type="error" />):(null);
           return (
             <span key={'tags'+record.id}>
-               {record.error}
+               {error}
             </span>
             )}
       },
@@ -581,8 +581,8 @@ export const columnsForIUGU = (callback) => {
         align: 'right',
         render: (paid_at, record) => (
           <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
-            {request_helper.iugu.styledAmount(record, false)}
-            {request_helper.iugu.styledDate(record)}
+            {request_helper.iugu.styledAmount(record, (record.error))}
+            {request_helper.iugu.styledDate(record, 'Payment date')}
           </div>
           )
       }

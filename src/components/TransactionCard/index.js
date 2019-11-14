@@ -25,6 +25,8 @@ import TransactionBlockchain from '@app/components/TransactionCard/blockchain';
 import TransactionAttachments from '@app/components/TransactionCard/attachments';
 import TransactionEnvelope from '@app/components/TransactionCard/envelope';
 
+import TransactionBankAccount from '@app/components/TransactionCard/bank_account';
+
 const { Dragger } = Upload;
 
 // const icon_color_default = '#1890ff';
@@ -103,8 +105,12 @@ class TransactionCard extends Component {
           
           <TransactionEnvelope request={request} />
           
-          <TransactionProvider request={request}/>
-        
+          {
+            (globalCfg.api.isExchange(request))?
+            (<TransactionBankAccount bank_account={bank_account} alone_component={false} />)
+            :(<TransactionProvider request={request}/>)
+          }
+          
           <TransactionBlockchain request={request}/>
           
           <TransactionAttachments request={request} uploader={uploader}/>

@@ -275,9 +275,17 @@ export const iugu = {
   , STATE_ISSUED        : 'state_issued'
   , STATE_ERROR         : 'state_error'
   , STATE_ISSUE_ERROR   : 'state_issue_error'
-  , stateIcon : (invoice) => {return (<img src="/images/iugu_logovertical.png" width="125%" alt="iugu" />)}
-  , header : (invoice) => { return `${globalCfg.currency.toCurrencyString(invoice.amount)} paid to ${invoice.receipt_alias}`}
-  , stateLabel : (invoice) => { 
+  , inState : (state, ref) => {
+    if(typeof state !== 'string')
+      state = state.state
+    return state==ref;  
+  }
+  , isProcessing  : (invoice) => { return iugu.inState(invoice, iugu.STATE_NOT_PROCESSED);} 
+  , inError       : (invoice) => { return iugu.inState(invoice, iugu.STATE_ERROR);} 
+  , isIssued      : (invoice) => { return iugu.inState(invoice, iugu.STATE_ISSUED);} 
+  , stateIcon     : (invoice) => {return (<img src="/images/iugu_logovertical.png" width="125%" alt="iugu" />)}
+  , header        : (invoice) => { return `${globalCfg.currency.toCurrencyString(invoice.amount)} paid to ${invoice.receipt_alias}`}
+  , stateLabel    : (invoice) => { 
       const states = { 
         [iugu.STATE_NOT_PROCESSED] : { color:'#fa8c16', icon:'user-clock' , description: 'NOT PROCESSED YET'},
         [iugu.STATE_ISSUED]        : { color:'green',   icon:'flag-checkered' , description: 'ISSUED!'},
@@ -298,13 +306,13 @@ export const iugu = {
       return (<Button type="link" href={href} target="_blank" key={key} size={'default'} style={{color:'inherit', paddingLeft:0}}>IUGU invoice &nbsp; {icon}</Button>)
     }
  //
-  , styledAmount : (invoice, negative) => {
+  , styledAmount : (invoice, negative, show_negative) => {
     const style = {color:(negative?'red':'inherit'), fontSize:16};
-    return (<span style={style} key={'amount_'+invoice.id}>{ (negative?'-':'') + globalCfg.currency.toCurrencyString(invoice.amount)}</span>)
+    return (<span style={style} key={'amount_'+invoice.id}>{ ((negative&&show_negative)?'-':'') + globalCfg.currency.toCurrencyString(invoice.amount)}</span>)
   }
 //
-  , styledDate : (invoice) => {
+  , styledDate : (invoice, title) => {
     const my_date = invoice.paid_at.replace('T',' ').split('.')[0];
-    return (<time className="c-activity-row__time">{my_date}</time>)
+    return (<time className="c-activity-row__time" title={title||''}>{my_date}</time>)
   }
 }

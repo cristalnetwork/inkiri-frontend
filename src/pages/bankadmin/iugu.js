@@ -55,7 +55,7 @@ class Iugu extends Component {
     this.onNewData                  = this.onNewData.bind(this);
     // this.onTabChange                = this.onTabChange.bind(this);
     this.onTableChange              = this.onTableChange.bind(this);
-    this.onProcessRequestClick      = this.onProcessRequestClick.bind(this);
+    this.onInvoiceClick             = this.onInvoiceClick.bind(this);
   }
   
   componentDidMount(){
@@ -63,7 +63,7 @@ class Iugu extends Component {
   } 
 
   getColumns(){
-    return columns_helper.columnsForIUGU(this.onProcessRequestClick);
+    return columns_helper.columnsForIUGU(this.onInvoiceClick);
   }
   
   //
@@ -88,7 +88,6 @@ class Iugu extends Component {
     
     api.bank.listIuguInvoices(page, limit)
     .then( (res) => {
-        // console.log(JSON.stringify(res.slice(0,2)))
         that.onNewData(res);
       } ,(ex) => {
         // console.log('---- ERROR:', JSON.stringify(ex));
@@ -122,41 +121,37 @@ class Iugu extends Component {
     let stats = this.currentStats();
     if(txs===undefined)
       txs = this.state.txs;
-    const deposits      = txs.filter( tx => globalCfg.api.isDeposit(tx))
-                    .map(tx =>tx.quantity)
-                    .reduce((acc, amount) => acc + Number(amount), 0);
-    const withdraws     = txs.filter( tx => globalCfg.api.isWithdraw(tx))
-                    .map(tx =>tx.quantity)
-                    .reduce((acc, amount) => acc + Number(amount), 0);
+    const processed = txs.filter( tx => request_helper.iugu.isIssued(tx))
+                      .map(tx =>tx.amount)
+                      .reduce((acc, amount) => acc + Number(amount), 0);
+    const waiting   = txs.filter( tx => request_helper.iugu.isProcessing(tx))
+                      .map(tx =>tx.amount)
+                      .reduce((acc, amount) => acc + Number(amount), 0);
     
-    const deposits_ik   = txs.filter( tx => globalCfg.api.isIKDeposit(tx))
-                    .map(tx =>tx.quantity)
-                    .reduce((acc, amount) => acc + Number(amount), 0);
-    const deposits_brl  = txs.filter( tx => globalCfg.api.isBRLDeposit(tx))
-                    .map(tx =>tx.quantity)
-                    .reduce((acc, amount) => acc + Number(amount), 0);
-    const pending      = txs.filter( tx => globalCfg.api.isProcessPending(tx))
-                    .map(tx =>tx.quantity).length;
-
+    const error     = txs.filter( tx => request_helper.iugu.inError(tx))
+                      .map(tx =>tx.amount)
+                      .reduce((acc, amount) => acc + Number(amount), 0);
+    
+    const total     = error+waiting+processed;
+    
     stats[this.state.active_tab] = {
-        withdraws:     withdraws
-        , deposits:    deposits
+        processed : processed
+        , waiting : waiting
+        , error : error
+        , total : total
         , count:       txs.length
-        , deposits_ik: deposits_ik 
-        , deposits_brl:deposits_brl 
-        , pending:     pending};
+       };
 
     this.setState({stats:stats})
   }
 
   currentStats(){
     const x = this.state.stats[this.state.active_tab];
-    const _default = {deposits:0 
-              , withdraws:0
-              , count:0
-              , deposits_ik:0
-              , deposits_brl:0
-              , pending:0};
+    const _default = {processed: 0 
+                  , waiting:0 
+                  , error:0 
+                  , total:0
+                  , count:0};
     return x?x:_default;
   }
 
@@ -175,18 +170,17 @@ class Iugu extends Component {
       this.computeStats(txs);
   }
 
-  onProcessRequestClick(request){
+  onInvoiceClick(invoice){
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
     // ToDo: Move to common
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/external-transfers-process-request`
+      pathname: `/${this.props.actualRole}/iugu-invoice`
       , state: { 
-          request:  request, 
+          invoice:  invoice, 
           referrer: this.props.location.pathname
         }
     })
-
 
   }
 
@@ -291,13 +285,14 @@ class Iugu extends Component {
     //
   
   renderTableViewStats(){
-    const {exchanges, exchanges_pending, providers, providers_pending, total_out} = this.currentStats();  
+    const {processed, waiting, error, total, count} = this.currentStats();  
     const items = [
-        buildItemMoney('EXCHANGES', exchanges)
-        , buildItemMoneyPending('EXCHANGES PENDING', exchanges_pending)
-        , buildItemMoney('PROVIDERS PAY', providers)
-        , buildItemMoneyPending('PROVIDERS PAY PENDING', providers_pending)
-        , buildItemMoney('TOTAL OUT', total_out, '#cf1322')
+        buildItemMoney('ISSUED', processed)
+        , buildItemMoneyPending('PENDING', waiting)
+        , buildItemMoney('ERROR', error, '#cf1322')
+        , buildItemMoney('TOTAL', total)
+        , buildItemSimple('PAYMENTS', count)
+        
       ]
     return (<TableStats title="STATS" stats_array={items}/>)
   }

@@ -12,13 +12,14 @@ import Skeleton from '@app/components/Views/skeleton';
 import TransactionAccount from '@app/components/TransactionCard/account';
 import TransactionTitleAndAmount from '@app/components/TransactionCard/title_amount';
 import IuguAlias from '@app/components/TransactionCard/iugu_alias';
-// import TransactionTypeAndAmount from '@app/components/TransactionCard/type_and_amount';
+import TransactionTitle from '@app/components/TransactionCard/title';
 
+// import TransactionTypeAndAmount from '@app/components/TransactionCard/type_and_amount';
 // import TransactionCard from '@app/components/TransactionCard';
 // import TransactionPetitioner from '@app/components/TransactionCard/petitioner';
 // import TransactionProfile from '@app/components/TransactionCard/profile';
 // import TransactionBankAccount from '@app/components/TransactionCard/bank_account';
-import TransactionTitle from '@app/components/TransactionCard/title';
+
 
 export const ENUM_EVENT_EDIT_PROFILE_ALIAS      = 'event_edit_profile_alias';
 
