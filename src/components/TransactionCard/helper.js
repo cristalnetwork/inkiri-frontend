@@ -5,6 +5,7 @@ import * as utils from '@app/utils/utils';
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 import moment from 'moment';
+import IuguIconImage from '@app/components/TransactionCard/iugu_icon';
 
 export const envelopeIdFromRequest = (request) =>{
   return api.bank.envelopeIdFromRequest(request);
@@ -64,6 +65,11 @@ export const getStateTag = (request) => {
   // const text = utils.capitalize(globalCfg.api.stateToText(request.state));
   const text = globalCfg.api.stateToText(request.state).toUpperCase();
   return (<Tag color={globalCfg.api.stateToColor(request.state)} key={'state_'+request.id}>{text}</Tag>)
+}
+//
+export const errorStateTag = (text) =>
+{
+  return (<Tag color='red' key={Math.random()}>{text}</Tag>);
 }
 //
 export const getStateLabel = (request, with_waiting_icon) => {
@@ -133,7 +139,9 @@ export const getBlockchainLink = (tx_id, withIcon, size, text) => {
   if(!tx_id)
     return (null);
   const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
-  return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} icon={withIcon?'cloud':null} title="View on Blockchain">{text||'B-Chain'}</Button>)
+  const icon = (withIcon===undefined || withIcon)?(<FontAwesomeIcon icon="external-link-alt" />):(null);
+  // return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} icon={withIcon?'cloud':null} title="View on Blockchain" style={{color:'inherit', paddingLeft:0}}>{text||'Blockchain'}</Button>)
+  return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} title="View on Blockchain" style={{color:'inherit', paddingLeft:0}}>{text||'Blockchain'}&nbsp;{icon}</Button>)
 }
 //
 export const getProcessButton = (request, callback, text) => {
@@ -275,6 +283,13 @@ export const iugu = {
   , STATE_ISSUED        : 'state_issued'
   , STATE_ERROR         : 'state_error'
   , STATE_ISSUE_ERROR   : 'state_issue_error'
+  , getStates : () => { 
+        return {[iugu.STATE_NOT_PROCESSED] : { color:'#fa8c16', icon:'user-clock' , description: 'NOT PROCESSED YET'},
+                [iugu.STATE_ISSUED]        : { color:'green',   icon:'flag-checkered' , description: 'ISSUED!'},
+                [iugu.STATE_ERROR]         : { color:'red',     icon:'exclamation-circle' , description: 'ERROR'},
+                [iugu.STATE_ISSUE_ERROR]   : { color:'red',     icon:'exclamation-circle' , description: 'ISSUE ERROR'}};
+  }
+      
   , inState : (state, ref) => {
     if(typeof state !== 'string')
       state = state.state
@@ -283,24 +298,22 @@ export const iugu = {
   , isProcessing  : (invoice) => { return iugu.inState(invoice, iugu.STATE_NOT_PROCESSED);} 
   , inError       : (invoice) => { return iugu.inState(invoice, iugu.STATE_ERROR);} 
   , isIssued      : (invoice) => { return iugu.inState(invoice, iugu.STATE_ISSUED);} 
-  , stateIcon     : (invoice) => {return (<img src="/images/iugu_logovertical.png" width="125%" alt="iugu" />)}
+  , stateIcon     : (invoice) => { return (IuguIconImage); }
   , header        : (invoice) => { return `${globalCfg.currency.toCurrencyString(invoice.amount)} paid to ${invoice.receipt_alias}`}
+  , stateTag      : (invoice) => {
+      const my_state = iugu.getStates()[invoice.state];                    
+      // const icon     = (<FontAwesomeIcon icon={my_state.icon} size="xs" color={my_state.color} />);
+      return (<Tag color={my_state.color} key={'state_'+invoice.id}>{my_state.description}</Tag>)
+  }
+  //
   , stateLabel    : (invoice) => { 
-      const states = { 
-        [iugu.STATE_NOT_PROCESSED] : { color:'#fa8c16', icon:'user-clock' , description: 'NOT PROCESSED YET'},
-        [iugu.STATE_ISSUED]        : { color:'green',   icon:'flag-checkered' , description: 'ISSUED!'},
-        [iugu.STATE_ERROR]         : { color:'red',     icon:'exclamation-circle' , description: 'ERROR'},
-        [iugu.STATE_ISSUE_ERROR]   : { color:'red',     icon:'exclamation-circle' , description: 'ISSUE ERROR'},
-      };
-      const my_state = states[invoice.state];                    
+      const my_state = iugu.getStates()[invoice.state];                    
       const icon     = (<FontAwesomeIcon icon={my_state.icon} size="xs" color={my_state.color} />);
       return (<span style={{color:my_state.color}} key={'state_'+invoice.id}>{my_state.description}&nbsp;{icon}</span>)
-
     }
     //
-  , iuguLink : (invoice) => {
-      const icon = (<FontAwesomeIcon icon="external-link-alt" />);
-      // const icon = (<img src="/images/iugu_logovertical.png" width="40px" alt="iugu" />);
+  , iuguLink : (invoice, with_icon) => {
+      const icon = (with_icon===undefined || with_icon)?(<FontAwesomeIcon icon="external-link-alt" />):(null);
       const href = invoice.original.secure_url;
       const key = 'key_iugu_link_'+Math.random(); 
       return (<Button type="link" href={href} target="_blank" key={key} size={'default'} style={{color:'inherit', paddingLeft:0}}>IUGU invoice &nbsp; {icon}</Button>)
@@ -311,8 +324,11 @@ export const iugu = {
     return (<span style={style} key={'amount_'+invoice.id}>{ ((negative&&show_negative)?'-':'') + globalCfg.currency.toCurrencyString(invoice.amount)}</span>)
   }
 //
+  , getDate : (date) =>{
+    return date.replace('T',' ').split('.')[0];
+  }
   , styledDate : (invoice, title) => {
-    const my_date = invoice.paid_at.replace('T',' ').split('.')[0];
+    const my_date = iugu.getDate(invoice.paid_at) ;
     return (<time className="c-activity-row__time" title={title||''}>{my_date}</time>)
   }
 }

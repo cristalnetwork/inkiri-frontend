@@ -98,7 +98,7 @@ class TransactionCard extends Component {
         <div className="c-detail">
           
           <TransactionHeader request={request}/>
-
+          
           <TransactionTypeAndAmount request={request}/>
 
           <TransactionPetitioner profile={request.requested_by}/>

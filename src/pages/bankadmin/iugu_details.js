@@ -18,14 +18,21 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Modal, Card, PageHeader, Tag, Button, Spin } from 'antd';
+import { Alert, Modal, Card, PageHeader, Tag, Button, Spin } from 'antd';
 import { notification, Form, Icon, InputNumber, Input } from 'antd';
 
 import TransactionCard from '@app/components/TransactionCard';
 import TransactionAccount from '@app/components/TransactionCard/account';
 import TransactionTitleAndAmount from '@app/components/TransactionCard/title_amount';
 import IuguAlias from '@app/components/TransactionCard/iugu_alias';
+import IuguHeader from '@app/components/TransactionCard/iugu_header';
+import IuguInvoice from '@app/components/TransactionCard/iugu_invoice';
+import ItemBlockchainLink from '@app/components/TransactionCard/item_blockchain_link';
+import ItemLink from '@app/components/TransactionCard/item_link';
+import ErrorItem from '@app/components/TransactionCard/item_error';
 import TransactionTitle from '@app/components/TransactionCard/title';
+
+import TransactionPetitioner from '@app/components/TransactionCard/petitioner';
 
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
@@ -89,6 +96,7 @@ class iuguDetails extends Component {
     const that      = this;
     const {invoice} = this.state;
     this.setState({pushingTx:true});
+    console.log(' trying to reload invoice:', invoice.id)
     api.bank.getIuguInvoiceById(invoice.id)
         .then( (data) => {
             that.setState({pushingTx:false, invoice:data})
@@ -167,22 +175,34 @@ class iuguDetails extends Component {
     const {invoice, pushingTx}      = this.state;
     const buttons                   = this.getActionsForInvoice();
      
-    // monto
-    // descripcion
-    // alias (receptor)
-    // recepcion
-    //   link a cuenta receptora o error si no hay cuenta receptor
-    // error si tiene y no es de cuenta receptora
-    // link a iugu
-    // link a blockchain
+     //<Alert message={invoice.error} description="Cant fetch alias or there is no account related to invoice alias." type="error" showIcon/>
 
     return (
       <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
         <div className="c-detail">
-          <TransactionTitle title="IUGU Payment" button={(null)} />
-          <TransactionTitleAndAmount title='Amount'  amount={parseFloat(invoice.amount).toFixed(2)}/>
-          <IuguAlias profile={{alias:invoice.receipt_alias}}/>          
           
+          <IuguHeader invoice={invoice} />
+          <TransactionTitle title="IUGU Payment" button={(null)} />
+          
+          <TransactionTitleAndAmount title='Amount'  amount={parseFloat(invoice.amount).toFixed(2)}/>
+          <IuguInvoice invoice={invoice} />
+          
+
+          <ItemLink link={request_helper.iugu.iuguLink(invoice, false)} icon="file-invoice" is_external={true} />
+
+          <TransactionTitle title="Paid to:" button={(null)} />
+          <div className="ui-list">
+            <ul className="ui-list__content">
+              <IuguAlias profile={{alias:invoice.receipt_alias}} alone_component={false} />          
+              {(invoice.receipt)?(
+                <TransactionPetitioner profile={invoice.receipt}/>
+                ):( <ErrorItem title={invoice.error} message="Cant fetch alias or there is no account related to invoice alias." />)}
+            </ul>
+          </div>
+          
+          {(invoice.issued_tx_id)?(
+              <ItemBlockchainLink tx_id={invoice.issued_tx_id} title={'Issue transaction'} />
+              ):(null)}
 
         </div>
         <div className="c-detail bottom">
@@ -195,13 +215,13 @@ class iuguDetails extends Component {
   
   processInvoice(){
     let that = this;  
-    that.setState({pushingTx:true});
+    
     
     Modal.confirm({
-      title: 'Confirm process invoice',
+      title: 'Confirm re process invoice',
       content: 'You will now try to issue to receipt alias.',
       onOk() {
-        const {request} = that.state;
+        that.setState({pushingTx:true});
         api.bank.processIuguInvoiceById(that.state.invoice.id)
         .then( (data) => {
             that.setState({pushingTx:false})
@@ -228,7 +248,7 @@ class iuguDetails extends Component {
   getActionsForInvoice(){
     const {invoice, pushingTx}    = this.state;
     
-    const processButton = (<Button loading={pushingTx} size="large" onClick={() => this.processInvoice()} key="processButton" type="primary" title="" >PROCESS INVOICE</Button>);
+    const processButton = (<Button loading={pushingTx} size="large" onClick={() => this.processInvoice()} key="processButton" type="primary" title="" >RE PROCESS INVOICE</Button>);
     //
     switch (invoice.state){
       case request_helper.iugu.STATE_ERROR:
@@ -244,7 +264,7 @@ class iuguDetails extends Component {
   //
   render() {
     let content     = this.renderContent();
-    const title     = 'Process invoice';
+    const title     = 'IUGU payment details';
     const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     return (
       <>

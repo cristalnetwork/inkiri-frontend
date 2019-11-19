@@ -104,7 +104,7 @@ class AdminAccounts extends Component {
       pathname: `/${this.props.actualRole}/account_ex`
       , state: { 
           referrer: this.props.location.pathname,
-          account:  this.state.accounts[0]
+          account:  account
         }
     })
 
@@ -127,25 +127,62 @@ class AdminAccounts extends Component {
     let that           = this;
     
     api.listBankAccounts()
-    .then( (res) => {
+    .then( async (res) => {
 
         console.log(' >> api.listBankAccounts >>', JSON.stringify(res.data))
+        const account_names = res.data.accounts.map(acc=>acc.key)
+        let promises = [
+          api.dfuse.getAccountsBalances(account_names)
+          , api.bank.listProfiles(null, account_names.length, {account_names:account_names})
+        ];
 
-        api.dfuse.getAccountsBalances(res.data.accounts.map(acc=>acc.key))
-          .then( (balances) => {
-            console.log(' >> balances >> ', balances)
-            const _balances = _.reduce(balances, function(result, value, key) {
-                result[value.account] = value.balance;
-                return result;
-              }, {});
-            const _data = res.data.accounts.map(acc => {return{...acc, balance:_balances[acc.key] }})
-            console.log(JSON.stringify(_data))
-            // that.onNewData(res.data);
-            that.onNewData({accounts:_data, more:res.data.more});
-          } ,(ex2) => {
-            console.log(' dfuse.getAccountsBalances ERROR#2', JSON.stringify(ex2) )
-            that.setState({loading:false});  
-          });      
+        let values;
+        try{
+          values = await Promise.all(promises);
+        }
+        catch(err){
+          this.openNotificationWithIcon("error", "Error loading Account info", JSON.stringify(err));
+          that.setState({loading:false});  
+        }
+
+        if(!values[0])
+        {
+          this.openNotificationWithIcon("error", "Can NOT load accounts' balances");
+        }
+        if(!values[1])
+        {
+          this.openNotificationWithIcon("error", "Can NOT load accounts' aliases");
+        }
+
+        const _balances = _.reduce(values[0], function(result, value, key) {
+          result[value.account] = value.balance;
+          return result;
+        }, {});
+        
+        const _aliases  = _.reduce(values[1], function(result, value, key) {
+          result[value.account_name] = value.alias;
+          return result;
+        }, {});
+        
+        const _data = res.data.accounts.map(acc => {return{...acc, balance:_balances[acc.key] , alias:_aliases[acc.key]}})
+        
+        that.onNewData({accounts:_data, more:res.data.more});
+
+        // api.dfuse.getAccountsBalances(res.data.accounts.map(acc=>acc.key))
+        //   .then( (balances) => {
+        //     console.log(' >> balances >> ', balances)
+        //     const _balances = _.reduce(balances, function(result, value, key) {
+        //         result[value.account] = value.balance;
+        //         return result;
+        //       }, {});
+        //     const _data = res.data.accounts.map(acc => {return{...acc, balance:_balances[acc.key] }})
+        //     console.log(JSON.stringify(_data))
+        //     // that.onNewData(res.data);
+        //     that.onNewData({accounts:_data, more:res.data.more});
+        //   } ,(ex2) => {
+        //     console.log(' dfuse.getAccountsBalances ERROR#2', JSON.stringify(ex2) )
+        //     that.setState({loading:false});  
+        //   });      
         
 
       } ,(ex) => {

@@ -349,6 +349,21 @@ export const columnsForAccounts = (callback) => {
         }
       },
       {
+        title: 'IUGU alias',
+        key: 'overdraft',
+        dataIndex: 'overdraft',
+        render: (overdraft, record) => {
+          
+          const isBiz = globalCfg.bank.isBusinessAccount(record);
+          const _alias = (isBiz&&record.alias)?record.alias:(isBiz?request_helper.errorStateTag('Alias not configured!'):'');
+          //
+          return (
+            <span>
+              {_alias}
+            </span> 
+          )}
+      },
+      {
         title: 'Fee & overdraft',
         key: 'fee',
         dataIndex: 'fee',
@@ -550,10 +565,12 @@ export const columnsForIUGU = (callback) => {
         key: 'tx_type',
         dataIndex: 'tx_type',
         render: (tx_type, record) => {
-          const error = (record.error)?(<Alert message={record.error} type="error" />):(null);
+          const error  = (request_helper.iugu.inError(record))?(<Alert message={record.error} type="error" />):(null);
+          const issued = (record.issued_at)?(<p>ISSUED AT: {request_helper.iugu.getDate(record.issued_at)} </p>):(null);
           return (
             <span key={'tags'+record.id}>
                {error}
+               {issued}
             </span>
             )}
       },
