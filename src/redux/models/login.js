@@ -12,6 +12,7 @@ const TRY_LOGIN         = 'login/TRY_LOGIN';
 const TRY_LOGIN_END     = 'login/TRY_LOGIN_END';
 const SET_LOGIN         = 'login/SET_LOGIN'
 const LOGOUT            = 'login/LOGOUT'
+const CLEAR_SESSION     = 'login/CLEAR_SESSION'
 
 const TRY_SWITCH        = 'login/TRY_SWITCH';
 const TRY_SWITCH_END    = 'login/TRY_SWITCH_END';
@@ -25,6 +26,7 @@ const SET_PROFILE       = 'login/SET_PROFILE';
 export const trySwitchAccount = (account_name)             => ({ type: TRY_SWITCH, payload: { account_name } });
 export const tryLogin = (account_name, password, remember) => ({ type: TRY_LOGIN, payload: { account_name, password, remember } });
 export const logout = ()                                   => ({ type: LOGOUT });
+export const clearSession = ()                             => ({ type: CLEAR_SESSION });
 export const setLoginData = (loginData)                    => ({ type: SET_LOGIN, payload: loginData });
 
 export const loadProfile = (account_name)                  =>({ type: LOAD_PROFILE, payload: {account_name} });
@@ -56,7 +58,7 @@ function* tryLoginSaga({ type, payload }) {
     try {
         // LLAMO A inkiriAPI.login
         const accounts = yield api.login(account_name, password);
-
+        // console.log('login.redux -> api.login -> :', accounts)
         if (payload.remember) {
             let master_account = account_name;
             const profile = accounts.profile;
@@ -71,6 +73,7 @@ function* tryLoginSaga({ type, payload }) {
                 , profile:          accounts.profile }))
     } catch (e) {
         console.log(' >> LOGIN REDUX ERROR#1', e)
+        // ToDO: handlear error!!
     }
     yield put({ type: TRY_LOGIN_END })
     // yield put( tryUserState(account_name))
@@ -152,7 +155,8 @@ store.injectSaga('login', [
     takeEvery(TRY_LOGIN, tryLoginSaga),
     takeEvery(TRY_SWITCH, trySwitchAccountSaga),
     takeEvery(LOAD_PROFILE, loadProfileSaga),
-    takeEvery(LOGOUT, logoutSaga)
+    takeEvery(LOGOUT, logoutSaga),
+    takeEvery(CLEAR_SESSION, logoutSaga)
 ]);
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
@@ -224,6 +228,7 @@ function reducer(state = defaultState, action = {}) {
                 , profile:     action.payload.profile 
             }
         case LOGOUT:
+        case CLEAR_SESSION:
             return defaultState;
         default:
             return state;

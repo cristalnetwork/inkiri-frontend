@@ -207,7 +207,7 @@ const routes  = {
                 items: [
                     {
                         key: routes_config.pathNames.businessPDV,
-                        path: routes_config.pathNames.businessUnderConstruction,
+                        path: routes_config.pathNames.businessPDV,
                         title: 'Vendas - PDV',
                     },
                     {

@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -12,9 +12,9 @@ import * as api from '@app/services/inkiriApi';
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 
-import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col, List } from 'antd';
+import { Radio, Select, Card, PageHeader, Tabs, Button, Statistic, Row, Col } from 'antd';
 import { Form, Input, Icon} from 'antd';
 import { notification, Table, Divider, Spin } from 'antd';
 
@@ -22,6 +22,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 import {columns,  DISPLAY_PDA, DISPLAY_DEPOSIT, DISPLAY_WITHDRAWS} from '@app/components/TransactionTable';
+import TableStats, { buildItemMoneyPending, buildItemUp, buildItemDown, buildItemCompute, buildItemSimple, buildItemMoney, buildItemPending} from '@app/components/TransactionTable/stats';
 
 import * as utils from '@app/utils/utils';
 
@@ -283,6 +284,18 @@ class PDA extends Component {
 
     //
   
+  // renderTableViewStats(){
+  //   const {exchanges, exchanges_pending, providers, providers_pending, total_out} = this.currentStats();  
+  //   const items = [
+  //       buildItemMoney('EXCHANGES', exchanges)
+  //       , buildItemMoneyPending('EXCHANGES PENDING', exchanges_pending)
+  //       , buildItemMoney('PROVIDERS PAY', providers)
+  //       , buildItemMoneyPending('PROVIDERS PAY PENDING', providers_pending)
+  //       , buildItemMoney('TOTAL OUT', total_out, '#cf1322')
+  //     ]
+  //   return (<TableStats title="STATS" stats_array={items}/>)
+  // }
+
   renderUMIContent(){
     const {deposits_ik, deposits_brl, withdraws, pending} = this.currentStats();  
     return  (<>

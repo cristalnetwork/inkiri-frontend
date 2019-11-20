@@ -84,6 +84,9 @@ class Login extends Component {
               Log in
             </Button>
             Or <a href="#" disabled >register now!</a>
+            <Button type="link" className="login-form-forgot" onClick={ () => this.props.clearSession() }>
+              Reset session
+            </Button>
           </Form.Item>
         </Form>
       </>
@@ -96,7 +99,8 @@ export default Form.create() (withRouter(connect(
         isLoading: loginRedux.isLoading(state)
     }),
     (dispatch)=>({
-        tryLogin: bindActionCreators(loginRedux.tryLogin, dispatch)
+        tryLogin: bindActionCreators(loginRedux.tryLogin, dispatch),
+        clearSession: bindActionCreators(loginRedux.clearSession, dispatch)
     })
 )(Login)
 ));

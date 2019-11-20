@@ -98,10 +98,10 @@ export const getTypeIcon = (request, size, color) => {
       [globalCfg.api.TYPE_PROVIDER]    : {icon:'truck-moving', rotation: 0,  style: {}},
       [globalCfg.api.TYPE_SEND]        : {icon:'paper-plane',  rotation: 0,  style: {}},
       [globalCfg.api.TYPE_SERVICE]     : {icon:'store',        rotation: 0,  style: {}},
-      [globalCfg.api.TYPE_ISSUE]       : {icon:'credit-card',        rotation: 0,  style: {}},
+      [globalCfg.api.TYPE_ISSUE]       : {icon:'credit-card',  rotation: 0,  style: {}},
       [globalCfg.api.TYPE_IUGU]        : {icon:'credit-card',  rotation: 0,  style: {}},
       [globalCfg.api.TYPE_REFUND]      : {icon:'credit-card',  rotation: 0,  style: {}},
-      [globalCfg.api.TYPE_UPSERT]      : {icon:'magic',  rotation: 0,  style: {}},
+      [globalCfg.api.TYPE_UPSERT]      : {icon:'magic',        rotation: 0,  style: {}},
       [globalCfg.api.TYPE_UNKNOWN]     : {icon:'credit-card',  rotation: 0,  style: {}}
   }
   const my_icon = iconForRequest[request.requested_type]; 

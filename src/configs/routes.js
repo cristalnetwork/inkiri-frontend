@@ -328,7 +328,7 @@ const business = [
     },
     {
        key: pathNames.businessPDV,
-       fileName: 'under-construction',
+       fileName: 'pdv',
        area: 'business',
        path: 'pdv',
        container: 'dashboard',
