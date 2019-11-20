@@ -16,13 +16,13 @@ import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 import { withRouter } from "react-router-dom";
 
-import { BackTop, Table, Select, Result, Card, PageHeader, Tag, Button, Spin } from 'antd';
+import { Drawer, BackTop, Table, Select, Result, Card, PageHeader, Tag, Button, Spin } from 'antd';
 import { message, notification, Form, Icon, InputNumber, Input } from 'antd';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
-
+import PaymentForm from '@app/components/Form/payment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 // Dfuse WebSocket
@@ -39,6 +39,7 @@ const DEFAULT_STATE = {
                              , symbol_style : {fontSize: 60}
                            },
       description:        '',
+      show_payment:       false,
 };
 
 const DEFAULT_RESULT = {
@@ -79,8 +80,9 @@ class PDV extends Component {
     this.handleChange               = this.handleChange.bind(this);
     
     this.userResultEvent            = this.userResultEvent.bind(this); 
+    this.onCloseModal               = this.onCloseModal.bind(this);
 
-
+    this.onPaymentModalCallback     = this.onPaymentModalCallback.bind(this);
 
     // Dfuse WebSocket
     this.stream = undefined
@@ -247,9 +249,9 @@ class PDV extends Component {
               
             </div>
             <div className="mp-box__actions mp-box__shore">
-                <Button size="large" key="charge_keyboard_button" htmlType="submit" loading={loading}><FontAwesomeIcon icon="keyboard" size="1x"/>&nbsp;COLETAR VENDA</Button>
-                <Button style={{marginLeft:8}} size="large" key="charge_qr_button" htmlType="submit" loading={loading} icon="qrcode">QRCODE</Button>
-                <Button style={{marginLeft:8}} size="large" key="charge_share_button" htmlType="submit" loading={loading} ><FontAwesomeIcon icon={['fab', 'whatsapp-square']} />&nbsp;SHARE</Button>
+                <Button onClick={this.showPaymentModal} size="large" key="charge_keyboard_button" loading={loading}><FontAwesomeIcon icon="keyboard" size="1x"/>&nbsp;COLETAR VENDA</Button>
+                <Button onClick={this.showQRModal}      size="large" key="charge_qr_button"       loading={loading} style={{marginLeft:8}} icon="qrcode">QRCODE</Button>
+                <Button onClick={this.sharePayment}     size="large" key="charge_share_button"    loading={loading} style={{marginLeft:8}} ><FontAwesomeIcon icon={['fab', 'whatsapp-square']} />&nbsp;SHARE</Button>
             </div>
         </Form>
       </Spin>
@@ -257,6 +259,20 @@ class PDV extends Component {
 
   }
   //
+
+  /* Payment methods */
+  showPaymentModal = () => {
+    const {input_amount} = this.state;
+    if(isNaN(input_amount.value) || parseFloat(input_amount.value)<=0)
+    {
+      this.openNotificationWithIcon("error", "Valid amount required","Please type a valid number greater than 0!")    
+      return;
+    }
+
+    this.setState({show_payment:true});  
+  }
+  showQRModal = () => {}
+  sharePayment = () => {}
 
 
   componentDidMount(){
@@ -304,6 +320,107 @@ class PDV extends Component {
     return (<><Button key="load-more-data" disabled={this.state.cursor==''} onClick={()=>this.loadTransactionsForAccount(false)}>More!!</Button> </>)
   }
   //
+  onPaymentModalCallback = async (error, cancel, values) => {
+    if(cancel)
+    {
+      this.setState({  
+          show_payment:   false
+      });
+      return;
+    }
+    if(error)
+    {
+      return;
+    }
+
+    this.setState({pushingTx:true})
+    
+    const {payer, password} = values;
+    let public_key          = null;
+    let private_key         = null;
+    if(!api.eosHelper.isValidPrivate(password))
+    {
+      const seed  = globalCfg.eos.generateSeed(password);
+      const keys  = api.eosHelper.seedPrivate(seed);
+      private_key = keys.wif;
+      public_key  = keys.pub_key;
+    }
+    else
+    {
+      private_key = password;
+      public_key  = api.eosHelper.privateToPublic(password);
+    }
+    
+    let account = null;
+    
+    try {
+      accounts = await api.getKeyAccounts(public_key);
+    } catch (e) {
+      this.openNotificationWithIcon("error", 'Wrong password.", "Please verify password and try again.');
+      this.setState({pushingTx:false});
+      return;
+    }
+   
+    const {input_amount}    = this.state;
+    api.sendPayment(accounts[0], private_key, receiver, input_amount.value, 'Payed at store.')
+      .then((data) => {
+        console.log(' pdv::pay (then#1) >>  ', JSON.stringify(data));
+        that.setState({result:'ok', pushingTx:false, result_object:data});
+        that.openNotificationWithIcon("success", 'Payment completed successfully');
+      }, (ex) => {
+        console.log(' pdv::pay (error#1) >>  ', JSON.stringify(ex));
+        that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
+        that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+      });
+
+
+  }
+  //
+  renderPaymentModal = () => {
+    const {show_payment, pushingTx, input_amount} = this.state;
+    if(!show_payment)
+      return (null);
+    const amount_string = globalCfg.currency.toCurrencyString(input_amount.value);
+    return(
+      <Drawer
+          title="PAYMENT"
+          placement="top"
+          closable={true}
+          visible={this.state.show_payment}
+          getContainer={false}
+          style={{ position: 'absolute' }}
+          keyboard={true}
+          height="600px"
+          onClose={this.onCloseModal}
+        >
+          <div style={{width:'100%'}} className="flex_column">
+            <span className="ant-page-header-heading-title">Please, type your account password to proceed to pay {amount_string} to @{this.props.actualAccountName}.</span> 
+            
+            <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+              <div className="ly-main-content content-spacing cards">
+                <section className="mp-box mp-box__shadow__full money-transfer__box">
+                  <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+                    <div className="c-detail">
+                      <PaymentForm 
+                        business={this.actualAccountName} 
+                        amount={this.state.input_amount.value} 
+                        callback={ () => this.onPaymentModalCallback } />
+                    </div>
+                  </Spin>
+                </section>
+              </div>        
+            </div>
+
+          </div>  
+          
+        </Drawer>);
+  }
+  onCloseModal = () => {
+    this.setState({
+      show_payment: false,
+    });
+  };
+  //
   render() {
     let   content     = this.renderContent();
     const routes      = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
@@ -317,17 +434,21 @@ class PDV extends Component {
     //           : this.state.transfers.reverse().map(this.renderTransfer)
     //       }
     //     </div>);
-
+    
+    const payModal = this.renderPaymentModal()
+    
     return (
       <>
+        
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="PDV - COLETAR VENDA"
           extra={[connection_icon]}
           >
         </PageHeader>
-
+        
         <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+          {payModal}
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box_HACK_NO">
               {content}

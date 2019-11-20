@@ -259,7 +259,7 @@ class DepositMoney extends Component {
                           , initialValue: input_amount.symbol
                           , onChange: this.symbolChange
                         })(
-                          <Select placeholder={'Choose a currency'} optionLabelProp="label" className="input-price__currency select-price__currency">
+                          <Select placeholder={'Choose a currency'} optionLabelProp="label" className="NO_input-price__currency_NO select-price__currency">
                           {my_currencies.map( opt => <Select.Option key={opt} value={opt} label={opt}>{ opt } </Select.Option> )}
                           </Select>
                         )}

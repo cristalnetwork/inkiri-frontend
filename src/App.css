@@ -153,13 +153,13 @@ h3.fileds_header{
 .icon_color_default { color:#1890ff; }
 .icon_color_green   { color:#3db389; }
 
-.flex_row{
+/*.flex_row{
     display: flex;
     align-items: center;
     flex-direction: row!important;
     justify-content: flex-start;
     overflow:hidden;
-}
+}*/
 .display_block{display:block!important;}
 .display_block.addresse-avatar{top:0px;}
 
@@ -199,10 +199,20 @@ h3.fileds_header{
   line-height: 2.2;
   text-align: center;
 }
-.flex_center{
+.flex_center, .flex_row, .flex_column{
     display: flex;
     align-items: center;
-    flex-direction: row!important;
     justify-content: center;
     overflow:hidden;
+}
+.flex_row{
+    flex-direction: row!important;
+}
+.flex_column{
+    flex-direction: column!important;
+}
+
+.mp-box__shadow__full {
+    -webkit-box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.3);
 }

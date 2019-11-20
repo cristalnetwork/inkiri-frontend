@@ -269,7 +269,7 @@ export const listTransactions = (account_name, cursor, received_or_sent) => new 
       )
     :`account: ${globalCfg.currency.token} `;
 
-	console.log('dfuse::listTransactions >> ', 'About to retrieve listTransactions >>', query);	
+	// console.log('dfuse::listTransactions >> ', 'About to retrieve listTransactions >>', query);	
 
   let options = { limit: globalCfg.dfuse.default_page_size , sort: 'desc'}
   if(cursor!==undefined)
@@ -286,9 +286,9 @@ export const listTransactions = (account_name, cursor, received_or_sent) => new 
 
       const txs = transformTransactionsImpl(data.transactions, account_name, true);
         
-      console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
+      // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
       // console.log(' dfuse::listTransactions >> ', JSON.stringify(txs));
-      console.log(' dfuse::listTransactions cursor>> ', JSON.stringify(data.cursor));
+      // console.log(' dfuse::listTransactions cursor>> ', JSON.stringify(data.cursor));
       // res ({data:{txs:txs, cursor:data.cursor}})
       res ({data:{txs:txs, cursor:data.cursor}})
       client.release();
