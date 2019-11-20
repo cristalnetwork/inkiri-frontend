@@ -246,9 +246,10 @@ class PDA extends Component {
   
   render() {
     //
-    const filters = this.renderFilterContent();
-    const content = this.renderUMIContent();
-    const {routes}  = this.state;
+    const content               = this.renderContent();
+    const stats                 = this.renderTableViewStats();
+    const filters               = this.renderFilterContent();
+    const {routes}              = this.state;
     return (
       <>
         <PageHeader
@@ -258,12 +259,22 @@ class PDA extends Component {
             <Button size="small" key="_new_withdraw" icon="plus" disabled> Withdraw</Button>,
           ]}
           title="PDA"
-          subTitle="List of Deposits and Withdraws"
-        >
+          subTitle="Deposits and Withdraws"
+        />
           
-        </PageHeader>
-        {filters}
-        {content}
+        <Card
+          key="card_table_all_requests"
+          className="styles listCard"
+          bordered={false}
+          style={{ marginTop: 24 }}
+          headStyle={{display:'none'}}
+          extra={this.renderExtraContent()}
+        >
+          {filters}
+          {stats}
+          {content}
+        </Card>
+        
 
       </>
     );
@@ -284,71 +295,19 @@ class PDA extends Component {
 
     //
   
-  // renderTableViewStats(){
-  //   const {exchanges, exchanges_pending, providers, providers_pending, total_out} = this.currentStats();  
-  //   const items = [
-  //       buildItemMoney('EXCHANGES', exchanges)
-  //       , buildItemMoneyPending('EXCHANGES PENDING', exchanges_pending)
-  //       , buildItemMoney('PROVIDERS PAY', providers)
-  //       , buildItemMoneyPending('PROVIDERS PAY PENDING', providers_pending)
-  //       , buildItemMoney('TOTAL OUT', total_out, '#cf1322')
-  //     ]
-  //   return (<TableStats title="STATS" stats_array={items}/>)
-  // }
-
-  renderUMIContent(){
+  renderTableViewStats(){
     const {deposits_ik, deposits_brl, withdraws, pending} = this.currentStats();  
-    return  (<>
-      <div className="styles standardList" style={{ marginTop: 24 }}>
-        <Card key="the_card_key" bordered={false}>
-          <Row>
-            <Col xs={24} sm={12} md={6} lg={4} xl={4}>
-              <Statistic title="" value="STATS" />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={5} xl={5}>
-              <Statistic
-                title={globalCfg.currency.symbol + " DEPOSITS"}
-                value={deposits_ik}
-                precision={2}
-                suffix={globalCfg.currency.symbol}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={5} xl={5}>
-              <Statistic
-                title="BRL DEPOSITS"
-                value={deposits_brl}
-                precision={2}
-                suffix="BRL"
-              />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={5} xl={5}>
-              <Statistic
-                title="WITHDRAWS"
-                value={withdraws}
-                precision={2}
-                suffix={globalCfg.currency.symbol}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={6} lg={5} xl={5}>
-              <Statistic
-                title="PENDING"
-                value={pending}
-                precision={0}
-                valueStyle={{ color: '#fadb14' }}
-                prefix={<Icon type="clock-circle" />}
-              />
-            </Col>
-          </Row>
-        </Card>
+    const items = [
+        buildItemMoney(globalCfg.currency.symbol + ' DEPOSITS', deposits_ik)
+        , buildItemMoney('BRL DEPOSITS', deposits_brl)
+        , buildItemMoney('WITHDRAWS', withdraws)
+        , buildItemPending('PENDING', pending)
+      ]
+    return (<TableStats title="STATS" stats_array={items}/>)
+  }
 
-        <Card
-          key="card_table_all_requests"
-          className="styles listCard"
-          bordered={false}
-          title="List of Deposits and Withdraws"
-          style={{ marginTop: 24 }}
-          extra={this.renderExtraContent()}
-        >
+  renderContent(){
+    return (<div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
           <Table
             key="table_all_requests" 
             rowKey={record => record.id} 
@@ -359,12 +318,10 @@ class PDA extends Component {
             pagination={this.state.pagination}
             scroll={{ x: 700 }}
             />
-
-        </Card>
-      </div>
-    </>)
+          </div>);
   }
 
+  
 }
 //
 export default  (withRouter(connect(

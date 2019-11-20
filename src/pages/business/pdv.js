@@ -255,7 +255,7 @@ class PDV extends Component {
             <div className="mp-box__actions mp-box__shore">
                 <Button onClick={this.showPaymentModal} size="large" key="charge_keyboard_button" loading={loading}><FontAwesomeIcon icon="keyboard" size="1x"/>&nbsp;COLETAR VENDA</Button>
                 <Button disabled onClick={this.showQRModal}      size="large" key="charge_qr_button"       loading={loading} style={{marginLeft:8}} icon="qrcode">QRCODE</Button>
-                <Button disabled onClick={this.sharePayment}     size="large" key="charge_share_button"    loading={loading} style={{marginLeft:8}} ><FontAwesomeIcon icon={['fab', 'whatsapp-square']} />&nbsp;REQUEST</Button>
+                <Button disabled onClick={this.sharePayment}     size="large" key="charge_share_button"    loading={loading} style={{marginLeft:8}} ><FontAwesomeIcon icon={['fab', 'whatsapp-square']} />&nbsp;REQUEST  </Button>
             </div>
         </Form>
       </Spin>
@@ -466,7 +466,7 @@ class PDV extends Component {
           >
         </PageHeader>
         
-        <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+        <div style={{ margin: '24px 0px', padding: 24}}>
           {payModal}
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box_HACK_NO">
