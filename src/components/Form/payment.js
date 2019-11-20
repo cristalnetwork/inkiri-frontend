@@ -124,7 +124,12 @@ const PaymentForm = (props) => {
                           , initialValue: password
                           , onChange: passwordChanged
                         })(
-                          <Input.Password size="large" visibilityToggle={true} />
+                          <Input.Password 
+                              placeholder="Password or private key"
+                              autoFocus
+                              autoCapitalize="off"
+                              size="large" 
+                              visibilityToggle={true} />
                         )}
                     </Form.Item>
                   </div>

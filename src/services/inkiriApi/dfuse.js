@@ -64,11 +64,17 @@ export const getKeyAccounts = (public_key) => new Promise((res,rej)=> {
       
       jwtHelper.apiCall(path+query, method)
         .then((data) => {
-          console.log( ' >> dfuse::getKeyAccounts OK >>', data)
-            res(data.account_names)
+            // console.log( ' >> dfuse::getKeyAccounts OK >>', data)
+            if(!data.account_names){
+              rej('No name for given public key');
+              return;
+            }
+            res(data.account_names);
+            return;
           }, (ex) => {
             console.log( ' >> dfuse::getKeyAccounts ERROR#2 >>', ex)
             rej(ex);
+            return;
           });
     }, (ex) => {
       console.log( ' >> dfuse::getKeyAccounts ERROR#1 >>', ex)

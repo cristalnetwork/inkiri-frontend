@@ -64,8 +64,7 @@ class PDV extends Component {
       pushingTx:          false,
       loading:            true,
       txs:                [],
-      transfers:          [],
-
+      
       cursor:             '',
       pagination:         { pageSize: 0 , total: 0 },
       referrer:           (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined
@@ -147,6 +146,11 @@ class PDV extends Component {
   resetPage(){
     
     this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
+  }
+
+  resetState(){
+    
+    this.setState({...DEFAULT_STATE});
   }
 
   userResultEvent = (evt_type) => {
@@ -250,8 +254,8 @@ class PDV extends Component {
             </div>
             <div className="mp-box__actions mp-box__shore">
                 <Button onClick={this.showPaymentModal} size="large" key="charge_keyboard_button" loading={loading}><FontAwesomeIcon icon="keyboard" size="1x"/>&nbsp;COLETAR VENDA</Button>
-                <Button onClick={this.showQRModal}      size="large" key="charge_qr_button"       loading={loading} style={{marginLeft:8}} icon="qrcode">QRCODE</Button>
-                <Button onClick={this.sharePayment}     size="large" key="charge_share_button"    loading={loading} style={{marginLeft:8}} ><FontAwesomeIcon icon={['fab', 'whatsapp-square']} />&nbsp;SHARE</Button>
+                <Button disabled onClick={this.showQRModal}      size="large" key="charge_qr_button"       loading={loading} style={{marginLeft:8}} icon="qrcode">QRCODE</Button>
+                <Button disabled onClick={this.sharePayment}     size="large" key="charge_share_button"    loading={loading} style={{marginLeft:8}} ><FontAwesomeIcon icon={['fab', 'whatsapp-square']} />&nbsp;REQUEST</Button>
             </div>
         </Form>
       </Spin>
@@ -300,15 +304,28 @@ class PDV extends Component {
     
   }
   //
-  onNewData(data){
+  onNewData(data, prepend){
     
-    const _txs           = [...this.state.txs, ...data.txs];
+    const _txs           = prepend==true?[...data.txs, ...this.state.txs]:[...this.state.txs, ...data.txs];
+
     const pagination     = {...this.state.pagination};
     pagination.pageSize  = _txs.length;
     pagination.total     = _txs.length;
 
     this.setState({pagination:pagination, txs:_txs, cursor:data.cursor, loading:false})
-
+    // if(prepend)
+    // {
+    //   const ids = data.txs.map(obj=>obj.id);
+    //   console.log(ids)
+    //   this.setState({selectedRowKeys:ids})
+    //   const that = this;
+    //   setTimeout(
+    //       function() {
+    //           that.setState({selectedRowKeys: []});
+    //       },
+    //       10000
+    //   );
+    // }
 
     if(!data.txs || data.txs.length==0)
     {
@@ -351,26 +368,35 @@ class PDV extends Component {
       public_key  = api.eosHelper.privateToPublic(password);
     }
     
-    let account = null;
+    let accounts = null;
     
     try {
       accounts = await api.getKeyAccounts(public_key);
+      console.log('accounts=>', accounts)
     } catch (e) {
-      this.openNotificationWithIcon("error", 'Wrong password.", "Please verify password and try again.');
+      this.openNotificationWithIcon("error", 'Wrong password.", "Please verify password and try again. Message: '+ JSON.stringify(e));
       this.setState({pushingTx:false});
       return;
     }
-   
+     
+    if(!accounts || accounts.length<=0){
+      that.openNotificationWithIcon("error", 'No accounts for given password.');
+      return;
+    }
     const {input_amount}    = this.state;
-    api.sendPayment(accounts[0], private_key, receiver, input_amount.value, 'Payed at store.')
+    const that = this;
+    api.sendPayment(accounts[0], private_key, this.props.actualAccountName, input_amount.value, 'Payed at store.')
       .then((data) => {
         console.log(' pdv::pay (then#1) >>  ', JSON.stringify(data));
-        that.setState({result:'ok', pushingTx:false, result_object:data});
+        // that.setState({result:'ok', pushingTx:false, result_object:data});
+        that.setState({pushingTx:false, show_payment:false});
+        that.resetState();
         that.openNotificationWithIcon("success", 'Payment completed successfully');
       }, (ex) => {
         console.log(' pdv::pay (error#1) >>  ', JSON.stringify(ex));
         that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
-        that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+        // that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+        that.setState({pushingTx:false});
       });
 
 
@@ -424,16 +450,9 @@ class PDV extends Component {
   render() {
     let   content     = this.renderContent();
     const routes      = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
-    const {connected} = this.state;
+    const {selectedRowKeys, connected} = this.state;
     const conn_title  = connected?'You are connected and receiving transaction!':'Something went wrong. You are not connected neither receiving transactions.'; 
     const connection_icon = connected?(<Icon title={conn_title} key={Math.random()} type="check-circle" theme="twoTone" style={{fontSize:20}} twoToneColor="#52c41a"/>):(<Icon title={conn_title} key={Math.random()} type="api" theme="twoTone" twoToneColor="#eb2f96" style={{fontSize:20}} />)
-    const infinite_container = (null);
-    // const infinite_container = (<div className="App-infinite-container">
-    //       { this.state.transfers.length <= 0
-    //           ? this.renderTransfer("Nothing yet, start by hitting Launch!")
-    //           : this.state.transfers.reverse().map(this.renderTransfer)
-    //       }
-    //     </div>);
     
     const payModal = this.renderPaymentModal()
     
@@ -457,8 +476,6 @@ class PDV extends Component {
         </div>
 
         <BackTop />
-
-        {infinite_container}
 
         <Card 
           title="ÚLTIMAS COBRANÇAS EFETUADAS" 
@@ -508,14 +525,8 @@ class PDV extends Component {
       return
     }
 
-    const { from, to, quantity, memo } = message.data.trace.act.data
-    const transfer = `Transfer [${from} -> ${to}, ${quantity}] (${memo})`
-    this.setState((prevState) => ({
-      transfers: [ ...prevState.transfers.slice(-100), transfer ],
-    }))
-
     const txs = api.dfuse.transformTransactions(message, this.props.actualAccountName, false);
-    this.onNewData({txs:txs, cursor:null});
+    this.onNewData({txs:txs, cursor:null}, true);
     // message.success('New payment received!', 5);
     this.openNotificationWithIcon("success", "New payment received!")    
   }

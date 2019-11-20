@@ -116,7 +116,7 @@ export const getColumnsForPDV = (callback) => {
     render: (text, record) => {
       const process     = request_helper.getProcessButton(record, callback, 'Details');
       const blockchain  = request_helper.getBlockchainLink(record.transaction_id, true);
-      return (<>{process}{blockchain}</>)
+      return (<>{process}&nbsp;{blockchain}</>)
     },
   },
   //
@@ -191,7 +191,7 @@ export const getColumnsForPersonalExtrato = (callback, account_type) => {
     render: (text, record) => {
       const process     = request_helper.getProcessButton(record, callback, 'Details');
       const blockchain  = request_helper.getBlockchainLink(record.transaction_id, true);
-      return (<>{process}{blockchain}</>)
+      return (<>{process}&nbsp;{blockchain}</>)
     },
   },
   //
@@ -363,7 +363,7 @@ export const getColumnsForOperations = (callback, account_type) => {
     render: (text, record) => {
       const process     = request_helper.getProcessButton(record, callback, 'Details');
       const blockchain  = request_helper.getBlockchainLink(record.transaction_id, true);
-      return (<>{process}{blockchain}</>)
+      return (<>{process}&nbsp;{blockchain}</>)
     },
   },
   //
@@ -644,7 +644,7 @@ export const columnsForIUGU = (callback) => {
           const iugu        = request_helper.iugu.iuguLink(record);
           const process     = request_helper.getProcessButton(record, callback, 'Details');
           const blockchain  = record.issued_tx_id?request_helper.getBlockchainLink(record.issued_tx_id, true):(null);
-          return (<>{process}{iugu}{blockchain}</>)
+          return (<>{process}&nbsp;{iugu}&nbsp;{blockchain}</>)
         }
       },
 
