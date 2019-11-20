@@ -10,11 +10,6 @@ const routes  = {
                 title: 'My money',
                 icon: 'wallet',
                 items: [
-                    // {
-                    //     key: routes_config.pathNames.personalAllInOne,
-                    //     path: routes_config.pathNames.personalAllInOne,
-                    //     title: 'All In One',
-                    // },
                     {
                         key: routes_config.pathNames.personalExtracto,
                         path: routes_config.pathNames.personalExtracto,
@@ -38,7 +33,8 @@ const routes  = {
                 ]
             },
             {
-                key: routes_config.pathNames.personalRequestMoney,
+                // key: routes_config.pathNames.personalRequestMoney,
+                key: 'personal_receive_money',
                 title: 'Receive',
                 icon: 'plus-square',
                 items: [
@@ -50,7 +46,8 @@ const routes  = {
                 ]
             },
             {
-                key: routes_config.pathNames.personalSendMoney,
+                // key: routes_config.pathNames.personalSendMoney,
+                key: 'personal_send_money',
                 title: 'Pay',
                 icon: 'minus-square',
                 items: [

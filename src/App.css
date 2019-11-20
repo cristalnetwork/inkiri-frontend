@@ -192,3 +192,17 @@ h3.fileds_header{
   font-size: 1.2em!important;
   line-height: 1.6em!important; 
 }
+
+
+/* PDV */
+.circled_action_type{
+  line-height: 2.2;
+  text-align: center;
+}
+.flex_center{
+    display: flex;
+    align-items: center;
+    flex-direction: row!important;
+    justify-content: center;
+    overflow:hidden;
+}

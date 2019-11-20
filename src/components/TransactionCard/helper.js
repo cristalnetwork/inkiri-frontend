@@ -89,22 +89,47 @@ export const getTypeTag = (request) => {
   return (<Tag key={'type_'+request.id}>{utils.capitalize(globalCfg.api.typeToText(request.requested_type))}</Tag>)
 }
 //
-export const getTypeIcon = (request, size, color) => {
-  const iconForRequest = {
-      [globalCfg.api.TYPE_DEPOSIT]     : {icon:'arrow-up',     rotation: 0,  style: {borderTop: '1px solid gray'}},
-      [globalCfg.api.TYPE_WITHDRAW]    : {icon:'arrow-down',   rotation: 0,  style: {borderTop: '1px solid gray'}},
-      [globalCfg.api.TYPE_EXCHANGE]    : {icon:'exchange-alt', rotation: 90, style: {}},
-      [globalCfg.api.TYPE_PAYMENT]     : {icon:'shopping-bag', rotation: 0,  style: {}},
-      [globalCfg.api.TYPE_PROVIDER]    : {icon:'truck-moving', rotation: 0,  style: {}},
-      [globalCfg.api.TYPE_SEND]        : {icon:'paper-plane',  rotation: 0,  style: {}},
-      [globalCfg.api.TYPE_SERVICE]     : {icon:'store',        rotation: 0,  style: {}},
-      [globalCfg.api.TYPE_ISSUE]       : {icon:'credit-card',  rotation: 0,  style: {}},
-      [globalCfg.api.TYPE_IUGU]        : {icon:'credit-card',  rotation: 0,  style: {}},
-      [globalCfg.api.TYPE_REFUND]      : {icon:'credit-card',  rotation: 0,  style: {}},
-      [globalCfg.api.TYPE_UPSERT]      : {icon:'magic',        rotation: 0,  style: {}},
-      [globalCfg.api.TYPE_UNKNOWN]     : {icon:'credit-card',  rotation: 0,  style: {}}
+// generator   => https://paletton.com/#uid=51E0u0kvc++jb+qpd+XPj+VZCGN
+// calculator  => https://www.sessions.edu/color-calculator/
+// alpha       => https://www.google.com/search?q=rgb+to+hex&oq=rgb+to+hex&aqs=chrome..69i57j0l5.2827j0j7&sourceid=chrome&ie=UTF-8
+
+export const getTypeConf = () => {
+  return {
+      [globalCfg.api.TYPE_DEPOSIT]     : {icon:'arrow-up',     rotation: 0,  color:{primary: '#1890ff' /*azul*/          , secondary:'#e6f7ff'}, style: {borderTop: '1px solid gray'}},
+      [globalCfg.api.TYPE_WITHDRAW]    : {icon:'arrow-down',   rotation: 0,  color:{primary: '#18ff88' /*verde*/         , secondary:'#d6ffea'}, style: {borderTop: '1px solid gray'}},
+      [globalCfg.api.TYPE_EXCHANGE]    : {icon:'exchange-alt', rotation: 90, color:{primary: '#ff9606' /*naranja*/       , secondary:'#fce9cf'}, style: {}},
+      [globalCfg.api.TYPE_PAYMENT]     : {icon:'shopping-bag', rotation: 0,  color:{primary: '#FF06A3' /*fuccia*/        , secondary:'#facae8'}, style: {}},
+      [globalCfg.api.TYPE_PROVIDER]    : {icon:'truck-moving', rotation: 0,  color:{primary: '#ff5906' /*naranjrojo*/    , secondary:'#fcdecf'}, style: {}},
+      [globalCfg.api.TYPE_SEND]        : {icon:'paper-plane',  rotation: 0,  color:{primary: '#ffd606' /*amarillo*/      , secondary:'#fcf4c7'}, style: {}},
+      [globalCfg.api.TYPE_SERVICE]     : {icon:'store',        rotation: 0,  color:{primary: '#9DFF06' /*lima*/          , secondary:'#e7fcc5'}, style: {}},
+      [globalCfg.api.TYPE_ISSUE]       : {icon:'credit-card',  rotation: 0,  color:{primary: '#067748' /*verde dark*/    , secondary:'#c5fce5'}, style: {}},
+      [globalCfg.api.TYPE_IUGU]        : {icon:'credit-card',  rotation: 0,  color:{primary: '#A115FF' /*violeta*/       , secondary:'#e2c3f7'}, style: {}},
+      [globalCfg.api.TYPE_REFUND]      : {icon:'credit-card',  rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/       , secondary:'#b1ecfa'}, style: {}},
+      [globalCfg.api.TYPE_UPSERT]      : {icon:'magic',        rotation: 0,  color:{primary: '#FFC106' /*amarillorange*/ , secondary:'#f7e9bc'}, style: {}},
+      [globalCfg.api.TYPE_UNKNOWN]     : {icon:'credit-card',  rotation: 0,  color:{primary: '#FF0619' /*rojo*/          , secondary:'#f7c6ca'}, style: {}}
   }
-  const my_icon = iconForRequest[request.requested_type]; 
+}
+//
+export const getCircledTypeIcon = (request) => {
+  
+  const my_icon = getTypeConf()[request.requested_type]; 
+  
+  const className = 'ui-avatar__content circled_action_type flex_center';
+  const style     = {border: `0.0625em solid ${my_icon.color.primary}` , background: `${my_icon.color.secondary}`}
+  const size      = '1x';
+  let icon        = null;
+  if(my_icon.rotation>0)
+    icon = (<FontAwesomeIcon icon={my_icon.icon} rotation={my_icon.rotation} style={my_icon.style} size={size} color={my_icon.color.primary}/>);
+  else
+    icon = (<FontAwesomeIcon icon={my_icon.icon} style={my_icon.style} size={size} color={my_icon.color.primary}/>);
+  return (<div className={className} style={style}>
+            {icon} 
+          </div>);
+}
+//
+export const getTypeIcon = (request, size, color) => {
+  
+  const my_icon = getTypeConf()[request.requested_type]; 
   if(!my_icon)
     return (<FontAwesomeIcon icon="question-circle" size="1x" color="gray" />);
   // style={my_icon.style} 

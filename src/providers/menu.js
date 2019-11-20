@@ -15,7 +15,7 @@ import { getRootKeys } from '@app/services/routes'
 const  { SubMenu } = Menu;
 
 const renderItem = (item) => {
-    // console.log(item.key , item.items)
+    // console.log(' renderItem => ', item.key)
     if(item.items) {
         return (
         <SubMenu title={<span>{ item.icon? <Icon type={item.icon} />: false }<span>{item.title}</span></span>} key={item.key}>
@@ -41,6 +41,8 @@ export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actua
 
         let selected = routes_config.getItemByAreaNFilename(area, fileName, itemPath)
         
+        // console.log(' >> PRE >> menu >> selected:', JSON.stringify(selected))
+
         if(((!selected || selected.father_key==='*') || area==='common') && lastRootMenu)
         {
             const path_parts = lastRootMenu.split('/'); 
@@ -49,7 +51,7 @@ export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actua
             selected = routes_config.getItemByFullpath(area, path, null)
         }
         
-        // console.log(' >> menu >> selected:', JSON.stringify(selected))
+        // console.log(' >> POST >> menu >> selected:', JSON.stringify(selected))
         
         // const aa = selected?[(selected.father_key?selected.father_key:selected.key)]:['dashboard'];
         const aa = selected?[selected.key]:['dashboard'];

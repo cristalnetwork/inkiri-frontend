@@ -16,8 +16,8 @@ import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 import { withRouter } from "react-router-dom";
 
-import { BackTop, Table, Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
-import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { BackTop, Table, Select, Result, Card, PageHeader, Tag, Button, Spin } from 'antd';
+import { message, notification, Form, Icon, InputNumber, Input } from 'antd';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
 import TxResult from '@app/components/TxResult';
@@ -272,7 +272,7 @@ class PDV extends Component {
     let that = this;
     this.setState({loading:true});
     // console.log(' <><><><><><><><><> this.state.cursor:', this.state.cursor)
-    api.listTransactions(account_name, (is_first===true?undefined:this.state.cursor) )
+    api.listTransactions(account_name, (is_first===true?undefined:this.state.cursor), true )
     .then( (res) => {
         that.onNewData(res.data);
       } ,(ex) => {
@@ -308,7 +308,16 @@ class PDV extends Component {
     let   content     = this.renderContent();
     const routes      = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     const {connected} = this.state;
-    const connection_icon = connected?(<Icon key={Math.random()} type="check-circle" theme="twoTone"  twoToneColor="#52c41a"/>):(<Icon key={Math.random()} type="api" theme="twoTone" twoToneColor="#eb2f96" />)
+    const conn_title  = connected?'You are connected and receiving transaction!':'Something went wrong. You are not connected neither receiving transactions.'; 
+    const connection_icon = connected?(<Icon title={conn_title} key={Math.random()} type="check-circle" theme="twoTone" style={{fontSize:20}} twoToneColor="#52c41a"/>):(<Icon title={conn_title} key={Math.random()} type="api" theme="twoTone" twoToneColor="#eb2f96" style={{fontSize:20}} />)
+    const infinite_container = (null);
+    // const infinite_container = (<div className="App-infinite-container">
+    //       { this.state.transfers.length <= 0
+    //           ? this.renderTransfer("Nothing yet, start by hitting Launch!")
+    //           : this.state.transfers.reverse().map(this.renderTransfer)
+    //       }
+    //     </div>);
+
     return (
       <>
         <PageHeader
@@ -328,12 +337,7 @@ class PDV extends Component {
 
         <BackTop />
 
-        <div className="App-infinite-container">
-          { this.state.transfers.length <= 0
-              ? this.renderTransfer("Nothing yet, start by hitting Launch!")
-              : this.state.transfers.reverse().map(this.renderTransfer)
-          }
-        </div>
+        {infinite_container}
 
         <Card 
           title="ÚLTIMAS COBRANÇAS EFETUADAS" 
@@ -343,7 +347,7 @@ class PDV extends Component {
             key="pdv"
             rowKey={record => record.id} 
             loading={this.state.loading} 
-            columns={ columns_helper.getColumnsForPersonalExtrato(this.onTransactionClick, this.props.actualRoleId)} 
+            columns={ columns_helper.getColumnsForPDV(this.onTransactionClick)} 
             dataSource={this.state.txs} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
@@ -385,10 +389,14 @@ class PDV extends Component {
 
     const { from, to, quantity, memo } = message.data.trace.act.data
     const transfer = `Transfer [${from} -> ${to}, ${quantity}] (${memo})`
-
     this.setState((prevState) => ({
       transfers: [ ...prevState.transfers.slice(-100), transfer ],
     }))
+
+    const txs = api.dfuse.transformTransactions(message, this.props.actualAccountName, false);
+    this.onNewData({txs:txs, cursor:null});
+    // message.success('New payment received!', 5);
+    this.openNotificationWithIcon("success", "New payment received!")    
   }
 
   stop = async () => {
@@ -417,10 +425,10 @@ class PDV extends Component {
       this.stream.close()
     }
   }
+
   renderTransfer = (transfer, index) => {
     return <code key={index} className="App-transfer">{transfer}</code>
   }
-
 
   
 }
