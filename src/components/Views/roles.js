@@ -8,9 +8,10 @@ import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // import Skeleton from '@app/components/Views/skeleton';
-export const ENUM_EVENT_NEW_PERMISSION    = 'event_new_permission';
-export const ENUM_EVENT_DELETE_PERMISSION = 'event_delete_permission';
-export const ENUM_AUTHORITY_CHANGE        = 'event_authority_change';
+export const ENUM_EVENT_NEW_PERMISSION      = 'event_new_permission';
+export const ENUM_EVENT_DELETE_PERMISSION   = 'event_delete_permission';
+export const ENUM_EVENT_RELOAD_PERMISSIONS  = 'event_reload_permissions';
+export const ENUM_AUTHORITY_CHANGE          = 'event_authority_change';
 
 const AccountRolesView = (props) => {
     
@@ -66,6 +67,11 @@ const AccountRolesView = (props) => {
     const onNewPermission = () => {
       fireEvent(ENUM_EVENT_NEW_PERMISSION, authority);
     }
+    
+    const onReloadPermission = () => {
+      console.log(' roles-view::about to fire ENUM_EVENT_RELOAD_PERMISSIONS')
+      fireEvent(ENUM_EVENT_RELOAD_PERMISSIONS, null);
+    }
     //
     if(!account || !eos_account)
     {
@@ -120,7 +126,8 @@ const AccountRolesView = (props) => {
               <Card 
                 key={'card_master'}
                 style = { { marginBottom: 24 } } 
-                extra = {<Button key="_new_perm" size="small" icon="plus" onClick={() => onNewPermission()}> New</Button>}
+                extra = {[<Button key="_new_perm" size="small" icon="plus" onClick={() => onNewPermission()}> New</Button>,
+                          <Button key="_reload_perm" size="small" icon="reload" onClick={() => onReloadPermission()} style={{marginLeft:8}}> Reload</Button>]}
                 tabList={my_permisssions.map(perm=>{
                   return {key: perm
                           , tab: (
