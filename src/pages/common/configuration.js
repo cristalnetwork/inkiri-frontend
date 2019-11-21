@@ -33,7 +33,7 @@ import BankAccountForm from '@app/components/Form/bank_account';
 import ProfileForm from '@app/components/Form/profile';
 import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/components/Views/profile';
 import Skeleton from '@app/components/Views/skeleton';
-import AccountRolesView, {ENUM_EVENT_NEW_PERMISSION, ENUM_EVENT_DELETE_PERMISSION} from '@app/components/Views/roles';
+import AccountRolesView, {ENUM_AUTHORITY_CHANGE, ENUM_EVENT_NEW_PERMISSION, ENUM_EVENT_DELETE_PERMISSION} from '@app/components/Views/roles';
 import AddRoleForm from '@app/components/Form/add_role';
 import AccountView , {ENUM_EVENT_EDIT_PROFILE_ALIAS}from '@app/components/Views/account';
 
@@ -48,6 +48,12 @@ const ACTIVE_TAB_ROLES_NEW             = 'active_tab_roles_new';
 const ACTIVE_TAB_PREFERENCES           = 'active_tab_preferences';
 const ACTIVE_TAB_SECURITY              = 'active_tab_security';
 
+const DEFAULT_RESULT = {
+  result:             undefined,
+  result_object:      undefined,
+  error:              {},
+}
+
 class Configuration extends Component {
   constructor(props) {
     super(props);
@@ -59,8 +65,11 @@ class Configuration extends Component {
       active_tab_object:   null,
       profile:             props.actualAccountProfile,
       eos_account:         props.eos_account,
-      bank_account:        props.bank_account
+      bank_account:        props.bank_account,
 
+      role_authority:      'owner',
+
+      ...DEFAULT_RESULT
     };
 
     this.renderContent              = this.renderContent.bind(this); 
@@ -159,15 +168,16 @@ class Configuration extends Component {
   }
 
   resetResult(){
-    // this.setState({...DEFAULT_RESULT});
+    this.setState({...DEFAULT_RESULT});
   }
 
   resetPage(active_tab){
-    let my_active_tab = active_tab?active_tab:ACTIVE_TAB_PROFILE;
+    let my_active_tab = active_tab?active_tab:this.state.active_tab;
     this.setState({ active_tab:          my_active_tab, 
                     active_tab_action:   my_active_tab, 
                     active_tab_object:   null,
-                    pushingTx:           false
+                    pushingTx:           false,
+                    ...DEFAULT_RESULT
                   });    
   }
 
@@ -267,6 +277,8 @@ class Configuration extends Component {
         const {permission} = object;
         this.deletePermission(permission.name, permission.actor, permission.permission);
         break;
+      case ENUM_AUTHORITY_CHANGE:
+        this.setState({role_authority:object});
       default:
         break;
     }
@@ -290,6 +302,7 @@ class Configuration extends Component {
   addPermission = async (permissioned, perm_name) => {
     this.setState({pushingTx:true});
     const {eos_account}  = this.state;
+    console.log(' addPermission: => ',eos_account)
     const new_perm       = api.getNewPermissionObj (eos_account, permissioned, perm_name)
     this.setAccountPermission(perm_name, new_perm);
   }
@@ -323,10 +336,11 @@ class Configuration extends Component {
     api.setAccountPermission(eos_account.account_name, this.props.actualPrivateKey, perm_name, new_perm)
       .then(data => {
         console.log(' ### setAccountPermission >>> ', JSON.stringify(data))
-        that.props.loadBankAccount(that.props.actualAccountName);
+        that.props.loadEosAccount(that.props.actualAccountName);
         that.setState({result:'ok', pushingTx:false, result_object:data});
       }, (ex)=>{
         console.log( ' ### setAccountPermission >>> ERROR >> ', JSON.stringify(ex))
+        that.props.loadEosAccount(that.props.actualAccountName);
         that.setState({pushingTx:false, result:'error', error:JSON.stringify(ex)});
       });
   }
@@ -367,7 +381,11 @@ class Configuration extends Component {
       const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error
       
-      return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
+      return(<div style={{ margin: '0 0px', padding: 24, marginTop: 24, backgroundColor:'#ffffff'}}>
+        <div className="ly-main-content content-spacing cards">          
+          <TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />
+        </div>
+      </div>);
     }
 
     const { active_tab, active_tab_action, active_tab_object, pushingTx } = this.state;
@@ -431,12 +449,17 @@ class Configuration extends Component {
             icon="user-shield" />  );
       }
 
+
       return (
         <Skeleton 
         content={
           <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
             <div className="c-detail">
-              <AccountRolesView account={this.state.bank_account} eos_account={this.state.eos_account} onEvent={()=>this.onRoleEvents}/>
+              <AccountRolesView 
+                account={this.state.bank_account} 
+                eos_account={this.state.eos_account} 
+                onEvent={()=>this.onRoleEvents} 
+                authority={this.state.role_authority}/>
             </div>
           </Spin>
         } icon="shield-alt" />

@@ -32,7 +32,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ProfileForm from '@app/components/Form/profile';
 import Skeleton from '@app/components/Views/skeleton';
 import AccountView , {ENUM_EVENT_EDIT_PROFILE_ALIAS}from '@app/components/Views/account';
-import AccountRolesView, {ENUM_EVENT_NEW_PERMISSION, ENUM_EVENT_DELETE_PERMISSION} from '@app/components/Views/roles';
+import AccountRolesView, {ENUM_AUTHORITY_CHANGE, ENUM_EVENT_NEW_PERMISSION, ENUM_EVENT_DELETE_PERMISSION} from '@app/components/Views/roles';
 import AddRoleForm from '@app/components/Form/add_role';
 
 // const ACTIVE_TAB_PROFILE               = 'active_tab_profile';
@@ -65,6 +65,7 @@ class Profile extends Component {
       account:            (props && props.location && props.location.state && props.location.state.account)? props.location.state.account : null,
       eos_account:        null,
       profile:            null,
+      role_authority:     'owner'
     };
 
     this.renderContent              = this.renderContent.bind(this); 
@@ -141,6 +142,8 @@ class Profile extends Component {
         const {permission} = object;
         this.deletePermission(permission.name, permission.actor, permission.permission);
         break;
+      case ENUM_AUTHORITY_CHANGE:
+        this.setState({role_authority:object});
       default:
         break;
     }
@@ -201,6 +204,7 @@ class Profile extends Component {
         that.setState({result:'ok', pushingTx:false, result_object:data});
       }, (ex)=>{
         console.log( ' ### setAccountPermission >>> ERROR >> ', JSON.stringify(ex))
+        that.reloadAccount();
         that.setState({pushingTx:false, result:'error', error:JSON.stringify(ex)});
       });
   }
@@ -338,9 +342,7 @@ class Profile extends Component {
       //<section className="mp-box mp-box__shadow money-transfer__box"></section>
       return(<div style={{ margin: '0 0px', padding: 24, marginTop: 24, backgroundColor:'#ffffff'}}>
         <div className="ly-main-content content-spacing cards">
-          
             <TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />
-          
         </div>
       </div>);
     }
@@ -396,7 +398,12 @@ class Profile extends Component {
         content={
           <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
             <div className="c-detail">
-              <AccountRolesView account={this.state.account} eos_account={this.state.eos_account} onEvent={()=>this.onRoleEvents}/>
+              <AccountRolesView 
+                account={this.state.account} 
+                eos_account={this.state.eos_account} 
+                onEvent={()=>this.onRoleEvents}
+                authority={this.state.role_authority}
+                />
             </div>
           </Spin>
         } icon="shield-alt" />

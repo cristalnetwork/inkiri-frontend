@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Skeleton, List, Card, Empty, Button, Icon, message } from 'antd';
 import { connect } from 'react-redux'
-// import * as loginRedux from '@app/redux/models/login'
+import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import Skeleton from '@app/components/Views/skeleton';
 export const ENUM_EVENT_NEW_PERMISSION    = 'event_new_permission';
 export const ENUM_EVENT_DELETE_PERMISSION = 'event_delete_permission';
-
+export const ENUM_AUTHORITY_CHANGE        = 'event_authority_change';
 
 const AccountRolesView = (props) => {
     
@@ -19,6 +19,7 @@ const AccountRolesView = (props) => {
     const [eos_account, setEosAccount] = useState(null);
     const [onEvent, setOnEvent]        = useState(null);
     const [authority, setAuthority]    = useState();
+    const [is_admin, setIsAdmin]       = useState(props.isAdmin);
     
 
     useEffect(() => {
@@ -27,12 +28,18 @@ const AccountRolesView = (props) => {
         setOnEvent(props.onEvent||null);
         setLoading(props.loading||false);
         setAuthority(props.authority||'owner');
+        setIsAdmin(props.isAdmin);
     });
 
     const fireEvent = (eventType, object) => {
       if(typeof onEvent === 'function') {
           onEvent(eventType, object)
       }
+    }
+    const tabChange = (authority) => {
+      // console.log(tab_key);
+      // setAuthority(tab_key);
+      fireEvent(ENUM_AUTHORITY_CHANGE, authority); 
     }
 
     const onDeletePermission = (permission_name, permission_actor, permission_permission ) => {
@@ -65,7 +72,7 @@ const AccountRolesView = (props) => {
       console.log(' roles-view: cant show component. account:', account, '-------- eos_account:', eos_account)
       return (null);
     }
-    
+    console.log(' roles-view: YES show component.')
     const {account_type}  = account;
     const my_permisssions = globalCfg.bank.getPermsForAccountType(account_type);
     
@@ -75,7 +82,9 @@ const AccountRolesView = (props) => {
       let list = [];
       if(perm && perm.length>0)
         list = perm[0].required_auth.accounts.filter(acc => acc.permission.actor.trim()!=eos_account.account_name.trim());
-      
+      if(is_admin && perm && perm.length>0)
+        list = perm[0].required_auth.accounts.filter(acc => acc.permission.actor.trim()!=globalCfg.bank.issuer);
+
       return (
             
             <List
@@ -120,7 +129,7 @@ const AccountRolesView = (props) => {
           
                 })}
                 activeTabKey={authority}
-                onTabChange={(tab_key) => { console.log(tab_key);setAuthority(tab_key)} }
+                onTabChange={(tab_key) => { tabChange(tab_key)} }
           
                 >
                 <div style={{ margin: '0 auto', width:'100%', padding: 24, background: '#fff'}}>
@@ -134,6 +143,7 @@ const AccountRolesView = (props) => {
 //
 export default connect(
     (state)=> ({
+      isAdmin:           loginRedux.actualRole(state),
     })
 )(AccountRolesView)
 

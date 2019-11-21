@@ -150,7 +150,8 @@ h3.fileds_header{
 }
 
 /* FONTAWESOME Icons for transactions */
-.icon_color_default { color:#1890ff; }
+/*.icon_color_default { color:#1890ff; }*/
+.icon_color_default { color:gray; }
 .icon_color_green   { color:#3db389; }
 
 /*.flex_row{

@@ -403,25 +403,40 @@ export const issueMoney = async (issuer_account, issuer_priv, receiver_account, 
 
 export const setAccountPermission = async (account, account_priv, permission_name, authority_obj, parent) => { 
 
-  if(!parent)
-    parent=""; //parent='owner';
+  if(!parent && permission_name!='owner')
+    parent='owner';
+
+
+  const empty = ((!authority_obj.keys || authority_obj.keys.length==0) && (!authority_obj.accounts || authority_obj.accounts.length==0));
+
+  let action_name = 'updateauth';
+  let data        = {
+      account:    account,
+      permission: permission_name,
+      auth   : authority_obj,
+      parent : parent
+    }
+
+  if(empty)
+  {
+    action_name = 'deleteauth';
+    data        = {
+      account:    account,
+      permission: permission_name,
+    }
+
+  }
 
   const permAction = {
     account: 'eosio',
-    name: "updateauth",
+    name: action_name,
     authorization: [
       {
         actor: account,
         permission: "owner"
       }
     ],
-    data: {
-      //[permission_name] : {... authority_obj}
-      account:    account,
-      permission: permission_name,
-      auth:       authority_obj,
-      parent:     parent
-    }
+    data: data
   }
 
   console.log(' InkiriApi::permAction >> About to change permission >> ', prettyJson(permAction))
@@ -459,11 +474,13 @@ export const getNewPermissionObj = (eos_account_object, permissioned, perm_name)
   
   // If permission not in eos_account_obj, we create it 
   let perm = eos_account_object.permissions.filter( perm => perm.perm_name==perm_name )
+  // console.log('getNewPermissionObj => ', perm)
   if(!perm || perm.length==0)
   {
+    // console.log('getNewPermissionObj => ', 'podria hacerlo!!!  ||| perm_name:', perm_name)
     perm = Object.assign({}, default_perm);
-    // if(perm_name==='owner')
-    //   delete perm.parent;
+    // if(perm_name!=='owner')
+    //   perm.parent = 'owner';
     perm.perm_name = perm_name;
     perm.required_auth.accounts.push(new_perm)
   }
