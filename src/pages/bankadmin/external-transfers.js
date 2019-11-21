@@ -64,12 +64,19 @@ class ExternalTransfers extends Component {
   getColumns(){
     return columns_helper.columnsForExternal(this.onProcessRequestClick);
   }
-  
+  //
+  reloadTxs(){
+    this.setState({
+        page: -1
+      }, () => {
+        this.loadExternalTxs();
+      });  
+  }
   //
   loadExternalTxs(){
 
     let can_get_more   = this.state.can_get_more;
-    if(!can_get_more)
+    if(!can_get_more && this.state.page>=0)
     {
       this.setState({loading:false});
       return;
@@ -79,7 +86,7 @@ class ExternalTransfers extends Component {
     this.setState({loading:true});
 
     let page           = (this.state.page<0)?0:(this.state.page+1);
-    const limit          = this.state.limit;
+    const limit        = this.state.limit;
     let that           = this;
     
     const req_type = DISPLAY_EXCHANGES + '|' + DISPLAY_PROVIDER;
@@ -250,14 +257,14 @@ class ExternalTransfers extends Component {
     const content               = this.renderContent();
     const stats                 = this.renderTableViewStats();
     const filters               = this.renderFilterContent();
-    const {routes}              = this.state;
+    const {routes, loading}     = this.state;
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="External Transfers"
           subTitle="List of Provider Payments and Exchanges" />
-        
+          extra={[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadTxs()} ></Button>]}
         <Card
           key="card_table_all_requests"
           className="styles listCard"

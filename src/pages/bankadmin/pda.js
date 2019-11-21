@@ -46,7 +46,7 @@ class PDA extends Component {
       limit:           globalCfg.api.default_page_size,
       can_get_more:    true,
 
-      stats:          {}
+      stats:           {}
     };
 
     this.loadTransactionsForPDA     = this.loadTransactionsForPDA.bind(this);  
@@ -70,10 +70,18 @@ class PDA extends Component {
   /*
   * Retrieves transactions
   */
+  reloadTxs(){
+    this.setState({
+        page: -1
+      }, () => {
+        this.loadTransactionsForPDA();
+      });  
+  }
+
   loadTransactionsForPDA(){
 
     let can_get_more   = this.state.can_get_more;
-    if(!can_get_more)
+    if(!can_get_more && this.state.page>=0)
     {
       this.setState({loading:false});
       return;
@@ -181,10 +189,6 @@ class PDA extends Component {
         }
     })
 
-    // this.props.history.push({
-    //   pathname: `/${this.props.actualRole}/pda-process-request`
-    //   , state: { request: request }
-    // })
   }
 
   renderFooter(){
@@ -249,12 +253,13 @@ class PDA extends Component {
     const content               = this.renderContent();
     const stats                 = this.renderTableViewStats();
     const filters               = this.renderFilterContent();
-    const {routes}              = this.state;
+    const {routes, loading}     = this.state;
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={[
+            <Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadTxs()} ></Button>,
             <Button size="small" key="_new_deposit"  icon="plus" disabled> Deposit</Button>,
             <Button size="small" key="_new_withdraw" icon="plus" disabled> Withdraw</Button>,
           ]}
