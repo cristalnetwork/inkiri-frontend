@@ -1,10 +1,12 @@
 export const sliceAndJoinMemo = (s, extra) => {
-  if (typeof s !== 'string') return ''
+  if (typeof s !== 'string') 
+    s = '';
   return cleanMemo(s) + '|' + extra.trim().slice(0,20)
 }
 
 export const cleanMemo = (s) => {
-  if (typeof s !== 'string') return ''
+  if (typeof s !== 'string') 
+    s = '';
   return s.trim().replace(/\|/g, "-").slice(0,50);
 }
 

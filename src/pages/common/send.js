@@ -204,8 +204,9 @@ class SendMoney extends Component {
   };
 
   doPayOrSend = (values, _pay) => {
-    const { input_amount, transfer_extra } = this.state; 
-      
+    const { input_amount }   = this.state; 
+    const { transfer_extra } = values;
+    
     if(isNaN(input_amount.value))
     {
       this.openNotificationWithIcon("error", "Valid number required for amount","Please type a validnumber greater than 0!")    
@@ -231,11 +232,13 @@ class SendMoney extends Component {
     const sender           = this.props.actualAccountName;
     const amount           = input_amount.value;
     let memo               = '';
-    console.log(transfer_extra)
-    if(this.props.isBusiness && transfer_extra)
+    console.log('transfer_extra:', JSON.stringify(transfer_extra))
+    console.log('message:',transfer_extra.message, ' | reason:', transfer_extra[globalCfg.api.TRANSFER_REASON])
+    
+    if(this.props.isBusiness)
     {  
       memo = utils.sliceAndJoinMemo (transfer_extra.message, transfer_extra[globalCfg.api.TRANSFER_REASON])
-      console.log('* transfer_extra: ', transfer_extra);
+      console.log(' biz && t.extra => memo:', memo);
     }
     else
       if(transfer_extra)
