@@ -110,10 +110,20 @@ class AdminAccounts extends Component {
 
   }
 
+  reloadAccounts(){
+    this.setState({
+        page:       -1, 
+        accounts:   [],
+      }, () => {
+        this.loadAccounts();
+      });  
+  }
+  //
+
   loadAccounts = async () => {
 
     let can_get_more   = this.state.can_get_more;
-    if(!can_get_more)
+    if(!can_get_more && this.state.page>=0)
     {
       this.setState({loading:false});
       return;
@@ -344,15 +354,14 @@ class AdminAccounts extends Component {
     const content               = this.renderContent();
     const stats                 = this.renderTableViewStats();
     const filters               = this.renderFilterContent();
-
-    const _href   = globalCfg.bank.customers;
-    
-    const {routes}  = this.state;
+    const _href                 = globalCfg.bank.customers;
+    const {routes, loading}     = this.state;
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={[
+            <Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadAccounts()} ></Button>,
             <Button size="small" type="link" href={_href} target="_blank" key="view-on-blockchain_" icon="cloud" >View Accounts on Blockchain</Button>,
             <Button size="small" type="primary" key="_new_account" icon="plus" onClick={()=>{this.onNewAccount()}}> Account</Button>,
           ]}

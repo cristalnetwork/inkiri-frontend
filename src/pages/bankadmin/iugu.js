@@ -65,18 +65,25 @@ class Iugu extends Component {
   getColumns(){
     return columns_helper.columnsForIUGU(this.onInvoiceClick);
   }
-  
+  //
+  reloadTxs(){
+    this.setState({
+        page:   -1, 
+        txs:    [],
+      }, () => {
+        this.loadExternalTxs();
+      });  
+  }
   //
   loadExternalTxs(){
 
     let can_get_more   = this.state.can_get_more;
-    if(!can_get_more)
+    if(!can_get_more && this.state.page>=0)
     {
       this.setState({loading:false});
       return;
     }
 
-    
     this.setState({loading:true});
 
     let page           = (this.state.page<0)?0:(this.state.page+1);
@@ -246,14 +253,16 @@ class Iugu extends Component {
     const content               = this.renderContent();
     const stats                 = this.renderTableViewStats();
     const filters               = this.renderFilterContent();
-    const {routes}              = this.state;
+    const {routes, loading}     = this.state;
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="IUGU payments"
-          subTitle="List of Invoices Paid via IUGU" />
-        
+          subTitle="List of Invoices Paid via IUGU" 
+          extra={[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadTxs()} ></Button>,]}
+          />
+          
         <Card
           key="card_table_all_requests"
           className="styles listCard"

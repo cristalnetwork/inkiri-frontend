@@ -67,7 +67,8 @@ class ExternalTransfers extends Component {
   //
   reloadTxs(){
     this.setState({
-        page: -1
+        page:   -1, 
+        txs:    [],
       }, () => {
         this.loadExternalTxs();
       });  
@@ -263,8 +264,9 @@ class ExternalTransfers extends Component {
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="External Transfers"
-          subTitle="List of Provider Payments and Exchanges" />
+          subTitle="List of Provider Payments and Exchanges" 
           extra={[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadTxs()} ></Button>]}
+        />
         <Card
           key="card_table_all_requests"
           className="styles listCard"

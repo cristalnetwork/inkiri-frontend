@@ -87,7 +87,7 @@ const TableStats = ({stats_array, title, visible}) => {
     }
     //
     const getStatItem = (item) =>{
-      return (<Col xs={24} sm={12} md={6} lg={_xl} xl={_xl}>
+      return (<Col key={Math.random()} xs={24} sm={12} md={6} lg={_xl} xl={_xl}>
                 <Statistic
                     title={item.title}
                     value={item.value}
