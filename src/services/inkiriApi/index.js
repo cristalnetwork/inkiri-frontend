@@ -405,6 +405,8 @@ export const setAccountPermission = async (account, account_priv, permission_nam
 
   if(!parent && permission_name!='owner')
     parent='owner';
+  else
+    parent = '';
 
 
   const empty = ((!authority_obj.keys || authority_obj.keys.length==0) && (!authority_obj.accounts || authority_obj.accounts.length==0));
@@ -459,9 +461,6 @@ const default_perm = {
 
 export const getNewPermissionObj = (eos_account_object, permissioned, perm_name) =>{
 
-  // console.log(' RECEIVED getNewPermissionObj >> permissioned >>', JSON.stringify(permissioned))
-  // console.log(' RECEIVED getNewPermissionObj >> perm_name >>', JSON.stringify(perm_name))
-  // console.log(' RECEIVED getNewPermissionObj >> eos_account_object >>', JSON.stringify(eos_account_object))
   // Creamos el nuevo permiso
   const new_perm = {
                     "permission":

@@ -16,37 +16,27 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
-import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { Card, PageHeader, Button, Spin, notification, Icon } from 'antd';
 import { Tabs } from 'antd';
 
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
-import './configuration.css'; 
+// import './configuration.css'; 
 import _ from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import * as utils from '@app/utils/utils';
 
-import BankAccountForm from '@app/components/Form/bank_account';
-import ProfileForm from '@app/components/Form/profile';
-import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/components/Views/profile';
 import Skeleton from '@app/components/Views/skeleton';
 import AccountRolesView, {ENUM_EVENT_RELOAD_PERMISSIONS, ENUM_AUTHORITY_CHANGE, ENUM_EVENT_NEW_PERMISSION, ENUM_EVENT_DELETE_PERMISSION} from '@app/components/Views/roles';
 import AddRoleForm from '@app/components/Form/add_role';
-import AccountView , {ENUM_EVENT_EDIT_PROFILE_ALIAS}from '@app/components/Views/account';
 
-const ACTIVE_TAB_PROFILE               = 'active_tab_profile';
-const ACTIVE_TAB_PROFILE_EDIT_PROFILE  = 'active_tab_profile_edit_profile';
-const ACTIVE_TAB_INFO                  = 'active_tab_info';
-const ACTIVE_TAB_INFO_EDIT_ALIAS       = 'active_tab_info_edit_alias';
-const ACTIVE_TAB_PROFILE_BANK_ACCOUNT  = 'active_tab_profile_add_or_update_bank_account';
-const ACTIVE_TAB_ACCOUNTS              = 'active_tab_accounts';
+const ACTIVE_TAB_BANK_ACCOUNTS         = 'active_tab_bank_accounts';
 const ACTIVE_TAB_ROLES                 = 'active_tab_roles';
 const ACTIVE_TAB_ROLES_NEW             = 'active_tab_roles_new';
-const ACTIVE_TAB_PREFERENCES           = 'active_tab_preferences';
-const ACTIVE_TAB_SECURITY              = 'active_tab_security';
+const ACTIVE_TAB_PERMISSIONS           = 'active_tab_permissions';
+const ACTIVE_TAB_PARAMETERS            = 'active_tab_parameters';
 
 const DEFAULT_RESULT = {
   result:             undefined,
@@ -60,10 +50,10 @@ class Configuration extends Component {
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       pushingTx:           false,
-      active_tab:          ACTIVE_TAB_PROFILE,
-      active_tab_action:   ACTIVE_TAB_PROFILE,
+      active_tab:          ACTIVE_TAB_ROLES,
+      active_tab_action:   ACTIVE_TAB_ROLES,
       active_tab_object:   null,
-      profile:             props.actualAccountProfile,
+      
       eos_account:         props.eos_account,
       bank_account:        props.bank_account,
 
@@ -77,14 +67,12 @@ class Configuration extends Component {
     this.resetResult                = this.resetResult.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
-    this.onConfigurationEvents      = this.onConfigurationEvents.bind(this); 
-    this.onAddOrUpdateBankAccount   = this.onAddOrUpdateBankAccount.bind(this); 
+    
 
     this.onCancelNewPermission      = this.onCancelNewPermission.bind(this);
     this.addPermission              = this.addPermission.bind(this);
     this.onAddPermission            = this.onAddPermission.bind(this);
-    this.onUpdateProfile            = this.onUpdateProfile.bind(this);
-
+    
     this.onTabChange                = this.onTabChange.bind(this); 
 
   }
@@ -110,38 +98,20 @@ class Configuration extends Component {
   componentDidUpdate(prevProps, prevState) 
   {
     const {actualAccountProfile, eos_account, bank_account} = this.props;
-    if(prevProps.actualAccountProfile != actualAccountProfile) {
+    if(prevProps.actualAccountProfile !== actualAccountProfile) {
       this.setState({ profile:actualAccountProfile});
     }
-    if(prevProps.eos_account != eos_account) {
+    if(prevProps.eos_account !== eos_account) {
       console.log('updating_eos_account:', eos_account)
       this.setState({ eos_account:eos_account});
     }
-    if(prevProps.bank_account != bank_account) {
+    if(prevProps.bank_account !== bank_account) {
       console.log('updating_bank_account:', bank_account)
       this.setState({ bank_account:bank_account});
     }
 
   }
     
-  onConfigurationEvents = (event_type, object) => {
-
-    switch (event_type){
-      case ENUM_EVENT_EDIT_PROFILE:
-        // this.openNotificationWithIcon("info", "We are developing this function!")    
-        this.setState({active_tab_action:ACTIVE_TAB_PROFILE_EDIT_PROFILE, active_tab_object:null});
-        break;
-      case ENUM_EVENT_EDIT_BANK_ACCOUNT:
-        this.setState({active_tab_action:ACTIVE_TAB_PROFILE_BANK_ACCOUNT, active_tab_object:object});
-        break;
-      case ENUM_EVENT_NEW_BANK_ACCOUNT:
-        this.setState({active_tab_action:ACTIVE_TAB_PROFILE_BANK_ACCOUNT, active_tab_object:null});
-        break;
-      default:
-        break;
-    }
-  }
-
   onTabChange(key) {
     // console.log(key);
     this.setState({active_tab:key})
@@ -192,79 +162,7 @@ class Configuration extends Component {
     
   }
 
-  onUpdateProfile(error, cancel, values){
-    if(cancel)
-    {
-      this.setState({  
-          active_tab_action:   ACTIVE_TAB_PROFILE, 
-          active_tab_object:   null
-      });
-      return;
-    }
-    if(error)
-    {
-      return;
-    }
   
-    const that                = this;
-    const {id, account_name}  = this.state.profile;
-    const new_profile         = values;
-    const {account_type, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias} = new_profile;
-    
-    this.setState({active_tab_object:values, pushingTx:true})
-    
-    api.bank.createOrUpdateUser(id, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias)
-      .then((res)=>{
-        that.openNotificationWithIcon("success", "Profile updated successfully")    
-        that.props.loadProfile(that.props.actualAccountName);
-        that.resetPage(ACTIVE_TAB_PROFILE);
-        
-      }, (err)=>{
-        console.log(' >> onUpdateProfile >> ', JSON.stringify(err));
-        that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
-        that.setState({pushingTx:false});
-      })
-
-
-  }
-
-  onAddOrUpdateBankAccount(error, cancel, values){
-    if(cancel)
-    {
-      this.setState({  
-          active_tab_action:   ACTIVE_TAB_PROFILE, 
-          active_tab_object:   null
-      });
-      return;
-    }
-    if(error)
-    {
-      return;
-    }
-    const that = this;
-    const {profile} = this.state;
-    this.setState({active_tab_object:values, pushingTx:true})
-    // console.log(' >> onAddOrUpdateBankAccount::values: ', JSON.stringify(values))
-    let bank_accounts = [...profile.bank_accounts, values];
-    // console.log(' >> onAddOrUpdateBankAccount:: bank_accounts: ', JSON.stringify(bank_accounts))
-    api.bank.updateUserBankAccounts(profile.id, bank_accounts)
-      .then((res)=>{
-        that.props.loadProfile(that.props.actualAccountName);
-        that.openNotificationWithIcon("success", "Bank account saved successfully")    
-        that.resetPage(ACTIVE_TAB_PROFILE);
-        // console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(res));
-        // that.setState({result:'ok'});
-
-      }, (err)=>{
-        console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(err));
-        that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
-        that.setState({pushingTx:false});
-      })
-
-
-  }
-
-
   /* *********************** */
   /* ACCOUNT ROLE MANAGEMENT */
   onRoleEvents    = (event_type, object) => {
@@ -328,10 +226,7 @@ class Configuration extends Component {
   }
 
   setAccountPermission(perm_name, new_perm){
-    // this.setState({pushingTx:false});
-    // console.log(` ### setAccountPermission >>> ABOUT TO SET -> ${perm_name}`, JSON.stringify(new_perm))
-    // return;
-
+    
     const {eos_account}  = this.state;
     const that = this;
     
@@ -352,28 +247,6 @@ class Configuration extends Component {
     this.resetPage(ACTIVE_TAB_ROLES);
   }
 
-  /* *********************** */
-  onAccountEvents = (event_type, object) => {
-
-    switch (event_type){
-      case ENUM_EVENT_EDIT_PROFILE_ALIAS:
-      console.log(' EVENTO -> ', ENUM_EVENT_EDIT_PROFILE_ALIAS);
-      this.setState({active_tab_action:ACTIVE_TAB_INFO_EDIT_ALIAS, active_tab_object:this.state.profile});
-      break;
-      // case ENUM_EVENT_EDIT_PROFILE:
-      //   // this.openNotificationWithIcon("info", "We are developing this function!")    
-      //   this.setState({active_tab_action:ACTIVE_TAB_PROFILE_EDIT_PROFILE, active_tab_object:null});
-      //   break;
-      // case ENUM_EVENT_EDIT_BANK_ACCOUNT:
-      //   this.setState({active_tab_action:ACTIVE_TAB_PROFILE_BANK_ACCOUNT, active_tab_object:object});
-      //   break;
-      // case ENUM_EVENT_NEW_BANK_ACCOUNT:
-      //   this.setState({active_tab_action:ACTIVE_TAB_PROFILE_BANK_ACCOUNT, active_tab_object:null});
-      //   break;
-      default:
-        break;
-    }
-  }
   renderContent() {
     if(this.state.result)
     {
@@ -392,42 +265,26 @@ class Configuration extends Component {
 
     const { active_tab, active_tab_action, active_tab_object, pushingTx } = this.state;
     
-    if(active_tab==ACTIVE_TAB_PROFILE)
+    if(active_tab==ACTIVE_TAB_BANK_ACCOUNTS)
     {
-      if(active_tab_action==ACTIVE_TAB_PROFILE_BANK_ACCOUNT)
-      {
-        const button_text = active_tab_object?'UPDATE BANK ACCOUNT':'ADD BANK ACCOUNT';
-        return (
-          <Skeleton 
-            content={
-              <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
-                <BankAccountForm 
-                  bank_account={active_tab_object} 
-                  alone_component={false} 
-                  button_text={button_text} 
-                  callback={this.onAddOrUpdateBankAccount}/>
-              </Spin>} 
-            icon="university" />  );
-      }
-            
-      if(active_tab_action==ACTIVE_TAB_PROFILE_EDIT_PROFILE)
-      {
-        const button_text = active_tab_object?'UPDATE BANK ACCOUNT':'ADD BANK ACCOUNT';
-        return (
-          <Skeleton 
-            content={
-              <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
-                <ProfileForm 
-                  profile={this.state.profile} 
-                  alone_component={false} 
-                  button_text={'SAVE CHANGES'} 
-                  callback={this.onUpdateProfile}/>
-              </Spin>} 
-            icon="user" />  );
-      }
-      
       return (
-        <ConfigurationProfile profile={this.state.profile} onEvent={()=>this.onConfigurationEvents}/>
+        null
+      );
+      
+    }
+
+    if(active_tab==ACTIVE_TAB_PERMISSIONS)
+    {
+      return (
+        null
+      );
+      
+    }
+
+    if(active_tab==ACTIVE_TAB_PARAMETERS)
+    {
+      return (
+        null
       );
       
     }
@@ -479,12 +336,11 @@ class Configuration extends Component {
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Configuration"
           footer={
-            <Tabs defaultActiveKey={ACTIVE_TAB_PROFILE} onChange={this.onTabChange}>
-              <Tabs.TabPane tab="Profile"     key={ACTIVE_TAB_PROFILE} />
-              <Tabs.TabPane tab="Accounts"    key={ACTIVE_TAB_ACCOUNTS} disabled />
-              <Tabs.TabPane tab="Roles"       key={ACTIVE_TAB_ROLES} />
-              <Tabs.TabPane tab="Preferences" key={ACTIVE_TAB_PREFERENCES} disabled />
-              <Tabs.TabPane tab="Security"    key={ACTIVE_TAB_SECURITY} disabled />
+            <Tabs defaultActiveKey={ACTIVE_TAB_ROLES} onChange={this.onTabChange}>
+              <Tabs.TabPane tab="Roles"         key={ACTIVE_TAB_ROLES} />
+              <Tabs.TabPane tab="Bank Accounts" key={ACTIVE_TAB_BANK_ACCOUNTS} disabled />
+              <Tabs.TabPane tab="Permissions"   key={ACTIVE_TAB_PERMISSIONS} disabled />
+              <Tabs.TabPane tab="Parameters"    key={ACTIVE_TAB_PARAMETERS} disabled />
             </Tabs>
           }>
         </PageHeader>
@@ -503,7 +359,7 @@ class Configuration extends Component {
   
 }
 //
-export default Form.create() (withRouter(connect(
+export default withRouter(connect(
     (state)=> ({
         accounts:             accountsRedux.accounts(state),
         eos_account:          accountsRedux.eos_account(state),
@@ -526,4 +382,4 @@ export default Form.create() (withRouter(connect(
     })
 
 )(Configuration) )
-);
+;

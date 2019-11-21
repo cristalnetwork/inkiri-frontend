@@ -34,7 +34,7 @@ export const pathNames = utils.arrToObj([
 
     'bankadminStaff',
     'bankadminSalaries',
-    'bankadminCrew',
+    // 'bankadminCrew',
 
     'businessExtracto',
     'businessDeposit',
@@ -47,7 +47,7 @@ export const pathNames = utils.arrToObj([
     'businessProvidersPayments_Request',
     // 'businessProvidersPayments_Request_Details',
     'businessSalaries',
-    'businessCrew',
+    // 'businessCrew',
     // 'businessConfiguration',
 
     'businessUnderConstruction',
@@ -58,6 +58,7 @@ export const pathNames = utils.arrToObj([
     'commonWithdraw',
     'commonSend',
     'commonConfiguration',
+    'commonCrew',
 
     'dashboard'
 ])
@@ -171,7 +172,7 @@ const bankadmin = [
     },
     {
        key: pathNames.bankadminConfiguration,
-       fileName: 'under-construction',
+       fileName: 'configuration',
        area: 'bankadmin',
        path: 'configuration',
        container: 'dashboard',
@@ -273,14 +274,14 @@ const bankadmin = [
        container: 'dashboard',
        role: 'bankadmin'
     },
-    {
-       key: pathNames.bankadminCrew,
-       fileName: 'under-construction',
-       area: 'bankadmin',
-       path: 'crew',
-       container: 'dashboard',
-       role: 'bankadmin'
-    },
+    // {
+    //    key: pathNames.bankadminCrew,
+    //    fileName: 'under-construction',
+    //    area: 'bankadmin',
+    //    path: 'crew',
+    //    container: 'dashboard',
+    //    role: 'bankadmin'
+    // },
  ];
 
 const business = [
@@ -374,14 +375,14 @@ const business = [
        container: 'dashboard',
        role: 'business'
     },
-    {
-       key: pathNames.businessCrew,
-       fileName: 'under-construction',
-       area: 'business',
-       path: 'crew',
-       container: 'dashboard',
-       role: 'business'
-    },
+    // {
+    //    key: pathNames.businessCrew,
+    //    fileName: 'under-construction',
+    //    area: 'business',
+    //    path: 'crew',
+    //    container: 'dashboard',
+    //    role: 'business'
+    // },
     // {
     //    key: pathNames.businessConfiguration,
     //    fileName: 'under-construction',
@@ -435,13 +436,23 @@ const common = [
      role:      '*' 
   },
   {
-       key:       pathNames.commonConfiguration,
-       fileName:  'configuration',
-       area:      'common',
-       path:      'configuration',
-       container: 'dashboard',
-       role:      '*' 
-    },
+     key:       pathNames.commonConfiguration,
+     fileName:  'configuration',
+     area:      'common',
+     path:      'configuration',
+     container: 'dashboard',
+     role:      '*' 
+  },
+  {
+     key:       pathNames.commonCrew,
+     fileName:  'crew',
+     area:      'common',
+     path:      'crew',
+     container: 'dashboard',
+     role:      '*' 
+  }
+
+
 ];
 
 

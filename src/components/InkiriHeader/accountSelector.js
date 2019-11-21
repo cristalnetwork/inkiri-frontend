@@ -36,7 +36,7 @@ const AccountSelector = ({allAccounts, actualAccountName, currentAccount, onChan
             {allAccounts.map(acc => 
               <Menu.Item key={acc.permissioner.account_name}>
                 <Icon type={getIconForAccountType(acc)} />
-                {getDisplayAccountData(acc)}
+                &nbsp;{getDisplayAccountData(acc)}
               </Menu.Item>
             )}
           </Menu>

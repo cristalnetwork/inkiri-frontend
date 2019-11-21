@@ -158,8 +158,8 @@ const routes  = {
                         title: 'Salaries',
                     },
                     {
-                        key: routes_config.pathNames.bankadminCrew,
-                        path: routes_config.pathNames.bankadminUnderConstruction,
+                        key: routes_config.pathNames.commonCrew,
+                        path: routes_config.pathNames.commonCrew,
                         title: 'Crew',
                     }
 
@@ -167,7 +167,7 @@ const routes  = {
             },
             {
                 key: routes_config.pathNames.bankadminConfiguration,
-                path: routes_config.pathNames.bankadminUnderConstruction,
+                path: routes_config.pathNames.bankadminConfiguration,
                 title: 'Configuration',
                 icon: 'setting',
             }
@@ -247,8 +247,8 @@ const routes  = {
                         title: 'Salaries',
                     },
                     {
-                        key: routes_config.pathNames.businessCrew,
-                        path: routes_config.pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.commonCrew,
+                        path: routes_config.pathNames.commonCrew,
                         title: 'Crew',
                     }
 
