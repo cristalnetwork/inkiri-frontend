@@ -414,6 +414,73 @@ export const updateUserBankAccounts = (id,  bank_accounts) =>   new Promise((res
 });
 
 /*
+* Teams section
+*/
+export const getTeam = (account_name) =>   new Promise((res,rej)=> {
+  
+  // console.log(' BANKAPI::LIST MY REQUESTS>> account_name:', account_name, '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
+  const path    = globalCfg.api.endpoint + `/teams_by_account/${account_name}`;
+  const method  = 'GET';
+  
+  auth()
+    .then((token) => {
+      jwtHelper.apiCall(path, method)
+        .then((data) => {
+            res(data)
+          }, (ex) => {
+            rej(ex);
+          });
+    }, (ex) => {
+        rej(ex);
+    });
+
+});
+
+export const getJobPositions = () =>   new Promise((res,rej)=> {  
+  const path    = globalCfg.api.endpoint + '/teams_positions';
+  const method  = 'GET';
+  auth()
+    .then((token) => {
+      jwtHelper.apiCall(path, method)
+        .then((data) => {
+            console.log(' inkiriApi::getJobPositions >> RESPONSE', JSON.stringify(data))
+            res(data)
+          }, (ex) => {
+            console.log(' inkiriApi::getJobPositions >> ERROR ', JSON.stringify(ex))
+            rej(ex);
+          });
+    }, (ex) => {
+        rej(ex);
+    });
+});
+
+export const createOrUpdateTeam = (teamId, account_name, members) =>   new Promise((res,rej)=> {  
+
+  const postfix = teamId ? `/teams/${teamId}` : '/teams';
+  const path    = globalCfg.api.endpoint + postfix;
+  const method  = teamId?'PATCH':'POST';
+  const post_params = {
+          account_name: account_name
+          , members: members
+        };
+  console.log(' inkiriApi::createOrUpdateTeam >> ABOUT TO POST', JSON.stringify(post_params));
+  auth()
+    .then((token) => {
+      jwtHelper.apiCall(path, method, post_params)
+        .then((data) => {
+            console.log(' inkiriApi::createOrUpdateTeam >> RESPONSE', JSON.stringify(data))
+            res(data)
+          }, (ex) => {
+            console.log(' inkiriApi::createOrUpdateTeam >> ERROR ', JSON.stringify(ex))
+            rej(ex);
+          });
+    }, (ex) => {
+        rej(ex);
+    });
+
+});
+
+/*
 * Providers section
 */
 export const listProviders = (name, cnpj, page, limit) =>   new Promise((res,rej)=> {

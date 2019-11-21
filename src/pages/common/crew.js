@@ -21,21 +21,18 @@ import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col
 import { Form, Input, Icon} from 'antd';
 import { notification, Table, Divider, Spin } from 'antd';
 
+import AddMemberForm from '@app/components/Form/add_member';
 import {DISPLAY_ALL_TXS} from '@app/components/TransactionTable';
 
 import * as utils from '@app/utils/utils';
 
 import _ from 'lodash';
 
-const { TabPane } = Tabs;
-const FormItem = Form.Item;
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
-const { Option } = Select;
-const { Search, TextArea } = Input;
-
 const routes = routesService.breadcrumbForFile('accounts');
 
+const STATE_LIST_MEMBERS = 'state_list_members';
+const STATE_NEW_MEMBER   = 'state_new_member';
+const STATE_EDIT_MEMBER  = 'state_edit_member';
 
 class Crew extends Component {
   constructor(props) {
@@ -43,25 +40,20 @@ class Crew extends Component {
     this.state = {
       routes :        routesService.breadcrumbForPaths(props.location.pathname),
       loading:        false,
-      profiles:       [],
-      
-      page:           -1, 
-      limit:          globalCfg.api.default_page_size,
-      can_get_more:   true,
-      cursor:         '',
-      stats:          undefined,
+      pushingTx:      false,
+      team:           null,
+      job_positions:  [],
+      active_view:    STATE_LIST_MEMBERS,
     };
 
-    this.loadProfiles               = this.loadProfiles.bind(this);  
+    this.loadTeam                   = this.loadTeam.bind(this);  
+    this.loadJobPositions           = this.loadJobPositions.bind(this);  
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderFooter               = this.renderFooter.bind(this); 
-    this.onNewData                  = this.onNewData.bind(this);
-    // this.onTabChange                = this.onTabChange.bind(this);
-    // this.onTableChange              = this.onTableChange.bind(this);
     this.onButtonClick              = this.onButtonClick.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
-    this.onNewProfile               = this.onNewProfile.bind(this); 
-    
+    this.onNewMember                = this.onNewMember.bind(this); 
+    this.memberFormCallback         = this.memberFormCallback.bind(this);
   }
 
   getColumns(){
@@ -69,108 +61,58 @@ class Crew extends Component {
   }
   
   componentDidMount(){
-    this.loadProfiles(true);  
+    this.loadTeam();  
+    this.loadJobPositions();
   } 
 
-  onNewProfile = () => {
+  onNewMember = () => {
     
-    this.openNotificationWithIcon("warning", "Not implemented yet");    
-    this.props.setLastRootMenuFullpath(this.props.location.pathname);
-
-  }
-
-  onButtonClick(profile){
-
     // this.openNotificationWithIcon("warning", "Not implemented yet");    
-    this.props.setLastRootMenuFullpath(this.props.location.pathname);
-    
-    this.props.history.push({
-      pathname: `/${this.props.actualRole}/profile`
-      , state: { 
-          profile:  profile, 
-          referrer: this.props.location.pathname
-        }
-    })
-
+    this.setState({active_view:STATE_NEW_MEMBER})
   }
 
-  loadProfiles = async (first) => {
+  onButtonClick(member){
 
-    this.setState({loading:false});
     return;
 
+  }
 
-    let can_get_more   = this.state.can_get_more;
-    if(!can_get_more)
-    {
-      this.setState({loading:false});
+  memberFormCallback = (e) => {
+
+  }
+  loadJobPositions = async () => {
+    this.setState({loading:true});
+
+    let job_positions = null;
+
+    try {
+      job_positions = await api.bank.getJobPositions();
+    } catch (e) {
+      this.openNotificationWithIcon("error", "Error retrieveing Team", JSON.stringify(e));
+      this.setState({ loading:false})
       return;
     }
 
-    
+    this.setState({ job_positions: job_positions.job_positions, loading:false})
+  }
+  loadTeam = async () => {
+
     this.setState({loading:true});
 
-    let page           = (this.state.page<0)?0:(this.state.page+1);
-    const limit        = this.state.limit;
-    
-    let profiles = null;
+    let team = null;
 
     try {
-      profiles = await api.bank.listProfiles(page, limit, {account_type:'personal'});
+      team = await api.bank.getTeam(this.props.actualAccountName);
     } catch (e) {
-      this.openNotificationWithIcon("error", "Error retrieveing profiles", JSON.stringify(e));
+      this.openNotificationWithIcon("error", "Error retrieveing Team", JSON.stringify(e));
+      this.setState({ loading:false})
       return;
     } 
     // console.log(profiles)
-    this.onNewData(profiles, first);
-      
+    this.setState({ team: team, loading:false})
+        
   }
 
-  onNewData(profiles, first){
-    
-
-    const _profiles             = [...this.state.profiles, ...profiles];
-    const pagination            = {...this.state.pagination};
-    pagination.pageSize         = _profiles.length;
-    pagination.total            = _profiles.length;
-
-    const has_received_new_data = (profiles && profiles.length>0);
-    const can_get_more          = (has_received_new_data && profiles.length==this.state.limit)
-
-    this.setState({ pagination:pagination
-                    , profiles:_profiles
-                    , can_get_more:can_get_more
-                    , loading:false})
-
-    if(!has_received_new_data && !first)
-    {
-      this.openNotificationWithIcon("info", "End of profiles","You have reached the end of profiles list!")
-    }
-    else
-      this.computeStats();
-  }
-
-  
-  computeStats(){
-    return;
-
-  }
-
-  getDefaultStats(){
-    return {
-        total:               0
-        , pending:           'N/A' 
-        , negative_balance:  0
-        , admin:             0
-        , personal:          0
-        , business:          0
-        , foundation:        0 };
-  }
-
-  currentStats(){
-    const x = this.state.stats;
-    return x?x:this.getDefaultStats();
-  }
 
   openNotificationWithIcon(type, title, message) {
     notification[type]({
@@ -198,42 +140,66 @@ class Crew extends Component {
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={[
-            <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewProfile()}}> Member</Button>,
+            <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewMember()}}> Member</Button>,
           ]}
           title="Crew"
         >
           
         </PageHeader>
         
-        <Card
+          {content}
+        
+      </>
+    );
+  }
+
+  renderContent(){
+    const {team, loading, active_view, job_positions } = this.state;
+    if(active_view==STATE_NEW_MEMBER)
+    {
+      // return (
+          
+      //       <section className="mp-box mp-box__shadow money-transfer__box">
+      //         <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+      //           <AddMemberForm key="add_member_form" callback={this.memberFormCallback} job_positions={job_positions}/>    
+      //         </Spin>
+      //       </section>
+          
+      //   );
+      return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+          <div className="ly-main-content content-spacing cards">
+            <section className="mp-box mp-box__shadow money-transfer__box">
+              <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+                <AddMemberForm key="add_member_form" callback={this.memberFormCallback} job_positions={job_positions}/>    
+              </Spin>
+            </section>
+          </div>      
+        </div>);
+    }
+
+
+    //if(active_view==STATE_LIST_MEMBERS)  
+    const members         = team?team.members||[]:[];
+    return (
+      <Card
           key="card_table_all_requests"
           className="styles listCard"
           bordered={false}
           style={{ marginTop: 24 }}
           headStyle={{display:'none'}}
         >
-          {content}
+          <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
+            <Table
+                key="team_members" 
+                rowKey={record => record.id} 
+                loading={loading} 
+                columns={this.getColumns()} 
+                dataSource={members} 
+                footer={() => this.renderFooter()}
+                scroll={{ x: 700 }}
+                />
+          </div>
         </Card>
-
-      </>
-    );
-  }
-
-  renderContent(){
-
-    return (
-      <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
-        <Table
-            key="table_all_txs" 
-            rowKey={record => record.id} 
-            loading={this.state.loading} 
-            columns={this.getColumns()} 
-            dataSource={this.state.profiles} 
-            footer={() => this.renderFooter()}
-            pagination={this.state.pagination}
-            scroll={{ x: 700 }}
-            />
-      </div>
       )
   }
 

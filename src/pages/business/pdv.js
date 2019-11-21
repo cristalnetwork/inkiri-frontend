@@ -569,7 +569,7 @@ class PDV extends Component {
       await this.stream.close()
       this.stream = undefined;
     } catch (error) {
-      console.log(' STOP - Cant close connection. ', JSON.stringify(e))
+      console.log(' STOP - Cant close connection. ', JSON.stringify(error))
       this.setState({ errorMessages: ["Unable to disconnect socket correctly.", JSON.stringify(error)]})
     }
   }
