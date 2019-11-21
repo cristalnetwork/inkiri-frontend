@@ -24,19 +24,27 @@ import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
 import './configuration.css'; 
-
+import _ from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
+import * as utils from '@app/utils/utils';
+
 import BankAccountForm from '@app/components/Form/bank_account';
+import ProfileForm from '@app/components/Form/profile';
 import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/components/Views/profile';
 import Skeleton from '@app/components/Views/skeleton';
-
+import AccountRolesView, {ENUM_EVENT_NEW_PERMISSION, ENUM_EVENT_DELETE_PERMISSION} from '@app/components/Views/roles';
+import AddRoleForm from '@app/components/Form/add_role';
+import AccountView , {ENUM_EVENT_EDIT_PROFILE_ALIAS}from '@app/components/Views/account';
 
 const ACTIVE_TAB_PROFILE               = 'active_tab_profile';
 const ACTIVE_TAB_PROFILE_EDIT_PROFILE  = 'active_tab_profile_edit_profile';
+const ACTIVE_TAB_INFO                  = 'active_tab_info';
+const ACTIVE_TAB_INFO_EDIT_ALIAS       = 'active_tab_info_edit_alias';
 const ACTIVE_TAB_PROFILE_BANK_ACCOUNT  = 'active_tab_profile_add_or_update_bank_account';
 const ACTIVE_TAB_ACCOUNTS              = 'active_tab_accounts';
 const ACTIVE_TAB_ROLES                 = 'active_tab_roles';
+const ACTIVE_TAB_ROLES_NEW             = 'active_tab_roles_new';
 const ACTIVE_TAB_PREFERENCES           = 'active_tab_preferences';
 const ACTIVE_TAB_SECURITY              = 'active_tab_security';
 
@@ -49,7 +57,10 @@ class Configuration extends Component {
       active_tab:          ACTIVE_TAB_PROFILE,
       active_tab_action:   ACTIVE_TAB_PROFILE,
       active_tab_object:   null,
-      profile:             props.actualAccountProfile
+      profile:             props.actualAccountProfile,
+      eos_account:         props.eos_account,
+      bank_account:        props.bank_account
+
     };
 
     this.renderContent              = this.renderContent.bind(this); 
@@ -59,6 +70,14 @@ class Configuration extends Component {
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.onConfigurationEvents      = this.onConfigurationEvents.bind(this); 
     this.onAddOrUpdateBankAccount   = this.onAddOrUpdateBankAccount.bind(this); 
+
+    this.onCancelNewPermission      = this.onCancelNewPermission.bind(this);
+    this.addPermission              = this.addPermission.bind(this);
+    this.onAddPermission            = this.onAddPermission.bind(this);
+    this.onUpdateProfile            = this.onUpdateProfile.bind(this);
+
+    this.onTabChange                = this.onTabChange.bind(this); 
+
   }
  
   openNotificationWithIcon(type, title, message) {
@@ -71,23 +90,36 @@ class Configuration extends Component {
   /*
   * Components Events
   */
+  componentDidMount(){
+    const {eos_account, bank_account} = this.state;
+    if(!eos_account)
+      this.props.loadEosAccount(this.props.actualAccountName)
+    if(!bank_account)
+      this.props.loadBankAccount(this.props.actualAccountName)
+  }
 
   componentDidUpdate(prevProps, prevState) 
   {
-    const {actualAccountProfile} = this.props;
+    const {actualAccountProfile, eos_account, bank_account} = this.props;
     if(prevProps.actualAccountProfile !== actualAccountProfile) {
       this.setState({ profile:actualAccountProfile});
     }
+    if(prevProps.eos_account !== eos_account) {
+      console.log('updating_eos_account:', eos_account)
+      this.setState({ eos_account:eos_account});
+    }
+    if(prevProps.bank_account !== bank_account) {
+      console.log('updating_bank_account:', bank_account)
+      this.setState({ bank_account:bank_account});
+    }
+
   }
     
   onConfigurationEvents = (event_type, object) => {
 
-    // console.log(' >> onConfigurationEvents::event_type: ', event_type, object);
     switch (event_type){
       case ENUM_EVENT_EDIT_PROFILE:
-        console.log(' >> onConfigurationEvents::ENUM_EVENT_EDIT_PROFILE: reload profile');
-        this.props.loadProfile(this.props.actualAccountName);
-        this.openNotificationWithIcon("info", "We are developing this function!")    
+        // this.openNotificationWithIcon("info", "We are developing this function!")    
         this.setState({active_tab_action:ACTIVE_TAB_PROFILE_EDIT_PROFILE, active_tab_object:null});
         break;
       case ENUM_EVENT_EDIT_BANK_ACCOUNT:
@@ -150,6 +182,42 @@ class Configuration extends Component {
     
   }
 
+  onUpdateProfile(error, cancel, values){
+    if(cancel)
+    {
+      this.setState({  
+          active_tab_action:   ACTIVE_TAB_PROFILE, 
+          active_tab_object:   null
+      });
+      return;
+    }
+    if(error)
+    {
+      return;
+    }
+  
+    const that                = this;
+    const {id, account_name}  = this.state.profile;
+    const new_profile         = values;
+    const {account_type, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias} = new_profile;
+    
+    this.setState({active_tab_object:values, pushingTx:true})
+    
+    api.bank.createOrUpdateUser(id, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias)
+      .then((res)=>{
+        that.openNotificationWithIcon("success", "Profile updated successfully")    
+        that.props.loadProfile(that.props.actualAccountName);
+        that.resetPage(ACTIVE_TAB_PROFILE);
+        
+      }, (err)=>{
+        console.log(' >> onUpdateProfile >> ', JSON.stringify(err));
+        that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
+        that.setState({pushingTx:false});
+      })
+
+
+  }
+
   onAddOrUpdateBankAccount(error, cancel, values){
     if(cancel)
     {
@@ -186,6 +254,110 @@ class Configuration extends Component {
 
   }
 
+
+  /* *********************** */
+  /* ACCOUNT ROLE MANAGEMENT */
+  onRoleEvents    = (event_type, object) => {
+    console.log(` EVENT onRoleEvents(${event_type}, `, object, ')')
+    switch(event_type){
+      case ENUM_EVENT_NEW_PERMISSION:
+        this.setState({active_tab_action:ACTIVE_TAB_ROLES_NEW, active_tab_object:{authority:object}});
+        break;
+      case ENUM_EVENT_DELETE_PERMISSION:
+        const {permission} = object;
+        this.deletePermission(permission.name, permission.actor, permission.permission);
+        break;
+      default:
+        break;
+    }
+  }
+
+  onAddPermission(error, cancel, values){
+    console.log(` ## onAddPermission(error:${error}, cancel:${cancel}, values:${values})`)
+    if(cancel)
+    {
+      this.onCancelNewPermission()
+      return;
+    }
+    if(error)
+    {
+      return;
+    }
+
+    this.addPermission(values.permissioned, values.authority);
+
+  }
+  addPermission = async (permissioned, perm_name) => {
+    this.setState({pushingTx:true});
+    const {eos_account}  = this.state;
+    const new_perm       = api.getNewPermissionObj (eos_account, permissioned, perm_name)
+    this.setAccountPermission(perm_name, new_perm);
+  }
+
+  deletePermission = async (perm_name, actor, permission) => {
+    
+    this.setState({pushingTx:true});
+    
+    const {eos_account}  = this.state;
+    let the_authority = eos_account.permissions.filter( perm => perm.perm_name==perm_name )[0]
+    
+    
+    let new_authority = Object.assign({}, the_authority); 
+
+    _.remove(new_authority.required_auth.accounts, function(e) {
+      return e.permission.actor === actor && e.permission.permission === permission;
+    });
+    
+    this.setAccountPermission(perm_name, new_authority.required_auth);
+    
+  }
+
+  setAccountPermission(perm_name, new_perm){
+    // this.setState({pushingTx:false});
+    // console.log(` ### setAccountPermission >>> ABOUT TO SET -> ${perm_name}`, JSON.stringify(new_perm))
+    // return;
+
+    const {eos_account}  = this.state;
+    const that = this;
+    
+    api.setAccountPermission(eos_account.account_name, this.props.actualPrivateKey, perm_name, new_perm)
+      .then(data => {
+        console.log(' ### setAccountPermission >>> ', JSON.stringify(data))
+        that.props.loadBankAccount(that.props.actualAccountName);
+        that.setState({result:'ok', pushingTx:false, result_object:data});
+      }, (ex)=>{
+        console.log( ' ### setAccountPermission >>> ERROR >> ', JSON.stringify(ex))
+        that.setState({pushingTx:false, result:'error', error:JSON.stringify(ex)});
+      });
+  }
+
+  onCancelNewPermission(){
+    // this.setState({active_tab_action:ACTIVE_TAB_ROLES, active_tab_object:{authority:object}});
+    this.resetPage(ACTIVE_TAB_ROLES);
+  }
+
+  /* *********************** */
+  onAccountEvents = (event_type, object) => {
+
+    switch (event_type){
+      case ENUM_EVENT_EDIT_PROFILE_ALIAS:
+      console.log(' EVENTO -> ', ENUM_EVENT_EDIT_PROFILE_ALIAS);
+      this.setState({active_tab_action:ACTIVE_TAB_INFO_EDIT_ALIAS, active_tab_object:this.state.profile});
+      break;
+      // case ENUM_EVENT_EDIT_PROFILE:
+      //   // this.openNotificationWithIcon("info", "We are developing this function!")    
+      //   this.setState({active_tab_action:ACTIVE_TAB_PROFILE_EDIT_PROFILE, active_tab_object:null});
+      //   break;
+      // case ENUM_EVENT_EDIT_BANK_ACCOUNT:
+      //   this.setState({active_tab_action:ACTIVE_TAB_PROFILE_BANK_ACCOUNT, active_tab_object:object});
+      //   break;
+      // case ENUM_EVENT_NEW_BANK_ACCOUNT:
+      //   this.setState({active_tab_action:ACTIVE_TAB_PROFILE_BANK_ACCOUNT, active_tab_object:null});
+      //   break;
+      default:
+        break;
+    }
+  }
   renderContent() {
     if(this.state.result)
     {
@@ -220,14 +392,55 @@ class Configuration extends Component {
             
       if(active_tab_action==ACTIVE_TAB_PROFILE_EDIT_PROFILE)
       {
-        
-      
+        const button_text = active_tab_object?'UPDATE BANK ACCOUNT':'ADD BANK ACCOUNT';
+        return (
+          <Skeleton 
+            content={
+              <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+                <ProfileForm 
+                  profile={this.state.profile} 
+                  alone_component={false} 
+                  button_text={'SAVE CHANGES'} 
+                  callback={this.onUpdateProfile}/>
+              </Spin>} 
+            icon="user" />  );
       }
       
       return (
         <ConfigurationProfile profile={this.state.profile} onEvent={()=>this.onConfigurationEvents}/>
       );
       
+    }
+
+    if(active_tab==ACTIVE_TAB_ROLES){
+      if(active_tab_action==ACTIVE_TAB_ROLES_NEW)
+      {
+        const {authority} = active_tab_object;
+        return (
+          <Skeleton 
+            content={
+              <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+                <Card 
+                  title={(<span>New permission for <strong>{utils.capitalize(authority)} </strong> </span> )}
+                  key={'new_perm'}
+                  style = { { marginBottom: 24 } } 
+                  >
+                  <AddRoleForm owner={this.state.bank_account.key} authority={authority} callback={this.onAddPermission} />                  
+                </Card>
+              </Spin>} 
+            icon="user-shield" />  );
+      }
+
+      return (
+        <Skeleton 
+        content={
+          <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+            <div className="c-detail">
+              <AccountRolesView account={this.state.bank_account} eos_account={this.state.eos_account} onEvent={()=>this.onRoleEvents}/>
+            </div>
+          </Spin>
+        } icon="shield-alt" />
+      );
     }
     return (null);
   }
@@ -239,12 +452,12 @@ class Configuration extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Account Settings"
+          title="Configuration"
           footer={
-            <Tabs defaultActiveKey="1" onChange={this.onTabChange}>
+            <Tabs defaultActiveKey={ACTIVE_TAB_PROFILE} onChange={this.onTabChange}>
               <Tabs.TabPane tab="Profile"     key={ACTIVE_TAB_PROFILE} />
               <Tabs.TabPane tab="Accounts"    key={ACTIVE_TAB_ACCOUNTS} disabled />
-              <Tabs.TabPane tab="Roles"       key={ACTIVE_TAB_ROLES} disabled />
+              <Tabs.TabPane tab="Roles"       key={ACTIVE_TAB_ROLES} />
               <Tabs.TabPane tab="Preferences" key={ACTIVE_TAB_PREFERENCES} disabled />
               <Tabs.TabPane tab="Security"    key={ACTIVE_TAB_SECURITY} disabled />
             </Tabs>
@@ -252,6 +465,7 @@ class Configuration extends Component {
         </PageHeader>
         
         <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+          
           <section className="mp-main__content __configuration">
             {content}      
           </section>      
@@ -267,6 +481,9 @@ class Configuration extends Component {
 export default Form.create() (withRouter(connect(
     (state)=> ({
         accounts:             accountsRedux.accounts(state),
+        eos_account:          accountsRedux.eos_account(state),
+        bank_account:         accountsRedux.bank_account(state),
+
         actualAccountName:    loginRedux.actualAccountName(state),
         actualAccountProfile: loginRedux.actualAccountProfile(state),
         actualRole:           loginRedux.actualRole(state),
@@ -278,7 +495,9 @@ export default Form.create() (withRouter(connect(
         
     }),
     (dispatch) => ({
-        loadProfile:          bindActionCreators(loginRedux.loadProfile, dispatch)
+        loadProfile:          bindActionCreators(loginRedux.loadProfile, dispatch),
+        loadBankAccount:      bindActionCreators(accountsRedux.loadBankAccount, dispatch),
+        loadEosAccount:       bindActionCreators(accountsRedux.loadEosAccount, dispatch)
     })
 
 )(Configuration) )

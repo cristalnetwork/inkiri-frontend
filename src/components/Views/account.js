@@ -47,8 +47,10 @@ const AccountView = (props) => {
     //
     if(!account)
       return (null);
-    return(
 
+    // const icon = profile?((globalCfg.bank.isBusinessAccount(profile))?'store':'user'):'piggy-bank';
+    const icon = (globalCfg.bank.isBusinessAccount(account))?'store':'user';
+    return(
       <Skeleton 
         content={
             <div className="c-detail">
@@ -66,7 +68,7 @@ const AccountView = (props) => {
 
               
             </div>
-        } icon="university" />
+        } icon={icon} />
       
     );
 

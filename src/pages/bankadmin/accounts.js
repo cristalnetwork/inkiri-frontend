@@ -101,7 +101,7 @@ class AdminAccounts extends Component {
     // })
 
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/account_ex`
+      pathname: `/${this.props.actualRole}/account`
       , state: { 
           referrer: this.props.location.pathname,
           account:  account

@@ -66,10 +66,10 @@ const routes  = {
             }
             ,
             {
-                key: routes_config.pathNames.personalConfiguration,
-                title: 'Account settings',
+                key: routes_config.pathNames.commonConfiguration,
+                title: 'Configuration',
                 icon: 'setting',
-                path: routes_config.pathNames.personalConfiguration,
+                path: routes_config.pathNames.commonConfiguration,
                 // items: [
                 //     {
                 //         key: routes_config.pathNames.personalConfiguration,
@@ -255,8 +255,8 @@ const routes  = {
                 ]
             },
             {
-                key: routes_config.pathNames.businessConfiguration,
-                path: routes_config.pathNames.businessUnderConstruction,
+                key: routes_config.pathNames.commonConfiguration,
+                path: routes_config.pathNames.commonConfiguration,
                 title: 'Configuration',
                 icon: 'setting',
             }

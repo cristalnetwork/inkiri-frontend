@@ -37,7 +37,6 @@ const ACTIVE_TAB_PROFILE               = 'active_tab_profile';
 const ACTIVE_TAB_PROFILE_EDIT_PROFILE  = 'active_tab_profile_edit_profile';
 const ACTIVE_TAB_PROFILE_BANK_ACCOUNT  = 'active_tab_profile_add_or_update_bank_account';
 const ACTIVE_TAB_ACCOUNTS              = 'active_tab_accounts';
-const ACTIVE_TAB_ROLES                 = 'active_tab_roles';
 const ACTIVE_TAB_PREFERENCES           = 'active_tab_preferences';
 const ACTIVE_TAB_SECURITY              = 'active_tab_security';
 
@@ -62,6 +61,8 @@ class Profile extends Component {
     this.onAddOrUpdateBankAccount   = this.onAddOrUpdateBankAccount.bind(this); 
     this.onUpdateProfile            = this.onUpdateProfile.bind(this); 
     this.reload                     = this.reload.bind(this);
+
+    this.onTabChange                = this.onTabChange.bind(this); 
   }
  
   openNotificationWithIcon(type, title, message) {
@@ -293,7 +294,6 @@ class Profile extends Component {
             <Tabs defaultActiveKey="1" onChange={this.onTabChange}>
               <Tabs.TabPane tab="Profile"     key={ACTIVE_TAB_PROFILE} />
               <Tabs.TabPane tab="Accounts"    key={ACTIVE_TAB_ACCOUNTS} disabled />
-              <Tabs.TabPane tab="Roles"       key={ACTIVE_TAB_ROLES} disabled />
               <Tabs.TabPane tab="Preferences" key={ACTIVE_TAB_PREFERENCES} disabled />
               <Tabs.TabPane tab="Security"    key={ACTIVE_TAB_SECURITY} disabled />
             </Tabs>

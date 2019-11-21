@@ -117,7 +117,7 @@ class ProfileForm extends Component {
     return (<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
               <Form.Item label={title}>
                 {getFieldDecorator(field, {
-                  rules: [{ type:_type, required: true, message: required_message, whitespace: true }],
+                  rules: [{ type:_type, required: (required_message!==undefined?true:false), message: required_message, whitespace: true }],
                   initialValue:object[field]||''
                 })(
                   <Input className="money-transfer__input" placeholder={title} readOnly={_readonly}/>
@@ -145,14 +145,15 @@ class ProfileForm extends Component {
 
   renderContent() {  
     const { mode, profile, button_text } = this.state;
-    const { getFieldDecorator }    = this.props.form;
+    const business                       = (globalCfg.bank.isBusinessAccount(profile));
+    const { getFieldDecorator }          = this.props.form;
     if(mode=='full')
       return (
         <Form onSubmit={this.handleSubmit} className="with_labels">
             <div className="money-transfer">
               {this.getStringItem(profile , 'account_name'  , 'Account name' , 'Please input a valid account name!', true)}
 
-              {globalCfg.bank.isPersonalAccount(profile.account_type)? 
+              {!business? 
                 (<>{this.getStringItem(profile , 'last_name'     , 'Last name'    , 'Please input a valid last name!')}
                 {this.getStringItem(profile , 'first_name'    , 'First name'   , 'Please input a valid first name!')}</>)
                 :
@@ -161,15 +162,15 @@ class ProfileForm extends Component {
 
               }
               {this.getEmailItem( profile , 'email'         , 'Email'        , 'Please input a valid email!')}
-              {this.getStringItem(profile , 'legal_id'      , 'CPF'          , 'Please input a valid CPF!')}
-              {this.getDateItem(profile   , 'birthday'      , 'Birthday'     , 'Please input a valid Date!')}
+              {!business && this.getStringItem(profile , 'legal_id'      , 'CPF'          , 'Please input a valid CPF!')}
+              {!business && this.getDateItem(profile   , 'birthday'      , 'Birthday'     , 'Please input a valid Date!')}
               {this.getStringItem(profile , 'phone'         , 'Phone number' , 'Please input a valid phone number!')}
               <br/><br/><div className="c-header-detail__head u-clearfix"><div className="c-header-detail__title">Address</div></div>
-              {this.getStringItem(profile , 'address.street'  , 'Street'     , 'Please input a valid address street!')}
-              {this.getStringItem(profile , 'address.city'    , 'City'       , 'Please input a valid address city!')}
-              {this.getStringItem(profile , 'address.state'   , 'State'      , 'Please input a valid address state!')}
-              {this.getStringItem(profile , 'address.zip'     , 'ZIP'        , 'Please input a valid address ZIP code!')}
-              {this.getStringItem(profile , 'address.country' , 'Country'    , 'Please input a valid address Country!')}
+              {this.getStringItem(profile , 'address.street'  , 'Street'     )}
+              {this.getStringItem(profile , 'address.city'    , 'City'       )}
+              {this.getStringItem(profile , 'address.state'   , 'State'      )}
+              {this.getStringItem(profile , 'address.zip'     , 'ZIP'        )}
+              {this.getStringItem(profile , 'address.country' , 'Country'    )}
             </div>
             
             <div className="mp-box__actions mp-box__shore">

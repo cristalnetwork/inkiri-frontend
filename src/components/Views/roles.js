@@ -18,7 +18,7 @@ const AccountRolesView = (props) => {
     const [account, setAccount]        = useState(null);
     const [eos_account, setEosAccount] = useState(null);
     const [onEvent, setOnEvent]        = useState(null);
-    const [authority, setAuthority]    = useState('owner');
+    const [authority, setAuthority]    = useState();
     
 
     useEffect(() => {
@@ -26,6 +26,7 @@ const AccountRolesView = (props) => {
         setEosAccount(props.eos_account);
         setOnEvent(props.onEvent||null);
         setLoading(props.loading||false);
+        setAuthority(props.authority||'owner');
     });
 
     const fireEvent = (eventType, object) => {
@@ -60,7 +61,10 @@ const AccountRolesView = (props) => {
     }
     //
     if(!account || !eos_account)
+    {
+      console.log(' roles-view: cant show component. account:', account, '-------- eos_account:', eos_account)
       return (null);
+    }
     
     const {account_type}  = account;
     const my_permisssions = globalCfg.bank.getPermsForAccountType(account_type);
@@ -116,7 +120,7 @@ const AccountRolesView = (props) => {
           
                 })}
                 activeTabKey={authority}
-                onTabChange={(tabKey) => { setAuthority(tabKey)} }
+                onTabChange={(tab_key) => { console.log(tab_key);setAuthority(tab_key)} }
           
                 >
                 <div style={{ margin: '0 auto', width:'100%', padding: 24, background: '#fff'}}>

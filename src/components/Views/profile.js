@@ -72,28 +72,38 @@ const ConfigurationProfile = (props) => {
     //
     if(!profile)
       return (null);
-    return(
+    
+    if(globalCfg.bank.isBusinessAccount(profile))
+      return(
+        <Skeleton 
+          content={
+              <div className="c-detail">
+                <TransactionPetitioner profile={profile} title="Business name" />
+                <TransactionTitle title="Profile Information" button={editProfileButton} />
+                <TransactionProfile profile={profile} />
+              </div>
+          } icon="store" />);
 
-      <Skeleton 
-        content={
-            <div className="c-detail">
-              <TransactionPetitioner profile={profile} title="Nome y Sobrenome" />
-              <TransactionTitle title="Profile Information" button={editProfileButton} />
-              <TransactionProfile profile={profile} />
-              <TransactionTitle title="Bank Accounts" button={newBankAccountButton} />
-              {renderBankAccounts()}
-            </div>
-        } icon="user" />
-      
-    )
+    if(globalCfg.bank.isPersonalAccount(profile))
+      return(
+        <Skeleton 
+          content={
+              <div className="c-detail">
+                <TransactionPetitioner profile={profile} title="Nome y Sobrenome" />
+                <TransactionTitle title="Profile Information" button={editProfileButton} />
+                <TransactionProfile profile={profile} />
+                <TransactionTitle title="Bank Accounts" button={newBankAccountButton} />
+                {renderBankAccounts()}
+              </div>
+          } icon="user" />);
 }
 //
 export default connect(
     (state)=> ({
-        // allAccounts:     loginRedux.allAccounts(state),
-        // actualAccountName:   loginRedux.actualAccountName(state),
-        // currentAccount:  loginRedux.currentAccount(state),
-        // isLoading:       loginRedux.isLoading(state)
+        // allAccounts:       loginRedux.allAccounts(state),
+        // actualAccountName: loginRedux.actualAccountName(state),
+        // currentAccount:    loginRedux.currentAccount(state),
+        // isLoading:         loginRedux.isLoading(state)
     })
 )(ConfigurationProfile)
 

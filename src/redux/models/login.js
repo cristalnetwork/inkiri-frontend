@@ -160,8 +160,7 @@ store.injectSaga('login', [
 ]);
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
-export const isLoading = (state) => state.login.loading > 0
-// export const actualAccountName         = (state) => (state.login.current_account)?state.login.current_account.permissioned.actor:undefined
+export const isLoading             = (state) => state.login.loading > 0;
 export const actualAccountName     = (state) => (state.login.current_account) ? state.login.current_account.permissioner.account_name : undefined
 export const actualAccountProfile  = (state) => state.login.profile;
 export const actualPrivateKey      = (state) => state.login.private_key;

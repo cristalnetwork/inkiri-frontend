@@ -15,6 +15,8 @@ const TransactionProfile = ({profile}) => {
       return 'N/A'
     }
 
+    const is_business = globalCfg.bank.isBusinessAccount(profile);
+    const hidden_text = is_business?' hidden ':'';
     return(
       <div className="ui-list">
             <ul className="ui-list__content">
@@ -36,7 +38,7 @@ const TransactionProfile = ({profile}) => {
                 
                 
                 
-                <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
+                <li className={"ui-row ui-info-row ui-info-row--medium ui-info-row" + hidden_text}>
                     <div className="ui-row__col ui-row__col--heading">
                         <div className="ui-avatar">
                             <div className="ui-avatar__content ui-avatar__content--icon">

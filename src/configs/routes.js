@@ -7,7 +7,7 @@ export const pathNames = utils.arrToObj([
     'personalExchange',
     'personalRequestMoney',
     'personalPaymentsAndServices',
-    'personalConfiguration',
+    // 'personalConfiguration',
 
     'bankadminDashboard',
     'bankadminUnderConstruction',
@@ -23,7 +23,6 @@ export const pathNames = utils.arrToObj([
     'bankadminAdministration',
     'bankadminAccounts',
     'bankadminAccounts_Account',
-    'bankadminAccounts_AccountEx',
     'bankadminAccounts_CreateAccount',
     'bankadminProfiles',
     'bankadminProfiles_Profile',
@@ -49,7 +48,7 @@ export const pathNames = utils.arrToObj([
     // 'businessProvidersPayments_Request_Details',
     'businessSalaries',
     'businessCrew',
-    'businessConfiguration',
+    // 'businessConfiguration',
 
     'businessUnderConstruction',
 
@@ -58,6 +57,7 @@ export const pathNames = utils.arrToObj([
     'commonDeposit',
     'commonWithdraw',
     'commonSend',
+    'commonConfiguration',
 
     'dashboard'
 ])
@@ -71,13 +71,13 @@ const personal =[
        container: 'dashboard',
        role: 'personal'
     },
-    {
-       key: pathNames.personalConfiguration,
-       fileName: 'configuration',
-       area: 'personal',
-       path: 'account-settings',
-       container: 'dashboard' 
-    },
+    // {
+    //    key: pathNames.personalConfiguration,
+    //    fileName: 'configuration',
+    //    area: 'personal',
+    //    path: 'account-settings',
+    //    container: 'dashboard' 
+    // },
     {
        key: pathNames.personalWithdraw,
        fileName: 'withdraw',
@@ -192,15 +192,6 @@ const bankadmin = [
        fileName:    'account',
        area:        'bankadmin',
        path:        'account',
-       container:   'dashboard',
-       role:        'bankadmin'
-    },
-    {
-       key:         pathNames.bankadminAccounts_AccountEx,
-       father_key:  '*',
-       fileName:    'account_ex',
-       area:        'bankadmin',
-       path:        'account_ex',
        container:   'dashboard',
        role:        'bankadmin'
     },
@@ -391,14 +382,14 @@ const business = [
        container: 'dashboard',
        role: 'business'
     },
-    {
-       key: pathNames.businessConfiguration,
-       fileName: 'under-construction',
-       area: 'business',
-       path: 'configuration',
-       container: 'dashboard',
-       role: 'business'
-    },
+    // {
+    //    key: pathNames.businessConfiguration,
+    //    fileName: 'under-construction',
+    //    area: 'business',
+    //    path: 'configuration',
+    //    container: 'dashboard',
+    //    role: 'business'
+    // },
     
   ];
 
@@ -442,8 +433,15 @@ const common = [
      path:      'send',
      container: 'dashboard' ,
      role:      '*' 
-  }
-  
+  },
+  {
+       key:       pathNames.commonConfiguration,
+       fileName:  'configuration',
+       area:      'common',
+       path:      'configuration',
+       container: 'dashboard',
+       role:      '*' 
+    },
 ];
 
 
