@@ -33,7 +33,7 @@ import BankAccountForm from '@app/components/Form/bank_account';
 import ProfileForm from '@app/components/Form/profile';
 import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/components/Views/profile';
 import Skeleton from '@app/components/Views/skeleton';
-import AccountRolesView, {ENUM_AUTHORITY_CHANGE, ENUM_EVENT_NEW_PERMISSION, ENUM_EVENT_DELETE_PERMISSION} from '@app/components/Views/roles';
+import AccountRolesView, {ENUM_EVENT_RELOAD_PERMISSIONS, ENUM_AUTHORITY_CHANGE, ENUM_EVENT_NEW_PERMISSION, ENUM_EVENT_DELETE_PERMISSION} from '@app/components/Views/roles';
 import AddRoleForm from '@app/components/Form/add_role';
 import AccountView , {ENUM_EVENT_EDIT_PROFILE_ALIAS}from '@app/components/Views/account';
 
@@ -280,6 +280,8 @@ class Configuration extends Component {
       case ENUM_AUTHORITY_CHANGE:
         this.setState({role_authority:object});
       default:
+      case ENUM_EVENT_RELOAD_PERMISSIONS:
+        this.props.loadEosAccount(this.props.actualAccountName);
         break;
     }
   }

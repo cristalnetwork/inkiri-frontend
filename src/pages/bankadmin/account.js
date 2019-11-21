@@ -32,7 +32,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ProfileForm from '@app/components/Form/profile';
 import Skeleton from '@app/components/Views/skeleton';
 import AccountView , {ENUM_EVENT_EDIT_PROFILE_ALIAS}from '@app/components/Views/account';
-import AccountRolesView, {ENUM_AUTHORITY_CHANGE, ENUM_EVENT_NEW_PERMISSION, ENUM_EVENT_DELETE_PERMISSION} from '@app/components/Views/roles';
+import AccountRolesView, {ENUM_EVENT_RELOAD_PERMISSIONS, ENUM_AUTHORITY_CHANGE, ENUM_EVENT_NEW_PERMISSION, ENUM_EVENT_DELETE_PERMISSION} from '@app/components/Views/roles';
 import AddRoleForm from '@app/components/Form/add_role';
 
 // const ACTIVE_TAB_PROFILE               = 'active_tab_profile';
@@ -144,6 +144,9 @@ class Profile extends Component {
         break;
       case ENUM_AUTHORITY_CHANGE:
         this.setState({role_authority:object});
+      case ENUM_EVENT_RELOAD_PERMISSIONS:
+        this.reloadAccount()
+        break;
       default:
         break;
     }
