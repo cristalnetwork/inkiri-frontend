@@ -80,6 +80,9 @@ class PDV extends Component {
     
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.onCloseModal               = this.onCloseModal.bind(this);
+    this.launchConnection           = this.launchConnection.bind(this);
+    this.stop                       = this.stop.bind(this);
+    this.loadTransactionsForAccount = this.loadTransactionsForAccount.bind(this);
 
     this.onPaymentModalCallback     = this.onPaymentModalCallback.bind(this);
 
@@ -284,7 +287,32 @@ class PDV extends Component {
     this.launchConnection();
   } 
 
-  
+  reloadTxs = async () =>{
+    this.setState({
+        page:   -1, 
+        txs:    [],
+      }, async () => {
+        try{
+          console.log(' reloadTxs -> stop')
+          const ret = await this.stop();
+          console.log(' reloadTxs -> stop OK')
+        }
+        catch(e){
+          console.log(' reloadTxs -> stop ERROR')
+        }
+        try{
+          console.log(' reloadTxs -> launchConnection')
+          const ret = await this.launchConnection();
+          console.log(' reloadTxs -> launchConnection OK')
+        }
+        catch(e){
+          console.log(' reloadTxs -> launchConnection ERROR')
+        }
+        console.log(' reloadTxs -> loadTransactionsForAccount')
+        this.loadTransactionsForAccount(true);
+      });  
+  }
+
   loadTransactionsForAccount(is_first){
 
     let account_name = this.props.actualAccountName;
@@ -448,10 +476,10 @@ class PDV extends Component {
   };
   //
   render() {
-    let   content     = this.renderContent();
-    const routes      = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
-    const {selectedRowKeys, connected} = this.state;
-    const conn_title  = connected?'You are connected and receiving transaction!':'Something went wrong. You are not connected neither receiving transactions.'; 
+    const {loading, selectedRowKeys, connected} = this.state;
+    const content         = this.renderContent();
+    const routes          = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
+    const conn_title      = connected?'You are connected and receiving transaction!':'Something went wrong. You are not connected neither receiving transactions.'; 
     const connection_icon = connected?(<Icon title={conn_title} key={Math.random()} type="check-circle" theme="twoTone" style={{fontSize:20}} twoToneColor="#52c41a"/>):(<Icon title={conn_title} key={Math.random()} type="api" theme="twoTone" twoToneColor="#eb2f96" style={{fontSize:20}} />)
     
     const payModal = this.renderPaymentModal()
@@ -462,7 +490,9 @@ class PDV extends Component {
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="PDV - COLETAR VENDA"
-          extra={[connection_icon]}
+          extra={[
+            <Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadTxs()} ></Button>,
+            connection_icon]}
           >
         </PageHeader>
         
@@ -498,24 +528,23 @@ class PDV extends Component {
     );
   }
 
-
   launchConnection = async() => {
-    console.log('connecting to dfuse socket -->', this.props.actualAccountName)
+    console.log(' -- launchConnection:: connecting to dfuse socket -->', this.props.actualAccountName)
      try { 
       this.stream = await this.client.streamActionTraces({
-        account: globalCfg.currency.token 
-        , receivers: this.props.actualAccountName
-        , action_name: "transfer"
-      }, this.onTransaction
-      , {
-        irreversible_only: false
-      })
+                account: globalCfg.currency.token 
+                , receivers: this.props.actualAccountName
+                , action_name: "transfer"}
+              , this.onTransaction
+              , {
+                irreversible_only: false
+              });
 
-      this.setState({ connected: true })
+      this.setState({ connected: true });
+      console.log(' -- launchConnection::  LAUNCH OK')
     } catch (error) {
-      console.log(' LAUNCH error')
-      console.log(JSON.stringify(error))
-      this.setState({ errorMessages: ["Unable to connect to socket.", JSON.stringify(error)] })
+      console.log(' -- launchConnection::  LAUNCH error', JSON.stringify(error))
+      // this.setState({ errorMessages: ["Unable to connect to socket.", JSON.stringify(error)] })
     }
   }
 
@@ -533,23 +562,26 @@ class PDV extends Component {
 
   stop = async () => {
     if (this.stream === undefined) {
-      return
+      return;
     }
 
     try {
       await this.stream.close()
-      this.stream = undefined
+      this.stream = undefined;
     } catch (error) {
+      console.log(' STOP - Cant close connection. ', JSON.stringify(e))
       this.setState({ errorMessages: ["Unable to disconnect socket correctly.", JSON.stringify(error)]})
     }
   }
 
   onClose = () => {
+    console.log(' onClose socket event ')
     this.setState({ connected: false })
   }
 
   onError = (error) => {
-    this.setState({ errorMessages: ["An error occurred with the socket.", JSON.stringify(error)]})
+    console.log(' onError - An error occurred with the socket. ', JSON.stringify(error))
+    // this.setState({ errorMessages: ["An error occurred with the socket.", JSON.stringify(error)]})
   }
 
   componentWillUnmount() {
@@ -557,11 +589,6 @@ class PDV extends Component {
       this.stream.close()
     }
   }
-
-  renderTransfer = (transfer, index) => {
-    return <code key={index} className="App-transfer">{transfer}</code>
-  }
-
   
 }
 //

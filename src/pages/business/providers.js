@@ -46,8 +46,6 @@ class Providers extends Component {
 
       stats:                        {},
       
-      need_refresh:                 {},  
-
       pagination:                   { pageSize: 0 , total: 0 }
     };
 
@@ -58,7 +56,6 @@ class Providers extends Component {
     this.onTableChange              = this.onTableChange.bind(this);
     this.onNewRequestClick          = this.onNewRequestClick.bind(this);
     this.onProcessRequestClick      = this.onProcessRequestClick.bind(this);
-    this.refreshCurrentTable        = this.refreshCurrentTable.bind(this);
     this.renderFilterContent        = this.renderFilterContent.bind(this);
 
     this.operationDetails           = this.operationDetails.bind(this);
@@ -170,9 +167,18 @@ class Providers extends Component {
     this.loadProviderTxs(true);
   } 
 
+  reloadData(){
+    this.setState({
+        page:        -1, 
+        txs:    [],
+      }, () => {
+        this.loadProviderTxs(true);
+      });  
+  }
+
   loadProviderTxs = async (first_call) => {
     let can_get_more   = this.state.can_get_more;
-    if(!can_get_more)
+    if(!can_get_more && this.state.page>=0)
     {
       this.setState({loading:false});
       return;
@@ -239,29 +245,6 @@ class Providers extends Component {
     const x = this.state.stats[this.state.active_tab];
     const _default = {money_pending : 0 , count_pending : 0 , money_out : 0 , count : 0};
     return x?x:_default;
-  }
-
-  refreshCurrentTable(){
-    const that = this;
-    
-    if(this.state.active_tab==DISPLAY_ALL_TXS)
-    {
-      this.setState(
-        {txs:[]}
-        , ()=>{
-          that.loadTransactionsForAccount(true);
-        })
-      return;
-    }
-
-    let need_refresh = this.state.need_refresh;
-    need_refresh[this.state.active_tab]=true;
-    this.setState(
-        {need_refresh:need_refresh}
-        , ()=>{
-          need_refresh[this.state.active_tab]=false;
-          that.setState({need_refresh:need_refresh})
-        })
   }
 
   openNotificationWithIcon(type, title, message) {
@@ -387,14 +370,14 @@ class Providers extends Component {
   }
 
   render() {
-    const {routes} = this.state; 
+    const {routes, loading} = this.state; 
     const stats    = this.renderTableViewStats();
     const filters  = this.renderFilterContent();
     return (
       <>
         <PageHeader
           extra={[
-            <Button key="refresh" size="small" icon="redo" disabled={this.state.loading} onClick={()=>this.refreshCurrentTable()} ></Button>,
+            <Button key="refresh" size="small" icon="redo" disabled={loading} onClick={()=>this.reloadData()} ></Button>,
             
           ]}
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}

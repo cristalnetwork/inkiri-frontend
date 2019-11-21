@@ -111,10 +111,19 @@ class Profiles extends Component {
 
   }
 
+  reloadProfiles(){
+    this.setState({
+        page:        -1, 
+        profiles:    [],
+      }, () => {
+        this.loadProfiles();
+      });  
+  }
+
   loadProfiles = async (first) => {
 
     let can_get_more   = this.state.can_get_more;
-    if(!can_get_more)
+    if(!can_get_more && this.state.page>=0)
     {
       this.setState({loading:false});
       return;
@@ -296,15 +305,13 @@ class Profiles extends Component {
     const content               = this.renderContent();
     const stats                 = this.renderTableViewStats();
     const filters               = this.renderFilterContent();
-
-    const _href   = globalCfg.bank.customers;
-    
-    const {routes}  = this.state;
+    const {routes, loading}     = this.state;
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={[
+            <Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadProfiles()} ></Button>,
             <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewProfile()}}> Profile</Button>,
           ]}
           title="Profiles"

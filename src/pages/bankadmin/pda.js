@@ -72,7 +72,8 @@ class PDA extends Component {
   */
   reloadTxs(){
     this.setState({
-        page: -1
+        page:   -1, 
+        txs:    [],
       }, () => {
         this.loadTransactionsForPDA();
       });  
@@ -91,7 +92,7 @@ class PDA extends Component {
     this.setState({loading:true});
 
     let page           = (this.state.page<0)?0:(this.state.page+1);
-    const limit          = this.state.limit;
+    const limit        = this.state.limit;
     let that           = this;
     
     const req_type = DISPLAY_WITHDRAWS + '|' + DISPLAY_DEPOSIT;

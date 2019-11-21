@@ -94,11 +94,19 @@ class Providers extends Component {
 
   }
 
+  reloadProviders(){
+    this.setState({
+        page:        -1, 
+        providers:    [],
+      }, () => {
+        this.loadProviders();
+      });  
+  }
 
   loadProviders = async (first) => {
 
     let can_get_more   = this.state.can_get_more;
-    if(!can_get_more)
+    if(!can_get_more && this.state.page>=0)
     {
       this.setState({loading:false});
       return;
@@ -222,15 +230,16 @@ class Providers extends Component {
   
   render() {
     //
-    const filters = (<></>); //this.renderFilterContent();
-    const content = this.renderUMIContent();
-    const _href   = globalCfg.bank.customers;
-    const {routes}  = this.state;
+    const filters             = (<></>); //this.renderFilterContent();
+    const content             = this.renderUMIContent();
+    const _href               = globalCfg.bank.customers;
+    const {routes, loading}   = this.state;
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={[
+            <Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadProviders()} ></Button>,
             <Button key="_new_provider" size="small" type="primary" icon="plus" onClick={()=>{this.onNewProvider()}}> Provider</Button>,
             
           ]}
