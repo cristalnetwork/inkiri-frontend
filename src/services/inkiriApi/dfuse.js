@@ -64,12 +64,20 @@ export const getKeyAccounts = (public_key) => new Promise((res,rej)=> {
       
       jwtHelper.apiCall(path+query, method)
         .then((data) => {
-            res(data.account_names)
+            // console.log( ' >> dfuse::getKeyAccounts OK >>', data)
+            if(!data.account_names){
+              rej('No name for given public key');
+              return;
+            }
+            res(data.account_names);
+            return;
           }, (ex) => {
+            console.log( ' >> dfuse::getKeyAccounts ERROR#2 >>', ex)
             rej(ex);
+            return;
           });
     }, (ex) => {
-      // console.log( ' >> dfuse::getKeyAccounts ERROR >>', ex)
+      console.log( ' >> dfuse::getKeyAccounts ERROR#1 >>', ex)
       rej(ex);
     });
 })
@@ -188,94 +196,86 @@ export const searchPermissioningAccounts = (account_name) => new Promise( (res, 
   
 })
 
-// export const listBankAccounts = () => new Promise((res,rej)=> {
-//   // Can we cache this information?
-//   let client = createClient();
-//   client.stateTable(
-//       globalCfg.bank.issuer,
-//       globalCfg.bank.issuer,
-//       "ikaccounts",
-//       { blockNum: undefined }
-//     )
-//     .then((data) => {
-//       console.log(' dfuse::listBankAccounts >> ', JSON.stringify(data));
-//       var accounts = data.rows.map(account => 
-//         ({  ...account.json
-//                   ,'state_description' :        txsHelper.getStateDescription(account.json.state)
-//                   ,'account_type_description' : txsHelper.getAccountTypeDescription(account.json.account_type) }));
-//       let _res = {data:{accounts:accounts,more:false}};
-//       // console.log(' dfuse::listBankAccounts >> ', JSON.stringify(_res));
-//       res (_res);
-//       client.release();
-//     }, (ex)=>{
-//       // console.log('dfuse::listBankAccounts >> ERROR ', JSON.stringify(ex));
-//       rej(ex);
-//       client.release();
-//     });
-// })  
+export const transformTransactions = (txs, account_name, is_search_result) => transformTransactionsImpl(txs, account_name, is_search_result);
+const transformTransactionsImpl = (txs, account_name, is_search_result) => {
+  
+  if (!txs || txs.length <= 0) {
+    return [];
+  }
+  if(!Array.isArray(txs)) 
+    txs = [txs];
 
-// export const searchBankAccount = (account_name) => new Promise((res,rej)=> {
-// 	listBankAccounts()
-// 	.then((data) => {
-// 		var account = data.data.accounts.filter(account => account.key === account_name);
-//     if(account && account.length>0)
-//     {
-//     	let _res = account[0];
-//     	res (_res)
-//     }
-//     else
-//   	{
-//   		console.log(' dfuse::searchBankAccount >> ', 'Account not Found!');	
-//   	  res(undefined);
-//   	}
-//   }, (ex)=>{
-//     console.log('dfuse::searchBankAccount >> ERROR ', JSON.stringify(ex));
-//     rej(ex);
-//   });
-// })	
-
-// export const searchOneBankAccount = (account_name) => new Promise((res,rej)=> {
-//   let client = createClient();
-//   client.stateTable(
-//       globalCfg.bank.issuer,
-//       globalCfg.bank.issuer,
-//       "ikaccounts",
-//       { lower_bound: account_name, limit: 1}
-//     )
-//     .then((data) => {
-      
-//       var accounts = data.rows.map(account => 
-//         ({  ...account.json
-//                   ,'state_description' : getStateDescription(account.json.state)
-//                   ,'account_type_description' : getAccountTypeDescription(account.json.account_type) }));
+  // TX info structure:
+  //   id
+  //   block_time
+  //   block_time_number
+  //   transaction_id
+  //   block_num
+  // ACTION info structure:
+  //   {
+  //     "account": "inkiritoken1",
+  //     "name": "any",
+  //     "authorization": [
+  //     {
+  //         "actor": "xxx",
+  //         "permission": "active"
+  //     }],
+  //     "data": { ... }
+  //   }
+  // TX structure from SEARCH:
+  // - info:     -> transaction.lifecycle.execution_trace
+  // - action:   -> transaction.lifecycle.execution_trace.action_traces[0].act
+  // TX structure from EVENT:
+  // - info:     -> transaction.data
+  // - action:   -> transaction.data.trace.act.data
+  
 
 
-//       if(accounts && accounts.length>0)
-//       {
-//         let _res = {data:{account:accounts[0]}};
-//         res (_res);
-//       }
-//       else{
-//         rej('Account is not a bank customer!');
-//       }
-//       client.release();
-//     }, (ex)=>{
-//       // console.log('dfuse::listBankAccounts >> ERROR ', JSON.stringify(ex));
-//       rej(ex);
-//       client.release();
-//     });
+  const my_txs = txs.map(
+     (transaction) => {
+      const tx_info    =  (is_search_result)
+                          ?transaction.lifecycle.execution_trace
+                          :transaction.data;
+      const tx_data    = (is_search_result)
+                          ?transaction.lifecycle.execution_trace.action_traces[0].act
+                          :transaction.data.trace.act;
+      const expandedTx = txsHelper.getTxMetadata(account_name, tx_data);      
+      return {  
+          ...tx_data
+          , ...expandedTx
+          ,'id' :               (is_search_result)?tx_info.id:tx_info.trx_id
+          ,'block_time' :       tx_info.block_time.split('.')[0]
+          ,'block_time_number': Number(tx_info.block_time.split('.')[0].replace(/-/g,'').replace(/T/g,'').replace(/:/g,'') )
+          ,'transaction_id' :   (is_search_result)?tx_info.id:tx_info.trx_id
+          ,'block_num' :        tx_info.block_num 
+      };
+    })
+  
+  return my_txs;
+}
 
-// })  
-
-export const listTransactions = (account_name, cursor) => new Promise((res,rej)=> {
+/*
+*  Retrieves TXs from DFUSE for a given account.
+* account_name
+* cursor
+* received_or_sent undefined (both) | true (received) | sent (false) 
+*/
+export const listTransactions = (account_name, cursor, received_or_sent) => new Promise((res,rej)=> {
 	
 	
   // const query = 'account:' + globalCfg.currency.token + ' (data.from:'+account_name+' OR data.to:'+account_name+')'
   const query = (account_name)
-    ?`account: ${globalCfg.currency.token} (data.from:${account_name} OR data.to:${account_name})`
+    ?(
+      received_or_sent===undefined
+      ?`account: ${globalCfg.currency.token} (data.from:${account_name} OR data.to:${account_name})`
+      :
+        (received_or_sent===true)
+        ?`account: ${globalCfg.currency.token} (data.to:${account_name})`
+        :`account: ${globalCfg.currency.token} (data.from:${account_name})`
+      )
     :`account: ${globalCfg.currency.token} `;
 
-	console.log('dfuse::listTransactions >> ', 'About to retrieve listTransactions >>', query);	
+	// console.log('dfuse::listTransactions >> ', 'About to retrieve listTransactions >>', query);	
 
   let options = { limit: globalCfg.dfuse.default_page_size , sort: 'desc'}
   if(cursor!==undefined)
@@ -290,37 +290,12 @@ export const listTransactions = (account_name, cursor) => new Promise((res,rej)=
     .then( (data) => {
     	// var txs = data.transactions.map(transaction => transaction.lifecycle.execution_trace.action_traces[0].act);
 
-      if (!data.transactions || data.transactions.length <= 0) {
-        // rej(ex);
-        res ({data:{txs:[], cursor:''}})
-        client.release();
-        return;
-      }
-
-      // console.log(' ----------------------------------- ')
-      // console.log(' -- DFUSE ')
-      // console.log(' ---- query: ')
-      // console.log(JSON.stringify(query));
-      // console.log(' ---- txs: ')
-      // console.log(JSON.stringify(data.transactions));
-      // console.log(' ----------------------------------- ')
-      var txs = data.transactions.map(
-        function (transaction) {
-          const expandedTx = txsHelper.getTxMetadata(account_name, transaction.lifecycle.execution_trace);
-          return {  
-              ...transaction.lifecycle.execution_trace.action_traces[0].act
-              , ...expandedTx
-              ,'id' :               transaction.lifecycle.execution_trace.id 
-              ,'block_time' :       transaction.lifecycle.execution_trace.block_time.split('.')[0]
-              ,'block_time_number': Number(transaction.lifecycle.execution_trace.block_time.split('.')[0].replace(/-/g,'').replace(/T/g,'').replace(/:/g,'') )
-              ,'transaction_id' :   transaction.lifecycle.execution_trace.id 
-              ,'block_num' :        transaction.lifecycle.execution_trace.block_num 
-          };
-        })
+      const txs = transformTransactionsImpl(data.transactions, account_name, true);
         
       // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
       // console.log(' dfuse::listTransactions >> ', JSON.stringify(txs));
-      console.log(' dfuse::listTransactions cursor>> ', JSON.stringify(data.cursor));
+      // console.log(' dfuse::listTransactions cursor>> ', JSON.stringify(data.cursor));
+      // res ({data:{txs:txs, cursor:data.cursor}})
       res ({data:{txs:txs, cursor:data.cursor}})
       client.release();
     }, (ex) => {

@@ -10,11 +10,6 @@ const routes  = {
                 title: 'My money',
                 icon: 'wallet',
                 items: [
-                    // {
-                    //     key: routes_config.pathNames.personalAllInOne,
-                    //     path: routes_config.pathNames.personalAllInOne,
-                    //     title: 'All In One',
-                    // },
                     {
                         key: routes_config.pathNames.personalExtracto,
                         path: routes_config.pathNames.personalExtracto,
@@ -38,7 +33,8 @@ const routes  = {
                 ]
             },
             {
-                key: routes_config.pathNames.personalRequestMoney,
+                // key: routes_config.pathNames.personalRequestMoney,
+                key: 'personal_receive_money',
                 title: 'Receive',
                 icon: 'plus-square',
                 items: [
@@ -50,7 +46,8 @@ const routes  = {
                 ]
             },
             {
-                key: routes_config.pathNames.personalSendMoney,
+                // key: routes_config.pathNames.personalSendMoney,
+                key: 'personal_send_money',
                 title: 'Pay',
                 icon: 'minus-square',
                 items: [
@@ -69,10 +66,10 @@ const routes  = {
             }
             ,
             {
-                key: routes_config.pathNames.personalConfiguration,
-                title: 'Account settings',
+                key: routes_config.pathNames.commonConfiguration,
+                title: 'Configuration',
                 icon: 'setting',
-                path: routes_config.pathNames.personalConfiguration,
+                path: routes_config.pathNames.commonConfiguration,
                 // items: [
                 //     {
                 //         key: routes_config.pathNames.personalConfiguration,
@@ -113,6 +110,11 @@ const routes  = {
                         key: routes_config.pathNames.bankadminPAP,
                         path: routes_config.pathNames.bankadminUnderConstruction,
                         title: 'Pre-Auth Payments',
+                    },
+                    {
+                        key: routes_config.pathNames.bankadminIugu,
+                        path: routes_config.pathNames.bankadminIugu,
+                        title: 'Iugu',
                     }
 
                 ]
@@ -202,7 +204,7 @@ const routes  = {
                 items: [
                     {
                         key: routes_config.pathNames.businessPDV,
-                        path: routes_config.pathNames.businessUnderConstruction,
+                        path: routes_config.pathNames.businessPDV,
                         title: 'Vendas - PDV',
                     },
                     {
@@ -253,8 +255,8 @@ const routes  = {
                 ]
             },
             {
-                key: routes_config.pathNames.businessConfiguration,
-                path: routes_config.pathNames.businessUnderConstruction,
+                key: routes_config.pathNames.commonConfiguration,
+                path: routes_config.pathNames.commonConfiguration,
                 title: 'Configuration',
                 icon: 'setting',
             }

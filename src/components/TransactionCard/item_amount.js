@@ -5,11 +5,12 @@ import * as globalCfg from '@app/configs/global';
 
 import * as request_helper from '@app/components/TransactionCard/helper';
 
-const ItemAmount = ({amount, symbol}) => {
+const ItemAmount = ({amount, symbol, small}) => {
     
     const my_symbol = symbol?symbol:globalCfg.currency.fiat.symbol;
+    const classname = small?'price-tag_small':'';
     return(
-      <span className="price-tag price-tag-billing">
+      <span className={classname+" price-tag price-tag-billing"}>
         <span className="price-tag price-tag-symbol">
           {my_symbol} 
         </span>

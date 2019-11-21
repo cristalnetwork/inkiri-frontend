@@ -727,9 +727,9 @@ class CreateAccount extends Component {
 
     if(current_step==2 && !adding_new_perm){
       const {account_type} = this.state;  
-      const permConf = globalCfg.bank.listPermsByAccountType();
-      // const xx = this.renderAllPerms(permConf[globalCfg.bank.ACCOUNT_TYPE_PERSONAL]);
-      const xx = this.renderAllPerms(permConf[account_type]);
+      // const permConf = globalCfg.bank.listPermsByAccountType();
+      // const xx = this.renderAllPerms(permConf[account_type]);
+      const xx = this.renderAllPerms(globalCfg.bank.getPermsForAccountType(account_type));
       content = (xx);
     }
     

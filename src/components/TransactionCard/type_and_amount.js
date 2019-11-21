@@ -6,11 +6,16 @@ import * as globalCfg from '@app/configs/global';
 import ItemAmount from '@app/components/TransactionCard/item_amount';
 import * as request_helper from '@app/components/TransactionCard/helper';
 
-const TransactionTypeAndAmount = ({request, transaction}) => {
+const TransactionTypeAndAmount = ({request, transaction, custom}) => {
     
     let description = (null);
     let amount      = (null);
     
+    if(custom){
+      description = (<>{custom.title}</>);
+      amount      = (<ItemAmount amount={custom.amount} />);
+    }
+    //
     if(request){
       description = (<>{globalCfg.api.typeToText(request.requested_type).toUpperCase()} <small>request</small></>);
       amount      = (<ItemAmount amount={request.amount} />);

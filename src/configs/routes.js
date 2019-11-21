@@ -7,7 +7,7 @@ export const pathNames = utils.arrToObj([
     'personalExchange',
     'personalRequestMoney',
     'personalPaymentsAndServices',
-    'personalConfiguration',
+    // 'personalConfiguration',
 
     'bankadminDashboard',
     'bankadminUnderConstruction',
@@ -15,6 +15,8 @@ export const pathNames = utils.arrToObj([
     'bankadminOperations',
     'bankadminExternalTransfers',
     'bankadminExternalTransfers_ProcessExternal',
+    'bankadminIugu',
+    'bankadminIugu_Details',
     'bankadminConfiguration',
     'bankadminPAP',
 
@@ -46,7 +48,7 @@ export const pathNames = utils.arrToObj([
     // 'businessProvidersPayments_Request_Details',
     'businessSalaries',
     'businessCrew',
-    'businessConfiguration',
+    // 'businessConfiguration',
 
     'businessUnderConstruction',
 
@@ -55,6 +57,7 @@ export const pathNames = utils.arrToObj([
     'commonDeposit',
     'commonWithdraw',
     'commonSend',
+    'commonConfiguration',
 
     'dashboard'
 ])
@@ -68,13 +71,13 @@ const personal =[
        container: 'dashboard',
        role: 'personal'
     },
-    {
-       key: pathNames.personalConfiguration,
-       fileName: 'configuration',
-       area: 'personal',
-       path: 'account-settings',
-       container: 'dashboard' 
-    },
+    // {
+    //    key: pathNames.personalConfiguration,
+    //    fileName: 'configuration',
+    //    area: 'personal',
+    //    path: 'account-settings',
+    //    container: 'dashboard' 
+    // },
     {
        key: pathNames.personalWithdraw,
        fileName: 'withdraw',
@@ -148,6 +151,23 @@ const bankadmin = [
        path:        'external-transfers-process-request',
        container:   'dashboard',
        role:        'bankadmin'
+    },
+    {
+       key: pathNames.bankadminIugu,
+       fileName: 'iugu',
+       area: 'bankadmin',
+       path: 'iugu',
+       container: 'dashboard',
+       role: 'bankadmin'
+    },
+    {
+       key: pathNames.bankadminIugu_Details,
+       father_key : '*',
+       fileName: 'iugu_details',
+       area: 'bankadmin',
+       path: 'iugu-invoice',
+       container: 'dashboard',
+       role: 'bankadmin'
     },
     {
        key: pathNames.bankadminConfiguration,
@@ -299,7 +319,7 @@ const business = [
     },
     {
        key: pathNames.businessPDV,
-       fileName: 'under-construction',
+       fileName: 'pdv',
        area: 'business',
        path: 'pdv',
        container: 'dashboard',
@@ -362,14 +382,14 @@ const business = [
        container: 'dashboard',
        role: 'business'
     },
-    {
-       key: pathNames.businessConfiguration,
-       fileName: 'under-construction',
-       area: 'business',
-       path: 'configuration',
-       container: 'dashboard',
-       role: 'business'
-    },
+    // {
+    //    key: pathNames.businessConfiguration,
+    //    fileName: 'under-construction',
+    //    area: 'business',
+    //    path: 'configuration',
+    //    container: 'dashboard',
+    //    role: 'business'
+    // },
     
   ];
 
@@ -413,8 +433,15 @@ const common = [
      path:      'send',
      container: 'dashboard' ,
      role:      '*' 
-  }
-  
+  },
+  {
+       key:       pathNames.commonConfiguration,
+       fileName:  'configuration',
+       area:      'common',
+       path:      'configuration',
+       container: 'dashboard',
+       role:      '*' 
+    },
 ];
 
 

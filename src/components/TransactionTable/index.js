@@ -8,10 +8,8 @@ import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 
-import { Tag, Button, Statistic, Row, Col } from 'antd';
-import { notification, Table, Divider, Spin } from 'antd';
-
-import * as request_helper from '@app/components/TransactionCard/helper';
+import { Button} from 'antd';
+import { notification, Table } from 'antd';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
 

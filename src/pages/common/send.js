@@ -183,6 +183,15 @@ class SendMoney extends Component {
     return globalCfg.currency.symbol + parseFloat(input_amount.value||0).toFixed(2);
   }
 
+  onPay = () => {
+    this.props.form.validateFields((err, values) => {
+      if (err) {
+        //
+        return;
+      }
+      this.doPayOrSend(values, true);
+    });
+  }
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
@@ -190,70 +199,79 @@ class SendMoney extends Component {
         //
         return;
       }
-
-      const { input_amount, transfer_extra } = this.state; 
-      
-      if(isNaN(input_amount.value))
-      {
-        this.openNotificationWithIcon("error", "Valid number required for amount","Please type a validnumber greater than 0!")    
-        return;
-      }
-      if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
-      {
-        const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-        this.openNotificationWithIcon("error", `Amount must be equal or less than balance ${balance_txt}!`); //`
-        return;
-      }
-
-      if(this.props.isBusiness && !(transfer_extra || transfer_extra[globalCfg.api.TRANSFER_REASON]))
-      {
-        this.openNotificationWithIcon("error", 'Please choose a transfer reason.');
-        return;
-      }
-
-      console.log('Received values of form: ', values);
-
-      const privateKey       = this.props.actualPrivateKey;
-      const receiver         = values.receipt;
-      const sender           = this.props.actualAccountName;
-      const amount           = input_amount.value;
-      let memo               = '';
-      
-      if(transfer_extra)
-        memo = utils.sliceAndJoinMemo (transfer_extra.message, transfer_extra[globalCfg.api.TRANSFER_REASON])
-      
-      console.log('* transfer_extra: ', transfer_extra);
-      console.log('* memo:', memo);
-      return;
-      const that         = this;
-
-      Modal.confirm({
-        title: 'Confirm money transfer',
-        content: 'Please confirm transfer for '+this.inputAmountToString() + ' to ' + receiver,
-        onOk() {
-
-                that.setState({pushingTx:true});
-                api.sendMoney(sender, privateKey, receiver, amount, memo)
-                .then((data) => {
-                  console.log(' SendMoney::send (then#1) >>  ', JSON.stringify(data));
-                  that.setState({result:'ok', pushingTx:false, result_object:data});
-                  that.openNotificationWithIcon("success", 'Transfer completed successfully');
-                }, (ex) => {
-                  console.log(' SendMoney::send (error#1) >>  ', JSON.stringify(ex));
-                  that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
-                  that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
-                });
-
-        },
-        onCancel() {
-          console.log('Cancel');
-          that.setState({pushingTx:false})
-        },
-      });
-
-      
+      this.doPayOrSend(values, false);
     });
   };
+
+  doPayOrSend = (values, _pay) => {
+    const { input_amount, transfer_extra } = this.state; 
+      
+    if(isNaN(input_amount.value))
+    {
+      this.openNotificationWithIcon("error", "Valid number required for amount","Please type a validnumber greater than 0!")    
+      return;
+    }
+    if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
+    {
+      const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
+      this.openNotificationWithIcon("error", `Amount must be equal or less than balance ${balance_txt}!`); //`
+      return;
+    }
+
+    if(this.props.isBusiness && !(transfer_extra || transfer_extra[globalCfg.api.TRANSFER_REASON]))
+    {
+      this.openNotificationWithIcon("error", 'Please choose a transfer reason.');
+      return;
+    }
+
+    console.log('Received values of form: ', values);
+
+    const privateKey       = this.props.actualPrivateKey;
+    const receiver         = values.receipt;
+    const sender           = this.props.actualAccountName;
+    const amount           = input_amount.value;
+    let memo               = '';
+    console.log(transfer_extra)
+    if(this.props.isBusiness && transfer_extra)
+    {  
+      memo = utils.sliceAndJoinMemo (transfer_extra.message, transfer_extra[globalCfg.api.TRANSFER_REASON])
+      console.log('* transfer_extra: ', transfer_extra);
+    }
+    else
+      if(transfer_extra)
+        memo = utils.cleanMemo(transfer_extra.message);
+
+    console.log('* memo:', memo);
+    
+    const that         = this;
+
+    Modal.confirm({
+      title: _pay?'Confirm payment':'Confirm money transfer',
+      content: 'Please confirm transfer for '+this.inputAmountToString() + ' to ' + receiver,
+      onOk() {
+
+              that.setState({pushingTx:true});
+              
+              const promise = _pay?api.sendPayment(sender, privateKey, receiver, amount, memo):api.sendMoney(sender, privateKey, receiver, amount, memo);
+              
+              promise
+              .then((data) => {
+                console.log(' SendMoney::send (then#1) >>  ', JSON.stringify(data));
+                that.setState({result:'ok', pushingTx:false, result_object:data});
+                that.openNotificationWithIcon("success", 'Transfer completed successfully');
+              }, (ex) => {
+                console.log(' SendMoney::send (error#1) >>  ', JSON.stringify(ex));
+                that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
+                that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+              });
+
+      },
+      onCancel() {
+        console.log('Cancel');
+        that.setState({pushingTx:false})
+      },
+    });
+  }
 
   checkPrice = (rule, value, callback) => {
     if (value > 0) {
@@ -268,7 +286,7 @@ class SendMoney extends Component {
     if(this.state.result)
     {
       const result_type = this.state.result;
-      const title       = 'Transfer completed succesfully.';
+      const title       = null;
       const message     = null;
       const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error
@@ -357,7 +375,8 @@ class SendMoney extends Component {
             </div>
 
             <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={pushingTx} >SEND</Button>
+              <Button size="large" key="sendButton" htmlType="submit" type="primary" loading={pushingTx} ><FontAwesomeIcon icon="paper-plane" size="1x"/>&nbsp; SEND</Button>
+              <Button size="large" key="payButton" type="link" onClick={this.onPay} style={{marginLeft:8}}loading={pushingTx} ><FontAwesomeIcon icon="shopping-bag" size="1x"/>&nbsp;PAY</Button>
             </div>
 
           </Form>  

@@ -19,6 +19,8 @@ export const generateRandomKeys = () =>   new Promise((res,rej)=> {
   })
 })
 
+export const privateToPublic = (wif) => ecc.privateToPublic(wif); 
+
 export const seedPrivate = (secret_seed) =>   {
     let wif     = ecc.seedPrivate(secret_seed);
     let pubKey  = ecc.privateToPublic(wif); 

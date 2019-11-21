@@ -3,7 +3,7 @@ import * as globalCfg from '@app/configs/global';
 
 function getTxMetadata(account_name, fullTx){
   
-  const tx         = fullTx.action_traces[0].act;
+  const tx         = fullTx; // .action_traces[0].act;
   const tx_type    = combineTxNameCode(tx);
   const tx_name    = getTxName(tx);
   const tx_code    = getTxCode(tx);
@@ -116,7 +116,7 @@ function getTxSubCode(tx)              { const memo = getTxMemoSplitted(tx); ret
 function combineTxNameCode(tx)         { return getTxName(tx) + '_' + getTxCode(tx) ; }
 function isTransfer(param)             { return param=='transfer';}
 function isIssue(param)                { return param=='issue'; }
-function isSender(account_name, tx_act){ return tx_act.data.to!=account_name; }
+function isSender(account_name, tx)    { return tx.data.to!==account_name; }
 
 // function mayTxHaveNewerTx(tx_code){
 //   const search = ['transfer_bck']; 
@@ -155,7 +155,7 @@ const KEY_UPSERT       =  'upsertikacc_';
 
 const typesMap = {
   [KEY_ISSUE_DEP]     : globalCfg.api.TYPE_DEPOSIT,
-  [KEY_ISSUE_IUG]     : globalCfg.api.TYPE_PAYMENT,
+  [KEY_ISSUE_IUG]     : globalCfg.api.TYPE_IUGU,
   [KEY_ISSUE_OFT]     : globalCfg.api.TYPE_ISSUE,
   [KEY_TRANSFER_BCK]  : globalCfg.api.TYPE_REFUND,
   [KEY_TRANSFER_WTH]  : globalCfg.api.TYPE_WITHDRAW,
@@ -221,7 +221,9 @@ function buildHeaders(account_name, tx, i_sent, tx_type, tx_name, tx_code, tx_su
       break;
     case KEY_TRANSFER_PAY:
       // return i_sent?'Realizaste un pago':'Te realizaron un pago'
-      return { sub_header:            i_sent?'Realizaste un pago':'Te realizaron un pago'
+      return { 
+              // sub_header:            i_sent?'Realizaste un pago':'Te realizaron un pago'
+              sub_header:             i_sent?`Realizaste un pago a @${tx.data.to}`:`@${tx.data.from} te ha realizado un pago`
               , sub_header_admin:     'Envío de pago'
               , sub_header_admin_ex:  `@${tx.data.from} le ha realizado un pago a @${tx.data.to}`
               , from: tx.data.from
@@ -235,7 +237,9 @@ function buildHeaders(account_name, tx, i_sent, tx_type, tx_name, tx_code, tx_su
               , to:   tx.data.to};
       break;
     case KEY_TRANSFER_SND:
-      return { sub_header:           i_sent?'Enviaste dinero':'Te enviaron dinero'
+      return { 
+              //sub_header:           i_sent?'Enviaste dinero':'Te enviaron dinero'
+              sub_header:            i_sent?`Enviaste dinero a @${tx.data.to}`:`@${tx.data.from} te ha enviado dinero`
               , sub_header_admin:    'Envío de dinero'
               , sub_header_admin_ex: `@${tx.data.from} le ha enviado dinero a @${tx.data.to}`
               , from: tx.data.from

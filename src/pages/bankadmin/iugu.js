@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, {useState, Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -7,34 +7,33 @@ import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
+
 import * as api from '@app/services/inkiriApi';
 
+import { Route, Redirect, withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { withRouter } from "react-router-dom";
 
-import { Radio, Select, Card, PageHeader, Tabs, Button, Statistic, Row, Col } from 'antd';
+import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col, List } from 'antd';
 import { Form, Input, Icon} from 'antd';
 import { notification, Table, Divider, Spin } from 'antd';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import * as request_helper from '@app/components/TransactionCard/helper';
-import * as columns_helper from '@app/components/TransactionTable/columns';
-import {columns,  DISPLAY_PDA, DISPLAY_DEPOSIT, DISPLAY_WITHDRAWS} from '@app/components/TransactionTable';
+import {DISPLAY_ALL_TXS, DISPLAY_PROVIDER, DISPLAY_EXCHANGES} from '@app/components/TransactionTable';
 import TableStats, { buildItemMoneyPending, buildItemUp, buildItemDown, buildItemCompute, buildItemSimple, buildItemMoney, buildItemPending} from '@app/components/TransactionTable/stats';
 
 import * as utils from '@app/utils/utils';
 
-const { TabPane } = Tabs;
-const FormItem = Form.Item;
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import * as columns_helper from '@app/components/TransactionTable/columns';
+import * as request_helper from '@app/components/TransactionCard/helper';
+
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
-
-class PDA extends Component {
+class Iugu extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -46,31 +45,29 @@ class PDA extends Component {
       limit:           globalCfg.api.default_page_size,
       can_get_more:    true,
 
-      stats:          {}
+      stats:          {},
+      active_tab:     DISPLAY_ALL_TXS
     };
 
-    this.loadTransactionsForPDA     = this.loadTransactionsForPDA.bind(this);  
+    this.loadExternalTxs            = this.loadExternalTxs.bind(this);  
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderFooter               = this.renderFooter.bind(this); 
     this.onNewData                  = this.onNewData.bind(this);
-    this.onProcessRequestClick      = this.onProcessRequestClick.bind(this);
+    // this.onTabChange                = this.onTabChange.bind(this);
+    this.onTableChange              = this.onTableChange.bind(this);
+    this.onInvoiceClick             = this.onInvoiceClick.bind(this);
   }
   
   componentDidMount(){
-    this.loadTransactionsForPDA();  
+    this.loadExternalTxs();  
   } 
 
   getColumns(){
-    // return columns(this.props.actualRoleId, this.onProcessRequestClick)
-    return columns_helper.columnsForPDA(this.onProcessRequestClick);
+    return columns_helper.columnsForIUGU(this.onInvoiceClick);
   }
-
-  //
   
-  /*
-  * Retrieves transactions
-  */
-  loadTransactionsForPDA(){
+  //
+  loadExternalTxs(){
 
     let can_get_more   = this.state.can_get_more;
     if(!can_get_more)
@@ -86,10 +83,10 @@ class PDA extends Component {
     const limit          = this.state.limit;
     let that           = this;
     
-    const req_type = DISPLAY_WITHDRAWS + '|' + DISPLAY_DEPOSIT;
+    const req_type = DISPLAY_EXCHANGES + '|' + DISPLAY_PROVIDER;
     const account_name = undefined;
     
-    api.bank.listRequests(page, limit, req_type, account_name)
+    api.bank.listIuguInvoices(page, limit)
     .then( (res) => {
         that.onNewData(res);
       } ,(ex) => {
@@ -113,7 +110,7 @@ class PDA extends Component {
 
     if(!has_received_new_data)
     {
-      this.openNotificationWithIcon("info", "End of transactions","You have reached the end of transaction list!")
+      this.openNotificationWithIcon("info", "End of invoices","You have reached the end of paid invoices list!")
     }
     else
       this.computeStats();
@@ -124,41 +121,37 @@ class PDA extends Component {
     let stats = this.currentStats();
     if(txs===undefined)
       txs = this.state.txs;
-    const deposits      = txs.filter( tx => globalCfg.api.isDeposit(tx))
-                    .map(tx =>tx.quantity)
-                    .reduce((acc, amount) => acc + Number(amount), 0);
-    const withdraws     = txs.filter( tx => globalCfg.api.isWithdraw(tx))
-                    .map(tx =>tx.quantity)
-                    .reduce((acc, amount) => acc + Number(amount), 0);
+    const processed = txs.filter( tx => request_helper.iugu.isIssued(tx))
+                      .map(tx =>tx.amount)
+                      .reduce((acc, amount) => acc + Number(amount), 0);
+    const waiting   = txs.filter( tx => request_helper.iugu.isProcessing(tx))
+                      .map(tx =>tx.amount)
+                      .reduce((acc, amount) => acc + Number(amount), 0);
     
-    const deposits_ik   = txs.filter( tx => globalCfg.api.isIKDeposit(tx))
-                    .map(tx =>tx.quantity)
-                    .reduce((acc, amount) => acc + Number(amount), 0);
-    const deposits_brl  = txs.filter( tx => globalCfg.api.isBRLDeposit(tx))
-                    .map(tx =>tx.quantity)
-                    .reduce((acc, amount) => acc + Number(amount), 0);
-    const pending      = txs.filter( tx => globalCfg.api.isProcessPending(tx))
-                    .map(tx =>tx.quantity).length;
-
-    stats = {
-        withdraws:     withdraws
-        , deposits:    deposits
+    const error     = txs.filter( tx => request_helper.iugu.inError(tx))
+                      .map(tx =>tx.amount)
+                      .reduce((acc, amount) => acc + Number(amount), 0);
+    
+    const total     = error+waiting+processed;
+    
+    stats[this.state.active_tab] = {
+        processed : processed
+        , waiting : waiting
+        , error : error
+        , total : total
         , count:       txs.length
-        , deposits_ik: deposits_ik 
-        , deposits_brl:deposits_brl 
-        , pending:     pending};
+       };
 
     this.setState({stats:stats})
   }
 
   currentStats(){
-    const x = this.state.stats;
-    const _default = {deposits:0 
-              , withdraws:0
-              , count:0
-              , deposits_ik:0
-              , deposits_brl:0
-              , pending:0};
+    const x = this.state.stats[this.state.active_tab];
+    const _default = {processed: 0 
+                  , waiting:0 
+                  , error:0 
+                  , total:0
+                  , count:0};
     return x?x:_default;
   }
 
@@ -170,31 +163,35 @@ class PDA extends Component {
   }
   // Component Events
   
-  onProcessRequestClick(request){
+  onTableChange(key, txs) {
+    // console.log(key);
+    // this.setState({active_tab:key})
+    if(key==this.state.active_tab )
+      this.computeStats(txs);
+  }
+
+  onInvoiceClick(invoice){
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
+    // ToDo: Move to common
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/pda-process-request`
+      pathname: `/${this.props.actualRole}/iugu-invoice`
       , state: { 
-          request: request 
-          , referrer: this.props.location.pathname
+          invoice:  invoice, 
+          referrer: this.props.location.pathname
         }
     })
 
-    // this.props.history.push({
-    //   pathname: `/${this.props.actualRole}/pda-process-request`
-    //   , state: { request: request }
-    // })
   }
 
   renderFooter(){
-    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadTransactionsForPDA()}>More!!</Button> </>)
+    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadExternalTxs()}>More!!</Button> </>)
   }
 
   //
   renderSelectTxTypeOptions(){
     return (
-      globalCfg.api.getTypes().map( tx_type => {return(<Option key={'option'+tx_type} value={tx_type} label={utils.firsts(tx_type.split('_')[1])}>{ utils.capitalize(tx_type.split('_')[1]) } </Option>)})
+      [globalCfg.api.TYPE_PROVIDER, globalCfg.api.TYPE_EXCHANGE ].map( tx_type => {return(<Option key={'option'+tx_type} value={tx_type} label={utils.firsts(tx_type.split('_')[1])}>{ utils.capitalize(tx_type.split('_')[1]) } </Option>)})
         )
   }
   // 
@@ -254,36 +251,29 @@ class PDA extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          extra={[
-            <Button size="small" key="_new_deposit"  icon="plus" disabled> Deposit</Button>,
-            <Button size="small" key="_new_withdraw" icon="plus" disabled> Withdraw</Button>,
-          ]}
-          title="PDA"
-          subTitle="Deposits and Withdraws"
-        />
-          
+          title="IUGU payments"
+          subTitle="List of Invoices Paid via IUGU" />
+        
         <Card
           key="card_table_all_requests"
           className="styles listCard"
           bordered={false}
           style={{ marginTop: 24 }}
           headStyle={{display:'none'}}
-          extra={this.renderExtraContent()}
+          extra={this.renderHeaderFilter()}
         >
           {filters}
           {stats}
           {content}
         </Card>
-        
-
       </>
     );
   }
 //
-  renderExtraContent (){ 
-    
+
+  renderHeaderFilter(){ /* Currently hidden! */
     return(
-      <div className="styles extraContent" style={{display:'none'}}>
+      <div className="styles extraContent hidden" >
         <RadioGroup defaultValue="all">
           <RadioButton value="all">all</RadioButton>
           <RadioButton value="progress">progress</RadioButton>
@@ -292,16 +282,17 @@ class PDA extends Component {
         <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
       </div>
     )};
-
     //
   
   renderTableViewStats(){
-    const {deposits_ik, deposits_brl, withdraws, pending} = this.currentStats();  
+    const {processed, waiting, error, total, count} = this.currentStats();  
     const items = [
-        buildItemMoney(globalCfg.currency.symbol + ' DEPOSITS', deposits_ik)
-        , buildItemMoney('BRL DEPOSITS', deposits_brl)
-        , buildItemMoney('WITHDRAWS', withdraws)
-        , buildItemPending('PENDING', pending)
+        buildItemMoney('ISSUED', processed)
+        , buildItemMoneyPending('PENDING', waiting)
+        , buildItemMoney('ERROR', error, '#cf1322')
+        , buildItemMoney('TOTAL', total)
+        , buildItemSimple('PAYMENTS', count)
+        
       ]
     return (<TableStats title="STATS" stats_array={items}/>)
   }
@@ -321,7 +312,6 @@ class PDA extends Component {
           </div>);
   }
 
-  
 }
 //
 export default  (withRouter(connect(
@@ -333,5 +323,5 @@ export default  (withRouter(connect(
     (dispatch)=>({
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(PDA))
+)(Iugu))
 );

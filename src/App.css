@@ -153,18 +153,18 @@ h3.fileds_header{
 .icon_color_default { color:#1890ff; }
 .icon_color_green   { color:#3db389; }
 
-.flex_row{
+/*.flex_row{
     display: flex;
     align-items: center;
     flex-direction: row!important;
     justify-content: flex-start;
     overflow:hidden;
-}
+}*/
 .display_block{display:block!important;}
 .display_block.addresse-avatar{top:0px;}
 
 
-
+/* FORMS -> LABELS are shown if text is not empty ... NOT WORKING! */
 .with_labels .money-transfer__row:has(>input:placeholder-shown )  label
 {
   background-color: #00ff00!important;
@@ -181,4 +181,38 @@ h3.fileds_header{
 .with_labels .money-transfer__row label::before,
 .with_labels .money-transfer__row label::after{
   display:none!important;
+}
+
+/* AMOUNT DISPLAYS */
+.c-ticket__row .c-ticket__title_small
+, .c-ticket__row .price-tag_small
+, .c-ticket__row .price-tag_small .price-tag.price-tag-symbol
+, .c-ticket__row .price-tag_small .price-tag.price-tag-fraction{
+  font-weight: 400!important;
+  font-size: 1.2em!important;
+  line-height: 1.6em!important; 
+}
+
+
+/* PDV */
+.circled_action_type{
+  line-height: 2.2;
+  text-align: center;
+}
+.flex_center, .flex_row, .flex_column{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow:hidden;
+}
+.flex_row{
+    flex-direction: row!important;
+}
+.flex_column{
+    flex-direction: column!important;
+}
+
+.mp-box__shadow__full {
+    -webkit-box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.3);
 }

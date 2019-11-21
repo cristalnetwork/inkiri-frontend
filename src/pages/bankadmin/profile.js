@@ -29,15 +29,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import BankAccountForm from '@app/components/Form/bank_account';
 import ProfileForm from '@app/components/Form/profile';
-import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/pages/personal/configuration/profile';
-import Skeleton from '@app/pages/personal/configuration/skeleton';
+import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/components/Views/profile';
+import Skeleton from '@app/components/Views/skeleton';
 
 
 const ACTIVE_TAB_PROFILE               = 'active_tab_profile';
 const ACTIVE_TAB_PROFILE_EDIT_PROFILE  = 'active_tab_profile_edit_profile';
 const ACTIVE_TAB_PROFILE_BANK_ACCOUNT  = 'active_tab_profile_add_or_update_bank_account';
 const ACTIVE_TAB_ACCOUNTS              = 'active_tab_accounts';
-const ACTIVE_TAB_ROLES                 = 'active_tab_roles';
 const ACTIVE_TAB_PREFERENCES           = 'active_tab_preferences';
 const ACTIVE_TAB_SECURITY              = 'active_tab_security';
 
@@ -62,6 +61,8 @@ class Profile extends Component {
     this.onAddOrUpdateBankAccount   = this.onAddOrUpdateBankAccount.bind(this); 
     this.onUpdateProfile            = this.onUpdateProfile.bind(this); 
     this.reload                     = this.reload.bind(this);
+
+    this.onTabChange                = this.onTabChange.bind(this); 
   }
  
   openNotificationWithIcon(type, title, message) {
@@ -173,7 +174,7 @@ class Profile extends Component {
     // console.log(' >> onAddOrUpdateBankAccount:: bank_accounts: ', JSON.stringify(bank_accounts))
     api.bank.updateUserBankAccounts(profile.id, bank_accounts)
       .then((res)=>{
-        that.props.loadProfile(that.props.actualAccountName);
+        that.reload();
         that.openNotificationWithIcon("success", "Bank account saved successfully")    
         that.resetPage(ACTIVE_TAB_PROFILE);
         // console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(res));
@@ -293,7 +294,6 @@ class Profile extends Component {
             <Tabs defaultActiveKey="1" onChange={this.onTabChange}>
               <Tabs.TabPane tab="Profile"     key={ACTIVE_TAB_PROFILE} />
               <Tabs.TabPane tab="Accounts"    key={ACTIVE_TAB_ACCOUNTS} disabled />
-              <Tabs.TabPane tab="Roles"       key={ACTIVE_TAB_ROLES} disabled />
               <Tabs.TabPane tab="Preferences" key={ACTIVE_TAB_PREFERENCES} disabled />
               <Tabs.TabPane tab="Security"    key={ACTIVE_TAB_SECURITY} disabled />
             </Tabs>

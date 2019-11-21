@@ -1,4 +1,3 @@
-import { createDfuseClient, DfuseClient } from "@dfuse/client"
 import * as globalCfg from '@app/configs/global';
 
 import * as eosHelper from './eosHelper.js';
@@ -9,7 +8,8 @@ import ecc from 'eosjs-ecc';
 
 import * as txsHelper from './transactionHelper';
 
-import { Api, JsonRpc, RpcError } from 'eosjs';
+// import { Api, JsonRpc, RpcError } from 'eosjs';
+import { Api, JsonRpc } from 'eosjs';
 import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig';
 
 import _ from 'lodash';
@@ -340,6 +340,7 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
 
 export const refund                 = (sender_account, sender_priv, receiver_account, amount, request_id, tx_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('bck|' + request_id + '|' + tx_id));
 export const sendMoney              = (sender_account, sender_priv, receiver_account, amount, memo)       => transferMoney(sender_account, sender_priv, receiver_account, amount, ('snd|'+memo)); 
+export const sendPayment            = (sender_account, sender_priv, receiver_account, amount, memo)       => transferMoney(sender_account, sender_priv, receiver_account, amount, ('pay|'+memo)); 
 export const requestProviderPayment = (sender_account, sender_priv, receiver_account, amount, request_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('prv|' + request_id)); 
 export const requestExchange        = (sender_account, sender_priv, receiver_account, amount, request_id, bank_account_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('xch|' + request_id + '|' + bank_account_id)); 
 export const requestWithdraw        = (sender_account, sender_priv, receiver_account, amount, request_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('wth|' + request_id)); 
@@ -403,9 +404,7 @@ export const issueMoney = async (issuer_account, issuer_priv, receiver_account, 
 export const setAccountPermission = async (account, account_priv, permission_name, authority_obj, parent) => { 
 
   if(!parent)
-    parent='owner';
-
-  // delete authority_obj.waits;
+    parent=""; //parent='owner';
 
   const permAction = {
     account: 'eosio',
@@ -433,7 +432,7 @@ export const setAccountPermission = async (account, account_priv, permission_nam
 
 const default_perm = {
             "perm_name": "active",
-            "parent": "owner",
+            "parent": "", //"parent": "owner",
             "required_auth":
             {
                 "threshold": 1,
@@ -463,6 +462,8 @@ export const getNewPermissionObj = (eos_account_object, permissioned, perm_name)
   if(!perm || perm.length==0)
   {
     perm = Object.assign({}, default_perm);
+    // if(perm_name==='owner')
+    //   delete perm.parent;
     perm.perm_name = perm_name;
     perm.required_auth.accounts.push(new_perm)
   }

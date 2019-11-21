@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -10,28 +10,27 @@ import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
 
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-
-import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col, List } from 'antd';
-import { Form, Input, Icon} from 'antd';
-import { notification, Table, Divider, Spin } from 'antd';
+import { Radio, Select, Card, PageHeader, Button, Row, Col } from 'antd';
+import { Form, Input} from 'antd';
+import { notification, Table } from 'antd';
 
 import {DISPLAY_ALL_TXS, DISPLAY_PROVIDER, DISPLAY_EXCHANGES} from '@app/components/TransactionTable';
 import TableStats, { buildItemMoneyPending, buildItemUp, buildItemDown, buildItemCompute, buildItemSimple, buildItemMoney, buildItemPending} from '@app/components/TransactionTable/stats';
 
 import * as utils from '@app/utils/utils';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as columns_helper from '@app/components/TransactionTable/columns';
-import * as request_helper from '@app/components/TransactionCard/helper';
+// import * as request_helper from '@app/components/TransactionCard/helper';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const { Option } = Select;
-const { Search, TextArea } = Input;
+const { Search } = Input;
 
 class ExternalTransfers extends Component {
   constructor(props) {
