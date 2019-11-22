@@ -455,7 +455,7 @@ class PDV extends Component {
                 <section className="mp-box mp-box__shadow__full money-transfer__box">
                   <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
                     <div className="c-detail">
-                      <PaymentForm 
+                      <PaymentForm
                         business={this.actualAccountName} 
                         amount={this.state.input_amount.value} 
                         callback={ () => this.onPaymentModalCallback } />

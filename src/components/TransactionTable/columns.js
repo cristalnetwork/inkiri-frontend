@@ -7,6 +7,12 @@ import * as utils from '@app/utils/utils';
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 
+export const events = {
+    VIEW : 'event_view',
+    EDIT : 'event_edit',
+    REMOVE : 'event_remove'
+}
+
 export const columnsForPDA           = (callback) => getColumns(callback);
 export const columnsForExternal      = (callback) => getColumns(callback);
 export const getColumns              = (callback) => {
@@ -668,7 +674,7 @@ export const columnsForIUGU = (callback) => {
 }
 
 //
-export const columnsForCrew = (callback) => {
+export const columnsForCrew = (callback, job_positions) => {
     
     return [
       {
@@ -692,9 +698,10 @@ export const columnsForCrew = (callback) => {
         title: 'Position',
         dataIndex: 'position',
         key: 'position',
-        render: (position, record) => (
-          <span>{position}</span>
-          )
+        render: (position, record) => {
+          const _position = job_positions?job_positions.filter(pos=>pos.key==position)[0].title:position;
+          return (<span>{_position}</span>);
+         }   
       },
       {
         title: 'Wage',
@@ -704,7 +711,7 @@ export const columnsForCrew = (callback) => {
           
           return (
             <span>
-              {wage}
+              {globalCfg.currency.toCurrencyString(wage)}
             </span> 
           )}
       },
@@ -713,8 +720,72 @@ export const columnsForCrew = (callback) => {
         key: 'action',        
         align: 'right',
         render: (text, record) => {
-          return <Button key={'details_'+record.member.key} disabled={true} onClick={()=>{ callback(record.member) }} icon="profile" size="small">Details</Button>
+                    
+          const profile = (<Button key={'profile_'+record.member._id} disabled={true} onClick={()=>{ callback(record, events.VIEW) }} icon="profile" size="small">Profile</Button>);
+          const edit    = (<Button key={'edit_'+record.member._id}                    onClick={()=>{ callback(record, events.EDIT) }} icon="edit" size="small">Edit</Button>);
+          const remove  = (<Button key={'details_'+record.member._id} type="link"     onClick={()=>{ callback(record, events.REMOVE) }} icon="delete" size="small">Remove</Button>);
+          return (<>{profile}&nbsp;{edit}&nbsp;{remove}</>)
         }
+      }
+    ];
+}
+
+
+//
+export const columnsForSalaries = (callback, job_positions) => {
+    
+    return [
+      {
+        title: 'Nome',
+        dataIndex: 'member',
+        key: 'member',
+        render: (member, record) => {
+          return(
+            <span className="name_value_row">
+              <div className="row_name centered" >
+                {request_helper.getAccountTypeIcon(record.member.account_type)} 
+              </div>
+              <div className="row_value wider">
+                <span className="row_tx_description">{request_helper.getProfileName(record.member)}</span> 
+                <br/>@{record.member.account_name} 
+              </div>   
+            </span>)
+        }
+      },
+      {
+        title: 'Position',
+        dataIndex: 'position',
+        key: 'position',
+        render: (position, record) => {
+          const _position = job_positions?job_positions.filter(pos=>pos.key==position)[0].title:position;
+          return (<span>{_position}</span>);
+         }   
+      },
+      {
+        title: 'Wage',
+        key: 'wage',
+        dataIndex: 'wage',
+        render: (wage, record) => {
+          
+          return (
+            <span>
+              {globalCfg.currency.toCurrencyString(wage)}
+            </span> 
+          )}
+      },
+      {
+        title: 'To Pay',
+        key: 'current_wage',
+        dataIndex: 'current_wage',
+        editable: true,
+        
+      },
+      {
+        title: 'Reason',
+        key: 'current_reason',
+        dataIndex: 'current_reason',
+        editable: true,
+        
       }
     ];
 }

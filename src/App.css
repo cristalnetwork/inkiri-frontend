@@ -217,3 +217,20 @@ h3.fileds_header{
     -webkit-box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.3);
     box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.3);
 }
+
+
+/*EDITABLE TABLES*/
+.editable-cell {
+  position: relative;
+}
+
+.editable-cell-value-wrap {
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.editable-row:hover .editable-cell-value-wrap {
+  border: 2px solid #fff;
+  border-radius: 4px;
+  padding: 4px 11px;
+}

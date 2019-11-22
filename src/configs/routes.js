@@ -33,7 +33,7 @@ export const pathNames = utils.arrToObj([
     'bankadminPDA_ProcessRequest',
 
     'bankadminStaff',
-    'bankadminSalaries',
+    // 'bankadminSalaries',
     // 'bankadminCrew',
 
     'businessExtracto',
@@ -46,7 +46,7 @@ export const pathNames = utils.arrToObj([
     'businessProvidersPayments',
     'businessProvidersPayments_Request',
     // 'businessProvidersPayments_Request_Details',
-    'businessSalaries',
+    // 'businessSalaries',
     // 'businessCrew',
     // 'businessConfiguration',
 
@@ -59,7 +59,8 @@ export const pathNames = utils.arrToObj([
     'commonSend',
     'commonConfiguration',
     'commonCrew',
-
+    'commonSalaries',
+    
     'dashboard'
 ])
 
@@ -266,14 +267,14 @@ const bankadmin = [
        role: 'bankadmin'
     },
 
-    {
-       key: pathNames.bankadminSalaries,
-       fileName: 'under-construction',
-       area: 'bankadmin',
-       path: 'salaries',
-       container: 'dashboard',
-       role: 'bankadmin'
-    },
+    // {
+    //    key: pathNames.bankadminSalaries,
+    //    fileName: 'under-construction',
+    //    area: 'bankadmin',
+    //    path: 'salaries',
+    //    container: 'dashboard',
+    //    role: 'bankadmin'
+    // },
     // {
     //    key: pathNames.bankadminCrew,
     //    fileName: 'under-construction',
@@ -367,14 +368,14 @@ const business = [
        container: 'dashboard',
        role:      'business'
     },
-    {
-       key: pathNames.businessSalaries,
-       fileName: 'under-construction',
-       area: 'business',
-       path: 'salaries',
-       container: 'dashboard',
-       role: 'business'
-    },
+    // {
+    //    key: pathNames.businessSalaries,
+    //    fileName: 'under-construction',
+    //    area: 'business',
+    //    path: 'salaries',
+    //    container: 'dashboard',
+    //    role: 'business'
+    // },
     // {
     //    key: pathNames.businessCrew,
     //    fileName: 'under-construction',
@@ -448,6 +449,14 @@ const common = [
      fileName:  'crew',
      area:      'common',
      path:      'crew',
+     container: 'dashboard',
+     role:      '*' 
+  },
+  {
+     key:       pathNames.commonSalaries,
+     fileName:  'salaries',
+     area:      'common',
+     path:      'salaries',
      container: 'dashboard',
      role:      '*' 
   }

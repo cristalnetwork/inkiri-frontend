@@ -153,8 +153,8 @@ const routes  = {
                 icon: 'profile',
                 items: [
                     {
-                        key: routes_config.pathNames.bankadminSalaries,
-                        path: routes_config.pathNames.bankadminUnderConstruction,
+                        key: routes_config.pathNames.commonSalaries,
+                        path: routes_config.pathNames.commonSalaries,
                         title: 'Salaries',
                     },
                     {
@@ -242,8 +242,8 @@ const routes  = {
                 icon: 'profile',
                 items: [
                     {
-                        key: routes_config.pathNames.businessSalaries,
-                        path: routes_config.pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.commonSalaries,
+                        path: routes_config.pathNames.commonSalaries,
                         title: 'Salaries',
                     },
                     {

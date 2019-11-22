@@ -8,6 +8,7 @@ import * as accountsRedux from '@app/redux/models/accounts';
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
+import * as request_helper from '@app/components/TransactionCard/helper';
 
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
@@ -21,9 +22,7 @@ const DEFAULT_STATE = {
         style   :           {maxWidth: 370, fontSize: 100, width: 60}
          , value :          undefined 
          , symbol_style :   {fontSize: 60}
-       },
-      position:             null,
-      wage:                 0
+       }
 };
 
 
@@ -36,10 +35,9 @@ class AddMemberForm extends Component {
       member:        props.member,
       callback:      props.callback,
       // position:      props.position,
-      // wage:          props.wage
+      // wage:          props.wage,
       ...DEFAULT_STATE
     };
-    
     this.onInputAmount              = this.onInputAmount.bind(this);
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
@@ -47,17 +45,34 @@ class AddMemberForm extends Component {
     this.handleJobPositionChange    = this.handleJobPositionChange.bind(this); 
   }
 
+  componentDidMount(){
+    this.setDefaultWage();
+  }
+
   componentDidUpdate(prevProps, prevState) 
   {
       if(prevProps.job_positions !== this.props.job_positions) {
-          this.setState({
+        this.setState({
             job_positions: this.props.job_positions,
             member:        this.props.member,
-            position:      this.props.position,
-            wage:          this.props.wage,
+            // position:      this.props.position,
+            // wage:          this.props.wage,
             callback:      this.props.callback
           });
+        this.setDefaultWage();
       }
+  }
+
+  setDefaultWage = () =>{
+    const {member} = this.state;
+    if(!member)
+      return;
+    this.onInputAmount(member.wage);
+    // this.setState(prevState => {
+    //   let input_amount = Object.assign({}, prevState.input_amount);
+    //   input_amount.value = member.wage;                     
+    //   return { input_amount };                                 
+    // })
   }
 
   openNotificationWithIcon(type, title, message) {
@@ -82,10 +97,8 @@ class AddMemberForm extends Component {
     
     const {job_positions} = this.state;
     const wage = job_positions.filter(j=>j.key==value)[0].wage;
-    // this.props.form.setFieldsValue({'input_amount.value': wage})
-    this.onInputAmount(wage)
+    this.onInputAmount(wage);
 
-    // console.log('handleJobPositionChange:', value, wage)
   }
 
   onSelect = (e) => {
@@ -102,14 +115,23 @@ class AddMemberForm extends Component {
         console.log(' ERRORS!! >> ', err)
         return;
       }
-      
-      const exists = this.props.accounts.filter( account => account.key==values.member);
-      if(!exists || exists.length==0)
+      const {member} = this.state;
+      if(!member)
       {
-        this.openNotificationWithIcon("error", 'Please select an account from the list.');
-        return;
+        const exists = this.props.accounts.filter( account => account.key==values.member);
+        if(!exists || exists.length==0)
+        {
+          this.openNotificationWithIcon("error", 'Please select an account from the list.');
+          return;
+        }
       }
-      this.fireEvent(null, null, values);
+
+      const editing = (member!=null);
+      let my_member = (editing)
+        ? { ...values, member:member.member._id, _id:member._id}
+        : { ...values };
+
+      this.fireEvent(null, null, my_member);
       
     });
   };
@@ -156,20 +178,59 @@ class AddMemberForm extends Component {
       });
   }
 
+  renderMemberSelector(){
+    const {member}              = this.state;
+    const { getFieldDecorator } = this.props.form;
+    const my_accounts           = this.props.accounts.filter(acc=>acc.key!=this.props.actualAccountName && globalCfg.bank.isPersonalAccount(acc)).map(acc=>acc.key)
+    let selector   = null;
+    //
+    if(member){
+      selector = (<div className="ui-row__col ui-row__col--content">
+                    <div className="ui-info-row__content">
+                        <div className="ui-info-row__title"><b>{request_helper.getProfileName(member.member)}</b></div>
+                          <div className="ui-info-row__details">
+                              <ul>
+                                  <li>@{member.member.account_name}</li>
+                              </ul>
+                          </div>
+                    </div>
+                </div>); 
+    }
+    else{
+      selector = (<Form.Item>
+                        {getFieldDecorator('member', {
+                        rules: [{ required: true, message: 'Please input member account name!' }]
+                      })(
+                          <AutoComplete size="large" dataSource={my_accounts} style={{ width: '100%' }} onSelect={this.onSelect} placeholder="Choose account name" filterOption={true} className="extra-large" />
+                        )}
+                      </Form.Item>);
+    }
+  //
+    return (<div className="money-transfer__row row-complementary row-complementary-bottom money-transfer__select" >
+              <div className="badge badge-extra-small badge-circle addresse-avatar ">
+                  <span className="picture">
+                    <FontAwesomeIcon icon="user" size="lg" color="gray"/>
+                  </span>
+              </div>
+              <div className="money-transfer__input money-transfer__select">
+                {selector}
+              </div>
+          </div>);
+  }
+  //
   renderJobPosition(){
-    const {job_positions} = this.state;
+    const {job_positions, member} = this.state;
     if(!job_positions)
       return (null);
-
-    const { getFieldDecorator } = this.props.form;
-    return (
-      <Form.Item className="money-transfer__row row-complementary money-transfer__select ">
+    const position                = (member)?member.position:undefined;
+    const { getFieldDecorator }   = this.props.form;
+    const selector = (<Form.Item>
           {getFieldDecorator( 'position', {
             rules: [{ required: true, message: 'Please select a job position'}]
             , onChange: (e) => this.handleJobPositionChange(e)
-            
+            , initialValue: position
           })(
-            <Select placeholder={'Choose a job position'}>
+            <Select placeholder="Choose a job position" >
             {
               job_positions.map( position => 
                 {
@@ -180,59 +241,50 @@ class AddMemberForm extends Component {
             </Select>
           )}
       </Form.Item>
-    )
+    );
+    //
+
+    return (<div className="money-transfer__row row-complementary money-transfer__select" >
+              <div className="badge badge-extra-small badge-circle addresse-avatar ">
+                  <span className="picture">
+                    <FontAwesomeIcon icon={['fab', 'pagelines']} size="lg" color="gray"/>
+                  </span>
+              </div>
+              <div className="money-transfer__input money-transfer__select">
+                {selector}
+              </div>
+          </div>);
   }
   
   //
 
   render() {
-    const { getFieldDecorator } = this.props.form;
-    const { input_amount }      = this.state;
-    const job_options_item      = this.renderJobPosition();
+    const { getFieldDecorator }    = this.props.form;
+    const { input_amount, member } = this.state;
+    
+    const job_options_item         = this.renderJobPosition();
+    const member_selector          = this.renderMemberSelector();
+    const button_text              = member?'MODIFY MEMBER':'ADD MEMBER';
     return (
           
             <Form onSubmit={this.handleSubmit}>
               
               <div className="money-transfer">    
 
-                  <div className="money-transfer__row row-complementary row-complementary-bottom money-transfer__select" >
-                      <div className="badge badge-extra-small badge-circle addresse-avatar ">
-                          <span className="picture">
-                            <FontAwesomeIcon icon="user" size="lg" color="gray"/>
-                          </span>
-                      </div>
-                      <div className="money-transfer__input money-transfer__select">
-                        <Form.Item>
-                          {getFieldDecorator('member', {
-                          rules: [{ required: true, message: 'Please input receipt account name!' }]
-                        })(
-                            <AutoComplete
-                                size="large"
-                                dataSource={this.props.accounts.filter(acc=>acc.key!=this.props.actualAccountName).map(acc=>acc.key)}
-                                style={{ width: '100%' }}
-                                onSelect={this.onSelect}
-                                placeholder=""
-                                filterOption={true}
-                                className="extra-large"
-                              />
-                          )}
-                        </Form.Item>
-                      </div>
-                  </div>
+                  {member_selector}
 
                   {job_options_item}
 
                   <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
                       {getFieldDecorator('input_amount.value', {
                         rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: validators.checkPrice }],
-                        initialValue: input_amount.value
                       })( 
                         <>  
                           <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
                             {globalCfg.currency.fiat.symbol}
                           </span>
                           
-                          <Input 
+                          <Input
                             type="tel" 
                             step="0.01" 
                             className="money-transfer__input input-amount placeholder-big" 
@@ -244,9 +296,10 @@ class AddMemberForm extends Component {
                         </>
                       )}
                   </Form.Item>
+
               </div>
               <div className="mp-box__actions mp-box__shore">
-                <Button size="large" key="requestButton" htmlType="submit" type="primary" htmlType="submit" >ADD MEMBER</Button>
+                <Button size="large" key="requestButton" htmlType="submit" type="primary" htmlType="submit" >{button_text}</Button>
                 <Button size="large" className="danger_color" type="link" onClick={()=>{this.fireEvent(null, true, null)}}>Cancel</Button>
               </div>
                 
