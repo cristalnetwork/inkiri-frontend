@@ -457,7 +457,7 @@ class RequestPayment extends Component {
                   {getFieldDecorator('description', {})(
                   <TextArea 
                     className="money-transfer__input" 
-                    placeholder="Description, Memo or Note" autosize={{ minRows: 3, maxRows: 6 }} 
+                    placeholder="Description, Memo or Note" autoSize={{ minRows: 3, maxRows: 6 }} 
                     style={{overflow: 'hidden', overflowWrap: 'break-word', height: 31}}
                     />
                   )}

@@ -368,7 +368,7 @@ class SendMoney extends Component {
                   <Input.TextArea 
                     maxLength="50"
                     className="money-transfer__input" 
-                    placeholder="Message, Memo or Note" autosize={{ minRows: 3, maxRows: 6 }} 
+                    placeholder="Message, Memo or Note" autoSize={{ minRows: 3, maxRows: 6 }} 
                     style={{overflow: 'hidden', overflowWrap: 'break-word', height: 31}}
                     />
                   )}
