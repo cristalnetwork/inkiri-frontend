@@ -713,7 +713,7 @@ export const columnsForCrew = (callback) => {
         key: 'action',        
         align: 'right',
         render: (text, record) => {
-          return <Button key={'details_'+record.member.key} onClick={()=>{ callback(record.member) }} icon="profile" size="small">Details</Button>
+          return <Button key={'details_'+record.member.key} disabled={true} onClick={()=>{ callback(record.member) }} icon="profile" size="small">Details</Button>
         }
       }
     ];

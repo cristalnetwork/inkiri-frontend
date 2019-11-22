@@ -102,7 +102,7 @@ class Crew extends Component {
       member_profile = await api.bank.getProfile(values.member);
     }catch(e){
       this.setState({pushingTx:false})
-      this.openNotificationWithIcon('error', 'Can retrieve new member profile');
+      this.openNotificationWithIcon('error', 'Cant retrieve new member profile!');
       return;
     }         
 
