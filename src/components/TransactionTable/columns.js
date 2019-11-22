@@ -666,3 +666,55 @@ export const columnsForIUGU = (callback) => {
       }
     ];
 }
+
+//
+export const columnsForCrew = (callback) => {
+    
+    return [
+      {
+        title: 'Nome',
+        dataIndex: 'member',
+        key: 'member',
+        render: (member, record) => {
+          return(
+            <span className="name_value_row">
+              <div className="row_name centered" >
+                {request_helper.getAccountTypeIcon(record.member.account_type)} 
+              </div>
+              <div className="row_value wider">
+                <span className="row_tx_description">{request_helper.getProfileName(record.member)}</span> 
+                <br/>@{record.member.account_name} 
+              </div>   
+            </span>)
+        }
+      },
+      {
+        title: 'Position',
+        dataIndex: 'position',
+        key: 'position',
+        render: (position, record) => (
+          <span>{position}</span>
+          )
+      },
+      {
+        title: 'Wage',
+        key: 'wage',
+        dataIndex: 'wage',
+        render: (wage, record) => {
+          
+          return (
+            <span>
+              {wage}
+            </span> 
+          )}
+      },
+      {
+        title: 'Action',
+        key: 'action',        
+        align: 'right',
+        render: (text, record) => {
+          return <Button key={'details_'+record.member.key} disabled={true} onClick={()=>{ callback(record.member) }} icon="profile" size="small">Details</Button>
+        }
+      }
+    ];
+}
