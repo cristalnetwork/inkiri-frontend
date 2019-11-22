@@ -57,7 +57,7 @@ class Crew extends Component {
   }
 
   getColumns(){
-    return columns_helper.columnsForProfiles(this.onButtonClick);
+    return columns_helper.columnsForCrew(this.onButtonClick);
   }
   
   componentDidMount(){
@@ -77,24 +77,81 @@ class Crew extends Component {
 
   }
 
-  memberFormCallback = (e) => {
+  memberFormCallback = async (error, cancel, values) => {
+    // console.log(` ## memberFormCallback(error:${error}, cancel:${cancel}, values:${values})`)
+    // console.log(JSON.stringify(values))
+    if(cancel)
+    {
+      this.setState({active_view:STATE_LIST_MEMBERS})
+      return;
+    }
+    if(error)
+    {
+      return;
+    }
+
+    // {"position":"job_position_tronco","member":"corpodoyoga1","input_amount":{"value":"15000"}}
+
+    const that           = this;
+    const {team}         = this.state;
+    const teamId         = team?team.id:null;
+    const account_name   = this.props.actualAccountName;
+    this.setState({pushingTx:true})
+    let member_profile = null;
+    try{
+      member_profile = await api.bank.getProfile(values.member);
+    }catch(e){
+      this.setState({pushingTx:false})
+      this.openNotificationWithIcon('error', 'Can retrieve new member profile');
+      return;
+    }         
+
+    const new_member = {
+      member:     member_profile.id,
+      position:   values.position,
+      wage:       values.input_amount.value
+    }
+    const members        = team?[...team.members, new_member]:[new_member];
+
+    api.bank.createOrUpdateTeam(teamId, account_name, members)
+      .then((res)=>{
+        that.openNotificationWithIcon("success", "Member added to team successfully!")    
+        that.loadTeam();
+        that.resetPage(STATE_LIST_MEMBERS);
+      }, (err)=>{
+        console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
+        that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
+        that.setState({pushingTx:false});
+      })
+ 
 
   }
+
+  resetPage(active_view){
+    let my_active_view = active_view?active_view:this.state.active_view;
+    this.setState({ 
+        active_view:   my_active_view
+        , pushingTx:   false
+      });    
+  }
+
+
   loadJobPositions = async () => {
     this.setState({loading:true});
 
-    let job_positions = null;
+    let data = null;
 
     try {
-      job_positions = await api.bank.getJobPositions();
+      data = await api.bank.getJobPositions();
     } catch (e) {
       this.openNotificationWithIcon("error", "Error retrieveing Team", JSON.stringify(e));
       this.setState({ loading:false})
       return;
     }
-
-    this.setState({ job_positions: job_positions.job_positions, loading:false})
+    // console.log(data.job_positions)
+    this.setState({ job_positions: data.job_positions, loading:false})
   }
+
   loadTeam = async () => {
 
     this.setState({loading:true});
@@ -108,7 +165,7 @@ class Crew extends Component {
       this.setState({ loading:false})
       return;
     } 
-    // console.log(profiles)
+    console.log(team)
     this.setState({ team: team, loading:false})
         
   }
@@ -134,13 +191,17 @@ class Crew extends Component {
   render() {
     const content               = this.renderContent();
     
-    const {routes}  = this.state;
+    
+    const {routes, active_view}  = this.state;
+    const button = (active_view==STATE_LIST_MEMBERS)
+      ?(<Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewMember()}}> Member</Button>)
+        :(null);
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={[
-            <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewMember()}}> Member</Button>,
+            button,
           ]}
           title="Crew"
         >
@@ -152,20 +213,12 @@ class Crew extends Component {
       </>
     );
   }
-
+  //
   renderContent(){
     const {team, loading, active_view, job_positions } = this.state;
     if(active_view==STATE_NEW_MEMBER)
     {
-      // return (
-          
-      //       <section className="mp-box mp-box__shadow money-transfer__box">
-      //         <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-      //           <AddMemberForm key="add_member_form" callback={this.memberFormCallback} job_positions={job_positions}/>    
-      //         </Spin>
-      //       </section>
-          
-      //   );
+      //
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
@@ -191,7 +244,7 @@ class Crew extends Component {
           <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
             <Table
                 key="team_members" 
-                rowKey={record => record.id} 
+                rowKey={record => record.member.id} 
                 loading={loading} 
                 columns={this.getColumns()} 
                 dataSource={members} 

@@ -44,11 +44,12 @@ class AddMemberForm extends Component {
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.onSelect                   = this.onSelect.bind(this)
+    this.handleJobPositionChange    = this.handleJobPositionChange.bind(this); 
   }
 
   componentDidUpdate(prevProps, prevState) 
   {
-      if(prevProps.bank_account !== this.props.bank_account) {
+      if(prevProps.job_positions !== this.props.job_positions) {
           this.setState({
             job_positions: this.props.job_positions,
             member:        this.props.member,
@@ -77,6 +78,16 @@ class AddMemberForm extends Component {
     }
   }
   
+  handleJobPositionChange = (value) => {
+    
+    const {job_positions} = this.state;
+    const wage = job_positions.filter(j=>j.key==value)[0].wage;
+    // this.props.form.setFieldsValue({'input_amount.value': wage})
+    this.onInputAmount(wage)
+
+    // console.log('handleJobPositionChange:', value, wage)
+  }
+
   onSelect = (e) => {
   
   }
@@ -92,7 +103,7 @@ class AddMemberForm extends Component {
         return;
       }
       
-      const exists = this.props.accounts.filter( account => account.key==values.permissioned);
+      const exists = this.props.accounts.filter( account => account.key==values.member);
       if(!exists || exists.length==0)
       {
         this.openNotificationWithIcon("error", 'Please select an account from the list.');
@@ -108,9 +119,14 @@ class AddMemberForm extends Component {
     // this.setState({...DEFAULT_STATE});
   }
 
-  onInputAmount(event){
-    event.preventDefault();
-    const the_value = event.target.value;
+  onInputAmount(param){
+    let the_value = param;
+    if(typeof param !== 'number' && typeof param !== 'string')
+    {
+      param.preventDefault();
+      the_value = param.target.value;
+    }
+    
     const _input_amount = this.state.input_amount;
     this.props.form.setFieldsValue({'input_amount.value':the_value})
     this.setState({input_amount: {..._input_amount, value: the_value}}, 
@@ -150,6 +166,8 @@ class AddMemberForm extends Component {
       <Form.Item className="money-transfer__row row-complementary money-transfer__select ">
           {getFieldDecorator( 'position', {
             rules: [{ required: true, message: 'Please select a job position'}]
+            , onChange: (e) => this.handleJobPositionChange(e)
+            
           })(
             <Select placeholder={'Choose a job position'}>
             {
@@ -169,57 +187,64 @@ class AddMemberForm extends Component {
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { input_amount } = this.state;
+    const { input_amount }      = this.state;
     const job_options_item      = this.renderJobPosition();
     return (
           
             <Form onSubmit={this.handleSubmit}>
-                
-              <Form.Item style={{minHeight:60, marginBottom:12}}>
-                {getFieldDecorator('permissioned', {
-                  rules: [{ required: true, message: 'Please input account name!' }],
-                  onChange: (e) => this.onSelect(e)
-                })(
-                  <AutoComplete
-                    autoFocus
-                    size="large"
-                    dataSource={this.props.accounts.map(acc=>acc.key)}
-                    style={{ width: '100%' }}
-                    placeholder="Input account name"
-                    filterOption={true}
-                    className="extra-large"
-                  >
-                    <Input suffix={<Icon type="user" style={{fontSize:20}} className="default-icon" />} />
-                  </AutoComplete>
-                   
-                )}
-              </Form.Item>
               
-              {job_options_item}
+              <div className="money-transfer">    
 
-              <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
-                    {getFieldDecorator('input_amount.value', {
-                      rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: validators.checkPrice }],
-                      initialValue: input_amount.value
-                    })( 
-                      <>  
-                        <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
-                          {globalCfg.currency.fiat.symbol}
-                        </span>
-                        
-                        <Input 
-                          type="tel" 
-                          step="0.01" 
-                          className="money-transfer__input input-amount placeholder-big" 
-                          placeholder="0" 
-                          onChange={this.onInputAmount}  
-                          value={input_amount.value} 
-                          style={input_amount.style}  
-                        />
-                      </>
-                    )}
-              </Form.Item>
+                  <div className="money-transfer__row row-complementary row-complementary-bottom money-transfer__select" >
+                      <div className="badge badge-extra-small badge-circle addresse-avatar ">
+                          <span className="picture">
+                            <FontAwesomeIcon icon="user" size="lg" color="gray"/>
+                          </span>
+                      </div>
+                      <div className="money-transfer__input money-transfer__select">
+                        <Form.Item>
+                          {getFieldDecorator('member', {
+                          rules: [{ required: true, message: 'Please input receipt account name!' }]
+                        })(
+                            <AutoComplete
+                                size="large"
+                                dataSource={this.props.accounts.filter(acc=>acc.key!=this.props.actualAccountName).map(acc=>acc.key)}
+                                style={{ width: '100%' }}
+                                onSelect={this.onSelect}
+                                placeholder=""
+                                filterOption={true}
+                                className="extra-large"
+                              />
+                          )}
+                        </Form.Item>
+                      </div>
+                  </div>
 
+                  {job_options_item}
+
+                  <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+                      {getFieldDecorator('input_amount.value', {
+                        rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: validators.checkPrice }],
+                        initialValue: input_amount.value
+                      })( 
+                        <>  
+                          <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
+                            {globalCfg.currency.fiat.symbol}
+                          </span>
+                          
+                          <Input 
+                            type="tel" 
+                            step="0.01" 
+                            className="money-transfer__input input-amount placeholder-big" 
+                            placeholder="0" 
+                            onChange={this.onInputAmount}  
+                            value={input_amount.value} 
+                            style={input_amount.style}  
+                          />
+                        </>
+                      )}
+                  </Form.Item>
+              </div>
               <div className="mp-box__actions mp-box__shore">
                 <Button size="large" key="requestButton" htmlType="submit" type="primary" htmlType="submit" >ADD MEMBER</Button>
                 <Button size="large" className="danger_color" type="link" onClick={()=>{this.fireEvent(null, true, null)}}>Cancel</Button>

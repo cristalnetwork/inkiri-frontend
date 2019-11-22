@@ -163,7 +163,7 @@ h3.fileds_header{
 }*/
 .display_block{display:block!important;}
 .display_block.addresse-avatar{top:0px;}
-
+.addresse-avatar{top:0px!important;}
 
 /* FORMS -> LABELS are shown if text is not empty ... NOT WORKING! */
 .with_labels .money-transfer__row:has(>input:placeholder-shown )  label
