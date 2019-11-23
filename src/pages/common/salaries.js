@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
+import * as balanceRedux from '@app/redux/models/balance';
 
 import * as globalCfg from '@app/configs/global';
 
@@ -19,22 +20,30 @@ import * as stats_helper from '@app/components/TransactionTable/stats';
 
 import { Card, PageHeader, Tag, Tabs, Button, Form, Input, Icon} from 'antd';
 import { Modal, notification, Table, Divider, Spin } from 'antd';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import AddMemberForm from '@app/components/Form/add_member';
+import SalaryForm , {MONTH_FORMAT}from '@app/components/Form/salary';
 import {DISPLAY_ALL_TXS} from '@app/components/TransactionTable';
+
+import TxResult from '@app/components/TxResult';
+import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
 import * as utils from '@app/utils/utils';
 
 import _ from 'lodash';
-
 
 import EditableCell , {EditableFormRow } from '@app/components/TransactionTable/EditableTableRow';
 
 const routes = routesService.breadcrumbForFile('accounts');
 
 const STATE_LIST_MEMBERS = 'state_list_members';
-const STATE_NEW_MEMBER   = 'state_new_member';
-const STATE_EDIT_MEMBER  = 'state_edit_member';
+const STATE_NEW_PAYMENT  = 'state_new_payment';
+
+const DEFAULT_RESULT = {
+  result:             undefined,
+  result_object:      undefined,
+  error:              {},
+}
 
 class Salaries extends Component {
   constructor(props) {
@@ -45,18 +54,32 @@ class Salaries extends Component {
       pushingTx:          false,
       team:               null,
       job_positions:      [],
-      dataSource:         []
+      dataSource:         [],
+      removed:            [],
+
+      ...DEFAULT_RESULT,
+
+      active_view:        STATE_LIST_MEMBERS,
     };
 
     this.loadTeam                   = this.loadTeam.bind(this);  
     this.loadJobPositions           = this.loadJobPositions.bind(this);  
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.getColumns                 = this.getColumns.bind(this);
-    this.onNewSalary                = this.onNewSalary.bind(this); 
+    this.onRestoreList                = this.onRestoreList.bind(this); 
+    this.removeCallback             = this.removeCallback.bind(this); 
+    this.handleNewPayment           = this.handleNewPayment.bind(this); 
+    this.salaryFormCallback         = this.salaryFormCallback.bind(this); 
+  }
+
+  handleNewPayment = () => {
+    
+    // this.openNotificationWithIcon("warning", "Not implemented yet");    
+    this.setState({active_view:STATE_NEW_PAYMENT})
   }
 
   getColumns(){
-    return columns_helper.columnsForSalaries(null, this.state.job_positions);
+    return columns_helper.columnsForSalaries(null, this.removeCallback, this.state.job_positions);
   }
   
   componentDidMount(){
@@ -64,17 +87,97 @@ class Salaries extends Component {
     this.loadJobPositions();
   } 
 
-  onNewSalary = () => {
+  onRestoreList = () => {
     
-    // this.openNotificationWithIcon("warning", "Not implemented yet");    
-    this.setState({active_view:STATE_NEW_MEMBER})
+    const dataSource = [...this.state.dataSource, ...this.state.removed];
+    const removed    = [];
+    this.setState({ dataSource: dataSource, removed: removed});
+  }
+
+  removeCallback = record => {
+    const dataSource = [...this.state.dataSource];
+    const removed    = [...this.state.removed, record];
+    this.setState({ dataSource: dataSource.filter(item => item._id !== record._id), removed: removed});
+  };
+
+  salaryFormCallback = async (error, cancel, values) => {
+    // console.log(` ## memberFormCallback(error:${error}, cancel:${cancel}, values:${values})`)
+    console.log(' memberFormCallback:', JSON.stringify(values))
+    
+    if(cancel)
+    {
+      this.setState({active_view:STATE_LIST_MEMBERS})
+      return;
+    }
+    if(error)
+    {
+      return;
+    }
+
+    const {dataSource} = this.state;
+    const total        = dataSource.reduce((acc, member) => acc + member.current_wage, 0);
+    if(parseFloat(total)>parseFloat(this.props.balance))
+    {
+      const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
+      this.openNotificationWithIcon("error", `Total must be equal or less than balance ${balance_txt}!`); //`
+      return;
+    }
+
+    this.setState({pushingTx:true});
+
+    const that             =  this;
+    const sender_priv      = this.props.actualPrivateKey;
+    const sender_account   = this.props.actualAccountName;
+    
+    const {description, worked_month} = values;
+    const to_amount_array = dataSource.map(item => { return{ 
+                                                                account_name: item.member.account_name
+                                                                , amount:     item.current_wage }});
+    
+    console.log(JSON.stringify(to_amount_array));
+
+    api.paySalaries(sender_account, sender_priv, to_amount_array, description, worked_month.format(MONTH_FORMAT))
+      .then((data) => {
+        console.log(' paySalaries => (then#1) >>  ', JSON.stringify(data));
+        that.setState({result:'ok', pushingTx:false, result_object:data});
+        that.openNotificationWithIcon("success", 'Payments sent successfully');
+      }, (ex) => {
+        console.log(' paySalaries => (error#1) >>  ', JSON.stringify(ex));
+        that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
+        that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+      });
+
+  }
+
+
+  backToDashboard = async () => {
+    const dashboard = (this.props.actualRole=='business')?'extrato':'dashboard';
+    this.props.history.push({
+      pathname: `/${this.props.actualRole}/${dashboard}`
+    })
+  }
+
+  resetResult(){
+    this.setState({...DEFAULT_RESULT});
+  }
+
+  userResultEvent = (evt_type) => {
+    console.log(' ** userResultEvent -> EVT: ', evt_type)
+    if(evt_type==DASHBOARD)
+      this.backToDashboard();
+    if(evt_type==RESET_RESULT)
+      this.resetResult();
+    if(evt_type==RESET_PAGE)
+      this.resetPage();
+    
   }
 
   resetPage(active_view){
-    let my_active_view = active_view?active_view:this.state.active_view;
+    let my_active_view = active_view?active_view:STATE_LIST_MEMBERS;
     this.setState({ 
         active_view:   my_active_view
         , pushingTx:   false
+        , ...DEFAULT_RESULT
       });    
   }
 
@@ -130,6 +233,10 @@ class Salaries extends Component {
   //
 
   handleSave = row => {
+    if(isNaN(row.current_wage))
+      row.current_wage=row.wage;
+    if(row.current_reason)
+      row.current_reason=utils.firsts(row.current_reason, 30);
     const newData = [...this.state.dataSource];
     const index = newData.findIndex(item => row.key === item._id);
     const item = newData[index];
@@ -141,30 +248,42 @@ class Salaries extends Component {
   };
 
 
-  //
+  
   renderContent(){
-    const {team, loading } = this.state;
-    const members         = team?team.members||[]:[];
-    return (
-      <Card
-          key="card_table_all_requests"
-          className="styles listCard"
-          bordered={false}
-          style={{ marginTop: 24 }}
-          headStyle={{display:'none'}}
-        >
-          <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
-            <Table
-                key="team_members" 
-                rowKey={record => record._id} 
-                loading={loading} 
-                columns={this.getColumns()} 
-                dataSource={members} 
-                scroll={{ x: 700 }}
-                />
-          </div>
-        </Card>
-      )
+    const {active_view, job_positions, dataSource, result } = this.state;
+
+    if(result)
+    {
+      const result_type = this.state.result;
+      const title       = null;
+      const message     = null;
+      const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
+      const error       = this.state.error
+      
+      const result = (<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />);
+      return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+                <div className="ly-main-content content-spacing cards">
+                  <section className="mp-box mp-box__shadow money-transfer__box">
+                    {result}
+                  </section>
+                </div>      
+              </div>);
+    }
+
+    if(active_view==STATE_NEW_PAYMENT)
+    {
+      return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+          <div className="ly-main-content content-spacing cards">
+            <section className="mp-box mp-box__shadow money-transfer__box">
+              <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+                <SalaryForm key="salary_payment_form" callback={this.salaryFormCallback} job_positions={job_positions} members={dataSource}/>    
+              </Spin>
+            </section>
+          </div>      
+        </div>);
+    }
+
+    return this.renderTable();
   }
 
   //
@@ -194,13 +313,17 @@ class Salaries extends Component {
 
     return (
       <Card
+          title="Crew members"  
           key="card_table_all_requests"
           className="styles listCard"
           bordered={false}
           style={{ marginTop: 24 }}
-          headStyle={{display:'none'}}
+          // headStyle={{display:'none'}}
+          actions={[
+            <Button onClick={this.handleNewPayment} disabled={loading} type="primary"> <FontAwesomeIcon icon="money-check-alt" size="lg" color="white"/>&nbsp;&nbsp;NEW SALARIES PAYMENT </Button> 
+          ]}
         >
-          <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
+          <div style={{ background: '#fff'}}>
             <Table
                 key="team_members" 
                 rowKey={record => record._id} 
@@ -214,30 +337,15 @@ class Salaries extends Component {
           </div>
         </Card>
       );
-
-    // return (
-    //   <div>
-    //     <Button onClick={this.handleAdd} type="primary" style={{ marginBottom: 16 }}>
-    //       Add a row
-    //     </Button>
-    //     <Table
-    //       components={components}
-    //       rowClassName={() => 'editable-row'}
-    //       bordered
-    //       dataSource={dataSource}
-    //       columns={columns}
-    //     />
-    //   </div>
-    // );
   }
   //
 
   render() {
-    const content               = this.renderTable(); //this.renderContent();
-    
-    
-    const {routes, active_view}  = this.state;
-    const button = (<Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewSalary()}}> SALARIES PAYMENT</Button>);
+    const content               = this.renderContent(); 
+    const {routes, active_view, removed}  = this.state;
+    const button = (removed && removed.length>0)?
+      (<Button size="small" type="primary" key="_redo" icon="redo" onClick={()=>{this.onRestoreList()}}> RESTORE MEMBERS</Button>)
+      :(null);
     //
     return (
       <>
@@ -263,8 +371,10 @@ class Salaries extends Component {
 export default  (withRouter(connect(
     (state)=> ({
         actualAccountName:    loginRedux.actualAccountName(state),
-        actualRoleId:     loginRedux.actualRoleId(state),
-        actualRole:       loginRedux.actualRole(state),
+        actualPrivateKey:     loginRedux.actualPrivateKey(state),
+        actualRoleId:         loginRedux.actualRoleId(state),
+        actualRole:           loginRedux.actualRole(state),
+        balance:              balanceRedux.userBalance(state),
     }),
     (dispatch)=>({
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)

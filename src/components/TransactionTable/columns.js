@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, Button, Tag, Icon } from 'antd';
+import { Popconfirm, Alert, Button, Tag, Icon } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as request_helper from '@app/components/TransactionCard/helper';
 
@@ -732,7 +732,7 @@ export const columnsForCrew = (callback, job_positions) => {
 
 
 //
-export const columnsForSalaries = (callback, job_positions) => {
+export const columnsForSalaries = (callback, remove_callback, job_positions) => {
     
     return [
       {
@@ -787,5 +787,15 @@ export const columnsForSalaries = (callback, job_positions) => {
         editable: true,
         
       }
+      ,{
+        title: 'operation',
+        dataIndex: 'operation',
+        render: (text, record) =>
+          (
+            <Popconfirm title="Sure to remove from this month payment list?" onConfirm={() => remove_callback(record)}>
+              <a>REMOVE</a>
+            </Popconfirm>
+          )
+      },
     ];
 }

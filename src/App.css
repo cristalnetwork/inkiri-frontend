@@ -234,3 +234,24 @@ h3.fileds_header{
   border-radius: 4px;
   padding: 4px 11px;
 }
+
+.ant-list-item .right{
+  display: flex!important;
+  flex-direction: row!important;
+  justify-content: flex-end!important;
+  align-items: flex-start;
+
+}
+.ant-list-item .right .last-1{
+  margin-right:8px;
+}
+.ant-list-item .right .last{
+  min-width:130px;
+  display: flex!important;
+  flex-direction: column!important;
+  justify-content: flex-end!important;
+  align-items: flex-end;
+}
+.ant-list-item .right .last .money{
+  font-weight: bold;
+}

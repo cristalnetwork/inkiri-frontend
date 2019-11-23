@@ -123,6 +123,7 @@ const api = {
   , TYPE_WITHDRAW             : 'type_withdraw' 
   , TYPE_SERVICE              : 'type_service'
 
+  , TYPE_SALARY               : 'type_salary'
   , TYPE_ISSUE                : 'type_issue'
   , TYPE_IUGU                 : 'type_iugu'
   , TYPE_REFUND               : 'type_refund'

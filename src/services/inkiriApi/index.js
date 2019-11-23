@@ -168,10 +168,10 @@ const pushTX = async (tx, privatekey) => {
     rpc,
     signatureProvider
   })
-
+  const my_actions = Array.isArray(tx)?tx:[tx];
   try {
 	  const result = await api.transact(
-	    { actions: Array.isArray(tx)?tx:[tx] },
+	    { actions: my_actions },
 	    {
 	      blocksBehind: 3,
 	      expireSeconds: 30
@@ -367,6 +367,36 @@ export const transferMoney          = async (sender_account, sender_priv, receiv
   console.log(' InkiriApi::transferMoney >> About to send >> ', prettyJson(transferAction));
 
   return pushTX(transferAction, sender_priv);
+
+}
+
+export const paySalaries = async(sender_account, sender_priv, to_amount_array, ref, month) => { 
+
+  const memo = 'slr|'+(ref||'')+'|'+(month||'');
+  const actions = to_amount_array.map(
+    payment => {
+      return {
+        account: globalCfg.currency.token,
+        name: "transfer",
+        authorization: [
+          {
+            actor:         sender_account,
+            permission:    'active'
+          }
+        ],
+        data: {
+          from:       sender_account,
+          to:         payment.account_name,
+          quantity:   formatAmount(payment.amount),
+          memo:       memo
+        }
+      }
+    });
+  
+
+  console.log(' InkiriApi::paySalaries >> About to send >> ', prettyJson(actions));
+
+  return pushTX(actions, sender_priv);
 
 }
 

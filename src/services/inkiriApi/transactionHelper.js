@@ -10,7 +10,7 @@ function getTxMetadata(account_name, fullTx){
   const tx_subcode = getTxSubCode(tx);
   const i_sent     = isSender(account_name, tx)
   const request    = getRequestMetadata(tx, tx_type, tx_code)
-  const headers    = buildHeaders(account_name, tx, i_sent, tx_type, tx_name, tx_code, tx_subcode);
+  const headers    = buildHeaders(account_name, tx, i_sent, tx_type);
   return {
     tx_type:               tx_type,
     request:               request,
@@ -140,6 +140,7 @@ const  MEMO_KEY_PRV =  'prv';
 const  MEMO_KEY_SND =  'snd';
 const  MEMO_KEY_PAY =  'pay';
 const  MEMO_KEY_PAP =  'pap';
+const  MEMO_KEY_SLR =  'slr';
 
 const KEY_ISSUE_DEP    =  'issue_'+MEMO_KEY_DEP;
 const KEY_ISSUE_IUG    =  'issue_'+MEMO_KEY_IUG;
@@ -151,6 +152,7 @@ const KEY_TRANSFER_PRV =  'transfer_'+MEMO_KEY_PRV;
 const KEY_TRANSFER_SND =  'transfer_'+MEMO_KEY_SND;
 const KEY_TRANSFER_PAY =  'transfer_'+MEMO_KEY_PAY;
 const KEY_TRANSFER_PAP =  'transfer_'+MEMO_KEY_PAP;
+const KEY_TRANSFER_SLR =  'transfer_'+MEMO_KEY_SLR;
 const KEY_UPSERT       =  'upsertikacc_';
 
 const typesMap = {
@@ -164,6 +166,7 @@ const typesMap = {
   [KEY_TRANSFER_SND]  : globalCfg.api.TYPE_SEND,
   [KEY_TRANSFER_PAY]  : globalCfg.api.TYPE_PAYMENT,
   [KEY_TRANSFER_PAP]  : globalCfg.api.TYPE_SERVICE,
+  [KEY_TRANSFER_SLR]  : globalCfg.api.TYPE_SALARY,
   [KEY_UPSERT]        : globalCfg.api.TYPE_UPSERT
 }
 const keyCodeToRequestType = (key_code) => {
@@ -174,8 +177,8 @@ const keyCodeToRequestType = (key_code) => {
   return my_type || globalCfg.api.TYPE_UNKNOWN;
 }
 
-function buildHeaders(account_name, tx, i_sent, tx_type, tx_name, tx_code, tx_subcode){
-
+function buildHeaders(account_name, tx, i_sent, tx_type){
+  const memo_parts = getTxMemoSplitted(tx);
   switch(tx_type) {
     case KEY_ISSUE_DEP:
       return { sub_header:        'Depositaste'
@@ -236,12 +239,19 @@ function buildHeaders(account_name, tx, i_sent, tx_type, tx_name, tx_code, tx_su
               , from: tx.data.from
               , to:   tx.data.to};
       break;
+    case KEY_TRANSFER_SLR:
+      return { sub_header:            i_sent?`Realizaste un pago de salario a @${tx.data.to}. Ref.: ${memo_parts[1]}`:`@${tx.data.from} te ha realizado un pago de salario. Ref.: ${memo_parts[1]}`
+              , sub_header_admin:    'Pago de salario'
+              , sub_header_admin_ex: `@${tx.data.from} le ha realizado el pago de salario a @${tx.data.to}. Ref.: ${memo_parts[1]}`
+              , from: tx.data.from
+              , to:   tx.data.to};
+      break;
     case KEY_TRANSFER_SND:
       return { 
               //sub_header:           i_sent?'Enviaste dinero':'Te enviaron dinero'
               sub_header:            i_sent?`Enviaste dinero a @${tx.data.to}`:`@${tx.data.from} te ha enviado dinero`
               , sub_header_admin:    'Envío de dinero'
-              , sub_header_admin_ex: `@${tx.data.from} le ha enviado dinero a @${tx.data.to}`
+              , sub_header_admin_ex: `@${tx.data.from} le ha enviado dinero a @${tx.data.to}.`
               , from: tx.data.from
               , to:   tx.data.to
             };
