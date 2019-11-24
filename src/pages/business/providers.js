@@ -228,12 +228,12 @@ class Providers extends Component {
     if(txs===undefined)
       txs = this.state.txs;
     const money_pending  = txs.filter( tx => [globalCfg.api.STATE_REQUESTED, globalCfg.api.STATE_PROCESSING].includes(tx.state))
-                    .map(tx =>tx.quantity)
+                    .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     const count_pending = txs.filter( tx => [globalCfg.api.STATE_REQUESTED, globalCfg.api.STATE_PROCESSING].includes(tx.state)).length;
 
     const money_out = txs.filter( tx => [globalCfg.api.STATE_ACCEPTED].includes(tx.state))
-                    .map(tx =>tx.quantity)
+                    .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     const count = txs.filter( tx => [globalCfg.api.STATE_ACCEPTED].includes(tx.state)).length;
 

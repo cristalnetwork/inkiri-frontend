@@ -3,6 +3,8 @@ import { createDfuseClient, DfuseClient } from "@dfuse/client";
 import * as txsHelper from './transactionHelper';
 import * as jwtHelper from './jwtHelper';
 
+import api_data from './api_demo';
+
 // Item format:
 // {
 //   "token": "eyJhbGciOiJLTVNFUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTA2OTIxNzIsImp0aSI6IjQ0Y2UzMDVlLWMyN2QtNGIzZS1iN2ExLWVlM2NlNGUyMDE1MyIsImlhdCI6MTU1MDYwNTc3MiwiaXNzIjoiZGZ1c2UuaW8iLCJzdWIiOiJ1aWQ6bWRmdXNlMmY0YzU3OTFiOWE3MzE1IiwidGllciI6ImVvc3EtdjEiLCJvcmlnaW4iOiJlb3NxLmFwcCIsInN0YmxrIjotMzYwMCwidiI6MX0.k1Y66nqBS7S6aSt-zyt24lPFiNfWiLPbICc89kxoDvTdyDnLuUK7JxuGru9_PbPf89QBipdldRZ_ajTwlbT-KQ",
@@ -233,45 +235,37 @@ const transformTransactionsImpl = (txs, account_name, is_search_result) => {
 
   const my_txs = txs.map(
      (transaction) => {
-      const tx_info    =  (is_search_result)
-                          ?transaction.lifecycle.execution_trace
-                          :transaction.data;
-      const tx_data    = (is_search_result)
-                          ?transaction.lifecycle.execution_trace.action_traces[0].act
-                          :transaction.data.trace.act;
-      const expandedTx = txsHelper.getTxMetadata(account_name, tx_data);      
-      return {  
-          ...tx_data
-          , ...expandedTx
-          ,'id' :               (is_search_result)?tx_info.id:tx_info.trx_id
-          ,'block_time' :       tx_info.block_time.split('.')[0]
-          ,'block_time_number': Number(tx_info.block_time.split('.')[0].replace(/-/g,'').replace(/T/g,'').replace(/:/g,'') )
-          ,'transaction_id' :   (is_search_result)?tx_info.id:tx_info.trx_id
-          ,'block_num' :        tx_info.block_num 
-      };
+      // const tx_info    =  (is_search_result)
+      //                     ?transaction.lifecycle.execution_trace
+      //                     :transaction.data;
+      
+      return txsHelper.toReadable(account_name, transaction);
+
     })
   
   return my_txs;
 }
 
+export const allTransactions      = (cursor)               => listTransactions(null, cursor);
+export const incomingTransactions = (account_name, cursor) => listTransactions(account_name, cursor, true);
 /*
 *  Retrieves TXs from DFUSE for a given account.
 * account_name
 * cursor
-* received_or_sent undefined (both) | true (received) | sent (false) 
+* received -> undefined (both received and sent) | true (received) | sent (false) 
 */
-export const listTransactions = (account_name, cursor, received_or_sent) => new Promise((res,rej)=> {
+export const listTransactions = (account_name, cursor, received) => new Promise((res,rej)=> {
 	
-	
+  	
   // const query = 'account:' + globalCfg.currency.token + ' (data.from:'+account_name+' OR data.to:'+account_name+')'
   const query = (account_name)
     ?(
-      received_or_sent===undefined
+      received===undefined
       ?`account: ${globalCfg.currency.token} (data.from:${account_name} OR data.to:${account_name})`
       :
-        (received_or_sent===true)
-        ?`account: ${globalCfg.currency.token} (data.to:${account_name})`
-        :`account: ${globalCfg.currency.token} (data.from:${account_name})`
+        (received===true)
+        ?`account: ${globalCfg.currency.token} data.to:${account_name}`
+        :`account: ${globalCfg.currency.token} data.from:${account_name}`
       )
     :`account: ${globalCfg.currency.token} `;
 
@@ -281,6 +275,12 @@ export const listTransactions = (account_name, cursor, received_or_sent) => new 
   if(cursor!==undefined)
     options['cursor'] = cursor;
 
+  // const data = api_data;
+  // const txs = transformTransactionsImpl(data.transactions, account_name, true);
+  // console.log(' dfuse::listTransactions HACKEADO!!!!!!');
+  // res ({data:{txs:txs, cursor:data.cursor}})
+  // return;
+
 	let client = createClient();
 	
   client.searchTransactions(
@@ -288,14 +288,8 @@ export const listTransactions = (account_name, cursor, received_or_sent) => new 
       options
     )
     .then( (data) => {
-    	// var txs = data.transactions.map(transaction => transaction.lifecycle.execution_trace.action_traces[0].act);
-
-      const txs = transformTransactionsImpl(data.transactions, account_name, true);
-        
+    	const txs = transformTransactionsImpl(data.transactions, account_name, true);
       // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
-      // console.log(' dfuse::listTransactions >> ', JSON.stringify(txs));
-      // console.log(' dfuse::listTransactions cursor>> ', JSON.stringify(data.cursor));
-      // res ({data:{txs:txs, cursor:data.cursor}})
       res ({data:{txs:txs, cursor:data.cursor}})
       client.release();
     }, (ex) => {

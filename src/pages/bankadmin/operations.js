@@ -113,7 +113,7 @@ class Operations extends Component {
 
     let that = this;
     this.setState({loading:true});
-    api.listTransactions(undefined, (is_first===true?undefined:this.state.cursor) )
+    api.dfuse.allTransactions((is_first===true?undefined:this.state.cursor) )
       .then( (res) => {
               that.onNewData(res.data, is_first);
       } ,(ex) => {
@@ -152,11 +152,11 @@ class Operations extends Component {
       txs = this.state.txs;
     const money_in  = txs.filter( tx => request_helper.blockchain.isNegativeTransaction(tx)===false 
                                         && request_helper.blockchain.isValidTransaction(tx))
-                    .map(tx =>tx.quantity)
+                    .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     const money_out = txs.filter( tx => request_helper.blockchain.isNegativeTransaction(tx)
                                         && request_helper.blockchain.isValidTransaction(tx))
-                    .map(tx =>tx.quantity)
+                    .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     
     stats[this.state.active_tab] = {money_out:money_out||0, money_in:money_in||0, count:txs.length}

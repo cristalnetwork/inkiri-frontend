@@ -102,6 +102,7 @@ export const getTypeConf = () => {
       [globalCfg.api.TYPE_PROVIDER]    : {icon:'truck-moving', rotation: 0,  color:{primary: '#ff5906' /*naranjrojo*/    , secondary:'#fcdecf'}, style: {}},
       [globalCfg.api.TYPE_SEND]        : {icon:'paper-plane',  rotation: 0,  color:{primary: '#ffd606' /*amarillo*/      , secondary:'#fcf4c7'}, style: {}},
       [globalCfg.api.TYPE_SERVICE]     : {icon:'store',        rotation: 0,  color:{primary: '#9DFF06' /*lima*/          , secondary:'#e7fcc5'}, style: {}},
+      [globalCfg.api.TYPE_SALARY]      : {icon:['fab', 'pagelines'],  rotation: 0,  color:{primary: '#25AEFF' /*celeste dark*/    , secondary:'#d7eefc'}, style: {}},
       [globalCfg.api.TYPE_ISSUE]       : {icon:'credit-card',  rotation: 0,  color:{primary: '#067748' /*verde dark*/    , secondary:'#c5fce5'}, style: {}},
       [globalCfg.api.TYPE_IUGU]        : {icon:'credit-card',  rotation: 0,  color:{primary: '#A115FF' /*violeta*/       , secondary:'#e2c3f7'}, style: {}},
       [globalCfg.api.TYPE_REFUND]      : {icon:'credit-card',  rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/       , secondary:'#b1ecfa'}, style: {}},
@@ -188,18 +189,17 @@ export const getProcessButton = (request, callback, text) => {
 //
 export const getStyledAmount = (request, mp_style, negative) => {
 
-  // const style = request.quantity<0?{color:'red'}:(null);
   const style = {color:((!globalCfg.api.onOkPath(request))?'gray':(negative?'red':'inherit')), fontSize:16};
 
   if(mp_style)
     return(
       <span className="price-tag c-activity-row__price--classic price-tag-billing">
         <span className={"price-tag-negative-symbol " + (negative?'':'hidden')} style={style}>-</span>
-        <span className="price-tag-fraction" style={style}>{globalCfg.currency.toCurrencyString(request.quantity)}</span>
+        <span className="price-tag-fraction" style={style}>{globalCfg.currency.toCurrencyString(request.amount)}</span>
       </span>
     );
   //
-  return (<span style={style} key={'amount_'+request.id}>{ (negative?'-':'') + globalCfg.currency.toCurrencyString(request.quantity)}</span>)
+  return (<span style={style} key={'amount_'+request.id}>{ (negative?'-':'') + globalCfg.currency.toCurrencyString(request.amount)}</span>)
 }
 //
 export const getStyledDate = (request) => {

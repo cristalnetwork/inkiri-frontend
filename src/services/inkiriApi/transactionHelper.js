@@ -1,28 +1,66 @@
 // humanizeTXs
 import * as globalCfg from '@app/configs/global';
 
-function getTxMetadata(account_name, fullTx){
+/*
+* Explode raw event/search result transaction to a human readable format.
+*  
+*/
+export const toReadable = (account_name, transaction) => {
   
-  const tx         = fullTx; // .action_traces[0].act;
+  // Transaction is DFUSE WebSocket Event or Search Result?
+  // SEARCH TX structure:
+  // - info:     -> transaction.lifecycle.execution_trace
+  // - action:   -> transaction.lifecycle.execution_trace.action_traces[0].act
+  // EVENT TX structure:
+  // - info:     -> transaction.data
+  // - action:   -> transaction.data.trace.act.data
+  
+  const is_event         = (typeof transaction.lifecycle === 'undefined');
+  const operations       = (is_event)
+    ?[transaction.data.trace] // .act
+    : transaction.lifecycle.execution_trace.action_traces //[0].act
+  const transaction_data = (is_event)
+    ? transaction.data
+    : transaction.lifecycle.execution_trace;
+  
+  const readable_operations  = operations.map( operation => getOperationMetadata(account_name, operation.act));
+  const readable_transaction = buildHeadersMulti(account_name, operations[0].act)
+  
+  const total_Amount          = operations.reduce(function (accumulator, operation) {
+    return accumulator + getEOSQuantityToNumber(operation.act.data.quantity);
+  }, 0);
+  
+
+  return {
+    id :                (!is_event)?transaction_data.id:transaction_data.trx_id
+    , block_time:        transaction_data.block_time.split('.')[0]
+    , block_time_number: Number(transaction_data.block_time.split('.')[0].replace(/-/g,'').replace(/T/g,'').replace(/:/g,'') )
+    , transaction_id:    (is_event)?transaction_data.trx_id:transaction_data.id
+    , block_num:         transaction_data.block_num
+    
+    , ...operations[0].act
+
+    , operations:        readable_operations
+    , ...readable_operations[0]
+    , ...readable_transaction
+    , amount : total_Amount
+  }
+}
+
+function getOperationMetadata(account_name, operation){
+  
+  const tx         = operation; // .action_traces[0].act;
   const tx_type    = combineTxNameCode(tx);
-  const tx_name    = getTxName(tx);
-  const tx_code    = getTxCode(tx);
-  const tx_subcode = getTxSubCode(tx);
   const i_sent     = isSender(account_name, tx)
-  const request    = getRequestMetadata(tx, tx_type, tx_code)
+  const request    = getRequestMetadata(tx, tx_type)
   const headers    = buildHeaders(account_name, tx, i_sent, tx_type);
   return {
+    ...headers,
     tx_type:               tx_type,
     request:               request,
-    tx_name:               tx_name,
-    tx_code:               tx_code, 
-    tx_subcode:            tx_subcode, 
     i_sent:                i_sent,
-    // sub_header:            
-    // sub_header_admin:            
-    ...headers,
-    quantity:              getTxQuantityToNumber(tx),
-    quantity_txt:          getTxQuantity(tx)
+    amount:                getTxQuantityToNumber(tx),
+    // quantity_txt:          getTxQuantity(tx)
     // may_have_newer_tx:     mayTxHaveNewerTx(tx_code),
     // may_have_private_data: mayTxHavePrivateData(tx_code),
     // visible:               isVisibleTx(tx_code)
@@ -43,9 +81,10 @@ function getTxMetadata(account_name, fullTx){
 // "memo": "bck|5dbcf5691cb05e4cda1ca6e1|",
 // "memo": "xch|5dbfca1541450422692e792c|5dbfa68fcae447637f2bbe46",
 
-function getRequestMetadata(tx, tx_type, tx_code){
+const getRequestMetadata = (tx, tx_type) => {
   if(!tx_type) tx_type   = combineTxNameCode(tx);
-  if(!tx_code) tx_code   = getTxCode(tx);
+  
+  const tx_code   = getTxCode(tx);
   
   const requested_type   = keyCodeToRequestType(tx_type);
   
@@ -97,7 +136,7 @@ function getRequestMetadata(tx, tx_type, tx_code){
   }
 }
 
-function getEOSQuantityToNumber(quantity){ 
+export const getEOSQuantityToNumber = (quantity) => { 
 	return !quantity?0:Number(quantity.replace(globalCfg.currency.eos_symbol, ''));
 }
 
@@ -177,7 +216,17 @@ const keyCodeToRequestType = (key_code) => {
   return my_type || globalCfg.api.TYPE_UNKNOWN;
 }
 
+function buildHeadersMulti(account_name, tx){
+  const tx_type    = combineTxNameCode(tx);
+  const i_sent     = isSender(account_name, tx)
+  return buildHeadersImpl(account_name, tx, i_sent, tx_type, true);
+}
+
 function buildHeaders(account_name, tx, i_sent, tx_type){
+  return buildHeadersImpl(account_name, tx, i_sent, tx_type, false);
+}
+
+function buildHeadersImpl(account_name, tx, i_sent, tx_type, multi){
   const memo_parts = getTxMemoSplitted(tx);
   switch(tx_type) {
     case KEY_ISSUE_DEP:
@@ -240,9 +289,15 @@ function buildHeaders(account_name, tx, i_sent, tx_type){
               , to:   tx.data.to};
       break;
     case KEY_TRANSFER_SLR:
-      return { sub_header:            i_sent?`Realizaste un pago de salario a @${tx.data.to}. Ref.: ${memo_parts[1]}`:`@${tx.data.from} te ha realizado un pago de salario. Ref.: ${memo_parts[1]}`
+      if(multi)
+        return { sub_header:            i_sent?`Realizaste un pago de salario. - ${memo_parts[1]}`:''
+                , sub_header_admin:    'Pago de salario'
+                , sub_header_admin_ex: `@${tx.data.from} ha realizado un pago de salario. - ${memo_parts[1]}`
+                , from: tx.data.from
+                , to:   tx.data.to};  
+      return { sub_header:            i_sent?`Realizaste un pago de salario a @${tx.data.to}. - ${memo_parts[1]}`:`@${tx.data.from} te ha realizado un pago de salario. - ${memo_parts[1]}`
               , sub_header_admin:    'Pago de salario'
-              , sub_header_admin_ex: `@${tx.data.from} le ha realizado el pago de salario a @${tx.data.to}. Ref.: ${memo_parts[1]}`
+              , sub_header_admin_ex: `@${tx.data.from} le ha realizado el pago de salario a @${tx.data.to}. - ${memo_parts[1]}`
               , from: tx.data.from
               , to:   tx.data.to};
       break;
@@ -263,25 +318,4 @@ function buildHeaders(account_name, tx, i_sent, tx_type){
   }
 }
 
-
-// This is an amazing HACK!
-// Check https://github.com/cristalnetwork/inkiri-eos-contracts/blob/master/inkiribank.cpp
-function getStateDescription(state_id){
-  // const states = globalCfg.bank.ACCOUNT_STATES;
-  // if(state_id>=states.length)
-  //   return states[0];
-  // return states[state_id];
-  return globalCfg.bank.getAccountState(state_id)
-}
-
-// This is another amazing HACK!
-// Check https://github.com/cristalnetwork/inkiri-eos-contracts/blob/master/inkiribank.cpp
-function getAccountTypeDescription(account_type_id){
-  // const account_types = globalCfg.bank.ACCOUNT_TYPES;
-  // if(account_type_id>=account_types.length)
-  //   return account_types[0];
-  // return account_types[account_type_id];
-  return globalCfg.bank.getAccountType(account_type_id)
-}
-
-export { getTxMetadata, getEOSQuantityToNumber, getStateDescription, getAccountTypeDescription };
+// export { getTxMetadata, getEOSQuantityToNumber, getStateDescription, getAccountTypeDescription };

@@ -102,7 +102,7 @@ class Salaries extends Component {
 
   salaryFormCallback = async (error, cancel, values) => {
     // console.log(` ## memberFormCallback(error:${error}, cancel:${cancel}, values:${values})`)
-    console.log(' memberFormCallback:', JSON.stringify(values))
+    // console.log(' memberFormCallback:', JSON.stringify(values))
     
     if(cancel)
     {
@@ -134,7 +134,7 @@ class Salaries extends Component {
                                                                 account_name: item.member.account_name
                                                                 , amount:     item.current_wage }});
     
-    console.log(JSON.stringify(to_amount_array));
+    // console.log(JSON.stringify(to_amount_array));
 
     api.paySalaries(sender_account, sender_priv, to_amount_array, description, worked_month.format(MONTH_FORMAT))
       .then((data) => {
@@ -194,7 +194,7 @@ class Salaries extends Component {
       this.setState({ loading:false})
       return;
     } 
-    console.log(JSON.stringify(team));
+    // console.log(JSON.stringify(team));
     let dataSource = [];
     if(team && team.members)
       dataSource = team.members.map(member=> { return {...member
@@ -313,7 +313,7 @@ class Salaries extends Component {
 
     return (
       <Card
-          title="Crew members"  
+          title="Crew members & wages"  
           key="card_table_all_requests"
           className="styles listCard"
           bordered={false}

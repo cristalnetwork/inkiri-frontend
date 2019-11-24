@@ -153,6 +153,7 @@ export const getColumnsForPersonalExtrato = (callback, account_type) => {
     dataIndex: 'sub_header',
     key: 'sub_header',
     render: (value, record) => {
+      //<li className="hidden">{utils.objectToString(record.data)}</li>
       return(
         <span className="name_value_row">
           <div className="row_name centered" >
@@ -162,7 +163,6 @@ export const getColumnsForPersonalExtrato = (callback, account_type) => {
             <span className="row_tx_description">{record.sub_header}</span> 
              <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
                <ul>
-                 <li className="hidden">{utils.objectToString(record.data)}</li>
                  <li className="hidden">{utils.objectToString(record.request)}</li>
                  <li><Tag color="volcano" key={'warning_'+Math.random()}>Open to view details</Tag></li>
                </ul>
@@ -778,18 +778,20 @@ export const columnsForSalaries = (callback, remove_callback, job_positions) => 
         key: 'current_wage',
         dataIndex: 'current_wage',
         editable: true,
-        
+        className:'column_editable'
       },
       {
         title: 'Reason',
         key: 'current_reason',
         dataIndex: 'current_reason',
         editable: true,
-        
+        className:'column_editable'
       }
       ,{
         title: 'operation',
         dataIndex: 'operation',
+        align: 'right',
+        className:'column_action',
         render: (text, record) =>
           (
             <Popconfirm title="Sure to remove from this month payment list?" onConfirm={() => remove_callback(record)}>

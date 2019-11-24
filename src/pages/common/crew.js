@@ -132,7 +132,7 @@ class Crew extends Component {
 
   memberFormCallback = async (error, cancel, values) => {
     // console.log(` ## memberFormCallback(error:${error}, cancel:${cancel}, values:${values})`)
-    console.log(' memberFormCallback:', JSON.stringify(values))
+    // console.log(' memberFormCallback:', JSON.stringify(values))
     
     if(cancel)
     {
@@ -182,8 +182,8 @@ class Crew extends Component {
            , new_member]
       : [new_member];
 
-    console.log(' -> values -> ', JSON.stringify(values));
-    console.log(' -> members -> ', JSON.stringify(members));
+    // console.log(' -> values -> ', JSON.stringify(values));
+    // console.log(' -> members -> ', JSON.stringify(members));
     // return;
     api.bank.createOrUpdateTeam(teamId, account_name, members)
       .then((res)=>{
@@ -237,7 +237,7 @@ class Crew extends Component {
       this.setState({ loading:false})
       return;
     } 
-    console.log(JSON.stringify(team));
+    // console.log(JSON.stringify(team));
     this.setState({ team: team, loading:false})
         
   }

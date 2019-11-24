@@ -170,11 +170,11 @@ class Extrato extends Component {
     
     const money_in  = txs.filter( tx => !request_helper.blockchain.isNegativeTransaction(tx) 
                                         && request_helper.blockchain.isValidTransaction(tx))
-                    .map(tx =>tx.quantity)
+                    .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     const money_out = txs.filter( tx => request_helper.blockchain.isNegativeTransaction(tx)
                                         && request_helper.blockchain.isValidTransaction(tx))
-                    .map(tx =>tx.quantity)
+                    .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     
     stats[this.state.active_tab] = {money_out:money_out, money_in:money_in, count:txs.length}

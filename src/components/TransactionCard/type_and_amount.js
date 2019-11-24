@@ -28,7 +28,7 @@ const TransactionTypeAndAmount = ({request, transaction, custom}) => {
         console.log(' ** TransactionTypeAndAmount: ', transaction.request)
         description = globalCfg.api.typeToText(transaction.request.requested_type).toUpperCase();
       }
-      amount      = (<ItemAmount amount={transaction.quantity} symbol={globalCfg.currency.symbol} />);
+      amount      = (<ItemAmount amount={transaction.amount} symbol={globalCfg.currency.symbol} />);
       return (
         <div className="ui-list">
           <ul className="ui-list__content">
