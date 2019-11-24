@@ -113,7 +113,7 @@ class Operations extends Component {
 
     let that = this;
     this.setState({loading:true});
-    api.listTransactions(undefined, (is_first===true?undefined:this.state.cursor) )
+    api.dfuse.allTransactions((is_first===true?undefined:this.state.cursor) )
       .then( (res) => {
               that.onNewData(res.data, is_first);
       } ,(ex) => {

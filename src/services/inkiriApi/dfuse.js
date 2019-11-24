@@ -246,24 +246,26 @@ const transformTransactionsImpl = (txs, account_name, is_search_result) => {
   return my_txs;
 }
 
+export const allTransactions      = (cursor)               => listTransactions(null, cursor);
+export const incomingTransactions = (account_name, cursor) => listTransactions(account_name, cursor, true);
 /*
 *  Retrieves TXs from DFUSE for a given account.
 * account_name
 * cursor
-* received_or_sent undefined (both) | true (received) | sent (false) 
+* received -> undefined (both received and sent) | true (received) | sent (false) 
 */
-export const listTransactions = (account_name, cursor, received_or_sent) => new Promise((res,rej)=> {
+export const listTransactions = (account_name, cursor, received) => new Promise((res,rej)=> {
 	
   	
   // const query = 'account:' + globalCfg.currency.token + ' (data.from:'+account_name+' OR data.to:'+account_name+')'
   const query = (account_name)
     ?(
-      received_or_sent===undefined
+      received===undefined
       ?`account: ${globalCfg.currency.token} (data.from:${account_name} OR data.to:${account_name})`
       :
-        (received_or_sent===true)
-        ?`account: ${globalCfg.currency.token} (data.to:${account_name})`
-        :`account: ${globalCfg.currency.token} (data.from:${account_name})`
+        (received===true)
+        ?`account: ${globalCfg.currency.token} data.to:${account_name}`
+        :`account: ${globalCfg.currency.token} data.from:${account_name}`
       )
     :`account: ${globalCfg.currency.token} `;
 
