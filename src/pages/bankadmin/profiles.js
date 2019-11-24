@@ -184,11 +184,6 @@ class Profiles extends Component {
     //   return;
     // }
 
-    // const negative = accounts.filter( acc => (parseFloat(acc.balance) - parseFloat(acc.overdraft))<0).length;
-    // // const withdraws     = accounts.filter( tx => globalCfg.api.isWithdraw(tx))
-    // //                 .map(tx =>tx.quantity)
-    // //                 .reduce((acc, amount) => acc + Number(amount), 0);
-    
     // const admin    = accounts.filter( acc => globalCfg.bank.isAdminAccount(acc))
     //                 .reduce((acc, amount) => acc + 1, 0);
     // const business = accounts.filter( acc => globalCfg.bank.isBusinessAccount(acc))

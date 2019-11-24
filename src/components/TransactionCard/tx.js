@@ -19,9 +19,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as request_helper from '@app/components/TransactionCard/helper';
 import TransactionHeader from '@app/components/TransactionCard/header';
 import TransactionTypeAndAmount from '@app/components/TransactionCard/type_and_amount';
-import TransactionPetitioner from '@app/components/TransactionCard/petitioner';
-import TransactionProvider from '@app/components/TransactionCard/provider';
-import TransactionBlockchain from '@app/components/TransactionCard/blockchain';
+
+import TransactionTitle from '@app/components/TransactionCard/title';
+import TxOperation from '@app/components/TransactionCard/tx_operation'; 
 
 import ItemBlockchainLink from '@app/components/TransactionCard/item_blockchain_link';
 import ItemLink           from '@app/components/TransactionCard/item_link';
@@ -73,7 +73,10 @@ class Tx extends Component {
 
   render() {
     const { transaction, request }   = this.state;
-    
+    let operations = (null);
+    if(transaction.operations && transaction.operations.length>0)
+      operations =(<><TransactionTitle title="Operations" />{transaction.operations.map(operation => <TxOperation key={Math.random()} operation={operation} />)}</>);
+    //
     return (
       <>
         <div className="c-detail">
@@ -91,34 +94,13 @@ class Tx extends Component {
 
           <ItemBlockchainLink tx_id={transaction.transaction_id} title={'Transaction'} />
 
+          {operations}
 
 
       </div>
     </>);
 
-    // const alert = this.getAlert(request);
-    // return (
-    //   <>
-    //   {alert}
-
-    //     <div className="c-detail">
-          
-    //       <TransactionHeader request={request}/>
-
-    //       <TransactionTypeAndAmount request={request}/>
-
-    //       <TransactionPetitioner profile={request.requested_by}/>
-          
-    //       <TransactionEnvelope request={request} />
-          
-    //       <TransactionProvider request={request}/>
-        
-    //       <TransactionBlockchain request={request}/>
-          
-    //       <TransactionAttachments request={request} uploader={uploader}/>
-          
-    //   </div>
-    // </>);
+    
   }
 
 }

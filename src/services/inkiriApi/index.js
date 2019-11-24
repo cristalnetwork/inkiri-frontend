@@ -50,8 +50,8 @@ const listAllBankAccounts = async () => {
   // if more==true, entonces hay que traer mas usando lower_bound o upper_bound
   var accounts = response.rows.map(account => 
         ({  ...account
-                  ,'state_description' :        txsHelper.getStateDescription(account.state)
-                  ,'account_type_description' : txsHelper.getAccountTypeDescription(account.account_type) }));
+                  ,'state_description' :        globalCfg.bank.getAccountState(account.state)
+                  ,'account_type_description' : globalCfg.bank.getAccountType(account.account_type) }));
   return {data:{accounts:accounts, more:response.more}};
 }
 
@@ -647,7 +647,7 @@ const getPermissionedAccountsForAccount = (account_name) => new Promise((res, re
                   , permissioner     : {
                       account_name               : permission.permissioner
                       , account_type             : bank_customer.account_type
-                      , account_type_description : txsHelper.getAccountTypeDescription(bank_customer.account_type)}
+                      , account_type_description : globalCfg.bank.getAccountType(bank_customer.account_type)}
                   , permissioned     : permission.permission  
                   }
             }));
@@ -713,12 +713,7 @@ export const login = async (account_name, private_key) => {
       , permissioner     : {
           account_name               : account_name
           , account_type             : customer_info.account_type
-          , account_type_description : globalCfg.bank.getAccountType(customer_info.account_type) // txsHelper.getAccountTypeDescription(customer_info.account_type)
-          // FOR TESTING PURPOSES
-          // , account_type             : globalCfg.bank.ACCOUNT_TYPE_BANKADMIN 
-          // , account_type_description : txsHelper.getAccountTypeDescription(globalCfg.bank.ACCOUNT_TYPE_BANKADMIN)
-          // , account_type             : globalCfg.bank.ACCOUNT_TYPE_BUSINESS 
-          // , account_type_description : txsHelper.getAccountTypeDescription(globalCfg.bank.ACCOUNT_TYPE_BUSINESS)
+          , account_type_description : globalCfg.bank.getAccountType(customer_info.account_type) 
       }
       , permissioned     : {
             "actor": account_name,

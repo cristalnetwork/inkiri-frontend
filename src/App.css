@@ -255,3 +255,10 @@ h3.fileds_header{
 .ant-list-item .right .last .money{
   font-weight: bold;
 }
+
+.column_editable{
+  background-color:#e6f7ff;
+}
+.column_action{
+  background-color:#f2f4f5;
+}

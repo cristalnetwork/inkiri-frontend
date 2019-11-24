@@ -135,13 +135,6 @@ class transactionDetails extends Component {
     }
   }
 
-  on(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-
   openNotificationWithIcon(type, title, message) {
     notification[type]({
       message: title,
@@ -217,13 +210,6 @@ class transactionDetails extends Component {
     //
 
     const {transaction, request, pushingTx, loading}      = this.state;
-    // const notaUploaderProps                     = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
-    // const boletoUploaderProps                   = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
-    // const comprobanteUploaderProps              = this.getPropsForUploader(globalCfg.api.COMPROBANTE);
-    // const uploader                              = {
-    //               [globalCfg.api.NOTA_FISCAL] :notaUploaderProps
-    //               ,[globalCfg.api.BOLETO_PAGAMENTO] :boletoUploaderProps
-    //               ,[globalCfg.api.COMPROBANTE] :comprobanteUploaderProps };
                   
     return(
       <Spin spinning={pushingTx||loading} delay={500} tip={pushingTx?'Pushing transaction...':'Loading request...'}>

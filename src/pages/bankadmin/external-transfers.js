@@ -129,20 +129,20 @@ class ExternalTransfers extends Component {
     if(txs===undefined)
       txs = this.state.txs;
     const deposits      = txs.filter( tx => globalCfg.api.isDeposit(tx))
-                    .map(tx =>tx.quantity)
+                    .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     const withdraws     = txs.filter( tx => globalCfg.api.isWithdraw(tx))
-                    .map(tx =>tx.quantity)
+                    .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     
     const deposits_ik   = txs.filter( tx => globalCfg.api.isIKDeposit(tx))
-                    .map(tx =>tx.quantity)
+                    .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     const deposits_brl  = txs.filter( tx => globalCfg.api.isBRLDeposit(tx))
-                    .map(tx =>tx.quantity)
+                    .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     const pending      = txs.filter( tx => globalCfg.api.isProcessPending(tx))
-                    .map(tx =>tx.quantity).length;
+                    .map(tx =>tx.amount).length;
 
     stats[this.state.active_tab] = {
         withdraws:     withdraws
