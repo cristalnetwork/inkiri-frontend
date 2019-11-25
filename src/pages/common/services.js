@@ -20,7 +20,7 @@ import * as stats_helper from '@app/components/TransactionTable/stats';
 import { Card, PageHeader, Tag, Tabs, Button, Form, Input, Icon} from 'antd';
 import { Modal, notification, Table, Divider, Spin } from 'antd';
 
-import AddMemberForm from '@app/components/Form/add_member';
+import ServiceForm from '@app/components/Form/service';
 import {DISPLAY_ALL_TXS} from '@app/components/TransactionTable';
 
 import * as utils from '@app/utils/utils';
@@ -41,6 +41,7 @@ class Services extends Component {
       loading:            false,
       pushingTx:          false,
       
+      services_states:    null,
       services:           [],
       page:               -1, 
       limit:              globalCfg.api.default_page_size,
@@ -53,20 +54,24 @@ class Services extends Component {
     };
 
     this.loadServices               = this.loadServices.bind(this);  
+    this.loadServicesStates         = this.loadServicesStates.bind(this);  
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.onServicesListCallback     = this.onServicesListCallback.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
-    this.onNewService                = this.onNewService.bind(this); 
-    this.serviceFormCallback         = this.serviceFormCallback.bind(this);
+    this.onNewService               = this.onNewService.bind(this); 
+    this.serviceFormCallback        = this.serviceFormCallback.bind(this);
     this.renderFooter               = this.renderFooter.bind(this); 
+    this.onNewData                  = this.onNewData.bind(this); 
+
   }
 
   getColumns(){
-    return columns_helper.columnsForServices(this.onServicesListCallback);
+    return columns_helper.columnsForServices(this.onServicesListCallback, this.state.services_states);
   }
   
-  componentDidMount(){
-    this.loadServices();  
+  componentDidMount = async () => {
+    const x_dummy = await this.loadServicesStates();
+    const y_dummy = await this.loadServices();  
   } 
 
   onNewService = () => {
@@ -149,52 +154,20 @@ class Services extends Component {
       return;
     }
 
+    console.log(values)
+    // return;
+
     const that           = this;
-    const {team}         = this.state;
-    const teamId         = team?team.id:null;
     const account_name   = this.props.actualAccountName;
     this.setState({pushingTx:true})
-    let member_profile   = null;
     
-    // New member!
-    if(!values._id)
-      try{
-        member_profile = await api.bank.getProfile(values.member);
-      }catch(e){
-        this.setState({pushingTx:false})
-        this.openNotificationWithIcon('error', 'Cant retrieve new member profile!');
-        return;
-      }         
-
-
-    const new_member = {
-      _id:        member_profile ? undefined : values._id,
-      member:     member_profile ? member_profile._id : values.member,
-      position:   values.position,
-      wage:       values.input_amount.value
-    }
-    
-
-    const members        = team
-      ? [  ...(team.members.filter(member=>member._id!=new_member._id))
-                .map((member) => {return {_id        : member._id
-                                          , member   : member.member._id
-                                          , position : member.position
-                                          , wage     : member.wage};
-                                        })
-           , new_member]
-      : [new_member];
-
-    // console.log(' -> values -> ', JSON.stringify(values));
-    // console.log(' -> members -> ', JSON.stringify(members));
-    // return;
-    api.bank.createOrUpdateTeam(teamId, account_name, members)
+    api.bank.createOrUpdateService((values._id || undefined), account_name, values.title, values.description, values.input_amount.value, values.state)
       .then((res)=>{
-        that.openNotificationWithIcon("success", "Member saved to team successfully!")    
-        that.loadTeam();
+        that.openNotificationWithIcon("success", "Service saved successfully!")    
+        that.reloadServices();
         that.resetPage(STATE_LIST_SERVICES);
       }, (err)=>{
-        console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
+        console.log(' >> createOrUpdateService >> ', JSON.stringify(err));
         that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
         that.setState({pushingTx:false});
       })
@@ -208,6 +181,21 @@ class Services extends Component {
         active_view:   my_active_view
         , pushingTx:   false
       });    
+  }
+
+  loadServicesStates = async () => {
+    this.setState({loading:true});
+
+    let data = null;
+
+    try {
+      data = await api.bank.getServicesStates();
+    } catch (e) {
+      this.openNotificationWithIcon("error", "Error retrieveing Services States", JSON.stringify(e));
+      this.setState({ loading:false})
+      return;
+    }
+    this.setState({ services_states: data.services_states, loading:false})
   }
 
   reloadServices(){
@@ -224,6 +212,7 @@ class Services extends Component {
     let can_get_more   = this.state.can_get_more;
     if(!can_get_more && this.state.page>=0)
     {
+      this.openNotificationWithIcon("info", "Nope!");
       this.setState({loading:false});
       return;
     }
@@ -236,15 +225,19 @@ class Services extends Component {
     
     let services = [];
 
+    console.log('##1')
     try {
       services = await api.bank.getServices(this.props.actualAccountName, page, limit);
+      console.log('##2')
     } catch (e) {
+
       this.openNotificationWithIcon("error", "Error retrieveing Services", JSON.stringify(e));
       this.setState({ loading:false})
       return;
     } 
     // console.log(JSON.stringify(team));
     // this.setState({ team: team, loading:false})
+    console.log('##3')
     this.onNewData (services) ;
   }
 
@@ -257,7 +250,11 @@ class Services extends Component {
 
     const has_received_new_data = (services && services.length>0);
 
-    this.setState({pagination:pagination, services:_services, can_get_more:(has_received_new_data && txs.length==this.state.limit), loading:false})
+    this.setState({
+                  pagination:pagination, 
+                  services:_services, 
+                  can_get_more:(has_received_new_data && services.length==this.state.limit), 
+                  loading:false})
 
     if(!has_received_new_data)
     {
@@ -281,18 +278,16 @@ class Services extends Component {
     const content                        = this.renderContent();
     const {routes, loading, active_view} = this.state;
     
-    const button = (active_view==STATE_LIST_SERVICES)
-      ?(<Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewService()}}> Service</Button>)
-        :(null);
+    const buttons = (active_view==STATE_LIST_SERVICES)
+      ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServices()} ></Button>, 
+        <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewService()}}> Service</Button>]
+        :[];
     //
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          extra={[
-            <Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServices()} ></Button>,
-            button,
-          ]}
+          extra={buttons}
           title="Serviços oferecidos"
         >
           
@@ -305,7 +300,7 @@ class Services extends Component {
   }
   //
   renderContent(){
-    const {team, loading, active_view, active_view_object, job_positions } = this.state;
+    const {loading, active_view, active_view_object, services_states } = this.state;
 
     
     if(active_view==STATE_EDIT_SERVICE)
@@ -315,7 +310,7 @@ class Services extends Component {
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
               <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-                <AddMemberForm key="add_member_form" callback={this.serviceFormCallback} job_positions={job_positions} member={active_view_object}/>    
+                <ServiceForm key="edit_service_form" callback={this.serviceFormCallback} services_states={services_states} service={active_view_object}/>    
               </Spin>
             </section>
           </div>      
@@ -329,7 +324,7 @@ class Services extends Component {
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
               <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-                <AddMemberForm key="add_member_form" callback={this.serviceFormCallback} job_positions={job_positions}/>    
+                <ServiceForm key="add_service_form" callback={this.serviceFormCallback} services_states={services_states}/>    
               </Spin>
             </section>
           </div>      
@@ -338,7 +333,7 @@ class Services extends Component {
 
 
     //if(active_view==STATE_LIST_SERVICES)  
-    const members         = team?team.members||[]:[];
+    const {services} = this.state;
     return (
       <Card
           key="card_table_all_requests"
@@ -353,7 +348,7 @@ class Services extends Component {
                 rowKey={record => record.id} 
                 loading={this.state.loading} 
                 columns={this.getColumns()} 
-                dataSource={this.state.txs} 
+                dataSource={services} 
                 footer={() => this.renderFooter()}
                 pagination={this.state.pagination}
                 scroll={{ x: 700 }}

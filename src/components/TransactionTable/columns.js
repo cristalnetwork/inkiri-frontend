@@ -804,8 +804,16 @@ export const columnsForSalaries = (callback, remove_callback, job_positions) => 
 
 //
 
-export const columnsForServices = (callback) => {
+export const columnsForServices = (callback, services_states) => {
     
+    const getStateDesc = (state) => {
+      if(!services_states)
+        return state;
+      const the_state = services_states.find(st => st.key==state);
+      if(!the_state||the_state.length<=0)
+        return state;
+      return the_state[0].title;
+    }
     return [
       {
         title: 'Service',
@@ -829,7 +837,8 @@ export const columnsForServices = (callback) => {
         dataIndex: 'state',
         key: 'state',
         render: (state, record) => {
-          return (<span>{state}</span>);
+          const _state = getStateDesc(state);
+          return (<span>{_state}</span>);
          }   
       },
       {
@@ -849,8 +858,8 @@ export const columnsForServices = (callback) => {
         key: 'action',        
         align: 'right',
         render: (text, record) => {
-          const edit    = (<Button key={'edit_'+record.member._id}                    onClick={()=>{ callback(record, events.EDIT) }} icon="edit" size="small">Edit</Button>);
-          const _delete = (<Button key={'details_'+record.member._id} type="link"     onClick={()=>{ callback(record, events.REMOVE) }} icon="delete" size="small">Delete</Button>);
+          const edit    = (<Button key={'edit_'+record._id}                    onClick={()=>{ callback(record, events.EDIT) }} icon="edit" size="small">Edit</Button>);
+          const _delete = (<Button key={'details_'+record._id} type="link"     onClick={()=>{ callback(record, events.REMOVE) }} icon="delete" size="small">Delete</Button>);
           return (<>{edit}&nbsp;{_delete}</>)
         }
       }

@@ -67,7 +67,7 @@ class Salaries extends Component {
     this.loadJobPositions           = this.loadJobPositions.bind(this);  
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.getColumns                 = this.getColumns.bind(this);
-    this.onRestoreList                = this.onRestoreList.bind(this); 
+    this.onRestoreList              = this.onRestoreList.bind(this); 
     this.removeCallback             = this.removeCallback.bind(this); 
     this.handleNewPayment           = this.handleNewPayment.bind(this); 
     this.salaryFormCallback         = this.salaryFormCallback.bind(this); 
@@ -213,7 +213,7 @@ class Salaries extends Component {
     try {
       data = await api.bank.getJobPositions();
     } catch (e) {
-      this.openNotificationWithIcon("error", "Error retrieveing Team", JSON.stringify(e));
+      this.openNotificationWithIcon("error", "Error retrieveing Default Job positions", JSON.stringify(e));
       this.setState({ loading:false})
       return;
     }

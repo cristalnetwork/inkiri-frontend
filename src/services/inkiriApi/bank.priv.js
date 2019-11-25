@@ -444,6 +444,54 @@ export const getServices = (account_name, page, limit, filter) =>   new Promise(
 });
 
 
+export const getServicesStates = () =>   new Promise((res,rej)=> {  
+  const path    = globalCfg.api.endpoint + '/services_states';
+  const method  = 'GET';
+  auth()
+    .then((token) => {
+      jwtHelper.apiCall(path, method)
+        .then((data) => {
+            console.log(' inkiriApi::getServicesStates >> RESPONSE', JSON.stringify(data))
+            res(data)
+          }, (ex) => {
+            console.log(' inkiriApi::getServicesStates >> ERROR ', JSON.stringify(ex))
+            rej(ex);
+          });
+    }, (ex) => {
+        rej(ex);
+    });
+});
+
+export const createOrUpdateService = (serviceId, account_name, title, description, amount, state) =>   new Promise((res,rej)=> {  
+
+  const postfix = serviceId ? `/services/${serviceId}` : '/services';
+  const path    = globalCfg.api.endpoint + postfix;
+  const method  = serviceId?'PATCH':'POST';
+  const post_params = {
+          account_name  : account_name
+          , title       : title
+          , description : description
+          , amount      : amount
+          , state       : state
+        };
+  console.log(' inkiriApi::createOrUpdateService >> ABOUT TO POST', JSON.stringify(post_params));
+  auth()
+    .then((token) => {
+      jwtHelper.apiCall(path, method, post_params)
+        .then((data) => {
+            console.log(' inkiriApi::createOrUpdateService >> RESPONSE', JSON.stringify(data))
+            res(data)
+          }, (ex) => {
+            console.log(' inkiriApi::createOrUpdateService >> ERROR ', JSON.stringify(ex))
+            rej(ex);
+          });
+    }, (ex) => {
+        rej(ex);
+    });
+
+});
+
+
 
 /*
 * Teams section
