@@ -83,10 +83,9 @@ const routes  = {
     bankadmin: {
         items: [
             {
-                // key:  routes_config.pathNames.bankadminDashboard,
-                key:  routes_config.pathNames.dashboard,
+                key:  routes_config.pathNames.bankadminDashboard,
                 title: 'Dashboard',
-                path: routes_config.pathNames.bankadminUnderConstruction,
+                path: routes_config.pathNames.bankadminDashboard,
                 icon: 'dashboard'
             },
             {
