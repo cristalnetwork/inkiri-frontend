@@ -14,6 +14,11 @@ import { Route, Redirect, withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
+import IntroduceRow from '@app/components/Dashboard/IntroduceRow';
+import ContasRow from '@app/components/Dashboard/ContasRow';
+import PendingRow from '@app/components/Dashboard/PendingRow';
+import MoneyRow from '@app/components/Dashboard/MoneyRow';
+
 import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
 
 import { notification, Table, Divider, Spin } from 'antd';
@@ -28,13 +33,26 @@ class Operations extends Component {
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       loading:             false,
-      
-      
+      visitData:           this.loadData()
     };
 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
   }
   
+  loadData = () => {
+    // https://preview.pro.ant.design/dashboard/analysis
+    let visitData = [];
+    const beginDay = new Date().getTime();
+
+    const fakeY = [7, 5, 4, 2, 4, 7, 5, 6, 5, 9, 6, 3, 1, 5, 3, 6, 5];
+    for (let i = 0; i < fakeY.length; i += 1) {
+      visitData.push({
+        x: moment(new Date(beginDay + 1000 * 60 * 60 * 24 * i)).format('YYYY-MM-DD'),
+        y: fakeY[i],
+      });
+    }
+    return visitData;
+  }
   componentDidMount(){
     // this.loadAllTransactions(true);  
   } 
@@ -47,8 +65,22 @@ class Operations extends Component {
     });
   }
   
+  renderContent = () => {
+    const {visitData} = this.state;
+    // <h3>Dinheiro em Circulação</h3><IntroduceRow loading={false} visitData={visitData} />
+    return (<>
+        
+        <h3>Contas</h3><ContasRow loading={false} visitData={visitData} />
+        <h3>Operações Pendentes</h3><PendingRow loading={false} visitData={visitData} />
+        <h3>Dinheiro em Circulação</h3><MoneyRow loading={false} visitData={visitData} />
+        
+        </>);
+  }
+
+  //
+  
   render() {
-    const content               = (null)
+    const content               = this.renderContent();
     
     const {routes, active_tab}  = this.state;
     return (
@@ -56,7 +88,7 @@ class Operations extends Component {
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Dashboard"
-
+          subTitle="Dummy data"
         >
         </PageHeader>
         
