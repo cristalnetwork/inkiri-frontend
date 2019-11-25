@@ -8,7 +8,7 @@ import UserBalance from './userBalance';
 
 import * as menuRedux from '@app/redux/models/menu'
 import * as loginRedux from '@app/redux/models/login'
-import styles from './index.less';
+// import styles from './index.less';
 import styles_right from './right_content.less';
 
 import AccountSelector from '@app/components/InkiriHeader/accountSelector';
