@@ -21,13 +21,44 @@ const topColResponsiveProps = {
 
 const MoneyRow = ({ loading, visitData }) => (
   <Row gutter={24} type="flex">
+    
+    <Col {...topColResponsiveProps}>
+      <ChartCard
+        borderedx={false}
+        title={"Bank Balance"}
+        action={
+          <Tooltip
+            title={"Total issued - IK$  in circulation"}
+          >
+            <Icon type="info-circle-o" />
+          </Tooltip>
+        }
+        loading={loading}
+        total={() => <Yuan>10002563.2</Yuan>}
+        contentHeight={77}
+      >
+        <Field
+            label={"Digital IK$"}
+            value={`IK$ ${numeral(12423).format('0,0')}`}
+          />
+        <Field
+            label={"Paper IK$"}
+            value={`IK$ ${numeral(2423).format('0,0')}`}
+          />
+        <Field
+            label={"Fiat BRL"}
+            value={`BRL ${numeral(423).format('0,0')}`}
+          />
+      </ChartCard>
+    </Col>
+
     <Col {...topColResponsiveProps}>
       <ChartCard
         borderedx={false}
         title={"Total IUGU"}
         action={
           <Tooltip
-            title={"Money issued"}
+            title={"IUGU sales"}
           >
             <Icon type="info-circle-o" />
           </Tooltip>
@@ -43,11 +74,11 @@ const MoneyRow = ({ loading, visitData }) => (
         contentHeight={46}
       >
         <Trend flag="up" style={{ marginRight: 16 }}>
-          "Weekly Changes"
+          Weekly Changes
           <span className={'trendText'}>12%</span>
         </Trend>
         <Trend flag="down">
-          "Daily Changes"
+          Daily Changes
           <span className={'trendText'}>11%</span>
         </Trend>
       </ChartCard>
@@ -70,8 +101,8 @@ const MoneyRow = ({ loading, visitData }) => (
         total={numeral(8846).format('0,0')}
         footer={
           <Field
-            label={"Daily Visits"}
-            value={numeral(1234).format('0,0')}
+            label={"Daily Transactions"}
+            value={ `BRL ${numeral(1234).format('0,0')}`}
           />
         }
         contentHeight={46}
@@ -83,7 +114,7 @@ const MoneyRow = ({ loading, visitData }) => (
       <ChartCard
         bordered={false}
         loading={loading}
-        title={"Payments"}
+        title={"Total issued"}
         action={
           <Tooltip
             title={"Introduce"}
@@ -94,43 +125,13 @@ const MoneyRow = ({ loading, visitData }) => (
         total={numeral(6560).format('0,0')}
         footer={
           <Field
-            label={"Conversion Rate"}
+            label={"Daily issuing"}
             value="60%"
           />
         }
         contentHeight={46}
       >
         <MiniBar data={visitData} />
-      </ChartCard>
-    </Col>
-    <Col {...topColResponsiveProps}>
-      <ChartCard
-        loading={loading}
-        bordered={false}
-        title={"Operational Effect"}
-        action={
-          <Tooltip
-            title={"Introduce"}
-          >
-            <Icon type="info-circle-o" />
-          </Tooltip>
-        }
-        total="78%"
-        footer={
-          <div style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
-            <Trend flag="up" style={{ marginRight: 16 }}>
-              "Weekly Changes"
-              <span className={'trendText'}>12%</span>
-            </Trend>
-            <Trend flag="down">
-              "Weekly Changes"
-              <span className={'trendText'}>11%</span>
-            </Trend>
-          </div>
-        }
-        contentHeight={46}
-      >
-        <MiniProgress percent={78} strokeWidth={8} target={80} color="#13C2C2" />
       </ChartCard>
     </Col>
   </Row>

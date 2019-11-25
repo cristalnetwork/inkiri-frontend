@@ -71,11 +71,11 @@ const PendingRow = ({ loading, visitData }) => (
         
       >
         <Trend flag="right" style={{ marginRight: 16 }}>
-          "Investimento"
+          Investimento
           <span className={'trendText'}>12%</span>
         </Trend>
         <Trend flag="down">
-          "Insumos"
+          Insumos
           <span className={'trendText'}>11%</span>
         </Trend>
       </ChartCard>
