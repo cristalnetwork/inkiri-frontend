@@ -54,8 +54,12 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
           collapsedWidth={isMobile?0:80}
           
           >
+
             <div className="logo">
-              <img src="/favicons/favicon-32x32.png" />
+              <a href="/">
+                <img src="/favicons/favicon-32x32.png" />
+                <span>INKIRI BANK</span>
+              </a>
             </div>
             { Menu? <Menu area={area} fileName={fileName} itemPath={itemPath} />: false }
         </Sider>

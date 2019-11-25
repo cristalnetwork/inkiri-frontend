@@ -105,9 +105,8 @@ const personal =[
 
 const bankadmin = [
     {
-       // key: pathNames.bankadminDashboard,
-       key: pathNames.dashboard,
-       fileName: 'under-construction',
+       key: pathNames.bankadminDashboard,
+       fileName: 'dashboard',
        area: 'bankadmin',
        path: 'dashboard',
        container: 'dashboard',

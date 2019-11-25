@@ -10,10 +10,30 @@
   line-height: @layout-header-height;
   vertical-align: top;
   cursor: pointer;
-  img {
-    display: inline-block;
-    vertical-align: middle;
-  }
+  
+  width:100%;
+  border-bottom: 1px #f0f2f5 solid;
+
+  a{
+    color:inherit;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: row!important;
+  
+    img {
+      
+      width:32px;
+      height:32px;
+    }
+    span{
+      text-align: left;
+      padding-left:8px;
+      flex:3;
+      font-weight:400;
+      font-size: 12px;    
+    }
+  } 
 }
 
 .menu {

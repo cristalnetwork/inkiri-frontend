@@ -22,10 +22,11 @@ export const trimCenter = (s, start, end) => {
   return s.toUpperCase().slice(0,start) + '...' + s.toUpperCase().slice(s.length-end,s.length)
 }
 
-export const firsts = (s, n) => {
+export const firsts = (s, n, uppercase) => {
   if (typeof s !== 'string') return ''
   if (typeof n !== 'number') n=3;
-  return s.toUpperCase().slice(0,n)
+  let text = s.slice(0,n);
+  return (uppercase===false)?text:text.toUpperCase();
 }
 
 export const leadingZeros = (s, n) => {

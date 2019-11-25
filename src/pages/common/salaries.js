@@ -53,7 +53,8 @@ class Salaries extends Component {
       loading:            false,
       pushingTx:          false,
       team:               null,
-      job_positions:      [],
+      
+      job_positions:      null,
       dataSource:         [],
       removed:            [],
 
@@ -73,7 +74,6 @@ class Salaries extends Component {
   }
 
   handleNewPayment = () => {
-    
     // this.openNotificationWithIcon("warning", "Not implemented yet");    
     this.setState({active_view:STATE_NEW_PAYMENT})
   }
@@ -82,9 +82,10 @@ class Salaries extends Component {
     return columns_helper.columnsForSalaries(null, this.removeCallback, this.state.job_positions);
   }
   
-  componentDidMount(){
-    this.loadTeam();  
-    this.loadJobPositions();
+  componentDidMount = async () => {
+    const x_dummy = await this.loadJobPositions();
+    const y_dummy = await this.loadTeam();  
+    this.rebuildDataSourceAndSet();
   } 
 
   onRestoreList = () => {
@@ -195,14 +196,11 @@ class Salaries extends Component {
       return;
     } 
     // console.log(JSON.stringify(team));
-    let dataSource = [];
-    if(team && team.members)
-      dataSource = team.members.map(member=> { return {...member
-          , current_wage:member.wage
-          , current_reason:member.position}} )
+    // const dataSource = this.rebuildDataSource();
+    
     this.setState({ 
         team:        team, 
-        dataSource:  dataSource,
+        // dataSource:  dataSource,
         loading:     false})
         
   }
@@ -219,10 +217,28 @@ class Salaries extends Component {
       this.setState({ loading:false})
       return;
     }
-    // console.log(data.job_positions)
     this.setState({ job_positions: data.job_positions, loading:false})
   }
 
+  rebuildDataSourceAndSet = () =>{
+    const dataSource = this.rebuildDataSource();
+    this.setState({ dataSource:  dataSource}) 
+  }
+
+  rebuildDataSource = () =>{
+    const {job_positions, team} = this.state;
+    let dataSource = [];
+    if(team && team.members)
+    {
+      dataSource = team.members.map(member=> { 
+        const _position = job_positions?`Bolsa ${job_positions.filter(pos=>pos.key==member.position)[0].title}`:member.position;  
+        return {...member
+            , current_wage:   member.wage
+            , current_reason: _position }
+      });
+    }
+    return dataSource;
+  }
   openNotificationWithIcon(type, title, message) {
     notification[type]({
       message: title,
@@ -236,7 +252,7 @@ class Salaries extends Component {
     if(isNaN(row.current_wage))
       row.current_wage=row.wage;
     if(row.current_reason)
-      row.current_reason=utils.firsts(row.current_reason, 30);
+      row.current_reason=utils.firsts(row.current_reason, 30, false);
     const newData = [...this.state.dataSource];
     const index = newData.findIndex(item => row.key === item._id);
     const item = newData[index];

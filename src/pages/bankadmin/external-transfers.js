@@ -128,29 +128,30 @@ class ExternalTransfers extends Component {
     let stats = this.currentStats();
     if(txs===undefined)
       txs = this.state.txs;
-    const deposits      = txs.filter( tx => globalCfg.api.isDeposit(tx))
+    const exchanges      = txs.filter( tx => globalCfg.api.isExchange(tx) && globalCfg.api.successfulEnding(tx))
                     .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
-    const withdraws     = txs.filter( tx => globalCfg.api.isWithdraw(tx))
+    const exchanges_pending     = txs.filter( tx => globalCfg.api.isExchange(tx) && globalCfg.api.isProcessPending(tx))
                     .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     
-    const deposits_ik   = txs.filter( tx => globalCfg.api.isIKDeposit(tx))
+    const provider   = txs.filter( tx => globalCfg.api.isProviderPayment(tx) && globalCfg.api.successfulEnding(tx))
                     .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
-    const deposits_brl  = txs.filter( tx => globalCfg.api.isBRLDeposit(tx))
+
+    const provider_pending  = txs.filter( tx => globalCfg.api.isProviderPayment(tx) && globalCfg.api.isProcessPending(tx))
                     .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
-    const pending      = txs.filter( tx => globalCfg.api.isProcessPending(tx))
-                    .map(tx =>tx.amount).length;
+    
+    const total_out      = txs.filter( tx => globalCfg.api.successfulEnding(tx))
+                    .reduce((acc, tx) => acc + Number(tx.amount), 0);
 
     stats[this.state.active_tab] = {
-        withdraws:     withdraws
-        , deposits:    deposits
-        , count:       txs.length
-        , deposits_ik: deposits_ik 
-        , deposits_brl:deposits_brl 
-        , pending:     pending};
+        exchanges         : exchanges, 
+        exchanges_pending : exchanges_pending, 
+        provider          : provider, 
+        provider_pending  : provider_pending, 
+        total_out             : total_out};
 
     this.setState({stats:stats})
   }
@@ -158,11 +159,11 @@ class ExternalTransfers extends Component {
   currentStats(){
     const x = this.state.stats[this.state.active_tab];
     const _default = {deposits:0 
-              , withdraws:0
-              , count:0
-              , deposits_ik:0
-              , deposits_brl:0
-              , pending:0};
+              , exchanges:0
+              , exchanges_pending:0
+              , provider:0
+              , provider_pending:0
+              , total_out:0};
     return x?x:_default;
   }
 
@@ -298,12 +299,12 @@ class ExternalTransfers extends Component {
     //
   
   renderTableViewStats(){
-    const {exchanges, exchanges_pending, providers, providers_pending, total_out} = this.currentStats();  
+    const {exchanges, exchanges_pending, provider, provider_pending, total_out} = this.currentStats();  
     const items = [
         buildItemMoney('EXCHANGES', exchanges)
         , buildItemMoneyPending('EXCHANGES PENDING', exchanges_pending)
-        , buildItemMoney('PROVIDERS PAY', providers)
-        , buildItemMoneyPending('PROVIDERS PAY PENDING', providers_pending)
+        , buildItemMoney('PROVIDERS PAY', provider)
+        , buildItemMoneyPending('PROVIDERS PAY PENDING', provider_pending)
         , buildItemMoney('TOTAL OUT', total_out, '#cf1322')
       ]
     return (<TableStats title="STATS" stats_array={items}/>)
