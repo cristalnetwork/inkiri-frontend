@@ -33,13 +33,12 @@ const routes  = {
                 ]
             },
             {
-                // key: routes_config.pathNames.personalRequestMoney,
                 key: 'personal_receive_money',
                 title: 'Receive',
                 icon: 'plus-square',
                 items: [
                     {
-                        key: routes_config.pathNames.personalRequestMoney,
+                        key: routes_config.pathNames.commonRequestMoney,
                         path: routes_config.pathNames.personalUnderConstruction,
                         title: 'Request money',
                     }
@@ -57,7 +56,7 @@ const routes  = {
                         title: 'Send money',
                     },
                     {
-                        key: routes_config.pathNames.personalPaymentsAndServices,
+                        key: routes_config.pathNames.commonContractedServices,
                         path: routes_config.pathNames.personalUnderConstruction,
                         title: 'Payments and services',
                         icon: 'shop',
@@ -106,14 +105,14 @@ const routes  = {
 
                     },
                     {
-                        key: routes_config.pathNames.bankadminPAP,
+                        key: routes_config.pathNames.commonServices,
                         path: routes_config.pathNames.bankadminUnderConstruction,
-                        title: 'Pre-Auth Payments',
+                        title: 'Services - PAP',
                     },
                     {
                         key: routes_config.pathNames.bankadminIugu,
                         path: routes_config.pathNames.bankadminIugu,
-                        title: 'Iugu',
+                        title: 'IUGU',
                     }
 
                 ]
@@ -142,7 +141,12 @@ const routes  = {
                         key: routes_config.pathNames.bankadminPDA,
                         path: routes_config.pathNames.bankadminPDA,
                         title: 'PDA',
-                    }
+                    },
+                    {
+                        key: routes_config.pathNames.commonContractedServices,
+                        path: routes_config.pathNames.bankadminUnderConstruction,
+                        title: 'Contracted Services',
+                    },
 
                 ]
             },
@@ -207,9 +211,9 @@ const routes  = {
                         title: 'Vendas - PDV',
                     },
                     {
-                        key: routes_config.pathNames.businessPreAuthSales,
-                        path: routes_config.pathNames.businessUnderConstruction,
-                        title: 'Taxa de serviços',
+                        key: routes_config.pathNames.commonServices,
+                        path: routes_config.pathNames.commonServices,
+                        title: 'Serviços oferecidos',
                     }
                 ]
             },
@@ -226,7 +230,7 @@ const routes  = {
                     {
                         key: routes_config.pathNames.businessPaymentsAndServices,
                         path: routes_config.pathNames.businessUnderConstruction,
-                        title: 'Services',
+                        title: 'Serviços Contratados',
                     },
                     {
                         key: routes_config.pathNames.businessProvidersPayments,

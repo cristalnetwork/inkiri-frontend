@@ -46,7 +46,7 @@ class ChartCard extends React.Component {
       return false;
     }
     return (
-      <div className={'chartCard'}>
+      <div className={'chartCard'} >
         <div
           className={classNames('chartTop', {
             ['chartTopMargin']: !children && !footer,

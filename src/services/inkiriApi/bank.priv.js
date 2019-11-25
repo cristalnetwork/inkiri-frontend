@@ -414,6 +414,38 @@ export const updateUserBankAccounts = (id,  bank_accounts) =>   new Promise((res
 });
 
 /*
+* Services section
+*/
+export const getServices = (account_name, page, limit, filter) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.endpoint + '/services';
+  const method  = 'GET';
+  
+  let qs = {
+      page         : (page||0)
+      , limit      : (limit||10),
+      account_name : account_name
+    };
+  if(filter)
+    qs = { ...qs , ...filter};
+
+  auth()
+    .then((token) => {
+      jwtHelper.apiCall(path, method, qs)
+        .then((data) => {
+            res(data)
+          }, (ex) => {
+            rej(ex);
+          });
+    }, (ex) => {
+        rej(ex);
+    });
+
+});
+
+
+
+/*
 * Teams section
 */
 export const getTeam = (account_name) =>   new Promise((res,rej)=> {

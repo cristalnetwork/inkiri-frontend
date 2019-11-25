@@ -412,24 +412,24 @@ export const columnsForAccounts = (callback) => {
                 <span className="row_tx_description">{record.key}</span> 
                  {request_helper.getAccountStateTag(record, true)} 
               </div>   
-            </span>)
+            </span>);
         }
       },
       {
         title: 'IUGU alias',
         key: 'overdraft',
         dataIndex: 'overdraft',
-        render: (overdraft, record) => {
-          
+        
+        render: (overdraft, record) =>{
           const isBiz = globalCfg.bank.isBusinessAccount(record);
           const _alias = (isBiz&&record.alias)?record.alias:(isBiz?request_helper.errorStateTag('Alias not configured!'):'');
-          //
           return (
             <span>
               {_alias}
             </span> 
           )}
       },
+      //
       {
         title: 'Fee & overdraft',
         key: 'fee',
@@ -799,5 +799,60 @@ export const columnsForSalaries = (callback, remove_callback, job_positions) => 
             </Popconfirm>
           )
       },
+    ];
+}
+
+//
+
+export const columnsForServices = (callback) => {
+    
+    return [
+      {
+        title: 'Service',
+        dataIndex: 'title',
+        key: 'title',
+        render: (title, record) => {
+          return(
+            <span className="name_value_row">
+              <div className="row_name centered" >
+                
+              </div>
+              <div className="row_value wider">
+                <span className="row_tx_description">{record.title}</span> 
+                <br/>{record.description} 
+              </div>   
+            </span>)
+        }
+      },
+      {
+        title: 'Status',
+        dataIndex: 'state',
+        key: 'state',
+        render: (state, record) => {
+          return (<span>{state}</span>);
+         }   
+      },
+      {
+        title: 'Price',
+        key: 'amount',
+        dataIndex: 'amount',
+        render: (amount, record) => {
+          
+          return (
+            <span>
+              {globalCfg.currency.toCurrencyString(amount)}
+            </span> 
+          )}
+      },
+      {
+        title: 'Action',
+        key: 'action',        
+        align: 'right',
+        render: (text, record) => {
+          const edit    = (<Button key={'edit_'+record.member._id}                    onClick={()=>{ callback(record, events.EDIT) }} icon="edit" size="small">Edit</Button>);
+          const _delete = (<Button key={'details_'+record.member._id} type="link"     onClick={()=>{ callback(record, events.REMOVE) }} icon="delete" size="small">Delete</Button>);
+          return (<>{edit}&nbsp;{_delete}</>)
+        }
+      }
     ];
 }

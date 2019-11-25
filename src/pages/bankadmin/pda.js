@@ -192,10 +192,6 @@ class PDA extends Component {
 
   }
 
-  renderFooter(){
-    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadTransactionsForPDA()}>More!!</Button> </>)
-  }
-
   //
   renderSelectTxTypeOptions(){
     return (
@@ -312,6 +308,10 @@ class PDA extends Component {
     return (<TableStats title="STATS" stats_array={items}/>)
   }
 
+  renderFooter(){
+    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadTransactionsForPDA()}>More!!</Button> </>)
+  }
+  
   renderContent(){
     return (<div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
           <Table

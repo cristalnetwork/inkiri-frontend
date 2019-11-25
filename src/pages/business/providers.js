@@ -45,8 +45,6 @@ class Providers extends Component {
       can_get_more:    true,
 
       stats:                        {},
-      
-      pagination:                   { pageSize: 0 , total: 0 }
     };
 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
