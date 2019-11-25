@@ -204,6 +204,9 @@ const api = {
   , isProcessing       : (request) => {
       return [api.STATE_PROCESSING].indexOf(request.state)>=0;
     }
+  , successfulEnding       : (request) => {
+      return [api.STATE_ACCEPTED].includes(request.state);
+    }
   , canCancel          : (request) => {
       return [api.STATE_REQUESTED].indexOf(request.state)>=0;
     }
