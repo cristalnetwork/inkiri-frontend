@@ -8,6 +8,7 @@ import UserBalance from './userBalance';
 
 import * as menuRedux from '@app/redux/models/menu'
 import * as loginRedux from '@app/redux/models/login'
+
 // import styles from './index.less';
 import styles_right from './right_content.less';
 
@@ -54,7 +55,7 @@ class InkiriHeader extends Component {
     {
       header_content = (
         <>
-        <a className="ant-pro-global-header-logo" key="logo">
+        <a className="ant-pro-global-header-logo" key="logo" href="/">
           <img src="/favicons/favicon-32x32.png" alt="logo" />
         </a>
         <div className="right">
