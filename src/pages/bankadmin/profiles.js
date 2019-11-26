@@ -76,15 +76,19 @@ class Profiles extends Component {
 
   onNewProfile = () => {
     
-    this.openNotificationWithIcon("warning", "Not implemented yet");    
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
-    // this.props.history.push({
-    //   pathname: `/${this.props.actualRole}/create-account`
-    //   , state: { 
-    //       referrer: this.props.location.pathname
-    //     }
-    // })
+    const pathname = `/${this.props.actualRole}/create-account`
+    const button = (<Button 
+                          type="link" 
+                          onClick={()=>{ 
+                            this.props.history.push({
+                              pathname: pathname
+                            })
+                          }} size="small">account creation</Button>);
+    //
+    this.openNotificationWithIcon("warning", "Notification", (<p>In order to create a profile, please refer to {button}.</p>) );    
+    
 
   }
 

@@ -45,11 +45,11 @@ const { Step } = Steps;
 
 const steps = [
   {
-    title: 'Account Type & Profile',
+    title: 'Account Info + Profile Info',
     content: 'First-content',
   },
   {
-    title: 'Account details',
+    title: 'Account Details',
     content: 'Second-content',
   },
   {
@@ -59,21 +59,7 @@ const steps = [
 ];
 
 const dateFormat =  'YYYY/MM/DD';
-
-class CreateAccount extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      referrer:        (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined,
-      loading:          false,
-      
-      pushingTx:        false,
-      result:           undefined,
-      result_object:    undefined,
-      error:            {},
-      
-      confirmDirty:     false,
-      
+const DEFAULT_STATE = {
       current_step:     0,
 
       account_name:     '',
@@ -88,12 +74,10 @@ class CreateAccount extends Component {
                          pub_key:  'Generated Public Key',
                          seed:     ''} ,
 
-      // account_name_validating : false, 
-      // account_name_validated  : 0,
-
       account_type:     undefined,
       account_overdraft:0,
       account_fee:      0,
+      
       first_name:       '',
       last_name:        '',
       email:            '',
@@ -108,63 +92,141 @@ class CreateAccount extends Component {
                           country: ''
                         },
       business_name:    '',
+      permissions:      undefined,
       alias:            '',
-
+    };
+class CreateAccount extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      referrer:        (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined,
+      loading:          false,
+      
+      pushingTx:        false,
+      result:           undefined,
+      result_object:    undefined,
+      error:            {},
+      
+      confirmDirty:     false,
+      
+      ...DEFAULT_STATE,
+      
       // PERMS
       active_tab_key:  'owner',
       new_perm_name:   '',
       delete_permission:undefined,
       adding_new_perm:  false,
-      permissions:      undefined
+      
     };
 
     this.handleAddPermissionSubmit = this.handleAddPermissionSubmit.bind(this);
     
-    this.resetPage                 = this.resetPage.bind(this); 
-    this.openNotificationWithIcon  = this.openNotificationWithIcon.bind(this); 
-    this.generateKeys              = this.generateKeys.bind(this); 
-    this.genAccountName            = this.genAccountName.bind(this); 
-    this.doCreateAccount           = this.doCreateAccount.bind(this); 
-    this.validateNConfirmCreateAccount      = this.validateNConfirmCreateAccount.bind(this); 
-    this.handleAccountTypeChange   = this.handleAccountTypeChange.bind(this);
-    
-    this.onNewPermission            = this.onNewPermission.bind(this);
-    this.onCancelNewPermission      = this.onCancelNewPermission.bind(this);
-    this.onDeletePermission         = this.onDeletePermission.bind(this);
+    this.resetPage                     = this.resetPage.bind(this); 
+    this.openNotificationWithIcon      = this.openNotificationWithIcon.bind(this); 
+    this.generateKeys                  = this.generateKeys.bind(this); 
+    this.genAccountName                = this.genAccountName.bind(this); 
+    this.doCreateAccount               = this.doCreateAccount.bind(this); 
+    this.validateNConfirmCreateAccount = this.validateNConfirmCreateAccount.bind(this); 
+    this.handleAccountTypeChange       = this.handleAccountTypeChange.bind(this);
+    this.validateStep                  = this.validateStep.bind(this);
+    this.next                          = this.next.bind(this);
+    this.onNewPermission               = this.onNewPermission.bind(this);
+    this.onCancelNewPermission         = this.onCancelNewPermission.bind(this);
+    this.onDeletePermission            = this.onDeletePermission.bind(this);
 
   }
 
+  renderAccountTypesOptions(){
+    const my_options          = globalCfg.bank.newAccountTypesOptions();
+    const { getFieldDecorator } = this.props.form;
+    const {account_type}        = this.state;
+    /*
+    <Form.Item label="Account Type">
+                      {getFieldDecorator('account_type', {
+                        rules: [{ required: true, message: 'Please select an account type!' }],
+                        initialValue: account_type
+                      })(
+                        <Select onChange={this.handleAccountTypeChange}>
+                          <Option value="1">Personal Account</Option>
+                          <Option value="2">Business Account</Option>
+                        </Select>
+                      )}
+                    </Form.Item>
+                    */
+    return (
+      <Form.Item label="Account Type" className="money-transfer__rowX">
+          {getFieldDecorator( 'account_type', {
+            rules: [{ required: true, message: 'Please select an account type!'}]
+            , initialValue: account_type
+            , onChange: (e) => this.handleAccountTypeChange(e)
+          })(
+            <Select placeholder={'Choose an account type'} >
+            {my_options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.title}>{ opt.title } </Select.Option> )}
+            </Select>
+          )}
+      </Form.Item>
+    )
+  }
+  //
   validateStep = () => new Promise((res, rej) => {
+    
+    console.log(' createAccount::validateStep() ENTER');
     const {current_step, account_name} = this.state;
-    this.props.form.validateFields((err, values) => {
-      if (err)
-      {  
-        console.log(' >> INVALID STEP >> ERR >>: ', JSON.stringify(err) )
-        res( false);
-      }
-      console.log(' >> VALID STEP >> OK ')
-      
-      let new_values = Object.assign({}, values);
-      if(new_values.birthday)
-        new_values.birthday = values.birthday.format(dateFormat)
-      
-      //HACK
-      if(current_step==0 && !account_name)
-      {
-        const my_account_name   = globalCfg.bank.isPersonalAccount(this.state.account_type) ? (values.last_name.trim() + values.first_name.trim()).toLowerCase() : (values.business_name.trim()).toLowerCase();
-        values['account_name']  = (my_account_name.replace(/ /g, '')+'123451234512345').substring(0, 12);
-      }
-      this.setState(values);
-      res(true);
+    console.log(` createAccount::validateStep() current_step: ${current_step} | account_name:${account_name}`);
+    
+    try{
+      this.props.form.validateFields((err, values) => {
+        // console.log('hola')
+        // console.log(` createAccount::validateStep() err: ${err} | values:${values}`);
+        if (err)
+        {  
+          // console.log(' >> INVALID STEP >> ERR >>: ', JSON.stringify(err) )
+          this.openNotificationWithIcon('error', 'Something went wrong!', JSON.stringify(err))
+          rej(JSON.stringify(err));
+          return;
+        }
 
-    });
+        // console.log(' >> VALID STEP >> OK ')
+        
+        let new_values = Object.assign({}, values);
+        if(new_values.birthday)
+          new_values.birthday = values.birthday.format(dateFormat)
+        
+        //HACK
+        if(current_step==0 && !account_name)
+        {
+          const my_account_name   = globalCfg.bank.isPersonalAccount(this.state.account_type) ? (values.last_name.trim() + values.first_name.trim()).toLowerCase() : (values.business_name.trim()).toLowerCase();
+          values['account_name']  = (my_account_name.replace(/ /g, '')+'123451234512345').substring(0, 12);
+        }
+        this.setState(values);
+        res(true);
+
+      });
+    }catch(e){
+      // console.log(` createAccount::validateStep() ex: ${e}`);
+      rej(e)
+    } 
+    
 
   });
   
   next = async () => {
-    const validStep = await this.validateStep();
-    if(!validStep)
+    console.log(' createAccount::next() ENTER');
+    let validStep = false;
+    try{
+      validStep = await this.validateStep();
+    }
+    catch(e)
+    {
+      this.openNotificationWithIcon("error", "Something went wrong!");        
       return;
+    } 
+    
+    if(!validStep)
+    {
+      this.openNotificationWithIcon("error", "Something went wrong!","Step is not valid.")        
+      return;
+    }
     const {current_step} = this.state;
     this.setState({ current_step:current_step + 1 });
   }
@@ -327,15 +389,24 @@ class CreateAccount extends Component {
       this.setState({generated_keys:default_keys})
       return;
     }
-    const seed = globalCfg.eos.generateSeed(do_generate);
+    const { form }     = this.props;
+    const account_name = form.getFieldValue('account_name')
+    let seed       = null;
+    const password = do_generate;
+    try{
+      seed = globalCfg.eos.generateSeed(account_name, password);
+    }catch(e){
+      callback(JSON.strnigify(e));
+      return;
+    }
     const keys = api.eosHelper.seedPrivate(seed);
     const that = this;
     api.getKeyAccounts(keys.pub_key)
       .then(()=>{
-        that.setState({generated_keys:keys})
         if(callback)
           callback('Name already exists. Please visit provided links and check name by yourself!');
       },(err)=>{
+        that.setState({generated_keys:keys})
         if(callback)
           callback()
       })
@@ -346,7 +417,7 @@ class CreateAccount extends Component {
     const { form } = this.props;
     if (value && value !== form.getFieldValue('password')) {
       this.generateKeys(undefined)
-      callback('Two passwords that you enter is inconsistent!');
+      callback('Passwords are not equal!');
     } else {
       this.generateKeys(value)
       callback();
@@ -357,17 +428,24 @@ class CreateAccount extends Component {
     const { form } = this.props;
     if (value && this.state.confirmDirty) {
       form.validateFields(['confirm_password'], { force: true });
+      callback();
+      // return;
+    }
+    if (value && form.getFieldValue('confirm_password') && value !== form.getFieldValue('confirm_password')) {
+      this.generateKeys(undefined)
+      callback('Both passwords are not equal!');
+      return;
     }
     callback();
   };
 
   validateNumberGToEZ  = (rule, value, callback) => {
-    const amount = parseInt(value || 0, 10);
-    if (Number.isNaN(amount)) {
+    console.log(` -- validateNumberGToEZ -- ${value}`)
+    if (Number.isNaN(value)) {
       callback('Please type a valid number!');
       return;
     }
-    if(amount<0) {
+    if(parseFloat(value)<0) {
       callback('Please type a number greater than or equal zero!');
       return;
     }
@@ -410,14 +488,6 @@ class CreateAccount extends Component {
     });
   }
 
-  // handleAmountChange = e => {
-  //   e.preventDefault();
-  //   const amount = parseInt(e.target.value || 0, 10);
-  //   if (Number.isNaN(amount)) {
-  //     return;
-  //   }
-  // };
-  
   backToDashboard = async () => {
     this.props.history.push({
       pathname: `/${this.props.actualRole}/dashboard`
@@ -425,42 +495,8 @@ class CreateAccount extends Component {
   }
 
   resetPage(full){
-    const default_state = {current_step:     0,
-
-      account_name:     '',
-      password:         '',
-      confirm_password: '',
-      default_keys:     {  
-                         wif:      'Generated Private Key',
-                         pub_key:  'Generated Public Key',
-                         seed:     ''}, 
-      generated_keys:   {
-                         wif:      'Generated Private Key',
-                         pub_key:  'Generated Public Key',
-                         seed:     ''} ,
-
-      account_type:     undefined,
-      account_overdraft:0,
-      account_fee:      0,
-      
-      first_name:       '',
-      last_name:        '',
-      email:            '',
-      legal_id:         '',
-      birthday:         '1980/11/06',
-      phone:            '',
-      address:          { 
-                          street:  '', 
-                          city:    '', 
-                          state:   '', 
-                          zip:     '', 
-                          country: ''
-                        },
-      business_name:    '',
-      permissions:      undefined
-    };
     if(full)
-      this.setState({...default_state, result: undefined, result_object: undefined, error: {}});
+      this.setState({...DEFAULT_STATE, result: undefined, result_object: undefined, error: {}});
     else
       this.setState({result: undefined, result_object: undefined, error: {}});
   }
@@ -515,47 +551,47 @@ class CreateAccount extends Component {
                 initialValue: legal_id
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
-            <Form.Item label="Birthday">
-              {getFieldDecorator('birthday', {
-                rules: [{ required: true, message: 'Please input birthday!' }],
-                initialValue: moment(birthday, dateFormat)
-              })( <DatePicker format={dateFormat} style={{ width: '100%' }} />)}
-            </Form.Item>
             <Form.Item label="Phone Number">
               {getFieldDecorator('phone', {
                 rules: [{ required: true, message: 'Please input phone number!' }],
                 initialValue: phone
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
+            <Form.Item label="Birthday">
+              {getFieldDecorator('birthday', {
+                rules: [{ required: false, message: 'Please input birthday!' }],
+                initialValue: moment(birthday, dateFormat)
+              })( <DatePicker format={dateFormat} style={{ width: '100%' }} />)}
+            </Form.Item>
             
             <h3 className="fileds_header">ADDRESS</h3>
             <Form.Item label="Street" extra="Street and Number, Apt, Suite, Unit, Building">
               {getFieldDecorator('address.street', {
-                rules: [{ required: true, message: 'Please input Street!' }],
+                rules: [{ required: false, message: 'Please input Street!' }],
                 initialValue: address.street
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
             <Form.Item label="City">
               {getFieldDecorator('address.city', {
-                rules: [{ required: true, message: 'Please input City!' }],
+                rules: [{ required: false, message: 'Please input City!' }],
                 initialValue: address.city
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
             <Form.Item label="State/Province">
               {getFieldDecorator('address.state', {
-                rules: [{ required: true, message: 'Please input State/Province!' }],
+                rules: [{ required: false, message: 'Please input State/Province!' }],
                 initialValue: address.state
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
             <Form.Item label="Zip / Postal Code">
               {getFieldDecorator('address.zip', {
-                rules: [{ required: true, message: 'Please input Zip/Postal code!' }],
+                rules: [{ required: false, message: 'Please input Zip/Postal code!' }],
                 initialValue: address.zip
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
             <Form.Item label="Country">
               {getFieldDecorator('address.country', {
-                rules: [{ required: true, message: 'Please input State/Province!' }],
+                rules: [{ required: false, message: 'Please input State/Province!' }],
                 initialValue: address.country
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
@@ -591,7 +627,7 @@ class CreateAccount extends Component {
   
   renderStep(current_step){
     const { getFieldDecorator } = this.props.form;
-    
+    const account_options       = this.renderAccountTypesOptions();
     
     let content = null;
     
@@ -605,35 +641,23 @@ class CreateAccount extends Component {
                     
                     <h3 className="fileds_header">ACCOUNT SECTION</h3>
                     
-                    <Form.Item label="Account Type">
-                      {getFieldDecorator('account_type', {
-                        rules: [{ required: true, message: 'Please select an account type!' }],
-                        initialValue: account_type
-                      })(
-                        <Select onChange={this.handleAccountTypeChange}>
-                          <Option value="1">Personal Account</Option>
-                          <Option value="2">Business Account</Option>
-                        </Select>,
-                      )}
-                    </Form.Item>
+                        {account_options}
                     
                     <Form.Item label="Fee">
                         {getFieldDecorator('account_fee', {
-                          rules: [{ required: true, message: 'Please input fee!', whitespace: true },
-                          {validator: this.validateNumberGToEZ}],
-                          initialValue: account_fee
-                        })(<Input  type="number"/>)}
+                          rules: [{ required: true, message: 'Please input fee!', whitespace: true, validator: this.validateNumberGToEZ}],
+                          initialValue: account_fee||0
+                        })(<Input type="tel" step="0.01" />)}
                     </Form.Item>
 
                     <Form.Item
                       label="Overdraft"
-                      extra="Kind of initial balance"
+                      extra="Credit. Kind of initial balance"
                       >
                         {getFieldDecorator('account_overdraft', {
-                          rules: [{ required: true, message: 'Please input overdraft!', whitespace: true },
-                          {validator: this.validateNumberGToEZ}],
-                          initialValue: account_overdraft
-                        })(<Input type="number" />)}
+                          rules: [{ required: true, message: 'Please input overdraft!', whitespace: true , validator: this.validateNumberGToEZ}],
+                          initialValue: account_overdraft||0
+                        })(<Input type="tel" step="0.01" />)}
                       </Form.Item>
 
                       {this.fieldsByAccountType()}
@@ -684,7 +708,7 @@ class CreateAccount extends Component {
                       required: true,
                       message: 'Please input password!',
                     }
-                    ,{ min: 12, message: '12 characters min' }
+                    ,{ min: 4, message: '4 characters min' }
                     ,{
                       validator: this.validateToNextPassword,
                     },
@@ -867,7 +891,7 @@ class CreateAccount extends Component {
                 <Skeleton avatar title={false} loading={item.loading} active>
                   <List.Item.Meta
                     avatar={
-                      <span className="ant-avatar"><Icon style={{fontSize:24, color: 'rgba(0, 0, 0, 0.65)' }} type="key" /> </span>
+                      <span className="ant-avatar"><Icon style={{fontSize:16, color: 'rgba(0, 0, 0, 0.65)' }} type="key" /> </span>
                     }
                     title={<a href="#">{item}</a>}
                     description={'@'+perm_name}
@@ -912,7 +936,7 @@ class CreateAccount extends Component {
                 <Skeleton avatar title={false} loading={item.loading} active>
                   <List.Item.Meta
                     avatar={
-                      <span className="ant-avatar"><Icon style={{fontSize:24, color: 'rgba(0, 0, 0, 0.65)' }} type="key" /> </span>
+                      <span className="ant-avatar"><Icon style={{fontSize:16, color: 'rgba(0, 0, 0, 0.65)' }} type="key" /> </span>
                     }
                     title={<a href="#">{item.permission.actor}</a>}
                     description={'@'+item.permission.permission}

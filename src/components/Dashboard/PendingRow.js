@@ -23,7 +23,7 @@ const PendingRow = ({ loading, visitData }) => (
   <Row gutter={24} type="flex">
     <Col {...topColResponsiveProps}>
       <ChartCard
-        borderedx={false}
+        bordered={false}
         title={"Câmbio por R$"}
         action={
           <Tooltip
@@ -49,7 +49,7 @@ const PendingRow = ({ loading, visitData }) => (
 
     <Col {...topColResponsiveProps}>
       <ChartCard
-        borderedx={false}
+        bordered={false}
         title={"Pago a fornecedores"}
         action={
           <Tooltip

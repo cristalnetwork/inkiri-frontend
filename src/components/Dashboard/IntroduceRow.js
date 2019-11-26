@@ -23,7 +23,7 @@ const IntroduceRow = ({ loading, visitData }) => (
   <Row gutter={24} type="flex">
     <Col {...topColResponsiveProps}>
       <ChartCard
-        borderedx={false}
+        bordered={false}
         title={"Total IUGU"}
         action={
           <Tooltip

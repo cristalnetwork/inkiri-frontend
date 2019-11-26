@@ -316,24 +316,29 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
   }
   // actions.push(createBankAccountAction)
   // This should be executed at the Smart Contract.
-  const issueAction = {
-    account: globalCfg.currency.token,
-    name: "issue",
-    authorization: [
-      {
-        actor: globalCfg.currency.issuer,
-        permission: "active"
-      }
-    ],
-    data: {
-      to: new_account_name,
-      quantity: formatAmount(overdraft),
-      memo: ('oft|create')
-    }
-  }
-  // actions.push(issueAction)
 
-  actions = [newAccountAction, buyRamAction, delegateBWAction, createBankAccountAction, issueAction]
+  const issueAction = (overdraft>0)
+    ?{
+      account: globalCfg.currency.token,
+      name: "issue",
+      authorization: [
+        {
+          actor: globalCfg.currency.issuer,
+          permission: "active"
+        }
+      ],
+      data: {
+        to: new_account_name,
+        quantity: formatAmount(overdraft),
+        memo: ('oft|create')
+      }
+    }
+    :null;
+  // 
+
+  actions = [newAccountAction, buyRamAction, delegateBWAction, createBankAccountAction]
+  if(issueAction)
+    actions.push(issueAction)
   // throw new Error('ESTA!');  
   return pushTX(actions, creator_priv);
 }

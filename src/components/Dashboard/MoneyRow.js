@@ -24,7 +24,7 @@ const MoneyRow = ({ loading, visitData }) => (
     
     <Col {...topColResponsiveProps}>
       <ChartCard
-        borderedx={false}
+        bordered={false}
         title={"Bank Balance"}
         action={
           <Tooltip
@@ -54,7 +54,7 @@ const MoneyRow = ({ loading, visitData }) => (
 
     <Col {...topColResponsiveProps}>
       <ChartCard
-        borderedx={false}
+        bordered={false}
         title={"Total IUGU"}
         action={
           <Tooltip

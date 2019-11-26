@@ -381,11 +381,18 @@ class PDV extends Component {
     this.setState({pushingTx:true})
     
     const {payer, password} = values;
+
     let public_key          = null;
     let private_key         = null;
     if(!api.eosHelper.isValidPrivate(password))
     {
-      const seed  = globalCfg.eos.generateSeed(password);
+      let seed  = null;
+      try{
+        seed  = globalCfg.eos.generateSeed(payer, password);
+      }catch(e){
+        this.openNotificationWithIcon('error', 'An error occurred', JSON.stringify(e))
+        return;
+      }
       const keys  = api.eosHelper.seedPrivate(seed);
       private_key = keys.wif;
       public_key  = keys.pub_key;
@@ -396,21 +403,23 @@ class PDV extends Component {
       public_key  = api.eosHelper.privateToPublic(password);
     }
     
-    let accounts = null;
+    let accounts = payer?[payer]:null;
     
-    try {
-      accounts = await api.getKeyAccounts(public_key);
-      console.log('accounts=>', accounts)
-    } catch (e) {
-      this.openNotificationWithIcon("error", "Wrong password.", "Please verify password and try again. Message: "+ JSON.stringify(e));
-      this.setState({pushingTx:false});
-      return;
-    }
+    if(!accounts)
+      try {
+        accounts = await api.getKeyAccounts(public_key);
+        console.log('accounts=>', accounts)
+      } catch (e) {
+        this.openNotificationWithIcon("error", "Wrong password.", "Please verify password and try again. Message: "+ JSON.stringify(e));
+        this.setState({pushingTx:false});
+        return;
+      }
      
     if(!accounts || accounts.length<=0){
       that.openNotificationWithIcon("error", 'No accounts for given password.');
       return;
     }
+
     const {input_amount}    = this.state;
     const that = this;
     api.sendPayment(accounts[0], private_key, this.props.actualAccountName, input_amount.value, 'Payed at store.')
@@ -458,6 +467,7 @@ class PDV extends Component {
                       <PaymentForm
                         business={this.actualAccountName} 
                         amount={this.state.input_amount.value} 
+                        showUserSearch={true}
                         callback={ () => this.onPaymentModalCallback } />
                     </div>
                   </Spin>

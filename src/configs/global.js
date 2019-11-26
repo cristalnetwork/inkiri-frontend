@@ -49,6 +49,18 @@ const bank = {
     //return [bank.ACCOUNT_TYPE_PERSONAL, bank.ACCOUNT_TYPE_BUSINESS, bank.ACCOUNT_TYPE_FOUNDATION, bank.ACCOUNT_TYPE_BANKADMIN];
     return bank.ACCOUNT_TYPES.filter((item, idx) => idx>0);
   } ,
+  newAccountTypesOptions : () =>{
+    return [
+        {  
+          title : 'Personal Account',
+          key: bank.ACCOUNT_TYPE_PERSONAL
+        },
+        {
+          title : 'Business Account',
+          key: bank.ACCOUNT_TYPE_BUSINESS
+        }
+      ];
+  },
   ACCOUNT_STATE_OK:        1,
   ACCOUNT_STATE_BLOCKED:   2,
   ACCOUNT_STATES:          ['none', 'ok', 'blocked'],
@@ -373,9 +385,13 @@ const dfuse = {
   create_account : 'https://api.monitor.jungletestnet.io/#account',
   // create_account: 'https://eos-account-creator.com/choose/'
   security_prefix: '1nK1r1_K3y_Pr3F1x_',
-  generateSeed : (seed) => {
+  generateSeed : (account_name, seed) => {
+    if(!account_name || account_name.trim()=='')
+      throw new Error('Account name can not be empty');
+    if(!seed || seed.trim()=='')
+      throw new Error('Password can not be empty');
     // We should derivate several times for security reasons.
-    return eos.security_prefix + seed;
+    return eos.security_prefix.trim() + account_name.trim() + seed.trim();
   }
 }
 
