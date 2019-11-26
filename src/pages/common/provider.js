@@ -184,10 +184,11 @@ class Provider extends Component {
   };
   
   doUpdateProvider(){
-    const {id} = this.state.provider;
+    const {id}         = this.state.provider;
+    const account_name = this.props.actualAccountName;
     const {name, cnpj, email, phone, address, category, products_services, bank_accounts} = this.state.provider_update;
     // guarda
-    api.bank.createOrUpdateProvider(id, name, cnpj, email, phone, address, category, products_services, bank_accounts)
+    api.bank.createOrUpdateProvider(id, name, cnpj, email, phone, address, category, products_services, bank_accounts, account_name)
     .then((res)=>{
       console.log(' >> doUpdateProvider >> ', JSON.stringify(res));
       this.setState({result:'ok'});

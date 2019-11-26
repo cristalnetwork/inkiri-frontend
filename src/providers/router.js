@@ -56,8 +56,8 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           
           if(actualRole=='business') 
           { 
-            history.push(`/common/services`);
-            // history.push(`/${actualRole}/extrato`);
+            // history.push(`/common/services`);
+            history.push(`/${actualRole}/extrato`);
             // history.push(`/common/salaries`);
             // history.push(`/common/crew`);   
             // history.push(`/common/configuration`);
@@ -80,10 +80,10 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
               // history.push(`/${actualRole}/exchange`);
               // history.push(`/${actualRole}/account-settings`);
               // history.push(`/common/withdraw`);
-              // history.push(`/${actualRole}/dashboard`);
+              history.push(`/${actualRole}/dashboard`);
               // history.push(`/common/deposit`);
               // history.push(`/${actualRole}/extrato`);
-              history.push(`/common/send`);
+              // history.push(`/common/send`);
           }
           
         }

@@ -21,6 +21,26 @@ import {formItemLayout,tailFormItemLayout } from '@app/utils/utils';
 
 const { Paragraph, Text } = Typography;
 
+const DEFAULT_PROVIDER = {
+  name:        '',
+  cnpj:        '',
+  email:            '',
+  phone:            '',
+  address:          { 
+                      street:  '', 
+                      city:    '', 
+                      state:   '', 
+                      zip:     '', 
+                      country: ''
+                    },
+  category:    '',
+  products_services:    '',
+  bank_account:     {  
+                      bank_name:    '',
+                      agency:    '',
+                      cc:    ''
+                    }
+};
 
 class CreateProvider extends Component {
   constructor(props) {
@@ -35,24 +55,7 @@ class CreateProvider extends Component {
       error:        {},
       
       provider:{
-            name:        '',
-            cnpj:        '',
-            email:            '',
-            phone:            '',
-            address:          { 
-                                street:  '', 
-                                city:    '', 
-                                state:   '', 
-                                zip:     '', 
-                                country: ''
-                              },
-            category:    '',
-            products_services:    '',
-            bank_account:     {  
-                                bank_name:    '',
-                                agency:    '',
-                                cc:    ''
-                              }
+            ...DEFAULT_PROVIDER
           }
 
     };
@@ -84,26 +87,9 @@ class CreateProvider extends Component {
   resetForm(){
     this.setState({
       provider: {
-        name:             '',
-        cnpj:             '',
-        email:            '',
-        phone:            '',
-        address:          { 
-                            street:  '',
-                            city:    '',
-                            state:   '',
-                            zip:     '',
-                            country: ''
-                          },
-        category:         '',
-        products_services:    '',
-        bank_account:     {  
-                            bank_name:    '',
-                            agency:       '',
-                            cc:           ''
-                          }}
+        ...DEFAULT_PROVIDER
       }
-    );    
+    });    
   }
 
   resetFormAndResult(){
@@ -126,7 +112,7 @@ class CreateProvider extends Component {
 
   backToProviders = async () => {
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/providers`
+      pathname: `/common/providers`
     })
   }
 
@@ -150,8 +136,8 @@ class CreateProvider extends Component {
 
   doCreateProvider(){
     const {name, cnpj, email, phone, address, category, products_services, bank_account} = this.state.provider;
-    // guarda
-    api.bank.createOrUpdateProvider(undefined, name, cnpj, email, phone, address, category, products_services, [bank_account])
+    const account_name = this.props.actualAccountName;
+    api.bank.createOrUpdateProvider(undefined, name, cnpj, email, phone, address, category, products_services, [bank_account], account_name)
     .then((res)=>{
       console.log(' >> doCreateProvider >> ', JSON.stringify(res));
       this.setState({result:'ok'});
@@ -290,31 +276,31 @@ class CreateProvider extends Component {
                 <h3 className="fileds_header">ADDRESS</h3>
                 <Form.Item label="Street" extra="Street and Number, Apt, Suite, Unit, Building">
                   {getFieldDecorator('address.street', {
-                    rules: [{ required: true, message: 'Please input Street!' }],
+                    rules: [{ required: false, message: 'Please input Street!' }],
                     initialValue: address.street
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>
                 <Form.Item label="City">
                   {getFieldDecorator('address.city', {
-                    rules: [{ required: true, message: 'Please input City!' }],
+                    rules: [{ required: false, message: 'Please input City!' }],
                     initialValue: address.city
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>
                 <Form.Item label="State/Province">
                   {getFieldDecorator('address.state', {
-                    rules: [{ required: true, message: 'Please input State/Province!' }],
+                    rules: [{ required: false, message: 'Please input State/Province!' }],
                     initialValue: address.state
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>
                 <Form.Item label="Zip / Postal Code">
                   {getFieldDecorator('address.zip', {
-                    rules: [{ required: true, message: 'Please input Zip/Postal code!' }],
+                    rules: [{ required: false, message: 'Please input Zip/Postal code!' }],
                     initialValue: address.zip
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>
                 <Form.Item label="Country">
                   {getFieldDecorator('address.country', {
-                    rules: [{ required: true, message: 'Please input State/Province!' }],
+                    rules: [{ required: false, message: 'Please input State/Province!' }],
                     initialValue: address.country
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>

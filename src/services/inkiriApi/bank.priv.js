@@ -589,20 +589,21 @@ export const listProviders = (name, cnpj, page, limit) =>   new Promise((res,rej
 
 });
 
-export const createOrUpdateProvider = (providerId, name, cnpj, email, phone, address, category, products_services, bank_accounts) =>   new Promise((res,rej)=> {  
+export const createOrUpdateProvider = (providerId, name, cnpj, email, phone, address, category, products_services, bank_accounts, account_name) =>   new Promise((res,rej)=> {  
 
   const postfix = providerId ? `/providers/${providerId}` : '/providers';
   const path    = globalCfg.api.endpoint + postfix;
   const method  = providerId?'PATCH':'POST';
   const post_params = {
-          name: name
-          , cnpj: cnpj
-          , email: email
-          , phone: phone
-          , address: address
-          , category: category
-          , products_services: products_services
-          , bank_accounts: bank_accounts
+          name:                 name
+          , cnpj:               cnpj
+          , email:              email
+          , phone:              phone
+          , address:            address
+          , category:           category
+          , products_services:  products_services
+          , bank_accounts:      bank_accounts
+          , account_name:       account_name
         };
   console.log(' inkiriApi::createProvider >> ABOUT TO POST', JSON.stringify(post_params));
   auth()
