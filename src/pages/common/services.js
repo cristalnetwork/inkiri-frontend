@@ -118,7 +118,7 @@ class Services extends Component {
     const {events} = columns_helper;
     switch(event){
       case events.VIEW:
-        console.log(event)
+        this.openNotificationWithIcon("warning", "Not implemented yet");    
         break;
       case events.REMOVE:
         break;
@@ -127,13 +127,14 @@ class Services extends Component {
         this.onEditService(service);
         break;
       case events.DISABLE:
+        this.openNotificationWithIcon("warning", "Not implemented yet");    
         this.onDisableService(service);
         break;
       case events.CHILDREN:
-
+        this.openNotificationWithIcon("warning", "Not implemented yet");    
         break;
       case events.NEW_CHILD:
-        
+        this.openNotificationWithIcon("warning", "Not implemented yet");    
         break;
     }
     return;

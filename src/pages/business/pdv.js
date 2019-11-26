@@ -402,7 +402,7 @@ class PDV extends Component {
       accounts = await api.getKeyAccounts(public_key);
       console.log('accounts=>', accounts)
     } catch (e) {
-      this.openNotificationWithIcon("error", 'Wrong password.", "Please verify password and try again. Message: '+ JSON.stringify(e));
+      this.openNotificationWithIcon("error", "Wrong password.", "Please verify password and try again. Message: "+ JSON.stringify(e));
       this.setState({pushingTx:false});
       return;
     }
