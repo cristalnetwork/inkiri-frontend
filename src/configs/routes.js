@@ -23,19 +23,17 @@ export const pathNames = utils.arrToObj([
     'bankadminAccounts_CreateAccount',
     'bankadminProfiles',
     'bankadminProfiles_Profile',
-    'bankadminProviders',
-    'bankadminProviders_CreateProvider',
-    'bankadminProviders_ProviderProfile',
+    
     'bankadminPDA',
     'bankadminPDA_ProcessRequest',
     'bankadminStaff',
+    
     'businessExtracto',
     'businessDeposit',
     'businessPDV',
     'businessPaymentsAndServices',
     'businessProvidersPayments',
     'businessProvidersPayments_Request',
-    
     'businessUnderConstruction',
 
     'commonRequestDetails',
@@ -49,7 +47,10 @@ export const pathNames = utils.arrToObj([
     'commonServices',
     'commonContractedServices',
     'commonRequestMoney',
-    
+    'commonProviders',
+    'commonProviders_CreateProvider',
+    'commonProviders_ProviderProfile',
+
     'dashboard'
 ])
 
@@ -210,32 +211,6 @@ const bankadmin = [
        path:        'profile',
        container:   'dashboard',
        role:        'bankadmin'
-    },
-    {
-       key: pathNames.bankadminProviders,
-       fileName: 'providers',
-       area: 'bankadmin',
-       path: 'providers',
-       container: 'dashboard',
-       role: 'bankadmin'
-    },
-    {
-       key:          pathNames.bankadminProviders_CreateProvider,
-       father_key :  '*',
-       fileName:     'createProvider',
-       area:         'bankadmin',
-       path:         'create-provider',
-       container:    'dashboard',
-       role:         'bankadmin'
-    },
-    {
-       key: pathNames.bankadminProviders_ProviderProfile,
-       father_key : '*',
-       fileName: 'provider',
-       area: 'bankadmin',
-       path: 'provider-profile',
-       container: 'dashboard',
-       role: 'bankadmin'
     },
     {
        key: pathNames.bankadminPDA,
@@ -402,14 +377,39 @@ const common = [
      role:       '*'
    },
    {
-     key:        pathNames.commonContractedServices,
-     fileName:  'contracted-services',
-     area:      'common',
-     path:      'contracted-services',
-     container: 'dashboard',
-     role:       '*'
+     key:            pathNames.commonContractedServices,
+     fileName:       'contracted-services',
+     area:           'common',
+     path:           'contracted-services',
+     container:      'dashboard',
+     role:           '*'
    },
-
+   {
+       key:          pathNames.commonProviders,
+       fileName:     'providers',
+       area:         'common',
+       path:         'providers',
+       container:    'dashboard',
+       role:         '*'
+    },
+    {
+       key:          pathNames.commonProviders_CreateProvider,
+       father_key :  '*',
+       fileName:     'createProvider',
+       area:         'common',
+       path:         'create-provider',
+       container:    'dashboard',
+       role:         '*'
+    },
+    {
+       key:          pathNames.commonProviders_ProviderProfile,
+       father_key :  '*',
+       fileName:     'provider',
+       area:         'common',
+       path:         'provider-profile',
+       container:    'dashboard',
+       role:         '*'
+    },
 ];
 
 

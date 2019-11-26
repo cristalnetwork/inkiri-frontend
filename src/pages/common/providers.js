@@ -74,7 +74,7 @@ class Providers extends Component {
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/create-provider`
+      pathname: `/common/create-provider`
       , state: { 
           referrer: this.props.location.pathname
         }
@@ -85,7 +85,7 @@ class Providers extends Component {
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/provider-profile`
+      pathname: `/common/provider-profile`
       , state: { 
           provider: provider
           , referrer: this.props.location.pathname

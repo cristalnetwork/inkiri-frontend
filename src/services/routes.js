@@ -133,8 +133,8 @@ const routes  = {
                         title: 'Profiles',
                     },
                     {
-                        key: routes_config.pathNames.bankadminProviders,
-                        path: routes_config.pathNames.bankadminProviders,
+                        key: routes_config.pathNames.commonProviders,
+                        path: routes_config.pathNames.commonProviders,
                         title: 'Providers',
                     },
                     {
@@ -258,10 +258,21 @@ const routes  = {
                 ]
             },
             {
-                key: routes_config.pathNames.commonConfiguration,
-                path: routes_config.pathNames.commonConfiguration,
-                title: 'Configuration',
+                key: 'biz_config',
+                title: 'Settings',
                 icon: 'setting',
+                items:[
+                    {
+                        key: routes_config.pathNames.commonConfiguration,
+                        path: routes_config.pathNames.commonConfiguration,
+                        title: 'Configuration',
+                    },
+                    {
+                        key: routes_config.pathNames.commonProviders,
+                        path: routes_config.pathNames.commonProviders,
+                        title: 'Providers',
+                    }
+                ]
             }
         ]
     }
