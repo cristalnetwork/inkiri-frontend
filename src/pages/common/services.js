@@ -80,60 +80,60 @@ class Services extends Component {
     this.setState({active_view:STATE_NEW_SERVICE})
   }
 
-  onEditMember = (member) => {
+  onEditService = (service) => {
     
     // this.openNotificationWithIcon("warning", "Not implemented yet");    
-    this.setState({active_view: STATE_EDIT_SERVICE, active_view_object:member})
+    this.setState({active_view: STATE_EDIT_SERVICE, active_view_object:service})
   }
 
-  onRemoveMember = (member) => {
-    const that           = this;
-    Modal.confirm({
-      title: 'Confirm delete member.',
-      content: (<p>You are about to remove <b>{member.member.account_name}</b> from the crew. Continue or cancel.</p>),
-      onOk() {
-        const {team}         = that.state;
-        if(!team)
-        {
-          that.setState({pushingTx:false})
-          that.openNotificationWithIcon('error', 'There was an error. We cant get the team id. Please reload page.');
-          return;
-        }
-        const teamId         = team?team.id:null;
-        const account_name   = that.props.actualAccountName;
-        const members = team.members.filter(item => item._id!=member._id)
-        that.setState({pushingTx:true})
-        api.bank.createOrUpdateTeam(teamId, account_name, members)
-          .then((res)=>{
-            that.openNotificationWithIcon("success", "Member removed from team successfully!")    
-            that.loadTeam();
-            that.resetPage(STATE_LIST_SERVICES);
-          }, (err)=>{
-            console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
-            that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
-            that.setState({pushingTx:false});
-          })
-     
-      },
-      onCancel() {
+   onDisableService = (service) => {
+    // const that           = this;
+    // Modal.confirm({
+    //   title: 'Confirm disable member.',
+    //   content: (<p>You are about to disable <b>{service.title}</b>. Continue or cancel.</p>),
+    //   onOk() {
         
-      },
-    });
+    //     const account_name   = that.props.actualAccountName;
+    //     that.setState({pushingTx:true})
+    //     api.bank.createOrUpdateService(service._id, account_name, undefined, undefined, undefined, )
+    //       .then((res)=>{
+    //         that.openNotificationWithIcon("success", "Member removed from team successfully!")    
+    //         that.loadTeam();
+    //         that.resetPage(STATE_LIST_SERVICES);
+    //       }, (err)=>{
+    //         console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
+    //         that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
+    //         that.setState({pushingTx:false});
+    //       })
+     
+    //   },
+    //   onCancel() {
+        
+    //   },
+    // });
 
   }
 
-  onServicesListCallback(member, event){
-
+  onServicesListCallback(service, event){
+    const {events} = columns_helper;
     switch(event){
-      case columns_helper.events.VIEW:
+      case events.VIEW:
         console.log(event)
         break;
-      case columns_helper.events.REMOVE:
-        this.onRemoveMember(member);
+      case events.REMOVE:
         break;
-      case columns_helper.events.EDIT:
+      case events.EDIT:
         // console.log(event)
-        this.onEditMember(member);
+        this.onEditService(service);
+        break;
+      case events.DISABLE:
+        this.onDisableService(service);
+        break;
+      case events.CHILDREN:
+
+        break;
+      case events.NEW_CHILD:
+        
         break;
     }
     return;
@@ -141,14 +141,13 @@ class Services extends Component {
   }
 
   serviceFormCallback = async (error, cancel, values) => {
-    // console.log(` ## serviceFormCallback(error:${error}, cancel:${cancel}, values:${values})`)
-    // console.log(' serviceFormCallback:', JSON.stringify(values))
     
     if(cancel)
     {
-      this.setState({active_view:STATE_LIST_SERVICES})
+      this.setState({active_view:STATE_LIST_SERVICES});
       return;
     }
+
     if(error)
     {
       return;
@@ -161,7 +160,7 @@ class Services extends Component {
     const account_name   = this.props.actualAccountName;
     this.setState({pushingTx:true})
     
-    api.bank.createOrUpdateService((values._id || undefined), account_name, values.title, values.description, values.input_amount.value, values.state)
+    api.bank.createOrUpdateService((values._id || undefined), account_name, values.title, values.description, values.input_amount.value, undefined)
       .then((res)=>{
         that.openNotificationWithIcon("success", "Service saved successfully!")    
         that.reloadServices();
@@ -256,7 +255,7 @@ class Services extends Component {
                   can_get_more:(has_received_new_data && services.length==this.state.limit), 
                   loading:false})
 
-    if(!has_received_new_data)
+    if(!has_received_new_data && _services && _services.length>0)
     {
       this.openNotificationWithIcon("info", "End of services list")
     }

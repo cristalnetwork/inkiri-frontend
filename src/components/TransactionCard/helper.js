@@ -107,13 +107,17 @@ export const getTypeConf = () => {
       [globalCfg.api.TYPE_IUGU]        : {icon:'credit-card',  rotation: 0,  color:{primary: '#A115FF' /*violeta*/       , secondary:'#e2c3f7'}, style: {}},
       [globalCfg.api.TYPE_REFUND]      : {icon:'credit-card',  rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/       , secondary:'#b1ecfa'}, style: {}},
       [globalCfg.api.TYPE_UPSERT]      : {icon:'magic',        rotation: 0,  color:{primary: '#FFC106' /*amarillorange*/ , secondary:'#f7e9bc'}, style: {}},
-      [globalCfg.api.TYPE_UNKNOWN]     : {icon:'credit-card',  rotation: 0,  color:{primary: '#FF0619' /*rojo*/          , secondary:'#f7c6ca'}, style: {}}
+      [globalCfg.api.TYPE_UNKNOWN]     : {icon:'credit-card',  rotation: 0,  color:{primary: '#FF0619' /*rojo*/          , secondary:'#f7c6ca'}, style: {}},
+      'hack_service'                   : {icon:'shapes',       rotation: 0,  color:{primary: '#EBCE54' /*yellow*/        , secondary:'rgba(235, 205, 86, 0.4)'}, style: {}}
   }
 }
 //
 export const getCircledTypeIcon = (request) => {
   
-  const my_icon = getTypeConf()[request.requested_type]; 
+  if(typeof request !== 'string')
+    request = request.requested_type  
+
+  const my_icon = getTypeConf()[request]; 
   
   const className = 'ui-avatar__content circled_action_type flex_center';
   const style     = {border: `0.0625em solid ${my_icon.color.primary}` , background: `${my_icon.color.secondary}`}

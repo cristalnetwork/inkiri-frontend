@@ -15,7 +15,7 @@ import { getRootKeys } from '@app/services/routes'
 const  { SubMenu } = Menu;
 
 const renderItem = (item) => {
-    // console.log(' renderItem => ', item.key)
+    // console.log(' renderItem => ', item.title, item.key)
     if(item.items) {
         return (
         <SubMenu title={<span>{ item.icon? <Icon type={item.icon} />: false }<span>{item.title}</span></span>} key={item.key}>

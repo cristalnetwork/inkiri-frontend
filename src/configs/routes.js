@@ -48,7 +48,8 @@ export const pathNames = utils.arrToObj([
     'commonSalaries',
     'commonServices',
     'commonContractedServices',
-
+    'commonRequestMoney',
+    
     'dashboard'
 ])
 

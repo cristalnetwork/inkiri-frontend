@@ -111,19 +111,10 @@ class ServiceForm extends Component {
         return;
       }
       const {service} = this.state;
-      // if(!service)
-      // {
-      //   const exists = this.props.accounts.filter( account => account.key==values.service);
-      //   if(!exists || exists.length==0)
-      //   {
-      //     this.openNotificationWithIcon("error", 'Please select an account from the list.');
-      //     return;
-      //   }
-      // }
-
+      
       const editing = (service!=null);
       let my_service = (editing)
-        ? { ...values, service:service.service._id, _id:service._id}
+        ? { ...values, _id:service._id}
         : { ...values };
 
       this.fireEvent(null, null, my_service);
@@ -266,7 +257,7 @@ class ServiceForm extends Component {
     const { getFieldDecorator }     = this.props.form;
     const { input_amount, service } = this.state;
     
-    const state_item                = this.renderServiceState();
+    const state_item                = (null); //this.renderServiceState();
     const button_text               = service?'MODIFY SERVICE':'ADD SERVICE';
     return (
           

@@ -8,9 +8,12 @@ import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 
 export const events = {
-    VIEW : 'event_view',
-    EDIT : 'event_edit',
-    REMOVE : 'event_remove'
+    VIEW :        'event_view',
+    EDIT :        'event_edit',
+    REMOVE :      'event_remove',
+    DISABLE :     'event_disable',
+    CHILDREN :    'event_children',
+    NEW_CHILD :   'event_new_child'
 }
 
 export const columnsForPDA           = (callback) => getColumns(callback);
@@ -810,26 +813,33 @@ export const columnsForServices = (callback, services_states) => {
       if(!services_states)
         return state;
       const the_state = services_states.find(st => st.key==state);
-      if(!the_state||the_state.length<=0)
+      if(!the_state)
         return state;
-      return the_state[0].title;
+      return the_state.title;
     }
     return [
       {
         title: 'Service',
         dataIndex: 'title',
         key: 'title',
+        width:'40%',
         render: (title, record) => {
-          return(
-            <span className="name_value_row">
-              <div className="row_name centered" >
-                
+          
+            return (<span className="name_value_row">
+            <div className="row_name centered" >
+              <div className="ui-row__col ui-row__col--heading">
+                  <div className="ui-avatar">
+                    {request_helper.getCircledTypeIcon('hack_service')} 
+                  </div>
               </div>
-              <div className="row_value wider">
-                <span className="row_tx_description">{record.title}</span> 
-                <br/>{record.description} 
-              </div>   
-            </span>)
+            </div>
+            <div className="row_value wider">
+              <span className="row_tx_description">{record.title}</span> 
+               <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
+                 {record.description}
+               </div>
+            </div>   
+          </span>)
         }
       },
       {
@@ -858,9 +868,14 @@ export const columnsForServices = (callback, services_states) => {
         key: 'action',        
         align: 'right',
         render: (text, record) => {
-          const edit    = (<Button key={'edit_'+record._id}                    onClick={()=>{ callback(record, events.EDIT) }} icon="edit" size="small">Edit</Button>);
-          const _delete = (<Button key={'details_'+record._id} type="link"     onClick={()=>{ callback(record, events.REMOVE) }} icon="delete" size="small">Delete</Button>);
-          return (<>{edit}&nbsp;{_delete}</>)
+          const style     = {marginTop:6};
+          const edit      = (<Button key={'edit_'+record._id}        onClick={()=>{ callback(record, events.EDIT) }}      icon="edit" size="small">Edit</Button>);
+          const children  = (<Button style={style} key={'children_'+record._id}    onClick={()=>{ callback(record, events.CHILDREN) }}  icon="reconciliation" size="small">Contracts</Button>);
+          const new_child = (<Button style={style} key={'new_child_'+record._id}   onClick={()=>{ callback(record, events.NEW_CHILD) }} icon="plus" size="small">Contract</Button>);
+          
+          return (<>{edit}<br/>{children}<br/>{new_child}</>);
+          // const _disable = (<Button key={'details_'+record._id} type="link"     onClick={()=>{ callback(record, events.DISABLE) }} icon="pause-circle" size="small">Disable</Button>);
+          // return (<>{edit}&nbsp;{_disable}</>)
         }
       }
     ];
