@@ -427,31 +427,31 @@ class Provider extends Component {
                 <h3 className="fileds_header">ADDRESS</h3>
                 <Form.Item label="Street" extra="Street and Number, Apt, Suite, Unit, Building">
                   {getFieldDecorator('address.street', {
-                    rules: [{ required: true, message: 'Please input Street!' }],
+                    rules: [{ required: false, message: 'Please input Street!' }],
                     initialValue: address.street
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>
                 <Form.Item label="City">
                   {getFieldDecorator('address.city', {
-                    rules: [{ required: true, message: 'Please input City!' }],
+                    rules: [{ required: false, message: 'Please input City!' }],
                     initialValue: address.city
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>
                 <Form.Item label="State/Province">
                   {getFieldDecorator('address.state', {
-                    rules: [{ required: true, message: 'Please input State/Province!' }],
+                    rules: [{ required: false, message: 'Please input State/Province!' }],
                     initialValue: address.state
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>
                 <Form.Item label="Zip / Postal Code">
                   {getFieldDecorator('address.zip', {
-                    rules: [{ required: true, message: 'Please input Zip/Postal code!' }],
+                    rules: [{ required: false, message: 'Please input Zip/Postal code!' }],
                     initialValue: address.zip
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>
                 <Form.Item label="Country">
                   {getFieldDecorator('address.country', {
-                    rules: [{ required: true, message: 'Please input State/Province!' }],
+                    rules: [{ required: false, message: 'Please input State/Province!' }],
                     initialValue: address.country
                   })(<Input style={{ width: '100%' }} />)}
                 </Form.Item>

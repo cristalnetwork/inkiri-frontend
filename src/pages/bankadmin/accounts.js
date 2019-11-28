@@ -155,21 +155,30 @@ class AdminAccounts extends Component {
           that.setState({loading:false});  
         }
 
-        if(!values[0])
+        if(!values)
+        {
+          this.openNotificationWithIcon("error", "Can NOT load accounts' balances neither accounts' balances.");
+          // return;
+        }
+
+        if(values && !values[0])
         {
           this.openNotificationWithIcon("error", "Can NOT load accounts' balances");
         }
-        if(!values[1])
+
+        if(values && !values[1])
         {
           this.openNotificationWithIcon("error", "Can NOT load accounts' aliases");
         }
 
-        const _balances = _.reduce(values[0], function(result, value, key) {
+        const __balances = (values&&values.length>0)?values[0]:[];
+        const _balances  = _.reduce(__balances, function(result, value, key) {
           result[value.account] = value.balance;
           return result;
         }, {});
         
-        const _aliases  = _.reduce(values[1], function(result, value, key) {
+        const __aliases = (values&&values.length>1)?values[1]:[];
+        const _aliases  = _.reduce(__aliases, function(result, value, key) {
           result[value.account_name] = value.alias;
           return result;
         }, {});
@@ -177,24 +186,7 @@ class AdminAccounts extends Component {
         const _data = res.data.accounts.map(acc => {return{...acc, balance:_balances[acc.key] , alias:_aliases[acc.key]}})
         
         that.onNewData({accounts:_data, more:res.data.more});
-
-        // api.dfuse.getAccountsBalances(res.data.accounts.map(acc=>acc.key))
-        //   .then( (balances) => {
-        //     console.log(' >> balances >> ', balances)
-        //     const _balances = _.reduce(balances, function(result, value, key) {
-        //         result[value.account] = value.balance;
-        //         return result;
-        //       }, {});
-        //     const _data = res.data.accounts.map(acc => {return{...acc, balance:_balances[acc.key] }})
-        //     console.log(JSON.stringify(_data))
-        //     // that.onNewData(res.data);
-        //     that.onNewData({accounts:_data, more:res.data.more});
-        //   } ,(ex2) => {
-        //     console.log(' dfuse.getAccountsBalances ERROR#2', JSON.stringify(ex2) )
-        //     that.setState({loading:false});  
-        //   });      
         
-
       } ,(ex) => {
         console.log(' dfuse.getAccountsBalances ERROR#1', JSON.stringify(ex) )
         that.setState({loading:false});  

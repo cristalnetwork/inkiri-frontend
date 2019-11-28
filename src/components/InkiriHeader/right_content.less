@@ -1,18 +1,39 @@
 @import '~antd/es/style/themes/default.less';
+@global-header-prefix-cls: ~'@{ant-prefix}-pro-global-header';
 
-@pro-header-hover-bg: rgba(0, 0, 0, 0.025);
+@pro-header-bg: @component-background;
+@pro-header-hover-bg: @component-background;
+@pro-header-box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
 
 .logo {
   display: inline-block;
   height: @layout-header-height;
+  line-height: @layout-header-height;
   padding: 0 0 0 24px;
   font-size: 20px;
-  line-height: @layout-header-height;
+  
   vertical-align: top;
   cursor: pointer;
   
   width:100%;
   border-bottom: 1px #f0f2f5 solid;
+
+  &.logo_mobile{
+    padding-top:10px;
+    height: 130px;
+    line-height: 130px;
+    display:flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column!important;
+    .accountSelector{
+      height: 50px;
+      line-height: 50px;
+    }
+    a{
+      height:60px;
+    }
+  }  
 
   a{
     color:inherit;

@@ -19,10 +19,6 @@ export {dfuse};
 export {bank};
 export {jwt};
 
-function formatAmount(amount){
-  return Number(amount).toFixed(4) + ' ' + globalCfg.currency.eos_symbol;
-}
-
 function prettyJson(input){
   return JSON.stringify(input, null, 2)
 }
@@ -40,7 +36,7 @@ const listAllBankAccounts = async () => {
     json:           true                 
     , code:         globalCfg.bank.issuer
     , scope:        globalCfg.bank.issuer
-    , table:        globalCfg.bank.table_accounts
+    , table:        globalCfg.bank.table_customers
     , limit:        1000
     , reverse:      false
     , show_payer :  false
@@ -65,7 +61,7 @@ export const findBankAccount = async (account_name) => {
     json:           true                 
     , code:         globalCfg.bank.issuer
     , scope:        globalCfg.bank.issuer
-    , table:        globalCfg.bank.table_accounts
+    , table:        globalCfg.bank.table_customers
     , lower_bound:  account_name
     , upper_bound:  account_name
     , limit:        1
@@ -169,6 +165,9 @@ const pushTX = async (tx, privatekey) => {
     signatureProvider
   })
   const my_actions = Array.isArray(tx)?tx:[tx];
+  
+  console.log(' -- inkiriApi::pushTX::tx = ', my_actions, JSON.stringify(my_actions));
+
   try {
 	  const result = await api.transact(
 	    { actions: my_actions },
@@ -189,6 +188,8 @@ const pushTX = async (tx, privatekey) => {
 
 export const createAccount = async (creator_priv, new_account_name, new_account_public_key, account_type, fee, overdraft, permissions) => { 
 
+  const fee_string       = globalCfg.currency.toEOSNumber(fee);
+  const overdraft_string = globalCfg.currency.toEOSNumber(overdraft);
   let actions = [];
   let newAccountAction = 
     {
@@ -292,8 +293,8 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
     data: {
       from: globalCfg.bank.issuer,
       receiver: new_account_name,
-      stake_net_quantity: '1.0000 EOS',
-      stake_cpu_quantity: '1.0000 EOS',
+      stake_net_quantity: '0.2500 EOS',
+      stake_cpu_quantity: '0.2500 EOS',
       transfer: false,
     }
   }
@@ -301,15 +302,15 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
 
   const createBankAccountAction = {
     account: globalCfg.bank.issuer,
-    name: 'upsertikacc',
+    name: globalCfg.bank.table_customers_action,
     authorization: [{
       actor:       globalCfg.bank.issuer,
       permission:  'active',
     }],
     data: {
-      user            : new_account_name
-      , fee           : fee
-      , overdraft     : overdraft
+      account         : new_account_name
+      , fee           : fee_string
+      , overdraft     : overdraft_string
       , account_type  : account_type
       , state         : 1
     },
@@ -329,7 +330,7 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
   //     ],
   //     data: {
   //       to: new_account_name,
-  //       quantity: formatAmount(overdraft),
+  //       quantity: globalCfg.currency.toEOSNumber(overdraft),
   //       memo: ('oft|create')
   //     }
   //   }
@@ -364,7 +365,7 @@ export const transferMoney          = async (sender_account, sender_priv, receiv
     data: {
       from: sender_account,
       to: receiver_account,
-      quantity: formatAmount(amount),
+      quantity: globalCfg.currency.toEOSNumber(amount),
       memo: memo
     }
   }
@@ -392,7 +393,7 @@ export const paySalaries = async(sender_account, sender_priv, to_amount_array, r
         data: {
           from:       sender_account,
           to:         payment.account_name,
-          quantity:   formatAmount(payment.amount),
+          quantity:   globalCfg.currency.toEOSNumber(payment.amount),
           memo:       memo
         }
       }
@@ -425,7 +426,7 @@ export const issueMoney = async (issuer_account, issuer_priv, receiver_account, 
     ],
     data: {
       to: receiver_account,
-      quantity: formatAmount(amount),
+      quantity: globalCfg.currency.toEOSNumber(amount),
       memo: memo||''
     }
   }

@@ -16,11 +16,21 @@ const AccountSelector = ({allAccounts, actualAccountName, currentAccount, onChan
       const account_type       = account_item.permissioner.account_type_description.toUpperCase();
       const account_name       = account_item.permissioner.account_name;
       const account_permission = account_item.permission.replace('active', 'gestor').toUpperCase(); 
-      // return `${account_name} - Conta ${account_type} [${account_permission}] `
-      // return `${account_name}[${account_type}]${account_permission} `
+      
       return (<><span className="bold">{account_permission}</span><span>@</span><span className="bold">{account_name}</span><span>.{account_type}</span></>)
     }
-
+    
+    //
+    const getDisplayAccountDataMini = (account_item) => {
+      if(!account_item)
+        return 'NA';
+      const account_type       = account_item.permissioner.account_type_description.toUpperCase();
+      const account_name       = account_item.permissioner.account_name;
+      const account_permission = account_item.permission.replace('active', 'gestor').toUpperCase(); 
+      
+      return (<><span className="bold">{account_permission}</span><span>@</span> <span className="bold">{account_name}</span> </>)
+    }
+    //
     const getIconForAccountType = (account_item) => {
       if(!account_item)
         return 'loading';
@@ -69,11 +79,15 @@ const AccountSelector = ({allAccounts, actualAccountName, currentAccount, onChan
       </Dropdown>)
     
 
-    return (<>
-        <Dropdown.Button overlay={getOptions()} trigger={['click']} className="accountSelector"  placement="bottomRight" >
-          <Icon type={getIconForAccountType(currentAccount)} /> 
-        </Dropdown.Button>
-        </>)
+    return (<Dropdown overlay={getOptions()} className="accountSelector"  placement="bottomRight" >
+        <Button size="small"><Icon type={getIconForAccountType(currentAccount)} /> {getDisplayAccountDataMini(currentAccount)}</Button>
+      </Dropdown>)
+
+    // return (<>
+    //     <Dropdown.Button overlay={getOptions()} trigger={['click']} className="accountSelector"  placement="bottomRight" >
+    //       <Icon type={getIconForAccountType(currentAccount)} /> 
+    //     </Dropdown.Button>
+    //     </>)
     
 
     

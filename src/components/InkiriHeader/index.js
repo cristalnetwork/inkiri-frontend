@@ -9,8 +9,8 @@ import UserBalance from './userBalance';
 import * as menuRedux from '@app/redux/models/menu'
 import * as loginRedux from '@app/redux/models/login'
 
-// import styles from './index.less';
-import styles_right from './right_content.less';
+// import './index.less';
+import './right_content.less';
 
 import AccountSelector from '@app/components/InkiriHeader/accountSelector';
 
@@ -59,7 +59,7 @@ class InkiriHeader extends Component {
           <img src="/favicons/favicon-32x32.png" alt="logo" />
         </a>
         <div className="right">
-          <AccountSelector onChange={this.handleChange} isMobile={isMobile}/>
+          <span>Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
           <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
         </div>
         </>
@@ -71,7 +71,7 @@ class InkiriHeader extends Component {
         <div className="right">
           <div className="header_element_container">
             <AccountSelector onChange={this.handleChange} isMobile={isMobile}/>
-             &nbsp; <span> Account Balance ({globalCfg.currency.symbol}) <UserBalance userId={this.props.actualAccountName} /> </span>
+             &nbsp; <span> Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
            <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.props.logout} size="small">Logout</Button>
           </div>
         </div>

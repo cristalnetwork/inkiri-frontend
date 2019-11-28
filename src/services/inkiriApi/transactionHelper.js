@@ -192,7 +192,7 @@ const KEY_TRANSFER_SND =  'transfer_'+MEMO_KEY_SND;
 const KEY_TRANSFER_PAY =  'transfer_'+MEMO_KEY_PAY;
 const KEY_TRANSFER_PAP =  'transfer_'+MEMO_KEY_PAP;
 const KEY_TRANSFER_SLR =  'transfer_'+MEMO_KEY_SLR;
-const KEY_UPSERT       =  'upsertikacc_';
+const KEY_UPSERT       =  globalCfg.bank.table_accounts+'_';
 
 const typesMap = {
   [KEY_ISSUE_DEP]     : globalCfg.api.TYPE_DEPOSIT,

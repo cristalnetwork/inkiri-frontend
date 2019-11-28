@@ -27,19 +27,26 @@ const currency = {
     if(isNaN(value))
       value = Number(value.replace(currency.eos_symbol, ''));
     return parseFloat(value);
+  },
+
+  toEOSNumber: (amount) => 
+  {
+    return Number(amount).toFixed(4) + ' ' + currency.eos_symbol;
   }
 };
 
 const bank = {
   contract:                "cristaltoken",
   issuer:                  "cristaltoken",
-  table_accounts:          "customer", // "ikaccounts"
+  table_customers:         "customer", // "ikaccounts"
+  table_customers_action:  "upsertcust", // "ikaccounts"
 
   exchange_account:        "cristaltoken",
   provider_account:        "cristaltoken",
   withdraw_account:        "cristaltoken",
   
-  customers:               'https://jungle.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100',
+  customers:               'https://jungle.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
+  
   ACCOUNT_TYPE_PERSONAL:   1,
   ACCOUNT_TYPE_BUSINESS:   2,
   ACCOUNT_TYPE_FOUNDATION: 3,
