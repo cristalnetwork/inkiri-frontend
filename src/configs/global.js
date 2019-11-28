@@ -4,8 +4,8 @@ const language   = "english";
 
 
 const currency = {
-  token:            "inkiritoken1",
-  issuer:           "inkiritoken1",
+  token:            "cristaltoken",
+  issuer:           "cristaltoken",
   name:             "INKIRI",
   symbol:           "IK$",
   eos_symbol:       "INK",
@@ -15,18 +15,31 @@ const currency = {
                     },
   asset_precision:  4,
 
-  toCurrencyString: (value) => { return currency.symbol + ' ' + parseFloat(isNaN(value)?0:value).toFixed(2) ; }
+  toCurrencyString: (value) => { 
+    const _value = currency.toNumber(value);
+    return currency.symbol + ' ' + _value.toFixed(2) ; 
+  },
+
+  toNumber: (value) => 
+  {
+    if(!value)
+      value=0;
+    if(isNaN(value))
+      value = Number(value.replace(currency.eos_symbol, ''));
+    return parseFloat(value);
+  }
 };
 
 const bank = {
-  contract:                "inkirimaster",
-  issuer:                  "inkirimaster",
+  contract:                "cristaltoken",
+  issuer:                  "cristaltoken",
+  table_accounts:          "customer", // "ikaccounts"
 
-  exchange_account:        "inkirimaster",
-  provider_account:        "inkirimaster",
-  withdraw_account:        "inkirimaster",
+  exchange_account:        "cristaltoken",
+  provider_account:        "cristaltoken",
+  withdraw_account:        "cristaltoken",
   
-  customers:               'https://jungle.bloks.io/account/inkirimaster?loadContract=true&tab=Tables&account=inkirimaster&scope=inkirimaster&limit=100',
+  customers:               'https://jungle.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100',
   ACCOUNT_TYPE_PERSONAL:   1,
   ACCOUNT_TYPE_BUSINESS:   2,
   ACCOUNT_TYPE_FOUNDATION: 3,

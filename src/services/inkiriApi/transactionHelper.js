@@ -27,7 +27,7 @@ export const toReadable = (account_name, transaction) => {
   const readable_transaction = buildHeadersMulti(account_name, operations[0].act)
   
   const total_Amount          = operations.reduce(function (accumulator, operation) {
-    return accumulator + getEOSQuantityToNumber(operation.act.data.quantity);
+    return accumulator + globalCfg.currency.toNumber(operation.act.data.quantity);
   }, 0);
   
 
@@ -136,9 +136,9 @@ const getRequestMetadata = (tx, tx_type) => {
   }
 }
 
-export const getEOSQuantityToNumber = (quantity) => { 
-	return !quantity?0:Number(quantity.replace(globalCfg.currency.eos_symbol, ''));
-}
+// export const getEOSQuantityToNumber = (quantity) => { 
+// 	return !quantity?0:Number(quantity.replace(globalCfg.currency.eos_symbol, ''));
+// }
 
 const getTxMemo = (tx) =>{
   return (tx.data && tx.data.memo)?tx.data.memo:''; 
@@ -148,7 +148,7 @@ const getTxMemoSplitted = (tx) =>{
 }
 
 function getTxQuantity(tx)             { return tx.data.quantity;}
-function getTxQuantityToNumber(tx)     { return getEOSQuantityToNumber(tx.data.quantity); }
+function getTxQuantityToNumber(tx)     { return globalCfg.currency.toNumber(tx.data.quantity); }
 function getTxName(tx)                 { return tx.name ; }
 function getTxCode(tx)                 { return getTxMemoSplitted(tx)[0]; }
 function getTxSubCode(tx)              { const memo = getTxMemoSplitted(tx); return (!memo||memo.length<1)?'':memo[1];}
@@ -317,5 +317,3 @@ function buildHeadersImpl(account_name, tx, i_sent, tx_type, multi){
             , sub_header_admin_ex: 'N/A'};
   }
 }
-
-// export { getTxMetadata, getEOSQuantityToNumber, getStateDescription, getAccountTypeDescription };

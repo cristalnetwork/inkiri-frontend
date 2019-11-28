@@ -2,23 +2,39 @@ import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import * as balanceRedux from '@app/redux/models/balance'
 import { bindActionCreators } from 'redux';
-import { Spin } from 'antd';
+import { Spin, Button } from 'antd';
 
 
 class UserBalance extends Component  {
     
+    constructor(props) {
+        super(props);
+        this.state = {
+          balance         : props.balance
+        }
+      }
+
     componentDidMount() {
-        const {userId, loadBalance} = this.props;
-        // console.log(' >> userBalance::componentDidMount userId: ', userId)
-        loadBalance(userId);
+        // const {userId, loadBalance} = this.props;
+        // // console.log(' >> userBalance::componentDidMount userId: ', userId)
+        // loadBalance(userId);
+        this.reloadBalance();
     }
 
     componentDidUpdate(prevProps, prevState) 
     {
-        const {userId, loadBalance} = this.props;
+        const {userId, balance, loadBalance} = this.props;
         if(prevProps.userId !== userId) {
             loadBalance(userId)
         }
+        if(prevProps.balance !== balance) {
+          this.setState({balance:balance})
+        }
+    }
+
+    reloadBalance = async() =>{
+      const {userId, loadBalance} = this.props;
+      loadBalance(userId);
     }
     // componentWillReceiveProps(newProps) {
     //     const {userId, loadBalance} = this.props;
@@ -28,12 +44,13 @@ class UserBalance extends Component  {
     // }
     
     render() {
-        const {userId, balance, loading} = this.props;
+        const {userId, loading} = this.props;
+        const {balance}         = this.state;
         // console.log(' >> userBalance::render userID: ', userId, ' | balance: ', balance)
         return (
         <>
             {
-                loading? <Spin size={'small'} />: <b>{balance}</b>
+                loading? <Spin size={'small'} />: <Button type="link" onClick={() => {this.reloadBalance()}}><b>{balance}</b></Button>
             }
         </>
         )

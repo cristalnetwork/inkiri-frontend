@@ -40,7 +40,7 @@ const listAllBankAccounts = async () => {
     json:           true                 
     , code:         globalCfg.bank.issuer
     , scope:        globalCfg.bank.issuer
-    , table:        'ikaccounts'        
+    , table:        globalCfg.bank.table_accounts
     , limit:        1000
     , reverse:      false
     , show_payer :  false
@@ -65,7 +65,7 @@ export const findBankAccount = async (account_name) => {
     json:           true                 
     , code:         globalCfg.bank.issuer
     , scope:        globalCfg.bank.issuer
-    , table:        'ikaccounts'        
+    , table:        globalCfg.bank.table_accounts
     , lower_bound:  account_name
     , upper_bound:  account_name
     , limit:        1
@@ -140,7 +140,7 @@ const getAccountBalanceImpl = async (account_name) => {
   // console.log(' ########## getAccountBalance:', JSON.stringify(response));
   // {"rows":[{"balance":"5498.0000 INK"}],"more":false}
   let res = {
-              balance:       (response && response.rows &&  response.rows.length)?txsHelper.getEOSQuantityToNumber(response.rows[0].balance):0,
+              balance:       (response && response.rows &&  response.rows.length)?globalCfg.currency.toNumber(response.rows[0].balance):0,
               balanceText:   (response && response.rows &&  response.rows.length)?response.rows[0].balance:0
             }
   return {data:res}
@@ -314,26 +314,26 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
       , state         : 1
     },
   }
-  // actions.push(createBankAccountAction)
+  
+  const issueAction = null;
   // This should be executed at the Smart Contract.
-
-  const issueAction = (overdraft>0)
-    ?{
-      account: globalCfg.currency.token,
-      name: "issue",
-      authorization: [
-        {
-          actor: globalCfg.currency.issuer,
-          permission: "active"
-        }
-      ],
-      data: {
-        to: new_account_name,
-        quantity: formatAmount(overdraft),
-        memo: ('oft|create')
-      }
-    }
-    :null;
+  // const issueAction = (overdraft>0)
+  //   ?{
+  //     account: globalCfg.currency.token,
+  //     name: "issue",
+  //     authorization: [
+  //       {
+  //         actor: globalCfg.currency.issuer,
+  //         permission: "active"
+  //       }
+  //     ],
+  //     data: {
+  //       to: new_account_name,
+  //       quantity: formatAmount(overdraft),
+  //       memo: ('oft|create')
+  //     }
+  //   }
+  //   :null;
   // 
 
   actions = [newAccountAction, buyRamAction, delegateBWAction, createBankAccountAction]
@@ -578,7 +578,7 @@ export const addPersonalBankAccount = async (auth_account, auth_priv, account_na
     viewer -> --
 
 
-    admin account - inkirimaster
+    admin account - inkirimaster|cristaltoken
     owner -> root
     active -> manager, --
         pda  -> --
@@ -590,7 +590,7 @@ export const addPersonalBankAccount = async (auth_account, auth_priv, account_na
         pdv -> can sell
         viewer -> can view
 
-    Token issuer account - inkiritoken1
+    Token issuer account - inkiritoken1|cristaltoken
         owner -> private_key
         active -> inkirimaster
 
@@ -763,18 +763,23 @@ export const login = async (account_name, private_key) => {
     // return; 
   }
 
-  if(!bank_auth&&need_creation)
+  if(!bank_auth)
   {
-    try{
-      let bank_create = await bank.createUser(account_name, globalCfg.bank.getAccountType(customer_info.account_type));
-      bank_auth = await bank.auth(account_name, private_key);
-    }
-    catch(ex){
-      console.log('inkiriApi::login ERROR#2 >> !', JSON.stringify(ex)) 
-      throw new Error('Account is not on private servers!'); 
-      return;
-    }
+    throw new Error('Account is not a bank customer!'); 
+    return;
   }
+  // if(!bank_auth&&need_creation)
+  // {
+  //   try{
+  //     let bank_create = await bank.createUser(account_name, globalCfg.bank.getAccountType(customer_info.account_type));
+  //     bank_auth = await bank.auth(account_name, private_key);
+  //   }
+  //   catch(ex){
+  //     console.log('inkiriApi::login ERROR#2 >> !', JSON.stringify(ex)) 
+  //     throw new Error('Account is not on private servers!'); 
+  //     return;
+  //   }
+  // }
    
   
   let profile = null;

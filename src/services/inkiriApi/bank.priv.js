@@ -86,7 +86,7 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
 
 
       } , (error) => {
-        console.log('---- RES:', JSON.stringify(error));
+        console.log('---- ERROR:', JSON.stringify(error));
         rej({error:error})
       });
     }, (ex) => {
@@ -341,24 +341,24 @@ export const getProfile = (account_name) =>   new Promise((res,rej)=> {
       });
 });
 
-export const createUser = (account_name, account_type) =>   new Promise((res,rej)=> {
+// export const createUser = (account_name, account_type) =>   new Promise((res,rej)=> {
   
-  const path    = globalCfg.api.endpoint + '/users';
-  const method  = 'POST';
-  const post_params = {
-          'account_name':  account_name
-          , 'account_type': account_type
-          , 'email':       `${account_name}@inkiri.com`
-        };
-  jwtHelper.apiCall(path, method, post_params)
-    .then((data) => {
-        // console.log(' inkiriApi::createUser >> RESPONSE', JSON.stringify(data))
-        res(data)
-      }, (ex) => {
-        // console.log(' inkiriApi::createUser >> ERROR ', JSON.stringify(ex))
-        rej(ex);
-      });
-});
+//   const path    = globalCfg.api.endpoint + '/users';
+//   const method  = 'POST';
+//   const post_params = {
+//           'account_name':  account_name
+//           , 'account_type': account_type
+//           , 'email':       `${account_name}@inkiri.com`
+//         };
+//   jwtHelper.apiCall(path, method, post_params)
+//     .then((data) => {
+//         // console.log(' inkiriApi::createUser >> RESPONSE', JSON.stringify(data))
+//         res(data)
+//       }, (ex) => {
+//         // console.log(' inkiriApi::createUser >> ERROR ', JSON.stringify(ex))
+//         rej(ex);
+//       });
+// });
 
 export const createOrUpdateUser = (id, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias, bank_accounts) =>   new Promise((res,rej)=> {  
 

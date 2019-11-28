@@ -760,7 +760,7 @@ class CreateAccount extends Component {
     if(current_step==2 && adding_new_perm)
     {
       const {active_tab_key} = this.state;
-      const account_name = 'inkirimaster';
+      const account_name = globalCfg.bank.issuer;
       content = (
         <Card 
           title={(<span>New Permission for <strong>{utils.capitalize(active_tab_key)} </strong> </span> )}

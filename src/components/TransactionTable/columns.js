@@ -441,10 +441,10 @@ export const columnsForAccounts = (callback) => {
           
           return (
             <span>
-              <Tag color={'geekblue'} key={record.key+fee}>
+              <Tag color={'geekblue'} key={Math.random()}>
                     FEE: {globalCfg.currency.toCurrencyString(fee)}
               </Tag>
-              <Tag color={'geekblue'} key={record.key+record.overdraft}>
+              <Tag color={'geekblue'} key={Math.random()}>
                     OVERDRAFT: {globalCfg.currency.toCurrencyString(record.overdraft)}
               </Tag>
             </span> 

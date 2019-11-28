@@ -107,7 +107,7 @@ export const getAccountsBalances = (account_names_array) => new Promise((res,rej
       
       jwtHelper.apiCall(path+query, method)
         .then((data) => {
-            res(data.tables.map(row=>{return{account:row.scope, balance:((row.rows&&row.rows.length>0)?txsHelper.getEOSQuantityToNumber(row.rows[0].json.balance):0)}} ) )
+            res(data.tables.map(row=>{return{account:row.scope, balance:((row.rows&&row.rows.length>0)?globalCfg.currency.toNumber(row.rows[0].json.balance):0)}} ) )
           }, (ex) => {
             rej(ex);
           });
@@ -133,7 +133,7 @@ export const getAccountBalance = (account) => new Promise((res,rej)=> {
       // console.log(' dfuse::getAccountBalance >> receive balance for account:', account, JSON.stringify(data));
       const _res = {
           data:{
-            balance:       data.rows.length?txsHelper.getEOSQuantityToNumber(data.rows[0].json.balance):0,
+            balance:       data.rows.length? globalCfg.currency.toNumber(data.rows[0].json.balance):0,
             balanceText:   data.rows.length?data.rows[0].json.balance:0
           }
         };
