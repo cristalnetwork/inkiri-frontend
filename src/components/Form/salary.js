@@ -17,19 +17,17 @@ import * as request_helper from '@app/components/TransactionCard/helper';
 import { Modal, List, Skeleton, notification, Select, Button , Form, Icon, InputNumber, Input, DatePicker } from 'antd';
 import InfiniteScroll from 'react-infinite-scroller';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import * as form_helper from '@app/components/Form/form_helper';
 
-//import moment from 'moment';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 import * as moment from 'moment';
-import 'moment/locale/pt-br';
-moment.locale('pt-BR');
-export const MONTH_FORMAT = 'YYYY/MM';
 
 class SalaryForm extends Component {
   constructor(props) {
     super(props);
     const last_month      = moment().subtract(1, "month").startOf("month");
-    const last_month_text = last_month.format('MMMM YYYY');
+    const last_month_text = last_month.format(form_helper.MONTH_FORMAT_HUMANIZED);
     this.state = {
       members         : props.members,
       callback        : props.callback,
@@ -90,7 +88,7 @@ class SalaryForm extends Component {
           that.fireEvent(null, null, values);
         },
         onCancel() {
-          
+          that.fireEvent(null, true, null);
         },
       });
 
@@ -110,70 +108,22 @@ class SalaryForm extends Component {
     // this.setState({...DEFAULT_STATE});
   }
 
-  
-  
-  getInputItem = (object, field, title, required_message, _type, readonly) => {
-    const { getFieldDecorator }    = this.props.form;
-    if(!_type) _type = 'string';
-    const _readonly=(readonly===true);
-    return (<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-              <Form.Item label={title}>
-                {getFieldDecorator(field, {
-                  rules: [{ type:_type, required: (required_message!==undefined?true:false), message: required_message, whitespace: true }],
-                  initialValue:object[field]||''
-                })(
-                  <Input className="money-transfer__input" placeholder={title} readOnly={_readonly}/>
-                )}
-              </Form.Item>
-            </div>);
-  }
-  getStringItem = (object, field, title, required_message, readonly) => {
-    return this.getInputItem(object, field, title, required_message, 'string', readonly);
-  }
-  getEmailItem = (object, field, title, required_message) => {
-    return this.getInputItem(object, field, title, required_message, 'email');
-  }
-  getDateItem = (object, field, title, required_message) => {
-    const { getFieldDecorator }    = this.props.form;
-    return (<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-              <Form.Item label={title}>
-                {getFieldDecorator(field, {
-                rules: [{ required: true, message: required_message }],
-                initialValue: moment(object[field])
-              })( <DatePicker style={{ width: '80%' }}/>)}
-              </Form.Item>
-            </div>);
-  }
 
-  getMonthItem = (object, field, title, required_message) => {
-    const { getFieldDecorator }    = this.props.form;
-    return (<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-              <Form.Item label={title}>
-                {getFieldDecorator(field, {
-                rules: [{ required: true, message: required_message }],
-                initialValue: moment(object[field])
-              })( <DatePicker.MonthPicker format={MONTH_FORMAT} style={{ width: '80%' }}/>)}
-              </Form.Item>
-            </div>);
-  }
-    
   fake = () => {}
 
   renderContent() {  
     const { members, job_positions, payment }   = this.state;
-    const { getFieldDecorator }                 = this.props.form;
-
+    const { form }                              = this.props;
+    
     const getJobPositionTitle = (position,  job_positions) => {
       const _position = job_positions?job_positions.filter(pos=>pos.key==position)[0].title:position;
       return _position;
     }
-
-    //{this.getStringItem(payment , 'total'        , 'TOTAL'                , null,                         true)}
     return (
         <Form onSubmit={this.handleSubmit} className="with_labels">
             <div className="money-transfer">
-              {this.getStringItem(payment , 'description'  , 'Payment Desciription' , 'Please input a description!')}
-              {this.getMonthItem(payment  , 'worked_month' , 'Worked Month'         , 'Please input a valid Date!')}
+              {form_helper.simple(form_helper.getStringItem(form, payment , 'description'  , 'Payment Desciription' , 'Please input a description!'))}
+              {form_helper.simple(form_helper.getMonthItem(form,  payment  , 'worked_month' , 'Worked Month'         , 'Please input a valid Date!'))}
               
               <br/><br/>
               <div className="c-header-detail__head u-clearfix">

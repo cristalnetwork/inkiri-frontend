@@ -285,7 +285,13 @@ class CreateAccount extends Component {
       ' | account_type:', account_type, 
       ' | permissions:', JSON.stringify(permissions));
 
-    api.createAccount(this.props.actualPrivateKey , account_name, generated_keys.pub_key, account_type, account_fee, account_overdraft, permissions)
+    api.createAccount(this.props.actualPrivateKey 
+                        , account_name
+                        , generated_keys.pub_key
+                        , account_type
+                        , account_fee
+                        , account_overdraft
+                        , permissions)
       .then((res)=>{
         console.log(' doCreateAccount() BLOCKCHAIN OK ',JSON.stringify(res))
         /*

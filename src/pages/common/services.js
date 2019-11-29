@@ -21,7 +21,8 @@ import { Card, PageHeader, Tag, Tabs, Button, Form, Input, Icon} from 'antd';
 import { Modal, notification, Table, Divider, Spin } from 'antd';
 
 import ServiceForm from '@app/components/Form/service';
-import {DISPLAY_ALL_TXS} from '@app/components/TransactionTable';
+import ServiceContractForm from '@app/components/Form/service_contract';
+
 
 import * as utils from '@app/utils/utils';
 
@@ -32,7 +33,18 @@ const routes = routesService.breadcrumbForFile('accounts');
 const STATE_LIST_SERVICES = 'state_list_services';
 const STATE_NEW_SERVICE   = 'state_new_service';
 const STATE_EDIT_SERVICE  = 'state_edit_service';
+const STATE_NEW_SERVICE_CONTRACT   = 'state_new_service_contract';
+const STATE_EDIT_SERVICE_CONTRACT  = 'state_edit_service_contract';
+const STATE_LIST_SERVICE_CONTRACTS = 'state_list_service_contracts';
 
+const titles = {
+  [STATE_LIST_SERVICES]            : 'Serviços oferecidos'
+  , [STATE_NEW_SERVICE]            : 'Criar servicio'
+  , [STATE_EDIT_SERVICE]           : 'Modificar servicio'
+  , [STATE_NEW_SERVICE_CONTRACT]   : 'Send service provisioning request'
+  , [STATE_EDIT_SERVICE_CONTRACT]  : 'Modify contract'
+  , [STATE_LIST_SERVICE_CONTRACTS] : 'List customers'
+}
 class Services extends Component {
   constructor(props) {
     super(props);
@@ -53,15 +65,16 @@ class Services extends Component {
 
     };
 
-    this.loadServices               = this.loadServices.bind(this);  
-    this.loadServicesStates         = this.loadServicesStates.bind(this);  
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
-    this.onServicesListCallback     = this.onServicesListCallback.bind(this);
-    this.getColumns                 = this.getColumns.bind(this);
-    this.onNewService               = this.onNewService.bind(this); 
-    this.serviceFormCallback        = this.serviceFormCallback.bind(this);
-    this.renderFooter               = this.renderFooter.bind(this); 
-    this.onNewData                  = this.onNewData.bind(this); 
+    this.loadServices                 = this.loadServices.bind(this);  
+    this.loadServicesStates           = this.loadServicesStates.bind(this);  
+    this.openNotificationWithIcon     = this.openNotificationWithIcon.bind(this); 
+    this.onServicesListCallback       = this.onServicesListCallback.bind(this);
+    this.getColumns                   = this.getColumns.bind(this);
+    this.onNewService                 = this.onNewService.bind(this); 
+    this.serviceFormCallback          = this.serviceFormCallback.bind(this);
+    this.serviceContractFormCallback  = this.serviceContractFormCallback.bind(this);
+    this.renderFooter                 = this.renderFooter.bind(this); 
+    this.onNewData                    = this.onNewData.bind(this); 
 
   }
 
@@ -80,13 +93,8 @@ class Services extends Component {
     this.setState({active_view:STATE_NEW_SERVICE})
   }
 
-  onEditService = (service) => {
-    
-    // this.openNotificationWithIcon("warning", "Not implemented yet");    
-    this.setState({active_view: STATE_EDIT_SERVICE, active_view_object:service})
-  }
-
-   onDisableService = (service) => {
+  
+  onDisableService = (service) => {
     // const that           = this;
     // Modal.confirm({
     //   title: 'Confirm disable member.',
@@ -124,21 +132,39 @@ class Services extends Component {
         break;
       case events.EDIT:
         // console.log(event)
-        this.onEditService(service);
+        this.setState({active_view: STATE_EDIT_SERVICE, active_view_object:service})
         break;
       case events.DISABLE:
         this.openNotificationWithIcon("warning", "Not implemented yet");    
         this.onDisableService(service);
         break;
       case events.CHILDREN:
-        this.openNotificationWithIcon("warning", "Not implemented yet");    
+        this.setState({active_view: STATE_LIST_SERVICE_CONTRACTS, active_view_object:service})
         break;
       case events.NEW_CHILD:
-        this.openNotificationWithIcon("warning", "Not implemented yet");    
+        this.setState({active_view: STATE_NEW_SERVICE_CONTRACT, active_view_object:service})
+        // this.openNotificationWithIcon("warning", "Not implemented yet");    
         break;
     }
     return;
 
+  }
+
+  serviceContractFormCallback= async (error, cancel, values) => {
+    
+    if(cancel)
+    {
+      this.setState({active_view:STATE_LIST_SERVICES});
+      return;
+    }
+
+    if(error)
+    {
+      return;
+    }
+
+    console.log(values)
+    // return;
   }
 
   serviceFormCallback = async (error, cancel, values) => {
@@ -273,11 +299,10 @@ class Services extends Component {
   }
   // Component Events
   
-  
   render() {
     const content                        = this.renderContent();
     const {routes, loading, active_view} = this.state;
-    
+    const title                          = titles[active_view] || titles[STATE_LIST_SERVICES];
     const buttons = (active_view==STATE_LIST_SERVICES)
       ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServices()} ></Button>, 
         <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewService()}}> Service</Button>]
@@ -288,7 +313,8 @@ class Services extends Component {
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={buttons}
-          title="Serviços oferecidos"
+          title={title}
+
         >
           
         </PageHeader>
@@ -302,7 +328,23 @@ class Services extends Component {
   renderContent(){
     const {loading, active_view, active_view_object, services_states } = this.state;
 
-    
+    if(active_view==STATE_NEW_SERVICE_CONTRACT)
+    {
+      return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+          <div className="ly-main-content content-spacing cards">
+            <section className="mp-box mp-box__shadow money-transfer__box">
+              <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+                <ServiceContractForm key="edit_service_form" 
+                  callback={this.serviceContractFormCallback} 
+                  services_states={services_states} 
+                  service={active_view_object}
+                  profile={null} />    
+              </Spin>
+            </section>
+          </div>      
+        </div>);
+    }
+
     if(active_view==STATE_EDIT_SERVICE)
     {
       //
@@ -358,7 +400,7 @@ class Services extends Component {
       )
   }
   //
-  renderFooter(){
+  renderFooter = () => {
     return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadServices()}>More!!</Button> </>)
   }
   

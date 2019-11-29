@@ -870,8 +870,8 @@ export const columnsForServices = (callback, services_states) => {
         render: (text, record) => {
           const style     = {marginTop:6};
           const edit      = (<Button key={'edit_'+record._id}        onClick={()=>{ callback(record, events.EDIT) }}      icon="edit" size="small">Edit</Button>);
-          const children  = (<Button style={style} key={'children_'+record._id}    onClick={()=>{ callback(record, events.CHILDREN) }}  icon="reconciliation" size="small">Contracts</Button>);
-          const new_child = (<Button style={style} key={'new_child_'+record._id}   onClick={()=>{ callback(record, events.NEW_CHILD) }} icon="plus" size="small">Contract</Button>);
+          const children  = (<Button style={style} key={'children_'+record._id}    onClick={()=>{ callback(record, events.CHILDREN) }}  icon="usergroup-delete" size="small">Customers</Button>);
+          const new_child = (<Button style={style} key={'new_child_'+record._id}   onClick={()=>{ callback(record, events.NEW_CHILD) }} icon="user-add" size="small">New customer</Button>);
           
           return (<>{edit}<br/>{children}<br/>{new_child}</>);
           // const _disable = (<Button key={'details_'+record._id} type="link"     onClick={()=>{ callback(record, events.DISABLE) }} icon="pause-circle" size="small">Disable</Button>);

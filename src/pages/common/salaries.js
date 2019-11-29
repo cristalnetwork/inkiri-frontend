@@ -22,8 +22,8 @@ import { Card, PageHeader, Tag, Tabs, Button, Form, Input, Icon} from 'antd';
 import { Modal, notification, Table, Divider, Spin } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import SalaryForm , {MONTH_FORMAT}from '@app/components/Form/salary';
-import {DISPLAY_ALL_TXS} from '@app/components/TransactionTable';
+import SalaryForm from '@app/components/Form/salary';
+import * as form_helper from '@app/components/Form/form_helper';
 
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
@@ -137,7 +137,7 @@ class Salaries extends Component {
     
     // console.log(JSON.stringify(to_amount_array));
 
-    api.paySalaries(sender_account, sender_priv, to_amount_array, description, worked_month.format(MONTH_FORMAT))
+    api.paySalaries(sender_account, sender_priv, to_amount_array, description, worked_month.format(form_helper.MONTH_FORMAT))
       .then((data) => {
         console.log(' paySalaries => (then#1) >>  ', JSON.stringify(data));
         that.setState({result:'ok', pushingTx:false, result_object:data});
@@ -336,7 +336,7 @@ class Salaries extends Component {
           style={{ marginTop: 24 }}
           // headStyle={{display:'none'}}
           actions={[
-            <Button onClick={this.handleNewPayment} disabled={loading} type="primary"> <FontAwesomeIcon icon="money-check-alt" size="lg" color="white"/>&nbsp;&nbsp;NEW SALARIES PAYMENT </Button> 
+            <Button onClick={this.handleNewPayment} disabled={loading||(!dataSource||dataSource.length==0)} type="primary"> <FontAwesomeIcon icon="money-check-alt" size="lg" color="white"/>&nbsp;&nbsp;NEW SALARIES PAYMENT </Button> 
           ]}
         >
           <div style={{ background: '#fff'}}>
