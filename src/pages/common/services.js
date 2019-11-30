@@ -13,6 +13,7 @@ import { Route, Redirect, withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
+import * as form_helper from '@app/components/Form/form_helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 import TableStats from '@app/components/TransactionTable/stats'; 
 import * as stats_helper from '@app/components/TransactionTable/stats';
@@ -27,22 +28,13 @@ import * as utils from '@app/utils/utils';
 
 import _ from 'lodash';
 
-
-
-
-import Long from 'long';
 import * as eos_table_getter from '@app/services/inkiriApi/table_getters';
-
-
-
-
-
 
 const routes = routesService.breadcrumbForFile('accounts');
 
-const STATE_LIST_SERVICES = 'state_list_services';
-const STATE_NEW_SERVICE   = 'state_new_service';
-const STATE_EDIT_SERVICE  = 'state_edit_service';
+const STATE_LIST_SERVICES          = 'state_list_services';
+const STATE_NEW_SERVICE            = 'state_new_service';
+const STATE_EDIT_SERVICE           = 'state_edit_service';
 const STATE_NEW_SERVICE_CONTRACT   = 'state_new_service_contract';
 const STATE_EDIT_SERVICE_CONTRACT  = 'state_edit_service_contract';
 const STATE_LIST_SERVICE_CONTRACTS = 'state_list_service_contracts';
@@ -210,11 +202,11 @@ class Services extends Component {
     console.log(values)
     
     
-    const that                              = this;
-    const {customer, begins_at, expires_at} = values;
-    const sender                            = that.props.actualAccountName;
-    const {provider, active_view_object}    = this.state;
-    const service                           = active_view_object;
+    const that                                       = this;
+    const {customer, begins_at, expires_at, periods} = values;
+    const sender                                     = that.props.actualAccountName;
+    const {provider, active_view_object}             = this.state;
+    const service                                    = active_view_object;
 
     console.log(' >> values:');
     console.log(values);
@@ -226,29 +218,44 @@ class Services extends Component {
     console.log(' - begins_at : ', begins_at)
     console.log(' - expires_at : ', expires_at)
 
-    // Modal.confirm({
-    //   title: 'Confirm service provisioning request',
-    //   content: 'Please confirm ...',
-    //   onOk() {
-    //     const {input_amount} = that.state;
-    //     that.setState({pushingTx:true});
-    //     api.bank.sendServiceRequest(provider, customer, service, begins_at, expires_at)
-    //       .then((res)=>{
-    //         console.log(' >> doDeposit >> ', JSON.stringify(res));
-    //         that.setState({pushingTx:false, result:'ok'})
-    //         that.openNotificationWithIcon("success", 'Deposit requested successfully');
+    // 1 check if service is already been provisioned to customer:
+    const customer_account_name = customer;
+    const service_id_num        = service.serviceCounterId;
 
-    //       }, (err)=>{
-    //         that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
-    //         that.setState({result:'error', error:err, pushingTx:true});
-    //       })
+    const byCustServ = await eos_table_getter.papByUInt128(customer_account_name
+        , service_id_num
+        , eos_table_getter.INDEX_POSITION_PAP_BY_CUSTOMER_SERVICE);
+    console.log('byCustServ', byCustServ)
+
+    if(byCustServ && byCustServ.length>0)
+    {
+      that.openNotificationWithIcon("error", 'Duplicated customer service provisioning', 'Customer account is already hiring selected service.');
+      return;
+    }
+
+    Modal.confirm({
+      title: 'Confirm service provisioning request',
+      content: (<p>You will invite <b>{customer}</b> to accept <b>{service.title}</b> service, at a <b>{globalCfg.currency.toCurrencyString(service.amount)}</b> monthly price bases, for <b>{periods}</b> periods/months, begining at <b>{begins_at.format(form_helper.MONTH_FORMAT)}</b></p>),
+      onOk() {
+        const {input_amount} = that.state;
+        that.setState({pushingTx:true});
+        api.bank.sendServiceRequest(provider, customer, service, begins_at, expires_at)
+          .then((res)=>{
+            console.log(' >> doDeposit >> ', JSON.stringify(res));
+            that.setState({pushingTx:false, result:'ok'})
+            that.openNotificationWithIcon("success", 'Service provisioning requested successfully');
+
+          }, (err)=>{
+            that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
+            that.setState({result:'error', error:err, pushingTx:false});
+          })
         
-    //   },
-    //   onCancel() {
-    //     console.log('Cancel');
-    //     that.setState({pushingTx:false})
-    //   },
-    // });
+      },
+      onCancel() {
+        console.log('Cancel');
+        that.setState({pushingTx:false})
+      },
+    });
   }
 
   serviceFormCallback = async (error, cancel, values) => {
@@ -310,42 +317,12 @@ class Services extends Component {
 
   reloadServices = async () => {
 
-    const provider_account_name = 'provider1';      // provider.account_name
-    // const service_id_num        = 4;              // service.serviceCounterId.toString()
-    const service_id_num           = 11; 
-    // 231169963078163409394288238393772998662
-    const customer_account_name = 'pablotutino1';   // customer_account_name
-
-    const custProv  = await eos_table_getter.customerByUInt64(provider_account_name);
-    console.log('custProv', custProv)
-
-    const custAcc  = await eos_table_getter.customerByUInt64(customer_account_name);
-    console.log('custAcc', custAcc)
-
-    const byProvAcc = await eos_table_getter.papByUInt128(provider_account_name, customer_account_name, 4);
-    console.log('byProvAcc', byProvAcc)
-
-    const byProvServ = await eos_table_getter.papByUInt128(provider_account_name, service_id_num, 3);
-    console.log('byProvServ', byProvServ)
-
-    const byAccServ = await eos_table_getter.papByUInt128(customer_account_name, service_id_num, 5);
-    console.log('byAccServ', byAccServ)
-    
-    // const papByAll1 = await eos_table_getter.papByChecksum256(customer_account_name, provider_account_name, service_id_num, 1);
-    // console.log(' >> PAP#1:', papByAll1)
-
-    const papByAll2 = await eos_table_getter.papByChecksum256(customer_account_name, provider_account_name, service_id_num, 2);
-    console.log(' >> PAP#2:', papByAll2)
-
-    const papByAll3 = await eos_table_getter.papByChecksum256(customer_account_name, provider_account_name, service_id_num, 3);
-    console.log(' >> PAP#3:', papByAll3)
-
-    // this.setState({
-    //     page:        -1, 
-    //     services:    [],
-    //   }, () => {
-    //     this.loadServices();
-    //   });  
+    this.setState({
+        page:        -1, 
+        services:    [],
+      }, () => {
+        this.loadServices();
+      });  
   }
 
   loadServices = async () => {

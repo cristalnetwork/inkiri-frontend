@@ -69,6 +69,8 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
     _key = BANK_AUTH_TOKEN_KEY;
   bearer_token = getBearerToken(getTokenIfNotExpired(_key));
   method = method || "GET";
+
+  console.log(_key, bearer_token)
   let fetchOptions = {
     method: method,
     headers: {

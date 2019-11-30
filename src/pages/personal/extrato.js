@@ -37,8 +37,9 @@ const tabs = {
   [DISPLAY_DEPOSIT] : 'Deposits',
   [DISPLAY_WITHDRAWS] : 'Withdraws',
   [DISPLAY_EXCHANGES] : 'Exchanges',
+  [DISPLAY_SERVICE] : 'Services',
   [DISPLAY_PAYMENTS] : 'Payments',
-  [DISPLAY_REQUESTS] : 'Requests',
+  // [DISPLAY_REQUESTS] : 'Requests',
 }
 
 class Extrato extends Component {
@@ -412,6 +413,18 @@ class Extrato extends Component {
       );
     }
     //
+    if(this.state.active_tab==DISPLAY_SERVICE){
+      content = (
+        <TransactionTable 
+          key={'table_'+DISPLAY_SERVICE} 
+          need_refresh={this.state.need_refresh[DISPLAY_SERVICE]}
+          request_type={DISPLAY_SERVICE} 
+          onChange={this.onTableChange}
+          callback={this.onRequestClick}
+          />
+      );
+    }
+    //
 
     if(this.state.active_tab==DISPLAY_ALL_TXS){
       content = (
@@ -469,46 +482,6 @@ class Extrato extends Component {
     );
   }
   
-  // renderX() {
-  //   const {routes} = this.state;
-  //   const content = this.renderContent();
-  //   const stats = this.renderTableViewStats();
-  //   const filters = this.renderFilterContent();
-  //   return (
-  //     <>
-  //       <PageHeader
-  //         extra={[
-  //           <Button size="small" key="refresh" icon="redo" disabled={this.state.loading} onClick={()=>this.refreshCurrentTable()} ></Button>,
-            
-  //         ]}
-  //         breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-  //         title="Extrato"
-  //         subTitle="List of transactions"
-  //       >
-  //       </PageHeader>
-
-  //       <div className="styles standardList" style={{ marginTop: 0 }}>
-  //         <Card key="tabs_card" bordered={false}>
-  //           <Tabs  defaultActiveKey={DISPLAY_ALL_TXS} onChange={this.onTabChange}>
-  //             <TabPane tab="Movements" key={DISPLAY_ALL_TXS} />
-  //             <TabPane tab="Deposits"  key={DISPLAY_DEPOSIT} />
-  //             <TabPane tab="Withdraws" key={DISPLAY_WITHDRAWS} />
-  //             <TabPane tab="Exchanges" key={DISPLAY_EXCHANGES} />
-  //             <TabPane tab="Payments"  key={DISPLAY_PAYMENTS} disabled />
-  //             <TabPane tab="Requests"  key={DISPLAY_REQUESTS} disabled />
-  //           </Tabs>
-  //         </Card>
-  //       </div>
-        
-  //       {filters}
-
-  //       {stats}
-        
-  //       {content}
-
-  //     </>
-  //   );
-  // }
 }
 
 export default  (withRouter(connect(

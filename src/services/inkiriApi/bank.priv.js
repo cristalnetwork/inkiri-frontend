@@ -105,7 +105,7 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
 * Requests functions
 *
 */
-export const listMyRequests = (account_name, page, limit, request_type) =>   new Promise((res,rej)=> {
+export const listMyRequests = (account_name, page, limit, request_type, to) =>   new Promise((res,rej)=> {
   
   console.log(' BANKAPI::LIST MY REQUESTS>> account_name:', account_name
   , '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
@@ -115,6 +115,8 @@ export const listMyRequests = (account_name, page, limit, request_type) =>   new
   query=query+'&limit='+(limit||10);
   if(account_name)
     query=query+'&from='+account_name;
+  if(to)
+    query=query+'&to='+to;
   if(request_type!== undefined)
     query=query+'&requested_type='+request_type;
 
@@ -947,19 +949,23 @@ export const listIuguInvoices = (page, limit, filter) =>   new Promise((res,rej)
 /* ***************************************************************** */
 /* SERVICES ******************************************************** */
 
-export const sendServiceRequest = (provider, customer, service, begins_at, expires_at) =>   new Promise((res,rej)=> {
+export const sendServiceRequest = (provider, customer_name, service, begins_at, expires_at) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.endpoint + '/requests';
   const method  = 'POST';
   const post_params = {
           'requested_type':     globalCfg.api.TYPE_SERVICE
           , 'from':             provider.account_name
-          , 'requested_by':     provider._id
-          , 'to':               customer.account_name
-          , 'requested_to':     customer._id
+          // , 'requested_by':     provider._id
+          , 'to':               customer_name
           , 'service_id':       service._id
-          , 'begins_at':        begins_at
-          , 'expires_at':       expires_at
+          , 'service_extra':   {
+                                  'begins_at':         begins_at
+                                  , 'expires_at':       expires_at
+                                }
+          // , 'to':               customer.account_name
+          // , 'requested_to':     customer._id
+          
         };
   console.log(' inkiriApi::sendServiceRequest >> ABOUT TO POST', JSON.stringify(post_params))
   jwtHelper.apiCall(path, method, post_params)

@@ -106,14 +106,16 @@ class TransactionTable extends Component {
       return;
     }
 
-    api.bank.listMyRequests(account_name, page, limit, this.props.request_type)
-    .then( (res) => {
-        that.onNewData(res);
-      } ,(ex) => {
-        // console.log('---- ERROR:', JSON.stringify(ex));
-        that.setState({loading:false});  
-      } 
-    );
+    const _to = (this.props.request_type==globalCfg.api.TYPE_SERVICE)?account_name:null;
+    
+    api.bank.listMyRequests(account_name, page, limit, this.props.request_type, _to)
+      .then( (res) => {
+          that.onNewData(res);
+        } ,(ex) => {
+          // console.log('---- ERROR:', JSON.stringify(ex));
+          that.setState({loading:false});  
+        } 
+      );
     
   }
 

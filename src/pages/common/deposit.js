@@ -191,7 +191,7 @@ class DepositMoney extends Component {
 
             }, (err)=>{
               that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
-              that.setState({result:'error', error:err, pushingTx:true});
+              that.setState({result:'error', error:err, pushingTx:false});
             })
           
         },
