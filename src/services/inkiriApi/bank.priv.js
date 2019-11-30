@@ -176,7 +176,6 @@ export const getRequestByCounter = (counter) =>   new Promise((res,rej)=> {
       });
 });
 
-
 export const createDeposit = (account_name, amount, currency) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.endpoint + '/requests';
@@ -941,6 +940,34 @@ export const listIuguInvoices = (page, limit, filter) =>   new Promise((res,rej)
     .then((data) => {
         res(data)
       }, (ex) => {
+        rej(ex);
+      });
+});
+
+/* ***************************************************************** */
+/* SERVICES ******************************************************** */
+
+export const sendServiceRequest = (provider, customer, service, begins_at, expires_at) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.endpoint + '/requests';
+  const method  = 'POST';
+  const post_params = {
+          'requested_type':     globalCfg.api.TYPE_SERVICE
+          , 'from':             provider.account_name
+          , 'requested_by':     provider._id
+          , 'to':               customer.account_name
+          , 'requested_to':     customer._id
+          , 'service_id':       service._id
+          , 'begins_at':        begins_at
+          , 'expires_at':       expires_at
+        };
+  console.log(' inkiriApi::sendServiceRequest >> ABOUT TO POST', JSON.stringify(post_params))
+  jwtHelper.apiCall(path, method, post_params)
+    .then((data) => {
+        console.log(' inkiriApi::sendServiceRequest >> RESPONSE', JSON.stringify(data))
+        res(data)
+      }, (ex) => {
+        console.log(' inkiriApi::sendServiceRequest >> ERROR ', JSON.stringify(ex))
         rej(ex);
       });
 });

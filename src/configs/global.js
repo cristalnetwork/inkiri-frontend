@@ -41,6 +41,9 @@ const bank = {
   table_customers:         "customer", // "ikaccounts"
   table_customers_action:  "upsertcust", // "ikaccounts"
 
+  table_paps:              'pap',
+  table_paps_action:       'upsertpap',
+
   exchange_account:        "cristaltoken",
   provider_account:        "cristaltoken",
   withdraw_account:        "cristaltoken",

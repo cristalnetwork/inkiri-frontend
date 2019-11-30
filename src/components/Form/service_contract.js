@@ -21,13 +21,6 @@ import { Select, notification, Empty, Button, Form, message, AutoComplete, Input
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-const DEFAULT_CONTRACT = {
-  begins_at   : null,
-  expires_at  : null,
-  provider    : null,
-  service     : null,
-  customer    : null
-}
 class ServiceContractForm extends Component {
   constructor(props) {
     super(props);
@@ -80,7 +73,7 @@ class ServiceContractForm extends Component {
   }
   
   onSelect = (e) => {
-  
+    console.log( ' ++ onSelect -> ',  e)
   }
 
   handleSubmit = (e) => {
@@ -93,22 +86,25 @@ class ServiceContractForm extends Component {
         console.log(' ERRORS!! >> ', err)
         return;
       }
-      // const {member} = this.state;
-      // if(!member)
-      // {
-      //   const exists = this.props.accounts.filter( account => account.key==values.member);
-      //   if(!exists || exists.length==0)
-      //   {
-      //     this.openNotificationWithIcon("error", 'Please select an account from the list.');
-      //     return;
-      //   }
-      // }
+      const {customer} = this.state;
+      if(!customer)
+      {
+        const exists = this.props.accounts.filter( account => account.key==values.customer);
+        if(!exists || exists.length==0)
+        {
+          this.openNotificationWithIcon("error", 'Please select an account from the list.');
+          return;
+        }
+      }
 
-      // const editing = (member!=null);
-      // let my_member = (editing)
-      //   ? { ...values, member:member.member._id, _id:member._id}
-      //   : { ...values };
-
+      const {provider, service } = this.state;
+      let contract = {
+        begins_at   : values.begins_at,
+        expires_at  : values.expires_at,
+        provider    : provider,
+        service     : service,
+        customer    : values.customer
+      }
       this.fireEvent(null, null, values);
       
     });
@@ -119,19 +115,19 @@ class ServiceContractForm extends Component {
     // this.setState({...DEFAULT_STATE});
   }
 
-  renderMemberSelector(){
-    const {member}              = this.state;
+  renderCustomerSelector(){
+    const {customer}              = this.state;
     const { getFieldDecorator } = this.props.form;
     const my_accounts           = this.props.accounts.filter(acc=>acc.key!=this.props.actualAccountName && globalCfg.bank.isPersonalAccount(acc)).map(acc=>acc.key)
     let selector   = null;
     //
-    if(member){
+    if(customer){
       selector = (<div className="ui-row__col ui-row__col--content">
                     <div className="ui-info-row__content">
-                        <div className="ui-info-row__title"><b>{request_helper.getProfileName(member.member)}</b></div>
+                        <div className="ui-info-row__title"><b>{request_helper.getProfileName(customer)}</b></div>
                           <div className="ui-info-row__details">
                               <ul>
-                                  <li>@{member.member.account_name}</li>
+                                  <li>@{customer.account_name}</li>
                               </ul>
                           </div>
                     </div>
@@ -139,7 +135,7 @@ class ServiceContractForm extends Component {
     }
     else{
       selector = (<Form.Item>
-                        {getFieldDecorator('member', {
+                        {getFieldDecorator('customer', {
                         rules: [{ required: true, message: 'Please choose a customer!' }]
                       })(
                           <AutoComplete size="large" dataSource={my_accounts} style={{ width: '100%' }} onSelect={this.onSelect} placeholder="Choose a customer by account name" filterOption={true} className="extra-large" />
@@ -162,20 +158,20 @@ class ServiceContractForm extends Component {
   //
 
   render() {
-    const { form, actualAccountProfile }  = this.props;
-    const { member, service }             = this.state;
-    const member_selector                 = this.renderMemberSelector();
-    const button_text                     = 'SEND REQUEST';
+    const { form, provider }      = this.props;
+    const { customer, service }     = this.state;
+    const customer_selector         = this.renderCustomerSelector();
+    const button_text             = 'SEND REQUEST';
     return (
             
             <>
-            <ServiceCard service={service} provider={actualAccountProfile}/>
+            <ServiceCard service={service} provider={provider}/>
 
             <Form onSubmit={this.handleSubmit}>
               
               <div className="money-transfer no_label">    
 
-                  {member_selector}
+                  {customer_selector}
                   {form_helper.withIcon('calendar-alt', form_helper.getMonthItem(form, null , 'begins_at'  , 'Service begins at'  , 'Please input a valid month!'))}
                   {form_helper.withIcon('calendar-alt', form_helper.getMonthItem(form, null , 'expires_at' , 'Service expires at' , 'Please input a valid month!'))}
                   
@@ -197,8 +193,7 @@ class ServiceContractForm extends Component {
 //
 export default Form.create() (withRouter(connect(
     (state)=> ({
-        accounts:               accountsRedux.accounts(state),
-        actualAccountProfile:   loginRedux.actualAccountProfile(state),
+        accounts:               accountsRedux.accounts(state)
     }),
     (dispatch)=>({
         

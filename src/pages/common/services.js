@@ -23,10 +23,20 @@ import { Modal, notification, Table, Divider, Spin } from 'antd';
 import ServiceForm from '@app/components/Form/service';
 import ServiceContractForm from '@app/components/Form/service_contract';
 
-
 import * as utils from '@app/utils/utils';
 
 import _ from 'lodash';
+
+
+
+
+import Long from 'long';
+import * as eos_table_getter from '@app/services/inkiriApi/table_getters';
+
+
+
+
+
 
 const routes = routesService.breadcrumbForFile('accounts');
 
@@ -48,12 +58,15 @@ const titles = {
 class Services extends Component {
   constructor(props) {
     super(props);
+    const props_provider = (props && props.location && props.location.state && props.location.state.provider)? props.location.state.provider : null;
     this.state = {
       routes :            routesService.breadcrumbForPaths(props.location.pathname),
       loading:            false,
       pushingTx:          false,
       
       services_states:    null,
+
+      provider:           props_provider || props.actualAccountProfile,
       services:           [],
       page:               -1, 
       limit:              globalCfg.api.default_page_size,
@@ -83,10 +96,41 @@ class Services extends Component {
   }
   
   componentDidMount = async () => {
-    const x_dummy = await this.loadServicesStates();
-    const y_dummy = await this.loadServices();  
+
+    const { location } = this.props;
+    if(location && location.state)
+    {
+      this.setState({
+          provider: location.state.provider || this.props.actualAccountProfile
+      }, async () => {
+          const _x_dummy = await this.loadServicesStates();
+          const _y_dummy = await this.loadServices();  
+      });
+    }
+    else
+    {
+      const x_dummy = await this.loadServicesStates();
+      const y_dummy = await this.loadServices();  
+    }
   } 
 
+  componentDidUpdate(prevProps, prevState) 
+  {
+    const {provider} = this.props;
+    if(prevProps.provider !== provider) {
+      this.setState({ provider:provider || this.props.actualAccountProfile});
+    }
+  }
+
+  /*
+    this.props.history.push({
+      pathname: `/common/services`
+      , state: { 
+          referrer: this.props.location.pathname,
+          provider:  provider
+        }
+    })
+  */
   onNewService = () => {
     
     // this.openNotificationWithIcon("warning", "Not implemented yet");    
@@ -164,7 +208,47 @@ class Services extends Component {
     }
 
     console.log(values)
-    // return;
+    
+    
+    const that                              = this;
+    const {customer, begins_at, expires_at} = values;
+    const sender                            = that.props.actualAccountName;
+    const {provider, active_view_object}    = this.state;
+    const service                           = active_view_object;
+
+    console.log(' >> values:');
+    console.log(values);
+
+    console.log( ' >> my data:')
+    console.log(' - provider : ', provider);
+    console.log(' - customer : ', customer)
+    console.log(' - service : ', service)
+    console.log(' - begins_at : ', begins_at)
+    console.log(' - expires_at : ', expires_at)
+
+    // Modal.confirm({
+    //   title: 'Confirm service provisioning request',
+    //   content: 'Please confirm ...',
+    //   onOk() {
+    //     const {input_amount} = that.state;
+    //     that.setState({pushingTx:true});
+    //     api.bank.sendServiceRequest(provider, customer, service, begins_at, expires_at)
+    //       .then((res)=>{
+    //         console.log(' >> doDeposit >> ', JSON.stringify(res));
+    //         that.setState({pushingTx:false, result:'ok'})
+    //         that.openNotificationWithIcon("success", 'Deposit requested successfully');
+
+    //       }, (err)=>{
+    //         that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
+    //         that.setState({result:'error', error:err, pushingTx:true});
+    //       })
+        
+    //   },
+    //   onCancel() {
+    //     console.log('Cancel');
+    //     that.setState({pushingTx:false})
+    //   },
+    // });
   }
 
   serviceFormCallback = async (error, cancel, values) => {
@@ -224,19 +308,55 @@ class Services extends Component {
     this.setState({ services_states: data.services_states, loading:false})
   }
 
-  reloadServices(){
-    this.setState({
-        page:        -1, 
-        services:    [],
-      }, () => {
-        this.loadServices();
-      });  
+  reloadServices = async () => {
+
+    const provider_account_name = 'provider1';      // provider.account_name
+    // const service_id_num        = 4;              // service.serviceCounterId.toString()
+    const service_id_num           = 11; 
+    // 231169963078163409394288238393772998662
+    const customer_account_name = 'pablotutino1';   // customer_account_name
+
+    const custProv  = await eos_table_getter.customerByUInt64(provider_account_name);
+    console.log('custProv', custProv)
+
+    const custAcc  = await eos_table_getter.customerByUInt64(customer_account_name);
+    console.log('custAcc', custAcc)
+
+    const byProvAcc = await eos_table_getter.papByUInt128(provider_account_name, customer_account_name, 4);
+    console.log('byProvAcc', byProvAcc)
+
+    const byProvServ = await eos_table_getter.papByUInt128(provider_account_name, service_id_num, 3);
+    console.log('byProvServ', byProvServ)
+
+    const byAccServ = await eos_table_getter.papByUInt128(customer_account_name, service_id_num, 5);
+    console.log('byAccServ', byAccServ)
+    
+    // const papByAll1 = await eos_table_getter.papByChecksum256(customer_account_name, provider_account_name, service_id_num, 1);
+    // console.log(' >> PAP#1:', papByAll1)
+
+    const papByAll2 = await eos_table_getter.papByChecksum256(customer_account_name, provider_account_name, service_id_num, 2);
+    console.log(' >> PAP#2:', papByAll2)
+
+    const papByAll3 = await eos_table_getter.papByChecksum256(customer_account_name, provider_account_name, service_id_num, 3);
+    console.log(' >> PAP#3:', papByAll3)
+
+    // this.setState({
+    //     page:        -1, 
+    //     services:    [],
+    //   }, () => {
+    //     this.loadServices();
+    //   });  
   }
 
   loadServices = async () => {
 
-    let can_get_more   = this.state.can_get_more;
-    if(!can_get_more && this.state.page>=0)
+    const {page, provider, can_get_more} = this.state;
+
+    if(!provider)
+    {
+
+    }
+    if(!can_get_more && page>=0)
     {
       this.openNotificationWithIcon("info", "Nope!");
       this.setState({loading:false});
@@ -245,25 +365,20 @@ class Services extends Component {
 
     this.setState({loading:true});
 
-    let page           = (this.state.page<0)?0:(this.state.page+1);
+    let request_page   = (page<0)?0:(page+1);
     const limit        = this.state.limit;
     let that           = this;
     
     let services = [];
 
-    console.log('##1')
     try {
-      services = await api.bank.getServices(this.props.actualAccountName, page, limit);
-      console.log('##2')
+      services = await api.bank.getServices(provider.account_name, request_page, limit);
     } catch (e) {
 
       this.openNotificationWithIcon("error", "Error retrieveing Services", JSON.stringify(e));
       this.setState({ loading:false})
       return;
     } 
-    // console.log(JSON.stringify(team));
-    // this.setState({ team: team, loading:false})
-    console.log('##3')
     this.onNewData (services) ;
   }
 
@@ -326,7 +441,7 @@ class Services extends Component {
   }
   //
   renderContent(){
-    const {loading, active_view, active_view_object, services_states } = this.state;
+    const {provider, loading, active_view, active_view_object, services_states } = this.state;
 
     if(active_view==STATE_NEW_SERVICE_CONTRACT)
     {
@@ -338,7 +453,7 @@ class Services extends Component {
                   callback={this.serviceContractFormCallback} 
                   services_states={services_states} 
                   service={active_view_object}
-                  profile={null} />    
+                  provider={provider} />    
               </Spin>
             </section>
           </div>      
@@ -352,7 +467,11 @@ class Services extends Component {
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
               <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-                <ServiceForm key="edit_service_form" callback={this.serviceFormCallback} services_states={services_states} service={active_view_object}/>    
+                <ServiceForm 
+                  key="edit_service_form" 
+                  callback={this.serviceFormCallback} 
+                  services_states={services_states} 
+                  service={active_view_object}/>    
               </Spin>
             </section>
           </div>      
@@ -410,8 +529,9 @@ class Services extends Component {
 export default  (withRouter(connect(
     (state)=> ({
         actualAccountName:    loginRedux.actualAccountName(state),
-        actualRoleId:     loginRedux.actualRoleId(state),
-        actualRole:       loginRedux.actualRole(state),
+        actualRoleId:         loginRedux.actualRoleId(state),
+        actualRole:           loginRedux.actualRole(state),
+        actualAccountProfile: loginRedux.actualAccountProfile(state),
     }),
     (dispatch)=>({
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)

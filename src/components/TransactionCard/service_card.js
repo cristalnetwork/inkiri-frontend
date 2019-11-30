@@ -41,7 +41,7 @@ const ServiceCard = (props) => {
                                         <div className="c-ticket__title c-ticket__title_small request_details_title">
                                           {service.title}
 
-                                          <div class="ui-info-row__details">
+                                          <div className="ui-info-row__details">
                                             <ul><li>{service.description}</li></ul>
                                           </div>
 
@@ -60,43 +60,7 @@ const ServiceCard = (props) => {
         </div>  
         {_provider}
       </div>);
-    //
-    // const item = (
-    //   <li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
-    //       <div style={{position:'absolute', right:'10px', top:'10px'}}>{edit_button}</div>
-    //       <div className="ui-row__col ui-row__col--heading">
-    //           <div className="ui-avatar ">
-    //               <div className="ui-avatar__content ui-avatar__content--icon">
-    //                 <Icon type="bank" theme="twoTone" style={{fontSize:30}} />
-    //               </div>
-    //           </div>
-    //       </div>
-    //       <div className="ui-row__col ui-row__col--content">
-    //           <div className="ui-info-row__content">
-    //               <div className="ui-info-row__title">{bank_account.bank_name}</div>
-    //               <div className="ui-info-row__details name_value_row">
-    //                  <div className="row_name">Agency</div> 
-    //                  <div className="row_value">{bank_account.agency}</div> 
-    //               </div>
-    //               <div className="ui-info-row__details name_value_row">
-    //                 <div className="row_name">CC</div> 
-    //                  <div className="row_value">{bank_account.cc}</div> 
-    //               </div>
-    //           </div>
-    //       </div>
-    //   </li>);
-    //
-    // if(!alone_component)
-    //   return item;
-    // return(
-    //   <div className="ui-list">
-    //     <ul className="ui-list__content">
-    //       {item}        
-    //     </ul>
-    //   </div>
-    // )
-
-
+    
     
 }
 //

@@ -3,8 +3,6 @@ import { createDfuseClient, DfuseClient } from "@dfuse/client";
 import * as txsHelper from './transactionHelper';
 import * as jwtHelper from './jwtHelper';
 
-import api_data from './api_demo';
-
 // Item format:
 // {
 //   "token": "eyJhbGciOiJLTVNFUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTA2OTIxNzIsImp0aSI6IjQ0Y2UzMDVlLWMyN2QtNGIzZS1iN2ExLWVlM2NlNGUyMDE1MyIsImlhdCI6MTU1MDYwNTc3MiwiaXNzIjoiZGZ1c2UuaW8iLCJzdWIiOiJ1aWQ6bWRmdXNlMmY0YzU3OTFiOWE3MzE1IiwidGllciI6ImVvc3EtdjEiLCJvcmlnaW4iOiJlb3NxLmFwcCIsInN0YmxrIjotMzYwMCwidiI6MX0.k1Y66nqBS7S6aSt-zyt24lPFiNfWiLPbICc89kxoDvTdyDnLuUK7JxuGru9_PbPf89QBipdldRZ_ajTwlbT-KQ",
@@ -275,13 +273,7 @@ export const listTransactions = (account_name, cursor, received) => new Promise(
   if(cursor!==undefined)
     options['cursor'] = cursor;
 
-  // const data = api_data;
-  // const txs = transformTransactionsImpl(data.transactions, account_name, true);
-  // console.log(' dfuse::listTransactions HACKEADO!!!!!!');
-  // res ({data:{txs:txs, cursor:data.cursor}})
-  // return;
-
-	let client = createClient();
+  let client = createClient();
 	
   client.searchTransactions(
       query,
