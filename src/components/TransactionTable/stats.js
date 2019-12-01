@@ -54,7 +54,7 @@ export const buildItem        = (title, value, type, color)  => {
 
 export const buildItemUp           = (title, value) => { return buildItem(title, value, STAT_UP_GREEN) }
 export const buildItemDown         = (title, value) => { return buildItem(title, value, STAT_DOWN_RED) }
-export const buildItemCompute      = (title, value) => { return buildItem(title, value, (value>0)?STAT_UP_GREEN:STAT_DOWN_RED) }
+export const buildItemCompute      = (title, value) => { return buildItem(title, value, (value>=0)?STAT_UP_GREEN:STAT_DOWN_RED) }
 export const buildItemSimple       = (title, value, color) => { return buildItem(title, value, STAT_DATA_ONLY, color) }
 export const buildItemMoney        = (title, value, color) => { return buildItem(title, value, STAT_DATA_MONEY, color) }
 export const buildItemPending      = (title, value) => { return buildItem(title, value, STAT_DATA_PENDING) }
