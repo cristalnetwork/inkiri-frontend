@@ -230,20 +230,17 @@ export const getColumnsForPersonalExtrato = (callback, account_type) => {
 export const getDefaultColumns = (account_type, callback) => {
 
   return [
-    // {
-    //   title: 'Date',
-    //   dataIndex: 'block_time',
-    //   key: 'block_time',
-    //   sortDirections: ['descend'],
-    //   defaultSortOrder: 'descend',
-    //   sorter: (a, b) => a.block_time_number - b.block_time_number,
-    // },
     {
       title: 'Description',
       dataIndex: 'sub_header',
       key: 'sub_header',
+      width: '45%',
       render: (value, record) => {
-        const text = (globalCfg.bank.isAdminAccount(account_type))?record.sub_header_admin:record.sub_header;
+        const text = (globalCfg.bank.isAdminAccount(account_type))
+          ?record.sub_header_admin
+          :(globalCfg.api.isService(record)
+              ?record.sub_header_ex
+              :record.sub_header);
         return(
           <span className="name_value_row">
             <div className="row_name centered" >

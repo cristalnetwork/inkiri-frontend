@@ -8,27 +8,54 @@ import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ItemAmount from '@app/components/TransactionCard/item_amount';
 import TransactionPetitioner from '@app/components/TransactionCard/petitioner';
+import ServiceCardPeriods from '@app/components/TransactionCard/service_card_periods'
 
 const ServiceCard = (props) => {
     
-    const [provider, setProvider]     = useState(null);
-    const [service, setService]       = useState(null);
-    const [actualAccountName, setAcc] = useState(null);
+    const [provider, setProvider]       = useState(null);
+    const [service, setService]         = useState(null);
+    const [actualAccountName, setAcc]   = useState(null);
+    const [smallStyle, setSmallStyle]   = useState(false);
+    const [request, setRequest]         = useState(null);
+
 
     useEffect(() => {
         setProvider(props.provider);
         setService(props.service);
         setAcc(props.actualAccountName);
+        setSmallStyle(props.smallStyle);
+        setRequest(props.request||null);
     });
-    if(!service)
+
+    if(!service && !request)
       return (null);
-    let _provider = (null);
-    if(provider && provider.account_name==actualAccountName)
+
+    const _service       = service || ((request)?request.service:null);
+    
+    const _provider      = provider || ((request)?request.requested_by:null);
+    let _provider_widget = null;
+    if(_provider && _provider.account_name!=actualAccountName)
     {
-      _provider  = (<TransactionPetitioner profile={provider} title="Provided by"/>)
+      _provider_widget  = (<TransactionPetitioner profile={_provider} title="Provided by" not_alone={true}/>)
     }
+
+    const _customer       = (request)?request.requested_to:null;
+    let _customer_widget  = null;
+    if(_customer && _customer.account_name!=actualAccountName)
+    {
+      _customer_widget  = (<TransactionPetitioner profile={_customer} title="Requested to" not_alone={true}/>)
+    }
+
+    const _service_extra  = (request)?request.service_extra:null;
+    let _periods  = null;
+    if(_service_extra)
+    {
+      _periods  = (<ServiceCardPeriods service_extra={_service_extra} price={_service.amount}/>)
+    }
+
+    const class_name = (smallStyle)?'_small':'';
     return (
-      <div className="c-detail_small">
+      <div className={`c-detail${class_name}`}>
         <div className="ui-list">
           <ul className="ui-list__content">
               <li>
@@ -39,15 +66,15 @@ const ServiceCard = (props) => {
                                   <li className="c-ticket__item c-ticket-subtotal">
                                       <div className="c-ticket__row">
                                         <div className="c-ticket__title c-ticket__title_small request_details_title">
-                                          {service.title}
+                                          {_service.title}
 
                                           <div className="ui-info-row__details">
-                                            <ul><li>{service.description}</li></ul>
+                                            <ul><li>{_service.description}</li></ul>
                                           </div>
 
                                         </div>
                                         <div className="c-ticket__amount ">
-                                          <ItemAmount amount={parseFloat(service.amount).toFixed(2)} />
+                                          <ItemAmount amount={parseFloat(_service.amount).toFixed(2)} />
                                         </div>
                                       </div>
                                   </li>
@@ -56,9 +83,28 @@ const ServiceCard = (props) => {
                       </ul>
                   </div>
               </li>
+              
+              {_provider_widget
+                ?(<li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
+                  {_provider_widget}
+                </li>)
+                :(null)
+              }
+
+              {_customer_widget
+                ?(<li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
+                  {_customer_widget}
+                </li>)
+                :(null)
+              }
+              
+              {_periods
+                ?(_periods)
+                :(null)
+              }
+              
           </ul>
         </div>  
-        {_provider}
       </div>);
     
     

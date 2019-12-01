@@ -27,6 +27,8 @@ import TransactionEnvelope from '@app/components/TransactionCard/envelope';
 
 import TransactionBankAccount from '@app/components/TransactionCard/bank_account';
 
+import ServiceCard from '@app/components/TransactionCard/service_card';
+
 const { Dragger } = Upload;
 
 // const icon_color_default = '#1890ff';
@@ -109,6 +111,12 @@ class TransactionCard extends Component {
             (globalCfg.api.isExchange(request))?
             (<TransactionBankAccount bank_account={bank_account} alone_component={false} />)
             :(<TransactionProvider request={request}/>)
+          }
+
+          {
+            (globalCfg.api.isService(request))?
+            (<ServiceCard request={request} />)
+            :(null)
           }
           
           <TransactionBlockchain request={request}/>

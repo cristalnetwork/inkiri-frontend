@@ -174,7 +174,7 @@ const api = {
         [api.TYPE_PROVIDER]    : 'provider payment', 
         [api.TYPE_SEND]        : 'send', 
         [api.TYPE_WITHDRAW]    : 'withdraw', 
-        [api.TYPE_SERVICE]     : 'service payment'
+        [api.TYPE_SERVICE]     : 'service provisioning'
       } 
       const ret = types[request_type];
       return ret?ret:request_type;
@@ -185,6 +185,7 @@ const api = {
   , isWithdraw         : (request) => { return (request.tx_type==api.TYPE_WITHDRAW||request.requested_type==api.TYPE_WITHDRAW)}
   , isProviderPayment  : (request) => { return (request.tx_type==api.TYPE_PROVIDER||request.requested_type==api.TYPE_PROVIDER)}
   , isExchange         : (request) => { return (request.tx_type==api.TYPE_EXCHANGE||request.requested_type==api.TYPE_EXCHANGE)}
+  , isService          : (request) => { return (request.tx_type==api.TYPE_SERVICE||request.requested_type==api.TYPE_SERVICE)}
   , getTypes           : () => { return [ api.TYPE_DEPOSIT, api.TYPE_EXCHANGE, api.TYPE_PAYMENT, api.TYPE_PROVIDER, api.TYPE_SEND, api.TYPE_WITHDRAW, api.TYPE_SERVICE];}
   , STATE_REQUESTED             : 'state_requested'
   , STATE_PROCESSING            : 'state_processing'

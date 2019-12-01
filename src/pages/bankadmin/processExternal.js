@@ -414,9 +414,6 @@ class processExternal extends Component {
   
   cancelRequest(){}
 
-  /*
-  * WITHDRAW
-  */
   acceptRequest(){
     const that = this;
     that.setState({pushingTx:true});
@@ -553,27 +550,23 @@ class processExternal extends Component {
     //
     const acceptWithComprobanteButton = (<Button loading={pushingTx} size="large" onClick={() => this.acceptWithComprobanteRequest()} key="acceptWithComprobanteButton" type="primary" title="" >ACCEPT</Button>);
     //
-    const cancelButton = (<Button loading={pushingTx} size="large" onClick={() => this.cancelRequest()} key="cancelButton" className="danger_color" style={{marginLeft:16}} type="link" >CANCEL</Button>);
+    const cancelButton                = (<Button loading={pushingTx} size="large" onClick={() => this.cancelRequest()} key="cancelButton" className="danger_color" style={{marginLeft:16}} type="link" >CANCEL</Button>);
     //
-    const rejectButton = (<Button loading={pushingTx} size="large" onClick={() => this.rejectRequest()} key="rejectButton" className="danger_color" style={{marginLeft:16}} type="link" >REJECT</Button>);
+    const rejectButton                = (<Button loading={pushingTx} size="large" onClick={() => this.rejectRequest()} key="rejectButton" className="danger_color" style={{marginLeft:16}} type="link" >REJECT</Button>);
     //
-    const revertButton = (<Button loading={pushingTx} size="large" onClick={() => this.revertRequest()} key="revertButton" className="danger_color" style={{marginLeft:16}} type="link" >REVERT AND REFUND</Button>);
+    const revertButton                = (<Button loading={pushingTx} size="large" onClick={() => this.revertRequest()} key="revertButton" className="danger_color" style={{marginLeft:16}} type="link" >REVERT AND REFUND</Button>);
     //
-    const attachNotaButton  = (<Button loading={pushingTx} size="large" onClick={() => this.attachNota()} key="updateButton" type="primary" style={{marginLeft:16}} type="primary" >UPLOAD NOTA</Button>);
+    const attachNotaButton            = (<Button loading={pushingTx} size="large" onClick={() => this.attachNota()} key="updateButton" type="primary" style={{marginLeft:16}} type="primary" >UPLOAD NOTA</Button>);
     //
-    const attachFiles  = (<Button loading={pushingTx} size="large" onClick={() => this.attachFiles()} key="attachButton" type="primary" style={{marginLeft:16}} type="primary" >ATTACH FILES</Button>);
+    const attachFiles                 = (<Button loading={pushingTx} size="large" onClick={() => this.attachFiles()} key="attachButton" type="primary" style={{marginLeft:16}} type="primary" >ATTACH FILES</Button>);
     //
-    const refundButton = (<Button loading={pushingTx} size="large" onClick={() => this.refundRequest()} key="refundButton" type="primary" style={{marginLeft:16}} type="primary" >REFUND</Button>);
+    const refundButton                = (<Button loading={pushingTx} size="large" onClick={() => this.refundRequest()} key="refundButton" type="primary" style={{marginLeft:16}} type="primary" >REFUND</Button>);
     //
-
-    //Deposit
-    const acceptAndIssueButton = (<Button loading={pushingTx} size="large" onClick={() => this.acceptDepositAndIssue()} key="acceptAndIssueButton" type="primary" style={{marginLeft:16}} type="primary" >ACCEPT AND ISSUE</Button>);
+    const acceptAndIssueButton        = (<Button loading={pushingTx} size="large" onClick={() => this.acceptDepositAndIssue()} key="acceptAndIssueButton" type="primary" style={{marginLeft:16}} type="primary" >ACCEPT AND ISSUE</Button>);
     //
-
-    // Withdraw
-    const acceptButton = (<Button loading={pushingTx} size="large" onClick={() => this.acceptRequest()} key="acceptButton" style={{marginLeft:16}} type="primary" >ACCEPT</Button>);
+    const acceptButton                = (<Button loading={pushingTx} size="large" onClick={() => this.acceptRequest()} key="acceptButton" style={{marginLeft:16}} type="primary" >ACCEPT</Button>);
     //
-    const rejectWithdrawButton = (<Button loading={pushingTx} size="large" onClick={() => this.doRejectAndRefundWithdraw()} key="rejectWithdrawButton" className="danger_color" style={{marginLeft:16}} type="link" >REJECT AND REFUND</Button>);
+    const rejectWithdrawButton        = (<Button loading={pushingTx} size="large" onClick={() => this.doRejectAndRefundWithdraw()} key="rejectWithdrawButton" className="danger_color" style={{marginLeft:16}} type="link" >REJECT AND REFUND</Button>);
     //
     switch (request.state){
       case globalCfg.api.STATE_REQUESTED:

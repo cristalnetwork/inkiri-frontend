@@ -34,6 +34,17 @@ const { TabPane } = Tabs;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
+const tabs = {
+  [DISPLAY_ALL_TXS] : 'Movements',
+  [DISPLAY_DEPOSIT] : 'Deposits',
+  [DISPLAY_WITHDRAWS] : 'Withdraws',
+  [DISPLAY_PROVIDER] : 'Provider Payments',
+  [DISPLAY_SERVICE] : 'Services',
+  [DISPLAY_PAYMENTS] : 'Payments',
+  // [DISPLAY_REQUESTS] : 'Requests',
+}
+
+
 class Extrato extends Component {
   constructor(props) {
     super(props);
@@ -341,22 +352,21 @@ class Extrato extends Component {
     }
     
     //
+    if(this.state.active_tab==DISPLAY_SERVICE){
+      content = (
+        <TransactionTable 
+          key={'table_'+DISPLAY_SERVICE} 
+          need_refresh={this.state.need_refresh[DISPLAY_SERVICE]}
+          request_type={DISPLAY_SERVICE} 
+          onChange={this.onTableChange}
+          callback={this.onRequestClick}
+          />
+      );
+    }
 
-
+    //
     if(this.state.active_tab==DISPLAY_ALL_TXS){
-      // content = (
-      //   <Table
-      //     key={"table_"+DISPLAY_ALL_TXS} 
-      //     rowKey={record => record.id} 
-      //     loading={this.state.loading} 
-      //     columns={columns_helper.getDefaultColumns(this.props.actualRoleId, this.onTransactionClick)} 
-      //     dataSource={this.state.txs} 
-      //     footer={() => this.renderFooter()}
-      //     pagination={this.state.pagination}
-      //     scroll={{ x: 700 }}
-      //     />
-      // );
-
+      
       content = (
         <Table
           key={"table_"+DISPLAY_ALL_TXS} 
@@ -377,10 +387,10 @@ class Extrato extends Component {
   }
   //
   render() {
-    const {routes} = this.state;
-    const content = this.renderContent();
-    const stats = this.renderTableViewStats();
-    const filters = this.renderFilterContent();
+    const {routes, active_tab} = this.state;
+    const content              = this.renderContent();
+    const stats                = this.renderTableViewStats();
+    const filters              = this.renderFilterContent();
     return (
       <>
         <PageHeader
@@ -393,7 +403,30 @@ class Extrato extends Component {
           subTitle="List of transactions"
         >
         </PageHeader>
-        <div className="styles standardList" style={{ marginTop: 0 }}>
+
+        <div className="styles standardList" style={{ marginTop: 24 }}>
+          <Card key={'card_master'}  
+            tabList={ Object.keys(tabs).map(key_tab => { return {key: key_tab, tab: tabs[key_tab]} } ) }
+            activeTabKey={active_tab}
+            onTabChange={ (key) => this.onTabChange(key)}
+            >
+
+              {filters}
+
+              {stats}
+              
+              {content}
+
+          </Card>
+        </div>
+      </>
+    );
+  }
+}
+
+//
+/*
+<div className="styles standardList" style={{ marginTop: 0 }}>
           <Card key="tabs_card" bordered={false}>
             <Tabs  defaultActiveKey={DISPLAY_ALL_TXS} onChange={this.onTabChange}>
               <TabPane tab="Movements"       key={DISPLAY_ALL_TXS} />
@@ -412,11 +445,7 @@ class Extrato extends Component {
         
         {content}
 
-      </>
-    );
-  }
-}
-
+        */
 export default  (withRouter(connect(
     (state)=> ({
         actualAccountName:    loginRedux.actualAccountName(state),

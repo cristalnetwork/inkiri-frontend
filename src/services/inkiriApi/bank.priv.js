@@ -200,11 +200,14 @@ export const createDeposit = (account_name, amount, currency) =>   new Promise((
       });
 });
 
-export const setDepositOk = (sender, request_id, tx_id) =>  updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED , tx_id);
+export const setDepositOk   = (sender, request_id, tx_id)  => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED , tx_id);
+export const rejectService  = (sender, request_id)         => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, true);
+export const cancelService  = (sender, request_id)         => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, true);
 
-export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id) => new Promise((res,rej)=> {
+export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id, is_C2C) => new Promise((res,rej)=> {
   
-  const path    = globalCfg.api.endpoint + `/requests/${request_id}`;
+  const module  = (is_C2C==true)?'requests_c2c':'requests';
+  const path    = globalCfg.api.endpoint + `/${module}/${request_id}`;
   const method  = 'PATCH';
   let post_params = {
     _id:      request_id,

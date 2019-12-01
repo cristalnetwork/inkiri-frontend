@@ -97,12 +97,13 @@ class ServiceContractForm extends Component {
         }
       }
 
-      const periods = values.expires_at.diff(values.begins_at, 'months');
+      let periods = values.expires_at.diff(values.begins_at, 'months');
       if(periods<=0)
       {
         this.openNotificationWithIcon("error", 'Month range error', 'Initial service month should be prior to ending one.');
         return;
       }
+      periods = periods+1;
 
       const {provider, service } = this.state;
       let contract = {
@@ -113,7 +114,7 @@ class ServiceContractForm extends Component {
         customer    : values.customer,
         periods     : periods     
       }
-      this.fireEvent(null, null, values);
+      this.fireEvent(null, null, contract);
       
     });
   };
@@ -173,7 +174,7 @@ class ServiceContractForm extends Component {
     return (
             
             <>
-            <ServiceCard service={service} provider={provider}/>
+            <ServiceCard service={service} provider={provider} smallStyle={true} />
 
             <Form onSubmit={this.handleSubmit}>
               

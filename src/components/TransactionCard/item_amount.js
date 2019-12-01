@@ -15,7 +15,7 @@ const ItemAmount = ({amount, symbol, small}) => {
           {my_symbol} 
         </span>
         <span className="price-tag price-tag-fraction">
-          {amount}
+          {parseFloat(amount).toFixed(2)}
         </span>
       </span>
                          
