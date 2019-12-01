@@ -324,11 +324,8 @@ class Extrato extends Component {
         , buildItemCompute('Variacao de caja', (money_in-money_out))
         , buildItemSimple('Transações', (count||0))
       ]
-    const ret = (<TableStats stats_array={items}/>)
+    return (<TableStats stats_array={items}/>)
 
-    return (
-      {ret}
-    );
   }
 
   renderFooter(){

@@ -14,7 +14,8 @@ import { Route, Redirect, withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
+import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Row, Col } from 'antd';
+import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimple} from '@app/components/TransactionTable/stats';
 
 import { notification, Table, Divider, Spin } from 'antd';
 
@@ -280,59 +281,18 @@ class Extrato extends Component {
   //
   renderTableViewStats() 
   {
+    if(this.state.isMobile)
+      return (null);
+
     const {money_in, money_out, count} = this.currentStats();
-    const variacion = money_in-money_out;
-    return (
-      <div className="styles standardList" style={{ marginTop: 24 }}>
-        <Card key="the_card_key" bordered={false}>
-          <Row>
-            <Col xs={24} sm={12} md={5} lg={5} xl={5}>
-            <Statistic
-                    title="Entradas"
-                    value={money_in}
-                    precision={2}
-                    valueStyle={{ color: 'green' }}
-                    prefix={<Icon type="arrow-up" />}
-                  />
-            </Col>
-            <Col xs={24} sm={12} md={5} lg={5} xl={5}>
-              <Statistic
-                    title="Saidas"
-                    value={money_out}
-                    precision={2}
-                    valueStyle={{ color: 'red' }}
-                    prefix={<Icon type="arrow-down" />}
-                  />
-            </Col>
-            <Col xs={24} sm={12} md={5} lg={5} xl={5}>
-              <Statistic
-                    title="Variacao de caja"
-                    value={variacion}
-                    precision={2}
-                    valueStyle={variacion>0?{ color: 'green' }:{ color: 'red' }}
-                    prefix={((variacion==0)?null:(variacion>0?<Icon type="arrow-up" />:<Icon type="arrow-down" />))}
-                  />
-            </Col>
-            <Col xs={24} sm={12} md={4} lg={4} xl={4}>
-              <Statistic
-                    title="Transações"
-                    value={count|0}
-                    precision={0}
-                    
-                  />
-            </Col>
-            <Col xs={24} sm={12} md={5} lg={5} xl={5}>
-              <Statistic
-                title="Account Balance"
-                value={Number(this.props.balance)}
-                precision={2}
-                prefix={globalCfg.currency.symbol}
-              />
-            </Col>
-          </Row>
-        </Card>
-      </div>
-    );
+    const items = [
+        buildItemUp('Entradas', money_in)
+        , buildItemDown('Saidas', money_out)
+        , buildItemCompute('Variacao de caja', (money_in-money_out))
+        , buildItemSimple('Transações', (count||0))
+      ]
+    return (<TableStats stats_array={items}/>)
+
   }
 
   renderFooter(){
