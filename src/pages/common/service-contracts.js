@@ -38,6 +38,7 @@ class ServiceContracts extends Component {
     const props_provider = (props && props.location && props.location.state && props.location.state.provider)? props.location.state.provider : null;
     const props_service  = (props && props.location && props.location.state && props.location.state.service)? props.location.state.service : null;
     this.state = {
+      referrer:           (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined,
       routes :            routesService.breadcrumbForPaths(props.location.pathname),
       loading:            false,
       pushingTx:          false,
@@ -95,6 +96,12 @@ class ServiceContracts extends Component {
 
   componentDidUpdate(prevProps, prevState) 
   {
+    if(prevProps.referrer !== this.props.referrer) {
+      this.setState({
+        referrer         : this.props.referrer,
+      });
+    }
+
     const {provider, service, actualAccountProfile} = this.props;
     if(prevProps.provider !== provider) {
       this.setState({ provider:provider || actualAccountProfile, service: service});
@@ -291,13 +298,14 @@ class ServiceContracts extends Component {
   render() {
     const content                        = this.renderContent();
     const service_info                   = this.renderServiceInfo();
-    const {routes, loading, active_view} = this.state;
+    const {loading, active_view} = this.state;
     const title                          = 'Customers';
     const buttons = (active_view=='STATE_LIST_SERVICES')
       ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServiceContracts()} ></Button>, 
         <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewContract()}}> Service</Button>]
         :[];
     //
+    const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     return (
       <>
         <PageHeader
@@ -319,7 +327,7 @@ class ServiceContracts extends Component {
   renderServiceInfo(){
     const {title, description, amount, state} = this.state.service;  
     const items = [
-        stats_helper.buildItemSimple('EXCHANGES', description)
+        stats_helper.buildItemSimple('DESC', description)
         , stats_helper.buildItemMoney('PRICE', amount)
         , stats_helper.buildItemSimple('STATE', state)
       ]

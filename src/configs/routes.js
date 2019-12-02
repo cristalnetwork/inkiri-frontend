@@ -378,6 +378,7 @@ const common = [
    },
    {
      key:            pathNames.commonServiceContracts,
+     father_key :    '*',
      fileName:       'service-contracts',
      area:           'common',
      path:           'service-contracts',
@@ -417,7 +418,8 @@ const common = [
        path:         'provider-profile',
        container:    'dashboard',
        role:         '*'
-    },
+    }
+
 ];
 
 
