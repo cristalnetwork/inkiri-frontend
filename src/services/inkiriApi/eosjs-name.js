@@ -26,7 +26,7 @@ const charidx = ch => {
   return idx;
 };
 
-function nameToValue(name) {
+export function nameToValue(name) {
   
   if (typeof name === 'number'){
     return Long.fromInt(name, false)  
@@ -52,41 +52,26 @@ function nameToValue(name) {
   return Long.fromString(bitstr, true, 2);
 }
 
-export function getTableBoundsForName(name, asHex, bigEndian) {
-  const nameValue = nameToValue(name);
-  const nameValueP1 = nameValue.add(1);
+export function getTableBoundsForName2(name, asLittleEndianHex, step) {
+  const my_step     = step||1;
+  console.log('step: ', step, ' my_step:', my_step)
+  const nameValue   = nameToValue(name);
+  const nameValueP1 = nameValue.add(my_step);
 
-
-  if(!asHex && !bigEndian) {
+  if(!asLittleEndianHex) {
     return {
       lower_bound: nameValue.toString(),
       upper_bound: nameValueP1.toString()
     };
   }
-  
-  if(!asHex && bigEndian==true)
-  {
-    const lBound = bytesToHex(nameValue.toBytesBE());
-    const uBound = bytesToHex(nameValueP1.toBytesBE());
-    return {
-      lower_bound: lBound.toString(),
-      upper_bound: uBound.toString(),
-    };
-  }
-  // console.log('nameValue: ', nameValue)
-  // console.log('nameValueP1: ', nameValueP1)
-  // console.log('nameValue.toString(16): ', nameValue.toString(16))
-  // console.log('nameValueP1.toString(16): ', nameValueP1.toString(16))
-  // return {
-  //   lower_bound: nameValue.toString(16),
-  //   upper_bound: nameValueP1.toString(16),
-  // };
 
-  const lowerBound = bytesToHex(nameValue.toBytesLE());
-  const upperBound = bytesToHex(nameValueP1.toBytesLE());
+  const lowerBound = nameValue.toString(16); //bytesToHex(nameValue.toBytesLE());
+  const upperBound = nameValueP1.toString(16); //bytesToHex(nameValueP1.toBytesLE());
+
+  // console.log('name: ', name, 'nameValue: ', nameValue, 'nameHEX: ', lowerBound )
+  
   return {
-    lower_bound: lowerBound.toString(),
-    upper_bound: upperBound.toString(),
+    lower_bound: lowerBound,
+    upper_bound: upperBound,
   };
 }
-

@@ -13,9 +13,11 @@ import ItemBlockchainLink from '@app/components/TransactionCard/item_blockchain_
 const TransactionBlockchain = (props) => {
     
     const [request, setRequest]          = useState(props.request);    
+    const [title, setTitle]              = useState(props.title||'Customer payment');    
 
     useEffect(() => {
       setRequest(props.request);
+      setTitle(props.title||'Customer payment');    
     });
 
     if(!request || (!request.tx_id && !request.refund_tx_id))
@@ -26,7 +28,7 @@ const TransactionBlockchain = (props) => {
         
         <div className="ui-list">
           <ul className="ui-list__content">
-            <ItemBlockchainLink tx_id={request.tx_id}        title={'Customer payment'} />
+            <ItemBlockchainLink tx_id={request.tx_id}        title={title} />
             <ItemBlockchainLink tx_id={request.refund_tx_id} title={'Bank refund'} />
           </ul>
         </div>

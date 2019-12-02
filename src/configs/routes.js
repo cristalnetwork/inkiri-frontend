@@ -377,6 +377,14 @@ const common = [
      role:       '*'
    },
    {
+     key:            pathNames.commonServiceContracts,
+     fileName:       'service-contracts',
+     area:           'common',
+     path:           'service-contracts',
+     container:      'dashboard',
+     role:           '*'
+   },
+   {
      key:            pathNames.commonContractedServices,
      fileName:       'contracted-services',
      area:           'common',

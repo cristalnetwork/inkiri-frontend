@@ -8,6 +8,7 @@ import * as request_helper from '@app/components/TransactionCard/helper';
 import * as form_helper from '@app/components/Form/form_helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as moment from 'moment';
+import * as api from '@app/services/inkiriApi';
 
 const ServiceCardPeriods = (props) => {
     
@@ -28,7 +29,7 @@ const ServiceCardPeriods = (props) => {
     const expires_at      = moment(service_extra.expires_at);
     const expires_at_text = expires_at.format(form_helper.MONTH_FORMAT_HUMANIZED);
 
-    const periods         = expires_at.diff(begins_at, 'months')+1;
+    const periods         = api.pap_helper.getServicePeriods(service_extra);
     const total_amount    = globalCfg.currency.toCurrencyString(price*periods);
 
     const item = (<li className="ui-row ui-info-row ui-info-row--medium ui-info-row">

@@ -55,8 +55,8 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           
           if(actualRole=='business') 
           { 
-            // history.push(`/common/services`);
-            history.push(`/${actualRole}/extrato`);
+            history.push(`/common/services`);
+            // history.push(`/${actualRole}/extrato`);
             // history.push(`/common/salaries`);
             // history.push(`/common/crew`);   
             // history.push(`/common/configuration`);

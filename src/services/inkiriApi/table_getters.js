@@ -29,31 +29,48 @@ export const INDEX_POSITION_PAP_BY_CUSTOMER_SERVICE           = 5;
 
 const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
 
-export const fetchRows = async (options, limit) => {
+export const leadingZeros = (s, n) => {
+  if (typeof s !== 'string') 
+    s=s.toString();
+  if (typeof n !== 'number') n=3;
+  return ('00000000000000000000'+s).slice(-n);
+}
+
+export const fetchResult = async (options, limit) => {
   const mergedOptions = {
     json: true,
     limit: limit||9999,
+    encode_type: "hex",
     ...options,
   };
 
   const result = await jsonRpc.get_table_rows(mergedOptions);
 
+  return result;
+
+}
+
+export const fetchRows = async (options, limit) => {
+  
+  const result = await fetchResult(options, limit);
+
   return result.rows;
+
 }
 
 export const customerByUInt64 = async(name, idx_index) => {
 
-  const boundsHex = eosjs_name_helper.getTableBoundsForName(name);
+  const boundsHex = eosjs_name_helper.getTableBoundsForName2(name, false);
   const bounds = {
       lower_bound: `${boundsHex.lower_bound}`,
-      upper_bound: `${boundsHex.upper_bound}`,
+      upper_bound: `${boundsHex.lower_bound}`,
   }
 
   console.log('bounds:', bounds)
 
   const rows = await fetchRows({
     code:     globalCfg.bank.issuer,
-    table:        globalCfg.bank.table_customers,
+    table:    globalCfg.bank.table_customers,
     scope:    globalCfg.bank.issuer,
     key_type: `i64`,
     index_position: idx_index||1,
@@ -63,58 +80,119 @@ export const customerByUInt64 = async(name, idx_index) => {
   return rows;
 }
 
-
-export const papByUInt128 = async (first_param, second_param, idx_index) => {
-  /* ************************************ */
-  // byprov 
-  // return (uint128_t{provider.value}<<64) | (uint64_t)service_id;
+export const listPapByProvider = async (provider_account_name, upper) => {
+  const my_upper           = upper || 99999999; 
   
-  const second_paramHexLE = eosjs_name_helper.getTableBoundsForName(first_param, true).lower_bound;
-  const second_paramBounds = eosjs_name_helper.getTableBoundsForName(second_param, true);
-  const bounds = {
-      lower_bound: `0x${second_paramHexLE}${second_paramBounds.lower_bound}`,
-      upper_bound: `0x${second_paramHexLE}${second_paramBounds.upper_bound}`,
+  // const providerHexLE      = eosjs_name_helper.getTableBoundsForName2(provider_account_name, true).lower_bound;
+  const firstHexLE = eosjs_name_helper.getTableBoundsForName2(provider_account_name, true).lower_bound;
+  const serviceBounds      = {
+    lower_bound: leadingZeros('', 16),
+    upper_bound: 'ffffffffffffffff'
   }
+
+  const bounds ={
+    lower_bound: `0x${serviceBounds.lower_bound}${firstHexLE}`,
+    upper_bound: `0x${serviceBounds.upper_bound}${firstHexLE}`,
+   }
+  
+  console.log('bounds:', bounds)
+
+  const result = await fetchResult({
+    code:             globalCfg.bank.issuer,
+    table:            globalCfg.bank.table_paps,
+    scope:            globalCfg.bank.issuer,
+    key_type:         `i128`,
+    index_position:   INDEX_POSITION_PAP_BY_PROVIDER_SERVICE,
+    ...bounds,
+  });
+
+  return result;
+
+}
+
+// export const listPapByProvider_by256 = async (provider_account_name, upper) => {
+//   const my_upper           = upper || 99999999; 
+//   const accountHexLE       = leadingZeros('', 16);
+//   const providerHexLE      = eosjs_name_helper.getTableBoundsForName2(provider_account_name, true).lower_bound;  
+//   // const serviceBounds      = eosjs_name_helper.getTableBoundsForName2('zzzzzzzzzzzy', true, my_upper);
+//   const serviceBounds      = {
+//     lower_bound: leadingZeros('', 16),
+//     upper_bound: 'ffffffffffffffff'
+//   }
+//   const bounds = {
+//     lower_bound: `${`0`.repeat(16)}${accountHexLE}${providerHexLE}${serviceBounds.lower_bound}`,
+//     upper_bound: `${`0`.repeat(16)}${accountHexLE}${providerHexLE}${serviceBounds.upper_bound}`,
+//   };
+//   console.log(bounds);
+//   console.log(serviceBounds);
+//   const rows = await fetchRows({
+//     code:           globalCfg.bank.issuer,
+//     table:          globalCfg.bank.table_paps,
+//     scope:          globalCfg.bank.issuer,
+//     key_type:       'sha256',
+//     index_position: INDEX_POSITION_PAP_BY_PROVIDER_SERVICE_CUSTOMER,
+//     ...bounds,
+//   });
+//   return rows;
+// }
+
+export const papByCustomerService  = (customer_account_name, service_id_num, step)        => papByUInt128(customer_account_name, service_id_num, INDEX_POSITION_PAP_BY_CUSTOMER_SERVICE, step);
+export const papByProviderService  = (provider_account_name, service_id_num, step)        => papByUInt128(provider_account_name, service_id_num, INDEX_POSITION_PAP_BY_PROVIDER_SERVICE, step);
+export const papByProviderCustomer = (provider_account_name, customer_account_name, step) => papByUInt128(provider_account_name, customer_account_name, INDEX_POSITION_PAP_BY_PROVIDER_CUSTOMER, step);
+
+export const papByUInt128 = async (first_param, second_param, idx_index, step) => {
+  
+  const firstHexLE = eosjs_name_helper.getTableBoundsForName2(first_param, true, step).lower_bound;
+  const second_paramBounds = eosjs_name_helper.getTableBoundsForName2(second_param, true, step);
+  const bounds ={
+      lower_bound: `0x${second_paramBounds.lower_bound}${firstHexLE}`,
+      upper_bound: `0x${second_paramBounds.upper_bound}${firstHexLE}`,
+     }
 
   console.log('bounds:', bounds)
 
-  const rows = await fetchRows({
-    code:     globalCfg.bank.issuer,
-    table:    globalCfg.bank.table_paps,
-    scope:    globalCfg.bank.issuer,
-    key_type: `i128`,
-    index_position: idx_index||1,
+  const result = await fetchResult({
+    code:             globalCfg.bank.issuer,
+    table:            globalCfg.bank.table_paps,
+    scope:            globalCfg.bank.issuer,
+    key_type:         `i128`,
+    index_position:   idx_index||1,
     ...bounds,
   });
 
 
-  return rows;
+  return result;
 }
+
 
 export const papByChecksum256 = async  (customer_account_name, provider_account_name, service_id_num, index_position) => {
   /* ************************************* */
   // byall
   // LE(0ULL, account).value, LE(provider.value, (uint64_t)service_id_num)
-  const accountHexLE  = eosjs_name_helper.getTableBoundsForName(customer_account_name, false, true).lower_bound;
-  const providerHexLE = eosjs_name_helper.getTableBoundsForName(provider_account_name, false, true).lower_bound;
-  const serviceBounds = eosjs_name_helper.getTableBoundsForName(service_id_num, false, true);
+  const accountHexLE  = eosjs_name_helper.getTableBoundsForName2(customer_account_name, true).lower_bound;
+  const providerHexLE = eosjs_name_helper.getTableBoundsForName2(provider_account_name, true).lower_bound;
+  const serviceBounds = eosjs_name_helper.getTableBoundsForName2(service_id_num, true);
   const bounds = {
-    lower_bound: `${`0`.repeat(16)}${accountHexLE}${providerHexLE}${serviceBounds.lower_bound}`,
-    upper_bound: `${`0`.repeat(16)}${accountHexLE}${providerHexLE}${serviceBounds.upper_bound}`,
+    lower_bound: `${`0`.repeat(16)}${accountHexLE}${providerHexLE}${leadingZeros(serviceBounds.lower_bound, 16)}`,
+    upper_bound: `${`0`.repeat(16)}${accountHexLE}${providerHexLE}${leadingZeros(serviceBounds.upper_bound, 16)}`,
   };
+
+  // 0000000000000000 ceb2e9d2a63c6810 a5d869b91b530d30 00002
+  // 0000000000000000 ceb2e9d2a63c6810 a5d869b91b530d30 0000000000000002
+     
 
   console.log(bounds);
 
-  const rows = await fetchRows({
+  const result = await fetchResult({
     code:           globalCfg.bank.issuer,
     table:          globalCfg.bank.table_paps,
     scope:          globalCfg.bank.issuer,
     key_type:       'sha256',
-    index_position: index_position,
+    index_position: index_position | INDEX_POSITION_PAP_BY_PROVIDER_SERVICE_CUSTOMER,
     ...bounds,
   });
 
-  return rows;
+  return result;
 
 }
 
@@ -123,29 +201,45 @@ export const papByChecksum256 = async  (customer_account_name, provider_account_
 * HOW TO USE
 import * as eos_table_getter from '@app/services/inkiriApi/table_getters';
 
-const provider_account_name = 'provider1';      // provider.account_name
-const service_id_num           = 11; 
-const customer_account_name = 'pablotutino1';   // customer_account_name
 
-const custProv  = await eos_table_getter.customerByUInt64(provider_account_name);
-console.log('custProv', custProv)
+    const provider_account_name = 'organicvegan';
+    const service_id_num        = 2; 
+    const customer_account_name = 'tutinopablo1';
 
-const custAcc  = await eos_table_getter.customerByUInt64(customer_account_name);
-console.log('custAcc', custAcc)
+    console.log(' --------------------- ')
+    console.log('provider:', provider_account_name)
+    const provider  = await eos_table_getter.customerByUInt64(provider_account_name);
+    console.log(' >> res:', provider)
 
-const byProvAcc = await eos_table_getter.papByUInt128(provider_account_name, customer_account_name, 4);
-console.log('byProvAcc', byProvAcc)
+    console.log(' --------------------- ')
+    console.log('customer:', customer_account_name)
+    const customer  = await eos_table_getter.customerByUInt64(customer_account_name);
+    console.log(' >> res:', customer)
 
-const byProvServ = await eos_table_getter.papByUInt128(provider_account_name, service_id_num, 3);
-console.log('byProvServ', byProvServ)
+    console.log(' --------------------- ')
+    console.log('papByCustomerService:')
+    const papByCustomerService = await eos_table_getter.papByUInt128(customer_account_name, service_id_num, eos_table_getter.INDEX_POSITION_PAP_BY_CUSTOMER_SERVICE);
+    console.log(' >> res:', papByCustomerService)
 
-const byAccServ = await eos_table_getter.papByUInt128(customer_account_name, service_id_num, 5);
-console.log('byAccServ', byAccServ)
+    console.log(' --------------------- ')
+    console.log('papByProvServSimple:')
+    const papByProvServSimple = await eos_table_getter.papByUInt128(provider_account_name, service_id_num, eos_table_getter.INDEX_POSITION_PAP_BY_PROVIDER_SERVICE);
+    console.log(' >> res:', papByProvServSimple)
 
-const papByAll2 = await eos_table_getter.papByChecksum256(customer_account_name, provider_account_name, service_id_num, 2);
-console.log(' >> PAP#2:', papByAll2)
+    console.log(' --------------------- ')
+    console.log('papByProvAccount:')
+    const papByProvAccount = await eos_table_getter.papByUInt128(provider_account_name, customer_account_name, eos_table_getter.INDEX_POSITION_PAP_BY_PROVIDER_CUSTOMER);
+    console.log(' >> res:', papByProvAccount)
+  
+    console.log(' --------------------- ')
+    console.log('papByAll:')
+    const papByAll = await eos_table_getter.papByChecksum256(customer_account_name, provider_account_name, service_id_num, eos_table_getter.INDEX_POSITION_PAP_BY_PROVIDER_SERVICE_CUSTOMER);
+    console.log(' >> res:', papByAll)
+    
+    console.log(' --------------------- ')
+    console.log('listPapByProvider:')
+    const listPapByProvider = await eos_table_getter.listPapByProvider(provider_account_name);
+    console.log(' >> res:', listPapByProvider)
 
-const papByAll3 = await eos_table_getter.papByChecksum256(customer_account_name, provider_account_name, service_id_num, 3);
-console.log(' >> PAP#3:', papByAll3)
 
 */

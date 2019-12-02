@@ -108,7 +108,8 @@ export const getTypeConf = () => {
       [globalCfg.api.TYPE_REFUND]      : {icon:'credit-card',  rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/       , secondary:'#b1ecfa'}, style: {}},
       [globalCfg.api.TYPE_UPSERT]      : {icon:'magic',        rotation: 0,  color:{primary: '#FFC106' /*amarillorange*/ , secondary:'#f7e9bc'}, style: {}},
       [globalCfg.api.TYPE_UNKNOWN]     : {icon:'credit-card',  rotation: 0,  color:{primary: '#FF0619' /*rojo*/          , secondary:'#f7c6ca'}, style: {}},
-      'hack_service'                   : {icon:'shapes',       rotation: 0,  color:{primary: '#EBCE54' /*yellow*/        , secondary:'rgba(235, 205, 86, 0.4)'}, style: {}}
+      'hack_service'                   : {icon:'shapes',       rotation: 0,  color:{primary: '#EBCE54' /*yellow*/        , secondary:'rgba(235, 205, 86, 0.4)'}, style: {}},
+      'hack_user'                      : {icon:'user',         rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}}
   }
 }
 //

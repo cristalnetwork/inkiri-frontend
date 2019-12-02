@@ -4,6 +4,7 @@ import * as eosHelper from './eosHelper.js';
 import * as dfuse from './dfuse.js';
 import * as bank from './bank.priv.js';
 import * as jwt from './jwtHelper.js';
+import * as pap_helper from './pre-auth-payments.helper.js';
 import ecc from 'eosjs-ecc';
 
 import * as txsHelper from './transactionHelper';
@@ -18,6 +19,7 @@ export {eosHelper};
 export {dfuse};
 export {bank};
 export {jwt};
+export {pap_helper};
 
 function prettyJson(input){
   return JSON.stringify(input, null, 2)
@@ -344,6 +346,38 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
   return pushTX(actions, creator_priv);
 }
 
+export const acceptService = async (auth_account, auth_priv, account_name, provider_name, service_id, price, begins_at, periods, request_id) => { 
+// cleos push action cristaltoken upsertpap '{"account":"pablotutino1", "provider":"provider1", "service_id":11, "price":"11.0000 INK", "begins_at":1540667034, "periods":3, "last_charged":0, "enabled":1}' -p pablotutino1@active
+
+  const acceptServiceAction = {
+    account:            globalCfg.bank.issuer,
+    name:               globalCfg.bank.table_paps_action,
+    authorization: [
+      {
+        actor:          auth_account,
+        permission:     "active"
+      }
+    ],
+    data: {
+      account:           account_name
+      , provider:        provider_name
+      , service_id:      service_id
+      , price:           globalCfg.currency.toEOSNumber(price)
+      , begins_at:       begins_at
+      , periods:         periods
+      , last_charged:    0
+      , enabled:         globalCfg.bank.ACCOUNT_STATE_OK
+      , memo:            `pap|${request_id}`
+    }
+  }
+  
+  console.log(' InkiriApi::acceptService >> About to add push >> ', prettyJson(acceptServiceAction))
+
+  return pushTX(acceptServiceAction, auth_priv);
+
+}
+
+
 export const refund                 = (sender_account, sender_priv, receiver_account, amount, request_id, tx_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('bck|' + request_id + '|' + tx_id));
 export const sendMoney              = (sender_account, sender_priv, receiver_account, amount, memo)       => transferMoney(sender_account, sender_priv, receiver_account, amount, ('snd|'+memo)); 
 export const sendPayment            = (sender_account, sender_priv, receiver_account, amount, memo)       => transferMoney(sender_account, sender_priv, receiver_account, amount, ('pay|'+memo)); 
@@ -534,40 +568,6 @@ export const getNewPermissionObj = (eos_account_object, permissioned, perm_name)
   // delete perm.required_auth.waits
 
   return perm.required_auth;
-}
-
-export const addPersonalBankAccount = async (auth_account, auth_priv, account_name) => { 
-
-	// cleos -u http://jungle2.cryptolions.io:80 push action ikmasterooo1 upsertikacc '{"user":"ikadminoooo1", "fee":5, "overdraft":0, "account_type":1, "state":1}' -p ikmasterooo1@active
-
-	console.log(' inkiriApi::addPersonalBankAccount ', 
-		'param@auth_account:', auth_account,
-		'param@auth_priv:', auth_priv,
-		'param@account_name:', account_name
-		);
-
-	const addAccountAction = {
-    account: globalCfg.bank.contract,
-    name: "upsertikacc",
-    authorization: [
-      {
-        actor: auth_account,
-        permission: "active"
-      }
-    ],
-    data: {
-      user : 					account_name
-      , fee : 				globalCfg.bank.DEFAULT_FEE
-      , overdraft: 		globalCfg.bank.DEFAULT_OVERDRAFT
-      , account_type: globalCfg.bank.ACCOUNT_TYPE_PERSONAL
-      , state: 				globalCfg.bank.ACCOUNT_STATE_OK
-    }
-  }
-  
-  console.log(' InkiriApi::addPersonalBankAccount >> About to add account >> ', prettyJson(addAccountAction))
-
-  return pushTX(addAccountAction, auth_priv);
-
 }
 
 // permissioning_accounts

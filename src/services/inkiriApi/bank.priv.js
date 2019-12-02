@@ -200,10 +200,10 @@ export const createDeposit = (account_name, amount, currency) =>   new Promise((
       });
 });
 
-export const setDepositOk   = (sender, request_id, tx_id)  => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED , tx_id);
-export const rejectService  = (sender, request_id)         => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, true);
-export const cancelService  = (sender, request_id)         => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, true);
-
+export const setDepositOk   = (sender, request_id, tx_id)       => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED , tx_id);
+export const rejectService  = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, true);
+export const cancelService  = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, true);
+export const acceptServiceRequest = (sender, request_id, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, tx_id, undefined, true);
 export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id, is_C2C) => new Promise((res,rej)=> {
   
   const module  = (is_C2C==true)?'requests_c2c':'requests';
@@ -980,3 +980,5 @@ export const sendServiceRequest = (provider, customer_name, service, begins_at, 
         rej(ex);
       });
 });
+
+

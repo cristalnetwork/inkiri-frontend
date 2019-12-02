@@ -114,15 +114,6 @@ class Services extends Component {
     }
   }
 
-  /*
-    this.props.history.push({
-      pathname: `/common/services`
-      , state: { 
-          referrer: this.props.location.pathname,
-          provider:  provider
-        }
-    })
-  */
   onNewService = () => {
     
     // this.openNotificationWithIcon("warning", "Not implemented yet");    
@@ -175,7 +166,16 @@ class Services extends Component {
         this.onDisableService(service);
         break;
       case events.CHILDREN:
-        this.setState({active_view: STATE_LIST_SERVICE_CONTRACTS, active_view_object:service})
+        // this.setState({active_view: STATE_LIST_SERVICE_CONTRACTS, active_view_object:service})
+        this.props.setLastRootMenuFullpath(this.props.location.pathname);
+        this.props.history.push({
+          pathname: `/common/service-contracts`
+          , state: { 
+              referrer: this.props.location.pathname
+              , provider: service.created_by
+              , service:  service            
+            }
+        });
         break;
       case events.NEW_CHILD:
         this.setState({active_view: STATE_NEW_SERVICE_CONTRACT, active_view_object:service})
@@ -222,12 +222,10 @@ class Services extends Component {
     const customer_account_name = customer;
     const service_id_num        = service.serviceCounterId;
 
-    const byCustServ = await eos_table_getter.papByUInt128(customer_account_name
-        , service_id_num
-        , eos_table_getter.INDEX_POSITION_PAP_BY_CUSTOMER_SERVICE);
+    const byCustServ = await eos_table_getter.papByCustomerService(customer_account_name, service_id_num);
     console.log('byCustServ', byCustServ)
 
-    if(byCustServ && byCustServ.length>0)
+    if(byCustServ && byCustServ.rows.length>0)
     {
       that.openNotificationWithIcon("error", 'Duplicated customer service provisioning', 'Customer account is already hiring selected service.');
       return;
@@ -319,11 +317,21 @@ class Services extends Component {
 
   reloadServices = async () => {
 
+    
+    // const provider_account_name = 'organicvegan';
+    // const service_id_num        = 2; 
+    // const customer_account_name = 'tutinopablo1';
+    // console.log(' --------------------- ')
+    // console.log('papByProvServSimple:')
+    // const papByProvServSimple = await eos_table_getter.papByUInt128(provider_account_name, service_id_num, eos_table_getter.INDEX_POSITION_PAP_BY_PROVIDER_SERVICE, 1);
+    // console.log(' >> res:', papByProvServSimple)
+
     this.setState({
         page:        -1, 
         services:    [],
-      }, () => {
-        this.loadServices();
+      }, async () => {
+        const dummy_1 = await this.loadServicesStates();
+        const dummy_2 = await this.loadServices();
       });  
   }
 

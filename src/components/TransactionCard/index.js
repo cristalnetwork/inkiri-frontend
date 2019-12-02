@@ -119,7 +119,7 @@ class TransactionCard extends Component {
             :(null)
           }
           
-          <TransactionBlockchain request={request}/>
+          <TransactionBlockchain request={request} title={globalCfg.api.isService(request)?'Response transaction':null}/>
           
           <TransactionAttachments request={request} uploader={uploader}/>
           

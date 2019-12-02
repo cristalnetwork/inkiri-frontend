@@ -97,13 +97,12 @@ class ServiceContractForm extends Component {
         }
       }
 
-      let periods = values.expires_at.diff(values.begins_at, 'months');
+      let periods = api.pap_helper.getServicePeriods(values);
       if(periods<=0)
       {
-        this.openNotificationWithIcon("error", 'Month range error', 'Initial service month should be prior to ending one.');
+        this.openNotificationWithIcon("error", 'Month range error', 'Initial service month should be prior to or equal than ending one.');
         return;
       }
-      periods = periods+1;
 
       const {provider, service } = this.state;
       let contract = {

@@ -2,6 +2,8 @@ import React from 'react'
 import { Popconfirm, Alert, Button, Tag, Icon } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as request_helper from '@app/components/TransactionCard/helper';
+import * as form_helper from '@app/components/Form/form_helper';
+import moment from 'moment';
 
 import * as utils from '@app/utils/utils';
 import * as globalCfg from '@app/configs/global';
@@ -13,7 +15,8 @@ export const events = {
     REMOVE :      'event_remove',
     DISABLE :     'event_disable',
     CHILDREN :    'event_children',
-    NEW_CHILD :   'event_new_child'
+    NEW_CHILD :   'event_new_child',
+    CHARGE :      'event_charge'
 }
 
 export const columnsForPDA           = (callback) => getColumns(callback);
@@ -873,6 +876,74 @@ export const columnsForServices = (callback, services_states) => {
           return (<>{edit}<br/>{children}<br/>{new_child}</>);
           // const _disable = (<Button key={'details_'+record._id} type="link"     onClick={()=>{ callback(record, events.DISABLE) }} icon="pause-circle" size="small">Disable</Button>);
           // return (<>{edit}&nbsp;{_disable}</>)
+        }
+      }
+    ];
+}
+
+//
+
+export const columnsForServiceContract = (callback) => {
+    
+    return [
+      {
+        title: 'Customer',
+        dataIndex: 'account',
+        key: 'account',
+        width:'40%',
+        render: (account, record) => {
+          
+            return (<span className="name_value_row">
+            <div className="row_name centered" >
+              <div className="ui-row__col ui-row__col--heading">
+                  <div className="ui-avatar">
+                    {request_helper.getCircledTypeIcon('hack_user')} 
+                  </div>
+              </div>
+            </div>
+            <div className="row_value wider">
+              <span className="row_tx_description">@{account}</span> 
+               
+            </div>   
+          </span>)
+        }
+      },
+      {
+        title: 'Status',
+        dataIndex: 'enabled',
+        key: 'enabled',
+        render: (enabled, record) => {
+          const _state = (enabled)?'ACTIVE':'INACTIVE';
+          return (<span>{_state}</span>);
+         }   
+      },
+      {
+        title: 'Duration',
+        key: 'begins_at',
+        dataIndex: 'begins_at',
+        render: (begins_at, record) => {
+          
+          return (
+            <>
+              <span>
+                From: {moment(begins_at).format(form_helper.MONTH_FORMAT_HUMANIZED)}
+              </span> 
+              <br/><span> 
+                To: {moment(begins_at).add(record.periods, 'months').format(form_helper.MONTH_FORMAT_HUMANIZED)}
+              </span> 
+            </> 
+          )}
+      },
+      {
+        title: 'Action',
+        key: 'action',        
+        align: 'right',
+        render: (text, record) => {
+          const style     = {marginTop:6};
+          const charge   = (<Button               key={'charge_'+record.id}   onClick={()=>{ callback(record, events.CHARGE) }}    icon="calendar" size="small">Charge</Button>);
+          const children = (<Button style={style} key={'children_'+record.id} onClick={()=>{ callback(record, events.CHILDREN) }}  icon="download" size="small" disabled>Received payments</Button>);
+          const _remove  = (<Button style={style} key={'remove_'+record.id}   onClick={()=>{ callback(record, events.REMOVE) }}    icon="delete"   size="small" type="link" disabled>SEASE and REMOVE</Button>);
+          return (<>{charge}<br/>{children}<br/>{_remove}</>);
         }
       }
     ];

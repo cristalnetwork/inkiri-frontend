@@ -237,28 +237,78 @@ class requestDetails extends Component {
     
   }
 
-  acceptServiceRequest(){
+  acceptServiceRequest = async () =>{
+
+    const {id, amount, service, service_extra, requested_by, requested_to, requestCounterId} = this.state.request;
+    const private_key    = this.props.actualPrivateKey;
+    const provider       = requested_by.account_name;
+    const customer       = requested_to.account_name;
+    const sender         = globalCfg.currency.issuer; //this.props.actualAccountName;
+    const auth_account   = this.props.actualAccountName;
+    const begins_at      = api.pap_helper.getServiceBeginTimestamp(service_extra.begins_at)
+    const periods        = api.pap_helper.getServicePeriods(service_extra)
+
+    if(amount!=service.amount)
+    {
+      this.openNotificationWithIcon('warning', 'The service price requested by provider is different than the service price.', `Requested price: ${amount}. Service listing price:${service.amount}.`); //`
+      return;
+    } 
+    
     const that = this;
     that.setState({pushingTx:true});
     
+    console.log(auth_account
+                          , private_key
+                          , customer
+                          , provider
+                          , service.serviceCounterId
+                          , service.amount
+                          , begins_at
+                          , periods);
+    
+    
     Modal.confirm({
-      title: 'You will accept the request',
-      content: 'Please confirm if you already gave the paper money to the customer.',
+      title: 'You will accept the service provisioning request',
+      content: 'Please confirm service provisioning acceptance. This contract cant be cancelled by you.',
       onOk() {
-        const {request} = that.state;
           
-        api.bank.acceptWithdrawRequest(that.props.actualAccountName, request.id)
-        .then( (data) => {
-            that.setState({pushingTx:false})
-            that.openNotificationWithIcon("success", 'Withdraw request accepted successfully');
-            that.reload();
-          },
-          (ex) => {
-            console.log(' ** ERROR @ acceptWithdraw', JSON.stringify(ex));
-            that.setState({pushingTx:false})
-            that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
-          }  
-        );
+        api.acceptService(auth_account
+                          , private_key
+                          , customer
+                          , provider
+                          , service.serviceCounterId
+                          , service.amount
+                          , begins_at
+                          , periods)
+        .then((data)=>{
+              console.log(' processRequest::issue (then#1) >>  ', JSON.stringify(data));
+              if(data && data.data && data.data.transaction_id)
+              {
+                // updeteo la tx
+                api.bank.acceptServiceRequest(auth_account, id, data.data.transaction_id)
+                  .then( (update_res) => {
+                      console.log(' processRequest::issue (then#2) >> update_res ', JSON.stringify(update_res), JSON.stringify(data));
+                      console.log(' processRequest::issue (then#2) >> data ', JSON.stringify(data));
+                      that.reload();
+                      that.setState({result:'ok', pushingTx:false, result_object:data});
+                      that.openNotificationWithIcon("success", 'Service provisioning request accepted successfully');
+                    }, (err) => {
+                      
+                      that.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
+                      that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
+                    });
+              }
+              else{
+                that.setState({result:'error', pushingTx:false, error:'UNKNOWN!'});
+                that.openNotificationWithIcon("error", 'An error occurred', 'UNKNOWN!'+JSON.stringify(data));
+              }
+              
+            }, (ex)=>{
+              console.log(' processRequest::issue (error#1) >>  ', JSON.stringify(ex));
+              that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+              that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
+
+            });
         
       },
       onCancel() {
@@ -266,61 +316,7 @@ class requestDetails extends Component {
         console.log('Cancel');
       },
     });  
-
-    // const {id, amount, requested_by, requestCounterId, deposit_currency} = this.state.request;
-    // const privateKey = this.props.actualPrivateKey;
-    // const receiver   = requested_by.account_name;
-    // const sender     = globalCfg.currency.issuer; //this.props.actualAccountName;
-    // const admin_name = this.props.actualAccountName;
-
-    // const fiat       = globalCfg.api.fiatSymbolToMemo(deposit_currency)
-    // const memo       = `dep|${fiat}|${requestCounterId.toString()}`;
-
-    // const that       = this;
-    // const content    = `You will ISSUE ${globalCfg.currency.symbol}${amount} to ${requested_by.account_name}`;
-    // Modal.confirm({
-    //   title: 'Please confirm issue operation ' + this.props.actualAccountName,
-    //   content: content,
-    //   onOk() {
-      
-    //       that.setState({pushingTx:true});
-    //       api.issueMoney(sender, privateKey, receiver, amount, memo)
-    //         .then(data => {
-    //           console.log(' processRequest::issue (then#1) >>  ', JSON.stringify(data));
-    //           if(data && data.data && data.data.transaction_id)
-    //           {
-    //             // updeteo la tx
-    //             api.bank.setDepositOk(admin_name, id, data.data.transaction_id)
-    //             .then( (update_res) => {
-    //                 console.log(' processRequest::issue (then#2) >> update_res ', JSON.stringify(update_res), JSON.stringify(data));
-    //                 console.log(' processRequest::issue (then#2) >> data ', JSON.stringify(data));
-    //                 that.reload();
-    //                 that.setState({result:'ok', pushingTx:false, result_object:data});
-
-    //               }, (err) => {
-                    
-    //                 that.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
-    //                 that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
-    //               }
-    //             )
-    //           }
-    //           else{
-    //             that.setState({result:'error', pushingTx:false, error:'UNKNOWN!'});
-    //             that.openNotificationWithIcon("error", 'An error occurred', 'UNKNOWN!'+JSON.stringify(data));
-    //           }
-              
-    //         }, (ex)=>{
-    //           console.log(' processRequest::issue (error#1) >>  ', JSON.stringify(ex));
-    //           that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
-    //           that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
-
-    //         });
-    //     },
-    //   onCancel() {
-    //     that.setState({pushingTx:false})
-    //     console.log('Cancel');
-    //   },
-    // });
+        
   }
 
   
