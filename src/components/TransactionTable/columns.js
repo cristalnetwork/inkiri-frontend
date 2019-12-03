@@ -158,23 +158,42 @@ export const getColumnsForPersonalExtrato = (callback, account_type) => {
     title: '#',
     dataIndex: 'sub_header',
     key: 'sub_header',
+    width: '60%',
     render: (value, record) => {
-      //<li className="hidden">{utils.objectToString(record.data)}</li>
-      return(
-        <span className="name_value_row">
-          <div className="row_name centered" >
-            {request_helper.getTypeIcon(record.request)} 
-          </div>
-          <div className="row_value wider">
-            <span className="row_tx_description">{record.sub_header}</span> 
-             <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
-               <ul>
-                 <li className="hidden">{utils.objectToString(record.request)}</li>
-                 <li><Tag color="volcano" key={'warning_'+Math.random()}>Open to view details</Tag></li>
-               </ul>
-             </div>
-          </div>   
-        </span>)
+      
+      return (<span className="name_value_row">
+            <div className="row_name centered" >
+              <div className="ui-row__col ui-row__col--heading">
+                  <div className="ui-avatar">
+                    {request_helper.getCircledTypeIcon(record.request)} 
+                  </div>
+              </div>
+            </div>
+            <div className="row_value wider">
+              <span className="row_tx_description">{record.sub_header}</span> 
+               <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
+                 <ul>
+                   <li><Tag key={'warning_'+Math.random()}>Open to view details</Tag></li>
+                 </ul>
+               </div>
+            </div>   
+          </span>)
+
+      // return(
+      //   <span className="name_value_row">
+      //     <div className="row_name centered" >
+      //       {request_helper.getTypeIcon(record.request)} 
+      //     </div>
+      //     <div className="row_value wider">
+      //       <span className="row_tx_description">{record.sub_header}</span> 
+      //        <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
+      //          <ul>
+      //            <li className="hidden">{utils.objectToString(record.request)}</li>
+      //            <li><Tag color="volcano" key={'warning_'+Math.random()}>Open to view details</Tag></li>
+      //          </ul>
+      //        </div>
+      //     </div>   
+      //   </span>)
     }
   },
   //
@@ -242,7 +261,7 @@ export const getDefaultColumns = (account_type, callback) => {
         const text = (globalCfg.bank.isAdminAccount(account_type))
           ?record.sub_header_admin
           :(globalCfg.api.isService(record)
-              ?record.sub_header_ex
+              ?record.sub_header_admin
               :record.sub_header);
         return(
           <span className="name_value_row">
@@ -269,23 +288,20 @@ export const getDefaultColumns = (account_type, callback) => {
           extras = (< ><br/><span key={'envelope_'+record.id}>ENVELOPE ID: <b>{envelope_id}</b></span></>);
         }
         //
+        
         return(
           <span key={'tags'+record.id}>
             {extras}
           </span>
         );
-
+        
         // return (
-        //     <span key={'tags'+record.id}>
-        //      <Tag color={'geekblue'} key={'type_'+record.id}>
-        //             {tx_type.toUpperCase()}
-        //      </Tag><br/>
-        //      <Tag color={'geekblue'} key={'state_'+record.id}>
-        //             {(record.state||'COMPLETED').toUpperCase()}
-        //      </Tag>
-        //      {extras}
-        //     </span>
-        //     )
+        //   <span key={'tags'+record.id}>
+        //     sub_header: <b>{record.sub_header}</b><br/>
+        //     sub_header_ex: <b>{record.sub_header_ex}</b><br/>
+        //     sub_header_admin: <b>{record.sub_header_admin}</b><br/>
+        //   </span>
+        // )    
       }
     },
     //
@@ -327,23 +343,43 @@ export const getColumnsForOperations = (callback, account_type) => {
     title: '#',
     dataIndex: 'sub_header',
     key: 'sub_header',
+    width: '60%',
     render: (value, record) => {
-      return(
-        <span className="name_value_row">
-          <div className="row_name centered" >
-            {request_helper.getTypeIcon(record.request)} 
-          </div>
-          <div className="row_value wider">
-            <span className="row_tx_description">{record.sub_header_admin_ex}</span> 
-             <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
-               <ul>
-                 <li className="hidden">{utils.objectToString(record.data)}</li>
-                 <li className="hidden">{utils.objectToString(record.request)}</li>
-                 <li><Tag color="volcano" key={'warning_'+Math.random()}>Open to view details</Tag></li>
-               </ul>
-             </div>
-          </div>   
-        </span>)
+
+      return (<span className="name_value_row">
+            <div className="row_name centered" >
+              <div className="ui-row__col ui-row__col--heading">
+                  <div className="ui-avatar">
+                    {request_helper.getCircledTypeIcon(record.request)} 
+                  </div>
+              </div>
+            </div>
+            <div className="row_value wider">
+              <span className="row_tx_description">{record.sub_header_admin_ex}</span> 
+               <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
+                 <ul>
+                   <li><Tag key={'warning_'+Math.random()}>Open to view details</Tag></li>
+                 </ul>
+               </div>
+            </div>   
+          </span>)
+      
+      // return(
+      //   <span className="name_value_row">
+      //     <div className="row_name centered" >
+      //       {request_helper.getTypeIcon(record.request)} 
+      //     </div>
+      //     <div className="row_value wider">
+      //       <span className="row_tx_description">{record.sub_header_admin_ex}</span> 
+      //        <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
+      //          <ul>
+      //            <li className="hidden">{utils.objectToString(record.data)}</li>
+      //            <li className="hidden">{utils.objectToString(record.request)}</li>
+      //            <li><Tag color="volcano" key={'warning_'+Math.random()}>Open to view details</Tag></li>
+      //          </ul>
+      //        </div>
+      //     </div>   
+      //   </span>)
     }
   },
   //
@@ -836,7 +872,7 @@ export const columnsForServices = (callback, services_states) => {
             <div className="row_value wider">
               <span className="row_tx_description">{record.title}</span> 
                <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
-                 {record.description}
+                 {record.description} 
                </div>
             </div>   
           </span>)
@@ -848,7 +884,10 @@ export const columnsForServices = (callback, services_states) => {
         key: 'state',
         render: (state, record) => {
           const _state = getStateDesc(state);
-          return (<span>{_state}</span>);
+          return (<span>
+                  {_state}<br/>
+                  #{record.serviceCounterId}
+                 </span>);
          }   
       },
       {

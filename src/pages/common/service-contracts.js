@@ -184,11 +184,13 @@ class ServiceContracts extends Component {
       customer_balance = await api.getAccountBalance(account);
     }catch(e){
       that.openNotificationWithIcon("error", 'It seems the customer has no balance!');
+      that.setState({pushingTx:false});
       return;
     }
 
     if(globalCfg.currency.toNumber(customer_balance.data.balance)<=globalCfg.currency.toNumber(contract.price))
     {
+        that.setState({pushingTx:false});
         that.openNotificationWithIcon("error", 'It seems the customer you are trying to charge has not enough balance to pay the bill.');
         console.log(customer_balance);
         return;
@@ -244,7 +246,7 @@ class ServiceContracts extends Component {
     
     try{
       // contracts = await eos_table_getter.papByProviderService(provider.account_name, service.serviceCounterId, (is_first===true?undefined:cursor) );
-      contracts = await eos_table_getter.papByProviderService(provider.account_name, parseInt(service.serviceCounterId), 1);
+      contracts = await eos_table_getter.papByProviderService(provider.account_name, parseInt(service.serviceCounterId), 0);
     }catch(e){
       this.openNotificationWithIcon('error', 'An error occurred while fetching contracts.', JSON.stringify(e))
       

@@ -153,6 +153,7 @@ export const papByUInt128 = async (first_param, second_param, idx_index, step) =
     ...bounds,
   });
 
+  console.log(bounds)
 
   return result;
 }

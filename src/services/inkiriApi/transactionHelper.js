@@ -192,7 +192,13 @@ const KEY_TRANSFER_SND =  'transfer_'+MEMO_KEY_SND;
 const KEY_TRANSFER_PAY =  'transfer_'+MEMO_KEY_PAY;
 const KEY_TRANSFER_PAP =  'transfer_'+MEMO_KEY_PAP;
 const KEY_TRANSFER_SLR =  'transfer_'+MEMO_KEY_SLR;
-const KEY_UPSERT       =  globalCfg.bank.table_accounts+'_';
+
+const KEY_NEW_ACCOUNT  =  `newaccount_`;
+const KEY_UPSERT_CUST  =  `${globalCfg.bank.table_customers_action}_`;
+const KEY_ERASE_CUST   =  `${globalCfg.bank.table_customers_delete}_`;
+const KEY_UPSERT_PAP   =  `${globalCfg.bank.table_paps_action}_${MEMO_KEY_PAP}`;
+const KEY_ERASE_PAP    =  `${globalCfg.bank.table_paps_delete}_`;
+const KEY_CHARGE_PAP   =  `${globalCfg.bank.table_paps_charge}_${MEMO_KEY_PAP}`;
 
 const typesMap = {
   [KEY_ISSUE_DEP]     : globalCfg.api.TYPE_DEPOSIT,
@@ -206,7 +212,13 @@ const typesMap = {
   [KEY_TRANSFER_PAY]  : globalCfg.api.TYPE_PAYMENT,
   [KEY_TRANSFER_PAP]  : globalCfg.api.TYPE_SERVICE,
   [KEY_TRANSFER_SLR]  : globalCfg.api.TYPE_SALARY,
-  [KEY_UPSERT]        : globalCfg.api.TYPE_UPSERT
+
+  [KEY_NEW_ACCOUNT]   : globalCfg.api.TYPE_NEW_ACCOUNT,
+  [KEY_UPSERT_CUST]   : globalCfg.api.TYPE_UPSERT_CUST,
+  [KEY_ERASE_CUST]    : globalCfg.api.TYPE_ERASE_CUST,
+  [KEY_UPSERT_PAP]    : globalCfg.api.TYPE_UPSERT_PAP,
+  [KEY_ERASE_PAP]     : globalCfg.api.TYPE_ERASE_PAP,
+  [KEY_CHARGE_PAP]    : globalCfg.api.TYPE_CHARGE_PAP,
 }
 const keyCodeToRequestType = (key_code) => {
   const my_type = typesMap[key_code];
@@ -311,9 +323,43 @@ function buildHeadersImpl(account_name, tx, i_sent, tx_type, multi){
               , to:   tx.data.to
             };
       break;
+    case KEY_NEW_ACCOUNT:
+      return { sub_header:         `Account creation: @${tx.data.name}`
+            , sub_header_admin:    `Account creation: @${tx.data.name}`
+            , sub_header_admin_ex: `Account creation: @${tx.data.name}` };
+      break;
+    
+    case KEY_UPSERT_PAP:
+      return { sub_header:         `Pre Authorized Payment. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}`
+            , sub_header_admin:    `Pre Authorized Payment. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}`
+            , sub_header_admin_ex: `Pre Authorized Payment. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}` };
+      break;
+    case KEY_ERASE_CUST:
+      return { sub_header:         `Customer account removed. Customer @${tx.data.to||tx.data.provider}`
+            , sub_header_admin:    `Customer account removed. Customer @${tx.data.to||tx.data.provider}`
+            , sub_header_admin_ex: `Customer account removed. Customer @${tx.data.to||tx.data.provider}` };
+      break;
+    case KEY_CHARGE_PAP:
+      // pap|pay|2
+      const desc = (memo_parts&&memo_parts.length>=3)?` - Period ${memo_parts[2]} paid`:'';
+      return { sub_header:         `Charge Pre Authorized Payment${desc}. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}#${tx.data.service_id}`
+            , sub_header_admin:    `Charge Pre Authorized Payment${desc}. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}#${tx.data.service_id}`
+            , sub_header_admin_ex: `Charge Pre Authorized Payment${desc}. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}#${tx.data.service_id}` };
+      break;
+    
+    case KEY_UPSERT_CUST:
+      return { sub_header:         `Customer creation: @${tx.data.account||tx.data.to}. Type: ${globalCfg.bank.getAccountType(tx.data.account_type)}`
+            , sub_header_admin:    `Customer creation: @${tx.data.account||tx.data.to}. Type: ${globalCfg.bank.getAccountType(tx.data.account_type)}`
+            , sub_header_admin_ex: `Customer creation: @${tx.data.account||tx.data.to}. Type: ${globalCfg.bank.getAccountType(tx.data.account_type)}` };
+      break;      
+    case KEY_ERASE_PAP:
+      return { sub_header:         `Erase Pre Authorized Payment. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}#${tx.data.service_id}`
+            , sub_header_admin:    `Erase Pre Authorized Payment. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}#${tx.data.service_id}`
+            , sub_header_admin_ex: `Erase Pre Authorized Payment. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}#${tx.data.service_id}` };
+      break;
     default:
-      return { sub_header:         'N/A'
-            , sub_header_admin:    'N/A'
-            , sub_header_admin_ex: 'N/A'};
+      return { sub_header:         `${tx.name} - tx_type=[${tx_type}] | [${JSON.stringify(tx.data)}]`
+            , sub_header_admin:    `${tx.name} - tx_type=[${tx_type}] | [${JSON.stringify(tx.data)}]`
+            , sub_header_admin_ex: `${tx.name} - tx_type=[${tx_type}] | [${JSON.stringify(tx.data)}]` };
   }
 }

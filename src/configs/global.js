@@ -100,7 +100,7 @@ const bank = {
     return (parseInt(account_state)<bank.ACCOUNT_STATES.length)?bank.ACCOUNT_STATES[parseInt(account_state)]:undefined;
   },
   getAccountType : (account_type) => {
-    if(isNaN(account_type))
+      if(isNaN(account_type))
       return account_type;
     return (parseInt(account_type)<bank.ACCOUNT_TYPES.length)?bank.ACCOUNT_TYPES[parseInt(account_type)]:undefined;
   },
@@ -166,8 +166,14 @@ const api = {
   , TYPE_IUGU                 : 'type_iugu'
   , TYPE_REFUND               : 'type_refund'
   , TYPE_RECEIVE              : 'type_receive'
-  , TYPE_UPSERT               : 'type_upsert'
   , TYPE_UNKNOWN              : 'type_unknown'
+
+  , TYPE_NEW_ACCOUNT          : 'type_new_account'
+  , TYPE_UPSERT_CUST          : 'type_upsert_cust'
+  , TYPE_ERASE_CUST           : 'type_erase_cust'
+  , TYPE_UPSERT_PAP           : 'type_upsert_pap'
+  , TYPE_ERASE_PAP            : 'type_erase_pap'
+  , TYPE_CHARGE_PAP           : 'type_charge_pap'
 
   , typeToText : (request_type) => {
       const types = {

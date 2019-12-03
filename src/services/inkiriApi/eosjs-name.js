@@ -60,7 +60,7 @@ export function nameToValue(name) {
 }
 
 export function getTableBoundsForName2(name, asLittleEndianHex, step) {
-  const my_step     = step||1;
+  const my_step     = (typeof step === "undefined")?1:step;
   console.log('step: ', step, ' my_step:', my_step)
   const nameValue   = nameToValue(name);
   const nameValueP1 = nameValue.add(my_step);

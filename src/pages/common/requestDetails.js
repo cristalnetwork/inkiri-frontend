@@ -239,7 +239,7 @@ class requestDetails extends Component {
 
   acceptServiceRequest = async () =>{
 
-    const {id, amount, service, service_extra, requested_by, requested_to, requestCounterId} = this.state.request;
+    const {_id, amount, service, service_extra, requested_by, requested_to, requestCounterId} = this.state.request;
     const private_key    = this.props.actualPrivateKey;
     const provider       = requested_by.account_name;
     const customer       = requested_to.account_name;
@@ -257,14 +257,15 @@ class requestDetails extends Component {
     const that = this;
     that.setState({pushingTx:true});
     
-    console.log(id, auth_account
-                          , private_key
-                          , customer
-                          , provider
-                          , service.serviceCounterId
-                          , service.amount
-                          , begins_at
-                          , periods);
+    console.log(_id, 
+        auth_account
+        , private_key
+        , customer
+        , provider
+        , service.serviceCounterId
+        , service.amount
+        , begins_at
+        , periods);
     
     Modal.confirm({
       title: 'You will accept the service provisioning request',
@@ -284,7 +285,7 @@ class requestDetails extends Component {
               if(data && data.data && data.data.transaction_id)
               {
                 // updeteo la tx
-                api.bank.acceptServiceRequest(auth_account, id, data.data.transaction_id)
+                api.bank.acceptServiceRequest(auth_account, _id, data.data.transaction_id)
                   .then( (update_res) => {
                       console.log(' requestDetails::issue (then#2) >> update_res ', JSON.stringify(update_res), JSON.stringify(data));
                       console.log(' requestDetails::issue (then#2) >> data ', JSON.stringify(data));

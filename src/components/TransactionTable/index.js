@@ -41,8 +41,19 @@ class TransactionTable extends Component {
     // this.handleChange      = this.handleChange.bind(this);
     this.onNewData         = this.onNewData.bind(this);
     this.renderFooter      = this.renderFooter.bind(this); 
+    this.getColumnsForType = this.getColumnsForType.bind(this);
   }
 
+  getColumnsForType =() =>{
+
+    if(this.props.request_type==globalCfg.api.TYPE_SERVICE)
+    {
+      //something really cool
+    }
+    return columns_helper.getDefaultColumns(this.props.actualRoleId, this.props.callback);
+  
+  }
+  
   componentDidMount(){
     this.loadTxs();
   }
@@ -107,7 +118,8 @@ class TransactionTable extends Component {
     }
 
     const _to = (this.props.request_type==globalCfg.api.TYPE_SERVICE)?account_name:null;
-    
+    // const _to = null;
+
     api.bank.listMyRequests(account_name, page, limit, this.props.request_type, _to)
       .then( (res) => {
           that.onNewData(res);
@@ -155,7 +167,7 @@ class TransactionTable extends Component {
         key={'tx_table__'+this.props.request_type}
         rowKey={record => record.id} 
         loading={this.state.loading} 
-        columns={columns_helper.getDefaultColumns(this.props.actualRoleId, this.props.callback)} 
+        columns={this.getColumnsForType()} 
         dataSource={this.state.txs} 
         footer={() => this.renderFooter()}
         pagination={this.state.pagination}

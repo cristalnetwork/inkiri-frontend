@@ -310,7 +310,7 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
       permission:  'active',
     }],
     data: {
-      account         : new_account_name
+      to              : new_account_name
       , fee           : fee_string
       , overdraft     : overdraft_string
       , account_type  : account_type
@@ -359,8 +359,8 @@ export const acceptService = async (auth_account, auth_priv, account_name, provi
       }
     ],
     data: {
-      account:           account_name
-      , provider:        provider_name
+      from:              account_name
+      , to:              provider_name
       , service_id:      service_id
       , price:           globalCfg.currency.toEOSNumber(price)
       , begins_at:       begins_at
@@ -389,8 +389,8 @@ export const chargeService = async (auth_account, auth_priv, account_name, provi
       }
     ],
     data: {
-      account:           account_name
-      , provider:        provider_name
+      from:              account_name
+      , to:              provider_name
       , service_id:      service_id
       , memo:            `pap|pay|${period_to_charge}`
     }

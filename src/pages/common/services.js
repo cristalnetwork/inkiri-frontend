@@ -244,6 +244,9 @@ class Services extends Component {
             that.setState({pushingTx:false, result:'ok'})
             that.openNotificationWithIcon("success", 'Service provisioning requested successfully');
 
+            setTimeout(()=>that.setState({active_view:STATE_LIST_SERVICES}),1000);
+            
+
           }, (err)=>{
             that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
             that.setState({result:'error', error:err, pushingTx:false});
