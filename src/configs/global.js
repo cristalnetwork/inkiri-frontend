@@ -142,7 +142,8 @@ const bank = {
 };
 
 
-const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristal-backend.herokuapp.com';
+// const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristal-backend.herokuapp.com';
+const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristaltoken.herokuapp.com';
 
 const api_version = '/api/v1';
 const api = {
