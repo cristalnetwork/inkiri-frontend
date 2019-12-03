@@ -21,8 +21,8 @@ import * as stats_helper from '@app/components/TransactionTable/stats';
 import { Card, PageHeader, Tag, Tabs, Button, Form, Input, Icon} from 'antd';
 import { Modal, notification, Table, Divider, Spin } from 'antd';
 
-import ServiceForm from '@app/components/Form/service';
-import ServiceContractForm from '@app/components/Form/service_contract';
+
+import ServiceContractChargeForm from '@app/components/Form/service_contract_charge';
 
 import * as utils from '@app/utils/utils';
 
@@ -31,6 +31,14 @@ import _ from 'lodash';
 import * as eos_table_getter from '@app/services/inkiriApi/table_getters';
 
 const routes = routesService.breadcrumbForFile('accounts');
+
+const STATE_LIST_CONTRACTS         = 'state_list_contracts';
+const STATE_NEW_CHARGE             = 'state_new_charge';
+
+const titles = {
+  [STATE_LIST_CONTRACTS]           : 'Service contracts'
+  , [STATE_NEW_CHARGE]             : 'Cobrar servicio'
+}
 
 class ServiceContracts extends Component {
   constructor(props) {
@@ -53,7 +61,7 @@ class ServiceContracts extends Component {
       can_get_more:       true,
       cursor:             null,
 
-      active_view:        null,
+      active_view:        STATE_LIST_CONTRACTS,
       active_view_object: null,
 
 
@@ -64,7 +72,7 @@ class ServiceContracts extends Component {
     this.onContractListCallback       = this.onContractListCallback.bind(this);
     this.getColumns                   = this.getColumns.bind(this);
     this.onNewContract                = this.onNewContract.bind(this); 
-    this.serviceContractFormCallback  = this.serviceContractFormCallback.bind(this);
+    this.ServiceContractChargeCallback  = this.ServiceContractChargeCallback.bind(this);
     this.renderFooter                 = this.renderFooter.bind(this); 
     this.onNewData                    = this.onNewData.bind(this); 
 
@@ -115,27 +123,33 @@ class ServiceContracts extends Component {
   }
 
   
-  onContractListCallback(service, event){
+  onContractListCallback(contract, event){
     const {events} = columns_helper;
     switch(event){
       case events.VIEW:
-        this.openNotificationWithIcon("warning", "Not implemented yet");    
+        // this.openNotificationWithIcon("warning", "Not implemented yet");    
         break;
       case events.REMOVE:
+        this.openNotificationWithIcon("warning", "Not implemented yet");    
         break;
       case events.EDIT:
         // console.log(event)
         // this.setState({active_view: STATE_EDIT_SERVICE, active_view_object:service})
         break;
       case events.DISABLE:
-        this.openNotificationWithIcon("warning", "Not implemented yet");    
-        this.onDisableService(service);
+        // this.openNotificationWithIcon("warning", "Not implemented yet");    
+        // this.onDisableService(service);
         break;
       case events.CHILDREN:
+        this.openNotificationWithIcon("warning", "Not implemented yet");    
         // this.setState({active_view: STATE_LIST_SERVICE_CONTRACTS, active_view_object:service})
         break;
       case events.NEW_CHILD:
         // this.setState({active_view: STATE_NEW_SERVICE_CONTRACT, active_view_object:service})
+        // this.openNotificationWithIcon("warning", "Not implemented yet");    
+        break;
+      case events.CHARGE:
+        this.setState({active_view: STATE_NEW_CHARGE, active_view_object:contract})
         // this.openNotificationWithIcon("warning", "Not implemented yet");    
         break;
     }
@@ -143,11 +157,11 @@ class ServiceContracts extends Component {
 
   }
 
-  serviceContractFormCallback= async (error, cancel, values) => {
+  ServiceContractChargeCallback= async (error, cancel, values) => {
     
     if(cancel)
     {
-      // this.setState({active_view:STATE_LIST_SERVICES});
+      this.setState({active_view:STATE_LIST_CONTRACTS});
       return;
     }
 
@@ -156,66 +170,45 @@ class ServiceContracts extends Component {
       return;
     }
 
-    console.log(values)
-    
-    return;
+    const that                                           = this;
+    const sender                                         = that.props.actualAccountName;
+    const private_key                                    = this.props.actualPrivateKey;
+    const {contract}                                     = values;
+    const {account, provider, service_id, last_charged}  = contract;
+    const period_to_charge                               = last_charged+1;
 
-    const that                                       = this;
-    const {customer, begins_at, expires_at, periods} = values;
-    const sender                                     = that.props.actualAccountName;
-    const {provider, active_view_object}             = this.state;
-    const service                                    = active_view_object;
+    that.setState({pushingTx:true});
 
-    console.log(' >> values:');
-    console.log(values);
-
-    console.log( ' >> my data:')
-    console.log(' - provider : ', provider);
-    console.log(' - customer : ', customer)
-    console.log(' - service : ', service)
-    console.log(' - begins_at : ', begins_at)
-    console.log(' - expires_at : ', expires_at)
-
-    // 1 check if service is already been provisioned to customer:
-    const customer_account_name = customer;
-    const service_id_num        = service.serviceCounterId;
-
-    const byCustServ = await eos_table_getter.papByUInt128(customer_account_name
-        , service_id_num
-        , eos_table_getter.INDEX_POSITION_PAP_BY_CUSTOMER_SERVICE);
-    console.log('byCustServ', byCustServ)
-
-    if(byCustServ && byCustServ.length>0)
-    {
-      that.openNotificationWithIcon("error", 'Duplicated customer service provisioning', 'Customer account is already hiring selected service.');
+    let customer_balance = null;
+    try{
+      customer_balance = await api.getAccountBalance(account);
+    }catch(e){
+      that.openNotificationWithIcon("error", 'It seems the customer has no balance!');
       return;
     }
 
-    Modal.confirm({
-      title: 'Confirm service provisioning request',
-      content: (<p>You will invite <b>{customer}</b> to accept <b>{service.title}</b> service, 
-                  at a <b>{globalCfg.currency.toCurrencyString(service.amount)}</b> monthly price bases, 
-                  for <b>{periods}</b> periods/months, begining at <b>{begins_at.format(form_helper.MONTH_FORMAT)}</b></p>),
-      onOk() {
-        const {input_amount} = that.state;
-        that.setState({pushingTx:true});
-        api.bank.sendServiceRequest(provider, customer, service, begins_at, expires_at)
-          .then((res)=>{
-            console.log(' >> doDeposit >> ', JSON.stringify(res));
-            that.setState({pushingTx:false, result:'ok'})
-            that.openNotificationWithIcon("success", 'Service provisioning requested successfully');
+    if(globalCfg.currency.toNumber(customer_balance.data.balance)<=globalCfg.currency.toNumber(contract.price))
+    {
+        that.openNotificationWithIcon("error", 'It seems the customer you are trying to charge has not enough balance to pay the bill.');
+        console.log(customer_balance);
+        return;
+    }
 
-          }, (err)=>{
-            that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
-            that.setState({result:'error', error:err, pushingTx:false});
-          })
+    console.log(sender, private_key, account, provider, service_id, period_to_charge);
+
+    api.chargeService(sender, private_key, account, provider, service_id, period_to_charge)
+      .then((res)=>{
+        console.log(' >> doCharge >> ', JSON.stringify(res));
+        that.setState({pushingTx:false, result:'ok'})
+        that.openNotificationWithIcon("success", 'Service charged successfully');
+        setTimeout(()=>that.setState({active_view:STATE_LIST_CONTRACTS}),1000);
+      }, (err)=>{
+        that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
+        console.log(JSON.stringify(err));
+        that.setState({result:'error', error:err, pushingTx:false});
+      })
         
-      },
-      onCancel() {
-        console.log('Cancel');
-        that.setState({pushingTx:false})
-      },
-    });
+    
   }
 
   
@@ -231,9 +224,10 @@ class ServiceContracts extends Component {
 
     this.setState({
         page:        -1, 
-        services:    [],
+        contracts:    [],
+        cursor:       null
       }, async () => {
-        const dummy_2 = await this.loadServiceContracts();
+        const dummy_2 = await this.loadServiceContracts(true);
 
       });  
   }
@@ -299,10 +293,9 @@ class ServiceContracts extends Component {
     const content                        = this.renderContent();
     const service_info                   = this.renderServiceInfo();
     const {loading, active_view} = this.state;
-    const title                          = 'Customers';
-    const buttons = (active_view=='STATE_LIST_SERVICES')
-      ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServiceContracts()} ></Button>, 
-        <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewContract()}}> Service</Button>]
+    const title                          = titles[active_view] || titles[STATE_LIST_CONTRACTS];
+    const buttons = (active_view==STATE_LIST_CONTRACTS)
+      ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServiceContracts()} ></Button>]
         :[];
     //
     const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
@@ -312,7 +305,6 @@ class ServiceContracts extends Component {
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={buttons}
           title={title}
-
         >
           
         </PageHeader>
@@ -327,32 +319,35 @@ class ServiceContracts extends Component {
   renderServiceInfo(){
     const {title, description, amount, state} = this.state.service;  
     const items = [
-        stats_helper.buildItemSimple('DESC', description)
+        stats_helper.buildItemSimple('SERVICE', title)
+        , stats_helper.buildItemSimple('DESC.', description)
         , stats_helper.buildItemMoney('PRICE', amount)
         , stats_helper.buildItemSimple('STATE', state)
       ]
-    return (<TableStats title={title} stats_array={items}/>)
+    return (<div style={{ background: '#fff', padding: 24, marginTop: 24}}>
+        <TableStats stats_array={items}/>
+      </div>)
   }
   //
   renderContent(){
-    const {provider, loading, active_view, active_view_object, services_states } = this.state;
+    const {provider, service, loading, active_view, active_view_object } = this.state;
 
-    // if(active_view==STATE_NEW_SERVICE_CONTRACT)
-    // {
-    //   return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-    //       <div className="ly-main-content content-spacing cards">
-    //         <section className="mp-box mp-box__shadow money-transfer__box">
-    //           <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-    //             <ServiceContractForm key="edit_service_form" 
-    //               callback={this.serviceContractFormCallback} 
-    //               services_states={services_states} 
-    //               service={active_view_object}
-    //               provider={provider} />    
-    //           </Spin>
-    //         </section>
-    //       </div>      
-    //     </div>);
-    // }
+    if(active_view==STATE_NEW_CHARGE)
+    {
+      return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+          <div className="ly-main-content content-spacing cards">
+            <section className="mp-box mp-box__shadow money-transfer__box">
+              <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+                <ServiceContractChargeForm key="charge_next_form" 
+                  callback={this.ServiceContractChargeCallback} 
+                  contract={active_view_object} 
+                  service={service}
+                  provider={provider} />    
+              </Spin>
+            </section>
+          </div>      
+        </div>);
+    }
 
 
     //if(active_view==STATE_LIST_SERVICES)  
@@ -365,7 +360,7 @@ class ServiceContracts extends Component {
           style={{ marginTop: 24 }}
           headStyle={{display:'none'}}
         >
-          <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
+          <div style={{ background: '#fff', minHeight: 360, marginTop: 12}}>
             <Table
                 key="table_service_contracts" 
                 rowKey={record => record.id} 
@@ -394,6 +389,7 @@ export default  (withRouter(connect(
         actualRoleId:         loginRedux.actualRoleId(state),
         actualRole:           loginRedux.actualRole(state),
         actualAccountProfile: loginRedux.actualAccountProfile(state),
+        actualPrivateKey:     loginRedux.actualPrivateKey(state),
     }),
     (dispatch)=>({
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)

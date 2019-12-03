@@ -175,7 +175,7 @@ const pushTX = async (tx, privatekey) => {
 	    { actions: my_actions },
 	    {
 	      blocksBehind: 3,
-	      expireSeconds: 30
+	      expireSeconds: 60
 	    }
 	  );
 	  console.log(' InkiriApi::pushTX (then#1) >> ', JSON.stringify(result));
@@ -315,6 +315,7 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
       , overdraft     : overdraft_string
       , account_type  : account_type
       , state         : 1
+      , memo          : ''
     },
   }
   
@@ -347,7 +348,6 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
 }
 
 export const acceptService = async (auth_account, auth_priv, account_name, provider_name, service_id, price, begins_at, periods, request_id) => { 
-// cleos push action cristaltoken upsertpap '{"account":"pablotutino1", "provider":"provider1", "service_id":11, "price":"11.0000 INK", "begins_at":1540667034, "periods":3, "last_charged":0, "enabled":1}' -p pablotutino1@active
 
   const acceptServiceAction = {
     account:            globalCfg.bank.issuer,
@@ -368,6 +368,31 @@ export const acceptService = async (auth_account, auth_priv, account_name, provi
       , last_charged:    0
       , enabled:         globalCfg.bank.ACCOUNT_STATE_OK
       , memo:            `pap|${request_id}`
+    }
+  }
+  
+  console.log(' InkiriApi::acceptService >> About to add push >> ', prettyJson(acceptServiceAction))
+
+  return pushTX(acceptServiceAction, auth_priv);
+
+}
+
+export const chargeService = async (auth_account, auth_priv, account_name, provider_name, service_id, period_to_charge) => { 
+
+  const acceptServiceAction = {
+    account:            globalCfg.bank.issuer,
+    name:               globalCfg.bank.table_paps_charge,
+    authorization: [
+      {
+        actor:          auth_account,
+        permission:     "active"
+      }
+    ],
+    data: {
+      account:           account_name
+      , provider:        provider_name
+      , service_id:      service_id
+      , memo:            `pap|pay|${period_to_charge}`
     }
   }
   

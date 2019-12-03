@@ -31,10 +31,17 @@ export const   getStringItem = (_form, object, field, title, required_message, r
 export const   getEmailItem = (_form, object, field, title, required_message) => {
     return getInputItem(_form, object, field, title, required_message, 'email');
 }
-  
+
+const getMoment = (value) => {
+  let moment_value = value;
+  if(typeof value === 'number' || typeof value === 'string')
+    moment_value = moment(value);
+  return moment_value;
+}
+
 export const   getDateItem = (_form, object, field, title, required_message) => {
     const { getFieldDecorator }    = _form;
-    const initialValue = object?moment(object[field]):moment();
+    const initialValue = object?getMoment(object[field]):moment();
     return (<Form.Item label={title}>
                 {getFieldDecorator(field, {
                 rules: [{ required: true, message: required_message }],
@@ -43,14 +50,16 @@ export const   getDateItem = (_form, object, field, title, required_message) => 
               </Form.Item>);
   }
 //
-export const   getMonthItem = (_form, object, field, title, required_message) => {
+export const   getMonthItem = (_form, object, field, title, required_message, readonly) => {
     const { getFieldDecorator }    = _form;
-    const initialValue = object?moment(object[field]):moment();
+    const _readonly = readonly===true?true:false;
+
+    const initialValue = object?getMoment(object[field]):moment();
     return (<Form.Item label={title}>
                 {getFieldDecorator(field, {
                 rules: [{ required: true, message: required_message }],
                 initialValue: initialValue
-              })( <DatePicker.MonthPicker format={MONTH_FORMAT} style={{ width: '80%' }}/>)}
+              })( <DatePicker.MonthPicker format={MONTH_FORMAT} style={{ width: '80%' }} disabled={_readonly}/>)}
               </Form.Item>);
   }
 

@@ -909,15 +909,6 @@ export const columnsForServiceContract = (callback) => {
         }
       },
       {
-        title: 'Status',
-        dataIndex: 'enabled',
-        key: 'enabled',
-        render: (enabled, record) => {
-          const _state = (enabled)?'ACTIVE':'INACTIVE';
-          return (<span>{_state}</span>);
-         }   
-      },
-      {
         title: 'Duration',
         key: 'begins_at',
         dataIndex: 'begins_at',
@@ -935,12 +926,28 @@ export const columnsForServiceContract = (callback) => {
           )}
       },
       {
+        title: 'Status',
+        dataIndex: 'enabled',
+        key: 'enabled',
+        render: (enabled, record) => {
+          const {last_charged, total_charged} = api.pap_helper.getChargeInfo(record);
+          const _state                        = (enabled)?'ACTIVE':'INACTIVE';
+          return (
+            <>
+              <span>Last period charged: {last_charged}</span>
+              <br/><span>Total periods charged: {total_charged}</span>
+              <br/><span>{_state}</span>
+            </>);
+         }   
+      },
+      
+      {
         title: 'Action',
         key: 'action',        
         align: 'right',
         render: (text, record) => {
           const style     = {marginTop:6};
-          const charge   = (<Button               key={'charge_'+record.id}   onClick={()=>{ callback(record, events.CHARGE) }}    icon="calendar" size="small">Charge</Button>);
+          const charge   = (<Button               key={'charge_'+record.id}   onClick={()=>{ callback(record, events.CHARGE) }}    icon="calendar" size="small" disabled={!record.enabled}>Charge</Button>);
           const children = (<Button style={style} key={'children_'+record.id} onClick={()=>{ callback(record, events.CHILDREN) }}  icon="download" size="small" disabled>Received payments</Button>);
           const _remove  = (<Button style={style} key={'remove_'+record.id}   onClick={()=>{ callback(record, events.REMOVE) }}    icon="delete"   size="small" type="link" disabled>SEASE and REMOVE</Button>);
           return (<>{charge}<br/>{children}<br/>{_remove}</>);

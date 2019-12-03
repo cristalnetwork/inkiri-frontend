@@ -237,7 +237,6 @@ class Services extends Component {
                   at a <b>{globalCfg.currency.toCurrencyString(service.amount)}</b> monthly price bases, 
                   for <b>{periods}</b> periods/months, begining at <b>{begins_at.format(form_helper.MONTH_FORMAT)}</b></p>),
       onOk() {
-        const {input_amount} = that.state;
         that.setState({pushingTx:true});
         api.bank.sendServiceRequest(provider, customer, service, begins_at, expires_at)
           .then((res)=>{

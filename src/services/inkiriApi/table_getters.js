@@ -29,13 +29,6 @@ export const INDEX_POSITION_PAP_BY_CUSTOMER_SERVICE           = 5;
 
 const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
 
-export const leadingZeros = (s, n) => {
-  if (typeof s !== 'string') 
-    s=s.toString();
-  if (typeof n !== 'number') n=3;
-  return ('00000000000000000000'+s).slice(-n);
-}
-
 export const fetchResult = async (options, limit) => {
   const mergedOptions = {
     json: true,
@@ -86,7 +79,7 @@ export const listPapByProvider = async (provider_account_name, upper) => {
   // const providerHexLE      = eosjs_name_helper.getTableBoundsForName2(provider_account_name, true).lower_bound;
   const firstHexLE = eosjs_name_helper.getTableBoundsForName2(provider_account_name, true).lower_bound;
   const serviceBounds      = {
-    lower_bound: leadingZeros('', 16),
+    lower_bound: eosjs_name_helper.leadingZeros('', 16),
     upper_bound: 'ffffffffffffffff'
   }
 
@@ -112,11 +105,11 @@ export const listPapByProvider = async (provider_account_name, upper) => {
 
 // export const listPapByProvider_by256 = async (provider_account_name, upper) => {
 //   const my_upper           = upper || 99999999; 
-//   const accountHexLE       = leadingZeros('', 16);
+//   const accountHexLE       = eosjs_name_helper.leadingZeros('', 16);
 //   const providerHexLE      = eosjs_name_helper.getTableBoundsForName2(provider_account_name, true).lower_bound;  
 //   // const serviceBounds      = eosjs_name_helper.getTableBoundsForName2('zzzzzzzzzzzy', true, my_upper);
 //   const serviceBounds      = {
-//     lower_bound: leadingZeros('', 16),
+//     lower_bound: eosjs_name_helper.leadingZeros('', 16),
 //     upper_bound: 'ffffffffffffffff'
 //   }
 //   const bounds = {
@@ -145,8 +138,8 @@ export const papByUInt128 = async (first_param, second_param, idx_index, step) =
   const firstHexLE = eosjs_name_helper.getTableBoundsForName2(first_param, true, step).lower_bound;
   const second_paramBounds = eosjs_name_helper.getTableBoundsForName2(second_param, true, step);
   const bounds ={
-      lower_bound: `0x${second_paramBounds.lower_bound}${firstHexLE}`,
-      upper_bound: `0x${second_paramBounds.upper_bound}${firstHexLE}`,
+      lower_bound: `0x${firstHexLE}${eosjs_name_helper.leadingZeros(second_paramBounds.lower_bound)}`,
+      upper_bound: `0x${firstHexLE}${eosjs_name_helper.leadingZeros(second_paramBounds.upper_bound)}`,
      }
 
   console.log('bounds:', bounds)
@@ -173,8 +166,8 @@ export const papByChecksum256 = async  (customer_account_name, provider_account_
   const providerHexLE = eosjs_name_helper.getTableBoundsForName2(provider_account_name, true).lower_bound;
   const serviceBounds = eosjs_name_helper.getTableBoundsForName2(service_id_num, true);
   const bounds = {
-    lower_bound: `${`0`.repeat(16)}${accountHexLE}${providerHexLE}${leadingZeros(serviceBounds.lower_bound, 16)}`,
-    upper_bound: `${`0`.repeat(16)}${accountHexLE}${providerHexLE}${leadingZeros(serviceBounds.upper_bound, 16)}`,
+    lower_bound: `${`0`.repeat(16)}${accountHexLE}${providerHexLE}${eosjs_name_helper.leadingZeros(serviceBounds.lower_bound, 16)}`,
+    upper_bound: `${`0`.repeat(16)}${accountHexLE}${providerHexLE}${eosjs_name_helper.leadingZeros(serviceBounds.upper_bound, 16)}`,
   };
 
   // 0000000000000000 ceb2e9d2a63c6810 a5d869b91b530d30 00002

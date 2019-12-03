@@ -26,6 +26,13 @@ const charidx = ch => {
   return idx;
 };
 
+export const leadingZeros = (s, n) => {
+  if (typeof s !== 'string') 
+    s=s.toString();
+  if (typeof n !== 'number') n=16;
+  return ('00000000000000000000'+s).slice(-n);
+}
+
 export function nameToValue(name) {
   
   if (typeof name === 'number'){

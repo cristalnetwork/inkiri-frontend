@@ -257,7 +257,7 @@ class requestDetails extends Component {
     const that = this;
     that.setState({pushingTx:true});
     
-    console.log(auth_account
+    console.log(id, auth_account
                           , private_key
                           , customer
                           , provider
@@ -265,7 +265,6 @@ class requestDetails extends Component {
                           , service.amount
                           , begins_at
                           , periods);
-    
     
     Modal.confirm({
       title: 'You will accept the service provisioning request',
@@ -281,14 +280,14 @@ class requestDetails extends Component {
                           , begins_at
                           , periods)
         .then((data)=>{
-              console.log(' processRequest::issue (then#1) >>  ', JSON.stringify(data));
+              console.log(' requestDetails::issue (then#1) >>  ', JSON.stringify(data));
               if(data && data.data && data.data.transaction_id)
               {
                 // updeteo la tx
                 api.bank.acceptServiceRequest(auth_account, id, data.data.transaction_id)
                   .then( (update_res) => {
-                      console.log(' processRequest::issue (then#2) >> update_res ', JSON.stringify(update_res), JSON.stringify(data));
-                      console.log(' processRequest::issue (then#2) >> data ', JSON.stringify(data));
+                      console.log(' requestDetails::issue (then#2) >> update_res ', JSON.stringify(update_res), JSON.stringify(data));
+                      console.log(' requestDetails::issue (then#2) >> data ', JSON.stringify(data));
                       that.reload();
                       that.setState({result:'ok', pushingTx:false, result_object:data});
                       that.openNotificationWithIcon("success", 'Service provisioning request accepted successfully');
@@ -304,7 +303,7 @@ class requestDetails extends Component {
               }
               
             }, (ex)=>{
-              console.log(' processRequest::issue (error#1) >>  ', JSON.stringify(ex));
+              console.log(' requestDetails::issue (error#1) >>  ', JSON.stringify(ex));
               that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
               that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
 

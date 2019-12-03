@@ -38,11 +38,14 @@ const currency = {
 const bank = {
   contract:                "cristaltoken",
   issuer:                  "cristaltoken",
-  table_customers:         "customer", // "ikaccounts"
-  table_customers_action:  "upsertcust", // "ikaccounts"
+  table_customers:         "customer", 
+  table_customers_action:  "upsertcust",
+  table_customers_delete:  "erasecust", 
 
   table_paps:              'pap',
   table_paps_action:       'upsertpap',
+  table_paps_delete:       'erasepap', 
+  table_paps_charge:       'chargepap',
 
   exchange_account:        "cristaltoken",
   provider_account:        "cristaltoken",

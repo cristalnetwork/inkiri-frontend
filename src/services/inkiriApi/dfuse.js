@@ -259,7 +259,7 @@ export const listTransactions = (account_name, cursor, received) => new Promise(
   const query = (account_name)
     ?(
       received===undefined
-      ?`account: ${globalCfg.currency.token} (data.from:${account_name} OR data.to:${account_name})`
+      ?`account: ${globalCfg.currency.token} (data.from:${account_name} OR data.to:${account_name} OR data.account:${account_name})`
       :
         (received===true)
         ?`account: ${globalCfg.currency.token} data.to:${account_name}`
