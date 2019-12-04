@@ -178,44 +178,9 @@ export const getColumnsForPersonalExtrato = (callback, account_type) => {
                </div>
             </div>   
           </span>)
-
-      // return(
-      //   <span className="name_value_row">
-      //     <div className="row_name centered" >
-      //       {request_helper.getTypeIcon(record.request)} 
-      //     </div>
-      //     <div className="row_value wider">
-      //       <span className="row_tx_description">{record.sub_header}</span> 
-      //        <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
-      //          <ul>
-      //            <li className="hidden">{utils.objectToString(record.request)}</li>
-      //            <li><Tag color="volcano" key={'warning_'+Math.random()}>Open to view details</Tag></li>
-      //          </ul>
-      //        </div>
-      //     </div>   
-      //   </span>)
     }
   },
-  //
-  // {
-  //   title: 'Tags',
-  //   key: 'tx_type',
-  //   dataIndex: 'tx_type',
-  //   render: (tx_type, record) => {
-  //     let extras = null;
-  //     if(globalCfg.api.isDeposit(record.request))
-  //     {
-  //       const envelope_id = api.bank.envelopeIdFromRequest(record);
-  //       extras = (< ><br/><span key={'envelope_'+record.id}>ENVELOPE ID: <b>{envelope_id}</b></span></>);
-  //     }
-  //     //
-  //     return (
-  //         <span key={'tags'+record.id}>
-  //          {extras}
-  //         </span>
-  //         )}
-  // },
-  //
+  
   {
     title: 'Action',
     key: 'action',
@@ -241,6 +206,96 @@ export const getColumnsForPersonalExtrato = (callback, account_type) => {
           <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
             {request_helper.getStyledAmount(record, false, negative)}
             {request_helper.getStyledDate(record)}
+          </div>
+          )
+      }
+  }
+]};
+
+//
+export const getColumnsBlockchainTXs = (callback, account_type) => {
+  return [
+  {
+    title: 'Date',
+    dataIndex: 'block_time',
+    key: 'block_time',
+    sortDirections: ['descend'],
+    defaultSortOrder: 'descend',
+    sorter: (a, b) => a.block_time_number - b.block_time_number,
+    align: 'left',
+    width: '15%',
+    render: (block_time, record) => {
+      const negative = request_helper.blockchain.isNegativeTransaction(record)
+      return (
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
+            {request_helper.formatBlockTime(record)}
+          </div>
+          )
+      }
+  },
+  //
+  {
+    title: 'Type',
+    dataIndex: 'tx_type',
+    key: 'tx_type',
+    width: '50%',
+    render: (tx_type, record) => {
+      
+      return (<span className="name_value_row ">
+            <div className="row_name centered flex_fixed_width_5em" >
+              <div className="ui-row__col ui-row__col--heading">
+                  <div className="ui-avatar">
+                    {request_helper.getCircledTypeIcon(record.request)} 
+                  </div>
+              </div>
+            </div>
+            <div className="row_value wider">
+              <div className="ui-info-row__content">
+                <div className="ui-info-row__title">{record.tx_type}</div>
+                <div className="ui-info-row__details">
+                    <ul>
+                        <li>{record.sub_header}</li>
+                        
+                    </ul>
+                </div>
+              </div>
+            </div>
+          </span>)
+
+    }
+  },
+  {
+    title: 'From',
+    dataIndex: 'data.from',
+    key: 'from',
+  },
+  {
+    title: 'To',
+    dataIndex: 'data.to',
+    key: 'to',
+  },
+  {
+    title: '#',
+    key: 'action',
+    render: (text, record) => {
+      // const process     = request_helper.(record, callback, 'Details');
+      // const blockchain  = request_helper.getBlockchainLink(record.transaction_id, true);
+      const process     = request_helper.getButtonIcon('info', callback, record)
+      const blockchain  = request_helper.getBlockchainLink(record.transaction_id, true, null, null);
+      return (<>{process}&nbsp;{blockchain}</>)
+    },
+  },
+  //
+  {
+    title: '$',
+    // fixed: 'right',    
+    dataIndex: 'amount',
+    key: 'amount',
+    render: (amount, record) => {
+      const negative = request_helper.blockchain.isNegativeTransaction(record)
+      return (
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
+            {request_helper.getStyledAmount(record, false, negative)}
           </div>
           )
       }
@@ -1091,7 +1146,7 @@ export const columnsForContractedServices = (callback, services_states) => {
                  {service.description}
                  <br/>
                  <br/>Provider: @{provider.account_name}
-                 <br/>{_service_state}
+                 <br/>Status: {_service_state}
                  <br/> 
                </div>
             </div>   
@@ -1119,7 +1174,7 @@ export const columnsForContractedServices = (callback, services_states) => {
               </span> 
               <br/><span>Last period charged: <b>{last_charged}</b></span>
               <br/><span>Total periods charged: <b>{total_charged}</b></span>
-              <br/><span><b>{_state}</b></span>
+              <br/><span>Status: <b>{_state}</b></span>
             </> 
           )}
       },

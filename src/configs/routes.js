@@ -29,7 +29,6 @@ export const pathNames = utils.arrToObj([
     'bankadminStaff',
     
     'businessExtracto',
-    'businessDeposit',
     'businessPDV',
     'businessPaymentsAndServices',
     'businessProvidersPayments',
@@ -252,14 +251,6 @@ const business = [
        role: 'business'
     },
 
-    // {
-    //    key: pathNames.businessDeposit,
-    //    fileName: 'under-construction',
-    //    area: 'business',
-    //    path: 'deposit',
-    //    container: 'dashboard',
-    //    role: 'business'
-    // },
     {
        key: pathNames.businessPDV,
        fileName: 'pdv',

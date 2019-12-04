@@ -175,14 +175,15 @@ export const getProfileName = (profile) => {
 export const getBlockchainLink = (tx_id, withIcon, size, text) => {
   if(!tx_id)
     return (null);
+  const _text = (typeof text === 'undefined')?'Blockchain':'';
   const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
-  const icon = (withIcon===undefined || withIcon)?(<FontAwesomeIcon icon="external-link-alt" />):(null);
+  const icon = (typeof withIcon==='undefined' || withIcon)?(<FontAwesomeIcon icon="external-link-alt" />):(null);
   // return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} icon={withIcon?'cloud':null} title="View on Blockchain" style={{color:'inherit', paddingLeft:0}}>{text||'Blockchain'}</Button>)
-  return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} title="View on Blockchain" style={{color:'inherit', paddingLeft:0}}>{text||'Blockchain'}&nbsp;{icon}</Button>)
+  return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} title="View on Blockchain" style={{color:'inherit', paddingLeft:0}}>{_text}&nbsp;{icon}</Button>)
 }
 //
 export const getProcessButton = (request, callback, text) => {
-  const title = text?text:((globalCfg.api.isFinished(request))?"Details":"Process");
+  const title = (typeof text==='undefined')?((globalCfg.api.isFinished(request))?"Details":"Process"):text;
 
   const buttonClick = (callback, request) => {
     if(typeof callback === 'function')
@@ -196,6 +197,18 @@ export const getProcessButton = (request, callback, text) => {
   }
   // if(typeof  callback === 'function')
   return (<Button key={'details_'+request.id} size="small" onClick={()=>{ buttonClick(callback, request) }}>{title}</Button>);
+}
+//
+
+export const getButtonIcon = (icon, callback, param) => {
+  const buttonClick = (callback, request) => {
+    if(typeof callback === 'function')
+    {
+      callback(request)
+      return;
+    }
+  }
+  return (<Button key={Math.random()} size="small" onClick={()=>{ buttonClick(callback, param) }} icon={icon} />);
 }
 //
 export const getStyledAmount = (request, mp_style, negative) => {
@@ -214,8 +227,13 @@ export const getStyledAmount = (request, mp_style, negative) => {
 }
 //
 export const getStyledDate = (request) => {
-  const my_date = (request.block_time?request.block_time:request.paid_at)
+  const my_date = formatBlockTime(request);
   return (<time className="c-activity-row__time">{my_date.replace('T',' ')}</time>)
+}
+//
+export const formatBlockTime = (request) => {
+  const my_date = (request.block_time?request.block_time:request.paid_at)
+  return my_date.replace('T',' ');
 }
 //
 export const getStyledBalance = (record, full) => {
