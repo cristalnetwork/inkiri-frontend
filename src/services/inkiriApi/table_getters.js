@@ -73,7 +73,7 @@ export const customerByUInt64 = async(name, idx_index) => {
   return rows;
 }
 
-export const listPapByProvider = async (provider_account_name, upper) => {
+export const listPapByProvider = async (provider_account_name, upper, cursor) => {
   const my_upper           = upper || 99999999; 
   
   // const providerHexLE      = eosjs_name_helper.getTableBoundsForName2(provider_account_name, true).lower_bound;
@@ -96,7 +96,9 @@ export const listPapByProvider = async (provider_account_name, upper) => {
     scope:            globalCfg.bank.issuer,
     key_type:         `i128`,
     index_position:   INDEX_POSITION_PAP_BY_PROVIDER_SERVICE,
+    next_key:         cursor||null,
     ...bounds,
+
   });
 
   return result;

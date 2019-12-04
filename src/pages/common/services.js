@@ -355,7 +355,7 @@ class Services extends Component {
     let services = [];
 
     try {
-      services = await api.bank.getServices(provider.account_name, request_page, limit);
+      services = await api.bank.getServices(request_page, limit, {account_name:provider.account_name});
     } catch (e) {
 
       this.openNotificationWithIcon("error", "Error retrieveing Services", JSON.stringify(e));

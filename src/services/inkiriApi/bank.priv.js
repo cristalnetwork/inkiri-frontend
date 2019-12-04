@@ -420,15 +420,14 @@ export const updateUserBankAccounts = (id,  bank_accounts) =>   new Promise((res
 /*
 * Services section
 */
-export const getServices = (account_name, page, limit, filter) =>   new Promise((res,rej)=> {
+export const getServices = (page, limit, filter) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.endpoint + '/services';
   const method  = 'GET';
   
   let qs = {
       page         : (page||0)
-      , limit      : (limit||10),
-      account_name : account_name
+      , limit      : (limit||10)
     };
   if(filter)
     qs = { ...qs , ...filter};

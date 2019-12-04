@@ -1054,3 +1054,94 @@ export const columnsForServiceContract = (callback) => {
       }
     ];
 }
+
+//
+
+export const columnsForContractedServices = (callback, services_states) => {
+    
+    const getStateDesc = (state) => {
+      if(!services_states)
+        return state;
+      const the_state = services_states.find(st => st.key==state);
+      if(!the_state)
+        return state;
+      return the_state.title;
+    }
+    return [
+      {
+        title: 'Service',
+        dataIndex: 'title',
+        key: 'title',
+        width:'40%',
+        render: (title, record) => {
+            const service = record.service||{};
+            const _service_state = getStateDesc(service.state);
+            return (<span className="name_value_row">
+            <div className="row_name centered flex_fixed_width_5em" >
+              <div className="ui-row__col ui-row__col--heading">
+                  <div className="ui-avatar">
+                    {request_helper.getCircledTypeIcon('hack_service')} 
+                  </div>
+              </div>
+            </div>
+            <div className="row_value wider">
+              <span className="row_tx_description">{service.title}</span> 
+               <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
+                 {service.description}
+                 <br/>{_service_state}
+                 <br/> 
+               </div>
+            </div>   
+          </span>)
+        }
+      },
+
+      {
+        title: 'Contract',
+        key: 'begins_at',
+        dataIndex: 'begins_at',
+        width:'30%',
+        render: (begins_at, record) => {
+          
+          const {last_charged, total_charged} = api.pap_helper.getChargeInfo(record);
+          const _state                        = (record.enabled)?'ACTIVE':'INACTIVE';
+
+          return (
+            <>
+              <span>
+                From: <b>{moment(begins_at).format(form_helper.MONTH_FORMAT_HUMANIZED)}</b>
+              </span> 
+              <br/><span> 
+                To: <b>{moment(begins_at).add(record.periods, 'months').format(form_helper.MONTH_FORMAT_HUMANIZED)}</b>
+              </span> 
+              <br/><span>Last period charged: <b>{last_charged}</b></span>
+              <br/><span>Total periods charged: <b>{total_charged}</b></span>
+              <br/><span><b>{_state}</b></span>
+            </> 
+          )}
+      },
+      {
+        title: 'Price',
+        key: 'amount',
+        dataIndex: 'amount',
+        width:'15%',
+        render: (amount, record) => {
+          
+          return (
+            <span>
+              {globalCfg.currency.toCurrencyString(amount)}
+            </span> 
+          )}
+      },
+      {
+        title: 'Action',
+        key: 'action',        
+        align: 'right',
+        width:'15%',
+        render: (text, record) => {
+          const children = (<Button key={'children_'+record.id} onClick={()=>{ callback(record, events.CHILDREN) }}  icon="download" size="small" >Payments</Button>);
+          return (<>{children}</>);
+        }
+      }
+    ];
+}
