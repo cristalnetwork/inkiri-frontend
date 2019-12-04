@@ -91,6 +91,11 @@ h3.fileds_header{
 
 
 /*HACK FOR TABLES*/
+.ant-table-thead > tr > th, .ant-table-tbody > tr > td {
+    padding: 8px 8px!important;
+    /*overflow-wrap: break-word;*/
+}
+
 .ant-divider-horizontal {
     margin: 6px 0 !important;
 }
@@ -277,3 +282,4 @@ h3.fileds_header{
 , .c-detail_small .ui-row{
   background-color: #f0f0f0!important;
 }
+
