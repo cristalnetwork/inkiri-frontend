@@ -70,14 +70,15 @@ class ServiceContractsPaymments extends Component {
     this.onNewData                      = this.onNewData.bind(this); 
     this.goBack                         = this.goBack.bind(this); 
   }
+  goBack(){
+    this.props.history.goBack();
+  }
 
   getColumns(){
     return columns_helper.columnsForServiceContractPayment(this.onPaymentCallback);
   }
   
-  goBack(){
-    this.props.history.goBack();
-  }
+  
 
   componentDidMount = async () => {
 
@@ -219,14 +220,14 @@ class ServiceContractsPaymments extends Component {
     //
 
     // const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
-    const routes    = routesService.breadcrumbForPaths([this.props.location.pathname]);
-    // <Button type="link" onClick={this.goBack}>Back</Button>
+    // const routes    = routesService.breadcrumbForPaths([this.props.location.pathname]);
+    // breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={buttons}
           title={title}
+          onBack={()=>this.goBack()}
         >
           
         </PageHeader>

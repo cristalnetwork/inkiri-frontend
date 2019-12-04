@@ -72,7 +72,10 @@ class ServiceContracts extends Component {
     this.ServiceContractChargeCallback  = this.ServiceContractChargeCallback.bind(this);
     this.renderFooter                 = this.renderFooter.bind(this); 
     this.onNewData                    = this.onNewData.bind(this); 
-
+    this.goBack                         = this.goBack.bind(this); 
+  }
+  goBack(){
+    this.props.history.goBack();
   }
 
   getColumns(){
@@ -306,13 +309,15 @@ class ServiceContracts extends Component {
         :[];
     //
     // const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
-    const routes    = routesService.breadcrumbForPaths([this.props.location.pathname]);
+    // const routes    = routesService.breadcrumbForPaths([this.props.location.pathname]);
+    // breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
+          
           extra={buttons}
           title={title}
+          onBack={()=>this.goBack()}
         >
           
         </PageHeader>
