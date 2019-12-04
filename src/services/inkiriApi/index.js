@@ -377,7 +377,7 @@ export const acceptService = async (auth_account, auth_priv, account_name, provi
 
 }
 
-export const chargeService = async (auth_account, auth_priv, account_name, provider_name, service_id, period_to_charge) => { 
+export const chargeService = async (auth_account, auth_priv, account_name, provider_name, service_id, quantity, period_to_charge) => { 
 
   const acceptServiceAction = {
     account:            globalCfg.bank.issuer,
@@ -392,6 +392,7 @@ export const chargeService = async (auth_account, auth_priv, account_name, provi
       from:              account_name
       , to:              provider_name
       , service_id:      service_id
+      , quantity:        quantity
       , memo:            `pap|pay|${period_to_charge}`
     }
   }

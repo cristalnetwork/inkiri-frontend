@@ -29,7 +29,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { InboundMessageType, createDfuseClient } from '@dfuse/client';
 
 const { TextArea } = Input;
-const routes = routesService.breadcrumbForFile('providers-payments');
 
 const DEFAULT_STATE = {
       input_amount     :
@@ -564,7 +563,7 @@ class PDV extends Component {
       return
     }
 
-    const txs = api.dfuse.transformTransactions(message, this.props.actualAccountName, false);
+    const txs = api.dfuse.transformTransactions(message, this.props.actualAccountName);
     this.onNewData({txs:txs, cursor:null}, true);
     // message.success('New payment received!', 5);
     this.openNotificationWithIcon("success", "New payment received!")    

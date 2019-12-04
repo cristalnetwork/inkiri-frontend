@@ -37,14 +37,24 @@ const STATE_NEW_SERVICE_CONTRACT   = 'state_new_service_contract';
 const STATE_EDIT_SERVICE_CONTRACT  = 'state_edit_service_contract';
 const STATE_LIST_SERVICE_CONTRACTS = 'state_list_service_contracts';
 
+const CONTRACTED_SERVICES         = 'contracted-services';
+const OFFERED_SERVICES            = 'services';
+
 const titles = {
-  [STATE_LIST_SERVICES]            : 'Serviços oferecidos'
-  , [STATE_NEW_SERVICE]            : 'Criar servicio'
-  , [STATE_EDIT_SERVICE]           : 'Modificar servicio'
-  , [STATE_NEW_SERVICE_CONTRACT]   : 'Send service provisioning request'
-  , [STATE_EDIT_SERVICE_CONTRACT]  : 'Modify contract'
-  , [STATE_LIST_SERVICE_CONTRACTS] : 'List customers'
+  [OFFERED_SERVICES]            :{
+    [STATE_LIST_SERVICES]            : 'Serviços oferecidos'
+    , [STATE_NEW_SERVICE]            : 'Criar servicio'
+    , [STATE_EDIT_SERVICE]           : 'Modificar servicio'
+    , [STATE_NEW_SERVICE_CONTRACT]   : 'Send service provisioning request'
+    , [STATE_EDIT_SERVICE_CONTRACT]  : 'Modify contract'
+    , [STATE_LIST_SERVICE_CONTRACTS] : 'List customers'
+  },
+  [CONTRACTED_SERVICES]            :{
+    [STATE_LIST_SERVICES]            : 'Serviços contratados'
+  },
 }
+
+
 class Services extends Component {
   constructor(props) {
     super(props);
@@ -54,6 +64,8 @@ class Services extends Component {
       loading:            false,
       pushingTx:          false,
       
+      pathname_:          props.location.pathname.split('/').pop(),
+
       services_states:    null,
 
       provider:           props_provider || props.actualAccountProfile,
@@ -352,17 +364,37 @@ class Services extends Component {
     const limit        = this.state.limit;
     let that           = this;
     
-    let services = [];
+    let contracts = []
+    let services  = [];
+    try{
+      let cust = 'organicvegan';
+      contracts = await eos_table_getter.listPapByCustomer(cust)
+      console.log(`${cust}:`, JSON.stringify(contracts))
+      
+      cust = 'tutinopablo1';
+      contracts = await eos_table_getter.listPapByCustomer(cust)
+      console.log(`${cust}:`, JSON.stringify(contracts))
 
-    try {
-      services = await api.bank.getServices(provider.account_name, request_page, limit);
-    } catch (e) {
+      cust = 'aranadalmiro';
+      contracts = await eos_table_getter.listPapByCustomer(cust)
+      console.log(`${cust}:`, JSON.stringify(contracts))
+    }catch(e){
 
-      this.openNotificationWithIcon("error", "Error retrieveing Services", JSON.stringify(e));
-      this.setState({ loading:false})
-      return;
-    } 
-    this.onNewData (services) ;
+    }
+
+    
+    return;
+
+    // try {
+
+    //   services = await api.bank.getServices(provider.account_name, request_page, limit);
+    // } catch (e) {
+
+    //   this.openNotificationWithIcon("error", "Error retrieveing Services", JSON.stringify(e));
+    //   this.setState({ loading:false})
+    //   return;
+    // } 
+    // this.onNewData (services) ;
 
   }
 
@@ -400,8 +432,11 @@ class Services extends Component {
   
   render() {
     const content                        = this.renderContent();
-    const {routes, loading, active_view} = this.state;
-    const title                          = titles[active_view] || titles[STATE_LIST_SERVICES];
+    const {routes, loading, active_view, pathname_} = this.state;
+    
+    console.log('pathname_', pathname_)
+    const title                          = titles[pathname_][active_view] || titles[pathname_][STATE_LIST_SERVICES];
+
     const buttons = (active_view==STATE_LIST_SERVICES)
       ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServices()} ></Button>, 
         <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewService()}}> Service</Button>]

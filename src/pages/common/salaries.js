@@ -34,8 +34,6 @@ import _ from 'lodash';
 
 import EditableCell , {EditableFormRow } from '@app/components/TransactionTable/EditableTableRow';
 
-const routes = routesService.breadcrumbForFile('accounts');
-
 const STATE_LIST_MEMBERS = 'state_list_members';
 const STATE_NEW_PAYMENT  = 'state_new_payment';
 

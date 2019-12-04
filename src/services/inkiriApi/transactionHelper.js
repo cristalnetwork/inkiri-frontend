@@ -7,35 +7,45 @@ import * as globalCfg from '@app/configs/global';
 */
 export const toReadable = (account_name, transaction) => {
   
-  // Transaction is DFUSE WebSocket Event or Search Result?
-  // SEARCH TX structure:
-  // - info:     -> transaction.lifecycle.execution_trace
-  // - action:   -> transaction.lifecycle.execution_trace.action_traces[0].act
-  // EVENT TX structure:
-  // - info:     -> transaction.data
-  // - action:   -> transaction.data.trace.act.data
+  const is_ws_event      = (typeof transaction.data !== 'undefined');
+  const is_search        = (typeof transaction.lifecycle !== 'undefined');
+  const is_graphql       = (typeof transaction.trace !== 'undefined'); // NOT IMPLEMENTED YET
+
+  const operations       = (is_ws_event)
+    ? [transaction.data.trace]
+    : ((is_search)
+        ? transaction.lifecycle.execution_trace.action_traces
+        : transaction.trace.topLevelActions[0])
   
-  const is_event         = (typeof transaction.lifecycle === 'undefined');
-  const operations       = (is_event)
-    ?[transaction.data.trace] // .act
-    : transaction.lifecycle.execution_trace.action_traces //[0].act
-  const transaction_data = (is_event)
+  const transaction_data = (is_ws_event)
     ? transaction.data
-    : transaction.lifecycle.execution_trace;
-  
-  const readable_operations  = operations.map( operation => getOperationMetadata(account_name, operation.act));
-  const readable_transaction = buildHeadersMulti(account_name, operations[0].act)
+    : ((is_search)
+      ? transaction.lifecycle.execution_trace
+      : transaction.trace.topLevelActions);
+
+  // const is_event         = (typeof transaction.lifecycle === 'undefined');
+  // const operations       = (is_event)
+  //   ?[transaction.data.trace] // .act
+  //   : transaction.lifecycle.execution_trace.action_traces //[0].act
+  // const transaction_data = (is_event)
+  //   ? transaction.data
+  //   : transaction.lifecycle.execution_trace;
+  const getMainAction = (operation) => {
+    return operation.act?operation.act:operation;
+  }
+  const readable_operations  = operations.map( operation => getOperationMetadata(account_name, getMainAction(operation)));
+  const readable_transaction = (is_graphql)?null:buildHeadersMulti(account_name, operations[0].act)
   
   const total_Amount          = operations.reduce(function (accumulator, operation) {
-    return accumulator + globalCfg.currency.toNumber(operation.act.data.quantity);
+    return accumulator + globalCfg.currency.toNumber(getMainAction(operation).data.quantity);
   }, 0);
   
 
   return {
-    id :                (!is_event)?transaction_data.id:transaction_data.trx_id
+    id :                (!is_ws_event)?transaction_data.id:transaction_data.trx_id
     , block_time:        transaction_data.block_time.split('.')[0]
     , block_time_number: Number(transaction_data.block_time.split('.')[0].replace(/-/g,'').replace(/T/g,'').replace(/:/g,'') )
-    , transaction_id:    (is_event)?transaction_data.trx_id:transaction_data.id
+    , transaction_id:    (is_ws_event)?transaction_data.trx_id:transaction_data.id
     , block_num:         transaction_data.block_num
     
     , ...operations[0].act

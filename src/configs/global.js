@@ -429,6 +429,4 @@ const dfuse = {
   }
 }
 
-// console.log(' *** EOS.ENDPOINT', eos.endpoint)
-// console.log(' *** API.ENDPOINT', api.endpoint)
 export { language, api, currency, dfuse, bank, eos };

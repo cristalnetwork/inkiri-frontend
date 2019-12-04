@@ -26,7 +26,6 @@ import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const { TextArea } = Input;
-const routes = routesService.breadcrumbForFile('providers-payments');
 
 const DEFAULT_STATE = {
       input_amount     :

@@ -84,8 +84,8 @@ export const listPapByProvider = async (provider_account_name, upper) => {
   }
 
   const bounds ={
-    lower_bound: `0x${serviceBounds.lower_bound}${firstHexLE}`,
-    upper_bound: `0x${serviceBounds.upper_bound}${firstHexLE}`,
+    lower_bound: `0x${firstHexLE}${serviceBounds.lower_bound}`,
+    upper_bound: `0x${firstHexLE}${serviceBounds.upper_bound}`,
    }
   
   console.log('bounds:', bounds)
@@ -96,6 +96,36 @@ export const listPapByProvider = async (provider_account_name, upper) => {
     scope:            globalCfg.bank.issuer,
     key_type:         `i128`,
     index_position:   INDEX_POSITION_PAP_BY_PROVIDER_SERVICE,
+    ...bounds,
+  });
+
+  return result;
+
+}
+
+export const listPapByCustomer = async (customer_account_name, upper) => {
+  const my_upper           = upper || 99999999; 
+  
+  // const providerHexLE      = eosjs_name_helper.getTableBoundsForName2(provider_account_name, true).lower_bound;
+  const firstHexLE = eosjs_name_helper.getTableBoundsForName2(customer_account_name, true).lower_bound;
+  const serviceBounds      = {
+    lower_bound: eosjs_name_helper.leadingZeros('', 16),
+    upper_bound: 'ffffffffffffffff'
+  }
+
+  const bounds ={
+    lower_bound: `0x${firstHexLE}${serviceBounds.lower_bound}`,
+    upper_bound: `0x${firstHexLE}${serviceBounds.upper_bound}`,
+   }
+  
+  console.log('bounds:', bounds)
+
+  const result = await fetchResult({
+    code:             globalCfg.bank.issuer,
+    table:            globalCfg.bank.table_paps,
+    scope:            globalCfg.bank.issuer,
+    key_type:         `i128`,
+    index_position:   INDEX_POSITION_PAP_BY_CUSTOMER_SERVICE,
     ...bounds,
   });
 
