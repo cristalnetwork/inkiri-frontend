@@ -304,7 +304,7 @@ class Operations extends Component {
   }
 
   renderFooter(){
-    return (<><Button key="load-more-data" disabled={this.state.cursor==''} onClick={()=>this.loadAllTransactions(false)}>More!!</Button> </>)
+    return (<><Button key="load-more-data" disabled={!this.state.cursor} onClick={()=>this.loadAllTransactions(false)}>More!!</Button> </>)
   }
 
   renderContent(){

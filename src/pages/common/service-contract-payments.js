@@ -138,9 +138,9 @@ class ServiceContractsPaymments extends Component {
   reloadServiceContractsPayments = async () => {
 
     this.setState({
-        page:        -1, 
-        payments:    [],
-        cursor:       null
+        can_get_more:  true, 
+        payments:      [],
+        cursor:        null
       }, async () => {
         const dummy_2 = await this.loadServiceContractsPayments(true);
 
@@ -149,18 +149,25 @@ class ServiceContractsPaymments extends Component {
 
   loadServiceContractsPayments = async (is_first) => {
 
-    const {page, contract, service, can_get_more, cursor} = this.state;
+    const {contract, service, can_get_more, cursor} = this.state;
     const me = this.props.actualAccountName;
     this.setState({loading:true});
+
+    if(!can_get_more)
+    {
+      this.openNotificationWithIcon("info", "Nope!");
+      this.setState({loading:false});
+      return;
+    }
 
     let payments = null;
 
     const provider_account = contract.provider||contract.to;
     const customer_account = contract.account||contract.from;
     
-    console.log('contract:', contract)
-    console.log('service:', service)
-    console.log('customer:', customer_account, 'provider:',provider_account);
+    // console.log('contract:', contract)
+    // console.log('service:', service)
+    // console.log('customer:', customer_account, 'provider:',provider_account);
     
 
     try{
@@ -187,10 +194,11 @@ class ServiceContractsPaymments extends Component {
     const has_received_new_data = (payments && payments.data && payments.data.txs.length>0);
 
     this.setState({
-                  pagination:pagination, 
-                  payments:_payments, 
-                  cursor:payments.cursor, 
-                  loading:false})
+                  pagination:    pagination, 
+                  payments:      _payments, 
+                  can_get_more:  (payments.cursor)?true:false,
+                  cursor:        payments.cursor, 
+                  loading:       false})
 
     if(!has_received_new_data && _payments && _payments.length>0)
     {
@@ -240,12 +248,18 @@ class ServiceContractsPaymments extends Component {
   }
   //
   renderContractInfo(){
-    const {title, description, amount, state} = this.state.service;  
+    const {service} = this.state;  
+    const {title, description, amount, state} = service;  
+    let provider = null;
+    if(service.created_by.account_name!=this.props.actualAccountName){
+      provider = stats_helper.buildItemSimple('PROVIDER', service.created_by.account_name)
+    }
     const items = [
-        stats_helper.buildItemSimple('SERVICE', title)
+        provider 
+        , stats_helper.buildItemSimple('SERVICE', title)
         , stats_helper.buildItemSimple('DESC.', description)
         , stats_helper.buildItemMoney('PRICE', amount)
-        , stats_helper.buildItemSimple('STATE', state)
+        // , stats_helper.buildItemSimple('STATE', state)
       ]
     return (<div style={{ background: '#fff', padding: 24, marginTop: 24}}>
         <TableStats stats_array={items}/>

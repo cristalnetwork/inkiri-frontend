@@ -361,7 +361,7 @@ class PDV extends Component {
   }
   ///
   renderFooter(){
-    return (<><Button key="load-more-data" disabled={this.state.cursor==''} onClick={()=>this.loadTransactionsForAccount(false)}>More!!</Button> </>)
+    return (<><Button key="load-more-data" disabled={!this.state.cursor} onClick={()=>this.loadTransactionsForAccount(false)}>More!!</Button> </>)
   }
   //
   onPaymentModalCallback = async (error, cancel, values) => {

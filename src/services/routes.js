@@ -57,9 +57,8 @@ const routes  = {
                     },
                     {
                         key: routes_config.pathNames.commonContractedServices,
-                        path: routes_config.pathNames.personalUnderConstruction,
+                        path: routes_config.pathNames.commonContractedServices,
                         title: 'Serviços Contratados',
-                        icon: 'shop',
                     }
                 ]
             }

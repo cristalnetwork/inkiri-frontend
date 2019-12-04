@@ -1074,7 +1074,8 @@ export const columnsForContractedServices = (callback, services_states) => {
         key: 'title',
         width:'40%',
         render: (title, record) => {
-            const service = record.service||{};
+            const service  = record.service||{};
+            const provider = service.created_by||{};
             const _service_state = getStateDesc(service.state);
             return (<span className="name_value_row">
             <div className="row_name centered flex_fixed_width_5em" >
@@ -1088,6 +1089,8 @@ export const columnsForContractedServices = (callback, services_states) => {
               <span className="row_tx_description">{service.title}</span> 
                <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
                  {service.description}
+                 <br/>
+                 <br/>Provider: @{provider.account_name}
                  <br/>{_service_state}
                  <br/> 
                </div>

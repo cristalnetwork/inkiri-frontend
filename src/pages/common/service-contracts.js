@@ -246,6 +246,13 @@ class ServiceContracts extends Component {
 
     const {page, provider, service, can_get_more, cursor} = this.state;
 
+    // if(!can_get_more)
+    // {
+    //   this.openNotificationWithIcon("info", "Nope!");
+    //   this.setState({loading:false});
+    //   return;
+    // }
+
     this.setState({loading:true});
 
     let contracts = null;
@@ -390,7 +397,7 @@ class ServiceContracts extends Component {
   }
   //
   renderFooter = () => {
-    return (<><Button key="load-more-data" disabled={this.state.cursor==''} onClick={()=>this.loadServiceContracts(false)}>More!!</Button> </>)
+    return (<><Button key="load-more-data" disabled={!this.state.cursor} onClick={()=>this.loadServiceContracts(false)}>More!!</Button> </>)
   }
   
 
