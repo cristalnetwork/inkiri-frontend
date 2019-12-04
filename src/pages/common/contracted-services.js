@@ -36,15 +36,27 @@ const STATE_EDIT_SERVICE           = 'state_edit_service';
 const STATE_NEW_SERVICE_CONTRACT   = 'state_new_service_contract';
 const STATE_EDIT_SERVICE_CONTRACT  = 'state_edit_service_contract';
 const STATE_LIST_SERVICE_CONTRACTS = 'state_list_service_contracts';
+const STATE_VIEW_SERVICE_CONTRACT  = 'state_view_service_contract';
+
+const CONTRACTED_SERVICES         = 'contracted-services';
+const OFFERED_SERVICES            = 'services';
 
 const titles = {
-  [STATE_LIST_SERVICES]            : 'Serviços oferecidos'
-  , [STATE_NEW_SERVICE]            : 'Criar servicio'
-  , [STATE_EDIT_SERVICE]           : 'Modificar servicio'
-  , [STATE_NEW_SERVICE_CONTRACT]   : 'Send service provisioning request'
-  , [STATE_EDIT_SERVICE_CONTRACT]  : 'Modify contract'
-  , [STATE_LIST_SERVICE_CONTRACTS] : 'List customers'
+  [OFFERED_SERVICES]            :{
+    [STATE_LIST_SERVICES]            : 'Serviços oferecidos'
+    , [STATE_NEW_SERVICE]            : 'Criar servicio'
+    , [STATE_EDIT_SERVICE]           : 'Modificar servicio'
+    , [STATE_NEW_SERVICE_CONTRACT]   : 'Send service provisioning request'
+    , [STATE_EDIT_SERVICE_CONTRACT]  : 'Modify contract'
+    , [STATE_LIST_SERVICE_CONTRACTS] : 'List customers'
+  },
+  [CONTRACTED_SERVICES]            :{
+    [STATE_LIST_SERVICES]            : 'Serviços contratados',
+    [STATE_VIEW_SERVICE_CONTRACT]    : 'Service contract details'
+  },
 }
+
+
 class Services extends Component {
   constructor(props) {
     super(props);
@@ -54,6 +66,8 @@ class Services extends Component {
       loading:            false,
       pushingTx:          false,
       
+      pathname_:          props.location.pathname.split('/').pop(),
+
       services_states:    null,
 
       provider:           props_provider || props.actualAccountProfile,
@@ -61,7 +75,7 @@ class Services extends Component {
       page:               -1, 
       limit:              globalCfg.api.default_page_size,
       can_get_more:       true,
-      
+      cursor:             '',      
       active_view:        STATE_LIST_SERVICES,
       active_view_object: null,
 
@@ -71,7 +85,7 @@ class Services extends Component {
     this.loadServices                 = this.loadServices.bind(this);  
     this.loadServicesStates           = this.loadServicesStates.bind(this);  
     this.openNotificationWithIcon     = this.openNotificationWithIcon.bind(this); 
-    this.onServicesListCallback       = this.onServicesListCallback.bind(this);
+    this.onContractListCallback       = this.onContractListCallback.bind(this);
     this.getColumns                   = this.getColumns.bind(this);
     this.onNewService                 = this.onNewService.bind(this); 
     this.serviceFormCallback          = this.serviceFormCallback.bind(this);
@@ -82,7 +96,7 @@ class Services extends Component {
   }
 
   getColumns(){
-    return columns_helper.columnsForServices(this.onServicesListCallback, this.state.services_states);
+    return columns_helper.columnsForContractedServices(this.onContractListCallback, this.state.services_states);
   }
   
   componentDidMount = async () => {
@@ -147,7 +161,7 @@ class Services extends Component {
 
   }
 
-  onServicesListCallback(service, event){
+  onContractListCallback(contract, event){
     const {events} = columns_helper;
     switch(event){
       case events.VIEW:
@@ -157,26 +171,34 @@ class Services extends Component {
         break;
       case events.EDIT:
         // console.log(event)
-        this.setState({active_view: STATE_EDIT_SERVICE, active_view_object:service})
+        // this.setState({active_view: STATE_EDIT_SERVICE, active_view_object:service})
         break;
       case events.DISABLE:
-        this.openNotificationWithIcon("warning", "Not implemented yet");    
-        this.onDisableService(service);
+        // this.openNotificationWithIcon("warning", "Not implemented yet");    
+        // this.onDisableService(service);
         break;
       case events.CHILDREN:
         // this.setState({active_view: STATE_LIST_SERVICE_CONTRACTS, active_view_object:service})
         this.props.setLastRootMenuFullpath(this.props.location.pathname);
+        // this.props.history.push({
+        //   pathname: `/common/service-contracts`
+        //   , state: { 
+        //       referrer: this.props.location.pathname
+        //       , provider: service.created_by
+        //       , service:  service            
+        //     }
+        // });
         this.props.history.push({
-          pathname: `/common/service-contracts`
+          pathname: `/common/service-contract-payments`
           , state: { 
               referrer: this.props.location.pathname
-              , provider: service.created_by
-              , service:  service            
+              , contract: contract
+              , service:  contract.service            
             }
         });
         break;
       case events.NEW_CHILD:
-        this.setState({active_view: STATE_NEW_SERVICE_CONTRACT, active_view_object:service})
+        // this.setState({active_view: STATE_NEW_SERVICE_CONTRACT, active_view_object:service})
         // this.openNotificationWithIcon("warning", "Not implemented yet");    
         break;
     }
@@ -327,8 +349,8 @@ class Services extends Component {
     // console.log(' >> res:', papByProvServSimple)
 
     this.setState({
-        page:        -1, 
-        services:    [],
+        can_get_more:  true, 
+        services:      [],
       }, async () => {
         const dummy_1 = await this.loadServicesStates();
         const dummy_2 = await this.loadServices();
@@ -337,9 +359,9 @@ class Services extends Component {
 
   loadServices = async () => {
 
-    const {page, provider, can_get_more} = this.state;
+    const {page, provider, can_get_more, cursor} = this.state;
 
-    if(!can_get_more && page>=0)
+    if(!can_get_more)
     {
       this.openNotificationWithIcon("info", "Nope!");
       this.setState({loading:false});
@@ -348,26 +370,42 @@ class Services extends Component {
 
     this.setState({loading:true});
 
-    let request_page   = (page<0)?0:(page+1);
-    const limit        = this.state.limit;
+    let request_page   = 0;
+    const limit        = 100;
     let that           = this;
+    const account_name = this.props.actualAccountName;
+    let contracts = []
     
-    let services = [];
-
-    try {
-      services = await api.bank.getServices(request_page, limit, {account_name:provider.account_name});
-    } catch (e) {
-
-      this.openNotificationWithIcon("error", "Error retrieveing Services", JSON.stringify(e));
-      this.setState({ loading:false})
+    try{
+      contracts = await eos_table_getter.listPapByCustomer(account_name, undefined, cursor)
+    }catch(e){
+      this.openNotificationWithIcon("error", "An error occurred while fetching your contracts.", JSON.stringify(e));
+      console.log(e)
       return;
-    } 
-    this.onNewData (services) ;
+    }
 
+    const counter_ids = contracts.rows.map(contract=>contract.service_id)
+    const services    = await  api.bank.getServices(request_page, limit, {counter_ids:counter_ids})
+    
+    const _services  = _.reduce(services, function(result, value, key) {
+      result[value.serviceCounterId] = value;
+      return result;
+    }, {});
+
+    const data = contracts.rows.map(contract => {return{...contract, service:_services[contract.service_id] }})
+        
+
+    // console.log('services:', services)
+    // console.log('contracts:', contracts)
+    // console.log('data:', data)
+    that.onNewData({services:data, more:data.more, cursor:data.next_key});
+
+    
   }
 
-  onNewData(services){
+  onNewData(data){
     
+    const {services, more, cursor} = data;
     const _services       = [...this.state.services, ...services];
     const pagination      = {...this.state.pagination};
     pagination.pageSize   = _services.length;
@@ -376,10 +414,11 @@ class Services extends Component {
     const has_received_new_data = (services && services.length>0);
 
     this.setState({
-                  pagination:pagination, 
-                  services:_services, 
-                  can_get_more:(has_received_new_data && services.length==this.state.limit), 
-                  loading:false})
+                  pagination:pagination
+                  , services:_services
+                  , can_get_more:more
+                  , loading:false
+                  , cursor:cursor})
 
     if(!has_received_new_data && _services && _services.length>0)
     {
@@ -400,11 +439,13 @@ class Services extends Component {
   
   render() {
     const content                        = this.renderContent();
-    const {routes, loading, active_view} = this.state;
-    const title                          = titles[active_view] || titles[STATE_LIST_SERVICES];
+    const {routes, loading, active_view, pathname_} = this.state;
+    
+    console.log('pathname_', pathname_)
+    const title                          = titles[pathname_][active_view] || titles[pathname_][STATE_LIST_SERVICES];
+
     const buttons = (active_view==STATE_LIST_SERVICES)
-      ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServices()} ></Button>, 
-        <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewService()}}> Service</Button>]
+      ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServices()} ></Button>]
         :[];
     //
     return (

@@ -30,8 +30,6 @@ import _ from 'lodash';
 
 import * as eos_table_getter from '@app/services/inkiriApi/table_getters';
 
-const routes = routesService.breadcrumbForFile('accounts');
-
 const STATE_LIST_CONTRACTS         = 'state_list_contracts';
 const STATE_NEW_CHARGE             = 'state_new_charge';
 
@@ -47,7 +45,6 @@ class ServiceContracts extends Component {
     const props_service  = (props && props.location && props.location.state && props.location.state.service)? props.location.state.service : null;
     this.state = {
       referrer:           (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined,
-      routes :            routesService.breadcrumbForPaths(props.location.pathname),
       loading:            false,
       pushingTx:          false,
       
@@ -75,7 +72,10 @@ class ServiceContracts extends Component {
     this.ServiceContractChargeCallback  = this.ServiceContractChargeCallback.bind(this);
     this.renderFooter                 = this.renderFooter.bind(this); 
     this.onNewData                    = this.onNewData.bind(this); 
-
+    this.goBack                         = this.goBack.bind(this); 
+  }
+  goBack(){
+    this.props.history.goBack();
   }
 
   getColumns(){
@@ -141,8 +141,16 @@ class ServiceContracts extends Component {
         // this.onDisableService(service);
         break;
       case events.CHILDREN:
-        this.openNotificationWithIcon("warning", "Not implemented yet");    
-        // this.setState({active_view: STATE_LIST_SERVICE_CONTRACTS, active_view_object:service})
+        // this.props.setLastRootMenuFullpath(this.props.location.pathname);
+        this.props.history.push({
+          pathname: `/common/service-contract-payments`
+          , state: { 
+              referrer: this.props.location.pathname
+              , contract: contract
+              , service:  this.state.service            
+            }
+        });
+
         break;
       case events.NEW_CHILD:
         // this.setState({active_view: STATE_NEW_SERVICE_CONTRACT, active_view_object:service})
@@ -198,7 +206,7 @@ class ServiceContracts extends Component {
 
     console.log(sender, private_key, account, provider, service_id, period_to_charge);
 
-    api.chargeService(sender, private_key, account, provider, service_id, period_to_charge)
+    api.chargeService(sender, private_key, account, provider, service_id, contract.price, period_to_charge)
       .then((res)=>{
         console.log(' >> doCharge >> ', JSON.stringify(res));
         that.setState({pushingTx:false, result:'ok'})
@@ -237,6 +245,13 @@ class ServiceContracts extends Component {
   loadServiceContracts = async (is_first) => {
 
     const {page, provider, service, can_get_more, cursor} = this.state;
+
+    // if(!can_get_more)
+    // {
+    //   this.openNotificationWithIcon("info", "Nope!");
+    //   this.setState({loading:false});
+    //   return;
+    // }
 
     this.setState({loading:true});
 
@@ -300,13 +315,16 @@ class ServiceContracts extends Component {
       ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServiceContracts()} ></Button>]
         :[];
     //
-    const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
+    // const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
+    // const routes    = routesService.breadcrumbForPaths([this.props.location.pathname]);
+    // breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
+          
           extra={buttons}
           title={title}
+          onBack={()=>this.goBack()}
         >
           
         </PageHeader>
@@ -379,7 +397,7 @@ class ServiceContracts extends Component {
   }
   //
   renderFooter = () => {
-    return (<><Button key="load-more-data" disabled={this.state.cursor==''} onClick={()=>this.loadServiceContracts(false)}>More!!</Button> </>)
+    return (<><Button key="load-more-data" disabled={!this.state.cursor} onClick={()=>this.loadServiceContracts(false)}>More!!</Button> </>)
   }
   
 

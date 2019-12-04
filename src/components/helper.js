@@ -1,5 +1,5 @@
 import React from 'react'
-import { Icon, Button } from 'antd';
+import { Icon, Button, Breadcrumb } from 'antd';
 import { Link } from 'react-router-dom';
 
 export const itemRender = (route, params, routes, paths) => {
@@ -13,3 +13,17 @@ export const itemRender = (route, params, routes, paths) => {
     <Link to={route.path}>{route.breadcrumbName}</Link>
   );
 }
+//
+// export const buildBreadcrumb = (name_function_array) => {
+//   return (<Breadcrumb>
+//       <Breadcrumb.Item href="">
+//         <Icon type="home" />
+//       </Breadcrumb.Item>
+//       {name_function_array.map(item => 
+//       <Breadcrumb.Item href="">
+//         <Icon type="user" />
+//         <span>Application List</span>
+//       </Breadcrumb.Item>
+//       )}
+//     </Breadcrumb>);
+// }

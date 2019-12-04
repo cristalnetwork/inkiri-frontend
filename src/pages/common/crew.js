@@ -27,8 +27,6 @@ import * as utils from '@app/utils/utils';
 
 import _ from 'lodash';
 
-const routes = routesService.breadcrumbForFile('accounts');
-
 const STATE_LIST_MEMBERS = 'state_list_members';
 const STATE_NEW_MEMBER   = 'state_new_member';
 const STATE_EDIT_MEMBER  = 'state_edit_member';

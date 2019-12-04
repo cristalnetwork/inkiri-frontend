@@ -102,7 +102,7 @@ export const getColumnsForPDV = (callback) => {
     render: (value, record) => {
       return(
         <span className="name_value_row">
-          <div className="row_name centered" >
+          <div className="row_name centered flex_fixed_width_5em" >
             <div className="ui-row__col ui-row__col--heading">
                 <div className="ui-avatar">
                   {request_helper.getCircledTypeIcon(record.request)} 
@@ -162,7 +162,7 @@ export const getColumnsForPersonalExtrato = (callback, account_type) => {
     render: (value, record) => {
       
       return (<span className="name_value_row">
-            <div className="row_name centered" >
+            <div className="row_name centered flex_fixed_width_5em" >
               <div className="ui-row__col ui-row__col--heading">
                   <div className="ui-avatar">
                     {request_helper.getCircledTypeIcon(record.request)} 
@@ -337,6 +337,66 @@ export const getDefaultColumns = (account_type, callback) => {
 
 //
 
+export const columnsForServiceContractPayment = (callback) => {
+  return [
+  {
+    title: '#',
+    dataIndex: 'sub_header',
+    key: 'sub_header',
+    width: '60%',
+    render: (value, record) => {
+      
+      return (<span className="name_value_row">
+            <div className="row_name centered flex_fixed_width_5em" >
+              <div className="ui-row__col ui-row__col--heading">
+                  <div className="ui-avatar">
+                    {request_helper.getCircledTypeIcon(record.request)} 
+                  </div>
+              </div>
+            </div>
+            <div className="row_value wider">
+              <span className="row_tx_description">{record.sub_header}</span> 
+               <div className="hidden" style={{maxWidth:400, overflowWrap:'normal'}}>
+                 <ul>
+                   <li><Tag key={'warning_'+Math.random()}>Open to view details</Tag></li>
+                 </ul>
+               </div>
+            </div>   
+          </span>)
+
+      
+    }
+  },
+  {
+    title: 'Action',
+    key: 'action',
+    render: (text, record) => {
+      const process     = request_helper.getProcessButton(record, callback, 'Details');
+      const blockchain  = request_helper.getBlockchainLink(record.transaction_id, true);
+      return (<>{process}&nbsp;{blockchain}</>)
+    },
+  },
+  //
+  {
+    title: 'Amount and date',
+    // fixed: 'right',    
+    dataIndex: 'block_time',
+    key: 'block_time',
+    sortDirections: ['descend'],
+    defaultSortOrder: 'descend',
+    sorter: (a, b) => a.block_time_number - b.block_time_number,
+    align: 'right',
+    render: (block_time, record) => {
+      const negative = request_helper.blockchain.isNegativeTransaction(record)
+      return (
+          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
+            {request_helper.getStyledAmount(record, false, negative)}
+            {request_helper.getStyledDate(record)}
+          </div>
+          )
+      }
+  }
+]};
 export const getColumnsForOperations = (callback, account_type) => {
   return [
   {
@@ -347,8 +407,8 @@ export const getColumnsForOperations = (callback, account_type) => {
     render: (value, record) => {
 
       return (<span className="name_value_row">
-            <div className="row_name centered" >
-              <div className="ui-row__col ui-row__col--heading">
+            <div className="row_name centered flex_fixed_width_5em" >
+              <div className="ui-row__col ui-row__col--heading ">
                   <div className="ui-avatar">
                     {request_helper.getCircledTypeIcon(record.request)} 
                   </div>
@@ -862,7 +922,7 @@ export const columnsForServices = (callback, services_states) => {
         render: (title, record) => {
           
             return (<span className="name_value_row">
-            <div className="row_name centered" >
+            <div className="row_name centered flex_fixed_width_5em" >
               <div className="ui-row__col ui-row__col--heading">
                   <div className="ui-avatar">
                     {request_helper.getCircledTypeIcon('hack_service')} 
@@ -933,7 +993,7 @@ export const columnsForServiceContract = (callback) => {
         render: (account, record) => {
           
             return (<span className="name_value_row">
-            <div className="row_name centered" >
+            <div className="row_name centered flex_fixed_width_5em" >
               <div className="ui-row__col ui-row__col--heading">
                   <div className="ui-avatar">
                     {request_helper.getCircledTypeIcon('hack_user')} 
@@ -987,9 +1047,103 @@ export const columnsForServiceContract = (callback) => {
         render: (text, record) => {
           const style     = {marginTop:6};
           const charge   = (<Button               key={'charge_'+record.id}   onClick={()=>{ callback(record, events.CHARGE) }}    icon="calendar" size="small" disabled={!record.enabled}>Charge</Button>);
-          const children = (<Button style={style} key={'children_'+record.id} onClick={()=>{ callback(record, events.CHILDREN) }}  icon="download" size="small" disabled>Received payments</Button>);
+          const children = (<Button style={style} key={'children_'+record.id} onClick={()=>{ callback(record, events.CHILDREN) }}  icon="download" size="small" >Received payments</Button>);
           const _remove  = (<Button style={style} key={'remove_'+record.id}   onClick={()=>{ callback(record, events.REMOVE) }}    icon="delete"   size="small" type="link" disabled>SEASE and REMOVE</Button>);
           return (<>{charge}<br/>{children}<br/>{_remove}</>);
+        }
+      }
+    ];
+}
+
+//
+
+export const columnsForContractedServices = (callback, services_states) => {
+    
+    const getStateDesc = (state) => {
+      if(!services_states)
+        return state;
+      const the_state = services_states.find(st => st.key==state);
+      if(!the_state)
+        return state;
+      return the_state.title;
+    }
+    return [
+      {
+        title: 'Service',
+        dataIndex: 'title',
+        key: 'title',
+        width:'40%',
+        render: (title, record) => {
+            const service  = record.service||{};
+            const provider = service.created_by||{};
+            const _service_state = getStateDesc(service.state);
+            return (<span className="name_value_row">
+            <div className="row_name centered flex_fixed_width_5em" >
+              <div className="ui-row__col ui-row__col--heading">
+                  <div className="ui-avatar">
+                    {request_helper.getCircledTypeIcon('hack_service')} 
+                  </div>
+              </div>
+            </div>
+            <div className="row_value wider">
+              <span className="row_tx_description">{service.title}</span> 
+               <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
+                 {service.description}
+                 <br/>
+                 <br/>Provider: @{provider.account_name}
+                 <br/>{_service_state}
+                 <br/> 
+               </div>
+            </div>   
+          </span>)
+        }
+      },
+
+      {
+        title: 'Contract',
+        key: 'begins_at',
+        dataIndex: 'begins_at',
+        width:'30%',
+        render: (begins_at, record) => {
+          
+          const {last_charged, total_charged} = api.pap_helper.getChargeInfo(record);
+          const _state                        = (record.enabled)?'ACTIVE':'INACTIVE';
+
+          return (
+            <>
+              <span>
+                From: <b>{moment(begins_at).format(form_helper.MONTH_FORMAT_HUMANIZED)}</b>
+              </span> 
+              <br/><span> 
+                To: <b>{moment(begins_at).add(record.periods, 'months').format(form_helper.MONTH_FORMAT_HUMANIZED)}</b>
+              </span> 
+              <br/><span>Last period charged: <b>{last_charged}</b></span>
+              <br/><span>Total periods charged: <b>{total_charged}</b></span>
+              <br/><span><b>{_state}</b></span>
+            </> 
+          )}
+      },
+      {
+        title: 'Price',
+        key: 'amount',
+        dataIndex: 'amount',
+        width:'15%',
+        render: (amount, record) => {
+          
+          return (
+            <span>
+              {globalCfg.currency.toCurrencyString(amount)}
+            </span> 
+          )}
+      },
+      {
+        title: 'Action',
+        key: 'action',        
+        align: 'right',
+        width:'15%',
+        render: (text, record) => {
+          const children = (<Button key={'children_'+record.id} onClick={()=>{ callback(record, events.CHILDREN) }}  icon="download" size="small" >Payments</Button>);
+          return (<>{children}</>);
         }
       }
     ];

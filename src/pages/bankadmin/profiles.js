@@ -34,8 +34,6 @@ const RadioGroup = Radio.Group;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
-const routes = routesService.breadcrumbForFile('accounts');
-
 
 class Profiles extends Component {
   constructor(props) {

@@ -196,8 +196,8 @@ export const searchPermissioningAccounts = (account_name) => new Promise( (res, 
   
 })
 
-export const transformTransactions = (txs, account_name, is_search_result) => transformTransactionsImpl(txs, account_name, is_search_result);
-const transformTransactionsImpl = (txs, account_name, is_search_result) => {
+export const transformTransactions = (txs, account_name) => transformTransactionsImpl(txs, account_name);
+const transformTransactionsImpl = (txs, account_name) => {
   
   if (!txs || txs.length <= 0) {
     return [];
@@ -244,6 +244,84 @@ const transformTransactionsImpl = (txs, account_name, is_search_result) => {
   return my_txs;
 }
 
+export const listPAPPayments = async (account_name, provider, customer, cursor) => new Promise(async(res,rej)=> {
+  
+  const query = `action:${globalCfg.bank.table_paps_charge}  account:${globalCfg.currency.token} data.from:${customer} data.to:${provider}`;
+  
+  // const searchTransactions = `query ($limit: Int64!, $irreversibleOnly: Boolean) {
+  //   searchTransactionsBackward(query: "${query}", limit: $limit, irreversibleOnly: $irreversibleOnly) {
+  //     cursor
+  //     results {
+  //                 trace {
+                      
+  //                     id topLevelActions {
+  //                         account
+  //                         name
+  //                         authorization {
+  //                             actor
+  //                             permission
+
+  //                         }
+  //                         data
+  //                     }
+  //                 }
+  //             }
+  //   }
+  // }`;
+
+  // let client = createClient();
+  // try {
+  //   const response = await client.graphql(searchTransactions, {
+  //     variables: { limit: 100 , irreversibleOnly: false}
+  //   })
+
+  //   // console.log(response)
+  //   const results = response.data.searchTransactionsBackward.results || []
+  //   if (results.length <= 0) {
+  //     res ({data:{txs:[], cursor:''}})
+  //     console.log("Oups nothing found")
+  //     return;
+  //   }
+
+  //   console.log(' dfuse::listPAPPayments >> RAW data >>', JSON.stringify(response));
+
+  //   const txs = transformTransactionsImpl(results, account_name);
+  //   // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
+  //   res ({data:{txs:txs, cursor:response.cursor}})
+    
+  // } catch (error) {
+  //   rej(error);
+  //   console.log("An error occurred", error)
+  // }
+
+  // client.release()
+
+  console.log('listPAPPayments:', query);
+  let options = { 
+    limit: globalCfg.dfuse.default_page_size 
+    , sort: 'desc'
+    , irreversibleOnly: false};
+
+  if(cursor)
+    options['cursor'] = cursor;
+  let client = createClient();
+  client.searchTransactions(
+      query,
+      options
+    )
+    .then( (data) => {
+      const txs = transformTransactionsImpl(data.transactions, account_name);
+      res ({data:{txs:txs, cursor:data.cursor}})
+      client.release();
+    }, (ex) => {
+      console.log('dfuse::listTransactions >> ERROR#1 ', JSON.stringify(ex));
+      rej(ex);
+      client.release();
+    });
+  
+})  
+
+
 export const allTransactions      = (cursor)               => listTransactions(null, cursor);
 export const incomingTransactions = (account_name, cursor) => listTransactions(account_name, cursor, true);
 /*
@@ -269,7 +347,11 @@ export const listTransactions = (account_name, cursor, received) => new Promise(
 
 	// console.log('dfuse::listTransactions >> ', 'About to retrieve listTransactions >>', query);	
 
-  let options = { limit: globalCfg.dfuse.default_page_size , sort: 'desc'}
+  let options = { 
+      limit: globalCfg.dfuse.default_page_size 
+      , sort: 'desc'
+      , irreversibleOnly: false
+  };
   if(cursor!==undefined)
     options['cursor'] = cursor;
 
@@ -280,7 +362,7 @@ export const listTransactions = (account_name, cursor, received) => new Promise(
       options
     )
     .then( (data) => {
-    	const txs = transformTransactionsImpl(data.transactions, account_name, true);
+    	const txs = transformTransactionsImpl(data.transactions, account_name);
       // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
       res ({data:{txs:txs, cursor:data.cursor}})
       client.release();

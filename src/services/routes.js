@@ -57,9 +57,8 @@ const routes  = {
                     },
                     {
                         key: routes_config.pathNames.commonContractedServices,
-                        path: routes_config.pathNames.personalUnderConstruction,
-                        title: 'Payments and services',
-                        icon: 'shop',
+                        path: routes_config.pathNames.commonContractedServices,
+                        title: 'Serviços Contratados',
                     }
                 ]
             }
@@ -145,7 +144,7 @@ const routes  = {
                     {
                         key: routes_config.pathNames.commonContractedServices,
                         path: routes_config.pathNames.bankadminUnderConstruction,
-                        title: 'Contracted Services',
+                        title: 'Serviços Contratados',
                     },
 
                 ]
@@ -227,9 +226,14 @@ const routes  = {
                         path: routes_config.pathNames.commonSend,
                         title: 'Send money',
                     },
+                    // {
+                    //     key: routes_config.pathNames.businessPaymentsAndServices,
+                    //     path: routes_config.pathNames.businessUnderConstruction,
+                    //     title: 'Serviços Contratados',
+                    // },
                     {
-                        key: routes_config.pathNames.businessPaymentsAndServices,
-                        path: routes_config.pathNames.businessUnderConstruction,
+                        key: routes_config.pathNames.commonContractedServices,
+                        path: routes_config.pathNames.commonContractedServices,
                         title: 'Serviços Contratados',
                     },
                     {

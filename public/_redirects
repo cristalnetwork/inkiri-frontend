@@ -1,0 +1,25 @@
+# Redirect default Netlify subdomain to primary domain
+http://stoplightio.netlify.com/*  http://stoplight.io/:splat 301!
+https://stoplightio.netlify.com/* https://stoplight.io/:splat 301!
+
+# External redirects
+/login https://next.stoplight.io/login
+/join https://next.stoplight.io/join
+/register https://next.stoplight.io/join
+/twitter https://twitter.com/stoplightio
+
+# Internal redirects
+/prism /mocking/
+/platform/prism /mocking/
+/platform/design /design/
+/platform/docs /documentation/
+/platform/scenarios /testing/
+/api-designer /design/
+
+# Guide redirects
+/api-documentation-guide /api-documentation-guide/basics/
+/api-design-guide /api-design-guide/basics/
+/mock-api-guide /mock-api-guide/basics/
+
+# Redirect images
+/assets/img/* /images/:splat

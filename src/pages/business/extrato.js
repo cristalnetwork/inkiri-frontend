@@ -307,7 +307,7 @@ class Extrato extends Component {
   }
 
   renderFooter(){
-    return (<><Button key="load-more-data" disabled={this.state.cursor==''} onClick={()=>this.loadTransactionsForAccount(false)}>More!!</Button> </>)
+    return (<><Button key="load-more-data" disabled={!this.state.cursor} onClick={()=>this.loadTransactionsForAccount(false)}>More!!</Button> </>)
   }
 
   renderContent(){

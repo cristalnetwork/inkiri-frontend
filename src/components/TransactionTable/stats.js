@@ -87,6 +87,8 @@ const TableStats = ({stats_array, title, visible}) => {
     }
     //
     const getStatItem = (item) =>{
+      if(!item)
+        return (null);
       return (<Col key={Math.random()} xs={24} sm={12} md={6} lg={_xl} xl={_xl}>
                 <Statistic
                     title={item.title}
