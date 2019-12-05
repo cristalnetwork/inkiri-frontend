@@ -211,18 +211,6 @@ class AutocompleteAccount extends Component {
   
   
 }
-//
-// export default Form.create() (withRouter(connect(
-//     (state)=> ({
-//         accounts:       accountsRedux.accounts(state),
-//         actualAccountName:    loginRedux.actualAccountName(state),
-//     }),
-//     (dispatch)=>({
-//         loadAccounts:   bindActionCreators(accountsRedux.loadAccounts, dispatch)        
-//     })
-// )(AutocompleteAccount) )
-// );
-
 
 export default (connect(
     (state)=> ({

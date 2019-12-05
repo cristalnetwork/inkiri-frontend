@@ -1,6 +1,7 @@
+import React, { useState, useEffect } from 'react';
+
 import { Col, Icon, Row, Tooltip } from 'antd';
 
-import React from 'react';
 import numeral from 'numeral';
 import ChartCard, { MiniArea, MiniBar, MiniProgress, Field } from './Charts';
 import Trend from './Trend';
@@ -19,7 +20,15 @@ const topColResponsiveProps = {
   style: { marginBottom: 24 },
 };
 
-const MoneyRow = ({ loading, visitData }) => (
+const MoneyRow = ({ loading, rawData, visitData }) => {
+
+  const [data, setData] = useState(rawData||{})
+  
+  useEffect(() => {
+      setData(rawData||{});
+    });
+
+  return (
   <Row gutter={24} type="flex">
     
     <Col {...topColResponsiveProps}>
@@ -28,26 +37,26 @@ const MoneyRow = ({ loading, visitData }) => (
         title={"Bank Balance"}
         action={
           <Tooltip
-            title={"Total issued - IK$  in circulation"}
+            title={"Total supply - IK$  in circulation"}
           >
             <Icon type="info-circle-o" />
           </Tooltip>
         }
         loading={loading}
-        total={() => <Yuan>10002563.2</Yuan>}
+        total={() => <Yuan>{data.supply||0}</Yuan>}
         contentHeight={77}
       >
         <Field
             label={"Digital IK$"}
-            value={`IK$ ${numeral(12423).format('0,0')}`}
+            value={`IK$ ${numeral(0).format('0,0')}`}
           />
         <Field
             label={"Paper IK$"}
-            value={`IK$ ${numeral(2423).format('0,0')}`}
+            value={`IK$ ${numeral(0).format('0,0')}`}
           />
         <Field
             label={"Fiat BRL"}
-            value={`BRL ${numeral(423).format('0,0')}`}
+            value={`BRL ${numeral(0).format('0,0')}`}
           />
       </ChartCard>
     </Col>
@@ -64,22 +73,22 @@ const MoneyRow = ({ loading, visitData }) => (
           </Tooltip>
         }
         loading={loading}
-        total={() => <Yuan>126560</Yuan>}
+        total={() => <Yuan>0</Yuan>}
         footer={
           <Field
             label={"Daily Sales"}
-            value={`BRL ${numeral(12423).format('0,0')}`}
+            value={`BRL ${numeral(0).format('0,0')}`}
           />
         }
         contentHeight={46}
       >
         <Trend flag="up" style={{ marginRight: 16 }}>
           Weekly Changes
-          <span className={'trendText'}>12%</span>
+          <span className={'trendText'}>?%</span>
         </Trend>
         <Trend flag="down">
           Daily Changes
-          <span className={'trendText'}>11%</span>
+          <span className={'trendText'}>?%</span>
         </Trend>
       </ChartCard>
     </Col>
@@ -98,11 +107,11 @@ const MoneyRow = ({ loading, visitData }) => (
             <Icon type="info-circle-o" />
           </Tooltip>
         }
-        total={numeral(8846).format('0,0')}
+        total={numeral(0).format('0,0')}
         footer={
           <Field
             label={"Daily Transactions"}
-            value={ `BRL ${numeral(1234).format('0,0')}`}
+            value={ `BRL ${numeral(0).format('0,0')}`}
           />
         }
         contentHeight={46}
@@ -122,11 +131,11 @@ const MoneyRow = ({ loading, visitData }) => (
             <Icon type="info-circle-o" />
           </Tooltip>
         }
-        total={numeral(6560).format('0,0')}
+        total={numeral(0).format('0,0')}
         footer={
           <Field
             label={"Daily issuing"}
-            value="60%"
+            value="0%"
           />
         }
         contentHeight={46}
@@ -136,5 +145,5 @@ const MoneyRow = ({ loading, visitData }) => (
     </Col>
   </Row>
 );
-
+}
 export default MoneyRow;

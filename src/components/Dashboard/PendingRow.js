@@ -33,7 +33,7 @@ const PendingRow = ({ loading, visitData }) => (
           </Tooltip>
         }
         loading={loading}
-        total={() => 8}
+        total={() => '?'}
         footer={
           <Field
             label={"Total requested"}
@@ -59,7 +59,7 @@ const PendingRow = ({ loading, visitData }) => (
           </Tooltip>
         }
         loading={loading}
-        total={() => 5}
+        total={() => '?'}
         footer={
           <Field
             label={"Total requested"}
@@ -72,11 +72,11 @@ const PendingRow = ({ loading, visitData }) => (
       >
         <Trend flag="right" style={{ marginRight: 16 }}>
           Investimento
-          <span className={'trendText'}>12%</span>
+          <span className={'trendText'}>?%</span>
         </Trend>
         <Trend flag="down">
           Insumos
-          <span className={'trendText'}>11%</span>
+          <span className={'trendText'}>?%</span>
         </Trend>
       </ChartCard>
     </Col>

@@ -296,3 +296,6 @@ h3.fileds_header{
 .ant-menu-item{
   padding-left: 36px!important;
 }
+.is_root_menu{
+  padding-left: 24px!important;
+}
