@@ -177,7 +177,8 @@ class AutocompleteAccount extends Component {
                         {getFieldDecorator(name, {
                         rules: [{ required: true, message: 'Please choose a customer!' }]
                       })(
-                          <AutoComplete size="large" 
+                          <AutoComplete 
+                            size="large" 
                             dataSource={data.map(this.renderAccount)} 
                             style={{ width: '100%' }} 
                             onSelect={this.handleChange} 

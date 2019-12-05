@@ -21,7 +21,7 @@ import * as components_helper from '@app/components/helper';
 import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
 import { Select, PageHeader, Button, Spin, Modal} from 'antd';
-import { notification, Form, Icon, InputNumber, Input, AutoComplete } from 'antd';
+import { notification, Form, Icon, InputNumber, Input } from 'antd';
 
 import TxResult from '@app/components/TxResult';
 import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';

@@ -12,7 +12,7 @@ import * as validators from '@app/components/Form/validators';
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
-import { notification, Empty, Button, Form, message, AutoComplete, Input, Icon } from 'antd';
+import { notification, Empty, Button, Form, message, Input, Icon } from 'antd';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -120,27 +120,6 @@ class AddRoleForm extends Component {
         );
   }
 
-  /*
-  <Form.Item style={{minHeight:60, marginBottom:12}}>
-                {getFieldDecorator('permissioned', {
-                  rules: [{ required: true, message: 'Please input account name!' }],
-                  onChange: (e) => this.onSelect(e)
-                })(
-                  <AutoComplete
-                    autoFocus
-                    size="large"
-                    dataSource={this.props.accounts.filter(acc=>acc.key!=owner).map(acc=>acc.key)}
-                    style={{ width: '100%' }}
-                    placeholder="Input account name"
-                    filterOption={true}
-                    className="extra-large"
-                  >
-                    <Input suffix={<Icon type="user" style={{fontSize:20}} className="default-icon" />} />
-                  </AutoComplete>
-                   
-                )}
-              </Form.Item>
-  */
 }
 //
 export default Form.create() (withRouter(connect(
