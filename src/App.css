@@ -283,3 +283,16 @@ h3.fileds_header{
   background-color: #f0f0f0!important;
 }
 
+.money-transfer__select .ant-select-search--inline .ant-select-search__field{
+  line-height: inherit!important;
+}
+
+.certain-search-item-count {
+  position: absolute;
+  color: #999;
+  right: 16px;
+}
+
+.ant-menu-item{
+  padding-left: 36px!important;
+}

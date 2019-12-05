@@ -18,6 +18,8 @@ import moment from 'moment';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
+import * as form_helper from '@app/components/Form/form_helper';
+
 const DEFAULT_STATE = {
     _id:            null,
     account_name:   null,
@@ -110,67 +112,44 @@ class ProfileForm extends Component {
 
   
   
-  getInputItem = (object, field, title, required_message, _type, readonly) => {
-    const { getFieldDecorator }    = this.props.form;
-    if(!_type) _type = 'string';
-    const _readonly=(readonly===true);
-    return (<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-              <Form.Item label={title}>
-                {getFieldDecorator(field, {
-                  rules: [{ type:_type, required: (required_message!==undefined?true:false), message: required_message, whitespace: true }],
-                  initialValue:object[field]||''
-                })(
-                  <Input className="money-transfer__input" placeholder={title} readOnly={_readonly}/>
-                )}
-              </Form.Item>
-            </div>);
-  }
-  getStringItem = (object, field, title, required_message, readonly) => {
-    return this.getInputItem(object, field, title, required_message, 'string', readonly);
-  }
-  getEmailItem = (object, field, title, required_message) => {
-    return this.getInputItem(object, field, title, required_message, 'email');
-  }
-  getDateItem = (object, field, title, required_message) => {
-    const { getFieldDecorator }    = this.props.form;
-    return (<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-              <Form.Item label={title}>
-                {getFieldDecorator(field, {
-                rules: [{ required: true, message: required_message }],
-                initialValue: moment(object[field])
-              })( <DatePicker style={{ width: '80%' }}/>)}
-              </Form.Item>
-            </div>);
-  }
-
   renderContent() {  
     const { mode, profile, button_text } = this.state;
     const business                       = (globalCfg.bank.isBusinessAccount(profile));
-    const { getFieldDecorator }          = this.props.form;
+    const { form }                       = this.props;
     if(mode=='full')
       return (
         <Form onSubmit={this.handleSubmit} className="with_labels">
             <div className="money-transfer">
-              {this.getStringItem(profile , 'account_name'  , 'Account name' , 'Please input a valid account name!', true)}
+
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'account_name'  , 'Account name' , 'Please input a valid account name!', true))}
 
               {!business? 
-                (<>{this.getStringItem(profile , 'last_name'     , 'Last name'    , 'Please input a valid last name!')}
-                {this.getStringItem(profile , 'first_name'    , 'First name'   , 'Please input a valid first name!')}</>)
+                (<>
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'last_name'     , 'Last name'    , 'Please input a valid last name!'))}
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'first_name'    , 'First name'   , 'Please input a valid first name!'))}
+                 </>)
                 :
-                (<>{this.getStringItem(profile , 'business_name'    , 'Business name' , 'Please input a valid business name!')}
-                {this.getStringItem(profile , 'alias'    , 'IUGU alias'   , 'Please input a valid alias!')}</>)
+                (<>
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'business_name'    , 'Business name' , 'Please input a valid business name!') )}
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'alias'    , 'IUGU alias'   , 'Please input a valid alias!'))}
+                 </>)
 
               }
-              {this.getEmailItem( profile , 'email'         , 'Email'        , 'Please input a valid email!')}
-              {!business && this.getStringItem(profile , 'legal_id'      , 'CPF'          , 'Please input a valid CPF!')}
-              {!business && this.getDateItem(profile   , 'birthday'      , 'Birthday'     , 'Please input a valid Date!')}
-              {this.getStringItem(profile , 'phone'         , 'Phone number' , 'Please input a valid phone number!')}
+              {form_helper.simple(form_helper.getEmailItem(form,  profile , 'email'         , 'Email'        , 'Please input a valid email!') )}
+              {!business 
+                  && form_helper.simple(form_helper.getStringItem(form, profile , 'legal_id'      , 'CPF'          , 'Please input a valid CPF!')) }
+              {!business 
+                  && form_helper.simple(form_helper.getDateItem(form, profile   , 'birthday'      , 'Birthday'     , 'Please input a valid Date!')) }
+              
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'phone'         , 'Phone number' , 'Please input a valid phone number!')) }
+              
               <br/><br/><div className="c-header-detail__head u-clearfix"><div className="c-header-detail__title">Address</div></div>
-              {this.getStringItem(profile , 'address.street'  , 'Street'     )}
-              {this.getStringItem(profile , 'address.city'    , 'City'       )}
-              {this.getStringItem(profile , 'address.state'   , 'State'      )}
-              {this.getStringItem(profile , 'address.zip'     , 'ZIP'        )}
-              {this.getStringItem(profile , 'address.country' , 'Country'    )}
+              
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.street'  , 'Street'     )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.city'    , 'City'       )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.state'   , 'State'      )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.zip'     , 'ZIP'        )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.country' , 'Country'    )) }
             </div>
             
             <div className="mp-box__actions mp-box__shore">
@@ -184,10 +163,9 @@ class ProfileForm extends Component {
 
     return (<Form onSubmit={this.handleSubmit} className="with_labels">
             <div className="money-transfer">
-              {this.getStringItem(profile , 'account_name'  , 'Account name' , 'Please input a valid account name!', true)}
-
-              {this.getStringItem(profile , 'business_name'    , 'Business name' , 'Please input a valid business name!')}
-              {this.getStringItem(profile , 'alias'    , 'IUGU alias'   , 'Please input a valid alias!')}
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'account_name'  , 'Account name' , 'Please input a valid account name!', true))}
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'business_name'    , 'Business name' , 'Please input a valid business name!'))}
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'alias'    , 'IUGU alias'   , 'Please input a valid alias!'))}
 
             </div>
             <div className="mp-box__actions mp-box__shore">

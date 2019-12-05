@@ -18,6 +18,7 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
+import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
 import { Select, PageHeader, Button, Spin, Modal} from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete } from 'antd';
@@ -305,33 +306,7 @@ class SendMoney extends Component {
           <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">    
                
-               <div className="money-transfer__row row-complementary row-complementary-bottom money-transfer__select flex_row" >
-                  <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
-                      <span className="picture">
-                        <FontAwesomeIcon icon="user" size="lg" color="gray"/>
-                      </span>
-                  </div>
-                  <div className="money-transfer__input">
-                    <Form.Item>
-                      {getFieldDecorator('receipt', {
-                        rules: [{ required: true, message: 'Please input receipt account name!' }]
-                      })(
-                        <AutoComplete
-                          size="large"
-                          dataSource={this.props.accounts.filter(acc=>acc.key!=this.props.actualAccountName).map(acc=>acc.key)}
-                          style={{ width: '100%' }}
-                          onSelect={this.onSelect}
-                          placeholder=""
-                          filterOption={true}
-                          className="extra-large"
-                        />
-                         
-                      )}
-                    </Form.Item>
-                  </div>
-              </div>
-
-               
+              <AutocompleteAccount callback={this.onSelect} form={this.props.form} name="receipt" />
 
               <Form.Item label="Amount" className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {

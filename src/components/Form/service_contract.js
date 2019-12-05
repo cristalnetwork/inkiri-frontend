@@ -12,6 +12,8 @@ import * as validators from '@app/components/Form/validators';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as form_helper from '@app/components/Form/form_helper';
 
+import AutocompleteAccount from '@app/components/AutocompleteAccount';
+
 import ServiceCard from '@app/components/TransactionCard/service_card';
 
 import PropTypes from "prop-types";
@@ -167,8 +169,11 @@ class ServiceContractForm extends Component {
 
   render() {
     const { form, provider }      = this.props;
-    const { customer, service }     = this.state;
-    const customer_selector         = this.renderCustomerSelector();
+    const { customer, service }   = this.state;
+    // const customer_selector         = this.renderCustomerSelector();
+    
+    const customer_selector       = (<AutocompleteAccount callback={this.onSelect} form={form} name="customer" />)
+    
     const button_text             = 'SEND REQUEST';
     return (
             
@@ -180,6 +185,7 @@ class ServiceContractForm extends Component {
               <div className="money-transfer no_label">    
 
                   {customer_selector}
+
                   {form_helper.withIcon('calendar-alt', form_helper.getMonthItem(form, null , 'begins_at'  , 'Service begins at'  , 'Please input a valid month!'))}
                   {form_helper.withIcon('calendar-alt', form_helper.getMonthItem(form, null , 'expires_at' , 'Service expires at' , 'Please input a valid month!'))}
                   
@@ -201,7 +207,8 @@ class ServiceContractForm extends Component {
 //
 export default Form.create() (withRouter(connect(
     (state)=> ({
-        accounts:               accountsRedux.accounts(state)
+        accounts:             accountsRedux.accounts(state),
+        actualAccountName:    loginRedux.actualAccountName(state),
     }),
     (dispatch)=>({
         

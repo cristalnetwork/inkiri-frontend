@@ -4,11 +4,15 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import * as accountsRedux from '@app/redux/models/accounts';
+import * as loginRedux from '@app/redux/models/login'
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
 import * as request_helper from '@app/components/TransactionCard/helper';
+
+import AutocompleteAccount from '@app/components/AutocompleteAccount';
+import ProfileMini from '@app/components/TransactionCard/profile_mini';
 
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
@@ -180,42 +184,18 @@ class AddMemberForm extends Component {
 
   renderMemberSelector(){
     const {member}              = this.state;
-    const { getFieldDecorator } = this.props.form;
+    const { form }              = this.props;
+    // const { getFieldDecorator } = form;
     const my_accounts           = this.props.accounts.filter(acc=>acc.key!=this.props.actualAccountName && globalCfg.bank.isPersonalAccount(acc)).map(acc=>acc.key)
     let selector   = null;
     //
     if(member){
-      selector = (<div className="ui-row__col ui-row__col--content">
-                    <div className="ui-info-row__content">
-                        <div className="ui-info-row__title"><b>{request_helper.getProfileName(member.member)}</b></div>
-                          <div className="ui-info-row__details">
-                              <ul>
-                                  <li>@{member.member.account_name}</li>
-                              </ul>
-                          </div>
-                    </div>
-                </div>); 
+      selector = (<ProfileMini profile={member.member} title={"Member"} not_alone={false} gray_bg={true} />);
     }
     else{
-      selector = (<Form.Item>
-                        {getFieldDecorator('member', {
-                        rules: [{ required: true, message: 'Please input member account name!' }]
-                      })(
-                          <AutoComplete size="large" dataSource={my_accounts} style={{ width: '100%' }} onSelect={this.onSelect} placeholder="Choose account name" filterOption={true} className="extra-large" />
-                        )}
-                      </Form.Item>);
+      selector = <AutocompleteAccount callback={this.onSelect} form={form} name="member" filter={globalCfg.bank.ACCOUNT_TYPE_PERSONAL} exclude_list={[]}/>;
     }
-  //
-    return (<div className="money-transfer__row row-complementary row-complementary-bottom money-transfer__select" >
-              <div className="badge badge-extra-small badge-circle addresse-avatar ">
-                  <span className="picture">
-                    <FontAwesomeIcon icon="user" size="lg" color="gray"/>
-                  </span>
-              </div>
-              <div className="money-transfer__input money-transfer__select">
-                {selector}
-              </div>
-          </div>);
+    return selector;
   }
   //
   renderJobPosition(){
@@ -314,7 +294,8 @@ class AddMemberForm extends Component {
 //
 export default Form.create() (withRouter(connect(
     (state)=> ({
-        accounts:         accountsRedux.accounts(state),
+        accounts:           accountsRedux.accounts(state),
+        actualAccountName:  loginRedux.actualAccountName(state),
     }),
     (dispatch)=>({
         

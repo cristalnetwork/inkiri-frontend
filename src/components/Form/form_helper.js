@@ -6,22 +6,33 @@ import 'moment/locale/pt-br';
 
 moment.locale('pt-BR');
 
+const {TextArea} = Input;
+
 export const MONTH_FORMAT           = 'YYYY/MM';
 export const MONTH_FORMAT_HUMANIZED = 'MMMM YYYY';
 
-export const getInputItem = (_form, object, field, title, required_message, _type, readonly) => {
+export const getInputItem = (_form, object, field, title, required_message, _type, readonly, textarea) => {
+    
     const { getFieldDecorator }    = _form;
+    const initial_value            = object?object[field]:'';
+    const _readonly                = (readonly===true);
     if(!_type) _type = 'string';
-    const _readonly=(readonly===true);
-    const initialValue = object?object[field]:'';
-    return (<Form.Item label={title}>
+    
+    
+    const input = (textarea===true) 
+      ? (<TextArea className="money-transfer__input" placeholder={title} readOnly={_readonly} autoSize={{ minRows: 3, maxRows: 6 }} />) 
+      : (<Input className="money-transfer__input" placeholder={title} readOnly={_readonly}/> );
+    // const input = <Input className="money-transfer__input" placeholder={title} readOnly={_readonly}/>;
+    return (  <Form.Item label={title}>
                 {getFieldDecorator(field, {
                   rules: [{ type:_type, required: (required_message!==undefined?true:false), message: required_message, whitespace: true }],
-                  initialValue: initialValue
+                  initialValue:initial_value
                 })(
-                  <Input className="money-transfer__input" placeholder={title} readOnly={_readonly}/>
+                   input 
+
                 )}
-              </Form.Item>);
+              </Form.Item>
+    );
 };
 //
 export const   getStringItem = (_form, object, field, title, required_message, readonly) => {
@@ -46,7 +57,7 @@ export const   getDateItem = (_form, object, field, title, required_message) => 
                 {getFieldDecorator(field, {
                 rules: [{ required: true, message: required_message }],
                 initialValue: initialValue
-              })( <DatePicker style={{ width: '80%' }}/>)}
+              })( <DatePicker/>)}
               </Form.Item>);
   }
 //
@@ -59,10 +70,13 @@ export const   getMonthItem = (_form, object, field, title, required_message, re
                 {getFieldDecorator(field, {
                 rules: [{ required: true, message: required_message }],
                 initialValue: initialValue
-              })( <DatePicker.MonthPicker format={MONTH_FORMAT} style={{ width: '80%' }} disabled={_readonly}/>)}
+              })( <DatePicker.MonthPicker format={MONTH_FORMAT} disabled={_readonly}/>)}
               </Form.Item>);
   }
-
+//
+export const getTextareaItem = (_form, object, field, title, required_message, readonly) => {
+    return getInputItem(_form, object, field, title, required_message, 'string', readonly, true);
+  }
 //
 export const simple = (item) => {
   return (<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >

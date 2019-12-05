@@ -9,6 +9,7 @@ import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
 import * as request_helper from '@app/components/TransactionCard/helper';
+import * as form_helper from '@app/components/Form/form_helper';
 
 import { withRouter } from "react-router-dom";
 
@@ -17,7 +18,6 @@ import moment from 'moment';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-const {TextArea} = Input;
 const DEFAULT_STATE = {
       input_amount: {  
         style   :           {maxWidth: 370, fontSize: 100, width: 60}
@@ -203,58 +203,9 @@ class ServiceForm extends Component {
           </div>);
   }
   
-
-  getInputItem = (object, field, title, required_message, _type, readonly, textarea) => {
-    
-    const initial_value            = object?object[field]:'';
-    const { getFieldDecorator }    = this.props.form;
-    if(!_type) _type = 'string';
-    const _readonly=(readonly===true);
-    
-    const input = (textarea===true) 
-      ? (<TextArea className="money-transfer__input" placeholder={title} readOnly={_readonly} autoSize={{ minRows: 3, maxRows: 6 }} />) 
-      : (<Input className="money-transfer__input" placeholder={title} readOnly={_readonly}/> );
-    // const input = <Input className="money-transfer__input" placeholder={title} readOnly={_readonly}/>;
-    return (<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-              <Form.Item label={title}>
-                {getFieldDecorator(field, {
-                  rules: [{ type:_type, required: (required_message!==undefined?true:false), message: required_message, whitespace: true }],
-                  initialValue:initial_value
-                })(
-                   input 
-
-                )}
-              </Form.Item>
-            </div>);
-  }
-  
-  getTextareaItem = (object, field, title, required_message, readonly) => {
-    return this.getInputItem(object, field, title, required_message, 'string', readonly, true);
-  }
-  
-  getStringItem = (object, field, title, required_message, readonly) => {
-    return this.getInputItem(object, field, title, required_message, 'string', readonly);
-  }
-
-  getEmailItem = (object, field, title, required_message) => {
-    return this.getInputItem(object, field, title, required_message, 'email');
-  }
-
-  getDateItem = (object, field, title, required_message) => {
-    const { getFieldDecorator }    = this.props.form;
-    return (<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-              <Form.Item label={title}>
-                {getFieldDecorator(field, {
-                rules: [{ required: true, message: required_message }],
-                initialValue: moment(object[field])
-              })( <DatePicker style={{ width: '80%' }}/>)}
-              </Form.Item>
-            </div>);
-  }
-  //
-
   render() {
-    const { getFieldDecorator }     = this.props.form;
+    const { form }                  = this.props;
+    const { getFieldDecorator }     = form;
     const { input_amount, service } = this.state;
     
     const state_item                = (null); //this.renderServiceState();
@@ -265,8 +216,8 @@ class ServiceForm extends Component {
               
               <div className="money-transfer">    
 
-                  {this.getStringItem(service   , 'title'        , 'Service title' ,       'Please input a valid title!')}
-                  {this.getTextareaItem(service , 'description'  , 'Service description' , 'Please input a valid description!')}
+                  {form_helper.simple(form_helper.getStringItem(form,   service   , 'title'        , 'Service title' ,       'Please input a valid title!'))}
+                  {form_helper.simple(form_helper.getTextareaItem(form, service , 'description'  , 'Service description' , 'Please input a valid description!'))}
 
                   <Form.Item label="Amount" className="money-transfer__row input-price row-complementary row-complementary-bottom" style={{textAlign: 'center', height:'180px'}}
                     extra={<>Monthly price.</>}

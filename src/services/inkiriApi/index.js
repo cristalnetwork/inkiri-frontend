@@ -1,9 +1,10 @@
 import * as globalCfg from '@app/configs/global';
 
-import * as eosHelper from './eosHelper.js';
+import * as eosHelper from './eos-helper.js';
+import * as nameHelper from './eosjs-name.js';
 import * as dfuse from './dfuse.js';
 import * as bank from './bank.priv.js';
-import * as jwt from './jwtHelper.js';
+import * as jwt from './jwt-helper.js';
 import * as pap_helper from './pre-auth-payments.helper.js';
 import ecc from 'eosjs-ecc';
 
@@ -15,6 +16,7 @@ import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig';
 
 import _ from 'lodash';
 
+export {nameHelper};
 export {eosHelper};
 export {dfuse};
 export {bank};

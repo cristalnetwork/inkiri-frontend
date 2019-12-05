@@ -169,6 +169,13 @@ class Crew extends Component {
       wage:       values.input_amount.value
     }
     
+    // already a member?
+    if(!values._id && team && team.members && team.members.filter(member => member.member._id==new_member.member).length>0)
+    {
+      this.setState({pushingTx:false})
+      this.openNotificationWithIcon('error', 'Selected profile is already a member!');
+      return;
+    }
 
     const members        = team
       ? [  ...(team.members.filter(member=>member._id!=new_member._id))
@@ -251,20 +258,19 @@ class Crew extends Component {
   
   
   render() {
-    const content               = this.renderContent();
+    const content                          = this.renderContent();
+    const {routes, active_view, loading }  = this.state;
     
-    
-    const {routes, active_view}  = this.state;
-    const button = (active_view==STATE_LIST_MEMBERS)
-      ?(<Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewMember()}}> Member</Button>)
+    const buttons = (active_view==STATE_LIST_MEMBERS)
+      ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.loadTeam()} ></Button>, 
+        <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewMember()}}> Member</Button>]
         :(null);
+    //
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          extra={[
-            button,
-          ]}
+          extra={buttons}
           title="Crew"
         >
           
@@ -287,7 +293,10 @@ class Crew extends Component {
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
               <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-                <AddMemberForm key="add_member_form" callback={this.memberFormCallback} job_positions={job_positions} member={active_view_object}/>    
+                <AddMemberForm key="add_member_form" 
+                  callback={this.memberFormCallback} 
+                  job_positions={job_positions} 
+                  member={active_view_object}/>    
               </Spin>
             </section>
           </div>      
