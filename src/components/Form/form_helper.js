@@ -57,7 +57,7 @@ export const   getDateItem = (_form, object, field, title, required_message) => 
                 {getFieldDecorator(field, {
                 rules: [{ required: true, message: required_message }],
                 initialValue: initialValue
-              })( <DatePicker/>)}
+              })( <DatePicker style={{width:'100%'}}/>)}
               </Form.Item>);
   }
 //
@@ -70,7 +70,7 @@ export const   getMonthItem = (_form, object, field, title, required_message, re
                 {getFieldDecorator(field, {
                 rules: [{ required: true, message: required_message }],
                 initialValue: initialValue
-              })( <DatePicker.MonthPicker format={MONTH_FORMAT} disabled={_readonly}/>)}
+              })( <DatePicker.MonthPicker style={{width:'100%'}} format={MONTH_FORMAT} disabled={_readonly}/>)}
               </Form.Item>);
   }
 //
