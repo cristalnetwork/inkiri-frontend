@@ -79,12 +79,15 @@ class AutocompleteAccount extends Component {
 
   setAccounts = () => {
     const {accounts, actualAccountName, filter, exclude_list} = this.props;
+    
+    const _filter_arr = filter?(!Array.isArray(filter)?[filter]:filter):null; 
+    const filter_arr  = _filter_arr?_filter_arr.map(item => globalCfg.bank.getAccountType(item)):null;
+    // globalCfg.bank.isAccountOfType(acc, filter)) 
     const my_accounts = this.props.accounts.filter(acc => 
         acc.key!=actualAccountName 
-        && (!filter || globalCfg.bank.isAccountOfType(acc, filter)) 
+        && (!filter_arr || filter_arr.includes(globalCfg.bank.getAccountType(acc.account_type))) 
         && !(exclude_list||[]).includes(acc.key)
     );
-      //.map(acc=> { return {text: acc.key, value:acc} } )
     
     this.setState({
             callback:              this.props.callback,

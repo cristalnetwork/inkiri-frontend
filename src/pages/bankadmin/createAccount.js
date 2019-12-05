@@ -33,6 +33,7 @@ import { List, Skeleton, notification, Form, Icon, InputNumber, Input, AutoCompl
 import { Modal } from 'antd';
 
 import {CopyToClipboard} from 'react-copy-to-clipboard';
+import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
 import {formItemLayout,tailFormItemLayout } from '@app/utils/utils';
 
@@ -792,26 +793,14 @@ class CreateAccount extends Component {
 
             <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
               <Form onSubmit={this.handleAddPermissionSubmit}>
-                  
-                <Form.Item style={{minHeight:60, marginBottom:12}}>
-                  {getFieldDecorator('permissioned', {
-                    rules: [{ required: true, message: 'Please input account name!' }]
-                  })(
-                    <AutoComplete
-                      autoFocus
-                      size="large"
-                      dataSource={this.props.accounts.filter(acc=>acc.key!=account_name).map(acc=>acc.key)}
-                      style={{ width: '100%' }}
-                      onSelect={this.onSelect}
-                      placeholder=""
-                      filterOption={true}
-                      className="extra-large"
-                    >
-                      <Input suffix={<Icon type="user" style={{fontSize:20}} className="default-icon" />} />
-                    </AutoComplete>
-                     
-                  )}
-                </Form.Item>
+                
+                <AutocompleteAccount 
+                    autoFocus 
+                    callback={this.onSelect} 
+                    form={this.props.form} 
+                    name="permissioned" 
+                    exclude_list={[account_name]} 
+                    filter={globalCfg.bank.ACCOUNT_TYPE_PERSONAL}/>
 
                 <Form.Item>
                   <Button type="primary" htmlType="submit" className="login-form-button">
