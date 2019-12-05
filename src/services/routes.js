@@ -142,6 +142,11 @@ const routes  = {
                         title: 'PDA',
                     },
                     {
+                        key: routes_config.pathNames.commonServices,
+                        path: routes_config.pathNames.bankadminUnderConstruction,
+                        title: 'Serviços oferecidos',
+                    },
+                    {
                         key: routes_config.pathNames.commonContractedServices,
                         path: routes_config.pathNames.bankadminUnderConstruction,
                         title: 'Serviços Contratados',

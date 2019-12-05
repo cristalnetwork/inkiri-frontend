@@ -136,10 +136,13 @@ class AutocompleteAccount extends Component {
       callback(changedValue);
   };
 
+  onChange = (o) => {
 
+  }
   renderAccount = (item) => {
+    //<AutoComplete.Option key={item.key} text={item.key}>
     return (
-      <AutoComplete.Option key={item.key} text={item.key}>
+      <AutoComplete.Option key={item.key} value={item.key}>
         {item.key}
         <span className="certain-search-item-count">@{globalCfg.bank.getAccountType(item.account_type)}</span>
       </AutoComplete.Option>
@@ -182,7 +185,8 @@ class AutocompleteAccount extends Component {
                             filterOption={(inputValue, option) =>
                               option.key.indexOf(inputValue) !== -1
                             }
-                            className="extra-large">
+                            className="extra-large"
+                            optionLabelProp="value" >
                                <Input suffix={<Button loading={isLoading} type="link" icon="redo" title="Can't find account? Click to reload accounts!!!"  onClick={this.loadAccounts}></Button>} />
                             </AutoComplete>
                         )}

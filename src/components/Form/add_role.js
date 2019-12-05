@@ -16,6 +16,7 @@ import { notification, Empty, Button, Form, message, AutoComplete, Input, Icon }
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
+import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
 class AddRoleForm extends Component {
   constructor(props) {
@@ -76,12 +77,12 @@ class AddRoleForm extends Component {
         return;
       }
       
-      const exists = this.props.accounts.filter( account => account.key==values.permissioned);
-      if(!exists || exists.length==0)
-      {
-        this.openNotificationWithIcon("error", 'Please select an account from the list.');
-        return;
-      }
+      // const exists = this.props.accounts.filter( account => account.key==values.permissioned);
+      // if(!exists || exists.length==0)
+      // {
+      //   this.openNotificationWithIcon("error", 'Please select an account from the list.');
+      //   return;
+      // }
       values['authority'] = this.state.authority;
       this.fireEvent(null, null, values);
       
@@ -99,8 +100,28 @@ class AddRoleForm extends Component {
     return (
           
             <Form onSubmit={this.handleSubmit}>
+              
+              <AutocompleteAccount 
+                autoFocus 
+                callback={this.onSelect} 
+                form={this.props.form} 
+                name="permissioned" 
+                exclude_list={[owner]} 
+                filter={globalCfg.bank.ACCOUNT_TYPE_PERSONAL}/>
+
+              <div className="mp-box__actions mp-box__shore">
+                <Button size="large" key="requestButton" htmlType="submit" type="primary" htmlType="submit" >AUTHORIZE</Button>
+                <Button size="large" className="danger_color" type="link" onClick={()=>{this.fireEvent(null, true, null)}}>Cancel</Button>
+              </div>
                 
-              <Form.Item style={{minHeight:60, marginBottom:12}}>
+              
+            </Form>
+          
+        );
+  }
+
+  /*
+  <Form.Item style={{minHeight:60, marginBottom:12}}>
                 {getFieldDecorator('permissioned', {
                   rules: [{ required: true, message: 'Please input account name!' }],
                   onChange: (e) => this.onSelect(e)
@@ -119,19 +140,7 @@ class AddRoleForm extends Component {
                    
                 )}
               </Form.Item>
-
-              <div className="mp-box__actions mp-box__shore">
-                <Button size="large" key="requestButton" htmlType="submit" type="primary" htmlType="submit" >AUTHORIZE</Button>
-                <Button size="large" className="danger_color" type="link" onClick={()=>{this.fireEvent(null, true, null)}}>Cancel</Button>
-              </div>
-                
-              
-            </Form>
-          
-        );
-  }
-
-  
+  */
 }
 //
 export default Form.create() (withRouter(connect(
