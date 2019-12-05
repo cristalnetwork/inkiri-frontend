@@ -79,12 +79,15 @@ class AutocompleteAccount extends Component {
 
   setAccounts = () => {
     const {accounts, actualAccountName, filter, exclude_list} = this.props;
+    
+    const _filter_arr = filter?(!Array.isArray(filter)?[filter]:filter):null; 
+    const filter_arr  = _filter_arr?_filter_arr.map(item => globalCfg.bank.getAccountType(item)):null;
+    // globalCfg.bank.isAccountOfType(acc, filter)) 
     const my_accounts = this.props.accounts.filter(acc => 
         acc.key!=actualAccountName 
-        && (!filter || globalCfg.bank.isAccountOfType(acc, filter)) 
+        && (!filter_arr || filter_arr.includes(globalCfg.bank.getAccountType(acc.account_type))) 
         && !(exclude_list||[]).includes(acc.key)
     );
-      //.map(acc=> { return {text: acc.key, value:acc} } )
     
     this.setState({
             callback:              this.props.callback,
@@ -136,10 +139,13 @@ class AutocompleteAccount extends Component {
       callback(changedValue);
   };
 
+  onChange = (o) => {
 
+  }
   renderAccount = (item) => {
+    //<AutoComplete.Option key={item.key} text={item.key}>
     return (
-      <AutoComplete.Option key={item.key} text={item.key}>
+      <AutoComplete.Option key={item.key} value={item.key}>
         {item.key}
         <span className="certain-search-item-count">@{globalCfg.bank.getAccountType(item.account_type)}</span>
       </AutoComplete.Option>
@@ -174,7 +180,8 @@ class AutocompleteAccount extends Component {
                         {getFieldDecorator(name, {
                         rules: [{ required: true, message: 'Please choose a customer!' }]
                       })(
-                          <AutoComplete size="large" 
+                          <AutoComplete 
+                            size="large" 
                             dataSource={data.map(this.renderAccount)} 
                             style={{ width: '100%' }} 
                             onSelect={this.handleChange} 
@@ -182,7 +189,8 @@ class AutocompleteAccount extends Component {
                             filterOption={(inputValue, option) =>
                               option.key.indexOf(inputValue) !== -1
                             }
-                            className="extra-large">
+                            className="extra-large"
+                            optionLabelProp="value" >
                                <Input suffix={<Button loading={isLoading} type="link" icon="redo" title="Can't find account? Click to reload accounts!!!"  onClick={this.loadAccounts}></Button>} />
                             </AutoComplete>
                         )}
@@ -203,18 +211,6 @@ class AutocompleteAccount extends Component {
   
   
 }
-//
-// export default Form.create() (withRouter(connect(
-//     (state)=> ({
-//         accounts:       accountsRedux.accounts(state),
-//         actualAccountName:    loginRedux.actualAccountName(state),
-//     }),
-//     (dispatch)=>({
-//         loadAccounts:   bindActionCreators(accountsRedux.loadAccounts, dispatch)        
-//     })
-// )(AutocompleteAccount) )
-// );
-
 
 export default (connect(
     (state)=> ({

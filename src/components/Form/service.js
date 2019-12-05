@@ -13,7 +13,7 @@ import * as form_helper from '@app/components/Form/form_helper';
 
 import { withRouter } from "react-router-dom";
 
-import { Select, notification, Empty, Button, Form, message, AutoComplete, Input, Icon, DatePicker } from 'antd';
+import { Select, notification, Empty, Button, Form, message, Input, Icon, DatePicker } from 'antd';
 import moment from 'moment';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'

@@ -125,52 +125,10 @@ class ServiceContractForm extends Component {
     // this.setState({...DEFAULT_STATE});
   }
 
-  renderCustomerSelector(){
-    const {customer}              = this.state;
-    const { getFieldDecorator } = this.props.form;
-    const my_accounts           = this.props.accounts.filter(acc=>acc.key!=this.props.actualAccountName && globalCfg.bank.isPersonalAccount(acc)).map(acc=>acc.key)
-    let selector   = null;
-    //
-    if(customer){
-      selector = (<div className="ui-row__col ui-row__col--content">
-                    <div className="ui-info-row__content">
-                        <div className="ui-info-row__title"><b>{request_helper.getProfileName(customer)}</b></div>
-                          <div className="ui-info-row__details">
-                              <ul>
-                                  <li>@{customer.account_name}</li>
-                              </ul>
-                          </div>
-                    </div>
-                </div>); 
-    }
-    else{
-      selector = (<Form.Item>
-                        {getFieldDecorator('customer', {
-                        rules: [{ required: true, message: 'Please choose a customer!' }]
-                      })(
-                          <AutoComplete size="large" dataSource={my_accounts} style={{ width: '100%' }} onSelect={this.onSelect} placeholder="Choose a customer by account name" filterOption={true} className="extra-large" />
-                        )}
-                      </Form.Item>);
-    }
   //
-    return (<div className="money-transfer__row row-complementary row-complementary-bottom money-transfer__select" >
-              <div className="badge badge-extra-small badge-circle addresse-avatar ">
-                  <span className="picture">
-                    <FontAwesomeIcon icon="user" size="lg" color="gray"/>
-                  </span>
-              </div>
-              <div className="money-transfer__input money-transfer__select">
-                {selector}
-              </div>
-          </div>);
-  }
-  
-  //
-
   render() {
     const { form, provider }      = this.props;
     const { customer, service }   = this.state;
-    // const customer_selector         = this.renderCustomerSelector();
     
     const customer_selector       = (<AutocompleteAccount callback={this.onSelect} form={form} name="customer" />)
     

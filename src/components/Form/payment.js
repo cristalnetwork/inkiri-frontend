@@ -7,6 +7,7 @@ import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
 const PaymentForm = (props) => {
     
@@ -78,33 +79,14 @@ const PaymentForm = (props) => {
 
     const { getFieldDecorator }  = props.form;
     const userSearch             = (showUserSearch)
-              ?(<div className="money-transfer__row row-complementary row-complementary-bottom money-transfer__select flex_row" >
-                  <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
-                      <span className="picture">
-                        <FontAwesomeIcon icon="user" size="lg" color="gray"/>
-                      </span>
-                  </div>
-                  <div className="money-transfer__input money-transfer__select">
-                    <Form.Item>
-                      {getFieldDecorator('payer', {
-                        rules: [{ required: true, message: 'Please select receipt account name!' }]
-                      })(
-                        <AutoComplete
-                          size="large"
-                          dataSource={props.accounts.filter(acc=>acc.key!=business).map(acc=>acc.key)}
-                          style={{ width: '100%' }}
-                          onSelect={onSelect}
-                          placeholder=""
-                          filterOption={true}
-                          className="extra-large"
-                        />
-                         
-                      )}
-                    </Form.Item>
-                  </div>
-              </div>
-            ):(null);
-    //
+              ?(<AutocompleteAccount 
+                    autoFocus 
+                    callback={onSelect} 
+                    form={props.form} 
+                    name="payer" 
+                    filter={globalCfg.bank.ACCOUNT_TYPE_PERSONAL}/>)
+              :(null);
+    
     return (
           <Form onSubmit={handleSubmit}>
             <div className="money-transfer">    

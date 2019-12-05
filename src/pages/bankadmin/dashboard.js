@@ -3,9 +3,9 @@ import React, {useState, Component} from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
-import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
+import * as accountsRedux from '@app/redux/models/accounts';
 
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
@@ -33,12 +33,16 @@ class Operations extends Component {
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       loading:             false,
-      visitData:           this.loadData()
+      visitData:           this.loadData(),
+      accounts:            props.accounts,
+      currencyStats:       props.currencyStats
     };
 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
   }
   
+  
+
   loadData = () => {
     // https://preview.pro.ant.design/dashboard/analysis
     let visitData = [];
@@ -54,9 +58,21 @@ class Operations extends Component {
     return visitData;
   }
   componentDidMount(){
-    // this.loadAllTransactions(true);  
   } 
 
+  componentDidUpdate(prevProps, prevState) 
+  {
+      if(prevProps.accounts !== this.props.accounts )
+      {
+        this.setState({accounts: this.props.accounts});
+      }
+
+      if(prevProps.currencyStats !== this.props.currencyStats )
+      {
+        this.setState({currencyStats: this.props.currencyStats});
+      }
+
+  }
   
   openNotificationWithIcon(type, title, message) {
     notification[type]({
@@ -66,13 +82,31 @@ class Operations extends Component {
   }
   
   renderContent = () => {
-    const {visitData} = this.state;
-    // <h3>Dinheiro em Circulação</h3><IntroduceRow loading={false} visitData={visitData} />
+
+    const { visitData, accounts, currencyStats } = this.state;
+    const { isLoadingAccounts, isLoadingCurrencyStats } =  this.props;
+    
+    console.log('currencyStats:', currencyStats)
+
     return (<>
         
-        <h3>Contas</h3><ContasRow loading={false} visitData={visitData} />
-        <h3>Operações Pendentes</h3><PendingRow loading={false} visitData={visitData} />
-        <h3>Dinheiro em Circulação</h3><MoneyRow loading={false} visitData={visitData} />
+        <h3>Contas <Button 
+                        loading={isLoadingAccounts} 
+                        icon="redo"
+                        title="Account info is not updated?? Click to reload account's data!"
+                        onClick={this.props.loadAccounts}></Button> 
+        </h3>
+        <ContasRow loading={false} rawData={accounts} />
+        
+        <h3>Operações Pendentes </h3>
+          <PendingRow loading={false} visitData={visitData} />
+        
+        <h3>Dinheiro em Circulação <Button 
+                        loading={isLoadingCurrencyStats} 
+                        icon="redo"
+                        title="Currency info is not updated?? Click to reload data!"
+                        onClick={this.props.loadCurrencyStats}></Button> </h3>
+        <MoneyRow loading={isLoadingCurrencyStats} rawData={currencyStats} visitData={visitData} />
         
         </>);
   }
@@ -102,15 +136,24 @@ class Operations extends Component {
   }
 }
 
+//
 
 export default  (withRouter(connect(
     (state)=> ({
-        actualAccountName:    loginRedux.actualAccountName(state),
-        actualRole:           loginRedux.actualRole(state),
-        actualRoleId:         loginRedux.actualRoleId(state),
-        balance:              balanceRedux.userBalanceFormatted(state),
+        accounts:               accountsRedux.accounts(state),
+        isLoadingAccounts:      accountsRedux.isLoading(state),
+
+        currencyStats:          balanceRedux.currencyStats(state),
+        isLoadingCurrencyStats: balanceRedux.isLoadingStats(state),
+        balance:                balanceRedux.userBalanceFormatted(state),
+
+        actualAccountName:      loginRedux.actualAccountName(state),
+        actualRole:             loginRedux.actualRole(state),
+        actualRoleId:           loginRedux.actualRoleId(state),
+        
     }),
     (dispatch)=>({
-        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
+        loadAccounts:         bindActionCreators(accountsRedux.loadAccounts, dispatch),        
+        loadCurrencyStats:    bindActionCreators(balanceRedux.loadCurrencyStats, dispatch)        
     })
 )(Operations)));
