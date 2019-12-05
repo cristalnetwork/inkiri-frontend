@@ -195,8 +195,14 @@ class CreateAccount extends Component {
         //HACK
         if(current_step==0 && !account_name)
         {
-          const my_account_name   = globalCfg.bank.isPersonalAccount(this.state.account_type) ? (values.last_name.trim() + values.first_name.trim()).toLowerCase() : (values.business_name.trim()).toLowerCase();
-          values['account_name']  = (my_account_name.replace(/ /g, '')+'123451234512345').substring(0, 12);
+          // const my_account_name   = globalCfg.bank.isPersonalAccount(this.state.account_type) ? (values.last_name.trim() + values.first_name.trim()).toLowerCase() : (values.business_name.trim()).toLowerCase();
+          // values['account_name']  = (my_account_name.replace(/ /g, '')+'123451234512345').substring(0, 12);
+          
+          const seeds = globalCfg.bank.isPersonalAccount(this.state.account_type) 
+            ? [values.last_name.trim().toLowerCase(), values.first_name.trim().toLowerCase()] 
+            : [values.business_name.trim().toLowerCase()];
+
+          values['account_name'] = api.nameHelper.generateAccountName(seeds);
         }
         this.setState(values);
         res(true);
@@ -204,6 +210,7 @@ class CreateAccount extends Component {
       });
     }catch(e){
       // console.log(` createAccount::validateStep() ex: ${e}`);
+      this.openNotificationWithIcon('error', 'Something went wrong!', JSON.stringify(e))
       rej(e)
     } 
     
@@ -315,6 +322,13 @@ class CreateAccount extends Component {
 
   // Events
   componentDidMount(){
+    
+    // console.log('BEGIN generateAccountName')
+    // const test       = api.nameHelper.generateAccountName(['biz#1']);
+    // const valid_test = api.nameHelper.isValidAccountName(test);
+    // console.log(test, valid_test?'VALID':'INVALID')
+    // console.log('END generateAccountName')
+
     this.props.loadAccounts();
   }
 
@@ -470,8 +484,8 @@ class CreateAccount extends Component {
   validateAccountName  = (rule, value, callback) => {
     
     const name = value;
-    let regEx = new RegExp("^([a-z1-5]){12,}$");
-    if (name.length == 12 && regEx.test(name)) 
+    
+    if (api.nameHelper.isValidAccountName(name)) 
     {
       api.getAccount(value)
       .then(()=>{

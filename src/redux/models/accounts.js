@@ -5,6 +5,7 @@ import * as core from './core';
 
 // Constantes
 const LOAD_ACCOUNTS      = 'accounts/LOAD_ACCOUNTS'
+const END_LOAD_ACCOUNTS  = 'accounts/END_LOAD_ACCOUNTS'
 const SET_ACCOUNTS       = 'accounts/SET_ACCOUNTS'
 const LOAD_BANK_ACCOUNT  = 'accounts/LOAD_BANK_ACCOUNT'
 const SET_BANK_ACCOUNT   = 'accounts/SET_BANK_ACCOUNT'
@@ -23,9 +24,19 @@ export const setEosAccount  = (eos_account) =>({ type: SET_EOS_ACCOUNT, payload:
 
 //Eventos que requieren del async
 function* loadAccountsSaga() {
-  const {data} = yield api.listBankAccounts();
-  if(data) {
-    yield put(setAccounts(data.accounts))
+  try
+  {
+    const {data} = yield api.listBankAccounts();
+    if(data) {
+      yield put(setAccounts(data.accounts))
+      return;
+    }
+
+    yield put({ type: END_LOAD_ACCOUNTS })
+  }
+  catch(e){
+    yield put({ type: END_LOAD_ACCOUNTS })
+    // TODO -> throw global error!
   }
 }
 
@@ -64,20 +75,28 @@ store.injectSaga('accounts', [
 export const accounts     = (state) => state.accounts.accounts || [] ;
 export const bank_account = (state) => state.accounts.bank_account ;
 export const eos_account  = (state) => state.accounts.eos_account ;
+export const isLoading    = (state) => state.accounts.is_loading
 
 // El reducer del modelo
 const defaultState = {
     accounts:         [],
     bank_account:     null,
-    eos_account:      null
+    eos_account:      null,
+    is_loading:       false
 };
 
 function reducer(state = defaultState, action = {}) {
   switch (action.type) {
-
+    case LOAD_ACCOUNTS: 
+      return { ...state
+              , is_loading: true}
+    case END_LOAD_ACCOUNTS: 
+      return { ...state
+              , is_loading: false}
     case SET_ACCOUNTS: 
       return  { ...state
-                , accounts: action.payload.accounts}
+                , accounts: action.payload.accounts
+                , is_loading: false}
     case SET_BANK_ACCOUNT:
       return  {...state
                 , bank_account: action.payload.bank_account}

@@ -179,7 +179,7 @@ export const getBlockchainLink = (tx_id, withIcon, size, text) => {
   const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
   const icon = (typeof withIcon==='undefined' || withIcon)?(<FontAwesomeIcon icon="external-link-alt" />):(null);
   // return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} icon={withIcon?'cloud':null} title="View on Blockchain" style={{color:'inherit', paddingLeft:0}}>{text||'Blockchain'}</Button>)
-  return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} title="View on Blockchain" style={{color:'inherit', paddingLeft:0}}>{_text}&nbsp;{icon}</Button>)
+  return (<Button title="View transaction on blockchain explorer" type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} title="View on Blockchain" style={{color:'inherit', paddingLeft:0}}>{_text}&nbsp;{icon}</Button>)
 }
 //
 export const getProcessButton = (request, callback, text) => {
@@ -208,7 +208,7 @@ export const getButtonIcon = (icon, callback, param) => {
       return;
     }
   }
-  return (<Button key={Math.random()} size="small" onClick={()=>{ buttonClick(callback, param) }} icon={icon} />);
+  return (<Button key={Math.random()} size="small" title="Operation details" onClick={()=>{ buttonClick(callback, param) }} icon={icon} />);
 }
 //
 export const getStyledAmount = (request, mp_style, negative) => {

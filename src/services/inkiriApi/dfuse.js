@@ -1,7 +1,7 @@
 import * as globalCfg from '@app/configs/global';
 import { createDfuseClient, DfuseClient } from "@dfuse/client";
 import * as txsHelper from './transactionHelper';
-import * as jwtHelper from './jwtHelper';
+import * as jwtHelper from './jwt-helper';
 
 // Item format:
 // {

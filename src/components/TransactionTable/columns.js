@@ -225,7 +225,6 @@ export const getColumnsBlockchainTXs = (callback, account_type) => {
     align: 'left',
     width: '15%',
     render: (block_time, record) => {
-      const negative = request_helper.blockchain.isNegativeTransaction(record)
       return (
           <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
             {request_helper.formatBlockTime(record)}
@@ -251,7 +250,9 @@ export const getColumnsBlockchainTXs = (callback, account_type) => {
             </div>
             <div className="row_value wider">
               <div className="ui-info-row__content">
-                <div className="ui-info-row__title">{record.tx_type}</div>
+                <div className="ui-info-row__title">
+                  {record.header}
+                </div>
                 <div className="ui-info-row__details">
                     <ul>
                         <li>{record.sub_header}</li>
@@ -829,7 +830,7 @@ export const columnsForIUGU = (callback) => {
 
 //
 export const columnsForCrew = (callback, job_positions) => {
-    
+      
     return [
       {
         title: 'Nome',

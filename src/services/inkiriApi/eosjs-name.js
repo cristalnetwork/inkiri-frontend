@@ -9,7 +9,7 @@
 
 import Long from 'long';  
 
-function bytesToHex(bytes) {
+const bytesToHex = (bytes) => {
   let leHex = '';
   for (const b of bytes) {
     const n = Number(b).toString(16);
@@ -18,12 +18,23 @@ function bytesToHex(bytes) {
   return leHex;
 }
 
-const charmap = '.12345abcdefghijklmnopqrstuvwxyz';
+const charmap        = '.12345abcdefghijklmnopqrstuvwxyz';
+const start_with_map = 'abcdefghijklmnopqrstuvwxyz';
+const end_with_map   = '12345abcdefghijklmnopqrstuvwxyz';
+
 const charidx = ch => {
   const idx = charmap.indexOf(ch);
   if (idx === -1) throw new TypeError(`Invalid character: '${ch}'`);
 
   return idx;
+};
+
+const emptyIfInvalid = (ch, map) => {
+  const _charmap = map?map:charmap;
+  const idx = _charmap.indexOf(ch);
+  if (idx === -1) 
+    return ''
+  return ch;
 };
 
 export const leadingZeros = (s, n) => {
@@ -33,6 +44,9 @@ export const leadingZeros = (s, n) => {
   return ('00000000000000000000'+s).slice(-n);
 }
 
+/*
+* Converts name string to Number, in a UNSIGNED INT REPRESENTATION.  
+*/
 export function nameToValue(name) {
   
   if (typeof name === 'number'){
@@ -81,4 +95,47 @@ export function getTableBoundsForName2(name, asLittleEndianHex, step) {
     lower_bound: lowerBound,
     upper_bound: upperBound,
   };
+}
+
+/*
+* Standard Account Names
+* Can only contain the characters .abcdefghijklmnopqrstuvwxyz12345. a-z (lowercase), 1-5 and . (period)
+* Must start with a letter
+* Must be 12 characters
+* Must not end in a dot
+* https://developers.eos.io/eosio-cpp/docs/naming-conventions
+* (^[a-z1-5.]{0,11}[a-z1-5]$)|(^[a-z1-5.]{12}[a-j1-5]$) => https://github.com/EOSIO/eos/issues/955
+*/
+export function generateAccountName(seed_array) {
+
+  console.log(' -- generateAccountName#1')
+  if(!seed_array || seed_array.length==0)
+    return '';
+
+  let name         = seed_array.join('') ;
+  let account_name = '';
+
+  // for (let i = 0; i < name.length; i++) {
+  //   account_name = account_name + emptyIfInvalid(name[i]);
+  // }
+
+  console.log(' -- generateAccountName#2')
+  account_name  = name.split('').map( _char => emptyIfInvalid(_char)).join('');
+  console.log(' -- generateAccountName#3')
+  while(account_name.length>0 && emptyIfInvalid(account_name.charAt(0), start_with_map) === '')
+  {
+    console.log(' -- generateAccountName#3.', account_name)
+    account_name = account_name.substr(1);
+  }
+  console.log(' -- generateAccountName#4')
+  account_name = (account_name + end_with_map).slice(0, 12);
+  console.log(' -- generateAccountName#5')
+  return account_name;
+}
+
+export const isValidAccountName = (name) => {
+  // const regEx = new RegExp("^([a-z1-5]){12,}$");
+  const regEx = new RegExp("(^[a-z1-5.]{0,11}[a-z1-5]$)|(^[a-z1-5.]{12}[a-j1-5]$)");
+  return (name.length == 12 && regEx.test(name)) 
+  
 }

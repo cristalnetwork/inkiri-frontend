@@ -486,9 +486,14 @@ class requestDetails extends Component {
           return [acceptServiceButton, rejectButton]; 
         }
 
-        if(this.props.isBusiness && globalCfg.api.isService(request))
+        if(this.props.isBusiness && globalCfg.api.isService(request) && request.requested_by.account_name==this.props.actualAccountName)
         {
           return [cancelServiceButton]; 
+        }
+
+        if(this.props.isBusiness && globalCfg.api.isService(request) && request.requested_by.account_name!=this.props.actualAccountName)
+        {
+          return [acceptServiceButton, rejectButton]; 
         }
 
         if(this.props.isBusiness || this.props.isPersonal)

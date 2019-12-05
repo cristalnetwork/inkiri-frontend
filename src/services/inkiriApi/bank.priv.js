@@ -1,6 +1,6 @@
 import * as globalCfg from '@app/configs/global';
-import * as eosHelper from './eosHelper.js';
-import * as jwtHelper from './jwtHelper';
+import * as eosHelper from './eos-helper.js';
+import * as jwtHelper from './jwt-helper';
 
 export const isAuth = () => {
   return jwtHelper.getTokenIfNotExpired(jwtHelper.BANK_AUTH_TOKEN_KEY)!==null;
