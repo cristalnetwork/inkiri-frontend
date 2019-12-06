@@ -73,7 +73,19 @@ const bank = {
   },
   isValidPermission : (account_type, required_permission, my_permission) => {
     const my_perms = bank.getPermsForAccountType(account_type);
-    return my_perms.indexOf(required_permission) >= my_perms.indexOf(my_permission);
+    const required_permission_array = required_permission.split(',');
+      
+    if(required_permission_array.length==1)
+    {
+      const ret = my_perms.indexOf(required_permission_array[0]) >= my_perms.indexOf(my_permission);
+      console.log(required_permission, my_permission, ret)
+      return ret;
+    }
+
+    const ret =  required_permission_array.includes(my_permission);
+    console.log(required_permission, my_permission, ret)
+    return ret;
+
   },
   listAccountTypes   : () => { 
     //return [bank.ACCOUNT_TYPE_PERSONAL, bank.ACCOUNT_TYPE_BUSINESS, bank.ACCOUNT_TYPE_FOUNDATION, bank.ACCOUNT_TYPE_BANKADMIN];

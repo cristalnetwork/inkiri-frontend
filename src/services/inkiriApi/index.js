@@ -582,9 +582,10 @@ export const getNewPermissionObj = (eos_account_object, permissioned, perm_name)
   // console.log('getNewPermissionObj => ', perm)
   if(!perm || perm.length==0)
   {
+    // const not_exist = !perm;
     // console.log('getNewPermissionObj => ', 'podria hacerlo!!!  ||| perm_name:', perm_name)
     perm = Object.assign({}, default_perm);
-    // if(perm_name!=='owner')
+    // if(!not_exist && perm_name!=='owner')
     //   perm.parent = 'owner';
     perm.perm_name = perm_name;
     perm.required_auth.accounts.push(new_perm)

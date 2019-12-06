@@ -190,88 +190,94 @@ const routes  = {
     business: {
         items: [
             {
-                key:  'biz_wallet',
-                title: 'My money',
-                icon: 'wallet',
+                key:      'biz_wallet',
+                title:    'My money',
+                icon:     'wallet',
                 items: [
                     {
-                        key: routes_config.pathNames.businessExtracto,
-                        path: routes_config.pathNames.businessExtracto,
-                        title: 'Extrato',
+                        key:         routes_config.pathNames.businessExtracto,
+                        path:        routes_config.pathNames.businessExtracto,
+                        title:       'Extrato',
                     },
                     {
-                        key: routes_config.pathNames.commonDeposit,
-                        path: routes_config.pathNames.commonDeposit,
-                        title: 'Deposit',
+                        key:         routes_config.pathNames.commonDeposit,
+                        path:        routes_config.pathNames.commonDeposit,
+                        title:       'Deposit',
+                        permission:  'owner,active,viewer'
                     },
                     {
-                        key: routes_config.pathNames.commonWithdraw,
-                        path: routes_config.pathNames.commonWithdraw,
-                        title: 'Withdraw',
+                        key:         routes_config.pathNames.commonWithdraw,
+                        path:        routes_config.pathNames.commonWithdraw,
+                        title:       'Withdraw',
+                        permission:  'owner,active,viewer'
                     }
                 ]
             },
             {
-                key:  'biz_receive',
-                title: 'Receive',
-                icon: 'plus-square',
+                key:      'biz_receive',
+                title:    'Receive',
+                icon:     'plus-square',
                 items: [
                     {
-                        key: routes_config.pathNames.businessPDV,
-                        path: routes_config.pathNames.businessPDV,
-                        title: 'Vendas - PDV',
+                        key:         routes_config.pathNames.businessPDV,
+                        path:        routes_config.pathNames.businessPDV,
+                        title:       'Vendas - PDV',
                     },
                     {
-                        key: routes_config.pathNames.commonServices,
-                        path: routes_config.pathNames.commonServices,
-                        title: 'Serviços oferecidos',
+                        key:         routes_config.pathNames.commonServices,
+                        path:        routes_config.pathNames.commonServices,
+                        title:       'Serviços oferecidos',
+                        permission:  'owner,active'
                     }
                 ]
             },
             {
-                key:  'biz_pay',
-                title: 'Pay',
-                icon: 'minus-square',
+                key:         'biz_pay',
+                title:       'Pay',
+                icon:        'minus-square',
+                permission:  'owner,active',
                 items: [
                     {
-                        key: routes_config.pathNames.commonSend,
-                        path: routes_config.pathNames.commonSend,
-                        title: 'Send money',
+                        key:         routes_config.pathNames.commonSend,
+                        path:        routes_config.pathNames.commonSend,
+                        title:       'Send money',
                     },
                     {
-                        key: routes_config.pathNames.commonContractedServices,
-                        path: routes_config.pathNames.commonContractedServices,
-                        title: 'Serviços Contratados',
+                        key:         routes_config.pathNames.commonContractedServices,
+                        path:        routes_config.pathNames.commonContractedServices,
+                        title:       'Serviços Contratados',
                     },
                     {
-                        key: routes_config.pathNames.businessProvidersPayments,
-                        path: routes_config.pathNames.businessProvidersPayments,
-                        title: 'Providers Payments',
+                        key:         routes_config.pathNames.businessProvidersPayments,
+                        path:        routes_config.pathNames.businessProvidersPayments,
+                        title:       'Providers Payments',
                     }
                 ]
             },
             {
-                key: 'biz_staff',
-                title: 'Staff',
-                icon: 'profile',
+                key:         'biz_staff',
+                title:       'Staff',
+                icon:        'profile',
+                permission:  'owner,active',
                 items: [
                     {
-                        key: routes_config.pathNames.commonSalaries,
-                        path: routes_config.pathNames.commonSalaries,
-                        title: 'Salaries',
+                        key:         routes_config.pathNames.commonSalaries,
+                        path:        routes_config.pathNames.commonSalaries,
+                        title:       'Salaries',
                     },
                     {
-                        key: routes_config.pathNames.commonCrew,
-                        path: routes_config.pathNames.commonCrew,
-                        title: 'Crew',
+                        key:         routes_config.pathNames.commonCrew,
+                        path:        routes_config.pathNames.commonCrew,
+                        title:       'Crew',
                     }
 
                 ]
             },
             {
-                key: 'biz_config',
-                title: 'Settings',
-                icon: 'setting',
+                key:         'biz_config',
+                title:       'Settings',
+                icon:        'setting',
+                permission:  'owner,active',
                 items:[
                     {
                         key: routes_config.pathNames.commonConfiguration,
