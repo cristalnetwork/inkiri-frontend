@@ -322,6 +322,7 @@ export const listPAPPayments = async (account_name, provider, customer, cursor) 
 })  
 
 
+export const allTransactionsSince = (start_block)          => listTransactions(null, undefined, undefined, start_block);
 export const allTransactions      = (cursor)               => listTransactions(null, cursor);
 export const incomingTransactions = (account_name, cursor) => listTransactions(account_name, cursor, true);
 /*
@@ -329,8 +330,17 @@ export const incomingTransactions = (account_name, cursor) => listTransactions(a
 * account_name
 * cursor
 * received -> undefined (both received and sent) | true (received) | sent (false) 
+*
+*  Options:
+*    blockCount: 10,
+*    cursor: "cursor",
+*    limit: 1,
+*    sort: "desc",
+*    startBlock: 10,
+*    withReversible: true
+*  Source: https://github.com/dfuse-io/client-js/blob/73cce71b5a73b2bf2f21f608d7af17b956cb9e82/src/client/__tests__/client.test.ts
 */
-export const listTransactions = (account_name, cursor, received) => new Promise((res,rej)=> {
+export const listTransactions = (account_name, cursor, received, start_block) => new Promise((res,rej)=> {
 	
   	
   // const query = 'account:' + globalCfg.currency.token + ' (data.from:'+account_name+' OR data.to:'+account_name+')'
@@ -350,10 +360,13 @@ export const listTransactions = (account_name, cursor, received) => new Promise(
   let options = { 
       limit: globalCfg.dfuse.default_page_size 
       , sort: 'desc'
-      , irreversibleOnly: false
+      // , irreversibleOnly: false
+      , withReversible: true
   };
   if(cursor!==undefined)
     options['cursor'] = cursor;
+  if(start_block!==undefined)
+    options['startBlock'] = start_block;
 
   let client = createClient();
 	

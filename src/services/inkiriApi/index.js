@@ -108,7 +108,7 @@ const getAccountImpl = async (account_name) => {
 
 export const getCurrencyStats = async () => { 
   const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
-  console.log('getCurrencyStats.....')
+  // console.log('getCurrencyStats.....')
   const response  = await jsonRpc.get_currency_stats(globalCfg.currency.issuer, globalCfg.currency.eos_symbol)
   // console.log(' API :)', response[globalCfg.currency.eos_symbol]);
   return response[globalCfg.currency.eos_symbol];
