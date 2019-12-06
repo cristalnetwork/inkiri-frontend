@@ -140,6 +140,7 @@ class Salaries extends Component {
         console.log(' paySalaries => (then#1) >>  ', JSON.stringify(data));
         that.setState({result:'ok', pushingTx:false, result_object:data});
         that.openNotificationWithIcon("success", 'Payments sent successfully');
+        setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
       }, (ex) => {
         console.log(' paySalaries => (error#1) >>  ', JSON.stringify(ex));
         that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
@@ -247,17 +248,22 @@ class Salaries extends Component {
   //
 
   handleSave = row => {
+    // console.log(row)
     if(isNaN(row.current_wage))
       row.current_wage=row.wage;
     if(row.current_reason)
       row.current_reason=utils.firsts(row.current_reason, 30, false);
     const newData = [...this.state.dataSource];
-    const index = newData.findIndex(item => row.key === item._id);
+
+    const index = newData.findIndex(item => row._id === item._id);
+    // console.log('index:', index)
+    
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
       ...row,
     });
+    // console.log(newData)
     this.setState({ dataSource: newData });
   };
 
@@ -283,9 +289,11 @@ class Salaries extends Component {
                 </div>      
               </div>);
     }
-
+  
+    //
     if(active_view==STATE_NEW_PAYMENT)
     {
+      console.log(dataSource);
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
@@ -357,7 +365,7 @@ class Salaries extends Component {
   render() {
     const content               = this.renderContent(); 
     const {routes, active_view, removed}  = this.state;
-    const button = (removed && removed.length>0)?
+    const button = (active_view == STATE_LIST_MEMBERS)?
       (<Button size="small" type="primary" key="_redo" icon="redo" onClick={()=>{this.onRestoreList()}}> RESTORE MEMBERS</Button>)
       :(null);
     //
@@ -391,7 +399,8 @@ export default  (withRouter(connect(
         balance:              balanceRedux.userBalance(state),
     }),
     (dispatch)=>({
-        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
+        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch),
+        loadBalance:             bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
 )(Salaries))
 );

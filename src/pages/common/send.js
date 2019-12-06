@@ -263,6 +263,9 @@ class SendMoney extends Component {
                 console.log(' SendMoney::send (then#1) >>  ', JSON.stringify(data));
                 that.setState({result:'ok', pushingTx:false, result_object:data});
                 that.openNotificationWithIcon("success", 'Transfer completed successfully');
+
+                setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
+
               }, (ex) => {
                 console.log(' SendMoney::send (error#1) >>  ', JSON.stringify(ex));
                 that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
@@ -406,6 +409,6 @@ export default Form.create() (withRouter(connect(
         isBusiness:         loginRedux.isBusiness(state)
     }),
     (dispatch)=>({
-        
+        loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
 )(SendMoney) ));

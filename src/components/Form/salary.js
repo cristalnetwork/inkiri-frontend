@@ -35,7 +35,7 @@ class SalaryForm extends Component {
       payment         : {
         description:  `Ref. ${last_month_text}`,
         worked_month: last_month,
-        total:        globalCfg.currency.toCurrencyString(props.members.reduce((acc, member) => acc + member.current_wage, 0))        
+        total:        globalCfg.currency.toCurrencyString(props.members.reduce((acc, member) => acc + Number(member.current_wage), 0))        
       }
 
     };

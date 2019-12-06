@@ -566,7 +566,11 @@ class PDV extends Component {
     const txs = api.dfuse.transformTransactions(message, this.props.actualAccountName);
     this.onNewData({txs:txs, cursor:null}, true);
     // message.success('New payment received!', 5);
-    this.openNotificationWithIcon("success", "New payment received!")    
+    this.openNotificationWithIcon("success", "New payment received!");
+
+    const that = this;
+    setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
+     
   }
 
   stop = async () => {
@@ -614,7 +618,7 @@ export default Form.create() (withRouter(connect(
         
     }),
     (dispatch)=>({
-        
+        loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
 )(PDV) )
 );

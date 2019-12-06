@@ -109,6 +109,8 @@ class Exchange extends Component {
                   that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
               });
 
+            setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
+            
           }, (ex1) => {
             
             console.log(' SendMoney::send (error#2) >>  ', JSON.stringify(ex1));
@@ -212,7 +214,7 @@ export default Form.create() (withRouter(connect(
         
     }),
     (dispatch)=>({
-        
+        loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
 )(Exchange) )
 );
