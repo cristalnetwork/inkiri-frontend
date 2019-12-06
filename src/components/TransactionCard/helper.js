@@ -81,8 +81,9 @@ export const getStateLabel = (request, with_waiting_icon) => {
     const alt_text = globalCfg.api.isFinished(request)?'Done!':'Operation pending/required!';
     icon = (<FontAwesomeIcon icon={fa_icon} size="xs" color="gray" title={alt_text}/>);
   }
-  return (<span style={{color:color}} key={'state_'+request.id}>{utils.capitalize(globalCfg.api.stateToText(request.state))}&nbsp;{icon}</span>)
+  return (<span style={{color:color}} key={'state_'+request.id}>{utils.capitalize(globalCfg.api.stateToText(request.state))}&nbsp;{icon}</span>);
 }
+
 //
 export const getTypeTag = (request) => {
   // const icon = with_icon?(<FontAwesomeIcon icon={['fab', 'google-drive']} />):null;
@@ -95,8 +96,8 @@ export const getTypeTag = (request) => {
 
 export const getTypeConf = () => {
   return {
-      [globalCfg.api.TYPE_DEPOSIT]     : {icon:'arrow-up',             rotation: 0,  color:{primary: '#1890ff' /*azul*/          , secondary:'#e6f7ff'}, style: {borderTop: '1px solid gray'}},
-      [globalCfg.api.TYPE_WITHDRAW]    : {icon:'arrow-down',           rotation: 0,  color:{primary: '#18ff88' /*verde*/         , secondary:'#d6ffea'}, style: {borderTop: '1px solid gray'}},
+      [globalCfg.api.TYPE_DEPOSIT]     : {icon:'arrow-up',             rotation: 0,  color:{primary: '#1890ff' /*azul*/          , secondary:'#e6f7ff'}, style: {borderTop: '1px solid #1890ff'}},
+      [globalCfg.api.TYPE_WITHDRAW]    : {icon:'arrow-down',           rotation: 0,  color:{primary: '#18ff88' /*verde*/         , secondary:'#d6ffea'}, style: {borderTop: '1px solid #18ff88'}},
       [globalCfg.api.TYPE_EXCHANGE]    : {icon:'exchange-alt',         rotation: 90, color:{primary: '#ff9606' /*naranja*/       , secondary:'#fce9cf'}, style: {}},
       [globalCfg.api.TYPE_PAYMENT]     : {icon:'shopping-bag',         rotation: 0,  color:{primary: '#FF06A3' /*fuccia*/        , secondary:'#facae8'}, style: {}},
       [globalCfg.api.TYPE_PROVIDER]    : {icon:'truck-moving',         rotation: 0,  color:{primary: '#ff5906' /*naranjrojo*/    , secondary:'#fcdecf'}, style: {}},
@@ -188,14 +189,10 @@ export const getProcessButton = (request, callback, text) => {
   const buttonClick = (callback, request) => {
     if(typeof callback === 'function')
     {
-      // console.log(' == about to fire...')  
       callback(request)
       return;
     }
-    // else
-    //   console.log(' NOT firing...')  
   }
-  // if(typeof  callback === 'function')
   return (<Button key={'details_'+request.id} size="small" onClick={()=>{ buttonClick(callback, request) }}>{title}</Button>);
 }
 //

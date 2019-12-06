@@ -223,9 +223,9 @@ const api = {
     }
   , stateToColor : (request_state) => {
       const states = {
-        [api.STATE_REQUESTED]    : '#fa8c16', //'magenta', 
-        [api.STATE_PROCESSING]   : 'green', 
-        [api.STATE_ACCEPTED]     : 'green', 
+        [api.STATE_REQUESTED]    : '#fa8c16', 
+        [api.STATE_PROCESSING]   : '#acd126', 
+        [api.STATE_ACCEPTED]     : '#70d147', 
         
         [api.STATE_REFUNDED]     : 'red', //'#2f54eb', //'geekblue',
         [api.STATE_REVERTED]     : 'red', //'#2f54eb', //'geekblue',

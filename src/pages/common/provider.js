@@ -318,7 +318,7 @@ class Provider extends Component {
             key="table_all_requests" 
             rowKey={record => record.id} 
             loading={this.state.loading} 
-            columns={columns_helper.getDefaultColumns(this.props.actualRole, this.onPaymentClick)} 
+            columns={columns_helper.getColumnsForRequests(this.props.actualRole, this.onPaymentClick)} 
             dataSource={this.state.txs} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}

@@ -37,7 +37,7 @@ const PendingRow = ({ loading, visitData }) => (
         footer={
           <Field
             label={"Total requested"}
-            value={`BRL ${numeral(12423).format('0,0')}`}
+            value={`BRL ${numeral(0).format('0,0')}`}
           />
         }
         contentHeight={46}
@@ -63,7 +63,7 @@ const PendingRow = ({ loading, visitData }) => (
         footer={
           <Field
             label={"Total requested"}
-            value={`BRL ${numeral(654321).format('0,0')}`}
+            value={`BRL ${numeral(0).format('0,0')}`}
           />
         }
         contentHeight={46}
