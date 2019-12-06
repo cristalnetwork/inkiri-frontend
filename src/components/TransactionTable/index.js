@@ -46,12 +46,8 @@ class TransactionTable extends Component {
 
   getColumnsForType =() =>{
 
-    if(this.props.request_type==globalCfg.api.TYPE_SERVICE)
-    {
-      //something really cool
-    }
-    return columns_helper.getDefaultColumns(this.props.actualRoleId, this.props.callback);
-  
+    const is_admin = globalCfg.bank.isAdminAccount(this.props.actualRoleId )
+    return columns_helper.getColumnsForRequests(this.props.callback, is_admin);
   }
   
   componentDidMount(){

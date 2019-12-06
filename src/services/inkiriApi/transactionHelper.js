@@ -232,9 +232,6 @@ const typesMap = {
 }
 const keyCodeToRequestType = (key_code) => {
   const my_type = typesMap[key_code];
-  // if(!my_type)
-  //   console.log(' ** keyCodeToRequestType ->', key_code )
-  // console.log(' ** keyCodeToRequestType:: ', key_code , ' -> ' , my_type )
   return my_type || globalCfg.api.TYPE_UNKNOWN;
 }
 
@@ -295,10 +292,10 @@ function buildHeadersImpl(account_name, tx, i_sent, tx_type, multi){
               , from: tx.data.from};
       break;
     case KEY_TRANSFER_PRV:
-      return { header:                 ''
+      return { header:                 'Provider payment'
               , sub_header:            'Provider payment'
               , sub_header_admin:      'Provider payment'
-              , sub_header_admin_ex:   `@${tx.data.from} trasnfered for a Provider payment`
+              , sub_header_admin_ex:   `@${tx.data.from} transfered for a Provider payment`
               , from: tx.data.from};
       break;
     case KEY_TRANSFER_PAY:

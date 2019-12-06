@@ -210,14 +210,16 @@ class RequestPayment extends Component {
               api.bank.updateProviderPayment(sender, request_id, undefined, send_tx.data.transaction_id)
                 .then((data2) => {
 
-                    this.clearAttachments();
+                    that.clearAttachments();
                     that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
-                    this.openNotificationWithIcon("success", 'Provider Payment requested successfully');
+                    that.openNotificationWithIcon("success", 'Provider Payment requested successfully');
 
                   }, (ex2) => {
                     console.log(' createProviderPayment::send (error#3) >>  ', JSON.stringify(ex2));
                     that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
                 });
+
+              setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
 
             }, (ex1) => {
               
@@ -511,7 +513,7 @@ export default Form.create() (withRouter(connect(
         
     }),
     (dispatch)=>({
-        
+        loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
 )(RequestPayment) )
 );

@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
+import * as balanceRedux from '@app/redux/models/balance'
 
 import * as globalCfg from '@app/configs/global';
 
@@ -211,7 +212,10 @@ class ServiceContracts extends Component {
         console.log(' >> doCharge >> ', JSON.stringify(res));
         that.setState({pushingTx:false, result:'ok'})
         that.openNotificationWithIcon("success", 'Service charged successfully');
-        setTimeout(()=>that.setState({active_view:STATE_LIST_CONTRACTS}),1000);
+        
+        setTimeout(()=> that.setState({active_view:STATE_LIST_CONTRACTS}),1000);
+        setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
+
       }, (err)=>{
         that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
         console.log(JSON.stringify(err));
@@ -412,7 +416,8 @@ export default  (withRouter(connect(
         actualPrivateKey:     loginRedux.actualPrivateKey(state),
     }),
     (dispatch)=>({
-        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
+        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch),
+        loadBalance:             bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
 )(ServiceContracts))
 );

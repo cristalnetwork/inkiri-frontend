@@ -372,7 +372,7 @@ class Extrato extends Component {
           key={"table_"+DISPLAY_ALL_TXS} 
           rowKey={record => record.id} 
           loading={this.state.loading} 
-          columns={ columns_helper.getColumnsForPersonalExtrato(this.onTransactionClick, this.props.actualRoleId)} 
+          columns={ columns_helper.getColumnsBlockchainTXs(this.onTransactionClick)} 
           dataSource={this.state.txs} 
           footer={() => this.renderFooter()}
           pagination={this.state.pagination}

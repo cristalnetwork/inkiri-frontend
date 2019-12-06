@@ -202,6 +202,7 @@ class WithdrawMoney extends Component {
                         that.setState({result:'error',  pushingTx:false, error:JSON.stringify(ex2)});
                     });
 
+                    setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
                 }, (ex1) => {
                   
                   console.log(' withdrawMoney::send (error#2) >>  ', JSON.stringify(ex1));
@@ -325,6 +326,6 @@ export default Form.create() (withRouter(connect(
         balance:            balanceRedux.userBalance(state),
     }),
     (dispatch)=>({
-        
+        loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
 )(WithdrawMoney) ));
