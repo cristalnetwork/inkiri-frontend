@@ -269,7 +269,7 @@ const business = [
     // },
     {
        key:       pathNames.businessProvidersPayments,
-       fileName:  'providers',
+       fileName:  'providers-payments',
        area:      'business',
        path:      'providers-payments',
        container: 'dashboard',

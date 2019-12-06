@@ -1,4 +1,4 @@
-const env        = "prod";
+const env        = "dev";
 
 const language   = "english";
 
@@ -206,34 +206,41 @@ const api = {
   , STATE_REFUNDED              : 'state_refunded'
   , STATE_REVERTED              : 'state_reverted'
   
+  , STATE_VIRTUAL_PENDING       : 'state_virtual_pending'
+
   , stateToText : (request_state) => {
       const states = {
-        [api.STATE_REQUESTED]    : 'requested', 
-        [api.STATE_PROCESSING]   : 'processing', 
+        [api.STATE_REQUESTED]      : 'requested', 
+        [api.STATE_PROCESSING]     : 'processing', 
         
-        [api.STATE_ACCEPTED]     : 'accepted', 
-        [api.STATE_REFUNDED]     : 'refunded',
-        [api.STATE_REVERTED]     : 'reverted',
+        [api.STATE_ACCEPTED]       : 'accepted', 
+        [api.STATE_REFUNDED]       : 'refunded',
+        [api.STATE_REVERTED]       : 'reverted',
         
-        [api.STATE_REJECTED]     : 'rejected', 
-        [api.STATE_ERROR]        : 'error', 
-        [api.STATE_CANCELED]     : 'canceled',
+        [api.STATE_REJECTED]       : 'rejected', 
+        [api.STATE_ERROR]          : 'error', 
+        [api.STATE_CANCELED]       : 'canceled',
+
+        [api.STATE_VIRTUAL_PENDING]: 'pending'
       }
       return states[request_state] || request_state;
     }
   , stateToColor : (request_state) => {
+      // source: https://mdbootstrap.com/live/_doc/all-colors.html
       const states = {
-        [api.STATE_REQUESTED]    : '#fa8c16', 
-        [api.STATE_PROCESSING]   : '#acd126', 
-        [api.STATE_ACCEPTED]     : '#70d147', 
+        [api.STATE_REQUESTED]        : '#2BBBAD', //'#fa8c16', 
+        [api.STATE_PROCESSING]       : '#00695c', //'#acd126', 
+        [api.STATE_ACCEPTED]         : '#00C851', //'#70d147', 
         
-        [api.STATE_REFUNDED]     : 'red', //'#2f54eb', //'geekblue',
-        [api.STATE_REVERTED]     : 'red', //'#2f54eb', //'geekblue',
+        [api.STATE_REFUNDED]         : '#aa66cc', //'red', //'#2f54eb', //'geekblue',
+        [api.STATE_REVERTED]         : '#9933CC', // 'red', //'#2f54eb', //'geekblue',
 
-        [api.STATE_REJECTED]     : 'red', 
-        [api.STATE_ERROR]        : 'red', 
+        [api.STATE_REJECTED]         : '#CC0000', //'red', 
+        [api.STATE_ERROR]            : '#CC0000', //'red', 
 
-        [api.STATE_CANCELED]     : '#fa541c' //'red',
+        [api.STATE_CANCELED]         : '#ff4444', //'#fa541c',
+
+        [api.STATE_VIRTUAL_PENDING]  : '#ffbb33'
       } 
       return states[request_state] || 'gray';
     }

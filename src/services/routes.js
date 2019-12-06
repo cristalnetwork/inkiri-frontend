@@ -231,11 +231,6 @@ const routes  = {
                         path: routes_config.pathNames.commonSend,
                         title: 'Send money',
                     },
-                    // {
-                    //     key: routes_config.pathNames.businessPaymentsAndServices,
-                    //     path: routes_config.pathNames.businessUnderConstruction,
-                    //     title: 'Serviços Contratados',
-                    // },
                     {
                         key: routes_config.pathNames.commonContractedServices,
                         path: routes_config.pathNames.commonContractedServices,

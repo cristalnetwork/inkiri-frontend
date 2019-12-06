@@ -63,8 +63,10 @@ export const getGoogleDocLinkOrNothing = (google_doc_id, with_icon, name, size) 
 export const getStateTag = (request) => {
   // const icon = with_icon?(<FontAwesomeIcon icon={['fab', 'google-drive']} />):null;
   // const text = utils.capitalize(globalCfg.api.stateToText(request.state));
-  const text = globalCfg.api.stateToText(request.state).toUpperCase();
-  return (<Tag color={globalCfg.api.stateToColor(request.state)} key={'state_'+request.id}>{text}</Tag>)
+  const my_state   = request.flag.ok?request.state:globalCfg.bank.STATE_VIRTUAL_PENDING; 
+  const extra_text = request.flag.ok?'':` - ${request.flag.message}`  
+  const text       = `${globalCfg.api.stateToText(request.state).toUpperCase()}${extra_text}`;
+  return (<Tag color={globalCfg.api.stateToColor(my_state)} key={'state_'+request.id}>{text}</Tag>)
 }
 //
 export const errorStateTag = (text) =>
@@ -127,7 +129,8 @@ export const getCircledTypeIcon = (request) => {
 
   const my_icon = getTypeConf()[request]; 
   
-  const className = 'ui-avatar__content circled_action_type flex_center';
+  // const className = 'ui-avatar__content circled_action_type flex_center';
+  const className = 'ui-avatar__content--small circled_action_type flex_center';
   const style     = {border: `0.0625em solid ${my_icon.color.primary}` , background: `${my_icon.color.secondary}`}
   const size      = '1x';
   let icon        = null;

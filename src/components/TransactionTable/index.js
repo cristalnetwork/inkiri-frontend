@@ -168,6 +168,7 @@ class TransactionTable extends Component {
         footer={() => this.renderFooter()}
         pagination={this.state.pagination}
         scroll={{ x: 700 }}
+        expandedRowRender={columns_helper.expandedRequestRowRender}
       />
     
     )

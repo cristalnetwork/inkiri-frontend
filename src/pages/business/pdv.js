@@ -524,7 +524,7 @@ class PDV extends Component {
             key="pdv"
             rowKey={record => record.id} 
             loading={this.state.loading} 
-            columns={ columns_helper.getColumnsForPDV(this.onTransactionClick)} 
+            columns={ columns_helper.getColumnsBlockchainTXs(this.onTransactionClick)} 
             dataSource={this.state.txs} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}

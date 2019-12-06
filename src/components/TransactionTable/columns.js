@@ -90,69 +90,6 @@ export const getColumns              = (callback) => {
 }
 
 //
-export const getColumnsForPDV = (callback) => {
-  return [
-  {
-    title: '#',
-    dataIndex: 'sub_header',
-    key: 'sub_header',
-    /*
-            {request_helper.getTypeIcon(record.request)} 
-    */
-    render: (value, record) => {
-      return(
-        <span className="name_value_row">
-          <div className="row_name centered flex_fixed_width_5em" >
-            <div className="ui-row__col ui-row__col--heading">
-                <div className="ui-avatar">
-                  {request_helper.getCircledTypeIcon(record.request)} 
-                </div>
-            </div>
-          </div>
-          <div className="row_value wider">
-            <span className="row_tx_description">{record.sub_header}</span> 
-             <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
-               <ul>
-                 <li className="hidden">{utils.objectToString(record.data)}</li>
-                 <li className="hidden">{utils.objectToString(record.request)}</li>
-                 <li><Tag color="volcano" key={'warning_'+Math.random()}>Open to view details</Tag></li>
-               </ul>
-             </div>
-          </div>   
-        </span>)
-    }
-  },
-  {
-    title: 'Action',
-    key: 'action',
-    render: (text, record) => {
-      const process     = request_helper.getProcessButton(record, callback, 'Details');
-      const blockchain  = request_helper.getBlockchainLink(record.transaction_id, true);
-      return (<>{process}&nbsp;{blockchain}</>)
-    },
-  },
-  //
-  {
-    title: 'Amount and date',
-    // fixed: 'right',    
-    dataIndex: 'block_time',
-    key: 'block_time',
-    sortDirections: ['descend'],
-    defaultSortOrder: 'descend',
-    sorter: (a, b) => a.block_time_number - b.block_time_number,
-    align: 'right',
-    render: (block_time, record) => {
-      return (
-          <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
-            {request_helper.getStyledAmount(record, false, false)}
-            {request_helper.getStyledDate(record)}
-          </div>
-          )
-      }
-  }
-]};
-
-//
 export const getColumnsBlockchainTXsForAdmin = (callback) => getColumnsBlockchainTXs(callback, true);
 
 //
@@ -246,7 +183,54 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
     }
   ]
 };
+//
+export const expandedRequestRowRender = (record) => {
+  const default_info = (
+      <>
+         Operation&nbsp;: #<b>{ request_helper.getRequestId(record)}</b>
+         {request_helper.getGoogleDocLinkOrNothing(record.attach_nota_fiscal_id, true, 'Nota fiscal')}
+         {request_helper.getGoogleDocLinkOrNothing(record.attach_boleto_pagamento_id, true, 'Boleto Pagamento')}
+         {request_helper.getGoogleDocLinkOrNothing(record.attach_comprobante_id, true, 'Comprobante Bancario')}
+      </>);
+ //
+  switch (record.requested_type){
+    case globalCfg.api.TYPE_PROVIDER:
+      return (
+            <span key={'tags'+record.id}>
+               Provider:&nbsp;<b>{ request_helper.getRequestProviderDesc(record)}</b>
+               <br/>{default_info}
+            </span>
+            );
+    break;
+    //
+    case globalCfg.api.TYPE_EXCHANGE:
+      const bank_account = record.bank_account || {};
+      return (
+            <span key={'tags'+record.id}>
+               Bank Account&nbsp;<Icon type="bank" />: <b>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</b>
+               <br/>{default_info}
+            </span>
+            );
+      
+    break;
 
+    //
+    case globalCfg.api.TYPE_DEPOSIT:
+      const envelope_id = api.bank.envelopeIdFromRequest(record);
+      return <>
+          <span key={'envelope_'+record.id}>ENVELOPE ID: <b>{envelope_id}</b></span>
+          <br/><span key={'deposit_currency_'+record.id}>CURRENCT: <b>{record.deposit_currency}</b></span>
+          <br/>{default_info}
+        </>;
+    break;
+    
+    //
+    default:
+      return default_info;
+    break;
+  } 
+  
+}
 //
 export const getColumnsForRequests = (callback, is_admin) => {
   return [
@@ -345,6 +329,7 @@ export const getColumnsForRequests = (callback, is_admin) => {
     }
   ]
 };
+
 
 //
 export const columnsForAccounts = (callback) => {
