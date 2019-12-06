@@ -1,8 +1,9 @@
 import React, {useEffect} from 'react'
 import { connect } from 'react-redux'
-//import { getMenuItems, getMenu,  } from '@app/redux/models/menu'
+
 import * as menuRedux from '@app/redux/models/menu'
 import * as loginRedux from '@app/redux/models/login'
+import * as globalCfg from '@app/configs/global';
 
 import { Menu, Icon } from 'antd';
 import { Link } from 'react-router-dom';
@@ -14,27 +15,7 @@ import { getRootKeys } from '@app/services/routes'
 
 const  { SubMenu } = Menu;
 
-const renderItem = (item) => {
-    // console.log(' renderItem => ', item.title, item.key)
-    if(item.items) {
-        return (
-        <SubMenu title={<span>{ item.icon? <Icon type={item.icon} />: false }<span>{item.title}</span></span>} key={item.key}>
-            { item.items.map(renderItem) }
-        </SubMenu>
-        );
-    } else {
-        return  (
-        <Menu.Item key={item.key} disabled={item.path!=item.key} className={ item.icon?'is_root_menu':''}>
-            <Link to={routes_config.getPath(item.path || item.key)}>
-                { item.icon? <Icon type={item.icon} />: false }
-                <span>{item.title}</span>
-            </Link>
-        </Menu.Item>
-        );
-    }
-}
-//
-export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actualAccountName, actualRole , lastRootMenu}) => {
+export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actualAccountName, actualRole , actualRoleId,  actualPermission, lastRootMenu}) => {
         useEffect(()=>{
             getMenu(actualAccountName, actualRole)
         })
@@ -51,14 +32,33 @@ export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actua
             selected = routes_config.getItemByFullpath(area, path, null)
         }
         
-        // console.log(' >> POST >> menu >> selected:', JSON.stringify(selected))
-        
-        // const aa = selected?[(selected.father_key?selected.father_key:selected.key)]:['dashboard'];
         const aa = selected?[selected.key]:['dashboard'];
 
-        // const bb = getRootKeys(area);
         const bb = getRootKeys(actualRole); 
 
+        const renderItem = (item) => {
+          if(item.permission && !globalCfg.bank.isValidPermission(actualRoleId, item.permission, actualPermission))
+              return (null);
+
+          if(item.items) {
+              return (
+              <SubMenu title={<span>{ item.icon? <Icon type={item.icon} />: false }<span>{item.title}</span></span>} key={item.key}>
+                  { item.items.map(renderItem) }
+              </SubMenu>
+              );
+          } else {
+              return  (
+              <Menu.Item key={item.key} disabled={item.path!=item.key} className={ item.icon?'is_root_menu':''}>
+                  <Link to={routes_config.getPath(item.path || item.key)}>
+                      { item.icon? <Icon type={item.icon} />: false }
+                      <span>{item.title}</span>
+                  </Link>
+              </Menu.Item>
+              );
+          }
+        }
+        //
+        
         return (
                 <Menu
                     defaultSelectedKeys={aa}
@@ -78,6 +78,8 @@ export default connect(
         items:                 menuRedux.getMenuItems(state),
         actualAccountName:     loginRedux.actualAccountName(state),
         actualRole:            loginRedux.actualRole(state),
+        actualRoleId:          loginRedux.actualRoleId(state),
+        actualPermission:      loginRedux.actualPermission(state),
         lastRootMenu:          menuRedux.lastRootMenu(state)
     }),
     dispatch => ({

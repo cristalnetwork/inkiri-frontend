@@ -81,15 +81,17 @@ const routes  = {
     bankadmin: {
         items: [
             {
-                key:  routes_config.pathNames.bankadminDashboard,
-                title: 'Dashboard',
-                path: routes_config.pathNames.bankadminDashboard,
-                icon: 'dashboard'
+                key:          routes_config.pathNames.bankadminDashboard,
+                title:        'Dashboard',
+                path:         routes_config.pathNames.bankadminDashboard,
+                icon:         'dashboard',
+                permission:   'active'
             },
             {
-                key: routes_config.pathNames.bankadminTransactions,
-                title: 'Transactions',
-                icon: 'bank',
+                key:          routes_config.pathNames.bankadminTransactions,
+                title:        'Transactions',
+                icon:         'bank',
+                permission:   'active',
                 items: [
                     {
                         key: routes_config.pathNames.bankadminOperations,
@@ -122,61 +124,66 @@ const routes  = {
                 icon: 'table',
                 items: [
                     {
-                        key: routes_config.pathNames.bankadminAccounts,
-                        path: routes_config.pathNames.bankadminAccounts,
-                        title: 'Accounts',
+                        key:          routes_config.pathNames.bankadminAccounts,
+                        path:         routes_config.pathNames.bankadminAccounts,
+                        title:        'Accounts',
                     },
                     {
-                        key: routes_config.pathNames.bankadminProfiles,
-                        path: routes_config.pathNames.bankadminProfiles,
-                        title: 'Profiles',
+                        key:          routes_config.pathNames.bankadminProfiles,
+                        path:         routes_config.pathNames.bankadminProfiles,
+                        title:        'Profiles',
                     },
                     {
-                        key: routes_config.pathNames.commonProviders,
-                        path: routes_config.pathNames.commonProviders,
-                        title: 'Providers',
+                        key:          routes_config.pathNames.commonProviders,
+                        path:         routes_config.pathNames.commonProviders,
+                        title:        'Providers',
+                        permission:   'active'
                     },
                     {
-                        key: routes_config.pathNames.bankadminPDA,
-                        path: routes_config.pathNames.bankadminPDA,
-                        title: 'PDA',
+                        key:          routes_config.pathNames.bankadminPDA,
+                        path:         routes_config.pathNames.bankadminPDA,
+                        title:        'PDA',
                     },
                     {
-                        key: routes_config.pathNames.commonServices,
-                        path: routes_config.pathNames.bankadminUnderConstruction,
-                        title: 'Serviços oferecidos',
+                        key:          routes_config.pathNames.commonServices,
+                        path:         routes_config.pathNames.bankadminUnderConstruction,
+                        title:        'Serviços oferecidos',
+                        permission:   'active'
                     },
                     {
-                        key: routes_config.pathNames.commonContractedServices,
-                        path: routes_config.pathNames.bankadminUnderConstruction,
-                        title: 'Serviços Contratados',
+                        key:          routes_config.pathNames.commonContractedServices,
+                        path:         routes_config.pathNames.bankadminUnderConstruction,
+                        title:        'Serviços Contratados',
+                        permission:   'active'
                     },
 
                 ]
             },
             {
-                key: routes_config.pathNames.bankadminStaff,
-                title: 'Staff',
-                icon: 'profile',
+                key:                  routes_config.pathNames.bankadminStaff,
+                title:                'Staff',
+                icon:                 'profile',
+                permission:           'active',
                 items: [
                     {
-                        key: routes_config.pathNames.commonSalaries,
-                        path: routes_config.pathNames.commonSalaries,
-                        title: 'Salaries',
+                        key:          routes_config.pathNames.commonSalaries,
+                        path:         routes_config.pathNames.commonSalaries,
+                        title:        'Salaries',
                     },
                     {
-                        key: routes_config.pathNames.commonCrew,
-                        path: routes_config.pathNames.commonCrew,
-                        title: 'Crew',
+                        key:          routes_config.pathNames.commonCrew,
+                        path:         routes_config.pathNames.commonCrew,
+                        title:        'Crew',
                     }
 
                 ]
             },
             {
-                key: routes_config.pathNames.bankadminConfiguration,
-                path: routes_config.pathNames.bankadminConfiguration,
-                title: 'Configuration',
-                icon: 'setting',
+                key:                  routes_config.pathNames.bankadminConfiguration,
+                path:                 routes_config.pathNames.bankadminConfiguration,
+                title:                'Configuration',
+                icon:                 'setting',
+                permission:           'active'
             }
         ]
     },

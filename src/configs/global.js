@@ -71,6 +71,10 @@ const bank = {
         }
     return perms[account_type];
   },
+  isValidPermission : (account_type, required_permission, my_permission) => {
+    const my_perms = bank.getPermsForAccountType(account_type);
+    return my_perms.indexOf(required_permission) >= my_perms.indexOf(my_permission);
+  },
   listAccountTypes   : () => { 
     //return [bank.ACCOUNT_TYPE_PERSONAL, bank.ACCOUNT_TYPE_BUSINESS, bank.ACCOUNT_TYPE_FOUNDATION, bank.ACCOUNT_TYPE_BANKADMIN];
     return bank.ACCOUNT_TYPES.filter((item, idx) => idx>0);

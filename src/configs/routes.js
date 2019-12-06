@@ -57,83 +57,76 @@ export const pathNames = utils.arrToObj([
 
 const personal =[
     {
-       key: pathNames.dashboard,
-       fileName: 'under-construction',
-       area: 'personal',
-       path: 'dashboard',
-       container: 'dashboard',
-       role: 'personal'
+       key:        pathNames.dashboard,
+       fileName:   'under-construction',
+       area:       'personal',
+       path:       'dashboard',
+       container:  'dashboard',
+       role:       'personal',
     },
-    // {
-    //    key: pathNames.personalConfiguration,
-    //    fileName: 'configuration',
-    //    area: 'personal',
-    //    path: 'account-settings',
-    //    container: 'dashboard' 
-    // },
     {
-       key: pathNames.personalWithdraw,
-       fileName: 'withdraw',
-       area: 'personal',
-       path: 'withdraw',
+       key:       pathNames.personalWithdraw,
+       fileName:  'withdraw',
+       area:      'personal',
+       path:      'withdraw',
        container: 'dashboard' 
     },
     {
-       key: pathNames.personalExchange,
-       fileName: 'exchange',
-       area: 'personal',
-       path: 'exchange',
-       container: 'dashboard' 
+       key:        pathNames.personalExchange,
+       fileName:   'exchange',
+       area:       'personal',
+       path:       'exchange',
+       container:  'dashboard' 
     },
     {
-       key: pathNames.personalExtracto,
-       fileName: 'extrato',
-       area: 'personal',
-       path: 'extrato',
-       container: 'dashboard' 
+       key:         pathNames.personalExtracto,
+       fileName:    'extrato',
+       area:        'personal',
+       path:        'extrato',
+       container:   'dashboard' 
     }
 ]
 
 const bankadmin = [
     {
-       key: pathNames.bankadminDashboard,
-       fileName: 'dashboard',
-       area: 'bankadmin',
-       path: 'dashboard',
-       container: 'dashboard',
-       role: 'bankadmin'
+       key:        pathNames.bankadminDashboard,
+       fileName:   'dashboard',
+       area:       'bankadmin',
+       path:       'dashboard',
+       container:  'dashboard',
+       role:       'bankadmin'
     },
     {
-        key: pathNames.bankadminUnderConstruction,
-        fileName: 'under-construction',
-        area: 'bankadmin',
-        path: 'proximamente',
+        key:       pathNames.bankadminUnderConstruction,
+        fileName:  'under-construction',
+        area:      'bankadmin',
+        path:      'proximamente',
         container: 'dashboard',
-        role: 'bankadmin'
+        role:      'bankadmin'
      },
      {
-       key: pathNames.bankadminTransactions,
-       fileName: 'under-construction',
-       area: 'bankadmin',
-       path: 'transactions',
-       container: 'dashboard',
-       role: 'bankadmin'
+       key:        pathNames.bankadminTransactions,
+       fileName:   'under-construction',
+       area:       'bankadmin',
+       path:       'transactions',
+       container:  'dashboard',
+       role:       'bankadmin'
     },
     {
-       key: pathNames.bankadminOperations,
-       fileName: 'operations',
-       area: 'bankadmin',
-       path: 'operations',
+       key:       pathNames.bankadminOperations,
+       fileName:  'operations',
+       area:      'bankadmin',
+       path:      'operations',
        container: 'dashboard',
-       role: 'bankadmin'
+       role:      'bankadmin'
     },
     {
-       key: pathNames.bankadminExternalTransfers,
-       fileName: 'external-transfers',
-       area: 'bankadmin',
-       path: 'external-transfers',
+       key:       pathNames.bankadminExternalTransfers,
+       fileName:  'external-transfers',
+       area:      'bankadmin',
+       path:      'external-transfers',
        container: 'dashboard',
-       role: 'bankadmin'
+       role:      'bankadmin'
     },
     {
        key:         pathNames.bankadminExternalTransfers_ProcessExternal,
@@ -145,38 +138,38 @@ const bankadmin = [
        role:        'bankadmin'
     },
     {
-       key: pathNames.bankadminIugu,
-       fileName: 'iugu',
-       area: 'bankadmin',
-       path: 'iugu',
-       container: 'dashboard',
-       role: 'bankadmin'
+       key:         pathNames.bankadminIugu,
+       fileName:    'iugu',
+       area:        'bankadmin',
+       path:        'iugu',
+       container:   'dashboard',
+       role:        'bankadmin'
     },
     {
-       key: pathNames.bankadminIugu_Details,
-       father_key : '*',
-       fileName: 'iugu_details',
-       area: 'bankadmin',
-       path: 'iugu-invoice',
-       container: 'dashboard',
-       role: 'bankadmin'
+       key:         pathNames.bankadminIugu_Details,
+       father_key:  '*',
+       fileName:    'iugu_details',
+       area:        'bankadmin',
+       path:        'iugu-invoice',
+       container:   'dashboard',
+       role:        'bankadmin'
     },
     {
-       key: pathNames.bankadminConfiguration,
-       fileName: 'configuration',
-       area: 'bankadmin',
-       path: 'configuration',
-       container: 'dashboard',
-       role: 'bankadmin'
+       key:         pathNames.bankadminConfiguration,
+       fileName:    'configuration',
+       area:        'bankadmin',
+       path:        'configuration',
+       container:   'dashboard',
+       role:        'bankadmin'
     },
     
     {
-       key: pathNames.bankadminAccounts,
-       fileName: 'accounts',
-       area: 'bankadmin',
-       path: 'accounts',
-       container: 'dashboard',
-       role: 'bankadmin'
+       key:        pathNames.bankadminAccounts,
+       fileName:   'accounts',
+       area:       'bankadmin',
+       path:       'accounts',
+       container:  'dashboard',
+       role:       'bankadmin'
     },
     {
        key:         pathNames.bankadminAccounts_Account,
@@ -197,12 +190,12 @@ const bankadmin = [
        role:        'bankadmin'
     },
     {
-       key: pathNames.bankadminProfiles,
-       fileName: 'profiles',
-       area: 'bankadmin',
-       path: 'profiles',
-       container: 'dashboard',
-       role: 'bankadmin'
+       key:         pathNames.bankadminProfiles,
+       fileName:    'profiles',
+       area:        'bankadmin',
+       path:        'profiles',
+       container:   'dashboard',
+       role:        'bankadmin'
     },
     {
        key:         pathNames.bankadminProfiles_Profile,
@@ -214,75 +207,67 @@ const bankadmin = [
        role:        'bankadmin'
     },
     {
-       key: pathNames.bankadminPDA,
-       fileName: 'pda',
-       area: 'bankadmin',
-       path: 'pda',
-       container: 'dashboard',
-       role: 'bankadmin'
+       key:         pathNames.bankadminPDA,
+       fileName:    'pda',
+       area:        'bankadmin',
+       path:        'pda',
+       container:   'dashboard',
+       role:        'bankadmin'
     },
     {
-       key: pathNames.bankadminPDA_ProcessRequest,
+       key:         pathNames.bankadminPDA_ProcessRequest,
        father_key : '*',
-       fileName: 'processExternal',
-       area: 'bankadmin',
-       path: 'pda-process-request',
-       container: 'dashboard',
-       role: 'bankadmin'
+       fileName:    'processExternal',
+       area:        'bankadmin',
+       path:        'pda-process-request',
+       container:   'dashboard',
+       role:        'bankadmin'
     },
 
  ];
 
 const business = [
     {
-        key: pathNames  .businessUnderConstruction,
-        fileName: 'under-construction',
-        area: 'business',
-        path: 'proximamente',
+        key:       pathNames.businessUnderConstruction,
+        fileName:  'under-construction',
+        area:      'business',
+        path:      'proximamente',
         container: 'dashboard',
-        role: 'business'
+        role:      'business'
     },
     {
-       key: pathNames.businessExtracto,
-       fileName: 'extrato',
-       area: 'business',
-       path: 'extrato',
-       container: 'dashboard',
-       role: 'business'
+       key:         pathNames.businessExtracto,
+       fileName:    'extrato',
+       area:        'business',
+       path:        'extrato',
+       container:   'dashboard',
+       role:        'business'
     },
 
     {
-       key: pathNames.businessPDV,
-       fileName: 'pdv',
-       area: 'business',
-       path: 'pdv',
-       container: 'dashboard',
-       role: 'business'
-    },
-    // {
-    //    key: pathNames.businessPaymentsAndServices,
-    //    fileName: 'under-construction',
-    //    area: 'business',
-    //    path: 'payments-services',
-    //    container: 'dashboard',
-    //    role: 'business'
-    // },
-    {
-       key:       pathNames.businessProvidersPayments,
-       fileName:  'providers-payments',
-       area:      'business',
-       path:      'providers-payments',
-       container: 'dashboard',
-       role:      'business'
+       key:         pathNames.businessPDV,
+       fileName:    'pdv',
+       area:        'business',
+       path:        'pdv',
+       container:   'dashboard',
+       role:        'business'
     },
     {
-       key:       pathNames.businessProvidersPayments_Request,
-       father_key: pathNames.businessProvidersPayments,
-       fileName:  'requestPayment',
-       area:      'business',
-       path:      'providers-payments-request',
-       container: 'dashboard',
-       role:      'business'
+       key:         pathNames.businessProvidersPayments,
+       fileName:    'providers-payments',
+       area:        'business',
+       path:        'providers-payments',
+       container:   'dashboard',
+       role:        'business'
+    },
+    {
+       key:         pathNames.businessProvidersPayments_Request,
+       father_key:  pathNames.businessProvidersPayments,
+       fileName:    'requestPayment',
+       area:        'business',
+       path:        'providers-payments-request',
+       container:   'dashboard',
+       role:        'business'
     },
     
     
