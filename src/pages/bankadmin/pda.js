@@ -61,8 +61,7 @@ class PDA extends Component {
   } 
 
   getColumns(){
-    // return columns(this.props.actualRoleId, this.onProcessRequestClick)
-    return columns_helper.columnsForPDA(this.onProcessRequestClick);
+    return columns_helper.getColumnsForRequests(this.onProcessRequestClick);
   }
 
   //
@@ -323,6 +322,7 @@ class PDA extends Component {
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
             scroll={{ x: 700 }}
+            expandedRowRender={columns_helper.expandedRequestRowRender}
             />
           </div>);
   }

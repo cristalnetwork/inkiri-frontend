@@ -59,7 +59,6 @@ class ExternalTransfers extends Component {
   } 
 
   getColumns(){
-    // return columns_helper.columnsForExternal(this.onProcessRequestClick);
     return columns_helper.getColumnsForRequests(this.onProcessRequestClick);
   }
   //
