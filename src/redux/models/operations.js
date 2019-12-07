@@ -27,9 +27,10 @@ export const prependBlockchainOperations = (data)   =>({ type: PREPEND_BLOCKCHAI
 
 //Eventos que requieren del async
 function* loadBlockchainOperationsSaga() {
-  // console.log(' operations-redux::loadBlockchainOperationsSaga#1')
+  
+  return;
+
   const {data} = yield api.dfuse.allTransactions();
-  // console.log(' operations-redux::loadBlockchainOperationsSaga#2 : ', data)
   if(data) {
       yield put(setBlockchainOperations(data))
   }

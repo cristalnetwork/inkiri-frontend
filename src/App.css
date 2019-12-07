@@ -57,19 +57,39 @@
 /* HACK FOR PAGEHEADER */
 .ant-page-header-ghost {background-color: #fff!important;}
 /*HACK FOR FILTERS*/
+.filter_form{
+  background-color: #f0f0f0;
+  padding:8px; 
+  margin-bottom: 8px; 
+}
 .filter_form.ant-form-inline{
   display: flex!important;
   flex-direction: row!important;
-  justify-content: flex-end!important;
+  justify-content: flex-start!important;
+  /*align-items: flex-end;*/
 }
 .filter_form.ant-form-inline .ant-form-item{
   display: flex!important;
-  flex-direction: column!important;
-  justify-content: flex-start!important;
+  flex-direction: column;
+  /*justify-content: flex-end*/;
+  margin-right: 8px;
 
 }
 .filter_form .ant-form-item-label{
   text-align: left!important;
+}
+
+.ant-form-item-label{
+  height:20px;
+  line-height:20px;
+}
+.ant-form-item-label > label{
+  color: rgba(0, 0, 0, 0.65)!important;
+}
+
+
+.ant-select-dropdown{
+  min-width: 250px;
 }
 
 .filter_wrap {

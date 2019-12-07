@@ -18,6 +18,7 @@ import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statist
 
 import { notification, Table, Divider, Spin } from 'antd';
 
+import OperationsFilter from '@app/components/Filters/operations';
 import TransactionTable from '@app/components/TransactionTable';
 import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimple} from '@app/components/TransactionTable/stats';
 import { DISPLAY_PDA, DISPLAY_EXTERNAL, DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
@@ -26,13 +27,8 @@ import * as columns_helper from '@app/components/TransactionTable/columns';
 
 import * as utils from '@app/utils/utils';
 
-import { DatePicker } from 'antd';
-import moment from 'moment';
-
-const { MonthPicker, RangePicker } = DatePicker;
 const { TabPane } = Tabs;
-const { Option } = Select;
-const { Search, TextArea } = Input;
+
 
 const tabs = {
   [DISPLAY_ALL_TXS] :   'Blockchain transactions',       
@@ -64,7 +60,6 @@ class Operations extends Component {
     this.onTableChange              = this.onTableChange.bind(this);
     
     this.refreshCurrentTable        = this.refreshCurrentTable.bind(this);
-    this.renderFilterContent        = this.renderFilterContent.bind(this);
 
     this.onTransactionClick         = this.onTransactionClick.bind(this);
     this.onRequestClick             = this.onRequestClick.bind(this);
@@ -195,79 +190,7 @@ class Operations extends Component {
   */
   
   //
-  renderSelectTxTypeOptions(){
-    return (
-      globalCfg.api.getTypes().map( tx_type => {return(<Option key={'option'+tx_type} value={tx_type} label={utils.firsts(tx_type.split('_')[1])}>{ utils.capitalize(tx_type.split('_')[1]) } </Option>)})
-        )
-  }
-  // 
-  renderSelectInOutOptions(){
-    return (
-      ['all', 'in', 'out'].map( tx_state => {return(<Option key={'option'+tx_state} value={tx_state} label={utils.firsts(tx_state)}>{ utils.capitalize(tx_state) } </Option>)})
-        )
-  }
-  // 
-  renderSelectAccountTypeOptions(){
-    return (
-      globalCfg.bank.listAccountTypes().map( tx_state => {return(<Option key={'option'+tx_state} value={tx_state} label={utils.firsts(tx_state)}>{ utils.capitalize(tx_state) } </Option>)})
-        )
-  }
-  //
-  renderFilterContent() {
-    return (null);
-    const dateFormat = 'YYYY/MM/DD';
-    return (
-      <div className="filter_wrap">
-        <Row>
-          <Col span={24}>
-            <Form layout="inline" className="filter_form" onSubmit={this.handleSubmit}>
-              <Form.Item label="Operation">
-                  <Select placeholder="Operation"
-                    mode="multiple"
-                    style={{ minWidth: '250px' }}
-                    defaultValue={['ALL']}
-                    optionLabelProp="label">
-                      {this.renderSelectTxTypeOptions()}
-                  </Select>
-              </Form.Item>
-              <Form.Item label="Date Range">
-                  <RangePicker
-                    defaultValue={[moment('2015/01/01', dateFormat), moment('2015/01/01', dateFormat)]}
-                    format={dateFormat}
-                  />
-              </Form.Item>
-              <Form.Item label="In-Out">
-                <Select placeholder="In-Out"
-                    mode="multiple"
-                    style={{ minWidth: '250px' }}
-                    defaultValue={['ALL']}
-                    optionLabelProp="label">
-                      {this.renderSelectInOutOptions()}
-                  </Select>
-              </Form.Item>
-              <Form.Item label="Account type">
-                <Select placeholder="Account type"
-                    mode="multiple"
-                    style={{ minWidth: '250px' }}
-                    defaultValue={['ALL']}
-                    optionLabelProp="label">
-                      {this.renderSelectAccountTypeOptions()}
-                  </Select>
-              </Form.Item>
-              <Form.Item label="Search">
-                  <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
-              </Form.Item>
-              <Form.Item>
-                <Button htmlType="submit" disabled>
-                  Filter
-                </Button>
-              </Form.Item>
-            </Form>
-          </Col>
-        </Row>
-      </div>
-    );
-  }
+  
   //
   
   renderTableViewStats(){
@@ -330,7 +253,6 @@ class Operations extends Component {
   render() {
     const content               = this.renderContent();
     const stats                 = this.renderTableViewStats();
-    const filters               = this.renderFilterContent();
     const {routes, active_tab}  = this.state;
     return (
       <>
@@ -352,7 +274,8 @@ class Operations extends Component {
             onTabChange={ (key) => this.onTabChange(key)}
             >
           
-            {filters}
+            <OperationsFilter />
+
             {stats}
             {content}
 
@@ -386,6 +309,7 @@ export default  (withRouter(connect(
     (dispatch)=>({
         loadOldBlockchainOperations:  bindActionCreators(opersRedux.loadOldBlockchainOperations, dispatch),
         loadBlockchainOperations:     bindActionCreators(opersRedux.loadBlockchainOperations, dispatch),
+
         setLastRootMenuFullpath:      bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(Operations)));

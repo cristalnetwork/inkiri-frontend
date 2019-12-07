@@ -10,6 +10,7 @@ const {TextArea} = Input;
 
 export const MONTH_FORMAT           = 'YYYY/MM';
 export const MONTH_FORMAT_HUMANIZED = 'MMMM YYYY';
+export const DATE_FORMAT            = 'YYYY/MM/DD';
 
 export const getInputItem = (_form, object, field, title, required_message, _type, readonly, textarea) => {
     
