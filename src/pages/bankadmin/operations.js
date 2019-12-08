@@ -26,14 +26,6 @@ import * as request_helper from '@app/components/TransactionCard/helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 import * as utils from '@app/utils/utils';
 
-
-
-
-import * as graphql_data from '@app/services/inkiriApi/graphql_data.json';
-
-
-
-
 const { TabPane } = Tabs;
 
 
@@ -163,18 +155,6 @@ class Operations extends Component {
 
   refreshCurrentTable = async () => {
 
-
-    // const my_txs = graphql_data._data.data.searchTransactionsForward.results.map(
-    //  (tx) => {
-    //   return api.txsHelper.toReadable(this.props.actualAccountName, tx);
-    // });
-    
-    // const my_txs = await api.dfuse.queryTransactions();
-    // console.log(my_txs);
-    // return;
-
-
-
     const that         = this;
     const {active_tab} = this.state;
 
@@ -288,7 +268,7 @@ class Operations extends Component {
     // className="styles listCard"
     // style={{ marginTop: 24 }}
 
-    return (<div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
+    return (<div style={{ background: '#fff', minHeight: 360, marginTop: 0}}>
         {content}
       </div>)
   }

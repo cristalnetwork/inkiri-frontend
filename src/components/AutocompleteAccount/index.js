@@ -56,8 +56,8 @@ class AutocompleteAccount extends Component {
   {
       if(prevProps.filter !== this.props.filter 
           || prevProps.form !== this.props.form ) {
-        console.log(' --------- per que?')
-        console.log(this.props.not_required, this.props.size, this.props.without_icon)
+        // console.log(' --------- per que?')
+        // console.log(this.props.not_required, this.props.size, this.props.without_icon)
         this.setState({
             callback:              this.props.callback,
             filter:                this.props.filter||false,

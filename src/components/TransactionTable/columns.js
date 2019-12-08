@@ -65,7 +65,7 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
                   </div>
                   <div className="ui-info-row__details">
                       <ul>
-                          <li>{is_admin?record.sub_header:record.sub_header_admin_ex}</li>
+                          <li>{is_admin?record.sub_header_admin_ex:record.sub_header}</li>
                           
                       </ul>
                   </div>

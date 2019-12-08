@@ -200,48 +200,28 @@ export const transformTransactions = (txs, account_name) => transformTransaction
 const transformTransactionsImpl = (txs, account_name) => {
   
   if (!txs || txs.length <= 0) {
+    console.log(' TRANSFOMR TX txs is empty :( ');
     return [];
   }
   if(!Array.isArray(txs)) 
     txs = [txs];
 
-  // TX info structure:
-  //   id
-  //   block_time
-  //   block_time_number
-  //   transaction_id
-  //   block_num
-  // ACTION info structure:
-  //   {
-  //     "account": "inkiritoken1",
-  //     "name": "any",
-  //     "authorization": [
-  //     {
-  //         "actor": "xxx",
-  //         "permission": "active"
-  //     }],
-  //     "data": { ... }
-  //   }
-  // TX structure from SEARCH:
-  // - info:     -> transaction.lifecycle.execution_trace
-  // - action:   -> transaction.lifecycle.execution_trace.action_traces[0].act
-  // TX structure from EVENT:
-  // - info:     -> transaction.data
-  // - action:   -> transaction.data.trace.act.data
-  
-
-
   const my_txs = txs.map(
      (transaction) => {
-      // const tx_info    =  (is_search_result)
-      //                     ?transaction.lifecycle.execution_trace
-      //                     :transaction.data;
       
-      return txsHelper.toReadable(account_name, transaction);
+      try{
+        const ret = txsHelper.toReadable(account_name, transaction);  
+        return ret;
+      }
+      catch(e)
+      {
+        console.log(' TRANSFOMR TX ERROR#1 => ', JSON.stringify(transaction), JSON.stringify(e))
+        return null;
+      }
 
     })
   
-  return my_txs;
+  return my_txs.filter(tx=> tx!=null);
 }
 
 export const listPAPPayments = async (account_name, provider, customer, cursor) => new Promise(async(res,rej)=> {
@@ -302,11 +282,15 @@ query{
 }
 
 */
+export const queryTransactionsNew = (last_block) => queryTransactions(null, null, last_block+1);
+export const queryTransactionsCursor = (cursor)  => queryTransactions(null, cursor, null);
+export const queryTransactions = async (account_name, cursor, last_block) => new Promise(async(res,rej)=> {
+  if(!account_name)
+    account_name = globalCfg.currency.issuer;
 
-export const queryTransactions = async (account_name, last_block) => new Promise(async(res,rej)=> {
   const query = `account:${globalCfg.currency.token}`;
-  const searchTransactions = `query ($limit: Int64, $irreversibleOnly:Boolean, $lowBlockNum:Int64){
-    searchTransactionsForward(query: "${query}", limit: $limit, irreversibleOnly: $irreversibleOnly, lowBlockNum: $lowBlockNum) {
+  const searchTransactions = `query ($limit: Int64, $irreversibleOnly:Boolean, $lowBlockNum:Int64, $cursor:String){
+    searchTransactionsForward(query: "${query}", limit: $limit, irreversibleOnly: $irreversibleOnly, lowBlockNum: $lowBlockNum, cursor:$cursor) {
       cursor 
       results { 
         block { num id timestamp}
@@ -329,10 +313,14 @@ export const queryTransactions = async (account_name, last_block) => new Promise
   let client = createClient();
   try {
     const response = await client.graphql(searchTransactions, {
-      variables: { limit: 100 , irreversibleOnly: false, lowBlockNum: last_block||null}
+      variables: { limit:             100 
+                  , irreversibleOnly: false
+                  , lowBlockNum:      last_block||null
+                  , cursor:           cursor||null
+        }
     })
 
-    console.log(response)
+    // console.log(response)
     const results = response.data.searchTransactionsForward.results || []
     if (results.length <= 0) {
       res ({data:{txs:[], cursor:''}})
@@ -340,11 +328,12 @@ export const queryTransactions = async (account_name, last_block) => new Promise
       return;
     }
 
-    console.log(' dfuse::listPAPPayments >> RAW data >>', JSON.stringify(response));
+    // console.log(' dfuse::queryTransactions >> RAW data >>', JSON.stringify(response));
 
     const txs = transformTransactionsImpl(results, account_name);
+    console.log(' DFUSE transformo las txs!!!!!!', txs.length)
     // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
-    res ({data:{txs:txs.reverse(), cursor:response.cursor}})
+    res ({data:{txs:txs.reverse(), cursor:response.data.searchTransactionsForward.cursor}})
     
   } catch (error) {
     rej(error);
@@ -375,9 +364,7 @@ export const incomingTransactions = (account_name, cursor) => listTransactions(a
 */
 export const listTransactions = (account_name, cursor, received, start_block) => new Promise((res,rej)=> {
 	
-  rej('')
-  return;
-
+  
   // const query = 'account:' + globalCfg.currency.token + ' (data.from:'+account_name+' OR data.to:'+account_name+')'
   const query = (account_name)
     ?(

@@ -39,12 +39,14 @@ function* loadBlockchainOperationsSaga() {
   {
     // const {data} = yield api.dfuse.allTransactions();
     const {data} = yield api.dfuse.queryTransactions();
+    console.log(' loadBlockchainOperationsSaga# ABOUT TO PUT!')
     if(data) {
         yield put(setBlockchainOperations(data))
     }
   }
   catch(e){
     //HACK Mandar error a GLOBAL_ERROR_HANDLER
+    console.log(' loadBlockchainOperationsSaga#ERROR#1:', JSON.stringify(e))
     yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
     return;
   }
@@ -60,13 +62,15 @@ function* loadOldBlockchainOperationsSaga() {
   }
 
   try{
-    const {data} = yield api.dfuse.allTransactions(operations_cursor);
+    // const {data} = yield api.dfuse.allTransactions(operations_cursor);
+    const {data} = yield api.dfuse.queryTransactionsCursor(operations_cursor);
     if(data) {
         yield put(apendBlockchainOperations(data))
     }
   }
   catch(e)
   {
+    console.log(' loadOldBlockchainOperationsSaga#ERROR#2:', JSON.stringify(e))
     //HACK Mandar error a GLOBAL_ERROR_HANDLER
     yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
     return;
@@ -83,13 +87,15 @@ function* loadNewBlockchainOperationsSaga() {
   }
   
   try{
-    const {data} = yield api.dfuse.allTransactionsSince(last_block);
+    // const {data} = yield api.dfuse.allTransactionsSince(last_block);
+    const {data} = yield api.dfuse.queryTransactionsNew(last_block);
     if(data) {
         yield put(prependBlockchainOperations(data))
     }
   }
   catch(e)
   {
+    console.log(' loadNewBlockchainOperationsSaga#ERROR#3:', JSON.stringify(e))
     //HACK Mandar error a GLOBAL_ERROR_HANDLER
     yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
     return;
@@ -177,14 +183,19 @@ function reducer(state = defaultState, action = {}) {
         is_operations_loading:     true
       }
     case SET_BLOCKCHAIN_OPERATIONS:
-      const last_block = (action.payload.data.txs&&action.payload.data.txs.length>0)
-        ? action.payload.data.txs[0].block_num
+      console.log(' operations-redux::reducer::SET_BLOCKCHAIN_OPERATIONS')
+      const {txs, cursor} = action.payload.data 
+      console.log(' txs', txs)
+      console.log(' cursor', cursor)
+      const last_block = (txs&&txs.length>0)
+        ? txs[0].block_num
         : state.last_block;
-      console.log(' operations-redux::reducer::SET_BLOCKCHAIN_OPERATIONS', action.payload.data)
+      
+      console.log(' operations-redux::reducer::SET_BLOCKCHAIN_OPERATIONS GOOOOOOOOOOOOOl')
       return  {
         ...state
-        , operations:              action.payload.data.txs 
-        , operations_cursor:       action.payload.data.cursor
+        , operations:              txs 
+        , operations_cursor:       cursor
         , last_block:              last_block 
         , is_operations_loading:   false
       }
