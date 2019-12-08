@@ -282,15 +282,28 @@ query{
 }
 
 */
-export const queryTransactionsNew = (last_block) => queryTransactions(null, null, last_block+1);
-export const queryTransactionsCursor = (cursor)  => queryTransactions(null, cursor, null);
-export const queryTransactions = async (account_name, cursor, last_block) => new Promise(async(res,rej)=> {
-  if(!account_name)
-    account_name = globalCfg.currency.issuer;
 
-  const query = `account:${globalCfg.currency.token}`;
+//
+
+/*
+* @param account => {account_name, account_type}
+*/
+export const queryTransactionsNew = (account, last_block) => queryTransactions(account, null, last_block+1);
+export const queryTransactionsCursor = (account, cursor)  => queryTransactions(account, cursor, null);
+export const queryTransactions = async (account, cursor, last_block) => new Promise(async(res,rej)=> {
+  console.log(' queryTransactions => ', account)
+  if(!account)
+    account = {  acount_name:     globalCfg.currency.issuer
+                 , account_type:  globalCfg.bank.ACCOUNT_TYPE_BANK_ADMIN};
+  const {account_name, account_type} = account;                 
+  const query          = {
+        [globalCfg.bank.ACCOUNT_TYPE_BANKADMIN]  : `account:${globalCfg.currency.token}`
+        , [globalCfg.bank.ACCOUNT_TYPE_PERSONAL] : `account: ${globalCfg.currency.token} (data.from:${account_name} OR data.to:${account_name} OR data.account:${account_name})`
+        , [globalCfg.bank.ACCOUNT_TYPE_BUSINESS] : `account: ${globalCfg.currency.token} (data.from:${account_name} OR data.to:${account_name} OR data.account:${account_name})`
+  };
+
   const searchTransactions = `query ($limit: Int64, $irreversibleOnly:Boolean, $lowBlockNum:Int64, $cursor:String){
-    searchTransactionsForward(query: "${query}", limit: $limit, irreversibleOnly: $irreversibleOnly, lowBlockNum: $lowBlockNum, cursor:$cursor) {
+    searchTransactionsForward(query: "${query[account_type]}", limit: $limit, irreversibleOnly: $irreversibleOnly, lowBlockNum: $lowBlockNum, cursor:$cursor) {
       cursor 
       results { 
         block { num id timestamp}

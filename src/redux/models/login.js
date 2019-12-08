@@ -211,7 +211,7 @@ function reducer(state = defaultState, action = {}) {
                 loading: state.loading - 1
             }
         case SET_LOGIN:
-            // console.log( ' loginREDUX >> action.payload.password >> ' , action.payload.password)
+            console.log( ' loginREDUX >> action.payload.password >> ' , action.payload.current_account)
             return {
                 ...state,
                 // userId             : action.payload.accounts.personalAccount.permissioned.actor

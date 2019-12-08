@@ -35,10 +35,11 @@ export const deleteFilterKeyValue        = (key)   =>({ type: DELETE_FILTER_KEY_
 
 //Eventos que requieren del async
 function* loadBlockchainOperationsSaga() {
+  const { permissioner } = store.getState().login.current_account;
   try
   {
     // const {data} = yield api.dfuse.allTransactions();
-    const {data} = yield api.dfuse.queryTransactions();
+    const {data} = yield api.dfuse.queryTransactions(permissioner );
     console.log(' loadBlockchainOperationsSaga# ABOUT TO PUT!')
     if(data) {
         yield put(setBlockchainOperations(data))
@@ -55,6 +56,7 @@ function* loadBlockchainOperationsSaga() {
 
 function* loadOldBlockchainOperationsSaga() {
   const { operations_cursor } = store.getState().operations;
+  const { permissioner }      = store.getState().login.current_account;
   if(!operations_cursor)
   {  
     yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
@@ -63,7 +65,7 @@ function* loadOldBlockchainOperationsSaga() {
 
   try{
     // const {data} = yield api.dfuse.allTransactions(operations_cursor);
-    const {data} = yield api.dfuse.queryTransactionsCursor(operations_cursor);
+    const {data} = yield api.dfuse.queryTransactionsCursor(permissioner, operations_cursor);
     if(data) {
         yield put(apendBlockchainOperations(data))
     }
@@ -79,7 +81,8 @@ function* loadOldBlockchainOperationsSaga() {
 }
 
 function* loadNewBlockchainOperationsSaga() {
-  const { last_block } = store.getState().operations;
+  const { permissioner }   = store.getState().login.current_account;
+  const { last_block }     = store.getState().operations;
   if(!last_block)
   {    
     yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
@@ -88,7 +91,7 @@ function* loadNewBlockchainOperationsSaga() {
   
   try{
     // const {data} = yield api.dfuse.allTransactionsSince(last_block);
-    const {data} = yield api.dfuse.queryTransactionsNew(last_block);
+    const {data} = yield api.dfuse.queryTransactionsNew(permissioner, last_block);
     if(data) {
         yield put(prependBlockchainOperations(data))
     }
@@ -115,7 +118,7 @@ function* initOperationsReduxSaga () {
 
 //Se envan las sagas a redux estableciendo que y cuantas veces dispara la función
 store.injectSaga('operations', [
-  takeEvery(core.INIT, initOperationsReduxSaga),
+  // takeEvery(core.INIT, initOperationsReduxSaga),
   takeEvery(LOAD_BLOCKCHAIN_OPERATIONS, loadBlockchainOperationsSaga),
   takeEvery(LOAD_OLD_BLOCKCHAIN_OPERATIONS,  loadOldBlockchainOperationsSaga),
   takeEvery(LOAD_NEW_BLOCKCHAIN_OPERATIONS,  loadNewBlockchainOperationsSaga),

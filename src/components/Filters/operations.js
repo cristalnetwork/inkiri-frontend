@@ -25,12 +25,13 @@ const OperationsFilter = (props) => {
     const [is_admin, setIsAdmin]       = useState(props.isAdmin);
     const [callback, setCallback]      = useState(props.callback);
     const [key, setKey]                = useState(props.the_key);
-    
+
     const default_filter               = { 
         operation_type:   undefined     // ['ALL']
         , date_range:     [null, null]
         , account_type:   undefined     // ['ALL']
         , search_text:    ''
+        , in_out:         undefined
     };
 
     const [filter, setFilter]          = useState(props.filter||default_filter);
@@ -159,12 +160,15 @@ const OperationsFilter = (props) => {
             , 'multiple'
             , dropdownRender
             , undefined) }
-        
-        { form_helper.getDateRangeItem (_form
+
+        { form_helper.getSelectItem(_form
             , filter
-            , 'date_range'
-            , 'Date Range'
-            , undefined
+            , 'in_out'
+            , renderSelectInOutOptions()
+            , 'IN / OUT'
+            , 'IN / OUT'
+            , 'multiple'
+            , dropdownRender
             , undefined) }
 
         { form_helper.getSelectItem(_form
@@ -177,6 +181,14 @@ const OperationsFilter = (props) => {
             , dropdownRender
             , undefined) }
 
+        { form_helper.getDateRangeItem (_form
+            , filter
+            , 'date_range'
+            , 'Date Range'
+            , undefined
+            , undefined) }
+
+        
         
         <Form.Item style={{alignSelf:'flex-end', alignItems:'flex-end', flex:1}}>
           <Button htmlType="submit">
