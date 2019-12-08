@@ -1,8 +1,7 @@
 import * as globalCfg from '@app/configs/global';
 import { createDfuseClient, DfuseClient } from "@dfuse/client";
-import * as txsHelper from './transactionHelper';
+import * as txsHelper from './txs-helper';
 import * as jwtHelper from './jwt-helper';
-import * as graphql_data from './graphql_data.json';
 
 // Item format:
 // {
@@ -249,54 +248,6 @@ export const listPAPPayments = async (account_name, provider, customer, cursor) 
   
   const query = `action:${globalCfg.bank.table_paps_charge}  account:${globalCfg.currency.token} data.from:${customer} data.to:${provider}`;
   
-  // const searchTransactions = `query ($limit: Int64!, $irreversibleOnly: Boolean) {
-  //   searchTransactionsBackward(query: "${query}", limit: $limit, irreversibleOnly: $irreversibleOnly) {
-  //     cursor
-  //     results {
-  //                 trace {
-                      
-  //                     id topLevelActions {
-  //                         account
-  //                         name
-  //                         authorization {
-  //                             actor
-  //                             permission
-
-  //                         }
-  //                         data
-  //                     }
-  //                 }
-  //             }
-  //   }
-  // }`;
-
-  // let client = createClient();
-  // try {
-  //   const response = await client.graphql(searchTransactions, {
-  //     variables: { limit: 100 , irreversibleOnly: false}
-  //   })
-
-  //   // console.log(response)
-  //   const results = response.data.searchTransactionsBackward.results || []
-  //   if (results.length <= 0) {
-  //     res ({data:{txs:[], cursor:''}})
-  //     console.log("Oups nothing found")
-  //     return;
-  //   }
-
-  //   console.log(' dfuse::listPAPPayments >> RAW data >>', JSON.stringify(response));
-
-  //   const txs = transformTransactionsImpl(results, account_name);
-  //   // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
-  //   res ({data:{txs:txs, cursor:response.cursor}})
-    
-  // } catch (error) {
-  //   rej(error);
-  //   console.log("An error occurred", error)
-  // }
-
-  // client.release()
-
   console.log('listPAPPayments:', query);
   let options = { 
     limit: globalCfg.dfuse.default_page_size 
@@ -333,7 +284,7 @@ query{
     , lowBlockNum: 62421551) {
        cursor 
       results { 
-        block { num id }
+        block { num id timestamp }
         undo trace { 
           id 
           topLevelActions {
@@ -351,6 +302,59 @@ query{
 }
 
 */
+
+export const queryTransactions = async (account_name, last_block) => new Promise(async(res,rej)=> {
+  const query = `account:${globalCfg.currency.token}`;
+  const searchTransactions = `query ($limit: Int64, $irreversibleOnly:Boolean, $lowBlockNum:Int64){
+    searchTransactionsForward(query: "${query}", limit: $limit, irreversibleOnly: $irreversibleOnly, lowBlockNum: $lowBlockNum) {
+      cursor 
+      results { 
+        block { num id timestamp}
+        undo trace { 
+          id 
+          topLevelActions {
+            account
+            name
+            authorization {
+                actor
+                permission
+            }
+            data
+        }
+        } 
+      }
+    }
+  }`;
+
+  let client = createClient();
+  try {
+    const response = await client.graphql(searchTransactions, {
+      variables: { limit: 100 , irreversibleOnly: false, lowBlockNum: last_block||null}
+    })
+
+    console.log(response)
+    const results = response.data.searchTransactionsForward.results || []
+    if (results.length <= 0) {
+      res ({data:{txs:[], cursor:''}})
+      console.log("Oups nothing found")
+      return;
+    }
+
+    console.log(' dfuse::listPAPPayments >> RAW data >>', JSON.stringify(response));
+
+    const txs = transformTransactionsImpl(results, account_name);
+    // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
+    res ({data:{txs:txs.reverse(), cursor:response.cursor}})
+    
+  } catch (error) {
+    rej(error);
+    console.log("An error occurred", error)
+  }
+
+  client.release()
+
+});
+
 export const allTransactionsSince = (start_block)          => listTransactions(null, undefined, undefined, start_block);
 export const allTransactions      = (cursor)               => listTransactions(null, cursor);
 export const incomingTransactions = (account_name, cursor) => listTransactions(account_name, cursor, true);
@@ -371,8 +375,9 @@ export const incomingTransactions = (account_name, cursor) => listTransactions(a
 */
 export const listTransactions = (account_name, cursor, received, start_block) => new Promise((res,rej)=> {
 	
-  // res(graphql_data);
-  // return;
+  rej('')
+  return;
+
   // const query = 'account:' + globalCfg.currency.token + ' (data.from:'+account_name+' OR data.to:'+account_name+')'
   const query = (account_name)
     ?(
@@ -419,9 +424,6 @@ export const listTransactions = (account_name, cursor, received, start_block) =>
 })	
 
 // Extract tx_id from push transaction result
-/*
-{"transaction_id":"0229d296bd4bb7fc0e049b30d460e80c2c7c24e5f16bb15f2691c0f7f848ab46","processed":{"id":"0229d296bd4bb7fc0e049b30d460e80c2c7c24e5f16bb15f2691c0f7f848ab46","block_num":43312771,"block_time":"2019-08-08T16:29:01.000","producer_block_id":null,"receipt":{"status":"executed","cpu_usage_us":2382,"net_usage_words":16},"elapsed":2382,"net_usage":128,"scheduled":false,"action_traces":[{"action_ordinal":1,"creator_action_ordinal":0,"closest_unnotified_ancestor_action_ordinal":0,"receipt":{"receiver":"inkiritoken1","act_digest":"869b3e03441b82e3f5f775be71d10c07b8e872e91077ad3a92f0d62feea2280a","global_sequence":462147232,"recv_sequence":18,"auth_sequence":[["inkpersonal1",10]],"code_sequence":1,"abi_sequence":1},"receiver":"inkiritoken1","act":{"account":"inkiritoken1","name":"transfer","authorization":[{"actor":"inkpersonal1","permission":"active"}],"data":{"from":"inkpersonal1","to":"ikadminoooo1","quantity":"1.1000 INK","memo":"snd"},"hex_data":"10a299145f55e1741028a5743a990c74f82a00000000000004494e4b0000000003736e64"},"context_free":false,"elapsed":1850,"console":"","trx_id":"0229d296bd4bb7fc0e049b30d460e80c2c7c24e5f16bb15f2691c0f7f848ab46","block_num":43312771,"block_time":"2019-08-08T16:29:01.000","producer_block_id":null,"account_ram_deltas":[],"except":null,"error_code":null,"inline_traces":[{"action_ordinal":2,"creator_action_ordinal":1,"closest_unnotified_ancestor_action_ordinal":1,"receipt":{"receiver":"inkpersonal1","act_digest":"869b3e03441b82e3f5f775be71d10c07b8e872e91077ad3a92f0d62feea2280a","global_sequence":462147233,"recv_sequence":8,"auth_sequence":[["inkpersonal1",11]],"code_sequence":1,"abi_sequence":1},"receiver":"inkpersonal1","act":{"account":"inkiritoken1","name":"transfer","authorization":[{"actor":"inkpersonal1","permission":"active"}],"data":{"from":"inkpersonal1","to":"ikadminoooo1","quantity":"1.1000 INK","memo":"snd"},"hex_data":"10a299145f55e1741028a5743a990c74f82a00000000000004494e4b0000000003736e64"},"context_free":false,"elapsed":7,"console":"","trx_id":"0229d296bd4bb7fc0e049b30d460e80c2c7c24e5f16bb15f2691c0f7f848ab46","block_num":43312771,"block_time":"2019-08-08T16:29:01.000","producer_block_id":null,"account_ram_deltas":[],"except":null,"error_code":null,"inline_traces":[]},{"action_ordinal":3,"creator_action_ordinal":1,"closest_unnotified_ancestor_action_ordinal":1,"receipt":{"receiver":"ikadminoooo1","act_digest":"869b3e03441b82e3f5f775be71d10c07b8e872e91077ad3a92f0d62feea2280a","global_sequence":462147234,"recv_sequence":25,"auth_sequence":[["inkpersonal1",12]],"code_sequence":1,"abi_sequence":1},"receiver":"ikadminoooo1","act":{"account":"inkiritoken1","name":"transfer","authorization":[{"actor":"inkpersonal1","permission":"active"}],"data":{"from":"inkpersonal1","to":"ikadminoooo1","quantity":"1.1000 INK","memo":"snd"},"hex_data":"10a299145f55e1741028a5743a990c74f82a00000000000004494e4b0000000003736e64"},"context_free":false,"elapsed":34,"console":"","trx_id":"0229d296bd4bb7fc0e049b30d460e80c2c7c24e5f16bb15f2691c0f7f848ab46","block_num":43312771,"block_time":"2019-08-08T16:29:01.000","producer_block_id":null,"account_ram_deltas":[],"except":null,"error_code":null,"inline_traces":[]}]}],"account_ram_delta":null,"except":null,"error_code":null}}
-*/
 export const getBlockExplorerTxLink = (tx_id) => {
 
   return globalCfg.dfuse.getBlockExplorerTxLink( tx_id);

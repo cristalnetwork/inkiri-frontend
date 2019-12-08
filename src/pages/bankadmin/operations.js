@@ -24,8 +24,15 @@ import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimp
 import { DISPLAY_PDA, DISPLAY_EXTERNAL, DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
-
 import * as utils from '@app/utils/utils';
+
+
+
+
+import * as graphql_data from '@app/services/inkiriApi/graphql_data.json';
+
+
+
 
 const { TabPane } = Tabs;
 
@@ -154,7 +161,20 @@ class Operations extends Component {
     return x?x:_default;
   }
 
-  refreshCurrentTable(){
+  refreshCurrentTable = async () => {
+
+
+    // const my_txs = graphql_data._data.data.searchTransactionsForward.results.map(
+    //  (tx) => {
+    //   return api.txsHelper.toReadable(this.props.actualAccountName, tx);
+    // });
+    
+    // const my_txs = await api.dfuse.queryTransactions();
+    // console.log(my_txs);
+    // return;
+
+
+
     const that         = this;
     const {active_tab} = this.state;
 

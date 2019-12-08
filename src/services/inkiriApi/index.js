@@ -8,7 +8,7 @@ import * as jwt from './jwt-helper.js';
 import * as pap_helper from './pre-auth-payments.helper.js';
 import ecc from 'eosjs-ecc';
 
-import * as txsHelper from './transactionHelper';
+import * as txsHelper from './txs-helper';
 
 // import { Api, JsonRpc, RpcError } from 'eosjs';
 import { Api, JsonRpc } from 'eosjs';
@@ -16,6 +16,7 @@ import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig';
 
 import _ from 'lodash';
 
+export {txsHelper};
 export {nameHelper};
 export {eosHelper};
 export {dfuse};

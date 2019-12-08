@@ -29,7 +29,7 @@ import * as utils from '@app/utils/utils';
 
 import _ from 'lodash';
 
-import * as eos_table_getter from '@app/services/inkiriApi/table_getters';
+import * as eos_table_getter from '@app/services/inkiriApi/eostable-getters';
 
 const STATE_LIST_CONTRACTS         = 'state_list_contracts';
 const STATE_NEW_CHARGE             = 'state_new_charge';

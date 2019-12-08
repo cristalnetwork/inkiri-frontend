@@ -35,10 +35,20 @@ export const deleteFilterKeyValue        = (key)   =>({ type: DELETE_FILTER_KEY_
 
 //Eventos que requieren del async
 function* loadBlockchainOperationsSaga() {
-  const {data} = yield api.dfuse.allTransactions();
-  if(data) {
-      yield put(setBlockchainOperations(data))
+  try
+  {
+    // const {data} = yield api.dfuse.allTransactions();
+    const {data} = yield api.dfuse.queryTransactions();
+    if(data) {
+        yield put(setBlockchainOperations(data))
+    }
   }
+  catch(e){
+    //HACK Mandar error a GLOBAL_ERROR_HANDLER
+    yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
+    return;
+  }
+  
 }
 
 function* loadOldBlockchainOperationsSaga() {
@@ -48,10 +58,20 @@ function* loadOldBlockchainOperationsSaga() {
     yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
     return;
   }
-  const {data} = yield api.dfuse.allTransactions(operations_cursor);
-  if(data) {
-      yield put(apendBlockchainOperations(data))
+
+  try{
+    const {data} = yield api.dfuse.allTransactions(operations_cursor);
+    if(data) {
+        yield put(apendBlockchainOperations(data))
+    }
   }
+  catch(e)
+  {
+    //HACK Mandar error a GLOBAL_ERROR_HANDLER
+    yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
+    return;
+  }
+  
 }
 
 function* loadNewBlockchainOperationsSaga() {
@@ -61,9 +81,18 @@ function* loadNewBlockchainOperationsSaga() {
     yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
     return;
   }
-  const {data} = yield api.dfuse.allTransactionsSince(last_block);
-  if(data) {
-      yield put(prependBlockchainOperations(data))
+  
+  try{
+    const {data} = yield api.dfuse.allTransactionsSince(last_block);
+    if(data) {
+        yield put(prependBlockchainOperations(data))
+    }
+  }
+  catch(e)
+  {
+    //HACK Mandar error a GLOBAL_ERROR_HANDLER
+    yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
+    return;
   }
 }
   

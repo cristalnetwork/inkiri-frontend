@@ -135,10 +135,11 @@ const OperationsFilter = (props) => {
         <AutocompleteAccount 
                 autoFocus 
                 label={'Account name'}
-                required={false}
+                not_required={true}
                 form={_form} 
                 name="account" 
-                wrapped={false}/>
+                without_icon={true}
+                size="default"/>
 
         { form_helper.getSearchItem(_form
             , filter

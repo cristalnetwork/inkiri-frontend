@@ -28,7 +28,7 @@ import * as utils from '@app/utils/utils';
 
 import _ from 'lodash';
 
-import * as eos_table_getter from '@app/services/inkiriApi/table_getters';
+import * as eos_table_getter from '@app/services/inkiriApi/eostable-getters';
 
 const STATE_LIST_SERVICES          = 'state_list_services';
 const STATE_NEW_SERVICE            = 'state_new_service';
