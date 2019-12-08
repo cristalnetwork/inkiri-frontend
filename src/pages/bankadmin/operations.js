@@ -3,7 +3,7 @@ import React, {useState, Component} from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
-import * as opersRedux from '@app/redux/models/operations'
+import * as operationsRedux from '@app/redux/models/operations'
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 
@@ -14,7 +14,7 @@ import { Route, Redirect, withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
+import { Tooltip, Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
 
 import { notification, Table, Divider, Spin } from 'antd';
 
@@ -118,8 +118,17 @@ class Operations extends Component {
         new_state = {...new_state, loading: this.props.isOperationsLoading};
       }
       
+      if(prevProps.filterKeyValues !== this.props.filterKeyValues)
+      {
+        // new_state = {...new_state, filter: this.props.filterKeyValues};        
+      }
+
+      // console.log(' .. operations.did.update...::', this.props.filterKeyValues)
+
       if(Object.keys(new_state).length>0)      
         this.setState(new_state);
+
+
   }
 
   computeStats(txs){
@@ -230,16 +239,30 @@ class Operations extends Component {
     // columns={ columns_helper.getColumnsForOperations(this.onTransactionClick, this.props.actualRoleId)}
     if(active_tab==DISPLAY_ALL_TXS){
       content = (
-        <Table
-          key={"table_"+DISPLAY_ALL_TXS} 
-          rowKey={record => record.id} 
-          loading={this.state.loading} 
-          columns={ columns_helper.getColumnsBlockchainTXsForAdmin(this.onTransactionClick)}
-          dataSource={this.state.txs} 
-          footer={() => this.renderFooter()}
-          pagination={this.state.pagination}
-          scroll={{ x: 700 }}
-          />
+        <>
+          <div className="code-box-actions">
+            <Tooltip title="Refresh! Click to  load new operations.">
+              <Button 
+                type="link" 
+                icon="down" 
+                onClick={() => this.props.loadNewBlockchainOperations()} 
+                style={{color:'#697B8C', width:250}} 
+                disabled={this.props.isOperationsLoading} 
+                />
+            </Tooltip>
+          </div>
+
+          <Table
+            key={"table_"+DISPLAY_ALL_TXS} 
+            rowKey={record => record.id} 
+            loading={this.state.loading} 
+            columns={ columns_helper.getColumnsBlockchainTXsForAdmin(this.onTransactionClick)}
+            dataSource={this.state.txs} 
+            footer={() => this.renderFooter()}
+            pagination={this.state.pagination}
+            scroll={{ x: 700 }}
+            />
+        </>
       );
     }
     // className="styles listCard"
@@ -274,7 +297,7 @@ class Operations extends Component {
             onTabChange={ (key) => this.onTabChange(key)}
             >
           
-            <OperationsFilter />
+            <OperationsFilter the_key="__key__main_operations_list" />
 
             {stats}
             {content}
@@ -302,13 +325,15 @@ export default  (withRouter(connect(
         actualRole:           loginRedux.actualRole(state),
         actualRoleId:         loginRedux.actualRoleId(state),
         
-        operations:             opersRedux.operations(state),
-        isOperationsLoading:    opersRedux.isOperationsLoading(state),
-        operationsCursor:       opersRedux.operationsCursor(state)
+        operations:           operationsRedux.operations(state),
+        isOperationsLoading:  operationsRedux.isOperationsLoading(state),
+        operationsCursor:     operationsRedux.operationsCursor(state),
+        filterKeyValues:      operationsRedux.filterKeyValues(state)
     }),
     (dispatch)=>({
-        loadOldBlockchainOperations:  bindActionCreators(opersRedux.loadOldBlockchainOperations, dispatch),
-        loadBlockchainOperations:     bindActionCreators(opersRedux.loadBlockchainOperations, dispatch),
+        loadOldBlockchainOperations:  bindActionCreators(operationsRedux.loadOldBlockchainOperations, dispatch),
+        loadBlockchainOperations:     bindActionCreators(operationsRedux.loadBlockchainOperations, dispatch),
+        loadNewBlockchainOperations:  bindActionCreators(operationsRedux.loadNewBlockchainOperations, dispatch),
 
         setLastRootMenuFullpath:      bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })

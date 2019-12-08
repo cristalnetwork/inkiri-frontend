@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Icon, Input, DatePicker } from 'antd';
+import { Select, Form, Icon, Input, DatePicker } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as moment from 'moment';
 import 'moment/locale/pt-br';
@@ -12,6 +12,50 @@ export const MONTH_FORMAT           = 'YYYY/MM';
 export const MONTH_FORMAT_HUMANIZED = 'MMMM YYYY';
 export const DATE_FORMAT            = 'YYYY/MM/DD';
 
+export const getSelectItem = (_form, object, field, options, title, placeholder, mode, dropdownRender, required_message) => {
+    
+    const _mode                    = mode?mode:'multiple';
+    const { getFieldDecorator }    = _form;
+    const initial_value            = object?object[field]:'';
+    
+    return (  <Form.Item label={title}>
+                {getFieldDecorator(field, {
+                  rules: [{ required: (required_message!==undefined?true:false), message: required_message }],
+                  initialValue:initial_value
+                })(
+                    <Select 
+                      placeholder={placeholder}
+                      mode={mode}
+                      optionLabelProp="label"
+                      dropdownRender={dropdownRender}
+                      >
+                        {options}
+                    </Select> 
+
+                )}
+              </Form.Item>
+    );
+};
+
+export const getSearchItem = (_form, object, field, title, placeholder, required_message, callback) => {
+    
+    const { getFieldDecorator }    = _form;
+    const initial_value            = object?object[field]:'';
+    
+    return (  <Form.Item label={title}>
+                {getFieldDecorator(field, {
+                  rules: [{ required: (required_message!==undefined?true:false), message: required_message, whitespace: true }],
+                  initialValue:initial_value
+                })(
+                   <Input.Search 
+                      className="styles extraContentSearch" 
+                      placeholder={placeholder} 
+                      /> 
+                )}
+              </Form.Item>
+    );
+};
+//
 export const getInputItem = (_form, object, field, title, required_message, _type, readonly, textarea) => {
     
     const { getFieldDecorator }    = _form;
@@ -44,14 +88,14 @@ export const   getEmailItem = (_form, object, field, title, required_message) =>
     return getInputItem(_form, object, field, title, required_message, 'email');
 }
 
-const getMoment = (value) => {
+export const getMoment = (value) => {
   let moment_value = value;
   if(typeof value === 'number' || typeof value === 'string')
     moment_value = moment(value);
   return moment_value;
 }
 
-export const   getDateItem = (_form, object, field, title, required_message) => {
+export const getDateItem = (_form, object, field, title, required_message) => {
     const { getFieldDecorator }    = _form;
     const initialValue = object?getMoment(object[field]):moment();
     return (<Form.Item label={title}>
@@ -62,7 +106,7 @@ export const   getDateItem = (_form, object, field, title, required_message) => 
               </Form.Item>);
   }
 //
-export const   getMonthItem = (_form, object, field, title, required_message, readonly) => {
+export const getMonthItem = (_form, object, field, title, required_message, readonly) => {
     const { getFieldDecorator }    = _form;
     const _readonly = readonly===true?true:false;
 
@@ -74,6 +118,21 @@ export const   getMonthItem = (_form, object, field, title, required_message, re
               })( <DatePicker.MonthPicker style={{width:'100%'}} format={MONTH_FORMAT} disabled={_readonly}/>)}
               </Form.Item>);
   }
+//
+export const getDateRangeItem = (_form, object, field, title, required_message, format) => {
+    const { getFieldDecorator }    = _form;
+    const _value                   = object[field];
+    const initialValue             = object
+      ?[getMoment(_value[0]), getMoment(_value[1])]
+      :undefined;
+    return (<Form.Item label={title}>
+                {getFieldDecorator(field, {
+                rules: [{ required: (required_message!==undefined), message: required_message }],
+                initialValue: initialValue
+              })( <DatePicker.RangePicker style={{width:'100%'}} format={format||DATE_FORMAT} />)}
+              </Form.Item>);
+  }
+
 //
 export const getTextareaItem = (_form, object, field, title, required_message, readonly) => {
     return getInputItem(_form, object, field, title, required_message, 'string', readonly, true);

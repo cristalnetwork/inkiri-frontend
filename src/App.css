@@ -83,13 +83,14 @@
   height:20px;
   line-height:20px;
 }
-.ant-form-item-label > label{
+
+.filter_form .ant-form-item-label > label{
   color: rgba(0, 0, 0, 0.65)!important;
 }
 
-
+.filter_form .ant-select-dropdown, /* << HACK: Should be like this */
 .ant-select-dropdown{
-  min-width: 250px;
+  min-width: 250px!important;
 }
 
 .filter_wrap {
@@ -321,4 +322,20 @@ h3.fileds_header{
 }
 .ant-table-footer{
   padding: 8px!important;
+}
+
+
+/* pull to refresh :) */
+
+.code-box-actions {
+    padding-top: 12px;
+    text-align: center;
+    border-top: 1px dashed #ebedf0;
+    opacity: .7;
+    transition: opacity .3s;
+}
+
+.code-box-actions:hover
+{
+  opacity:1
 }

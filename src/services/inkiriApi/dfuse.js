@@ -2,6 +2,7 @@ import * as globalCfg from '@app/configs/global';
 import { createDfuseClient, DfuseClient } from "@dfuse/client";
 import * as txsHelper from './transactionHelper';
 import * as jwtHelper from './jwt-helper';
+import * as graphql_data from './graphql_data.json';
 
 // Item format:
 // {
@@ -322,6 +323,34 @@ export const listPAPPayments = async (account_name, provider, customer, cursor) 
 })  
 
 
+/*
+
+https://jungle.eos.dfuse.io/graphiql/?query=cXVlcnl7IAoKCXNlYXJjaFRyYW5zYWN0aW9uc0ZvcndhcmQoCgkJcXVlcnk6ICJhY2NvdW50OmNyaXN0YWx0b2tlbiIKICAgICwgbG93QmxvY2tOdW06IDYyNDIxNTUxKSB7CiAgCSAJY3Vyc29yIAogICAgCXJlc3VsdHMgeyAKICAgICAgICBibG9jayB7IG51bSBpZCB9CiAgICAgICAgdW5kbyB0cmFjZSB7IAogICAgICAgICAgaWQgCiAgICAgICAgICB0b3BMZXZlbEFjdGlvbnMgewogICAgICAgICAgICBhY2NvdW50CiAgICAgICAgICAgIG5hbWUKICAgICAgICAgICAgYXV0aG9yaXphdGlvbiB7CiAgICAgICAgICAgICAgICBhY3RvcgogICAgICAgICAgICAgICAgcGVybWlzc2lvbgogICAgICAgICAgICB9CiAgICAgICAgICAgIGRhdGEKICAgICAgICB9CiAgICAgICAgfSAKICAgICAgfSAKICB9Cn0K
+
+query{ 
+  searchTransactionsForward(
+    query: "account:cristaltoken"
+    , lowBlockNum: 62421551) {
+       cursor 
+      results { 
+        block { num id }
+        undo trace { 
+          id 
+          topLevelActions {
+            account
+            name
+            authorization {
+                actor
+                permission
+            }
+            data
+        }
+        } 
+      } 
+  }
+}
+
+*/
 export const allTransactionsSince = (start_block)          => listTransactions(null, undefined, undefined, start_block);
 export const allTransactions      = (cursor)               => listTransactions(null, cursor);
 export const incomingTransactions = (account_name, cursor) => listTransactions(account_name, cursor, true);
@@ -342,7 +371,8 @@ export const incomingTransactions = (account_name, cursor) => listTransactions(a
 */
 export const listTransactions = (account_name, cursor, received, start_block) => new Promise((res,rej)=> {
 	
-  	
+  // res(graphql_data);
+  // return;
   // const query = 'account:' + globalCfg.currency.token + ' (data.from:'+account_name+' OR data.to:'+account_name+')'
   const query = (account_name)
     ?(
@@ -366,8 +396,9 @@ export const listTransactions = (account_name, cursor, received, start_block) =>
   if(cursor!==undefined)
     options['cursor'] = cursor;
   if(start_block!==undefined)
-    options['startBlock'] = start_block;
+    options['lowBlockNum'] = start_block;
 
+  console.log(' DFUSE TRANSACTION OPTIONS:', JSON.stringify(options))
   let client = createClient();
 	
   client.searchTransactions(

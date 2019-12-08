@@ -33,7 +33,10 @@ class AutocompleteAccount extends Component {
       exclude_list:        props.exclude_list,
       readOnly:            props.readOnly||false, 
       callback:            props.callback,
-      filter:              props.filter||null
+      filter:              props.filter||null,
+      wrapped:             props.wrapped||true,
+      label:               props.label,
+      required:            props.required||true
     };
 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
@@ -58,6 +61,9 @@ class AutocompleteAccount extends Component {
             filter:                this.props.filter||false,
             form:                  this.props.form,
             readOnly:              this.props.readOnly||false, 
+            wrapped:               this.props.wrapped||true,
+            label:                 this.props.label,
+            required:              this.props.required||true
           });
       }
 
@@ -158,7 +164,8 @@ class AutocompleteAccount extends Component {
       return (null);
     //
     const { getFieldDecorator }             = form;
-    const {readOnly, value, data, fetching} = this.state;
+    const {wrapped, readOnly, value, 
+        data, fetching, label, required}    = this.state;
     const {isLoading, name}                 = this.props;
     let selector                            = null;
     //
@@ -176,9 +183,9 @@ class AutocompleteAccount extends Component {
     //
     }
     else{
-      selector = (<Form.Item>
+      selector = (<Form.Item label={label}>
                         {getFieldDecorator(name, {
-                        rules: [{ required: true, message: 'Please choose a customer!' }]
+                        rules: [{ required: required, message: required?'Please choose a customer!':undefined }]
                       })(
                           <AutoComplete 
                             size="large" 
@@ -197,6 +204,9 @@ class AutocompleteAccount extends Component {
                       </Form.Item>);
     }
   //
+    if(!wrapped)
+      return (selector);
+    
     return (<div className="money-transfer__row row-complementary row-complementary-bottom money-transfer__select" >
               <div className="badge badge-extra-small badge-circle addresse-avatar ">
                   <span className="picture">

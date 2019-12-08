@@ -15,6 +15,10 @@ const PREPEND_BLOCKCHAIN_OPERATIONS      = 'operations/PREPEND_BLOCKCHAIN_OPERAT
 
 const END_LOAD_BLOCKCHAIN_OPERATIONS     = 'operations/END_LOAD_BLOCKCHAIN_OPERATIONS'
 
+const TRY_SET_FILTER_KEY_VALUE           = 'operations/TRY_SET_FILTER_KEY_VALUE';
+const SET_FILTER_KEY_VALUE               = 'operations/SET_FILTER_KEY_VALUE';
+const DELETE_FILTER_KEY_VALUE            = 'operations/DELETE_FILTER_KEY_VALUE';
+
 // Creadores de acciones (se pueden usar desde los compoenentes)
 export const loadBlockchainOperations    = ()       =>({ type: LOAD_BLOCKCHAIN_OPERATIONS});
 export const setBlockchainOperations     = (data)   =>({ type: SET_BLOCKCHAIN_OPERATIONS, payload: { data }});
@@ -23,13 +27,14 @@ export const loadOldBlockchainOperations = ()       =>({ type: LOAD_OLD_BLOCKCHA
 export const apendBlockchainOperations   = (data)   =>({ type: APEND_BLOCKCHAIN_OPERATIONS, payload: { data }});
 
 export const loadNewBlockchainOperations = ()       =>({ type: LOAD_NEW_BLOCKCHAIN_OPERATIONS});
-export const prependBlockchainOperations = (data)   =>({ type: PREPEND_BLOCKCHAIN_OPERATIONS, payload: { data }});
+export const prependBlockchainOperations = (data)   =>({ type: PREPEND_BLOCKCHAIN_OPERATIONS, payload: { data:data }});
+
+export const trySetFilterKeyValue        = (key, value)   =>({ type: TRY_SET_FILTER_KEY_VALUE, payload: { key:key, value:value }});
+export const setFilterKeyValue           = (key, value)   =>({ type: SET_FILTER_KEY_VALUE, payload: { key:key, value:value }});
+export const deleteFilterKeyValue        = (key)   =>({ type: DELETE_FILTER_KEY_VALUE, payload: { key:key }});
 
 //Eventos que requieren del async
 function* loadBlockchainOperationsSaga() {
-  
-  return;
-
   const {data} = yield api.dfuse.allTransactions();
   if(data) {
       yield put(setBlockchainOperations(data))
@@ -37,43 +42,37 @@ function* loadBlockchainOperationsSaga() {
 }
 
 function* loadOldBlockchainOperationsSaga() {
-  // console.log(' oeprations-redux :: loadOldBlockchainOperationsSaga')
   const { operations_cursor } = store.getState().operations;
-  // console.log(' oeprations-redux :: loadOldBlockchainOperationsSaga #2 :: ', operations_cursor)
   if(!operations_cursor)
   {  
-    // console.log(' oeprations-redux :: loadOldBlockchainOperationsSaga #3 :: ')
     yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
     return;
   }
-  // console.log(' oeprations-redux :: loadOldBlockchainOperationsSaga #4 :: ')
   const {data} = yield api.dfuse.allTransactions(operations_cursor);
-  // console.log(' oeprations-redux :: loadOldBlockchainOperationsSaga #5 :: ', data)
   if(data) {
       yield put(apendBlockchainOperations(data))
   }
 }
 
 function* loadNewBlockchainOperationsSaga() {
-  // console.log(' oeprations-redux :: loadOldBlockchainOperationsSaga')
   const { last_block } = store.getState().operations;
-  // console.log(' oeprations-redux :: loadOldBlockchainOperationsSaga #2 :: ', operations_cursor)
   if(!last_block)
-  {  
-    // console.log(' oeprations-redux :: loadOldBlockchainOperationsSaga #3 :: ')
+  {    
     yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
     return;
   }
-  // console.log(' oeprations-redux :: loadOldBlockchainOperationsSaga #4 :: ')
   const {data} = yield api.dfuse.allTransactionsSince(last_block);
-  // console.log(' oeprations-redux :: loadOldBlockchainOperationsSaga #5 :: ', data)
   if(data) {
       yield put(prependBlockchainOperations(data))
   }
 }
+  
+function* trySetFiltersSaga({ type, payload }){
+  const {key, value} = payload;
+  yield put(setFilterKeyValue(key, value));
+}
 
 function* initOperationsReduxSaga () {
-  console.log(' operations-redux:: me llamo core?')
   // yield put({type: core.ACTION_START, payload: { loadBlockchainOperations: 'Loading blockahin operations'}})
   yield call(loadBlockchainOperationsSaga)
   // yield put({type: core.ACTION_END, payload: 'loadBlockchainOperations'})
@@ -85,19 +84,24 @@ store.injectSaga('operations', [
   takeEvery(LOAD_BLOCKCHAIN_OPERATIONS, loadBlockchainOperationsSaga),
   takeEvery(LOAD_OLD_BLOCKCHAIN_OPERATIONS,  loadOldBlockchainOperationsSaga),
   takeEvery(LOAD_NEW_BLOCKCHAIN_OPERATIONS,  loadNewBlockchainOperationsSaga),
+
+  takeEvery(TRY_SET_FILTER_KEY_VALUE,  trySetFiltersSaga),
+  
 ]);
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
 export const operations           = (state) => state.operations.operations;
 export const operationsCursor     = (state) => state.operations.operations_cursor;
 export const isOperationsLoading  = (state) => state.operations.is_operations_loading
+export const filterKeyValues      = (state) => state.operations.filter_key_values;
 
 // El reducer del modelo
 const defaultState = {
   operations:             [],
   is_operations_loading:  false,
   last_block:             null,
-  operations_cursor:      null
+  operations_cursor:      null,
+  filter_key_values:      {} 
 }
 
 function reducer(state = defaultState, action = {}) {
@@ -152,8 +156,21 @@ function reducer(state = defaultState, action = {}) {
         ...state
         , operations:              action.payload.data.txs 
         , operations_cursor:       action.payload.data.cursor
-        // , last_block:              last_block 
+        , last_block:              last_block 
         , is_operations_loading:   false
+      }
+    case SET_FILTER_KEY_VALUE:
+      let _filter_key_values = state.filter_key_values;
+      return  {
+        ...state,
+        filter_key_values : { ..._filter_key_values, [action.payload.key] : action.payload.value }
+      }
+    case DELETE_FILTER_KEY_VALUE:
+      let _filter_key_values1 = state.filter_key_values;
+      delete _filter_key_values1[action.payload.key];
+      return  {
+        ...state,
+        filter_key_values : { ..._filter_key_values1 }
       }
     default: return state;
   }
