@@ -211,19 +211,23 @@ export const getButtonIcon = (icon, callback, param) => {
   return (<Button key={Math.random()} size="small" title="Operation details" onClick={()=>{ buttonClick(callback, param) }} icon={icon} />);
 }
 //
-export const getStyledAmount = (request, mp_style, negative) => {
+export const getStyledAmount = (request, negative) => {
 
   const style = {color:((!globalCfg.api.onOkPath(request))?'gray':(negative?'red':'inherit')), fontSize:16};
 
-  if(mp_style)
-    return(
-      <span className="price-tag c-activity-row__price--classic price-tag-billing">
-        <span className={"price-tag-negative-symbol " + (negative?'':'hidden')} style={style}>-</span>
-        <span className="price-tag-fraction" style={style}>{globalCfg.currency.toCurrencyString(request.amount)}</span>
-      </span>
-    );
+  // if(mp_style)
+  //   return(
+  //     <span className="price-tag c-activity-row__price--classic price-tag-billing">
+  //       <span className={"price-tag-negative-symbol " + (negative?'':'hidden')} style={style}>-</span>
+  //       <span className="price-tag-fraction" style={style}>{globalCfg.currency.toCurrencyString(request.amount).replace(' ', /&nbsp;/)}</span>
+  //     </span>
+  //   );
   //
-  return (<span style={style} key={'amount_'+request.id}>{ (negative?'-':'') + globalCfg.currency.toCurrencyString(request.amount)}</span>)
+  const currency_parts = globalCfg.currency.toCurrencyString(request.amount).split(' ');
+  const symbol = currency_parts[0]
+  const amount = currency_parts[1]
+  const negative_symbol = (negative?'-':'');
+  return (<span style={style} key={'amount_'+request.id}> {negative_symbol}&nbsp;<span style={{fontSize:'0.75em'}}>{symbol}</span>&nbsp;{amount} </span>)
 }
 //
 export const getStyledDate = (request) => {

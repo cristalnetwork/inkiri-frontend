@@ -65,7 +65,7 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
                   </div>
                   <div className="ui-info-row__details">
                       <ul>
-                          <li>{is_admin?record.sub_header:record.sub_header_admin_ex}</li>
+                          <li>{is_admin?record.sub_header_admin_ex:record.sub_header}</li>
                           
                       </ul>
                   </div>
@@ -102,11 +102,12 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
       align: 'right',
       dataIndex: 'amount',
       key: 'amount',
+      className:'amount_col',
       render: (amount, record) => {
         const negative = request_helper.blockchain.isNegativeTransaction(record)
         return (
             <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
-              {request_helper.getStyledAmount(record, false, negative)}
+              {request_helper.getStyledAmount(record, negative)}
             </div>
             )
         }
@@ -149,7 +150,7 @@ export const expandedRequestRowRender = (record) => {
       const envelope_id = api.bank.envelopeIdFromRequest(record);
       return <>
           <span key={'envelope_'+record.id}>ENVELOPE ID: <b>{envelope_id}</b></span>
-          <br/><span key={'deposit_currency_'+record.id}>CURRENCT: <b>{record.deposit_currency}</b></span>
+          <br/><span key={'deposit_currency_'+record.id}>CURRENCY: <b>{record.deposit_currency}</b></span>
           <br/>{default_info}
         </>;
     break;
@@ -248,11 +249,12 @@ export const getColumnsForRequests = (callback, is_admin) => {
       align: 'right',
       dataIndex: 'amount',
       key: 'amount',
+      className:'amount_col',
       render: (amount, record) => {
         const negative = request_helper.blockchain.isNegativeTransaction(record)
         return (
             <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
-              {request_helper.getStyledAmount(record, false, negative)}
+              {request_helper.getStyledAmount(record, negative)}
             </div>
             )
         }
@@ -972,7 +974,7 @@ export const columnsForServiceContractPayment = (callback) => {
       const negative = request_helper.blockchain.isNegativeTransaction(record)
       return (
           <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
-            {request_helper.getStyledAmount(record, false, negative)}
+            {request_helper.getStyledAmount(record, negative)}
             {request_helper.getStyledDate(record)}
           </div>
           )

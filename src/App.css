@@ -57,19 +57,40 @@
 /* HACK FOR PAGEHEADER */
 .ant-page-header-ghost {background-color: #fff!important;}
 /*HACK FOR FILTERS*/
+.filter_form{
+  background-color: #f0f0f0;
+  padding:8px; 
+  margin-bottom: 8px; 
+}
 .filter_form.ant-form-inline{
   display: flex!important;
   flex-direction: row!important;
-  justify-content: flex-end!important;
+  justify-content: flex-start!important;
+  /*align-items: flex-end;*/
 }
 .filter_form.ant-form-inline .ant-form-item{
   display: flex!important;
-  flex-direction: column!important;
-  justify-content: flex-start!important;
+  flex-direction: column;
+  /*justify-content: flex-end*/;
+  margin-right: 8px;
 
 }
 .filter_form .ant-form-item-label{
   text-align: left!important;
+}
+
+.ant-form-item-label{
+  height:20px;
+  line-height:20px;
+}
+
+.filter_form .ant-form-item-label > label{
+  color: rgba(0, 0, 0, 0.65)!important;
+}
+
+.filter_form .ant-select-dropdown, /* << HACK: Should be like this */
+.ant-select-dropdown{
+  min-width: 250px!important;
 }
 
 .filter_wrap {
@@ -91,9 +112,15 @@ h3.fileds_header{
 
 
 /*HACK FOR TABLES*/
-.ant-table-thead > tr > th, .ant-table-tbody > tr > td {
+.ant-table-thead > tr > th, .ant-table-tbody > tr > td:not(.amount_col) {
     padding: 8px 8px!important;
     /*overflow-wrap: break-word;*/
+}
+
+.amount_col{
+  padding-right: 0px!important;
+  padding-left: 0px!important;
+  min-width:110px;
 }
 
 .ant-divider-horizontal {
@@ -299,3 +326,23 @@ h3.fileds_header{
 .is_root_menu{
   padding-left: 24px!important;
 }
+.ant-table-footer{
+  padding: 8px!important;
+}
+
+
+/* pull to refresh :) */
+
+.code-box-actions {
+    padding-top: 12px;
+    text-align: center;
+    border-top: 1px dashed #ebedf0;
+    opacity: .7;
+    transition: opacity .3s;
+}
+
+.code-box-actions:hover
+{
+  opacity:1
+}
+

@@ -1,6 +1,6 @@
 import * as globalCfg from '@app/configs/global';
 import { createDfuseClient, DfuseClient } from "@dfuse/client";
-import * as txsHelper from './transactionHelper';
+import * as txsHelper from './txs-helper';
 import * as jwtHelper from './jwt-helper';
 
 // Item format:
@@ -200,102 +200,34 @@ export const transformTransactions = (txs, account_name) => transformTransaction
 const transformTransactionsImpl = (txs, account_name) => {
   
   if (!txs || txs.length <= 0) {
+    console.log(' TRANSFOMR TX txs is empty :( ');
     return [];
   }
   if(!Array.isArray(txs)) 
     txs = [txs];
 
-  // TX info structure:
-  //   id
-  //   block_time
-  //   block_time_number
-  //   transaction_id
-  //   block_num
-  // ACTION info structure:
-  //   {
-  //     "account": "inkiritoken1",
-  //     "name": "any",
-  //     "authorization": [
-  //     {
-  //         "actor": "xxx",
-  //         "permission": "active"
-  //     }],
-  //     "data": { ... }
-  //   }
-  // TX structure from SEARCH:
-  // - info:     -> transaction.lifecycle.execution_trace
-  // - action:   -> transaction.lifecycle.execution_trace.action_traces[0].act
-  // TX structure from EVENT:
-  // - info:     -> transaction.data
-  // - action:   -> transaction.data.trace.act.data
-  
-
-
   const my_txs = txs.map(
      (transaction) => {
-      // const tx_info    =  (is_search_result)
-      //                     ?transaction.lifecycle.execution_trace
-      //                     :transaction.data;
       
-      return txsHelper.toReadable(account_name, transaction);
+      try{
+        const ret = txsHelper.toReadable(account_name, transaction);  
+        return ret;
+      }
+      catch(e)
+      {
+        console.log(' TRANSFOMR TX ERROR#1 => ', JSON.stringify(transaction), JSON.stringify(e))
+        return null;
+      }
 
     })
   
-  return my_txs;
+  return my_txs.filter(tx=> tx!=null);
 }
 
 export const listPAPPayments = async (account_name, provider, customer, cursor) => new Promise(async(res,rej)=> {
   
   const query = `action:${globalCfg.bank.table_paps_charge}  account:${globalCfg.currency.token} data.from:${customer} data.to:${provider}`;
   
-  // const searchTransactions = `query ($limit: Int64!, $irreversibleOnly: Boolean) {
-  //   searchTransactionsBackward(query: "${query}", limit: $limit, irreversibleOnly: $irreversibleOnly) {
-  //     cursor
-  //     results {
-  //                 trace {
-                      
-  //                     id topLevelActions {
-  //                         account
-  //                         name
-  //                         authorization {
-  //                             actor
-  //                             permission
-
-  //                         }
-  //                         data
-  //                     }
-  //                 }
-  //             }
-  //   }
-  // }`;
-
-  // let client = createClient();
-  // try {
-  //   const response = await client.graphql(searchTransactions, {
-  //     variables: { limit: 100 , irreversibleOnly: false}
-  //   })
-
-  //   // console.log(response)
-  //   const results = response.data.searchTransactionsBackward.results || []
-  //   if (results.length <= 0) {
-  //     res ({data:{txs:[], cursor:''}})
-  //     console.log("Oups nothing found")
-  //     return;
-  //   }
-
-  //   console.log(' dfuse::listPAPPayments >> RAW data >>', JSON.stringify(response));
-
-  //   const txs = transformTransactionsImpl(results, account_name);
-  //   // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
-  //   res ({data:{txs:txs, cursor:response.cursor}})
-    
-  // } catch (error) {
-  //   rej(error);
-  //   console.log("An error occurred", error)
-  // }
-
-  // client.release()
-
   console.log('listPAPPayments:', query);
   let options = { 
     limit: globalCfg.dfuse.default_page_size 
@@ -322,17 +254,128 @@ export const listPAPPayments = async (account_name, provider, customer, cursor) 
 })  
 
 
-export const allTransactions      = (cursor)               => listTransactions(null, cursor);
+/*
+
+https://jungle.eos.dfuse.io/graphiql/?query=cXVlcnl7IAoKCXNlYXJjaFRyYW5zYWN0aW9uc0ZvcndhcmQoCgkJcXVlcnk6ICJhY2NvdW50OmNyaXN0YWx0b2tlbiIKICAgICwgbG93QmxvY2tOdW06IDYyNDIxNTUxKSB7CiAgCSAJY3Vyc29yIAogICAgCXJlc3VsdHMgeyAKICAgICAgICBibG9jayB7IG51bSBpZCB9CiAgICAgICAgdW5kbyB0cmFjZSB7IAogICAgICAgICAgaWQgCiAgICAgICAgICB0b3BMZXZlbEFjdGlvbnMgewogICAgICAgICAgICBhY2NvdW50CiAgICAgICAgICAgIG5hbWUKICAgICAgICAgICAgYXV0aG9yaXphdGlvbiB7CiAgICAgICAgICAgICAgICBhY3RvcgogICAgICAgICAgICAgICAgcGVybWlzc2lvbgogICAgICAgICAgICB9CiAgICAgICAgICAgIGRhdGEKICAgICAgICB9CiAgICAgICAgfSAKICAgICAgfSAKICB9Cn0K
+
+query{ 
+  searchTransactionsForward(
+    query: "account:cristaltoken"
+    , lowBlockNum: 62421551) {
+       cursor 
+      results { 
+        block { num id timestamp }
+        undo trace { 
+          id 
+          topLevelActions {
+            account
+            name
+            authorization {
+                actor
+                permission
+            }
+            data
+        }
+        } 
+      } 
+  }
+}
+
+*/
+
+//
+
+/*
+* @param account => {account_name, account_type}
+*/
+export const queryTransactionsNew = (account, last_block) => queryTransactions(account, null, last_block+1);
+export const queryTransactionsCursor = (account, cursor)  => queryTransactions(account, cursor, null);
+export const queryTransactions = async (account, cursor, last_block) => new Promise(async(res,rej)=> {
+  console.log(' queryTransactions => ', account)
+  if(!account)
+    account = {  acount_name:     globalCfg.currency.issuer
+                 , account_type:  globalCfg.bank.ACCOUNT_TYPE_BANK_ADMIN};
+  const {account_name, account_type} = account;                 
+  const query          = {
+        [globalCfg.bank.ACCOUNT_TYPE_BANKADMIN]  : `account:${globalCfg.currency.token}`
+        , [globalCfg.bank.ACCOUNT_TYPE_PERSONAL] : `account: ${globalCfg.currency.token} (data.from:${account_name} OR data.to:${account_name} OR data.account:${account_name})`
+        , [globalCfg.bank.ACCOUNT_TYPE_BUSINESS] : `account: ${globalCfg.currency.token} (data.from:${account_name} OR data.to:${account_name} OR data.account:${account_name})`
+  };
+
+  const searchTransactions = `query ($limit: Int64, $irreversibleOnly:Boolean, $lowBlockNum:Int64, $cursor:String){
+    searchTransactionsForward(query: "${query[account_type]}", limit: $limit, irreversibleOnly: $irreversibleOnly, lowBlockNum: $lowBlockNum, cursor:$cursor) {
+      cursor 
+      results { 
+        block { num id timestamp}
+        undo trace { 
+          id 
+          topLevelActions {
+            account
+            name
+            authorization {
+                actor
+                permission
+            }
+            data
+        }
+        } 
+      }
+    }
+  }`;
+
+  let client = createClient();
+  try {
+    const response = await client.graphql(searchTransactions, {
+      variables: { limit:             100 
+                  , irreversibleOnly: false
+                  , lowBlockNum:      last_block||null
+                  , cursor:           cursor||null
+        }
+    })
+
+    // console.log(response)
+    const results = response.data.searchTransactionsForward.results || []
+    if (results.length <= 0) {
+      res ({data:{txs:[], cursor:''}})
+      console.log("Oups nothing found")
+      return;
+    }
+
+    // console.log(' dfuse::queryTransactions >> RAW data >>', JSON.stringify(response));
+
+    const txs = transformTransactionsImpl(results, account_name);
+    console.log(' DFUSE transformo las txs!!!!!!', txs.length)
+    // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
+    res ({data:{txs:txs.reverse(), cursor:response.data.searchTransactionsForward.cursor}})
+    
+  } catch (error) {
+    rej(error);
+    console.log("An error occurred", error)
+  }
+
+  client.release()
+
+});
+
 export const incomingTransactions = (account_name, cursor) => listTransactions(account_name, cursor, true);
 /*
 *  Retrieves TXs from DFUSE for a given account.
 * account_name
 * cursor
 * received -> undefined (both received and sent) | true (received) | sent (false) 
+*
+*  Options:
+*    blockCount: 10,
+*    cursor: "cursor",
+*    limit: 1,
+*    sort: "desc",
+*    startBlock: 10,
+*    withReversible: true
+*  Source: https://github.com/dfuse-io/client-js/blob/73cce71b5a73b2bf2f21f608d7af17b956cb9e82/src/client/__tests__/client.test.ts
 */
-export const listTransactions = (account_name, cursor, received) => new Promise((res,rej)=> {
+export const listTransactions = (account_name, cursor, received, start_block) => new Promise((res,rej)=> {
 	
-  	
+  
   // const query = 'account:' + globalCfg.currency.token + ' (data.from:'+account_name+' OR data.to:'+account_name+')'
   const query = (account_name)
     ?(
@@ -350,11 +393,15 @@ export const listTransactions = (account_name, cursor, received) => new Promise(
   let options = { 
       limit: globalCfg.dfuse.default_page_size 
       , sort: 'desc'
-      , irreversibleOnly: false
+      // , irreversibleOnly: false
+      , withReversible: true
   };
   if(cursor!==undefined)
     options['cursor'] = cursor;
+  if(start_block!==undefined)
+    options['lowBlockNum'] = start_block;
 
+  console.log(' DFUSE TRANSACTION OPTIONS:', JSON.stringify(options))
   let client = createClient();
 	
   client.searchTransactions(
@@ -375,9 +422,6 @@ export const listTransactions = (account_name, cursor, received) => new Promise(
 })	
 
 // Extract tx_id from push transaction result
-/*
-{"transaction_id":"0229d296bd4bb7fc0e049b30d460e80c2c7c24e5f16bb15f2691c0f7f848ab46","processed":{"id":"0229d296bd4bb7fc0e049b30d460e80c2c7c24e5f16bb15f2691c0f7f848ab46","block_num":43312771,"block_time":"2019-08-08T16:29:01.000","producer_block_id":null,"receipt":{"status":"executed","cpu_usage_us":2382,"net_usage_words":16},"elapsed":2382,"net_usage":128,"scheduled":false,"action_traces":[{"action_ordinal":1,"creator_action_ordinal":0,"closest_unnotified_ancestor_action_ordinal":0,"receipt":{"receiver":"inkiritoken1","act_digest":"869b3e03441b82e3f5f775be71d10c07b8e872e91077ad3a92f0d62feea2280a","global_sequence":462147232,"recv_sequence":18,"auth_sequence":[["inkpersonal1",10]],"code_sequence":1,"abi_sequence":1},"receiver":"inkiritoken1","act":{"account":"inkiritoken1","name":"transfer","authorization":[{"actor":"inkpersonal1","permission":"active"}],"data":{"from":"inkpersonal1","to":"ikadminoooo1","quantity":"1.1000 INK","memo":"snd"},"hex_data":"10a299145f55e1741028a5743a990c74f82a00000000000004494e4b0000000003736e64"},"context_free":false,"elapsed":1850,"console":"","trx_id":"0229d296bd4bb7fc0e049b30d460e80c2c7c24e5f16bb15f2691c0f7f848ab46","block_num":43312771,"block_time":"2019-08-08T16:29:01.000","producer_block_id":null,"account_ram_deltas":[],"except":null,"error_code":null,"inline_traces":[{"action_ordinal":2,"creator_action_ordinal":1,"closest_unnotified_ancestor_action_ordinal":1,"receipt":{"receiver":"inkpersonal1","act_digest":"869b3e03441b82e3f5f775be71d10c07b8e872e91077ad3a92f0d62feea2280a","global_sequence":462147233,"recv_sequence":8,"auth_sequence":[["inkpersonal1",11]],"code_sequence":1,"abi_sequence":1},"receiver":"inkpersonal1","act":{"account":"inkiritoken1","name":"transfer","authorization":[{"actor":"inkpersonal1","permission":"active"}],"data":{"from":"inkpersonal1","to":"ikadminoooo1","quantity":"1.1000 INK","memo":"snd"},"hex_data":"10a299145f55e1741028a5743a990c74f82a00000000000004494e4b0000000003736e64"},"context_free":false,"elapsed":7,"console":"","trx_id":"0229d296bd4bb7fc0e049b30d460e80c2c7c24e5f16bb15f2691c0f7f848ab46","block_num":43312771,"block_time":"2019-08-08T16:29:01.000","producer_block_id":null,"account_ram_deltas":[],"except":null,"error_code":null,"inline_traces":[]},{"action_ordinal":3,"creator_action_ordinal":1,"closest_unnotified_ancestor_action_ordinal":1,"receipt":{"receiver":"ikadminoooo1","act_digest":"869b3e03441b82e3f5f775be71d10c07b8e872e91077ad3a92f0d62feea2280a","global_sequence":462147234,"recv_sequence":25,"auth_sequence":[["inkpersonal1",12]],"code_sequence":1,"abi_sequence":1},"receiver":"ikadminoooo1","act":{"account":"inkiritoken1","name":"transfer","authorization":[{"actor":"inkpersonal1","permission":"active"}],"data":{"from":"inkpersonal1","to":"ikadminoooo1","quantity":"1.1000 INK","memo":"snd"},"hex_data":"10a299145f55e1741028a5743a990c74f82a00000000000004494e4b0000000003736e64"},"context_free":false,"elapsed":34,"console":"","trx_id":"0229d296bd4bb7fc0e049b30d460e80c2c7c24e5f16bb15f2691c0f7f848ab46","block_num":43312771,"block_time":"2019-08-08T16:29:01.000","producer_block_id":null,"account_ram_deltas":[],"except":null,"error_code":null,"inline_traces":[]}]}],"account_ram_delta":null,"except":null,"error_code":null}}
-*/
 export const getBlockExplorerTxLink = (tx_id) => {
 
   return globalCfg.dfuse.getBlockExplorerTxLink( tx_id);

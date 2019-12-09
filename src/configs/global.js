@@ -78,12 +78,12 @@ const bank = {
     if(required_permission_array.length==1)
     {
       const ret = my_perms.indexOf(required_permission_array[0]) >= my_perms.indexOf(my_permission);
-      console.log(required_permission, my_permission, ret)
+      // console.log(required_permission, my_permission, ret)
       return ret;
     }
 
     const ret =  required_permission_array.includes(my_permission);
-    console.log(required_permission, my_permission, ret)
+    // console.log(required_permission, my_permission, ret)
     return ret;
 
   },

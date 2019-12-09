@@ -16,20 +16,22 @@ const { Header, Content, Footer, Sider } = Layout;
 
 const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, itemPath, menuIsCollapsed, collapseMenu, setIsMobile, trySwitchAccount}) => {
     
-    const [collapsed, setCollapse] = useState(0);
-
+    const [__menuIsCollapsed, setMenuIsCollapsed] = useState(menuIsCollapsed);
     // console.log(' >>>>>>  DashboardContainer >> menuIsCollapsed >>' , menuIsCollapsed)
     // const onCollapse = (e) => {
     //   // collapseMenu(!menuIsCollapsed);
     // };
 
+    useEffect(() => {
+      if(__menuIsCollapsed!=menuIsCollapsed)
+        setMenuIsCollapsed(menuIsCollapsed);
+    })
     const isMobile = useMedia({
       id: 'DashboardContainer',
       query: '(max-width: 599px)',
     })[0];
     const logo_mobile = isMobile?' logo_mobile':'';
     if(typeof setIsMobile === 'function' ) {
-      // console.log(' setIsMobile SETEADO!!!!!!!!!!', isMobile)
       setIsMobile(isMobile)
     }
     
@@ -39,7 +41,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
     }
 
     const onCollapse = collapsed => {
-        setCollapse(collapsed)
+        collapseMenu(collapsed)
       };
 
       //collapsed={menuIsCollapsed} 
@@ -47,7 +49,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
         <Layout style={{ minHeight: '100vh' }}>
         <Sider 
           collapsible 
-          collapsed={collapsed} 
+          collapsed={__menuIsCollapsed} 
           onCollapse={onCollapse}
           defaultCollapsed={true} 
           theme="light"
@@ -61,8 +63,10 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
 
             <div className={"logo" + logo_mobile}>
               <a href="/">
-                <img src="/favicons/favicon-32x32.png" />
-                <span>INKIRI BANK</span>
+                <div className="img_container">
+                  <img src="/favicons/favicon-32x32.png" />
+                </div>
+                {__menuIsCollapsed?(null):(<span>INKIRI BANK</span>)}
               </a>
               {isMobile?(<AccountSelector onChange={switchAccount} isMobile={isMobile}/>):(null)}
             </div>
