@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import * as operationsRedux from '@app/redux/models/operations'
+import * as pageRedux from '@app/redux/models/page'
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 
@@ -40,6 +41,8 @@ const tabs = {
 class Operations extends Component {
   constructor(props) {
     super(props);
+
+    
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       
@@ -47,13 +50,16 @@ class Operations extends Component {
       txs:                 props.operations,
       cursor:              props.operationsCursor,
 
+      page_key_values:     props.page_key_values,
       stats:               {},
       
       need_refresh:        {},  
 
       pagination:          { pageSize: 0 , total: 0 },
-      active_tab:          DISPLAY_ALL_TXS
+      // active_tab:          utils .twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_key', DISPLAY_ALL_TXS)
+      active_tab:           DISPLAY_ALL_TXS
     };
+
 
     this.renderFooter               = this.renderFooter.bind(this); 
     this.onTabChange                = this.onTabChange.bind(this);
@@ -126,12 +132,17 @@ class Operations extends Component {
         // new_state = {...new_state, filter: this.props.filterKeyValues};        
       }
 
-      // console.log(' .. operations.did.update...::', this.props.filterKeyValues)
+
+      if(prevProps.page_key_values !== this.props.page_key_values )
+      {
+        // const page_key_values = this.props.page_key_values;
+        // if(page_key_values && page_key_values.active_tab !== this.state.active_tab)
+        //   new_state = {...new_state, active_tab: page_key_values.active_tab};        
+
+      }
 
       if(Object.keys(new_state).length>0)      
         this.setState(new_state);
-
-
   }
 
   computeStats(txs){
@@ -180,9 +191,11 @@ class Operations extends Component {
 
   onTabChange(key) {
     // console.log(key);
-    this.setState({active_tab:key}, ()=>{
+    this.setState({active_tab:key}, 
+        ()=>{
           this.loadBlockchainTXs();
-        })
+        });
+    this.props.setPageKeyValue(this.props.location.pathname, {active_tab:key})
     
   }
   
@@ -318,9 +331,13 @@ export default  (withRouter(connect(
         operations:           operationsRedux.operations(state),
         isOperationsLoading:  operationsRedux.isOperationsLoading(state),
         operationsCursor:     operationsRedux.operationsCursor(state),
-        filterKeyValues:      operationsRedux.filterKeyValues(state)
+        filterKeyValues:      operationsRedux.filterKeyValues(state),
+
+        page_key_values:      pageRedux.pageKeyValues(state),
     }),
     (dispatch)=>({
+        setPageKeyValue:              bindActionCreators(pageRedux.setPageKeyValue, dispatch),
+
         loadOldBlockchainOperations:  bindActionCreators(operationsRedux.loadOldBlockchainOperations, dispatch),
         loadBlockchainOperations:     bindActionCreators(operationsRedux.loadBlockchainOperations, dispatch),
         loadNewBlockchainOperations:  bindActionCreators(operationsRedux.loadNewBlockchainOperations, dispatch),

@@ -38,7 +38,6 @@ function* loadBlockchainOperationsSaga() {
   const { permissioner } = store.getState().login.current_account;
   try
   {
-    // const {data} = yield api.dfuse.allTransactions();
     const {data} = yield api.dfuse.queryTransactions(permissioner );
     console.log(' loadBlockchainOperationsSaga# ABOUT TO PUT!')
     if(data) {
@@ -64,7 +63,6 @@ function* loadOldBlockchainOperationsSaga() {
   }
 
   try{
-    // const {data} = yield api.dfuse.allTransactions(operations_cursor);
     const {data} = yield api.dfuse.queryTransactionsCursor(permissioner, operations_cursor);
     if(data) {
         yield put(apendBlockchainOperations(data))
@@ -90,7 +88,6 @@ function* loadNewBlockchainOperationsSaga() {
   }
   
   try{
-    // const {data} = yield api.dfuse.allTransactionsSince(last_block);
     const {data} = yield api.dfuse.queryTransactionsNew(permissioner, last_block);
     if(data) {
         yield put(prependBlockchainOperations(data))
