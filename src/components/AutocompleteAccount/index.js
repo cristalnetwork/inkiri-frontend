@@ -111,6 +111,7 @@ class AutocompleteAccount extends Component {
       e.preventDefault();
     this.props.loadAccounts();
   }
+  
   openNotificationWithIcon(type, title, message) {
     notification[type]({
       message: title,

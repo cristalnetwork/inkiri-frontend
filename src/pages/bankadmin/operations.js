@@ -16,15 +16,17 @@ import * as components_helper from '@app/components/helper';
 
 import { Tooltip, Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
 
-import { notification, Table, Divider, Spin } from 'antd';
+import {  Table, Divider, Spin } from 'antd';
 
 import OperationsFilter from '@app/components/Filters/operations';
 import TransactionTable from '@app/components/TransactionTable';
 import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimple} from '@app/components/TransactionTable/stats';
 import { DISPLAY_PDA, DISPLAY_EXTERNAL, DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
+
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 import * as utils from '@app/utils/utils';
+import * as ui_helper from '@app/components/helper';
 
 const { TabPane } = Tabs;
 
@@ -53,7 +55,6 @@ class Operations extends Component {
       active_tab:          DISPLAY_ALL_TXS
     };
 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderFooter               = this.renderFooter.bind(this); 
     this.onTabChange                = this.onTabChange.bind(this);
     this.onTableChange              = this.onTableChange.bind(this);
@@ -90,11 +91,14 @@ class Operations extends Component {
   }
 
   componentDidMount(){
-    const {txs} = this.state;
-    if(!txs||txs.length==0)
-      this.props.loadBlockchainOperations();
+    this.loadBlockchainTXs();
   } 
 
+  loadBlockchainTXs = () => {
+    const {txs, active_tab} = this.state;
+    if((!txs||txs.length==0)&&active_tab==DISPLAY_ALL_TXS)
+      this.props.loadBlockchainOperations();
+  }
   componentDidUpdate(prevProps, prevState) 
   {
       let new_state = {};
@@ -174,17 +178,12 @@ class Operations extends Component {
         })
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-  // Component Events
-
   onTabChange(key) {
     // console.log(key);
-    this.setState({active_tab:key})
+    this.setState({active_tab:key}, ()=>{
+          this.loadBlockchainTXs();
+        })
+    
   }
   
   onTableChange(key, txs) {
@@ -310,15 +309,6 @@ class Operations extends Component {
 }
 
 //
-/*
-<Card key="tabs_card" bordered={false}>
-            <Tabs  defaultActiveKey={DISPLAY_ALL_TXS} onChange={this.onTabChange}>
-              <TabPane tab={tabs[DISPLAY_ALL_TXS]}   key={DISPLAY_ALL_TXS} />
-              <TabPane tab={tabs[DISPLAY_PDA]}       key={DISPLAY_PDA} />
-              <TabPane tab={tabs[DISPLAY_EXTERNAL]}  key={DISPLAY_EXTERNAL} />
-            </Tabs>
-          </Card>
-*/
 export default  (withRouter(connect(
     (state)=> ({
         actualAccountName:    loginRedux.actualAccountName(state),

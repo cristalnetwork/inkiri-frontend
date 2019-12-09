@@ -9,9 +9,10 @@ import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 
 import { Button} from 'antd';
-import { notification, Table } from 'antd';
+import { Table } from 'antd';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
+import * as ui_helper from '@app/components/helper';
 
 export const  DISPLAY_ALL_TXS    = 'all_txs';
 export const  DISPLAY_REQUESTS   = 'type_all';
@@ -81,6 +82,7 @@ class TransactionTable extends Component {
     }
     
   }
+
   loadTxs(){
 
     const can_get_more   = this.state.can_get_more;
@@ -106,7 +108,9 @@ class TransactionTable extends Component {
         .then( (res) => {
             that.onNewData(res);
           } ,(ex) => {
-            // console.log('---- ERROR:', JSON.stringify(ex));
+            console.log('---- ERROR:', JSON.stringify(ex));
+            console.log(ex);
+            ui_helper.notif.exceptionNotification("An error occurred fetching data", ex)  
             that.setState({loading:false});  
           } 
         )
@@ -120,7 +124,8 @@ class TransactionTable extends Component {
       .then( (res) => {
           that.onNewData(res);
         } ,(ex) => {
-          // console.log('---- ERROR:', JSON.stringify(ex));
+          console.log('---- ERROR:', JSON.stringify(ex));
+          ui_helper.notif.exceptionNotification("An error occurred fetching data", ex)
           that.setState({loading:false});  
         } 
       );
@@ -141,21 +146,13 @@ class TransactionTable extends Component {
 
     if(!has_received_new_data)
     {
-      this.openNotificationWithIcon("info", "End of transactions","You have reached the end of transaction list!")
+      ui_helper.notif.infoNotification("End of transactions","You have reached the end of transaction list!")
     }
     else
       if(typeof this.props.onChange === 'function') {
         this.props.onChange(this.props.request_type, this.state.txs);
       }
   }
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-
 
   render(){
     return (

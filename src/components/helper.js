@@ -1,6 +1,9 @@
 import React from 'react'
-import { Icon, Button, Breadcrumb } from 'antd';
+import { Icon, Button} from 'antd';
 import { Link } from 'react-router-dom';
+import * as notification from './notification_helper';
+
+export {notification as notif};
 
 export const itemRender = (route, params, routes, paths) => {
   const last = routes.indexOf(route) === routes.length - 1;
@@ -13,17 +16,3 @@ export const itemRender = (route, params, routes, paths) => {
     <Link to={route.path}>{route.breadcrumbName}</Link>
   );
 }
-//
-// export const buildBreadcrumb = (name_function_array) => {
-//   return (<Breadcrumb>
-//       <Breadcrumb.Item href="">
-//         <Icon type="home" />
-//       </Breadcrumb.Item>
-//       {name_function_array.map(item => 
-//       <Breadcrumb.Item href="">
-//         <Icon type="user" />
-//         <span>Application List</span>
-//       </Breadcrumb.Item>
-//       )}
-//     </Breadcrumb>);
-// }

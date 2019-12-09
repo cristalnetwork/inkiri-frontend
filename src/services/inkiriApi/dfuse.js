@@ -357,8 +357,6 @@ export const queryTransactions = async (account, cursor, last_block) => new Prom
 
 });
 
-export const allTransactionsSince = (start_block)          => listTransactions(null, undefined, undefined, start_block);
-export const allTransactions      = (cursor)               => listTransactions(null, cursor);
 export const incomingTransactions = (account_name, cursor) => listTransactions(account_name, cursor, true);
 /*
 *  Retrieves TXs from DFUSE for a given account.
