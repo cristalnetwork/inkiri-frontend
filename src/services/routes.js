@@ -16,6 +16,11 @@ const routes  = {
                         title: 'Extrato',
                     },
                     {
+                        key: routes_config.pathNames.commonExtrato,
+                        path: routes_config.pathNames.commonExtrato,
+                        title: 'Extrato II',
+                    },
+                    {
                         key: routes_config.pathNames.commonDeposit,
                         path: routes_config.pathNames.commonDeposit,
                         title: 'Deposit',
@@ -198,6 +203,11 @@ const routes  = {
                         key:         routes_config.pathNames.businessExtracto,
                         path:        routes_config.pathNames.businessExtracto,
                         title:       'Extrato',
+                    },
+                    {
+                        key: routes_config.pathNames.commonExtrato,
+                        path: routes_config.pathNames.commonExtrato,
+                        title: 'Extrato II',
                     },
                     {
                         key:         routes_config.pathNames.commonDeposit,

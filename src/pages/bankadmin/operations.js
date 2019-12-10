@@ -49,13 +49,13 @@ class Operations extends Component {
       loading:             props.isOperationsLoading,
       txs:                 props.operations,
       cursor:              props.operationsCursor,
-
-      page_key_values:     props.page_key_values,
+      filter_key_values:   props.filterKeyValues,
       stats:               {},
       
       need_refresh:        {},  
 
       pagination:          { pageSize: 0 , total: 0 },
+      page_key_values:     props.page_key_values,
       active_tab:          utils .twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_tab', DISPLAY_ALL_TXS)
       // active_tab:           DISPLAY_ALL_TXS
     };
@@ -97,13 +97,13 @@ class Operations extends Component {
   }
 
   componentDidMount(){
-    // this.loadBlockchainTXs();
+    this.loadBlockchainTXs();
   } 
 
   loadBlockchainTXs = () => {
-    // const {txs, active_tab} = this.state;
-    // if((!txs||txs.length==0)&&active_tab==DISPLAY_ALL_TXS)
-    //   this.props.loadBlockchainOperations();
+    const {txs, active_tab} = this.state;
+    if((!txs||txs.length==0)&&active_tab==DISPLAY_ALL_TXS)
+      this.props.loadBlockchainOperations();
   }
   componentDidUpdate(prevProps, prevState) 
   {
@@ -131,7 +131,6 @@ class Operations extends Component {
       {
         // new_state = {...new_state, filter: this.props.filterKeyValues};        
       }
-
 
       if(prevProps.page_key_values !== this.props.page_key_values )
       {

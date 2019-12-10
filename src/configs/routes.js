@@ -35,6 +35,7 @@ export const pathNames = utils.arrToObj([
     'businessProvidersPayments_Request',
     'businessUnderConstruction',
 
+    'commonExtrato',
     'commonRequestDetails',
     'commontransactionDetails',
     'commonDeposit',
@@ -403,6 +404,14 @@ const common = [
        fileName:     'provider',
        area:         'common',
        path:         'provider-profile',
+       container:    'dashboard',
+       role:         '*'
+    },
+    {
+       key:          pathNames.commonExtrato,
+       fileName:     'extrato',
+       area:         'common',
+       path:         'extrato',
        container:    'dashboard',
        role:         '*'
     }
