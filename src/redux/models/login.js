@@ -4,7 +4,7 @@ import * as globalCfg from '@app/configs/global';
 import { getStorage, clearStorage, setStorage } from '@app/services/localStorage'
 import * as core from './core';
 import * as api from '@app/services/inkiriApi';
-
+import {TRY_DELETE_SESSION} from './page';
 import history from '@app/history.js';
 
 // Constantes
@@ -44,6 +44,7 @@ function* loadLoginData() {
         //yield put(tryLogin(data.account_name, data.password, false))
         const stateData = getLoginDataFromStorage(data);
         // console.log(' >> LOGIN REDUX loadLoginData: ', JSON.stringify(stateData.profile))
+        yield put({ type: TRY_DELETE_SESSION });
         yield put(setLoginData(stateData))
     } else {
         console.log(' -- redux::login::loadLoginData >> could NOT LOGIN', JSON.stringify(data))
@@ -64,6 +65,7 @@ function* tryLoginSaga({ type, payload }) {
             const profile = accounts.profile;
             setStorage(ACCOUNT_DATA, { account_name, password, remember, accounts, master_account, profile })
         }
+        yield put({ type: TRY_DELETE_SESSION });
         yield put(setLoginData({ 
                 userId:             account_name
                 , accounts:         accounts
@@ -101,6 +103,7 @@ function* trySwitchAccountSaga({ type, payload }) {
                                , accounts: stateData.accounts
                                , master_account: stateData.master_account
                                , profile:profile })
+    yield put({ type: TRY_DELETE_SESSION });
     yield put(setLoginData(stateData))
     yield put({ type: TRY_SWITCH_END })
     history.replace('/');
@@ -212,6 +215,7 @@ function reducer(state = defaultState, action = {}) {
             }
         case SET_LOGIN:
             console.log( ' loginREDUX >> action.payload.password >> ' , action.payload.current_account)
+
             return {
                 ...state,
                 // userId             : action.payload.accounts.personalAccount.permissioned.actor
