@@ -25,8 +25,8 @@ const isTokenExpired = (token) => {
   if (token && _jwt_decode) {
     const expires_at = _jwt_decode.expires_at;
     const now = new Date();
-    if(do_log) console.log (' ********************************************')
-    if(do_log) console.log (JSON.stringify(expires_at));
+    do_log && console.log (' ********************************************')
+    do_log && console.log (JSON.stringify(expires_at));
     const expired = (expires_at < Math.floor((new Date()).getTime() / 1000));
     return expired;
   }
@@ -57,7 +57,7 @@ export const getTokenIfNotExpired = (key) => {
   let _token = getTokenFromStorage(key);
   if(!_token) return null;
   let json_token = JSON.parse(_token);
-  if(do_log) console.log( 'jwtHelper::getTokenIfNotExpired >> ', json_token)
+  do_log && console.log( 'jwtHelper::getTokenIfNotExpired >> ', json_token)
   // return (isTokenExpired(json_token.token))?null:json_token.token;
   return isTimestampExpired(json_token.expires_at)?null:json_token.token;
 }
@@ -91,33 +91,46 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
     path = path + '?' + Object.keys(data).map(key => `${key}=${data[key]}`).join('&')
   }
 
-  if(do_log) console.log( ' ###### jwtHelper::apiCall >> path:', path);
-  if(do_log) console.log( ' ###### jwtHelper::apiCall >> method', method || "GET")
-  if(do_log) console.log( ' ###### jwtHelper::apiCall >> fetchOptions.body', JSON.stringify(fetchOptions.body))
-  if(do_log) console.log( ' ###### jwtHelper::apiCall >> fetchOptions.headers', bearer_token)
+  do_log && console.log( ' ###### jwtHelper::apiCall >> path:', path);
+  do_log && console.log( ' ###### jwtHelper::apiCall >> method', method || "GET")
+  do_log && console.log( ' ###### jwtHelper::apiCall >> fetchOptions.body', JSON.stringify(fetchOptions.body))
+  do_log && console.log( ' ###### jwtHelper::apiCall >> fetchOptions.headers', bearer_token)
 
-  
   fetch(path, fetchOptions)
-      .then((resp) => resp.json(), (ex) => { rej(ex) })
+      .then((resp) => resp.json()
+          , (ex) => { 
+            do_log && console.log('ApiCallError#0');
+            do_log && console.log(ex);
+            rej(ex) 
+        })
       .then((data) => {
-        if(do_log) console.log( ' ###### jwtHelper::apiCall >> result:', JSON.stringify(data));
+        do_log && console.log( ' ###### jwtHelper::apiCall >> result:', JSON.stringify(data));
         
         if(!data)
         {
+          do_log && console.log('ApiCallError#0.5');
+          do_log && console.log(data);
           rej('UNKNOWN ERROR!')
+          return;
         }
-        else
+
         if(data && data.error)
         {
-          rej (data.error);
+          do_log && console.log('ApiCallError#1');
+          do_log && console.log(data.error);
+          rej(data.error);
+          return;
         }
-        else
+        
         if(data && data.errors)
         {
-          rej (data.errors[0]);
+          do_log && console.log('ApiCallError#2');
+          do_log && console.log(data.errors);
+          rej(data.errors[0]);
+          return;
         }
-        else
-          res(data);
+
+        res(data);
         // if (store.getState().App.toJS().connectionStatus.status === false) {
         //   store.dispatch(appActions.connectionStatus(true));
         // }
@@ -126,8 +139,10 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
         // if (store.getState().App.toJS().connectionStatus.status === true) {
         //   store.dispatch(appActions.connectionStatus(false));
         // }
-        console.warn({ networkError: err });
-        rej ({ data: { error: err }, networkError: true });
+        do_log && console.log('ApiCallError#3');
+        do_log && console.log(err);
+        // rej ({ data: { error: err }, networkError: true });
+        rej({ error: err , networkError: true });
       });
 
 });

@@ -8,7 +8,7 @@ import * as jwt from './jwt-helper.js';
 import * as pap_helper from './pre-auth-payments.helper.js';
 import ecc from 'eosjs-ecc';
 
-import * as txsHelper from './transactionHelper';
+import * as txsHelper from './txs-helper';
 
 // import { Api, JsonRpc, RpcError } from 'eosjs';
 import { Api, JsonRpc } from 'eosjs';
@@ -16,6 +16,7 @@ import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig';
 
 import _ from 'lodash';
 
+export {txsHelper};
 export {nameHelper};
 export {eosHelper};
 export {dfuse};
@@ -108,7 +109,7 @@ const getAccountImpl = async (account_name) => {
 
 export const getCurrencyStats = async () => { 
   const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
-  console.log('getCurrencyStats.....')
+  // console.log('getCurrencyStats.....')
   const response  = await jsonRpc.get_currency_stats(globalCfg.currency.issuer, globalCfg.currency.eos_symbol)
   // console.log(' API :)', response[globalCfg.currency.eos_symbol]);
   return response[globalCfg.currency.eos_symbol];

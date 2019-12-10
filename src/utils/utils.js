@@ -1,3 +1,14 @@
+
+export const objectValueOrDefault = (obj, key, _default) =>{
+  if(!obj) return _default;
+  return obj[key]||_default
+}
+
+export const twoLevelObjectValueOrDefault = (obj, key, children_key, _default) =>{
+  if(!obj) return _default;
+  return objectValueOrDefault(obj[key], children_key, _default)
+}
+
 export const sliceAndJoinMemo = (s, extra) => {
   if (typeof s !== 'string') 
     s = '';

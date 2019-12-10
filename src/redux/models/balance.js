@@ -50,6 +50,7 @@ function* loadCurrencyStatsSaga() {
 
 function* initBalanceReduxSaga () {
   // yield put({type: core.ACTION_START, payload: { loadCurrencyStats: 'Loading currency stats'}})
+  console.log('balance-redux :: Me llamo core?')
   yield call(loadCurrencyStatsSaga)
   // yield put({type: core.ACTION_END, payload: 'loadCurrencyStats'})
 }
@@ -87,7 +88,7 @@ function reducer(state = defaultState, action = {}) {
       return { ...state
               , is_loading_stats:   false}
     case SET_CURRENCY_STATS: 
-    console.log('SET_CURRENCY_STATS', action.payload.stats)
+    // console.log('SET_CURRENCY_STATS', action.payload.stats)
       return  { ...state
                 , currency_stats:   action.payload.stats
                 , is_loading_stats: false}

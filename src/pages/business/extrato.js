@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
-import * as balanceRedux from '@app/redux/models/balance'
+import * as operationsRedux from '@app/redux/models/operations'
 
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
@@ -14,8 +14,9 @@ import { Route, Redirect, withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Row, Col } from 'antd';
+import { Tooltip, Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Row, Col } from 'antd';
 import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimple} from '@app/components/TransactionTable/stats';
+import OperationsFilter from '@app/components/Filters/operations';
 
 import { notification, Table, Divider, Spin } from 'antd';
 
@@ -50,29 +51,25 @@ class Extrato extends Component {
     super(props);
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
-      loading:             false,
-      txs:                 [],
-      deposits:            [],
+      loading:             props.isOperationsLoading,
+      txs:                 props.operations,
+      cursor:              props.operationsCursor,
+
 
       stats:               {},
       
       need_refresh:        {},  
 
-      cursor:              '',
-      balance:             {},
       pagination:          { pageSize: 0 , total: 0 },
       active_tab:          DISPLAY_ALL_TXS
     };
 
-    this.loadTransactionsForAccount = this.loadTransactionsForAccount.bind(this);  
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderFooter               = this.renderFooter.bind(this); 
-    this.onNewData                  = this.onNewData.bind(this);
     this.onTabChange                = this.onTabChange.bind(this);
     this.onTableChange              = this.onTableChange.bind(this);
     
     this.refreshCurrentTable        = this.refreshCurrentTable.bind(this);
-    this.renderFilterContent        = this.renderFilterContent.bind(this);
 
     this.onTransactionClick         = this.onTransactionClick.bind(this);
     this.onRequestClick             = this.onRequestClick.bind(this);
@@ -102,49 +99,52 @@ class Extrato extends Component {
     })
   }
 
+  
   componentDidMount(){
-    this.loadTransactionsForAccount(true);  
+    const {txs} = this.state;
+    if(!txs||txs.length==0)
+      this.props.loadBlockchainOperations();
   } 
 
-  loadTransactionsForAccount(is_first){
+  componentDidUpdate(prevProps, prevState) 
+  {
+      let new_state = {};
+      if(this.props.isMobile!=prevProps.isMobile)
+      {
+        new_state = {...new_state, isMobile:this.props.isMobile};
+      }
 
-    let account_name = this.props.actualAccountName;
-    // console.log(' pages::business::extrato >> this.props.actualAccountName:', this.props.actualAccountName, ' | fetching history for:', account_name)
-    
-    let that = this;
-    this.setState({loading:true});
-    api.listTransactions(account_name, (is_first===true?undefined:this.state.cursor) )
-      .then( (res) => {
-              that.onNewData(res.data);
-      } ,(ex) => {
-              // console.log(' -- extrato.js::listTransactions ERROR --');
-              // console.log('---- ERROR:', JSON.stringify(ex));
-              that.setState({loading:false});  
-        } 
-      );
-    
-  }
+      if(prevProps.operations !== this.props.operations )
+      {
+        const opers = this.props.operations;
+        const pagination    = {...this.state.pagination};
+        pagination.pageSize = opers.length;
+        pagination.total    = opers.length;
+        new_state = {...new_state, txs: opers, pagination:pagination};
+        this.computeStats(opers);
+        // console.log(JSON.stringify(opers))
+      }
+      if(prevProps.operationsCursor !== this.props.operationsCursor )
+      {
+        new_state = {...new_state, cursor: this.props.operationsCursor};
+      }
+      if(prevProps.isOperationsLoading !== this.props.isOperationsLoading )
+      {
+        new_state = {...new_state, loading: this.props.isOperationsLoading};
+      }
+      
+      if(prevProps.filterKeyValues !== this.props.filterKeyValues)
+      {
+        // new_state = {...new_state, filter: this.props.filterKeyValues};        
+      }
 
-  onNewData(data){
-    
-    const _txs          = [...this.state.txs, ...data.txs];
-    const pagination    = {...this.state.pagination};
-    pagination.pageSize = _txs.length;
-    pagination.total    = _txs.length;
+      // console.log(' .. operations.did.update...::', this.props.filterKeyValues)
 
-    // console.log(' >> BUSINESS EXTRATO >> data:', JSON.stringify(data.txs));
-    // console.log(' >>>>>>>>>>> this.state.cursor:', this.state.cursor)
-    // console.log(' >>>>>>>>>>> data.cursor:', data.cursor)
-    this.setState({pagination:pagination, txs:_txs, cursor:data.cursor, loading:false})
+      if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
 
-    if(!data.txs || data.txs.length==0)
-    {
-      this.openNotificationWithIcon("info", "End of transactions","You have reached the end of transaction list!")
-    }
-    else{
-      this.computeStats();
-    }
-  }
+
+  } 
 
   computeStats(txs){
     let stats = this.currentStats();
@@ -171,14 +171,11 @@ class Extrato extends Component {
 
   refreshCurrentTable(){
     const that = this;
+    const {active_tab} = this.state;
     
-    if(this.state.active_tab==DISPLAY_ALL_TXS)
+    if(active_tab==DISPLAY_ALL_TXS)
     {
-      this.setState(
-        {txs:[]}
-        , ()=>{
-          that.loadTransactionsForAccount(true);
-        })
+      this.props.loadBlockchainOperations();
       return;
     }
 
@@ -211,85 +208,7 @@ class Extrato extends Component {
     if(key==this.state.active_tab )
       this.computeStats(txs);
   }
-
-  /* *********************************
-   * Begin RENDER section
-  */
-  
-  //
-  renderSelectTxTypeOptions(){
-    return (
-      globalCfg.api.getTypes().map( tx_type => {return(<Option key={'option'+tx_type} value={tx_type} label={utils.firsts(tx_type.split('_')[1])}>{ utils.capitalize(tx_type.split('_')[1]) } </Option>)})
-        )
-  }
-  // 
-  renderSelectInOutOptions(){
-    return (
-      ['all', 'in', 'out'].map( tx_state => {return(<Option key={'option'+tx_state} value={tx_state} label={utils.firsts(tx_state)}>{ utils.capitalize(tx_state) } </Option>)})
-        )
-  }
-  // 
-  renderSelectAccountTypeOptions(){
-    return (
-      globalCfg.bank.listAccountTypes().map( tx_state => {return(<Option key={'option'+tx_state} value={tx_state} label={utils.firsts(tx_state)}>{ utils.capitalize(tx_state) } </Option>)})
-        )
-  }
-  //
-  renderFilterContent() {
-    const dateFormat = 'YYYY/MM/DD';
-    return (
-      <div className="filter_wrap">
-        <Row>
-          <Col span={24}>
-            <Form layout="inline" className="filter_form" onSubmit={this.handleSubmit}>
-              <Form.Item label="Operation">
-                  <Select placeholder="Operation"
-                    mode="multiple"
-                    style={{ minWidth: '250px' }}
-                    defaultValue={['ALL']}
-                    optionLabelProp="label">
-                      {this.renderSelectTxTypeOptions()}
-                  </Select>
-              </Form.Item>
-              <Form.Item label="Date Range">
-                  <RangePicker
-                    defaultValue={[moment('2015/01/01', dateFormat), moment('2015/01/01', dateFormat)]}
-                    format={dateFormat}
-                  />
-              </Form.Item>
-              <Form.Item label="In-Out">
-                <Select placeholder="In-Out"
-                    mode="multiple"
-                    style={{ minWidth: '250px' }}
-                    defaultValue={['ALL']}
-                    optionLabelProp="label">
-                      {this.renderSelectInOutOptions()}
-                  </Select>
-              </Form.Item>
-              <Form.Item label="Account type">
-                <Select placeholder="Account type"
-                    mode="multiple"
-                    style={{ minWidth: '250px' }}
-                    defaultValue={['ALL']}
-                    optionLabelProp="label">
-                      {this.renderSelectAccountTypeOptions()}
-                  </Select>
-              </Form.Item>
-              <Form.Item label="Search">
-                  <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
-              </Form.Item>
-              <Form.Item>
-                <Button htmlType="submit" disabled>
-                  Filter
-                </Button>
-              </Form.Item>
-            </Form>
-          </Col>
-        </Row>
-      </div>
-    );
-  }
-  //
+//
   renderTableViewStats() 
   {
     if(this.state.isMobile)
@@ -307,7 +226,7 @@ class Extrato extends Component {
   }
 
   renderFooter(){
-    return (<><Button key="load-more-data" disabled={!this.state.cursor} onClick={()=>this.loadTransactionsForAccount(false)}>More!!</Button> </>)
+    return (<><Button key="load-more-data" disabled={!this.state.cursor} onClick={()=>this.loadOldBlockchainOperations(false)}>More!!</Button> </>)
   }
 
   renderContent(){
@@ -368,21 +287,34 @@ class Extrato extends Component {
     if(this.state.active_tab==DISPLAY_ALL_TXS){
       
       content = (
-        <Table
-          key={"table_"+DISPLAY_ALL_TXS} 
-          rowKey={record => record.id} 
-          loading={this.state.loading} 
-          columns={ columns_helper.getColumnsBlockchainTXs(this.onTransactionClick)} 
-          dataSource={this.state.txs} 
-          footer={() => this.renderFooter()}
-          pagination={this.state.pagination}
-          scroll={{ x: 700 }}
-          />
+        <>
+          <div className="code-box-actions">
+            <Tooltip title="Refresh! Click to  load new operations.">
+              <Button 
+                type="link" 
+                icon="down" 
+                onClick={() => this.props.loadNewBlockchainOperations()} 
+                style={{color:'#697B8C', width:250}} 
+                disabled={this.props.isOperationsLoading} 
+                />
+            </Tooltip>
+          </div>
+          <Table
+            key={"table_"+DISPLAY_ALL_TXS} 
+            rowKey={record => record.id} 
+            loading={this.state.loading} 
+            columns={ columns_helper.getColumnsBlockchainTXs(this.onTransactionClick)} 
+            dataSource={this.state.txs} 
+            footer={() => this.renderFooter()}
+            pagination={this.state.pagination}
+            scroll={{ x: 700 }}
+            />
+        </>
       );
     
     }
 
-    return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360, marginTop: 24  }}>
+    return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360, marginTop: 0  }}>
       {content}</div>)
   }
   //
@@ -390,7 +322,6 @@ class Extrato extends Component {
     const {routes, active_tab} = this.state;
     const content              = this.renderContent();
     const stats                = this.renderTableViewStats();
-    const filters              = this.renderFilterContent();
     return (
       <>
         <PageHeader
@@ -411,7 +342,7 @@ class Extrato extends Component {
             onTabChange={ (key) => this.onTabChange(key)}
             >
 
-              {filters}
+              <OperationsFilter the_key="__key__main_operations_list" /> 
 
               {stats}
               
@@ -451,9 +382,17 @@ export default  (withRouter(connect(
         actualAccountName:    loginRedux.actualAccountName(state),
         actualRole:           loginRedux.actualRole(state),
         actualRoleId:         loginRedux.actualRoleId(state),
-        balance:              balanceRedux.userBalanceFormatted(state),
+        
+        operations:           operationsRedux.operations(state),
+        isOperationsLoading:  operationsRedux.isOperationsLoading(state),
+        operationsCursor:     operationsRedux.operationsCursor(state),
+        filterKeyValues:      operationsRedux.filterKeyValues(state)
     }),
     (dispatch)=>({
+        loadOldBlockchainOperations:  bindActionCreators(operationsRedux.loadOldBlockchainOperations, dispatch),
+        loadBlockchainOperations:     bindActionCreators(operationsRedux.loadBlockchainOperations, dispatch),
+        loadNewBlockchainOperations:  bindActionCreators(operationsRedux.loadNewBlockchainOperations, dispatch),
+
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(Extrato)));

@@ -25,7 +25,7 @@ class AutocompleteAccount extends Component {
     const value = props.value || {};
     this.state = {
       fetching:            false,
-      
+      size:                props.size,
       data:                [],
       value:               undefined, // <- This shold receive value prop!
       selected:            undefined,
@@ -33,7 +33,10 @@ class AutocompleteAccount extends Component {
       exclude_list:        props.exclude_list,
       readOnly:            props.readOnly||false, 
       callback:            props.callback,
-      filter:              props.filter||null
+      filter:              props.filter||null,
+      without_icon:        props.without_icon,
+      label:               props.label,
+      not_required:        props.not_required
     };
 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
@@ -53,11 +56,17 @@ class AutocompleteAccount extends Component {
   {
       if(prevProps.filter !== this.props.filter 
           || prevProps.form !== this.props.form ) {
+        // console.log(' --------- per que?')
+        // console.log(this.props.not_required, this.props.size, this.props.without_icon)
         this.setState({
             callback:              this.props.callback,
             filter:                this.props.filter||false,
             form:                  this.props.form,
             readOnly:              this.props.readOnly||false, 
+            without_icon:          this.props.without_icon,
+            label:                 this.props.label,
+            not_required:          this.props.not_required,
+            size:                  this.props.size
           });
       }
 
@@ -102,6 +111,7 @@ class AutocompleteAccount extends Component {
       e.preventDefault();
     this.props.loadAccounts();
   }
+  
   openNotificationWithIcon(type, title, message) {
     notification[type]({
       message: title,
@@ -158,7 +168,8 @@ class AutocompleteAccount extends Component {
       return (null);
     //
     const { getFieldDecorator }             = form;
-    const {readOnly, value, data, fetching} = this.state;
+    const {without_icon, readOnly, value, size,
+        data, fetching, label, not_required}    = this.state;
     const {isLoading, name}                 = this.props;
     let selector                            = null;
     //
@@ -176,12 +187,13 @@ class AutocompleteAccount extends Component {
     //
     }
     else{
-      selector = (<Form.Item>
+      //className="extra-large"
+      selector = (<Form.Item label={label}>
                         {getFieldDecorator(name, {
-                        rules: [{ required: true, message: 'Please choose a customer!' }]
+                        rules: [{ required: !not_required, message: (!not_required)?'Please choose a customer!':undefined }]
                       })(
                           <AutoComplete 
-                            size="large" 
+                            size={size||'large'} 
                             dataSource={data.map(this.renderAccount)} 
                             style={{ width: '100%' }} 
                             onSelect={this.handleChange} 
@@ -189,7 +201,7 @@ class AutocompleteAccount extends Component {
                             filterOption={(inputValue, option) =>
                               option.key.indexOf(inputValue) !== -1
                             }
-                            className="extra-large"
+                            
                             optionLabelProp="value" >
                                <Input suffix={<Button loading={isLoading} type="link" icon="redo" title="Can't find account? Click to reload accounts!!!"  onClick={this.loadAccounts}></Button>} />
                             </AutoComplete>
@@ -197,6 +209,9 @@ class AutocompleteAccount extends Component {
                       </Form.Item>);
     }
   //
+    if(without_icon===true)
+      return (selector);
+    
     return (<div className="money-transfer__row row-complementary row-complementary-bottom money-transfer__select" >
               <div className="badge badge-extra-small badge-circle addresse-avatar ">
                   <span className="picture">

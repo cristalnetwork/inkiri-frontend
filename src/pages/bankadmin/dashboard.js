@@ -38,6 +38,7 @@ class Operations extends Component {
       currencyStats:       props.currencyStats
     };
 
+    
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
   }
   
@@ -70,8 +71,8 @@ class Operations extends Component {
       if(prevProps.currencyStats !== this.props.currencyStats )
       {
         this.setState({currencyStats: this.props.currencyStats});
+        // console.log('dashboard-didupdate-currencyStats:', this.props.currencyStats)
       }
-
   }
   
   openNotificationWithIcon(type, title, message) {
@@ -83,10 +84,10 @@ class Operations extends Component {
   
   renderContent = () => {
 
-    const { visitData, accounts, currencyStats } = this.state;
-    const { isLoadingAccounts, isLoadingCurrencyStats } =  this.props;
+    const { visitData, accounts, currencyStats, operations } = this.state;
+    const { isLoadingAccounts, isLoadingCurrencyStats, isOperationsLoading }      =  this.props;
     
-    console.log('currencyStats:', currencyStats)
+    
 
     return (<>
         
@@ -122,7 +123,6 @@ class Operations extends Component {
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Dashboard"
-          subTitle="Dummy data"
         >
         </PageHeader>
         
@@ -151,9 +151,10 @@ export default  (withRouter(connect(
         actualRole:             loginRedux.actualRole(state),
         actualRoleId:           loginRedux.actualRoleId(state),
         
+        
     }),
     (dispatch)=>({
-        loadAccounts:         bindActionCreators(accountsRedux.loadAccounts, dispatch),        
-        loadCurrencyStats:    bindActionCreators(balanceRedux.loadCurrencyStats, dispatch)        
+        loadAccounts:             bindActionCreators(accountsRedux.loadAccounts, dispatch),        
+        loadCurrencyStats:        bindActionCreators(balanceRedux.loadCurrencyStats, dispatch),
     })
 )(Operations)));
