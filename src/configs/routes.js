@@ -2,13 +2,11 @@ import * as utils from '@app/utils/utils';
 
 export const pathNames = utils.arrToObj([
     'personalDashboard',
-    'personalUnderConstruction',
     'personalExchange',
     
     // 'personalConfiguration',
 
     'bankadminDashboard',
-    'bankadminUnderConstruction',
     'bankadminTransactions',
     'bankadminOperations',
     'bankadminExternalTransfers',
@@ -31,7 +29,6 @@ export const pathNames = utils.arrToObj([
     'businessPaymentsAndServices',
     'businessProvidersPayments',
     'businessProvidersPayments_Request',
-    'businessUnderConstruction',
 
     'commonExtrato',
     'commonRequestDetails',
@@ -55,14 +52,14 @@ export const pathNames = utils.arrToObj([
 ])
 
 const personal =[
-    {
-       key:        pathNames.dashboard,
-       fileName:   'under-construction',
-       area:       'personal',
-       path:       'dashboard',
-       container:  'dashboard',
-       role:       'personal',
-    },
+    // {
+    //    key:        pathNames.dashboard,
+    //    fileName:   'under-construction',
+    //    area:       'personal',
+    //    path:       'dashboard',
+    //    container:  'dashboard',
+    //    role:       'personal',
+    // },
     {
        key:       pathNames.personalWithdraw,
        fileName:  'withdraw',
@@ -81,31 +78,15 @@ const personal =[
 ]
 
 const bankadmin = [
-    {
+     {
        key:        pathNames.bankadminDashboard,
        fileName:   'dashboard',
        area:       'bankadmin',
        path:       'dashboard',
        container:  'dashboard',
        role:       'bankadmin'
-    },
-    {
-        key:       pathNames.bankadminUnderConstruction,
-        fileName:  'under-construction',
-        area:      'bankadmin',
-        path:      'proximamente',
-        container: 'dashboard',
-        role:      'bankadmin'
      },
      {
-       key:        pathNames.bankadminTransactions,
-       fileName:   'under-construction',
-       area:       'bankadmin',
-       path:       'transactions',
-       container:  'dashboard',
-       role:       'bankadmin'
-    },
-    {
        key:       pathNames.bankadminOperations,
        fileName:  'operations',
        area:      'bankadmin',
@@ -221,14 +202,6 @@ const bankadmin = [
 
 const business = [
     {
-        key:       pathNames.businessUnderConstruction,
-        fileName:  'under-construction',
-        area:      'business',
-        path:      'proximamente',
-        container: 'dashboard',
-        role:      'business'
-    },
-    {
        key:         pathNames.businessPDV,
        fileName:    'pdv',
        area:        'business',
@@ -298,14 +271,14 @@ const common = [
      container: 'dashboard' ,
      role:      '*' 
   },
-  {
-     key:       pathNames.commonRequestMoney,
-     fileName:  'under-construction', // fileName: 'sendMoney',
-     area:      'common',
-     path:      'request-money',
-     container: 'dashboard' ,
-     role:      '*' 
-  },
+  // {
+  //    key:       pathNames.commonRequestMoney,
+  //    fileName:  'request-money',
+  //    area:      'common',
+  //    path:      'request-money',
+  //    container: 'dashboard' ,
+  //    role:      '*' 
+  // },
   {
      key:       pathNames.commonConfiguration,
      fileName:  'configuration',

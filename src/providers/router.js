@@ -57,7 +57,7 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           { 
             // history.push(`/common/contracted-services`);
             history.push(`/common/services`);
-            // history.push(`/${actualRole}/extrato`);
+            // history.push(`/common/extrato`);
             // history.push(`/common/salaries`);
             // history.push(`/common/crew`);   
             // history.push(`/common/configuration`);
@@ -82,7 +82,7 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
               // history.push(`/common/send`);
               // history.push(`/common/deposit`);
               //history.push(`/${actualRole}/dashboard`);
-              history.push(`/${actualRole}/extrato`);
+              history.push(`/common/extrato`);
               
           }
           

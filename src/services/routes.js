@@ -37,18 +37,18 @@ const routes  = {
                     }
                 ]
             },
-            {
-                key: 'personal_receive_money',
-                title: 'Receive',
-                icon: 'plus-square',
-                items: [
-                    {
-                        key: routes_config.pathNames.commonRequestMoney,
-                        path: routes_config.pathNames.personalUnderConstruction,
-                        title: 'Request money',
-                    }
-                ]
-            },
+            // {
+            //     key: 'personal_receive_money',
+            //     title: 'Receive',
+            //     icon: 'plus-square',
+            //     items: [
+            //         {
+            //             key: routes_config.pathNames.commonRequestMoney,
+            //             path: routes_config.pathNames.commonRequestMoney,
+            //             title: 'Request money',
+            //         }
+            //     ]
+            // },
             {
                 // key: routes_config.pathNames.personalSendMoney,
                 key: 'personal_send_money',
@@ -73,13 +73,6 @@ const routes  = {
                 title: 'Configuration',
                 icon: 'setting',
                 path: routes_config.pathNames.commonConfiguration,
-                // items: [
-                //     {
-                //         key: routes_config.pathNames.personalConfiguration,
-                //         path: routes_config.pathNames.personalUnderConstruction,
-                //         title: 'Configuration'
-                //     }
-                // ]
             }
         ]
     },
@@ -110,11 +103,11 @@ const routes  = {
                         title: 'External Transfers',
 
                     },
-                    {
-                        key: routes_config.pathNames.commonServices,
-                        path: routes_config.pathNames.bankadminUnderConstruction,
-                        title: 'Services - PAP',
-                    },
+                    // {
+                    //     key: routes_config.pathNames.commonServices,
+                    //     path: routes_config.pathNames.commonServices,
+                    //     title: 'Services - PAP',
+                    // },
                     {
                         key: routes_config.pathNames.bankadminIugu,
                         path: routes_config.pathNames.bankadminIugu,
@@ -149,18 +142,18 @@ const routes  = {
                         path:         routes_config.pathNames.bankadminPDA,
                         title:        'PDA',
                     },
-                    {
-                        key:          routes_config.pathNames.commonServices,
-                        path:         routes_config.pathNames.bankadminUnderConstruction,
-                        title:        'Serviços oferecidos',
-                        permission:   'active'
-                    },
-                    {
-                        key:          routes_config.pathNames.commonContractedServices,
-                        path:         routes_config.pathNames.bankadminUnderConstruction,
-                        title:        'Serviços Contratados',
-                        permission:   'active'
-                    },
+                    // {
+                    //     key:          routes_config.pathNames.commonServices,
+                    //     path:         routes_config.pathNames.commonServices,
+                    //     title:        'Serviços oferecidos',
+                    //     permission:   'active'
+                    // },
+                    // {
+                    //     key:          routes_config.pathNames.commonContractedServices,
+                    //     path:         routes_config.pathNames.commonContractedServices,
+                    //     title:        'Serviços Contratados',
+                    //     permission:   'active'
+                    // },
 
                 ]
             },
