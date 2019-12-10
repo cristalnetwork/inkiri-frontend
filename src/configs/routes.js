@@ -3,7 +3,6 @@ import * as utils from '@app/utils/utils';
 export const pathNames = utils.arrToObj([
     'personalDashboard',
     'personalUnderConstruction',
-    'personalExtracto',
     'personalExchange',
     
     // 'personalConfiguration',
@@ -28,7 +27,6 @@ export const pathNames = utils.arrToObj([
     'bankadminPDA_ProcessRequest',
     'bankadminStaff',
     
-    'businessExtracto',
     'businessPDV',
     'businessPaymentsAndServices',
     'businessProvidersPayments',
@@ -79,13 +77,7 @@ const personal =[
        path:       'exchange',
        container:  'dashboard' 
     },
-    {
-       key:         pathNames.personalExtracto,
-       fileName:    'extrato',
-       area:        'personal',
-       path:        'extrato',
-       container:   'dashboard' 
-    }
+    
 ]
 
 const bankadmin = [
@@ -236,15 +228,6 @@ const business = [
         container: 'dashboard',
         role:      'business'
     },
-    {
-       key:         pathNames.businessExtracto,
-       fileName:    'extrato',
-       area:        'business',
-       path:        'extrato',
-       container:   'dashboard',
-       role:        'business'
-    },
-
     {
        key:         pathNames.businessPDV,
        fileName:    'pdv',

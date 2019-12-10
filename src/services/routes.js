@@ -10,15 +10,15 @@ const routes  = {
                 title: 'My money',
                 icon: 'wallet',
                 items: [
-                    {
-                        key: routes_config.pathNames.personalExtracto,
-                        path: routes_config.pathNames.personalExtracto,
-                        title: 'Extrato',
-                    },
+                    // {
+                    //     key: routes_config.pathNames.personalExtracto,
+                    //     path: routes_config.pathNames.personalExtracto,
+                    //     title: 'Extrato',
+                    // },
                     {
                         key: routes_config.pathNames.commonExtrato,
                         path: routes_config.pathNames.commonExtrato,
-                        title: 'Extrato II',
+                        title: 'Extrato',
                     },
                     {
                         key: routes_config.pathNames.commonDeposit,
@@ -199,15 +199,15 @@ const routes  = {
                 title:    'My money',
                 icon:     'wallet',
                 items: [
-                    {
-                        key:         routes_config.pathNames.businessExtracto,
-                        path:        routes_config.pathNames.businessExtracto,
-                        title:       'Extrato',
-                    },
+                    // {
+                    //     key:         routes_config.pathNames.businessExtracto,
+                    //     path:        routes_config.pathNames.businessExtracto,
+                    //     title:       'Extrato',
+                    // },
                     {
                         key: routes_config.pathNames.commonExtrato,
                         path: routes_config.pathNames.commonExtrato,
-                        title: 'Extrato II',
+                        title: 'Extrato',
                     },
                     {
                         key:         routes_config.pathNames.commonDeposit,
