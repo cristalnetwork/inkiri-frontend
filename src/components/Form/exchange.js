@@ -58,7 +58,8 @@ class ExchangeForm extends Component {
 
   getPropsForUploader(name){
     const filelist = this.state.attachments[name] || [];
-    // console.log(' FILELIST OF '+name, JSON.stringify(filelist) )
+    console.log(' -- getPropsForUploader => ', JSON.stringify(filelist));
+    
     return {
       onRemove: file => {
         this.setState(state => {
@@ -85,26 +86,13 @@ class ExchangeForm extends Component {
         return false;
       },
       fileList: filelist,
+      className: filelist.length>0?'icon_color_green':'icon_color_default'
     };
   }
 
   componentDidUpdate(prevProps, prevState) 
   {
     let new_state = {};
-    if(prevProps.isFetching!=this.props.isFetching){
-      new_state = {...new_state, isFetching:this.props.isFetching}
-    }
-    if(prevProps.getErrors!=this.props.getErrors){
-      const ex = this.props.getLastError;
-      new_state = {...new_state, getErrors:this.props.getErrors, result:'error', error:JSON.stringify(ex)}
-      components_helper.notif.exceptionNotification("An error occurred!", ex);
-    }
-    if(prevProps.getResults!=this.props.getResults){
-      // new_state = {...new_state, getResults:this.props.getResults}
-      new_state = {...new_state, getResults:this.props.getResults, result:'ok', result_object:this.props.getLastResult};
-      components_helper.notif.successNotification('Operation completed successfully')
-    }
-
     if(prevProps.profile !== this.props.profile) {
       new_state = {...new_state, 
           profile         : this.props.profile || this.props.actualAccountProfile,
@@ -115,6 +103,21 @@ class ExchangeForm extends Component {
     }
     if(Object.keys(new_state).length>0)      
         this.setState(new_state);
+  }
+
+  componentDidMount() {
+    console.log('if(typeof this.props.onRef===function) ?? ', typeof this.props.onRef)
+    if(typeof this.props.onRef==='function')
+    {
+      console.log('YES')
+      this.props.onRef(this)
+    }
+    else
+      console.log('NO')
+  }
+  componentWillUnmount() {
+    if(typeof this.props.onRef==='function')
+      this.props.onRef(undefined)
   }
 
   getBankAccountById(id){
@@ -185,8 +188,10 @@ class ExchangeForm extends Component {
     });
   };
 
+  reset = () => this.resetForm();
+
   resetForm(){
-    
+    console.log('exchangeForm->ResetForm')
     this.setState({...DEFAULT_STATE});
   }
 
@@ -298,7 +303,7 @@ class ExchangeForm extends Component {
                 <Form.Item>
                     <Upload.Dragger {...notaUploaderProps} multiple={false}>
                       <p className="ant-upload-drag-icon">
-                        <FontAwesomeIcon icon="receipt" size="3x" color="#3db389"/>
+                        <FontAwesomeIcon icon="receipt" size="3x"/>
                       </p>
                       <p className="ant-upload-text">Nota Fiscal</p>
                     </Upload.Dragger>,

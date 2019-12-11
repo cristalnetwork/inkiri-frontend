@@ -167,11 +167,24 @@ class Exchange extends Component {
 
   resetResult(){
     this.setState({...DEFAULT_RESULT});
+    console.log(' resetResult >> resetChildForm ')
+    if(this.childForm)
+    {
+      const that = this;
+      setTimeout(()=> that.childForm.resetForm() ,1000);
+    }
   }
 
   resetPage(){
     
     this.setState({...DEFAULT_RESULT});
+    console.log(' resetPage >> resetChildForm ')
+    if(this.childForm)
+    {
+
+      const that = this;
+      setTimeout(()=> that.childForm.resetForm() ,1000);
+    }
   }
 
   userResultEvent = (evt_type) => {
@@ -202,7 +215,7 @@ class Exchange extends Component {
     
     return (
       <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
-        <ExchangeForm key="exchange_form" alone_component={false} button_text="REQUEST EXCHANGE" callback={this.handleSubmit} />    
+        <ExchangeForm onRef={ref => (this.childForm = ref)}  key="exchange_form" alone_component={false} button_text="REQUEST EXCHANGE" callback={this.handleSubmit} />    
       </Spin>
     );
 
