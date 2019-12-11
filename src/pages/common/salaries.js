@@ -93,14 +93,23 @@ class Salaries extends Component {
     }
     if(prevProps.getErrors!=this.props.getErrors){
       const ex = this.props.getLastError;
-      new_state = {...new_state, getErrors:this.props.getErrors, result:'error', error:JSON.stringify(ex)}
-      components_helper.notif.exceptionNotification("An error occurred!", ex);
+      new_state = {...new_state, 
+          getErrors:     this.props.getErrors, 
+          result:        ex?'error':undefined, 
+          error:         ex?JSON.stringify(ex):null}
+      if(ex)
+        components_helper.notif.exceptionNotification("An error occurred!", ex);
     }
     if(prevProps.getResults!=this.props.getResults){
-      // new_state = {...new_state, getResults:this.props.getResults}
-      new_state = {...new_state, getResults:this.props.getResults, result:'ok', result_object:this.props.getLastResult};
-      components_helper.notif.successNotification('Operation completed successfully')
+      const lastResult = this.props.getLastResult;
+      new_state = {...new_state, 
+        getResults:      this.props.getResults, 
+        result:          lastResult?'ok':undefined, 
+        result_object:   lastResult};
+      if(lastResult)
+        components_helper.notif.successNotification('Operation completed successfully')
     }
+
 
 
     if(Object.keys(new_state).length>0)      
@@ -421,7 +430,7 @@ export default  (withRouter(connect(
         getErrors:          apiRedux.getErrors(state),
         getLastError:       apiRedux.getLastError(state),
         getResults:         apiRedux.getResults(state),
-        getLastResult:      apiRedux.getResults(state)
+        getLastResult:      apiRedux.getLastResult(state)
     }),
     (dispatch)=>({
         callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),

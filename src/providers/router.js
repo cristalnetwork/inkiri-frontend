@@ -55,9 +55,10 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           
           if(actualRole=='business') 
           { 
-            history.push(`/common/salaries`);
+            // history.push(`/common/salaries`);
+            
             // history.push(`/common/send`);
-            // history.push(`/${actualRole}/providers-payments-request`);
+            history.push(`/${actualRole}/providers-payments-request`);
             // history.push(`/common/deposit`);
             // history.push(`/common/withdraw`);
 

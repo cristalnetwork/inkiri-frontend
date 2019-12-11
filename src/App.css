@@ -346,3 +346,10 @@ h3.fileds_header{
 {
   opacity:1
 }
+
+.redoButton{
+  color: rgba(0,0,0,0.85)!important;
+}
+.redoButton:hover{
+  color: #40a9ff!important;
+}

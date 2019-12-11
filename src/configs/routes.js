@@ -220,7 +220,7 @@ const business = [
     {
        key:         pathNames.businessProvidersPayments_Request,
        father_key:  pathNames.businessProvidersPayments,
-       fileName:    'requestPayment',
+       fileName:    'providers-payments-request',
        area:        'business',
        path:        'providers-payments-request',
        container:   'dashboard',
