@@ -80,17 +80,13 @@ class SendMoney extends Component {
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
     if(prevProps.getErrors!=this.props.getErrors){
-      new_state = {...new_state, getErrors:this.props.getErrors}
-    }
-    if(prevProps.getLastError!=this.props.getLastError){
-      // new_state = {...new_state, getLastError:this.props.getLastError}
       const ex = this.props.getLastError;
-      new_state = {...new_state, result:'error', error:JSON.stringify(ex)}
+      new_state = {...new_state, getErrors:this.props.getErrors, result:'error', error:JSON.stringify(ex)}
       components_helper.notif.exceptionNotification("An error occurred!", ex);
     }
     if(prevProps.getResults!=this.props.getResults){
       // new_state = {...new_state, getResults:this.props.getResults}
-      new_state = {...new_state, getResults:this.props.getResults, result:'ok', result_object:this.props.getResults};
+      new_state = {...new_state, getResults:this.props.getResults, result:'ok', result_object:this.props.getLastResult};
       components_helper.notif.successNotification('Operation completed successfully')
     }
 
@@ -478,9 +474,12 @@ export default Form.create() (withRouter(connect(
         getErrors:          apiRedux.getErrors(state),
         getLastError:       apiRedux.getLastError(state),
         getResults:         apiRedux.getResults(state),
+        getLastResult:      apiRedux.getResults(state)
     }),
     (dispatch)=>({
-        loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch),
         callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),
+
+        loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch),
+        
     })
 )(SendMoney) ));
