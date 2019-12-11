@@ -54,9 +54,9 @@ function* callApiExtendedSaga({action, payload}) {
     try{
 
       const result = yield buildAndCall(the_object, step_idx, results); 
-      console.log(`#RESULT[${step_idx}]: ${result}`)
+      // console.log(`#RESULT[${step_idx}]: ${result}`)
       results.push(result);
-      console.log(` ---> RESULTS: ${JSON.stringify(results)}`)
+      // console.log(` ---> RESULTS: ${JSON.stringify(results)}`)
 
     }
     catch(e){
@@ -79,6 +79,7 @@ function* callApiExtendedSaga({action, payload}) {
     }
   }
   
+  console.log(' APISAGA results -> ', JSON.stringify(results))
   yield put(setResult(results));
   yield put(tryRealodAccountState(null)) ;
 

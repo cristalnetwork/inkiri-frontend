@@ -136,9 +136,11 @@ export const expandedRequestRowRender = (record) => {
   switch (record.requested_type){
     case globalCfg.api.TYPE_PROVIDER:
       const blockchain  = record.tx_id?request_helper.getBlockchainLink(record.tx_id, true):(null);
+      
       return (
             <>
               <span key={'tags'+record.id}>Provider:&nbsp;<b>{ request_helper.getRequestProviderDesc(record)}</b></span>
+              {Object.keys(record.provider_extra).map(key => <><br/>{key} = <b>{record.provider_extra[key]}</b></>)}
               <br/> {blockchain}
               <br/>{default_info}
             </>

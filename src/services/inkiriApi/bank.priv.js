@@ -205,6 +205,7 @@ export const rejectService  = (sender, request_id)              => updateRequest
 export const cancelService  = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, true);
 export const acceptServiceRequest = (sender, request_id, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, tx_id, undefined, true);
 export const failedWithdraw = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, false);
+export const failedProviderPay = (sender, request_id)           => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, false);
 
 export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id, is_C2C) => new Promise((res,rej)=> {
   
@@ -701,18 +702,18 @@ export const createWithdraw = (account_name, amount) =>   new Promise((res,rej)=
 //       });
 // });
 
-export const createProviderPaymentEx = (account_name, amount, provider_id, values_array, attachments) =>   new Promise((res,rej)=> {
+export const createProviderPaymentEx = (account_name, amount, provider_id, provider_extra, attachments) =>   new Promise((res,rej)=> {
   
-  delete values_array['provider']; // Hack :(
+  // delete values_array['provider']; // Hack :(
   const path    = globalCfg.api.endpoint + '/requests_files';
   const method  = 'POST';
   const post_params = {
-          ...values_array
-          , 'from':             account_name
+          // ...values_array
+          'from':             account_name
           , 'requested_type':   globalCfg.api.TYPE_PROVIDER
           , 'amount':           Number(amount).toFixed(2)
           , 'provider':         provider_id
-          
+          , 'provider_extra':   provider_extra
         };
 
   let formData = new FormData();
@@ -763,7 +764,7 @@ export const createProviderPaymentEx = (account_name, amount, provider_id, value
 });
 
 export const refundExternal             = (sender, request_id, state, tx_id)       => updateRequest(sender, request_id, state, undefined, tx_id);
-export const updateProviderPayment      = (sender, request_id, state, tx_id)       => updateRequest(sender, request_id, state, tx_id);
+export const updateProviderPayment      = (sender, request_id, tx_id)              => updateRequest(sender, request_id, undefined, tx_id);
 export const cancelExternal             = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined);
 export const processExternal            = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_PROCESSING, undefined);
 export const acceptExternal             = (sender, request_id, attachments)        => updateExternal(sender, request_id, globalCfg.api.STATE_ACCEPTED, attachments);

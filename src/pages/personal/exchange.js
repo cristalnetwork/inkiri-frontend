@@ -102,8 +102,6 @@ class Exchange extends Component {
     const exchange_account = globalCfg.bank.exchange_account; 
     let that               = this;
     
-    const withdraw_account = globalCfg.bank.withdraw_account; 
-    
     const steps= [
       {
         _function:           'bank.createExchangeRequest'
@@ -268,17 +266,15 @@ export default Form.create() (withRouter(connect(
         isLoading:        loginRedux.isLoading(state),
         personalAccount:  loginRedux.personalAccount(state),
         
-        isFetching:           apiRedux.isFetching(state),
-        getErrors:            apiRedux.getErrors(state),
-        getLastError:         apiRedux.getLastError(state),
-        getResults:           apiRedux.getResults(state),
-        getLastResult:        apiRedux.getLastResult(state),
+        isFetching:       apiRedux.isFetching(state),
+        getErrors:        apiRedux.getErrors(state),
+        getLastError:     apiRedux.getLastError(state),
+        getResults:       apiRedux.getResults(state),
+        getLastResult:    apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
-        callAPIEx:            bindActionCreators(apiRedux.callAPIEx, dispatch),
-        clearAll:    bindActionCreators(apiRedux.clearAll, dispatch),
-
-        
+        callAPIEx:        bindActionCreators(apiRedux.callAPIEx, dispatch),
+        clearAll:         bindActionCreators(apiRedux.clearAll, dispatch),
 
     })
 )(Exchange) )
