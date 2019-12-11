@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import * as accountsRedux from '@app/redux/models/accounts'
 import * as loginRedux from '@app/redux/models/login';
 import * as balanceRedux from '@app/redux/models/balance';
+import * as apiRedux from '@app/redux/models/api';
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
@@ -47,7 +48,7 @@ class SendMoney extends Component {
     super(props);
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
-      pushingTx:           false,
+      isFetching:          props.isFetching,
       
       ...DEFAULT_STATE,
       ...DEFAULT_RESULT,
@@ -60,7 +61,6 @@ class SendMoney extends Component {
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetResult                = this.resetResult.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.onInputAmount              = this.onInputAmount.bind(this);
     this.handleChange               = this.handleChange.bind(this);
@@ -73,6 +73,31 @@ class SendMoney extends Component {
     history: PropTypes.object
   };
 
+  componentDidUpdate(prevProps, prevState) 
+  {
+    let new_state = {};
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+    if(prevProps.getErrors!=this.props.getErrors){
+      new_state = {...new_state, getErrors:this.props.getErrors}
+    }
+    if(prevProps.getLastError!=this.props.getLastError){
+      // new_state = {...new_state, getLastError:this.props.getLastError}
+      const ex = this.props.getLastError;
+      new_state = {...new_state, result:'error', error:JSON.stringify(ex)}
+      components_helper.notif.exceptionNotification("An error occurred!", ex);
+    }
+    if(prevProps.getResults!=this.props.getResults){
+      // new_state = {...new_state, getResults:this.props.getResults}
+      new_state = {...new_state, getResults:this.props.getResults, result:'ok', result_object:this.props.getResults};
+      components_helper.notif.successNotification('Operation completed successfully')
+    }
+
+
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
+  }
   onSelect(value) {
     console.log('onSelect', value);
     this.setState({receipt:value})
@@ -147,9 +172,46 @@ class SendMoney extends Component {
     )
   }
   //
-  onInputAmount(event){
-    event.preventDefault();
-    const the_value = event.target.value;
+  // onInputAmount(event){
+  //   event.preventDefault();
+  //   const the_value = event.target.value;
+  //   const _input_amount = this.state.input_amount;
+  //   this.props.form.setFieldsValue({'input_amount.value':the_value})
+  //   this.setState({input_amount: {..._input_amount, value: the_value}}, 
+  //     () => {
+  //       if(the_value && the_value.toString().length){
+  //         const value = the_value.toString();
+  //         var digitCount = value.length > 0 ? value.replace(/\./g,"").replace(/,/g,"").length : 1
+  //         var symbolCount = value.length > 0 ? value.length - digitCount : 0;
+  //         const isMobile = false;
+  //         var size = isMobile ? 48 : 100
+
+  //         if(digitCount > 7){
+  //           size = isMobile ? 40 : 48
+  //         } else if(digitCount > 4){
+  //           size = isMobile ? 48 : 70
+  //         }
+
+  //         const {input_amount} = this.state;
+  //         this.setState({
+  //                 input_amount : {
+  //                   ...input_amount
+  //                   , style :         {fontSize: size, width:(digitCount * (size*0.6))+(symbolCount * (size*0.2)) }
+  //                   , symbol_style: {fontSize:  (size*0.6)}
+  //                 }
+  //               });
+  //       }
+  //     });
+  // }
+
+  onInputAmount(param){
+    let the_value = param;
+    if(typeof param !== 'number' && typeof param !== 'string')
+    {
+      param.preventDefault();
+      the_value = param.target.value;
+    }
+    
     const _input_amount = this.state.input_amount;
     this.props.form.setFieldsValue({'input_amount.value':the_value})
     this.setState({input_amount: {..._input_amount, value: the_value}}, 
@@ -171,7 +233,7 @@ class SendMoney extends Component {
           this.setState({
                   input_amount : {
                     ...input_amount
-                    , style :         {fontSize: size, width:(digitCount * (size*0.6))+(symbolCount * (size*0.2)) }
+                    , style :       {fontSize: size, width:(digitCount * (size*0.6))+(symbolCount * (size*0.2)) }
                     , symbol_style: {fontSize:  (size*0.6)}
                   }
                 });
@@ -254,28 +316,30 @@ class SendMoney extends Component {
       content: 'Please confirm transfer for '+this.inputAmountToString() + ' to ' + receiver,
       onOk() {
 
-              that.setState({pushingTx:true});
-              
-              const promise = _pay?api.sendPayment(sender, privateKey, receiver, amount, memo):api.sendMoney(sender, privateKey, receiver, amount, memo);
-              
-              promise
-              .then((data) => {
-                console.log(' SendMoney::send (then#1) >>  ', JSON.stringify(data));
-                that.setState({result:'ok', pushingTx:false, result_object:data});
-                that.openNotificationWithIcon("success", 'Transfer completed successfully');
+              const _function = _pay?'sendPayment':'sendMoney';
+              that.props.callAPI(_function, [sender, privateKey, receiver, amount, memo])
 
-                setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
+              // const promise = _pay
+              //   ?api.sendPayment(sender, privateKey, receiver, amount, memo)
+              //   :api.sendMoney(sender, privateKey, receiver, amount, memo);
+              
+              // promise
+              // .then((data) => {
+              //   console.log(' SendMoney::send (then#1) >>  ', JSON.stringify(data));
+              //   that.setState({result:'ok', pushingTx:false, result_object:data});
+              //   that.openNotificationWithIcon("success", 'Transfer completed successfully');
 
-              }, (ex) => {
-                console.log(' SendMoney::send (error#1) >>  ', JSON.stringify(ex));
-                that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
-                that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
-              });
+              //   setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
+
+              // }, (ex) => {
+              //   console.log(' SendMoney::send (error#1) >>  ', JSON.stringify(ex));
+              //   that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
+              //   that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+              // });
 
       },
       onCancel() {
         console.log('Cancel');
-        that.setState({pushingTx:false})
       },
     });
   }
@@ -303,10 +367,12 @@ class SendMoney extends Component {
     const option = this.props.isBusiness?this.renderTransferReason():(null);
 
     const { getFieldDecorator }               = this.props.form;
-    const { input_amount, pushingTx}           = this.state;
+    const { input_amount, isFetching}           = this.state;
     return (
-        <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+        <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
+          
           <Form onSubmit={this.handleSubmit}>
+            
             <div className="money-transfer">    
                
               <AutocompleteAccount callback={this.onSelect} form={this.props.form} name="receipt" />
@@ -356,8 +422,8 @@ class SendMoney extends Component {
             </div>
 
             <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="sendButton" htmlType="submit" type="primary" loading={pushingTx} ><FontAwesomeIcon icon="paper-plane" size="1x"/>&nbsp; SEND</Button>
-              <Button size="large" key="payButton" type="link" onClick={this.onPay} style={{marginLeft:8}}loading={pushingTx} ><FontAwesomeIcon icon="shopping-bag" size="1x"/>&nbsp;PAY</Button>
+              <Button size="large" key="sendButton" htmlType="submit" type="primary" loading={isFetching} ><FontAwesomeIcon icon="paper-plane" size="1x"/>&nbsp; SEND</Button>
+              <Button size="large" key="payButton" type="link" onClick={this.onPay} style={{marginLeft:8}}loading={isFetching} ><FontAwesomeIcon icon="shopping-bag" size="1x"/>&nbsp;PAY</Button>
             </div>
 
           </Form>  
@@ -406,9 +472,15 @@ export default Form.create() (withRouter(connect(
 
         accounts:           accountsRedux.accounts(state),
 
-        isBusiness:         loginRedux.isBusiness(state)
+        isBusiness:         loginRedux.isBusiness(state),
+
+        isFetching:         apiRedux.isFetching(state),
+        getErrors:          apiRedux.getErrors(state),
+        getLastError:       apiRedux.getLastError(state),
+        getResults:         apiRedux.getResults(state),
     }),
     (dispatch)=>({
-        loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch)
+        loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch),
+        callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),
     })
 )(SendMoney) ));

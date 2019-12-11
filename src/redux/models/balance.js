@@ -4,7 +4,7 @@ import * as api from '@app/services/inkiriApi'
 import * as core from './core';
 
 // Constantes
-const LOAD_BALANCE             = 'balance/LOAD_BALANCE'
+export const LOAD_BALANCE             = 'balance/LOAD_BALANCE'
 const SET_BALANCE              = 'balance/SET_BALANCE'
 
 const LOAD_CURRENCY_STATS      = 'balance/LOAD_CURRENCY_STATS'
@@ -12,8 +12,8 @@ const END_LOAD_CURRENCY_STATS  = 'balance/END_LOAD_CURRENCY_STATS'
 const SET_CURRENCY_STATS       = 'balance/SET_CURRENCY_STATS'
 
 // Creadores de acciones (se pueden usar desde los compoenentes)
-export const loadBalance         = (key) =>({ type: LOAD_BALANCE, payload: { key } });
-export const setBalance          = ({key, balance}) =>({ type: SET_BALANCE, payload: { key, balance }});
+export const loadBalance         = (account_name) =>({ type: LOAD_BALANCE, payload: { account_name } });
+export const setBalance          = ({account_name, balance}) =>({ type: SET_BALANCE, payload: { account_name, balance }});
 
 export const loadCurrencyStats   = () =>({ type: LOAD_CURRENCY_STATS });
 export const setCurrencyStats    = (stats) =>({ type: SET_CURRENCY_STATS, payload: {stats}});
@@ -21,11 +21,13 @@ export const setCurrencyStats    = (stats) =>({ type: SET_CURRENCY_STATS, payloa
 
 //Eventos que requieren del async
 function* loadBalanceSaga({action, payload}) {
-  const { key } = payload;
-  if(!key) return;
-  const { data }= yield api.getAccountBalance(key);
+  const { account_name } = payload;
+  console.log(' -- loadBalanceSaga (LOAD_BALANCE) me llamaron con account_name:', account_name)
+  if(!account_name) return;
+
+  const { data }= yield api.getAccountBalance(account_name);
   if(data) {
-    yield put(setBalance({key, balance: data}))
+    yield put(setBalance({account_name, balance: data}))
   }
 }
 
@@ -35,9 +37,7 @@ function* loadCurrencyStatsSaga() {
     const data = yield api.getCurrencyStats();
     if(data) {
       yield put(setCurrencyStats(data))
-
-    }
-
+   }
     yield put({ type: END_LOAD_CURRENCY_STATS })
     return;
   }
@@ -95,7 +95,7 @@ function reducer(state = defaultState, action = {}) {
 
     case LOAD_BALANCE: 
       // console.log('*********************', '*********************', ' REDUCER CON USER:', action.payload.key);
-      if(!action.payload.key) return state;
+      if(!action.payload.account_name) return state;
       return {
         ...state,
         isLoading: state.isLoading +1

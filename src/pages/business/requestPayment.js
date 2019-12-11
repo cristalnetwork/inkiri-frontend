@@ -205,7 +205,7 @@ class RequestPayment extends Component {
             .then((data1) => {
 
               const send_tx             = data1;
-              console.log(' SendMoney::send (then#2) >>  ', JSON.stringify(send_tx));
+              console.log(' requestProviderPayment::send (then#2) >>  ', JSON.stringify(send_tx));
               
               api.bank.updateProviderPayment(sender, request_id, undefined, send_tx.data.transaction_id)
                 .then((data2) => {
@@ -223,7 +223,7 @@ class RequestPayment extends Component {
 
             }, (ex1) => {
               
-              console.log(' SendMoney::send (error#2) >>  ', JSON.stringify(ex1));
+              console.log(' requestProviderPayment::send (error#2) >>  ', JSON.stringify(ex1));
               that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
 
             });
