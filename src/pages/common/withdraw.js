@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
 
+import * as apiRedux from '@app/redux/models/api';
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
@@ -42,8 +43,8 @@ class WithdrawMoney extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      pushingTx:    false,
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
+      isFetching:          false,
       ...DEFAULT_STATE,
       ...DEFAULT_RESULT,
 
@@ -52,7 +53,6 @@ class WithdrawMoney extends Component {
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetResult                = this.resetResult.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.onInputAmount              = this.onInputAmount.bind(this);
   }
@@ -66,11 +66,25 @@ class WithdrawMoney extends Component {
     history: PropTypes.object
   };
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
+  componentDidUpdate(prevProps, prevState) 
+  {
+    let new_state = {};
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+    if(prevProps.getErrors!=this.props.getErrors){
+      const ex = this.props.getLastError;
+      new_state = {...new_state, getErrors:this.props.getErrors, result:'error', error:JSON.stringify(ex)}
+      components_helper.notif.exceptionNotification("An error occurred!", ex);
+    }
+    if(prevProps.getResults!=this.props.getResults){
+      // new_state = {...new_state, getResults:this.props.getResults}
+      new_state = {...new_state, getResults:this.props.getResults, result:'ok', result_object:this.props.getLastResult};
+      components_helper.notif.successNotification('Operation completed successfully')
+    }
+
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
   }
 
   backToDashboard = async () => {
@@ -142,21 +156,21 @@ class WithdrawMoney extends Component {
     
     this.props.form.validateFields((err, values) => {
       if(err){
-        this.openNotificationWithIcon("error", 'Form error ', 'Please verify on screen errors.');
+        components_helper.notif.errorNotification('Form error', 'Please verify on screen errors.');
         return;
       }
 
       const {input_amount} = this.state;
       if(isNaN(input_amount.value) || parseFloat(input_amount.value)<=0)
       {
-        that.openNotificationWithIcon("error", this.state.input_amount.value + " > valid number required","Please type a valid number greater than 0!")    
+        components_helper.notif.errorNotification("Input a valid number","Please type a valid number greater than 0.00 !")    
         return;
       }
       
       if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
       {
         const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-        that.openNotificationWithIcon("error", `Amount must be equal or less than your balance ${balance_txt}!`); //`
+        components_helper.notif.errorNotification(`Amount must be equal or less than your balance ${balance_txt}!`); 
         return;
       }
 
@@ -169,51 +183,76 @@ class WithdrawMoney extends Component {
         title: 'Confirm withdraw request',
         content: 'Please confirm withdraw for '+this.inputAmountToString(),
         onOk() {
-          that.setState({pushingTx:true});
-          api.bank.createWithdraw(sender, amount)
-            .then((data)=>{
-              console.log(' >> doWithdraw >> ', JSON.stringify(data));
-              // that.setState({pushingTx:false, result:'ok'})
-              // that.openNotificationWithIcon("success", 'Withdraw requested successfully');
+          
+          const withdraw_account = globalCfg.bank.withdraw_account; 
+          const steps= [
+            {
+              _function:           'bank.createWithdraw'
+              , _params:           [sender, amount]
+            }, 
+            {
+              _function:           'requestWithdraw'
+              , _params:           [sender, privateKey, withdraw_account, amount] 
+              , last_result_param: [{field_name:'id', result_idx_diff:-1}]
+              , on_failure:        {
+                                      _function:           'bank.failedWithdraw'
+                                      , _params:           [sender] 
+                                      , last_result_param: [{field_name:'id', result_idx_diff:-1}]
+                                    }
+            },
+            {
+              _function:           'bank.updateWithdraw'
+              , _params:           [sender] 
+              , last_result_param: [{field_name:'id', result_idx_diff:-2}, {field_name:'transaction_id', result_idx_diff:-1}]
+            },
+          ]
 
-              if(!data || !data.id)
-              {
-                that.setState({result:'error',  pushingTx:false, error:'Cant create request.'});
-                return;
-              }
+          that.props.callAPIEx(steps);
+          // api.bank.createWithdraw(sender, amount)
+          //   .then((data)=>{
+          //     console.log(' >> doWithdraw >> ', JSON.stringify(data));
+          //     // that.setState({pushingTx:false, result:'ok'})
+          //     // that.openNotificationWithIcon("success", 'Withdraw requested successfully');
 
-              const request_id       = data.id;
-              const withdraw_account = globalCfg.bank.withdraw_account; 
+          //     if(!data || !data.id)
+          //     {
+          //       that.setState({result:'error',  pushingTx:false, error:'Cant create request.'});
+          //       return;
+          //     }
 
-              api.requestWithdraw(sender, privateKey, withdraw_account, amount, request_id)
-                .then((data1) => {
+          //     const request_id       = data.id;
+          //     const withdraw_account = globalCfg.bank.withdraw_account; 
 
-                  const send_tx             = data1;
-                  console.log(' withdrawMoney::send (then#2) >>  ', JSON.stringify(send_tx));
+          //     api.requestWithdraw(sender, privateKey, withdraw_account, amount, request_id)
+          //       .then((data1) => {
+
+          //         const send_tx             = data1;
+          //         console.log(' withdrawMoney::send (then#2) >>  ', JSON.stringify(send_tx));
                   
-                  api.bank.updateWithdraw(sender, request_id, undefined, send_tx.data.transaction_id)
-                    .then((data2) => {
+          //         api.bank.updateWithdraw(sender, request_id, send_tx.data.transaction_id)
+          //           .then((data2) => {
 
-                        that.setState({ result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
-                        that.openNotificationWithIcon("success", 'Withdraw requested successfully');
+          //               that.setState({ result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
+          //               that.openNotificationWithIcon("success", 'Withdraw requested successfully');
 
-                      }, (ex2) => {
-                        console.log(' withdrawMoney::send (error#3) >>  ', JSON.stringify(ex2));
-                        that.setState({result:'error',  pushingTx:false, error:JSON.stringify(ex2)});
-                    });
+          //             }, (ex2) => {
 
-                    setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
-                }, (ex1) => {
+          //               console.log(' withdrawMoney::send (error#3) >>  ', JSON.stringify(ex2));
+          //               that.setState({result:'error',  pushingTx:false, error:JSON.stringify(ex2)});
+          //           });
+
+          //           setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
+          //       }, (ex1) => {
                   
-                  console.log(' withdrawMoney::send (error#2) >>  ', JSON.stringify(ex1));
-                  that.setState({result:'error',  pushingTx:false, error:JSON.stringify(ex1)});
+          //         console.log(' withdrawMoney::send (error#2) >>  ', JSON.stringify(ex1));
+          //         that.setState({result:'error',  pushingTx:false, error:JSON.stringify(ex1)});
 
-                });
+          //       });
 
-            }, (err)=>{
-              that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
-              that.setState({result:'error', error:err});
-            })
+          //   }, (err)=>{
+          //     that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
+          //     that.setState({result:'error', error:err});
+          //   })
           
         },
         onCancel() {
@@ -246,9 +285,9 @@ class WithdrawMoney extends Component {
     }
 
     const { getFieldDecorator }               = this.props.form;
-    const { input_amount, pushingTx}           = this.state;
+    const { input_amount, isFetching}         = this.state;
     return (
-        <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+        <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
           <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">    
               
@@ -278,7 +317,7 @@ class WithdrawMoney extends Component {
             </div>
 
             <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={pushingTx} >REQUEST WITHDRAW</Button>
+              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={isFetching} >REQUEST WITHDRAW</Button>
             </div>
 
           </Form>  
@@ -324,8 +363,15 @@ export default Form.create() (withRouter(connect(
         isLoading:          loginRedux.isLoading(state),
         personalAccount:    loginRedux.personalAccount(state),
         balance:            balanceRedux.userBalance(state),
+    
+        isFetching:         apiRedux.isFetching(state),
+        getErrors:          apiRedux.getErrors(state),
+        getLastError:       apiRedux.getLastError(state),
+        getResults:         apiRedux.getResults(state),
+        getLastResult:      apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
-        loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch)
+        callAPIEx:          bindActionCreators(apiRedux.callAPIEx, dispatch),
+        loadBalance:        bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
 )(WithdrawMoney) ));

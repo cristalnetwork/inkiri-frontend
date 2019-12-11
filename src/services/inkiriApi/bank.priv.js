@@ -204,6 +204,8 @@ export const setDepositOk   = (sender, request_id, tx_id)       => updateRequest
 export const rejectService  = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, true);
 export const cancelService  = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, true);
 export const acceptServiceRequest = (sender, request_id, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, tx_id, undefined, true);
+export const failedWithdraw = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, false);
+
 export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id, is_C2C) => new Promise((res,rej)=> {
   
   const module  = (is_C2C==true)?'requests_c2c':'requests';
@@ -651,9 +653,10 @@ export const listRequestsForProvider = (page, limit, provider_id) =>   new Promi
   });
 });
 
-export const refundWithdrawRequest      = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, tx_id);
-export const acceptWithdrawRequest      = (sender, request_id)               => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, undefined, undefined);
-export const updateWithdraw = (sender, request_id, state, tx_id)             => updateRequest(sender, request_id, state, tx_id);
+export const refundWithdrawRequest  = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, tx_id);
+export const acceptWithdrawRequest  = (sender, request_id)               => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, undefined, undefined);
+export const updateWithdraw         = (sender, request_id, tx_id)        => updateRequest(sender, request_id, undefined, tx_id);
+
 export const createWithdraw = (account_name, amount) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.endpoint + '/requests';
