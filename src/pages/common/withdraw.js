@@ -5,8 +5,8 @@ import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
-
 import * as apiRedux from '@app/redux/models/api';
+
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
@@ -372,6 +372,7 @@ export default Form.create() (withRouter(connect(
     }),
     (dispatch)=>({
         callAPIEx:          bindActionCreators(apiRedux.callAPIEx, dispatch),
+        
         loadBalance:        bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
 )(WithdrawMoney) ));

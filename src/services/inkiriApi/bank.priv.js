@@ -897,7 +897,7 @@ export const createExchangeRequest      = (account_name, amount, bank_account, a
       */
 });
 
-export const updateExchangeRequest      = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, state, tx_id);
+export const updateExchangeRequest      = (sender, request_id, tx_id) => updateRequest(sender, request_id, undefined, tx_id);
 
 
 export const processIuguInvoiceById = (iugu_invoice_id) =>   new Promise((res,rej)=> {
