@@ -173,6 +173,8 @@ class Exchange extends Component {
       const that = this;
       setTimeout(()=> that.childForm.resetForm() ,1000);
     }
+    // reset Errors and results
+    this.props.clearAll();
   }
 
   resetPage(){
@@ -185,6 +187,8 @@ class Exchange extends Component {
       const that = this;
       setTimeout(()=> that.childForm.resetForm() ,1000);
     }
+    // reset Errors and results
+    this.props.clearAll();
   }
 
   userResultEvent = (evt_type) => {
@@ -263,6 +267,7 @@ export default Form.create() (withRouter(connect(
     }),
     (dispatch)=>({
         callAPIEx:            bindActionCreators(apiRedux.callAPIEx, dispatch),
+        clearAll:    bindActionCreators(apiRedux.clearAll, dispatch),
 
         
 

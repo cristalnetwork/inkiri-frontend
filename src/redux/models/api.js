@@ -16,7 +16,7 @@ const SET_RESULT                 = 'api/SET_RESULT'
 const CLEAR_ERRORS               = 'api/CLEAR_ERRORS'
 const SET_ERROR                  = 'api/SET_ERROR'
 
-
+const CLEAR_ERRORS_AND_RESULTS   = 'api/CLEAR_ERRORS_AND_RESULTS'
 
 // Creadores de acciones (se pueden usar desde los compoenentes)
 export const callAPIEx             = ( _steps)             =>({ type: CALL_API_EX_FUNCTION, payload: { _steps } });
@@ -25,6 +25,7 @@ export const clearErrors           = ()                    =>({ type: CLEAR_ERRO
 export const setError              = (error)               =>({ type: SET_ERROR,  payload: {error:error}});
 export const clearResults          = ()                    =>({ type: CLEAR_RESULTS });
 export const setResult             = (result)              =>({ type: SET_RESULT,  payload: {result:result}});
+export const clearAll              = ()                    =>({ type: CLEAR_ERRORS_AND_RESULTS });
 
 export const tryRealodAccountState = (account_name)        =>({ type: TRY_RELOAD_ACCOUNT_STATE,  payload: {account_name}});
 
@@ -189,12 +190,20 @@ function reducer(state = defaultState, action = {}) {
         ...state,
         is_loading: true
       }
+    
     case END_CALL_API_FUNCTION: 
       return {
         ...state,
         is_loading: false
       }
     
+    case CLEAR_ERRORS_AND_RESULTS:
+      return {
+        ...state
+        , errors: []
+        , results: []
+      }
+
     case CLEAR_ERRORS: 
       return {
         ...state,

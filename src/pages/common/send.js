@@ -94,6 +94,7 @@ class SendMoney extends Component {
     if(Object.keys(new_state).length>0)      
         this.setState(new_state);
   }
+
   onSelect(value) {
     console.log('onSelect', value);
     this.setState({receipt:value})
@@ -126,11 +127,15 @@ class SendMoney extends Component {
 
   resetResult(){
     this.setState({...DEFAULT_RESULT});
-    
+    // reset Errors and results
+    this.props.clearAll();
   }
 
   resetPage(){
     this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
+    // reset Errors and results
+    this.props.clearAll();
+    
   }
 
   userResultEvent = (evt_type) => {
@@ -478,6 +483,7 @@ export default Form.create() (withRouter(connect(
     }),
     (dispatch)=>({
         callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),
+        clearAll:    bindActionCreators(apiRedux.clearAll, dispatch),
 
         loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch),
         

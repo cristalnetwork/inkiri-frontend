@@ -3,6 +3,7 @@ import React, {useState, Component} from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
+import * as apiRedux from '@app/redux/models/api';
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance';
@@ -49,7 +50,7 @@ class Salaries extends Component {
     this.state = {
       routes :            routesService.breadcrumbForPaths(props.location.pathname),
       loading:            false,
-      pushingTx:          false,
+      isFetching:          false,
       team:               null,
       
       job_positions:      null,
@@ -63,7 +64,6 @@ class Salaries extends Component {
 
     this.loadTeam                   = this.loadTeam.bind(this);  
     this.loadJobPositions           = this.loadJobPositions.bind(this);  
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.getColumns                 = this.getColumns.bind(this);
     this.onRestoreList              = this.onRestoreList.bind(this); 
     this.removeCallback             = this.removeCallback.bind(this); 
@@ -72,7 +72,6 @@ class Salaries extends Component {
   }
 
   handleNewPayment = () => {
-    // this.openNotificationWithIcon("warning", "Not implemented yet");    
     this.setState({active_view:STATE_NEW_PAYMENT})
   }
 
@@ -85,6 +84,28 @@ class Salaries extends Component {
     const y_dummy = await this.loadTeam();  
     this.rebuildDataSourceAndSet();
   } 
+
+  componentDidUpdate(prevProps, prevState) 
+  {
+    let new_state = {};
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+    if(prevProps.getErrors!=this.props.getErrors){
+      const ex = this.props.getLastError;
+      new_state = {...new_state, getErrors:this.props.getErrors, result:'error', error:JSON.stringify(ex)}
+      components_helper.notif.exceptionNotification("An error occurred!", ex);
+    }
+    if(prevProps.getResults!=this.props.getResults){
+      // new_state = {...new_state, getResults:this.props.getResults}
+      new_state = {...new_state, getResults:this.props.getResults, result:'ok', result_object:this.props.getLastResult};
+      components_helper.notif.successNotification('Operation completed successfully')
+    }
+
+
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
+  }
 
   onRestoreList = () => {
     
@@ -114,15 +135,14 @@ class Salaries extends Component {
     }
 
     const {dataSource} = this.state;
-    const total        = dataSource.reduce((acc, member) => acc + member.current_wage, 0);
+    const total        = dataSource.reduce((acc, member) => acc + Number(member.current_wage), 0);
     if(parseFloat(total)>parseFloat(this.props.balance))
     {
+      console.log(total, ' > ' ,this.props.balance);
       const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-      this.openNotificationWithIcon("error", `Total must be equal or less than balance ${balance_txt}!`); //`
+      components_helper.notif.errorNotification(`Total must be equal or less than balance ${balance_txt}!`);
       return;
     }
-
-    this.setState({pushingTx:true});
 
     const that             =  this;
     const sender_priv      = this.props.actualPrivateKey;
@@ -135,17 +155,19 @@ class Salaries extends Component {
     
     // console.log(JSON.stringify(to_amount_array));
 
-    api.paySalaries(sender_account, sender_priv, to_amount_array, description, worked_month.format(form_helper.MONTH_FORMAT))
-      .then((data) => {
-        console.log(' paySalaries => (then#1) >>  ', JSON.stringify(data));
-        that.setState({result:'ok', pushingTx:false, result_object:data});
-        that.openNotificationWithIcon("success", 'Payments sent successfully');
-        setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
-      }, (ex) => {
-        console.log(' paySalaries => (error#1) >>  ', JSON.stringify(ex));
-        that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
-        that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
-      });
+    that.props.callAPI('paySalaries', [sender_account, sender_priv, to_amount_array, description, worked_month.format(form_helper.MONTH_FORMAT)])
+
+    // api.paySalaries(sender_account, sender_priv, to_amount_array, description, worked_month.format(form_helper.MONTH_FORMAT))
+    //   .then((data) => {
+    //     console.log(' paySalaries => (then#1) >>  ', JSON.stringify(data));
+    //     that.setState({result:'ok', pushingTx:false, result_object:data});
+    //     components_helper.notif.successNotification('Payments sent successfully');
+    //     setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
+    //   }, (ex) => {
+    //     console.log(' paySalaries => (error#1) >>  ', JSON.stringify(ex));
+    //     components_helper.notif.exceptionNotification('An error occurred!', ex);
+    //     that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+    //   });
 
   }
 
@@ -159,6 +181,8 @@ class Salaries extends Component {
 
   resetResult(){
     this.setState({...DEFAULT_RESULT});
+    // reset Errors and results
+    this.props.clearAll();
   }
 
   userResultEvent = (evt_type) => {
@@ -176,9 +200,11 @@ class Salaries extends Component {
     let my_active_view = active_view?active_view:STATE_LIST_MEMBERS;
     this.setState({ 
         active_view:   my_active_view
-        , pushingTx:   false
+        , isFetching:   false
         , ...DEFAULT_RESULT
-      });    
+      });  
+    // reset Errors and results
+    this.props.clearAll();  
   }
 
   loadTeam = async () => {
@@ -190,7 +216,7 @@ class Salaries extends Component {
     try {
       team = await api.bank.getTeam(this.props.actualAccountName);
     } catch (e) {
-      this.openNotificationWithIcon("error", "Error retrieveing Team", JSON.stringify(e));
+      components_helper.notif.exceptionNotification("Error retrieveing Team", e);
       this.setState({ loading:false})
       return;
     } 
@@ -199,7 +225,6 @@ class Salaries extends Component {
     
     this.setState({ 
         team:        team, 
-        // dataSource:  dataSource,
         loading:     false})
         
   }
@@ -212,7 +237,7 @@ class Salaries extends Component {
     try {
       data = await api.bank.getJobPositions();
     } catch (e) {
-      this.openNotificationWithIcon("error", "Error retrieveing Default Job positions", JSON.stringify(e));
+      components_helper.notif.exceptionNotification("Error retrieveing Default Job positions", e);
       this.setState({ loading:false})
       return;
     }
@@ -237,12 +262,6 @@ class Salaries extends Component {
       });
     }
     return dataSource;
-  }
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
   
   //
@@ -270,7 +289,7 @@ class Salaries extends Component {
 
   
   renderContent(){
-    const {active_view, job_positions, dataSource, result } = this.state;
+    const {active_view, job_positions, dataSource, result, isFetching } = this.state;
 
     if(result)
     {
@@ -297,7 +316,7 @@ class Salaries extends Component {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
-              <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+              <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
                 <SalaryForm key="salary_payment_form" callback={this.salaryFormCallback} job_positions={job_positions} members={dataSource}/>    
               </Spin>
             </section>
@@ -335,7 +354,7 @@ class Salaries extends Component {
 
     return (
       <Card
-          title="Crew members & wages"  
+          title="Pay salaries"  
           key="card_table_all_requests"
           className="styles listCard"
           bordered={false}
@@ -397,8 +416,18 @@ export default  (withRouter(connect(
         actualRoleId:         loginRedux.actualRoleId(state),
         actualRole:           loginRedux.actualRole(state),
         balance:              balanceRedux.userBalance(state),
+  
+        isFetching:         apiRedux.isFetching(state),
+        getErrors:          apiRedux.getErrors(state),
+        getLastError:       apiRedux.getLastError(state),
+        getResults:         apiRedux.getResults(state),
+        getLastResult:      apiRedux.getResults(state)
     }),
     (dispatch)=>({
+        callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),
+        clearAll:    bindActionCreators(apiRedux.clearAll, dispatch),
+
+
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch),
         loadBalance:             bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
