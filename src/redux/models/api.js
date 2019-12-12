@@ -211,25 +211,26 @@ function reducer(state = defaultState, action = {}) {
         errors: []
       }
     case SET_ERROR:
-      // console.log('apiRedux::SET_ERROR:')
-      // console.log(action.payload)
-      const errors = (Array.isArray(state.errors))?state.errors.push(action.payload.error):[action.payload.error];
+      // const errors = (Array.isArray(state.errors))?state.errors.push(action.payload.error):[action.payload.error];
+      const errors = state.errors||[];
       return  {
         ...state
-        , errors:       errors
+        , errors:       [...errors, action.payload.error]
         , is_loading: false
       }
 
     case CLEAR_RESULTS: 
       return {
-        ...state,
-        results: []
+        ...state
+        , results: []
+        , is_loading: false
       }
     case SET_RESULT:
-      const results = (Array.isArray(state.results))?state.results.push(action.payload.result):[action.payload.result];
+      // const results = (Array.isArray(state.results))?state.results.push(action.payload.result):[action.payload.result];
+      const results = state.results||[];
       return  {
         ...state
-        , results:       results
+        , results:       [...results, action.payload.result]
         , is_loading: false
       }
     default: return state;
