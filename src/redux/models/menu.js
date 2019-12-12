@@ -24,7 +24,9 @@ export const getMenu                  = (account_name, account_type) =>({ type: 
 export const getMenuFail              = (error)                      =>({ type: GET_FAIL, payload: { error }});
 export const setMenu                  = ({ role, menu })             =>({ type: SET, payload: { role, menu }});
 export const cleanMenu                = ()                           =>({ type: CLEAN_MENU });
-export const collapseMenu             = (is_collapsed)               =>({ type: TRY_COLLAPSE, payload: { is_collapsed } });
+
+export const collapseMenu             = (is_collapsed)               =>({ type: TRY_COLLAPSE, payload: { is_collapsed:is_collapsed } });
+
 export const setLastRootMenuFullpath  = (fullpath)                   =>({ type: TRY_SET_MENU_FATHER, payload: { fullpath }});
 export const setIsMobile              = (is_mobile)                  =>({ type: TRY_MOBILE, payload: { is_mobile } });
 
@@ -53,7 +55,7 @@ function* tryCollapseMenuSaga({ type, payload }) {
 
   const { is_collapsed } = payload
   // console.log(' MENU REDUX >> tryCollapseMenuSaga >> payload: ', payload)
-  console.log(' MENU REDUX >> tryCollapseMenuSaga >> is_collapsed: ', is_collapsed)
+  console.log(' #################### MENU REDUX >> tryCollapseMenuSaga >> is_collapsed: ', is_collapsed)
   yield put({type: SET_COLLAPSE, payload: {is_collapsed:is_collapsed} })
 }
 
@@ -87,7 +89,15 @@ export const lastRootMenu  = (state) => state.menu.last_root_menu_fullpath
 export const isMobile      = (state) => state.menu.is_mobile
 
 // El reducer del modelo
-const defaultState = { items: [], loading: 0, is_collapsed:false, error: undefined, last_root_menu_fullpath : undefined , is_mobile: false};
+const defaultState = { 
+  items:                     [], 
+  loading:                   0, 
+  is_collapsed:              false, 
+  error:                     undefined, 
+  last_root_menu_fullpath:   undefined, 
+  is_mobile:                 false
+};
+
 function reducer(state = defaultState, action = {}) {
   switch (action.type) {
     case SET:
@@ -111,7 +121,7 @@ function reducer(state = defaultState, action = {}) {
         loading: state.loading - 1
       }
     case SET_COLLAPSE:
-      // console.log(' menuREDUX::SET_COLLAPSE -> action.payload >> ', action.payload)
+      console.log(' ############ menuREDUX::SET_COLLAPSE -> ALGUIEN ME LLAMO!!! action.payload >> ', action.payload)
       return {
         ...state,
         is_collapsed: action.payload.is_collapsed

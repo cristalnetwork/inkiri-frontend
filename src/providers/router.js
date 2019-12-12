@@ -58,21 +58,17 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
             // history.push(`/common/salaries`);
             
             // history.push(`/common/send`);
-            history.push(`/${actualRole}/providers-payments-request`);
+            // history.push(`/${actualRole}/providers-payments-request`);
             // history.push(`/common/deposit`);
             // history.push(`/common/withdraw`);
+            history.push(`/${actualRole}/pdv`);
 
             // history.push(`/common/contracted-services`);
             // history.push(`/common/services`);
             // history.push(`/common/extrato`);
             // history.push(`/common/crew`);   
             // history.push(`/common/configuration`);
-            // history.push(`/${actualRole}/pdv`);
-            // history.push(`/${actualRole}/extrato`);
-            // history.push({
-            //   pathname: `/${actualRole}/provider-payment-request-details`
-            //   , state: { request: request }
-            // })
+            
             // history.push(`/${actualRole}/provider-payment-request-details`);
             // history.push(`/${actualRole}/providers-payments`);
             // history.push(`/${actualRole}/external-transfers`);

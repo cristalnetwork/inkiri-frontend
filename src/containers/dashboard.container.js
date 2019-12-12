@@ -25,11 +25,14 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
     useEffect(() => {
       if(__menuIsCollapsed!=menuIsCollapsed)
         setMenuIsCollapsed(menuIsCollapsed);
+      console.log('dashboard::useEffect::menuIsCollapsed', menuIsCollapsed);
     })
+
     const isMobile = useMedia({
       id: 'DashboardContainer',
       query: '(max-width: 599px)',
     })[0];
+
     const logo_mobile = isMobile?' logo_mobile':'';
     if(typeof setIsMobile === 'function' ) {
       setIsMobile(isMobile)
@@ -40,8 +43,11 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
       trySwitchAccount(account_name);
     }
 
-    const onCollapse = collapsed => {
-        collapseMenu(collapsed)
+    const onCollapse = (collapsed, type )=> {
+        // console.log('dashboard::onCollpase:', collapsed, type);
+        if(type=='clickTrigger')
+          collapseMenu(collapsed)
+        
       };
 
       //collapsed={menuIsCollapsed} 
@@ -50,8 +56,8 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
         <Sider 
           collapsible 
           collapsed={__menuIsCollapsed} 
-          onCollapse={onCollapse}
-          defaultCollapsed={true} 
+          onCollapse={(collapsed, type) => {onCollapse(collapsed, type)}}
+          defaultCollapsed={__menuIsCollapsed} 
           theme="light"
           breakpoint="sm"
           onBreakpoint={broken => {
