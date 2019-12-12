@@ -133,7 +133,7 @@ class Configuration extends Component {
 
   backToDashboard = async () => {
     this.props.history.push({
-      pathname: `/common/extrato`
+      pathname: `/${this.props.actualRole}/dashboard`
     })
   }
 

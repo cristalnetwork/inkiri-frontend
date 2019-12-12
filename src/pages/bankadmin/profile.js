@@ -108,9 +108,9 @@ class Profile extends Component {
   }
 
   backToDashboard = async () => {
-    // this.props.history.push({
-    //   pathname: `/common/extrato`
-    // })
+    this.props.history.push({
+      pathname: `/${this.props.actualRole}/dashboard`
+    })
   }
 
   resetResult(){
