@@ -77,12 +77,14 @@
 }
 .filter_form .ant-form-item-label{
   text-align: left!important;
+  height:20px!important;
+  line-height:20px!important;
 }
 
-.ant-form-item-label{
-  height:20px;
-  line-height:20px;
-}
+/*.ant-form-item-label{
+  height:20px!important;
+  line-height:20px!important;
+}*/
 
 .filter_form .ant-form-item-label > label{
   color: rgba(0, 0, 0, 0.65)!important;

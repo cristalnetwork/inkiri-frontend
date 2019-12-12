@@ -2,6 +2,8 @@ import { takeEvery, put, call } from '@redux-saga/core/effects';
 import { store } from '../configureStore'
 import * as api from '@app/services/inkiriApi'
 import * as core from './core';
+import * as globalCfg from '@app/configs/global';
+import * as accounts from './accounts';
 
 // Constantes
 export const LOAD_BALANCE             = 'balance/LOAD_BALANCE'
@@ -27,7 +29,22 @@ function* loadBalanceSaga({action, payload}) {
 
   const { data }= yield api.getAccountBalance(account_name);
   if(data) {
-    yield put(setBalance({account_name, balance: data}))
+    const original = data.balance||0;
+    let amount     = original;
+    try{
+      console.log('--balance redux#1:')
+      if(!store.getState().accounts.bank_account)
+        yield put(accounts.loadBankAccount(account_name))
+      
+      const oft = store.getState().accounts.bank_account.overdraft;
+      console.log('--balance redux#2:', oft)
+      const oft_number = globalCfg.currency.toNumber(oft);
+      console.log('--balance redux#3:', oft_number)
+      amount = amount - oft_number; 
+    }catch(e){
+      console.log('--balance error#1:', JSON.stringify(e))
+    }
+    yield put(setBalance({account_name, balance: {balance:amount, original:original}}))
   }
 }
 
@@ -64,7 +81,6 @@ store.injectSaga('balances', [
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
 export const userBalance           = (state) => state.balances.balance;
-export const userBalanceText       = (state) => state.balances.balanceText;
 export const userBalanceFormatted  = (state) => Number(state.balances.balance).toFixed(2);
 export const isLoading             = (state) => state.balances.isLoading > 0
 export const currencyStats         = (state) => state.balances.currency_stats
@@ -73,7 +89,7 @@ export const isLoadingStats        = (state) => state.balances.is_loading_stats
 // El reducer del modelo
 const defaultState = {
   balance:           0,
-  balanceText:       '0',
+  original:          0,
   isLoading:         0,
   currency_stats:    {},
   is_loading_stats:  false
@@ -106,7 +122,7 @@ function reducer(state = defaultState, action = {}) {
       return  {
         ...state
         , balance:     action.payload.balance.balance 
-        , balanceText: action.payload.balance.balanceText
+        , original:     action.payload.balance.original
         // , accounts: [
         //   ...state.accounts.filter(x =>x.key !== action.payload.key), //Quito el balance anterior
         //   action.payload //Agrego el nuevo

@@ -15,7 +15,8 @@ const AccountSelector = ({allAccounts, actualAccountName, currentAccount, onChan
         return 'NA';
       const account_type       = account_item.permissioner.account_type_description.toUpperCase();
       const account_name       = account_item.permissioner.account_name;
-      const account_permission = account_item.permission.replace('active', 'gestor').toUpperCase(); 
+      // const account_permission = account_item.permission.replace('active', 'gestor').toUpperCase(); 
+      const account_permission = account_item.permission.toUpperCase(); 
       
       return (<><span className="bold">{account_permission}</span><span>@</span><span className="bold">{account_name}</span><span>.{account_type}</span></>)
     }
@@ -26,7 +27,8 @@ const AccountSelector = ({allAccounts, actualAccountName, currentAccount, onChan
         return 'NA';
       const account_type       = account_item.permissioner.account_type_description.toUpperCase();
       const account_name       = account_item.permissioner.account_name;
-      const account_permission = account_item.permission.replace('active', 'gestor').toUpperCase(); 
+      // const account_permission = account_item.permission.replace('active', 'gestor').toUpperCase(); 
+      const account_permission = account_item.permission.toUpperCase(); 
       
       return (<><span className="bold">{account_permission}</span><span>@</span> <span className="bold">{account_name}</span> </>)
     }

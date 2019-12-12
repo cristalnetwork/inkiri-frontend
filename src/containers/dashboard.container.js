@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, PageHeader } from 'antd';
 
+import * as globalCfg from '@app/configs/global';
+
 import InkiriHeader from '@app/components/InkiriHeader';
 import * as menuRedux from '@app/redux/models/menu'
 import * as loginRedux from '@app/redux/models/login'
@@ -11,10 +13,11 @@ import { bindActionCreators } from 'redux';
 import useMedia from 'react-media-hook2';
 
 import AccountSelector from '@app/components/InkiriHeader/accountSelector';
+import UserBalance from '@app/components/InkiriHeader/userBalance';
 
 const { Header, Content, Footer, Sider } = Layout;
 
-const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, itemPath, menuIsCollapsed, collapseMenu, setIsMobile, trySwitchAccount}) => {
+const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, itemPath, menuIsCollapsed, actualAccountName, collapseMenu, setIsMobile, trySwitchAccount}) => {
     
     const [__menuIsCollapsed, setMenuIsCollapsed] = useState(menuIsCollapsed);
     // console.log(' >>>>>>  DashboardContainer >> menuIsCollapsed >>' , menuIsCollapsed)
@@ -76,6 +79,12 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
               </a>
               {isMobile?(<AccountSelector onChange={switchAccount} isMobile={isMobile}/>):(null)}
             </div>
+            <div className={"logo_extra"}>
+              {__menuIsCollapsed?(null):<>
+                                          <span>{globalCfg.currency.symbol}<UserBalance userId={actualAccountName} /></span>
+                                          <br/> <span className="small">BALANCE</span> 
+                                        </>}
+            </div>
             { Menu? <Menu area={area} fileName={fileName} itemPath={itemPath} />: false }
         </Sider>
         <Layout>
@@ -95,12 +104,13 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
 const DashboardContainer =
  connect(
     state => ({
-      menuIsCollapsed :  menuRedux.isCollapsed(state)
+      menuIsCollapsed :     menuRedux.isCollapsed(state),
+      actualAccountName :   loginRedux.actualAccountName(state),
     }),
     dispatch => ({
-      collapseMenu:       bindActionCreators(menuRedux.collapseMenu, dispatch),
-      setIsMobile:        bindActionCreators(menuRedux.setIsMobile, dispatch),
-      trySwitchAccount:   bindActionCreators(loginRedux.trySwitchAccount, dispatch),
+      collapseMenu:         bindActionCreators(menuRedux.collapseMenu, dispatch),
+      setIsMobile:          bindActionCreators(menuRedux.setIsMobile, dispatch),
+      trySwitchAccount:     bindActionCreators(loginRedux.trySwitchAccount, dispatch),
     })
 )(_DashboardContainer)
 

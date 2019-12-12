@@ -31,6 +31,10 @@ class InkiriHeader extends Component {
   componentDidUpdate(prevProps, prevState) {
     if(this.props.isMobile!=prevProps.isMobile)
       this.setState({isMobile:this.props.isMobile})
+
+    if(this.props.menuIsCollapsed!=prevProps.menuIsCollapsed)
+      this.setState({menuIsCollapsed:this.props.menuIsCollapsed})
+    
   }
   toggle = () => {
     this.props.collapseMenu(!this.props.menuIsCollapsed);
@@ -67,16 +71,17 @@ class InkiriHeader extends Component {
 
   render(){
     let header_content ;
-    const {isMobile} = this.state;
+    const {isMobile, menuIsCollapsed} = this.state;
+    const hidden_class = menuIsCollapsed? '':'hidden';
     if(isMobile)
     {
       header_content = (
         <>
-        <a className="ant-pro-global-header-logo" key="logo" href="/">
+        <a className={`ant-pro-global-header-logo ${hidden_class}`} key="logo" href="/">
           <img src="/favicons/favicon-32x32.png" alt="logo" />
         </a>
         <div className="right">
-          <span>Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
+          <span className="hidden">Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
           <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
         </div>
         </>
@@ -88,7 +93,7 @@ class InkiriHeader extends Component {
         <div className="right">
           <div className="header_element_container">
             <AccountSelector onChange={this.handleChange} isMobile={isMobile}/>
-             &nbsp; <span> Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
+             &nbsp; <span className="hidden"> Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
            <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">Logout</Button>
           </div>
         </div>
