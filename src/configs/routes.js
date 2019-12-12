@@ -105,7 +105,7 @@ const bankadmin = [
     {
        key:         pathNames.bankadminExternalTransfers_ProcessExternal,
        father_key : '*',
-       fileName:    'processExternal',
+       fileName:    'process-external',
        area:        'bankadmin',
        path:        'external-transfers-process-request',
        container:   'dashboard',
@@ -157,7 +157,7 @@ const bankadmin = [
     {
        key:         pathNames.bankadminAccounts_CreateAccount,
        father_key : '*',
-       fileName:    'createAccount',
+       fileName:    'create-account',
        area:        'bankadmin',
        path:        'create-account',
        container:   'dashboard',
@@ -191,7 +191,7 @@ const bankadmin = [
     {
        key:         pathNames.bankadminPDA_ProcessRequest,
        father_key : '*',
-       fileName:    'processExternal',
+       fileName:    'process-external',
        area:        'bankadmin',
        path:        'pda-process-request',
        container:   'dashboard',
@@ -233,7 +233,7 @@ const business = [
 const common = [
   {
      key:       pathNames.commonRequestDetails,
-     fileName:  'requestDetails',
+     fileName:  'request-details',
      area:      'common',
      path:      'request-details',
      container: 'dashboard',
@@ -241,7 +241,7 @@ const common = [
   },
   {
      key:       pathNames.commonTransactionDetails,
-     fileName:  'transactionDetails',
+     fileName:  'transaction-details',
      area:      'common',
      path:      'transaction-details',
      container: 'dashboard',
@@ -348,7 +348,7 @@ const common = [
     {
        key:          pathNames.commonProviders_CreateProvider,
        father_key :  '*',
-       fileName:     'createProvider',
+       fileName:     'create-provider',
        area:         'common',
        path:         'create-provider',
        container:    'dashboard',

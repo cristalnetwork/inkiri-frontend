@@ -141,6 +141,7 @@ class processExternal extends Component {
         return false;
       },
       fileList: filelist,
+      className: filelist.length>0?'icon_color_green':'icon_color_default'
     };
   }
   

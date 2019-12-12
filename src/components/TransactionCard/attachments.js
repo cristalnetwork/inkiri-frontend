@@ -32,7 +32,7 @@ const TransactionAttachments = (props) => {
             request.attach_nota_fiscal_id?
               request_helper.getFileLink(request.attach_nota_fiscal_id, 'Nota Fiscal', "icon_color_green")
               :    
-              request_helper.getFileUploader('Nota Fiscal', uploader[globalCfg.api.NOTA_FISCAL], "icon_color_default")
+              request_helper.getFileUploader('Nota Fiscal', uploader[globalCfg.api.NOTA_FISCAL])
           }
 
           {  
@@ -40,7 +40,7 @@ const TransactionAttachments = (props) => {
               request_helper.getFileLink(request.attach_boleto_pagamento_id, 'Boleto de pagamento', "icon_color_green")
             :
             (request.provider_extra && request.provider_extra.payment_mode==globalCfg.api.PAYMENT_MODE_BOLETO)?
-              request_helper.getFileUploader('Boleto de Pagamento', uploader[globalCfg.api.BOLETO_PAGAMENTO], "icon_color_default"):(null)
+              request_helper.getFileUploader('Boleto de Pagamento', uploader[globalCfg.api.BOLETO_PAGAMENTO]):(null)
           }
 
           {  
@@ -48,7 +48,7 @@ const TransactionAttachments = (props) => {
               request_helper.getFileLink(request.attach_comprobante_id, 'Comprobante', "icon_color_green")
             :
             (globalCfg.api.isProcessing(request)&&props.isAdmin)?
-              request_helper.getFileUploader('Comprobante', uploader[globalCfg.api.COMPROBANTE], "icon_color_default"):(null)
+              request_helper.getFileUploader('Comprobante', uploader[globalCfg.api.COMPROBANTE]):(null)
           }
       </>)  
 }

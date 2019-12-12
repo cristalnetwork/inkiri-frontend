@@ -93,6 +93,8 @@ class TransactionCard extends Component {
       return(<></>);
     //
     const alert = this.getAlert(request);
+    const __blockchain_title = globalCfg.api.isService(request)?'Response transaction':null;
+    // console.log(' == __blockchain_title:', __blockchain_title);
     return (
       <>
       {alert}
@@ -119,7 +121,7 @@ class TransactionCard extends Component {
             :(null)
           }
           
-          <TransactionBlockchain request={request} title={globalCfg.api.isService(request)?'Response transaction':null}/>
+          <TransactionBlockchain request={request} title={__blockchain_title}/>
           
           <TransactionAttachments request={request} uploader={uploader}/>
           

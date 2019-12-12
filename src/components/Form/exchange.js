@@ -165,20 +165,28 @@ class ExchangeForm extends Component {
         return;
       }
       
+      // const attachments         = this.state.attachments;
+      // const my_NOTA_FISCAL      = (attachments[globalCfg.api.NOTA_FISCAL] && attachments[globalCfg.api.NOTA_FISCAL].length>0) ? attachments[globalCfg.api.NOTA_FISCAL][0] : undefined;
+      
+      // if(!my_NOTA_FISCAL)
+      // {
+      //   components_helper.notif.errorNotification('Nota Fiscal attachment is required', 'Please attach a Nota Fiscal PDF file.');
+      //   return;
+      // }
+
       const attachments         = this.state.attachments;
       const my_NOTA_FISCAL      = (attachments[globalCfg.api.NOTA_FISCAL] && attachments[globalCfg.api.NOTA_FISCAL].length>0) ? attachments[globalCfg.api.NOTA_FISCAL][0] : undefined;
       
-      if(!my_NOTA_FISCAL)
-      {
-        components_helper.notif.errorNotification('Nota Fiscal attachment is required', 'Please attach a Nota Fiscal PDF file.');
-        return;
-      }
+      let attachments_array = {};
+      if(my_NOTA_FISCAL) 
+        attachments_array[globalCfg.api.NOTA_FISCAL] = my_NOTA_FISCAL;
 
       const exchange_request = {
         amount              : input_amount.value,
         bank_account        : bank_account,
         bank_account_object : this.getBankAccountById(bank_account),
-        attachments_array   : { [globalCfg.api.NOTA_FISCAL] : my_NOTA_FISCAL}
+        attachments_array   : attachments_array
+        // { [globalCfg.api.NOTA_FISCAL] : my_NOTA_FISCAL}
       }
       const {callback} = this.state;
       if(typeof  callback === 'function') {

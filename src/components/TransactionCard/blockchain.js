@@ -23,6 +23,7 @@ const TransactionBlockchain = (props) => {
     if(!request || (!request.tx_id && !request.refund_tx_id))
       return (null);
     
+    // console.log(' -- TransactionBlockchain:', title)
     return( <>
         <TransactionTitle title="Blobkchain" />
         

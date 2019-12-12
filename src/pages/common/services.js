@@ -238,7 +238,7 @@ class Services extends Component {
         that.setState({pushingTx:true});
         api.bank.sendServiceRequest(provider, customer, service, begins_at, expires_at)
           .then((res)=>{
-            console.log(' >> doDeposit >> ', JSON.stringify(res));
+            console.log(' >> sendServiceRequest >> ', JSON.stringify(res));
             that.setState({pushingTx:false, result:'ok'})
             that.openNotificationWithIcon("success", 'Service provisioning requested successfully');
 

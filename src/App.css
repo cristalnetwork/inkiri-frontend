@@ -120,7 +120,7 @@ h3.fileds_header{
 .amount_col{
   padding-right: 0px!important;
   padding-left: 0px!important;
-  min-width:110px;
+  width:150px!important;
 }
 
 .ant-divider-horizontal {

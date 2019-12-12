@@ -243,7 +243,7 @@ export const getColumnsForRequests = (callback, is_admin) => {
       title: 'Status',
       dataIndex: 'state',
       key: 'state',
-      width: '10%',
+      width: '145px',
       render: (state, record) => request_helper.getStateTag(record)
       // render: (state, record) => {
       //   const required_blockchain_tx = [globalCfg.api.TYPE_PROVIDER, globalCfg.api.TYPE_EXCHANGE, globalCfg.api.TYPE_WITHDRAW];
