@@ -49,15 +49,15 @@ class Operations extends Component {
       loading:             props.isOperationsLoading,
       txs:                 props.operations,
       cursor:              props.operationsCursor,
-
-      page_key_values:     props.page_key_values,
+      filter_key_values:   props.filterKeyValues,
       stats:               {},
       
       need_refresh:        {},  
 
       pagination:          { pageSize: 0 , total: 0 },
-      // active_tab:          utils .twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_key', DISPLAY_ALL_TXS)
-      active_tab:           DISPLAY_ALL_TXS
+      page_key_values:     props.page_key_values,
+      active_tab:          utils .twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_tab', DISPLAY_ALL_TXS)
+      // active_tab:           DISPLAY_ALL_TXS
     };
 
 
@@ -132,12 +132,12 @@ class Operations extends Component {
         // new_state = {...new_state, filter: this.props.filterKeyValues};        
       }
 
-
       if(prevProps.page_key_values !== this.props.page_key_values )
       {
-        // const page_key_values = this.props.page_key_values;
-        // if(page_key_values && page_key_values.active_tab !== this.state.active_tab)
-        //   new_state = {...new_state, active_tab: page_key_values.active_tab};        
+        const active_tab = utils .twoLevelObjectValueOrDefault(this.props.page_key_values, this.props.location.pathname, 'active_tab', DISPLAY_ALL_TXS)
+        new_state = {...new_state
+            , page_key_values: this.props.page_key_values
+            , active_tab: active_tab};        
 
       }
 

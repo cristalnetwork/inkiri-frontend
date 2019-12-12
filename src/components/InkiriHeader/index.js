@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import { Layout, Icon, Button, Tag } from 'antd';
+import { Layout, Icon, Button, Tag, Modal } from 'antd';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -25,11 +25,16 @@ class InkiriHeader extends Component {
       isMobile         : props.isMobile
     }
     this.handleChange = this.handleChange.bind(this);
+    this.handleLogout = this.handleLogout.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState) {
     if(this.props.isMobile!=prevProps.isMobile)
       this.setState({isMobile:this.props.isMobile})
+
+    if(this.props.menuIsCollapsed!=prevProps.menuIsCollapsed)
+      this.setState({menuIsCollapsed:this.props.menuIsCollapsed})
+    
   }
   toggle = () => {
     this.props.collapseMenu(!this.props.menuIsCollapsed);
@@ -48,18 +53,35 @@ class InkiriHeader extends Component {
     this.props.trySwitchAccount(account_name);
   }
 
+  handleLogout() {
+    const that = this;
+    Modal.confirm({
+      title: 'Logout confirmation',
+      content: 'Please confirm logout action',
+      onOk() {
+
+        that.props.logout();
+      },
+      onCancel() {
+        
+      },
+    });
+    
+  }
+
   render(){
     let header_content ;
-    const {isMobile} = this.state;
+    const {isMobile, menuIsCollapsed} = this.state;
+    const hidden_class = menuIsCollapsed? '':'hidden';
     if(isMobile)
     {
       header_content = (
         <>
-        <a className="ant-pro-global-header-logo" key="logo" href="/">
+        <a className={`ant-pro-global-header-logo ${hidden_class}`} key="logo" href="/">
           <img src="/favicons/favicon-32x32.png" alt="logo" />
         </a>
         <div className="right">
-          <span>Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
+          <span className="hidden">Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
           <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
         </div>
         </>
@@ -71,8 +93,8 @@ class InkiriHeader extends Component {
         <div className="right">
           <div className="header_element_container">
             <AccountSelector onChange={this.handleChange} isMobile={isMobile}/>
-             &nbsp; <span> Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
-           <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.props.logout} size="small">Logout</Button>
+             &nbsp; <span className="hidden"> Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
+           <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">Logout</Button>
           </div>
         </div>
       );

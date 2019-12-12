@@ -287,9 +287,9 @@ class Profile extends Component {
   }
 
   backToDashboard = async () => {
-    // this.props.history.push({
-    //   pathname: `/${this.props.actualRole}/extrato`
-    // })
+    this.props.history.push({
+      pathname: `/${this.props.actualRole}/dashboard`
+    })
   }
 
   resetResult(){

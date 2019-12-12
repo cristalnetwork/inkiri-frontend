@@ -2,9 +2,11 @@ import { takeEvery, put, call } from '@redux-saga/core/effects';
 import { store } from '../configureStore'
 import * as api from '@app/services/inkiriApi'
 import * as core from './core';
+import * as globalCfg from '@app/configs/global';
+import * as accounts from './accounts';
 
 // Constantes
-const LOAD_BALANCE             = 'balance/LOAD_BALANCE'
+export const LOAD_BALANCE             = 'balance/LOAD_BALANCE'
 const SET_BALANCE              = 'balance/SET_BALANCE'
 
 const LOAD_CURRENCY_STATS      = 'balance/LOAD_CURRENCY_STATS'
@@ -12,8 +14,8 @@ const END_LOAD_CURRENCY_STATS  = 'balance/END_LOAD_CURRENCY_STATS'
 const SET_CURRENCY_STATS       = 'balance/SET_CURRENCY_STATS'
 
 // Creadores de acciones (se pueden usar desde los compoenentes)
-export const loadBalance         = (key) =>({ type: LOAD_BALANCE, payload: { key } });
-export const setBalance          = ({key, balance}) =>({ type: SET_BALANCE, payload: { key, balance }});
+export const loadBalance         = (account_name) =>({ type: LOAD_BALANCE, payload: { account_name } });
+export const setBalance          = ({account_name, balance}) =>({ type: SET_BALANCE, payload: { account_name, balance }});
 
 export const loadCurrencyStats   = () =>({ type: LOAD_CURRENCY_STATS });
 export const setCurrencyStats    = (stats) =>({ type: SET_CURRENCY_STATS, payload: {stats}});
@@ -21,11 +23,28 @@ export const setCurrencyStats    = (stats) =>({ type: SET_CURRENCY_STATS, payloa
 
 //Eventos que requieren del async
 function* loadBalanceSaga({action, payload}) {
-  const { key } = payload;
-  if(!key) return;
-  const { data }= yield api.getAccountBalance(key);
+  const { account_name } = payload;
+  console.log(' -- loadBalanceSaga (LOAD_BALANCE) me llamaron con account_name:', account_name)
+  if(!account_name) return;
+
+  const { data }= yield api.getAccountBalance(account_name);
   if(data) {
-    yield put(setBalance({key, balance: data}))
+    const original = data.balance||0;
+    let amount     = original;
+    try{
+      console.log('--balance redux#1:')
+      if(!store.getState().accounts.bank_account)
+        yield put(accounts.loadBankAccount(account_name))
+      
+      const oft = store.getState().accounts.bank_account.overdraft;
+      console.log('--balance redux#2:', oft)
+      const oft_number = globalCfg.currency.toNumber(oft);
+      console.log('--balance redux#3:', oft_number)
+      amount = amount - oft_number; 
+    }catch(e){
+      console.log('--balance error#1:', JSON.stringify(e))
+    }
+    yield put(setBalance({account_name, balance: {balance:amount, original:original}}))
   }
 }
 
@@ -35,9 +54,7 @@ function* loadCurrencyStatsSaga() {
     const data = yield api.getCurrencyStats();
     if(data) {
       yield put(setCurrencyStats(data))
-
-    }
-
+   }
     yield put({ type: END_LOAD_CURRENCY_STATS })
     return;
   }
@@ -64,7 +81,6 @@ store.injectSaga('balances', [
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
 export const userBalance           = (state) => state.balances.balance;
-export const userBalanceText       = (state) => state.balances.balanceText;
 export const userBalanceFormatted  = (state) => Number(state.balances.balance).toFixed(2);
 export const isLoading             = (state) => state.balances.isLoading > 0
 export const currencyStats         = (state) => state.balances.currency_stats
@@ -73,7 +89,7 @@ export const isLoadingStats        = (state) => state.balances.is_loading_stats
 // El reducer del modelo
 const defaultState = {
   balance:           0,
-  balanceText:       '0',
+  original:          0,
   isLoading:         0,
   currency_stats:    {},
   is_loading_stats:  false
@@ -95,7 +111,7 @@ function reducer(state = defaultState, action = {}) {
 
     case LOAD_BALANCE: 
       // console.log('*********************', '*********************', ' REDUCER CON USER:', action.payload.key);
-      if(!action.payload.key) return state;
+      if(!action.payload.account_name) return state;
       return {
         ...state,
         isLoading: state.isLoading +1
@@ -106,7 +122,7 @@ function reducer(state = defaultState, action = {}) {
       return  {
         ...state
         , balance:     action.payload.balance.balance 
-        , balanceText: action.payload.balance.balanceText
+        , original:     action.payload.balance.original
         // , accounts: [
         //   ...state.accounts.filter(x =>x.key !== action.payload.key), //Quito el balance anterior
         //   action.payload //Agrego el nuevo

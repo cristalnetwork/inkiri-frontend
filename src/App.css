@@ -77,12 +77,14 @@
 }
 .filter_form .ant-form-item-label{
   text-align: left!important;
+  height:20px!important;
+  line-height:20px!important;
 }
 
-.ant-form-item-label{
-  height:20px;
-  line-height:20px;
-}
+/*.ant-form-item-label{
+  height:20px!important;
+  line-height:20px!important;
+}*/
 
 .filter_form .ant-form-item-label > label{
   color: rgba(0, 0, 0, 0.65)!important;
@@ -120,7 +122,7 @@ h3.fileds_header{
 .amount_col{
   padding-right: 0px!important;
   padding-left: 0px!important;
-  min-width:110px;
+  width:150px!important;
 }
 
 .ant-divider-horizontal {
@@ -183,8 +185,9 @@ h3.fileds_header{
 
 /* FONTAWESOME Icons for transactions */
 /*.icon_color_default { color:#1890ff; }*/
-.icon_color_default { color:gray; }
-.icon_color_green   { color:#3db389; }
+/*.icon_color_default { color:gray; }*/
+.icon_color_default , .icon_color_default .ant-upload-drag-icon { color:rgba(0, 0, 0, 0.85)!important; }
+.icon_color_green   , .icon_color_green .ant-upload-drag-icon   { color:#3db389!important; }
 
 /*.flex_row{
     display: flex;
@@ -346,3 +349,9 @@ h3.fileds_header{
   opacity:1
 }
 
+.redoButton{
+  color: rgba(0,0,0,0.85)!important;
+}
+.redoButton:hover{
+  color: #40a9ff!important;
+}

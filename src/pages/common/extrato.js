@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 import * as operationsRedux from '@app/redux/models/operations'
+import * as pageRedux from '@app/redux/models/page'
 
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
@@ -36,12 +37,23 @@ const { Option } = Select;
 const { Search, TextArea } = Input;
 
 const tabs = {
-  [DISPLAY_ALL_TXS] : 'Movements',
-  [DISPLAY_DEPOSIT] : 'Deposits',
-  [DISPLAY_WITHDRAWS] : 'Withdraws',
-  [DISPLAY_PROVIDER] : 'Provider Payments',
-  [DISPLAY_SERVICE] : 'Services',
-  [DISPLAY_PAYMENTS] : 'Payments',
+  [globalCfg.bank.ACCOUNT_TYPE_BUSINESS]: {
+    [DISPLAY_ALL_TXS]:    'Movements',
+    [DISPLAY_DEPOSIT]:    'Deposits',
+    [DISPLAY_WITHDRAWS]:  'Withdraws',
+    [DISPLAY_PROVIDER]:   'Provider Payments',
+    [DISPLAY_SERVICE]:    'Services',
+    [DISPLAY_PAYMENTS]:   'Payments',
+  },
+  [globalCfg.bank.ACCOUNT_TYPE_PERSONAL]: {
+    [DISPLAY_ALL_TXS]:    'Movements',
+    [DISPLAY_DEPOSIT]:    'Deposits',
+    [DISPLAY_WITHDRAWS]:  'Withdraws',
+    [DISPLAY_EXCHANGES]:  'Exchanges',
+    [DISPLAY_SERVICE]:    'Services',
+    [DISPLAY_PAYMENTS]:   'Payments',
+  }
+  
   // [DISPLAY_REQUESTS] : 'Requests',
 }
 
@@ -54,14 +66,19 @@ class Extrato extends Component {
       loading:             props.isOperationsLoading,
       txs:                 props.operations,
       cursor:              props.operationsCursor,
+      filter_key_values:   props.filterKeyValues,
 
+      isMobile:            props.isMobile,
 
       stats:               {},
       
       need_refresh:        {},  
 
       pagination:          { pageSize: 0 , total: 0 },
-      active_tab:          DISPLAY_ALL_TXS
+      
+      //active_tab:          DISPLAY_ALL_TXS
+      page_key_values:     props.page_key_values,
+      active_tab:          utils .twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_tab', DISPLAY_ALL_TXS)
     };
 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
@@ -99,10 +116,13 @@ class Extrato extends Component {
     })
   }
 
-  
   componentDidMount(){
-    const {txs} = this.state;
-    if(!txs||txs.length==0)
+    this.loadBlockchainTXs();
+  } 
+
+  loadBlockchainTXs = () => {
+    const {txs, active_tab} = this.state;
+    if((!txs||txs.length==0)&&active_tab==DISPLAY_ALL_TXS)
       this.props.loadBlockchainOperations();
   } 
 
@@ -138,7 +158,14 @@ class Extrato extends Component {
         // new_state = {...new_state, filter: this.props.filterKeyValues};        
       }
 
-      // console.log(' .. operations.did.update...::', this.props.filterKeyValues)
+      if(prevProps.page_key_values !== this.props.page_key_values )
+      {
+        const active_tab = utils .twoLevelObjectValueOrDefault(this.props.page_key_values, this.props.location.pathname, 'active_tab', DISPLAY_ALL_TXS)
+        new_state = {...new_state
+            , page_key_values: this.props.page_key_values
+            , active_tab: active_tab};        
+
+      }
 
       if(Object.keys(new_state).length>0)      
         this.setState(new_state);
@@ -199,7 +226,12 @@ class Extrato extends Component {
 
   onTabChange(key) {
     // console.log(key);
-    this.setState({active_tab:key})
+    //this.setState({active_tab:key})
+    this.setState({active_tab:key}, 
+        ()=>{
+          this.loadBlockchainTXs();
+        });
+    this.props.setPageKeyValue(this.props.location.pathname, {active_tab:key})
   }
   
   onTableChange(key, txs) {
@@ -269,6 +301,18 @@ class Extrato extends Component {
           />
       );
     }
+
+    if(this.state.active_tab==DISPLAY_EXCHANGES){
+      content = (
+        <TransactionTable 
+          key={'table_'+DISPLAY_EXCHANGES} 
+          need_refresh={this.state.need_refresh[DISPLAY_EXCHANGES]}
+          request_type={DISPLAY_EXCHANGES} 
+          onChange={this.onTableChange}
+          callback={this.onRequestClick}
+          />
+      );
+    }
     
     //
     if(this.state.active_tab==DISPLAY_SERVICE){
@@ -314,14 +358,16 @@ class Extrato extends Component {
     
     }
 
-    return (<div style={{ margin: '0 0px', padding: 24, background: '#fff', minHeight: 360, marginTop: 0  }}>
+    return (<div style={{ margin: '0 0px', background: '#fff', minHeight: 360, marginTop: 0  }}>
       {content}</div>)
   }
   //
   render() {
-    const {routes, active_tab} = this.state;
+    const {routes, active_tab, isMobile} = this.state;
     const content              = this.renderContent();
     const stats                = this.renderTableViewStats();
+    const my_tabs              = tabs[this.props.actualRoleId];
+    
     return (
       <>
         <PageHeader
@@ -337,12 +383,16 @@ class Extrato extends Component {
 
         <div className="styles standardList" style={{ marginTop: 24 }}>
           <Card key={'card_master'}  
-            tabList={ Object.keys(tabs).map(key_tab => { return {key: key_tab, tab: tabs[key_tab]} } ) }
+            tabList={ Object.keys(my_tabs).map(key_tab => { return {key: key_tab, tab: my_tabs[key_tab]} } ) }
             activeTabKey={active_tab}
             onTabChange={ (key) => this.onTabChange(key)}
             >
 
-              <OperationsFilter the_key="__key__main_operations_list" /> 
+              { 
+                isMobile
+                  ?(null)
+                  :<OperationsFilter the_key="__key__main_operations_list" /> 
+              }
 
               {stats}
               
@@ -356,39 +406,25 @@ class Extrato extends Component {
 }
 
 //
-/*
-<div className="styles standardList" style={{ marginTop: 0 }}>
-          <Card key="tabs_card" bordered={false}>
-            <Tabs  defaultActiveKey={DISPLAY_ALL_TXS} onChange={this.onTabChange}>
-              <TabPane tab="Movements"       key={DISPLAY_ALL_TXS} />
-              <TabPane tab="Deposits"        key={DISPLAY_DEPOSIT} />
-              <TabPane tab="Withdraws"       key={DISPLAY_WITHDRAWS} />
-              <TabPane tab="Provider payments"  key={DISPLAY_PROVIDER} />
-              <TabPane tab="Payments"        key={DISPLAY_PAYMENTS} disabled />
-              <TabPane tab="Requests"        key={DISPLAY_REQUESTS} disabled />
-            </Tabs>
-          </Card>
-        </div>
-        
-        {filters}
-
-        {stats}
-        
-        {content}
-
-        */
 export default  (withRouter(connect(
     (state)=> ({
         actualAccountName:    loginRedux.actualAccountName(state),
         actualRole:           loginRedux.actualRole(state),
         actualRoleId:         loginRedux.actualRoleId(state),
-        
+        isMobile :            menuRedux.isMobile(state),
+
         operations:           operationsRedux.operations(state),
         isOperationsLoading:  operationsRedux.isOperationsLoading(state),
         operationsCursor:     operationsRedux.operationsCursor(state),
-        filterKeyValues:      operationsRedux.filterKeyValues(state)
+        filterKeyValues:      operationsRedux.filterKeyValues(state),
+    
+
+        page_key_values:      pageRedux.pageKeyValues(state),
     }),
     (dispatch)=>({
+        setPageKeyValue:              bindActionCreators(pageRedux.setPageKeyValue, dispatch),
+
+
         loadOldBlockchainOperations:  bindActionCreators(operationsRedux.loadOldBlockchainOperations, dispatch),
         loadBlockchainOperations:     bindActionCreators(operationsRedux.loadBlockchainOperations, dispatch),
         loadNewBlockchainOperations:  bindActionCreators(operationsRedux.loadNewBlockchainOperations, dispatch),

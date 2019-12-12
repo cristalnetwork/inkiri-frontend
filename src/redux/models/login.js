@@ -4,12 +4,13 @@ import * as globalCfg from '@app/configs/global';
 import { getStorage, clearStorage, setStorage } from '@app/services/localStorage'
 import * as core from './core';
 import * as api from '@app/services/inkiriApi';
-
+import {TRY_DELETE_SESSION} from './page';
 import history from '@app/history.js';
 
 // Constantes
 const TRY_LOGIN         = 'login/TRY_LOGIN';
 const TRY_LOGIN_END     = 'login/TRY_LOGIN_END';
+const TRY_LOGIN_ERROR   = 'login/TRY_LOGIN_ERROR';
 const SET_LOGIN         = 'login/SET_LOGIN'
 const LOGOUT            = 'login/LOGOUT'
 const CLEAR_SESSION     = 'login/CLEAR_SESSION'
@@ -25,6 +26,7 @@ const SET_PROFILE       = 'login/SET_PROFILE';
 // export const tryLogin = (account, save) =>({ type: TRY_LOGIN, payload: {account, save } });
 export const trySwitchAccount = (account_name)             => ({ type: TRY_SWITCH, payload: { account_name } });
 export const tryLogin = (account_name, password, remember) => ({ type: TRY_LOGIN, payload: { account_name, password, remember } });
+export const tryLoginError = (e)                           => ({ type: TRY_LOGIN_ERROR, payload: { exception:e } });
 export const logout = ()                                   => ({ type: LOGOUT });
 export const clearSession = ()                             => ({ type: CLEAR_SESSION });
 export const setLoginData = (loginData)                    => ({ type: SET_LOGIN, payload: loginData });
@@ -44,6 +46,7 @@ function* loadLoginData() {
         //yield put(tryLogin(data.account_name, data.password, false))
         const stateData = getLoginDataFromStorage(data);
         // console.log(' >> LOGIN REDUX loadLoginData: ', JSON.stringify(stateData.profile))
+        yield put({ type: TRY_DELETE_SESSION });
         yield put(setLoginData(stateData))
     } else {
         console.log(' -- redux::login::loadLoginData >> could NOT LOGIN', JSON.stringify(data))
@@ -64,6 +67,7 @@ function* tryLoginSaga({ type, payload }) {
             const profile = accounts.profile;
             setStorage(ACCOUNT_DATA, { account_name, password, remember, accounts, master_account, profile })
         }
+        yield put({ type: TRY_DELETE_SESSION });
         yield put(setLoginData({ 
                 userId:             account_name
                 , accounts:         accounts
@@ -73,7 +77,7 @@ function* tryLoginSaga({ type, payload }) {
                 , profile:          accounts.profile }))
     } catch (e) {
         console.log(' >> LOGIN REDUX ERROR#1', e)
-        // ToDO: handlear error!!
+        yield put({ type: TRY_LOGIN_ERROR, payload: {exception:e} })
     }
     yield put({ type: TRY_LOGIN_END })
     // yield put( tryUserState(account_name))
@@ -101,6 +105,7 @@ function* trySwitchAccountSaga({ type, payload }) {
                                , accounts: stateData.accounts
                                , master_account: stateData.master_account
                                , profile:profile })
+    yield put({ type: TRY_DELETE_SESSION });
     yield put(setLoginData(stateData))
     yield put({ type: TRY_SWITCH_END })
     history.replace('/');
@@ -179,13 +184,16 @@ export const corporateAccounts     = (state) => state.login.accounts.corporateAc
 export const adminAccount          = (state) => state.login.accounts.adminAccount
 export const allAccounts           = (state) => accountsToArray(state.login.accounts)
 
+export const loginError            = (state) => state.login.error;
+
 // El reducer del modelo
 const defaultState = {
-    loading: 0,
-    userId: undefined,
-    current_account: undefined,
-    accounts: {},
-    private_key: undefined
+    loading:            0,
+    userId:             undefined,
+    current_account:    undefined,
+    accounts:           {},
+    private_key:        undefined,
+    error:              null
 };
 
 function reducer(state = defaultState, action = {}) {
@@ -200,6 +208,12 @@ function reducer(state = defaultState, action = {}) {
                 ...state,
                 loading: state.loading - 1
             }
+        case TRY_LOGIN_ERROR:
+            return {
+                ...state,
+                loading: 0,
+                error: action.payload.exception
+            }
         case TRY_SWITCH:
             return {
                 ...state,
@@ -212,15 +226,17 @@ function reducer(state = defaultState, action = {}) {
             }
         case SET_LOGIN:
             console.log( ' loginREDUX >> action.payload.password >> ' , action.payload.current_account)
+
             return {
                 ...state,
                 // userId             : action.payload.accounts.personalAccount.permissioned.actor
-                userId: action.payload.userId,
-                private_key: action.payload.password,
-                accounts: action.payload.accounts,
-                master_account: action.payload.master_account,
-                current_account: action.payload.current_account,
-                profile: action.payload.profile
+                userId:           action.payload.userId,
+                private_key:      action.payload.password,
+                accounts:         action.payload.accounts,
+                master_account:   action.payload.master_account,
+                current_account:  action.payload.current_account,
+                profile:          action.payload.profile,
+                error:            null
             }
         case SET_PROFILE:
            return  {

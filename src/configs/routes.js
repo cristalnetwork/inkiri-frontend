@@ -2,14 +2,11 @@ import * as utils from '@app/utils/utils';
 
 export const pathNames = utils.arrToObj([
     'personalDashboard',
-    'personalUnderConstruction',
-    'personalExtracto',
     'personalExchange',
     
     // 'personalConfiguration',
 
     'bankadminDashboard',
-    'bankadminUnderConstruction',
     'bankadminTransactions',
     'bankadminOperations',
     'bankadminExternalTransfers',
@@ -28,13 +25,12 @@ export const pathNames = utils.arrToObj([
     'bankadminPDA_ProcessRequest',
     'bankadminStaff',
     
-    'businessExtracto',
     'businessPDV',
     'businessPaymentsAndServices',
     'businessProvidersPayments',
     'businessProvidersPayments_Request',
-    'businessUnderConstruction',
 
+    'commonExtrato',
     'commonRequestDetails',
     'commontransactionDetails',
     'commonDeposit',
@@ -56,14 +52,14 @@ export const pathNames = utils.arrToObj([
 ])
 
 const personal =[
-    {
-       key:        pathNames.dashboard,
-       fileName:   'under-construction',
-       area:       'personal',
-       path:       'dashboard',
-       container:  'dashboard',
-       role:       'personal',
-    },
+    // {
+    //    key:        pathNames.dashboard,
+    //    fileName:   'under-construction',
+    //    area:       'personal',
+    //    path:       'dashboard',
+    //    container:  'dashboard',
+    //    role:       'personal',
+    // },
     {
        key:       pathNames.personalWithdraw,
        fileName:  'withdraw',
@@ -78,41 +74,19 @@ const personal =[
        path:       'exchange',
        container:  'dashboard' 
     },
-    {
-       key:         pathNames.personalExtracto,
-       fileName:    'extrato',
-       area:        'personal',
-       path:        'extrato',
-       container:   'dashboard' 
-    }
+    
 ]
 
 const bankadmin = [
-    {
+     {
        key:        pathNames.bankadminDashboard,
        fileName:   'dashboard',
        area:       'bankadmin',
        path:       'dashboard',
        container:  'dashboard',
        role:       'bankadmin'
-    },
-    {
-        key:       pathNames.bankadminUnderConstruction,
-        fileName:  'under-construction',
-        area:      'bankadmin',
-        path:      'proximamente',
-        container: 'dashboard',
-        role:      'bankadmin'
      },
      {
-       key:        pathNames.bankadminTransactions,
-       fileName:   'under-construction',
-       area:       'bankadmin',
-       path:       'transactions',
-       container:  'dashboard',
-       role:       'bankadmin'
-    },
-    {
        key:       pathNames.bankadminOperations,
        fileName:  'operations',
        area:      'bankadmin',
@@ -131,7 +105,7 @@ const bankadmin = [
     {
        key:         pathNames.bankadminExternalTransfers_ProcessExternal,
        father_key : '*',
-       fileName:    'processExternal',
+       fileName:    'process-external',
        area:        'bankadmin',
        path:        'external-transfers-process-request',
        container:   'dashboard',
@@ -183,7 +157,7 @@ const bankadmin = [
     {
        key:         pathNames.bankadminAccounts_CreateAccount,
        father_key : '*',
-       fileName:    'createAccount',
+       fileName:    'create-account',
        area:        'bankadmin',
        path:        'create-account',
        container:   'dashboard',
@@ -217,7 +191,7 @@ const bankadmin = [
     {
        key:         pathNames.bankadminPDA_ProcessRequest,
        father_key : '*',
-       fileName:    'processExternal',
+       fileName:    'process-external',
        area:        'bankadmin',
        path:        'pda-process-request',
        container:   'dashboard',
@@ -227,23 +201,6 @@ const bankadmin = [
  ];
 
 const business = [
-    {
-        key:       pathNames.businessUnderConstruction,
-        fileName:  'under-construction',
-        area:      'business',
-        path:      'proximamente',
-        container: 'dashboard',
-        role:      'business'
-    },
-    {
-       key:         pathNames.businessExtracto,
-       fileName:    'extrato',
-       area:        'business',
-       path:        'extrato',
-       container:   'dashboard',
-       role:        'business'
-    },
-
     {
        key:         pathNames.businessPDV,
        fileName:    'pdv',
@@ -263,7 +220,7 @@ const business = [
     {
        key:         pathNames.businessProvidersPayments_Request,
        father_key:  pathNames.businessProvidersPayments,
-       fileName:    'requestPayment',
+       fileName:    'providers-payments-request',
        area:        'business',
        path:        'providers-payments-request',
        container:   'dashboard',
@@ -276,7 +233,7 @@ const business = [
 const common = [
   {
      key:       pathNames.commonRequestDetails,
-     fileName:  'requestDetails',
+     fileName:  'request-details',
      area:      'common',
      path:      'request-details',
      container: 'dashboard',
@@ -284,7 +241,7 @@ const common = [
   },
   {
      key:       pathNames.commonTransactionDetails,
-     fileName:  'transactionDetails',
+     fileName:  'transaction-details',
      area:      'common',
      path:      'transaction-details',
      container: 'dashboard',
@@ -314,14 +271,14 @@ const common = [
      container: 'dashboard' ,
      role:      '*' 
   },
-  {
-     key:       pathNames.commonRequestMoney,
-     fileName:  'under-construction', // fileName: 'sendMoney',
-     area:      'common',
-     path:      'request-money',
-     container: 'dashboard' ,
-     role:      '*' 
-  },
+  // {
+  //    key:       pathNames.commonRequestMoney,
+  //    fileName:  'request-money',
+  //    area:      'common',
+  //    path:      'request-money',
+  //    container: 'dashboard' ,
+  //    role:      '*' 
+  // },
   {
      key:       pathNames.commonConfiguration,
      fileName:  'configuration',
@@ -391,7 +348,7 @@ const common = [
     {
        key:          pathNames.commonProviders_CreateProvider,
        father_key :  '*',
-       fileName:     'createProvider',
+       fileName:     'create-provider',
        area:         'common',
        path:         'create-provider',
        container:    'dashboard',
@@ -403,6 +360,14 @@ const common = [
        fileName:     'provider',
        area:         'common',
        path:         'provider-profile',
+       container:    'dashboard',
+       role:         '*'
+    },
+    {
+       key:          pathNames.commonExtrato,
+       fileName:     'extrato',
+       area:         'common',
+       path:         'extrato',
        container:    'dashboard',
        role:         '*'
     }

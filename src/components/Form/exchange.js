@@ -9,6 +9,7 @@ import * as balanceRedux from '@app/redux/models/balance'
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
+import * as components_helper from '@app/components/helper';
 
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
@@ -45,7 +46,6 @@ class ExchangeForm extends Component {
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.handleBankAccountChange    = this.handleBankAccountChange.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.onInputAmount              = this.onInputAmount.bind(this);
   }
 
@@ -58,7 +58,8 @@ class ExchangeForm extends Component {
 
   getPropsForUploader(name){
     const filelist = this.state.attachments[name] || [];
-    // console.log(' FILELIST OF '+name, JSON.stringify(filelist) )
+    console.log(' -- getPropsForUploader => ', JSON.stringify(filelist));
+    
     return {
       onRemove: file => {
         this.setState(state => {
@@ -73,7 +74,7 @@ class ExchangeForm extends Component {
       beforeUpload: file => {
         if(this.state.attachments[name] && this.state.attachments[name].length>0)
         {
-          this.openNotificationWithIcon("info", "Only 1 file allowed")    
+          components_helper.notif.infoNotification("Only 1 file allowed");
           return false;
         }
 
@@ -85,26 +86,38 @@ class ExchangeForm extends Component {
         return false;
       },
       fileList: filelist,
+      className: filelist.length>0?'icon_color_green':'icon_color_default'
     };
   }
 
   componentDidUpdate(prevProps, prevState) 
   {
-      if(prevProps.profile !== this.props.profile) {
-          this.setState({
-            profile         : this.props.profile || this.props.actualAccountProfile,
-            alone_component : this.props.alone_component || false,
-            button_text     : this.props.button_text || 'SUBMIT',
-            callback        : this.props.callback 
-          });
-      }
+    let new_state = {};
+    if(prevProps.profile !== this.props.profile) {
+      new_state = {...new_state, 
+          profile         : this.props.profile || this.props.actualAccountProfile,
+          alone_component : this.props.alone_component || false,
+          button_text     : this.props.button_text || 'SUBMIT',
+          callback        : this.props.callback 
+        };
+    }
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
+  componentDidMount() {
+    console.log('if(typeof this.props.onRef===function) ?? ', typeof this.props.onRef)
+    if(typeof this.props.onRef==='function')
+    {
+      console.log('YES')
+      this.props.onRef(this)
+    }
+    else
+      console.log('NO')
+  }
+  componentWillUnmount() {
+    if(typeof this.props.onRef==='function')
+      this.props.onRef(undefined)
   }
 
   getBankAccountById(id){
@@ -129,43 +142,51 @@ class ExchangeForm extends Component {
     this.props.form.validateFields((err, values) => {
 
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+        components_helper.notif.errorNotification("Validation errors","Please verifiy errors on screen!");
         console.log(' ERRORS!! >> ', err)
         return;
       }
       const {input_amount, bank_account} = this.state;
       if(isNaN(input_amount.value))
       {
-        this.openNotificationWithIcon("error", input_amount.value + " > valid number required","Please type a valid number greater than 0!")    
+        components_helper.notif.errorNotification("Valid number required","Please type a valid number greater than 0!");
         return;
       }
       if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
       {
         const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-        this.openNotificationWithIcon("error", `Amount must be equal or less than balance ${balance_txt}!`); //`
+        components_helper.notif.errorNotification(`Amount must be equal or less than balance ${balance_txt}!`);
         return;
       }
 
       if(!bank_account)
       {
-        this.openNotificationWithIcon("error", 'You must choose a Bank Account!');
+        components_helper.notif.errorNotification('You must choose a Bank Account!');
         return;
       }
       
+      // const attachments         = this.state.attachments;
+      // const my_NOTA_FISCAL      = (attachments[globalCfg.api.NOTA_FISCAL] && attachments[globalCfg.api.NOTA_FISCAL].length>0) ? attachments[globalCfg.api.NOTA_FISCAL][0] : undefined;
+      
+      // if(!my_NOTA_FISCAL)
+      // {
+      //   components_helper.notif.errorNotification('Nota Fiscal attachment is required', 'Please attach a Nota Fiscal PDF file.');
+      //   return;
+      // }
+
       const attachments         = this.state.attachments;
       const my_NOTA_FISCAL      = (attachments[globalCfg.api.NOTA_FISCAL] && attachments[globalCfg.api.NOTA_FISCAL].length>0) ? attachments[globalCfg.api.NOTA_FISCAL][0] : undefined;
       
-      if(!my_NOTA_FISCAL)
-      {
-        this.openNotificationWithIcon("error", 'Nota Fiscal attachment is required', 'Please attach a Nota Fiscal PDF file.');
-        return;
-      }
+      let attachments_array = {};
+      if(my_NOTA_FISCAL) 
+        attachments_array[globalCfg.api.NOTA_FISCAL] = my_NOTA_FISCAL;
 
       const exchange_request = {
         amount              : input_amount.value,
         bank_account        : bank_account,
         bank_account_object : this.getBankAccountById(bank_account),
-        attachments_array   : { [globalCfg.api.NOTA_FISCAL] : my_NOTA_FISCAL}
+        attachments_array   : attachments_array
+        // { [globalCfg.api.NOTA_FISCAL] : my_NOTA_FISCAL}
       }
       const {callback} = this.state;
       if(typeof  callback === 'function') {
@@ -175,8 +196,10 @@ class ExchangeForm extends Component {
     });
   };
 
+  reset = () => this.resetForm();
+
   resetForm(){
-    
+    console.log('exchangeForm->ResetForm')
     this.setState({...DEFAULT_STATE});
   }
 
@@ -288,7 +311,7 @@ class ExchangeForm extends Component {
                 <Form.Item>
                     <Upload.Dragger {...notaUploaderProps} multiple={false}>
                       <p className="ant-upload-drag-icon">
-                        <FontAwesomeIcon icon="receipt" size="3x" color="#3db389"/>
+                        <FontAwesomeIcon icon="receipt" size="3x"/>
                       </p>
                       <p className="ant-upload-text">Nota Fiscal</p>
                     </Upload.Dragger>,
@@ -336,7 +359,6 @@ export default Form.create() (withRouter(connect(
         balance:              balanceRedux.userBalance(state),
     }),
     (dispatch)=>({
-        
     })
 )(ExchangeForm) )
 );

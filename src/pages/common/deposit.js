@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
+import * as apiRedux from '@app/redux/models/api';
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
@@ -46,7 +47,6 @@ class DepositMoney extends Component {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
 
       loading:             true,
-      pushingTx:           false,
       
       ...DEFAULT_STATE,
       ...DEFAULT_RESULT,
@@ -56,7 +56,6 @@ class DepositMoney extends Component {
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetResult                = this.resetResult.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.getNextEnvelopeId          = this.getNextEnvelopeId.bind(this);
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.symbolChange               = this.symbolChange.bind(this);
@@ -76,6 +75,36 @@ class DepositMoney extends Component {
     
     this.getNextEnvelopeId();
   }
+
+  componentDidUpdate(prevProps, prevState) 
+  {
+    let new_state = {};
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+    if(prevProps.getErrors!=this.props.getErrors){
+      const ex = this.props.getLastError;
+      new_state = {...new_state, 
+          getErrors:     this.props.getErrors, 
+          result:        ex?'error':undefined, 
+          error:         ex?JSON.stringify(ex):null}
+      if(ex)
+        components_helper.notif.exceptionNotification("An error occurred!", ex);
+    }
+    if(prevProps.getResults!=this.props.getResults){
+      const lastResult = this.props.getLastResult;
+      new_state = {...new_state, 
+        getResults:      this.props.getResults, 
+        result:          lastResult?'ok':undefined, 
+        result_object:   lastResult};
+      if(lastResult)
+        components_helper.notif.successNotification('Operation completed successfully')
+    }
+
+
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
+  }
   
   getNextEnvelopeId(){
     api.bank.nextEnvelopeId (this.props.actualAccountName).then(  
@@ -83,9 +112,8 @@ class DepositMoney extends Component {
         this.setState ({loading:false, envelope_id: res});
       },
       (err)=>{
-        // console.log(' ERROR FETCHING ENV ID ->', err);
         this.setState ({loading:false});
-        this.openNotificationWithIcon("error", "Cant fetch next envelope ID", "Please check if you are logged in bank service. " + JSON.stringify(err))      
+        components_helper.notif.errorNotification("Cant fetch next envelope ID", "Please check internet connection, and your login status at bank service. " + JSON.stringify(err));
       },
     )
   }
@@ -95,27 +123,23 @@ class DepositMoney extends Component {
     this.setState({input_amount:input_amount})
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-
   backToDashboard = async () => {
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/extrato`
+      pathname: `/common/extrato`
     })
   }
 
   resetResult(){
     this.setState({...DEFAULT_RESULT});
-    
+    // reset Errors and results
+    this.props.clearAll();
   }
 
   resetPage(){
     this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
     this.getNextEnvelopeId();
+    // reset Errors and results
+    this.props.clearAll();
   }
 
   userResultEvent = (evt_type) => {
@@ -170,8 +194,7 @@ class DepositMoney extends Component {
     const that = this;
     this.props.form.validateFields((err, values) => {
       if(err){
-        that.openNotificationWithIcon("error", 'Form error ', 'Please verify on screen errors.');
-        // that.setState({pushingTx:false});
+        components_helper.notif.errorNotification('Form error ', 'Please verify on screen errors.');
         return;
       }
       
@@ -179,25 +202,26 @@ class DepositMoney extends Component {
       const sender         = that.props.actualAccountName;
       Modal.confirm({
         title: 'Confirm deposit request',
-        content: 'Please confirm deposit for '+this.inputAmountToString()+' to ' + sender,
+        content: 'Please confirm deposit for '+this.inputAmountToString(),
         onOk() {
           const {input_amount} = that.state;
-          that.setState({pushingTx:true});
-          api.bank.createDeposit(sender, input_amount.value, input_amount.symbol)
-            .then((res)=>{
-              console.log(' >> doDeposit >> ', JSON.stringify(res));
-              that.setState({pushingTx:false, result:'ok'})
-              that.openNotificationWithIcon("success", 'Deposit requested successfully');
+          const _function = 'bank.createDeposit';
+          that.props.callAPI(_function, [sender, input_amount.value, input_amount.symbol])
+          
+          // api.bank.createDeposit(sender, input_amount.value, input_amount.symbol)
+          //   .then((res)=>{
+          //     console.log(' >> doDeposit >> ', JSON.stringify(res));
+          //     that.setState({pushingTx:false, result:'ok'})
+          //     components_helper.notif.successNotification('Deposit requested successfully');
 
-            }, (err)=>{
-              that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
-              that.setState({result:'error', error:err, pushingTx:false});
-            })
+          //   }, (err)=>{
+          //     components_helper.notif.exceptionNotification('An error occurred ', err);
+          //     that.setState({result:'error', error:err, pushingTx:false});
+          //   })
           
         },
         onCancel() {
           console.log('Cancel');
-          that.setState({pushingTx:false})
         },
       });
     });
@@ -225,11 +249,11 @@ class DepositMoney extends Component {
     }
 
     const { getFieldDecorator }               = this.props.form;
-    const { input_amount, pushingTx, loading, envelope_id} = this.state;
+    const { input_amount, isFetching, loading, envelope_id} = this.state;
     const my_currencies                       = [globalCfg.currency.symbol, globalCfg.currency.fiat.symbol];
-    const loading_text                        = pushingTx?'Pushing transaction...':(loading?'Loading...':'');
+    const loading_text                        = isFetching?'Pushing transaction...':(loading?'Loading...':'');
     return (
-        <Spin spinning={pushingTx||loading} delay={500} tip={loading_text}>
+        <Spin spinning={isFetching||loading} delay={500} tip={loading_text}>
           <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">    
               
@@ -295,7 +319,7 @@ class DepositMoney extends Component {
             </div>
 
             <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={pushingTx||loading} >REQUEST DEPOSIT</Button>
+              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={isFetching||loading} >REQUEST DEPOSIT</Button>
             </div>
 
           </Form>  
@@ -337,9 +361,17 @@ export default Form.create() (withRouter(connect(
     (state)=> ({
         actualAccountName:  loginRedux.actualAccountName(state),
         actualRole:         loginRedux.actualRole(state),
-        isLoading:          loginRedux.isLoading(state)
+        isLoading:          loginRedux.isLoading(state),
+    
+        isFetching:         apiRedux.isFetching(state),
+        getErrors:          apiRedux.getErrors(state),
+        getLastError:       apiRedux.getLastError(state),
+        getResults:         apiRedux.getResults(state),
+        getLastResult:      apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
+        callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),
+        clearAll:    bindActionCreators(apiRedux.clearAll, dispatch),
         
     })
 )(DepositMoney) ));

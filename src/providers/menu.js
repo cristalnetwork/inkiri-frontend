@@ -15,7 +15,8 @@ import { getRootKeys } from '@app/services/routes'
 
 const  { SubMenu } = Menu;
 
-export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actualAccountName, actualRole , actualRoleId,  actualPermission, lastRootMenu}) => {
+export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actualAccountName, actualRole , actualRoleId,  actualPermission, lastRootMenu, menuIsCollapsed}) => {
+        
         useEffect(()=>{
             getMenu(actualAccountName, actualRole)
         })
@@ -34,7 +35,7 @@ export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actua
         
         const aa = selected?[selected.key]:['dashboard'];
 
-        const bb = getRootKeys(actualRole); 
+        const bb = menuIsCollapsed?[]:getRootKeys(actualRole); 
 
         const renderItem = (item) => {
           if(item.permission && !globalCfg.bank.isValidPermission(actualRoleId, item.permission, actualPermission))
@@ -80,7 +81,8 @@ export default connect(
         actualRole:            loginRedux.actualRole(state),
         actualRoleId:          loginRedux.actualRoleId(state),
         actualPermission:      loginRedux.actualPermission(state),
-        lastRootMenu:          menuRedux.lastRootMenu(state)
+        lastRootMenu:          menuRedux.lastRootMenu(state),
+        menuIsCollapsed :      menuRedux.isCollapsed(state)
     }),
     dispatch => ({
         getMenu:               bindActionCreators( menuRedux.getMenu, dispatch)

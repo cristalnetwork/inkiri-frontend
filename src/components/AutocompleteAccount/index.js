@@ -200,10 +200,9 @@ class AutocompleteAccount extends Component {
                             placeholder="Type account name" 
                             filterOption={(inputValue, option) =>
                               option.key.indexOf(inputValue) !== -1
-                            }
-                            
+                            }                           
                             optionLabelProp="value" >
-                               <Input suffix={<Button loading={isLoading} type="link" icon="redo" title="Can't find account? Click to reload accounts!!!"  onClick={this.loadAccounts}></Button>} />
+                               <Input suffix={<Button loading={isLoading} type="link" icon="redo" className="redoButton"  title="Can't find account? Click to reload accounts!!!"  onClick={this.loadAccounts}></Button>} />
                             </AutoComplete>
                         )}
                       </Form.Item>);

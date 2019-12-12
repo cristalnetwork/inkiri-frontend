@@ -32,14 +32,14 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
         {
           if(actualRole=='bankadmin') 
           {
-            // history.push(`/${actualRole}/dashboard`);
+            history.push(`/${actualRole}/dashboard`);
             // history.push(`/common/salaries`);
             // history.push(`/common/crew`);
             // history.push(`/${actualRole}/configuration`);
             // history.push(`/${actualRole}/iugu`);
 
             // history.push(`/${actualRole}/profiles`);
-            history.push(`/${actualRole}/operations`);
+            // history.push(`/${actualRole}/operations`);
             // history.push(`/${actualRole}/provider-profile`);
             // history.push(`/${actualRole}/providers`);
             // history.push(`/${actualRole}/external-transfers`);
@@ -55,35 +55,29 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           
           if(actualRole=='business') 
           { 
-            // history.push(`/common/contracted-services`);
-            history.push(`/common/services`);
-            // history.push(`/${actualRole}/extrato`);
+            history.push(`/common/extrato`);
             // history.push(`/common/salaries`);
+            // history.push(`/common/send`);
+            // history.push(`/${actualRole}/providers-payments-request`);
+            // history.push(`/common/deposit`);
+            // history.push(`/common/withdraw`);
+            // history.push(`/${actualRole}/pdv`);
+            // history.push(`/common/contracted-services`);
+            // history.push(`/common/services`);
             // history.push(`/common/crew`);   
             // history.push(`/common/configuration`);
-            // history.push(`/${actualRole}/pdv`);
-            // history.push(`/common/send`);
-            // history.push(`/${actualRole}/extrato`);
-            // history.push({
-            //   pathname: `/${actualRole}/provider-payment-request-details`
-            //   , state: { request: request }
-            // })
             // history.push(`/${actualRole}/provider-payment-request-details`);
-            // history.push(`/${actualRole}/providers-payments-request`);
             // history.push(`/${actualRole}/providers-payments`);
-            // history.push(`/${actualRole}/external-transfers`);
           }  
           
           if(actualRole=='personal') {
-              // if(actualRole=='personal')
-              // history.push(`/${actualRole}/exchange`);
-              // history.push(`/${actualRole}/account-settings`);
-              // history.push(`/common/withdraw`);
+              history.push(`/common/extrato`);
               // history.push(`/common/send`);
               // history.push(`/common/deposit`);
+              // history.push(`/common/withdraw`);
+              // history.push(`/${actualRole}/exchange`);
+              //history.push(`/${actualRole}/account-settings`);
               //history.push(`/${actualRole}/dashboard`);
-              history.push(`/${actualRole}/extrato`);
-              
           }
           
         }

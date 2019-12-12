@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login'
 import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
+import * as apiRedux from '@app/redux/models/api';
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
@@ -67,7 +68,7 @@ class RequestPayment extends Component {
       ...DEFAULT_RESULT,
       
       uploading:          false,
-      pushingTx:          false,
+      isFetching:         false,
       
       referrer:           (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined
     };
@@ -76,7 +77,6 @@ class RequestPayment extends Component {
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetResult                  = this.resetResult.bind(this); 
 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.handleProviderChange       = this.handleProviderChange.bind(this);
     this.onInputAmount              = this.onInputAmount.bind(this);
     this.renderPaymentOption        = this.renderPaymentOption.bind(this);
@@ -84,6 +84,39 @@ class RequestPayment extends Component {
     this.getPropsForUploader        = this.getPropsForUploader.bind(this);
     
     this.userResultEvent            = this.userResultEvent.bind(this); 
+  }
+
+  componentDidUpdate(prevProps, prevState) 
+  {
+    let new_state = {};
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+    if(prevProps.getErrors!=this.props.getErrors){
+      const ex = this.props.getLastError;
+      new_state = {...new_state, 
+          getErrors:     this.props.getErrors, 
+          result:        ex?'error':undefined, 
+          error:         ex?JSON.stringify(ex):null}
+      if(ex)
+        components_helper.notif.exceptionNotification("An error occurred!", ex);
+    }
+    if(prevProps.getResults!=this.props.getResults){
+      const lastResult = this.props.getLastResult;
+      new_state = {...new_state, 
+        getResults:      this.props.getResults, 
+        result:          lastResult?'ok':undefined, 
+        result_object:   lastResult};
+      
+      console.log('lastResult:', lastResult)
+      
+      if(lastResult)
+        components_helper.notif.successNotification('Operation completed successfully')
+    }
+
+
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
   }
 
   clearAttachments(){
@@ -116,13 +149,6 @@ class RequestPayment extends Component {
     callback('Amount must greater than zero!');
   };
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-
   paymentModeRequiresBoleto(){
     return this.state.provider_extra.payment_mode==globalCfg.api.PAYMENT_MODE_BOLETO;
   }
@@ -133,26 +159,26 @@ class RequestPayment extends Component {
     this.props.form.validateFields((err, values) => {
       
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+        components_helper.notif.errorNotification("Validation errors","Please verifiy errors on screen!");
         console.log(' ERRORS!! >> ', err)
         return;
       }
       
       if(isNaN(this.state.input_amount.value))
       {
-        this.openNotificationWithIcon("error", this.state.input_amount.value + " > valid number required","Please type a valid number greater than 0!")    
+        components_helper.notif.errorNotification("Valid number required","Please type a valid number greater than 0!");
         return;
       }
       if(parseFloat(this.state.input_amount.value)>parseFloat(this.props.balance))
       {
         const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-        this.openNotificationWithIcon("error", `Amount must be equal or less than balance ${balance_txt}!`); //`
+        components_helper.notif.errorNotification(`Amount must be equal or less than balance ${balance_txt}!`); //`
         return;
       }
 
       if(!this.state.provider || !this.state.provider.key)
       {
-        this.openNotificationWithIcon("error", 'You must choose a provider!');
+        components_helper.notif.errorNotification('Please choose a provider!');
         return;
       }
       
@@ -166,89 +192,119 @@ class RequestPayment extends Component {
       const has_boleto = (my_BOLETO_PAGAMENTO);
       if(this.paymentModeRequiresBoleto() && !has_boleto)
       {
-        this.openNotificationWithIcon("error", 'BOLETO PAGAMENTO Payment MODE', 'Please attach Boleto Pagamento file.');
+        components_helper.notif.errorNotification('BOLETO PAGAMENTO Payment MODE', 'Please attach Boleto Pagamento file.');
         return;
       }  
 
       if(this.paymentModeRequiresBoleto() && has_boleto)
         attachments_array[globalCfg.api.BOLETO_PAGAMENTO] = my_BOLETO_PAGAMENTO;
 
-      this.setState({
-        uploading: true,
-      });
-
-      // const privateKey = api.dummyPrivateKeys[this.props.actualAccountName] 
-      const privateKey   = this.props.actualPrivateKey;
-      // HACK! >> La tenemos que traer de localStorage? <<
-      const provider_id  = this.state.provider.key;
-      const sender       = this.props.actualAccountName;
-      const signer       = this.props.personalAccount.permissioner.account_name;
-      const amount       = this.state.input_amount.value;
-      let that           = this;
+      const privateKey      = this.props.actualPrivateKey;
+      const provider_id     = this.state.provider.key;
+      const sender          = this.props.actualAccountName;
+      const signer          = this.props.personalAccount.permissioner.account_name;
+      const amount          = this.state.input_amount.value;
+      const that            = this;
       
-      that.setState({pushingTx:true});
+      const provider_account = globalCfg.bank.provider_account; 
+    
+      // console.log('values:', values)
+      // console.log('values:', JSON.stringify(values));
+      // return;
+
+
+      // api.bank.createProviderPaymentEx(sender, amount, provider_id, values, attachments_array)
+      // api.requestProviderPayment(sender, privateKey, provider_account, amount, request_id)
+      // api.bank.updateProviderPayment(sender, request_id, undefined, send_tx.data.transaction_id)
       
-      api.bank.createProviderPaymentEx(sender, amount, provider_id, values, attachments_array)
-        .then((data) => {
-          console.log(' createProviderPayment::send (then#1) >>  ', JSON.stringify(data));
+      const steps= [
+        {
+          _function:           'bank.createProviderPaymentEx'
+          , _params:           [sender, amount, provider_id, values.provider_extra, attachments_array]
+        }, 
+        {
+          _function:           'requestProviderPayment'
+          , _params:           [sender, privateKey, provider_account, amount] 
+          , last_result_param: [{field_name:'id', result_idx_diff:-1}]
+          , on_failure:        {
+                                  _function:           'bank.failedProviderPay'
+                                  , _params:           [sender] 
+                                  , last_result_param: [{field_name:'id', result_idx_diff:-1}]
+                                }
+        },
+        {
+          _function:           'bank.updateProviderPayment'
+          , _params:           [sender] 
+          , last_result_param: [{field_name:'id', result_idx_diff:-2}, {field_name:'transaction_id', result_idx_diff:-1}]
+        },
+      ]
+
+      that.props.callAPIEx(steps);
+      
+      // api.bank.createProviderPaymentEx(sender, amount, provider_id, values, attachments_array)
+      //   .then((data) => {
+      //     console.log(' createProviderPayment::send (then#1) >>  ', JSON.stringify(data));
            
-           if(!data || !data.id)
-           {
-              that.setState({result:'error', uploading: false, pushingTx:false, error:'Cant create request nor upload files.'});
-              return;
-           }
+      //      if(!data || !data.id)
+      //      {
+      //         that.setState({result:'error', uploading: false, pushingTx:false, error:'Cant create request nor upload files.'});
+      //         return;
+      //      }
 
-           const request_id       = data.id;
-           const provider_account = globalCfg.bank.provider_account; 
+      //      const request_id       = data.id;
+      //      const provider_account = globalCfg.bank.provider_account; 
            
-           api.requestProviderPayment(sender, privateKey, provider_account, amount, request_id)
-            .then((data1) => {
+      //      api.requestProviderPayment(sender, privateKey, provider_account, amount, request_id)
+      //       .then((data1) => {
 
-              const send_tx             = data1;
-              console.log(' SendMoney::send (then#2) >>  ', JSON.stringify(send_tx));
+      //         const send_tx             = data1;
+      //         console.log(' requestProviderPayment::send (then#2) >>  ', JSON.stringify(send_tx));
               
-              api.bank.updateProviderPayment(sender, request_id, undefined, send_tx.data.transaction_id)
-                .then((data2) => {
+      //         api.bank.updateProviderPayment(sender, request_id, send_tx.data.transaction_id)
+      //           .then((data2) => {
 
-                    that.clearAttachments();
-                    that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
-                    that.openNotificationWithIcon("success", 'Provider Payment requested successfully');
+      //               that.clearAttachments();
+      //               that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
+      //               that.openNotificationWithIcon("success", 'Provider Payment requested successfully');
 
-                  }, (ex2) => {
-                    console.log(' createProviderPayment::send (error#3) >>  ', JSON.stringify(ex2));
-                    that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
-                });
+      //             }, (ex2) => {
+      //               console.log(' createProviderPayment::send (error#3) >>  ', JSON.stringify(ex2));
+      //               that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
+      //           });
 
-              setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
+      //         setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
 
-            }, (ex1) => {
+      //       }, (ex1) => {
               
-              console.log(' SendMoney::send (error#2) >>  ', JSON.stringify(ex1));
-              that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
+      //         console.log(' requestProviderPayment::send (error#2) >>  ', JSON.stringify(ex1));
+      //         that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
 
-            });
+      //       });
 
-        }, (ex) => {
-          console.log(' createProviderPayment::send (error#1) >>  ', JSON.stringify(ex));
-          that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex)});
-        });
+      //   }, (ex) => {
+      //     console.log(' createProviderPayment::send (error#1) >>  ', JSON.stringify(ex));
+      //     that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex)});
+      //   });
       
     });
   };
 
   backToDashboard = async () => {
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/extrato`
+      pathname: `/common/extrato`
     })
   }
 
   resetResult(){
     this.setState({...DEFAULT_RESULT});
+    // reset Errors and results
+    this.props.clearAll();
   }
 
   resetPage(){
-    
     this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
+    // reset Errors and results
+    this.props.clearAll();
   }
 
   userResultEvent = (evt_type) => {
@@ -343,7 +399,7 @@ class RequestPayment extends Component {
       beforeUpload: file => {
         if(this.state.attachments[name] && this.state.attachments[name].length>0)
         {
-          this.openNotificationWithIcon("info", "Only 1 file allowed")    
+          components_helper.notif.infoNotification("Only 1 file allowed");
           return false;
         }
 
@@ -355,30 +411,31 @@ class RequestPayment extends Component {
         return false;
       },
       fileList: filelist,
+      className: filelist.length>0?'icon_color_green':'icon_color_default'
     };
   }
 
   renderContent() {
     
-    if(this.state.result)
+    const {result, result_object, error} = this.state;
+
+    if(result)
     {
-      const result_type = this.state.result;
+      const result_type = result;
       const title       = null;
       const message     = null;
-      const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
-      const error       = this.state.error
+      const tx_id       = result_object?result_object.transaction_id:null;
       
       return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
     }
 
-    const { input_amount, provider } = this.state;
-    const { uploading, fileList } = this.state;
-    const notaUploaderProps   = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
-    const boletoUploaderProps = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
-    const { getFieldDecorator } = this.props.form;
+    const { input_amount, provider, isFetching, fileList } = this.state;
+    const notaUploaderProps                                = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
+    const boletoUploaderProps                              = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
+    const { getFieldDecorator }                            = this.props.form;
 
     return (
-      <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+      <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
         <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">
               
@@ -429,7 +486,7 @@ class RequestPayment extends Component {
                 <Form.Item>
                     <Upload.Dragger {...notaUploaderProps} multiple={false}>
                       <p className="ant-upload-drag-icon">
-                        <FontAwesomeIcon icon="receipt" size="3x" color="#3db389"/>
+                        <FontAwesomeIcon icon="receipt" size="3x" />
                       </p>
                       <p className="ant-upload-text">Nota Fiscal</p>
                     </Upload.Dragger>,
@@ -446,7 +503,7 @@ class RequestPayment extends Component {
                 <Form.Item>
                   <Upload.Dragger multiple={false} disabled={this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO} {...boletoUploaderProps}>
                     <p className="ant-upload-drag-icon">
-                      <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={(this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO)?"gray":"#3db389"}/>
+                      <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={(this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO)?"gray":"inherit"}/>
                     </p>
                     <p className="ant-upload-text">Boleto Pagamento</p>
                   </Upload.Dragger>,
@@ -509,11 +566,18 @@ export default Form.create() (withRouter(connect(
         isLoading:        loginRedux.isLoading(state),
         personalAccount:  loginRedux.personalAccount(state),
         balance:          balanceRedux.userBalance(state),
-        
-        
+
+        isFetching:       apiRedux.isFetching(state),
+        getErrors:        apiRedux.getErrors(state),
+        getLastError:     apiRedux.getLastError(state),
+        getResults:       apiRedux.getResults(state),
+        getLastResult:    apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
-        loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch)
+        callAPIEx:        bindActionCreators(apiRedux.callAPIEx, dispatch),
+        clearAll:         bindActionCreators(apiRedux.clearAll, dispatch),
+        setResult:        bindActionCreators(apiRedux.setResult, dispatch),
+        loadBalance:      bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
 )(RequestPayment) )
 );

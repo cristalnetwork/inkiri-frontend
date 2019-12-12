@@ -183,15 +183,15 @@ function reducer(state = defaultState, action = {}) {
         is_operations_loading:     true
       }
     case SET_BLOCKCHAIN_OPERATIONS:
-      console.log(' operations-redux::reducer::SET_BLOCKCHAIN_OPERATIONS')
+      // console.log(' operations-redux::reducer::SET_BLOCKCHAIN_OPERATIONS')
       const {txs, cursor} = action.payload.data 
-      console.log(' txs', txs)
-      console.log(' cursor', cursor)
+      // console.log(' txs', txs)
+      // console.log(' cursor', cursor)
       const last_block = (txs&&txs.length>0)
         ? txs[0].block_num
         : state.last_block;
       
-      console.log(' operations-redux::reducer::SET_BLOCKCHAIN_OPERATIONS GOOOOOOOOOOOOOl')
+      // console.log(' operations-redux::reducer::SET_BLOCKCHAIN_OPERATIONS GOOOOOOOOOOOOOl')
       return  {
         ...state
         , operations:              txs 

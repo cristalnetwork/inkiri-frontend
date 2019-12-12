@@ -116,9 +116,18 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
 };
 //
 export const expandedRequestRowRender = (record) => {
+  
+  const flag = record.flag.ok
+    ?(null)
+    :(<><br/><b>{`${record.flag.tag} - ${record.flag.message}`}</b></>); //`
+
+  // if(!record.flag.ok)
+  //   console.log(JSON.stringify(record))
+  
   const default_info = (
       <>
          Operation&nbsp;: #<b>{ request_helper.getRequestId(record)}</b>
+         {flag}
          {request_helper.getGoogleDocLinkOrNothing(record.attach_nota_fiscal_id, true, 'Nota fiscal')}
          {request_helper.getGoogleDocLinkOrNothing(record.attach_boleto_pagamento_id, true, 'Boleto Pagamento')}
          {request_helper.getGoogleDocLinkOrNothing(record.attach_comprobante_id, true, 'Comprobante Bancario')}
@@ -126,28 +135,43 @@ export const expandedRequestRowRender = (record) => {
  //
   switch (record.requested_type){
     case globalCfg.api.TYPE_PROVIDER:
+      const blockchain  = record.tx_id?request_helper.getBlockchainLink(record.tx_id, true):(null);
+      
       return (
-            <span key={'tags'+record.id}>
-               Provider:&nbsp;<b>{ request_helper.getRequestProviderDesc(record)}</b>
-               <br/>{default_info}
-            </span>
+            <>
+              <span key={'tags'+record.id}>Provider:&nbsp;<b>{ request_helper.getRequestProviderDesc(record)}</b></span>
+              {Object.keys(record.provider_extra).map(key => <><br/>{key} = <b>{record.provider_extra[key]}</b></>)}
+              <br/> {blockchain}
+              <br/>{default_info}
+            </>
             );
     break;
     //
     case globalCfg.api.TYPE_EXCHANGE:
       const bank_account = record.bank_account || {};
-      return (
-            <span key={'tags'+record.id}>
-               Bank Account&nbsp;<Icon type="bank" />: <b>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</b>
-               <br/>{default_info}
-            </span>
+      const blockchain_xch  = record.tx_id?request_helper.getBlockchainLink(record.tx_id, true):(null);
+        return (
+            <><span key={'tags'+record.id}>Bank Account&nbsp;<Icon type="bank" />: <b>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</b></span>
+            <br/>{blockchain_xch}
+            <br/>{default_info}
+            </>
+            );
+      
+    break;
+    //
+    case globalCfg.api.TYPE_WITHDRAW:
+      const blockchain_wth  = record.tx_id?request_helper.getBlockchainLink(record.tx_id, true):(null);
+        return (
+            <>{blockchain_wth}
+              <br/>{default_info}
+            </>
             );
       
     break;
 
     //
     case globalCfg.api.TYPE_DEPOSIT:
-      const envelope_id = api.bank.envelopeIdFromRequest(record);
+      const envelope_id     = api.bank.envelopeIdFromRequest(record);
       return <>
           <span key={'envelope_'+record.id}>ENVELOPE ID: <b>{envelope_id}</b></span>
           <br/><span key={'deposit_currency_'+record.id}>CURRENCY: <b>{record.deposit_currency}</b></span>
@@ -219,8 +243,15 @@ export const getColumnsForRequests = (callback, is_admin) => {
       title: 'Status',
       dataIndex: 'state',
       key: 'state',
-      width: '10%',
+      width: '145px',
       render: (state, record) => request_helper.getStateTag(record)
+      // render: (state, record) => {
+      //   const required_blockchain_tx = [globalCfg.api.TYPE_PROVIDER, globalCfg.api.TYPE_EXCHANGE, globalCfg.api.TYPE_WITHDRAW];
+      //   const invalid = equired_blockchain_tx.includes(record.requested_type) && !record.tx_id;
+      //   if(invalid)
+      //     return request_helper.getStateTag(ERROR)  
+      //   return request_helper.getStateTag(record)
+      // }
       
     },
     {

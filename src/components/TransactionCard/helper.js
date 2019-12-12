@@ -61,12 +61,10 @@ export const getGoogleDocLinkOrNothing = (google_doc_id, with_icon, name, size) 
 }
 //
 export const getStateTag = (request) => {
-  // const icon = with_icon?(<FontAwesomeIcon icon={['fab', 'google-drive']} />):null;
-  // const text = utils.capitalize(globalCfg.api.stateToText(request.state));
-  const my_state   = request.flag.ok?request.state:globalCfg.bank.STATE_VIRTUAL_PENDING; 
-  const extra_text = request.flag.ok?'':` - ${request.flag.message}`  
+  const my_state   = request.flag.ok? request.state : globalCfg.bank.STATE_VIRTUAL_PENDING; 
+  const extra_text = request.flag.ok? ''            : `-${request.flag.tag}`  
   const text       = `${globalCfg.api.stateToText(request.state).toUpperCase()}${extra_text}`;
-  return (<Tag color={globalCfg.api.stateToColor(my_state)} key={'state_'+request.id}>{text}</Tag>)
+  return (<Tag color={globalCfg.api.stateToColor(my_state)} key={'state_'+request.id} title={text}>{text}</Tag>)
 }
 //
 export const errorStateTag = (text) =>
@@ -179,7 +177,7 @@ export const getProfileName = (profile) => {
 export const getBlockchainLink = (tx_id, withIcon, size, text) => {
   if(!tx_id)
     return (null);
-  const _text = (typeof text === 'undefined')?'Blockchain':'';
+  const _text = (typeof text === 'undefined')?'Blockchain':text;
   const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
   const icon = (typeof withIcon==='undefined' || withIcon)?(<FontAwesomeIcon icon="external-link-alt" />):(null);
   // return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} icon={withIcon?'cloud':null} title="View on Blockchain" style={{color:'inherit', paddingLeft:0}}>{text||'Blockchain'}</Button>)
@@ -281,7 +279,7 @@ export const getFileLink = (attach_id, title, icon_color) => {
           </div>)
 }
 //
-export const getFileUploader = (title, props, icon_color) => {
+export const getFileUploader = (title, props) => {
   return (<div className="ui-list">
             <ul className="ui-list__content">
               <div className="ui-list c-notes">
@@ -289,7 +287,7 @@ export const getFileUploader = (title, props, icon_color) => {
                   <li id="addNote" className="c-notes__container-add-note">
                     <Upload.Dragger {...props}  multiple={false}>
                       <p className="ant-upload-drag-icon">
-                        <FontAwesomeIcon icon="receipt" size="3x" className={icon_color}/>
+                        <FontAwesomeIcon icon="receipt" size="3x"/>
                       </p>
                       <p className="ant-upload-text">Click or drag <b>{title}</b> file to this area to upload</p>
                     </Upload.Dragger>    
