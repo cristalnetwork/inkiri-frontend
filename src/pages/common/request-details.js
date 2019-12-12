@@ -107,7 +107,11 @@ class requestDetails extends Component {
         result:          lastResult?'ok':undefined, 
         result_object:   lastResult};
       if(lastResult)
+      {
+        const that = this;
+        setTimeout(()=> that.reload() ,250);
         components_helper.notif.successNotification('Operation completed successfully')
+      }
     }
 
 
@@ -306,7 +310,7 @@ class requestDetails extends Component {
           }, 
           {
             _function:           'bank.acceptServiceRequest'
-            , _params:           [auth_account, _id] 
+            , _params:           [auth_account, _id, api.bank.REQUEST_RECEIVER] 
             , last_result_param: [{field_name:'transaction_id', result_idx_diff:-1}]
           },
         ]
@@ -403,7 +407,7 @@ class requestDetails extends Component {
         const {request} = that.state;
         const step ={
             _function:   'bank.cancelService'
-            , _params:   [that.props.actualAccountName, request.id]
+            , _params:   [that.props.actualAccountName, api.bank.REQUEST_SENDER,request.id]
           }
         
         that.props.callAPI(step._function, step._params)
@@ -500,9 +504,9 @@ class requestDetails extends Component {
     //ToDo
     const step ={
             _function:   'bank.rejectService'
-            , _params:   [sender, request.id]
+            , _params:   [sender, api.bank.REQUEST_RECEIVER, request.id]
           }
-        
+    
     that.props.callAPI(step._function, step._params)
     
     // api.bank.rejectService(sender, request.id)

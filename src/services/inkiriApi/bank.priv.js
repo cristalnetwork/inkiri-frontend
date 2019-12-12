@@ -201,15 +201,28 @@ export const createDeposit = (account_name, amount, currency) =>   new Promise((
 });
 
 export const setDepositOk   = (sender, request_id, tx_id)       => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED , tx_id);
-export const rejectService  = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, true);
-export const cancelService  = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, true);
-export const acceptServiceRequest = (sender, request_id, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, tx_id, undefined, true);
+export const rejectService  = (sender, c2c_player, request_id)  => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, true, c2c_player);
+export const cancelService  = (sender, c2c_player, request_id)  => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, true, c2c_player);
+export const acceptServiceRequest = (sender, request_id, c2c_player, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, tx_id, undefined, true, c2c_player);
 export const failedWithdraw = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, false);
 export const failedProviderPay = (sender, request_id)           => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, false);
 
-export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id, is_C2C) => new Promise((res,rej)=> {
-  
-  const module  = (is_C2C==true)?'requests_c2c':'requests';
+export const REQUEST_SENDER   = 'request_sender';
+export const REQUEST_RECEIVER = 'request_receiver';
+export const REQUEST_ADMIN    = 'request_admin';
+
+export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id, is_C2C, c2c_player) => new Promise((res,rej)=> {
+ 
+  let module  = 'requests';
+  if(is_C2C && c2c_player)
+  {
+    // 'requests_c2c'
+    const endpoint_options = {
+        [REQUEST_SENDER]:     'requests_c2c_by_sender'
+        , [REQUEST_RECEIVER]: 'requests_c2c_by_receiver'
+        , [REQUEST_ADMIN]:    'requests_c2c_by_admin'};
+    module = endpoint_options[c2c_player]    
+  }
   const path    = globalCfg.api.endpoint + `/${module}/${request_id}`;
   const method  = 'PATCH';
   let post_params = {
