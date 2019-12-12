@@ -160,7 +160,7 @@ const routes  = {
             {
                 key:                  routes_config.pathNames.bankadminStaff,
                 title:                'Staff',
-                icon:                 'profile',
+                icon:                 'team',
                 permission:           'active',
                 items: [
                     {
@@ -260,7 +260,7 @@ const routes  = {
             {
                 key:         'biz_staff',
                 title:       'Staff',
-                icon:        'profile',
+                icon:        'team',
                 permission:  'owner,active',
                 items: [
                     {
