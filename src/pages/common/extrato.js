@@ -69,9 +69,10 @@ class Extrato extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      page_key:            props.location.pathname,
+      txs:                 props.operations[props.location.pathname],
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       loading:             props.isOperationsLoading,
-      txs:                 props.operations,
       cursor:              props.operationsCursor,
       filter_key_values:   props.filterKeyValues,
 
@@ -143,7 +144,7 @@ class Extrato extends Component {
 
       if(prevProps.operations !== this.props.operations )
       {
-        const opers = this.props.operations;
+        const opers = this.props.operations[this.state.page_key];
         const pagination    = {...this.state.pagination};
         pagination.pageSize = opers.length;
         pagination.total    = opers.length;
@@ -370,7 +371,7 @@ class Extrato extends Component {
   }
   //
   render() {
-    const {routes, active_tab, isMobile} = this.state;
+    const {routes, active_tab, isMobile, page_key} = this.state;
     const content              = this.renderContent();
     const stats                = this.renderTableViewStats();
     const my_tabs              = tabs[this.props.actualRoleId];
@@ -404,7 +405,7 @@ class Extrato extends Component {
               { 
                 isMobile
                   ?(null)
-                  :<OperationsFilter the_key="__key__main_operations_list" /> 
+                  :<OperationsFilter the_key={page_key} />
               }
 
               {stats}

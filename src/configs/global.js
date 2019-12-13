@@ -1,4 +1,4 @@
-const env        = "prod";
+const env        = "env";
 
 const language   = "english";
 

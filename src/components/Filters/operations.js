@@ -64,8 +64,7 @@ const OperationsFilter = (props) => {
     
     const applyFilter = (e) => {
       e.preventDefault();
-      console.log(props.form);
-      console.log(props.form.getFieldValue('operation_type'));
+      
       props.form.validateFields((err, values) => {
         
         console.log('applyFilter => ', values);
@@ -76,12 +75,13 @@ const OperationsFilter = (props) => {
           return;
         }
 
-        fireEvent(null, null, values);
-        // console.log('.. should filter_applyed   ..??? => key:', key)
+        // fireEvent(null, null, values);
+        console.log('.. filter values   ..??? => values:', JSON.stringify(values))
+        console.log('.. should apply filter   ..??? => key:', key)
         if(key)
         {
-          // props.setFilterKeyValue(key, values)   
-          props.setFilterKeyValue(key, {s:Math.random()});   
+          props.trySetFilterKeyValue(key, values)   
+          // props.setFilterKeyValue(key, {s:Math.random()});   
         }
       });
     }
@@ -142,7 +142,7 @@ const OperationsFilter = (props) => {
                 label={'Account name'}
                 not_required={true}
                 form={_form} 
-                name="account" 
+                name="account_name" 
                 without_icon={true}
                 size="default"/>
 
@@ -199,7 +199,7 @@ const OperationsFilter = (props) => {
             Filter
           </Button>
           <Button type="link" onClick={() => resetFilter}>
-            Cancel
+            Reset
           </Button>
         </Form.Item>
       </Form>
@@ -214,7 +214,8 @@ export default Form.create() (connect(
       filterKeyValues:       operationsRedux.filterKeyValues(state)
     }),
     (dispatch)=>({
-      setFilterKeyValue:     bindActionCreators(operationsRedux.setFilterKeyValue, dispatch),
+      trySetFilterKeyValue:  bindActionCreators(operationsRedux.trySetFilterKeyValue, dispatch),
+      // setFilterKeyValue:     bindActionCreators(operationsRedux.setFilterKeyValue, dispatch),
       deleteFilterKeyValue:  bindActionCreators(operationsRedux.deleteFilterKeyValue, dispatch),
     
     })

@@ -44,10 +44,12 @@ class Operations extends Component {
 
     
     this.state = {
+      page_key:            props.location.pathname,
+      txs:                 props.operations[props.location.pathname],
+
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       
       loading:             props.isOperationsLoading,
-      txs:                 props.operations,
       cursor:              props.operationsCursor,
       filter_key_values:   props.filterKeyValues,
       stats:               {},
@@ -110,7 +112,7 @@ class Operations extends Component {
       let new_state = {};
       if(prevProps.operations !== this.props.operations )
       {
-        const opers = this.props.operations;
+        const opers = this.props.operations[this.state.page_key];
         const pagination    = {...this.state.pagination};
         pagination.pageSize = opers.length;
         pagination.total    = opers.length;
@@ -286,9 +288,9 @@ class Operations extends Component {
   }
   //
   render() {
-    const content               = this.renderContent();
-    const stats                 = this.renderTableViewStats();
-    const {routes, active_tab}  = this.state;
+    const content                         = this.renderContent();
+    const stats                           = this.renderTableViewStats();
+    const {routes, active_tab, page_key}  = this.state;
     return (
       <>
         <PageHeader
@@ -309,7 +311,7 @@ class Operations extends Component {
             onTabChange={ (key) => this.onTabChange(key)}
             >
           
-            <OperationsFilter the_key="__key__main_operations_list" />
+            <OperationsFilter the_key={page_key} />
 
             {stats}
             {content}

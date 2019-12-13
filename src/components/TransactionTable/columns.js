@@ -33,7 +33,7 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.block_time_number - b.block_time_number,
       align: 'left',
-      width: '15%',
+      width: '150px',
       render: (block_time, record) => {
         return (
             <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
@@ -47,7 +47,7 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
       title: 'Type',
       dataIndex: 'tx_type',
       key: 'tx_type',
-      width: '50%',
+      width: '400px',
       render: (tx_type, record) => {
         
         return (<span className="name_value_row ">
