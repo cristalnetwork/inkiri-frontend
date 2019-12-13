@@ -379,7 +379,7 @@ class Services extends Component {
 
     if(!has_received_new_data && _services && _services.length>0)
     {
-      components_helper.notif.infoNotification(End of services list);
+      components_helper.notif.infoNotification('End of services list');
     }
     // else
     //   this.computeStats();

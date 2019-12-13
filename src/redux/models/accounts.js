@@ -3,6 +3,8 @@ import { store } from '../configureStore'
 import * as api from '@app/services/inkiriApi'
 import * as core from './core';
 
+import * as balance from './balance';
+
 // Constantes
 const LOAD_ACCOUNTS      = 'accounts/LOAD_ACCOUNTS'
 const END_LOAD_ACCOUNTS  = 'accounts/END_LOAD_ACCOUNTS'
@@ -46,6 +48,7 @@ function* loadBankAccountSaga({ type, payload }){
   console.log(' * loadBankAccountSaga:', data)
   if(data) {
     yield put(setBankAccount(data))
+    yield put(balance.loadBalance(account_name))
   } 
 }
 function* loadEOSAccountSaga({ type, payload }){

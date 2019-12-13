@@ -6,7 +6,7 @@ import * as globalCfg from '@app/configs/global';
 import * as accounts from './accounts';
 
 // Constantes
-export const LOAD_BALANCE             = 'balance/LOAD_BALANCE'
+export const LOAD_BALANCE      = 'balance/LOAD_BALANCE'
 const SET_BALANCE              = 'balance/SET_BALANCE'
 
 const LOAD_CURRENCY_STATS      = 'balance/LOAD_CURRENCY_STATS'
@@ -65,6 +65,9 @@ function* loadCurrencyStatsSaga() {
   }
 }
 
+function* refreshBalanceSaga({action, payload}){
+
+}
 function* initBalanceReduxSaga () {
   // yield put({type: core.ACTION_START, payload: { loadCurrencyStats: 'Loading currency stats'}})
   console.log('balance-redux :: Me llamo core?')
@@ -77,6 +80,7 @@ store.injectSaga('balances', [
   takeEvery(core.INIT, initBalanceReduxSaga),
   takeEvery(LOAD_BALANCE, loadBalanceSaga),
   takeEvery(LOAD_CURRENCY_STATS, loadCurrencyStatsSaga),
+  
 ]);
 
 // Selectores - Conocen el stado y retornan la info que es necesaria

@@ -1,4 +1,4 @@
-const env        = "prod";
+const env        = "dev";
 
 const language   = "english";
 
@@ -100,6 +100,10 @@ const bank = {
         {
           title : 'Business Account',
           key: bank.ACCOUNT_TYPE_BUSINESS
+        },
+        {
+          title : 'Foundation Account',
+          key: bank.ACCOUNT_TYPE_FOUNDATION
         }
       ];
   },

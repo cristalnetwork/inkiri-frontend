@@ -76,6 +76,75 @@ const routes  = {
             }
         ]
     },
+    foundation: {
+        items: [
+            {
+                // key: routes_config.pathNames.personalDashboard,
+                key:  routes_config.pathNames.dashboard,
+                title: 'My money',
+                icon: 'wallet',
+                items: [
+                    // {
+                    //     key: routes_config.pathNames.personalExtracto,
+                    //     path: routes_config.pathNames.personalExtracto,
+                    //     title: 'Extrato',
+                    // },
+                    {
+                        key: routes_config.pathNames.commonExtrato,
+                        path: routes_config.pathNames.commonExtrato,
+                        title: 'Extrato',
+                    },
+                    {
+                        key: routes_config.pathNames.commonDeposit,
+                        path: routes_config.pathNames.commonDeposit,
+                        title: 'Deposit',
+                    },
+                    {
+                        key: routes_config.pathNames.commonWithdraw,
+                        path: routes_config.pathNames.commonWithdraw,
+                        title: 'Withdraw',
+                    }
+                ]
+            },
+            // {
+            //     key: 'personal_receive_money',
+            //     title: 'Receive',
+            //     icon: 'plus-square',
+            //     items: [
+            //         {
+            //             key: routes_config.pathNames.commonRequestMoney,
+            //             path: routes_config.pathNames.commonRequestMoney,
+            //             title: 'Request money',
+            //         }
+            //     ]
+            // },
+            {
+                // key: routes_config.pathNames.personalSendMoney,
+                key: 'personal_send_money',
+                title: 'Pay',
+                icon: 'minus-square',
+                items: [
+                    {
+                        key: routes_config.pathNames.commonSend,
+                        path: routes_config.pathNames.commonSend,
+                        title: 'Send money',
+                    },
+                    {
+                        key: routes_config.pathNames.commonContractedServices,
+                        path: routes_config.pathNames.commonContractedServices,
+                        title: 'Serviços Contratados',
+                    }
+                ]
+            }
+            ,
+            {
+                key: routes_config.pathNames.commonConfiguration,
+                title: 'Configuration',
+                icon: 'setting',
+                path: routes_config.pathNames.commonConfiguration,
+            }
+        ]
+    },
     bankadmin: {
         items: [
             {

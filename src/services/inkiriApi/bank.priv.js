@@ -200,7 +200,7 @@ export const createDeposit = (account_name, amount, currency) =>   new Promise((
       });
 });
 
-export const setDepositOk   = (sender, request_id, tx_id)       => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED , tx_id);
+export const setDepositOk   = (sender, request_id, tx_id)       => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED , tx_id   , undefined, false, REQUEST_ADMIN);
 export const rejectService  = (sender, c2c_player, request_id)  => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, true, c2c_player);
 export const cancelService  = (sender, c2c_player, request_id)  => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, true, c2c_player);
 export const acceptServiceRequest = (sender, request_id, c2c_player, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, tx_id, undefined, true, c2c_player);
@@ -223,6 +223,12 @@ export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id, is
         , [REQUEST_ADMIN]:    'requests_c2c_by_admin'};
     module = endpoint_options[c2c_player]    
   }
+  else{
+    if(!is_C2C && c2c_player==REQUEST_ADMIN){
+      module = 'requests_admin';    
+    }
+  }
+
   const path    = globalCfg.api.endpoint + `/${module}/${request_id}`;
   const method  = 'PATCH';
   let post_params = {
@@ -668,7 +674,7 @@ export const listRequestsForProvider = (page, limit, provider_id) =>   new Promi
 });
 
 export const refundWithdrawRequest  = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, tx_id);
-export const acceptWithdrawRequest  = (sender, request_id)               => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, undefined, undefined);
+export const acceptWithdrawRequest  = (sender, request_id)               => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, undefined, undefined, false, REQUEST_ADMIN);
 export const updateWithdraw         = (sender, request_id, tx_id)        => updateRequest(sender, request_id, undefined, tx_id);
 
 export const createWithdraw = (account_name, amount) =>   new Promise((res,rej)=> {
@@ -779,13 +785,17 @@ export const createProviderPaymentEx = (account_name, amount, provider_id, provi
 export const refundExternal             = (sender, request_id, state, tx_id)       => updateRequest(sender, request_id, state, undefined, tx_id);
 export const updateProviderPayment      = (sender, request_id, tx_id)              => updateRequest(sender, request_id, undefined, tx_id);
 export const cancelExternal             = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined);
-export const processExternal            = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_PROCESSING, undefined);
-export const acceptExternal             = (sender, request_id, attachments)        => updateExternal(sender, request_id, globalCfg.api.STATE_ACCEPTED, attachments);
+
+export const processExternal            = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_PROCESSING, undefined, true);
+export const acceptExternal             = (sender, request_id, attachments)        => updateExternal(sender, request_id, globalCfg.api.STATE_ACCEPTED, attachments, true);
+
 export const updateExternalFiles        = (sender, request_id, state, attachments) => updateExternal(sender, request_id, state, attachments);
 
 //export const updateExternal             = (sender, request_id, request_type, state, attachments) =>   new Promise((res,rej)=> {
-export const updateExternal             = (sender, request_id, state, attachments) =>   new Promise((res,rej)=> {  
-  const path    = globalCfg.api.endpoint + `/requests_files/${request_id}`;
+export const updateExternal             = (sender, request_id, state, attachments, is_admin) =>   new Promise((res,rej)=> {  
+
+  const module  = (is_admin===true)?'requests_files_admin':'requests_files';
+  const path    = globalCfg.api.endpoint + `/${module}/${request_id}`;
   const method  = 'POST';
   let post_params = {
     state:            state,
@@ -793,6 +803,7 @@ export const updateExternal             = (sender, request_id, state, attachment
     sender:           sender
   };
 
+  console.log(' -- PROCESS EXTERNAL:', path)
   let formData = new FormData();
 
   formData.append('request', JSON.stringify(post_params));

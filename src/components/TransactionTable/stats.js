@@ -64,7 +64,7 @@ const TableStats = ({stats_array, title, visible}) => {
     
 
     // const [my_visible, setVisible]          = useState((visible===false)||true);
-    const [my_visible, setVisible]          = useState((visible===undefined)?true:visible);
+    const [my_visible, setVisible]          = useState((visible===undefined)?false:visible);
 
     useEffect(() => {
 
