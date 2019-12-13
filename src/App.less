@@ -172,21 +172,32 @@
 */
 .c-header-detail{ 
   line-height: 1.4 ;
+  &.padding-top-1em{
+    padding-top:1em;
+    padding-bottom:0.5em;
+  }
 }
+
 .c-header-detail__head {
     font-size: 16px;
     line-height: 1.3125em;
     height: 1.3125em;
-    /*padding: 0 0 1em 0;*/
-    padding-bottom: 2em;
+    padding: 0 0 1em 0;
+    /*padding-bottom: 2em;*/
+    &.u-clearfix{
+    height:auto;
+    }
+    
 }
 
 .c-header-detail__title {
     float: left;
+    max-width: 550px;
 }
 
 .c-header-detail__actions {
     float: right;
+    width:145px;
 }
 
 /*

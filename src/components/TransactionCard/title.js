@@ -8,7 +8,7 @@ import * as request_helper from '@app/components/TransactionCard/helper';
 const TransactionTitle = ({title, button}) => {
     
     return(
-      <div className="c-header-detail ">
+      <div className="c-header-detail padding-top-1em">
           <div className="c-header-detail__head u-clearfix">
               <div className="c-header-detail__title">{title}</div>
               <div className="c-header-detail__actions">
