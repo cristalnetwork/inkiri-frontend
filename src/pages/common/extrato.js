@@ -52,6 +52,13 @@ const tabs = {
     [DISPLAY_EXCHANGES]:  'Exchanges',
     [DISPLAY_SERVICE]:    'Services',
     [DISPLAY_PAYMENTS]:   'Payments',
+  },
+  [globalCfg.bank.ACCOUNT_TYPE_FOUNDATION]: {
+    [DISPLAY_ALL_TXS]:    'Movements',
+    [DISPLAY_DEPOSIT]:    'Deposits',
+    [DISPLAY_WITHDRAWS]:  'Withdraws',
+    [DISPLAY_SERVICE]:    'Services',
+    [DISPLAY_PAYMENTS]:   'Payments',
   }
   
   // [DISPLAY_REQUESTS] : 'Requests',

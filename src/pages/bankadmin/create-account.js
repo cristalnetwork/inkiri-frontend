@@ -609,8 +609,7 @@ class CreateAccount extends Component {
     }
   
     //
-    if(globalCfg.bank.isBusinessAccount(account_type)
-      ||  globalCfg.bank.isFoundationAccount(account_type))
+    if(globalCfg.bank.isBusinessAccount(account_type))
     {
       const {business_name, alias} = this.state;
       return (<>
@@ -629,6 +628,22 @@ class CreateAccount extends Component {
               {getFieldDecorator('alias', {
                 rules: [{ required: true, message: 'Please input a valid IUGU alias!', whitespace: true }],
                 initialValue: alias
+              })(<Input />)}
+            </Form.Item>
+      </>);
+    }
+
+    if(globalCfg.bank.isFoundationAccount(account_type))
+    {
+      const {business_name} = this.state;
+      return (<>
+          <h3 className="fileds_header">PROFILE SECTION</h3>
+          <Form.Item
+            label="Nome do Fundo"
+            >
+              {getFieldDecorator('business_name', {
+                rules: [{ required: true, message: 'Please input a valid name!', whitespace: true }],
+                initialValue: business_name
               })(<Input />)}
             </Form.Item>
       </>);

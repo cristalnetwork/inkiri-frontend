@@ -171,6 +171,8 @@ export const getAccountStateTag = (account, include_br) => {
 export const getProfileName = (profile) => {
   if(globalCfg.bank.isBusinessAccount(profile.account_type))
     return profile.business_name;
+  if(globalCfg.bank.isFoundationAccount(profile.account_type))
+    return profile.business_name;
   return profile.first_name + ' ' + profile.last_name;
 }
 //

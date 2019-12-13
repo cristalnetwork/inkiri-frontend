@@ -73,6 +73,17 @@ const ConfigurationProfile = (props) => {
     if(!profile)
       return (null);
     
+    if(globalCfg.bank.isFoundationAccount(profile))
+      return(
+        <Skeleton 
+          content={
+              <div className="c-detail">
+                <TransactionPetitioner profile={profile} title="Foundation name" />
+                <TransactionTitle title="Profile Information" button={editProfileButton} />
+                <TransactionProfile profile={profile} />
+              </div>
+          } icon="home" />);
+
     if(globalCfg.bank.isBusinessAccount(profile))
       return(
         <Skeleton 
@@ -83,6 +94,7 @@ const ConfigurationProfile = (props) => {
                 <TransactionProfile profile={profile} />
               </div>
           } icon="store" />);
+
 
     if(globalCfg.bank.isPersonalAccount(profile))
       return(
