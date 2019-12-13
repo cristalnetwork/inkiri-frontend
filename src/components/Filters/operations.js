@@ -25,6 +25,7 @@ const OperationsFilter = (props) => {
     const [is_admin, setIsAdmin]       = useState(props.isAdmin);
     const [callback, setCallback]      = useState(props.callback);
     const [key, setKey]                = useState(props.the_key);
+    const [show_search, setShowSearch] = useState(props.show_search||false);
 
     const default_filter               = { 
         operation_type:   undefined     // ['ALL']
@@ -32,6 +33,7 @@ const OperationsFilter = (props) => {
         , account_type:   undefined     // ['ALL']
         , search_text:    ''
         , in_out:         undefined
+
     };
 
     const [filter, setFilter]          = useState(props.filter||default_filter);
@@ -50,6 +52,8 @@ const OperationsFilter = (props) => {
         // console.log(default_filter)
         // setFilter(props.filterKeyValues[key]||default_filter)
       }
+      if(show_search!=props.show_search)
+        setShowSearch(props.show_search);
     });
 
     const resetFilter = (e) => {
@@ -142,7 +146,7 @@ const OperationsFilter = (props) => {
                 without_icon={true}
                 size="default"/>
 
-        { form_helper.getSearchItem(_form
+        { show_search && form_helper.getSearchItem(_form
             , filter
             , 'search_text'
             , 'Search'
