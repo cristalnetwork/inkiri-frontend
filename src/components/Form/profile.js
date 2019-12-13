@@ -161,11 +161,12 @@ class ProfileForm extends Component {
     );
     //
 
+    //MODE==alias
     return (<Form onSubmit={this.handleSubmit} className="with_labels">
             <div className="money-transfer">
-              {form_helper.simple(form_helper.getStringItem(form, profile , 'account_name'  , 'Account name' , 'Please input a valid account name!', true))}
-              {form_helper.simple(form_helper.getStringItem(form, profile , 'business_name'    , 'Business name' , 'Please input a valid business name!'))}
-              {form_helper.simple(form_helper.getStringItem(form, profile , 'alias'    , 'IUGU alias'   , 'Please input a valid alias!'))}
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'account_name'   , 'Account name'  , 'Please input a valid account name!', true))}
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'business_name'  , 'Business name' , 'Please input a valid business name!'))}
+              {business && form_helper.simple(form_helper.getStringItem(form, profile , 'alias'          , 'IUGU alias'    , 'Please input a valid alias!'))}
 
             </div>
             <div className="mp-box__actions mp-box__shore">

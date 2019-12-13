@@ -49,14 +49,15 @@ const AccountView = (props) => {
       return (null);
 
     // const icon = profile?((globalCfg.bank.isBusinessAccount(profile))?'store':'user'):'piggy-bank';
-    const icon = (globalCfg.bank.isBusinessAccount(account))?'store':'user';
+    const is_business = (globalCfg.bank.isBusinessAccount(account));
+    const icon        = (is_business)?'store':'user';
     return(
       <Skeleton 
         content={
             <div className="c-detail">
               
               <TransactionAccount account={account} />
-              {profile?(
+              {(profile&&is_business)?(
                 <>
                   <TransactionTitle title="IUGU payment alias" button={editAccountButton} />
                   <IuguAlias profile={profile}/>

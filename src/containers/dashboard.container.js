@@ -17,7 +17,7 @@ import UserBalance from '@app/components/InkiriHeader/userBalance';
 
 const { Header, Content, Footer, Sider } = Layout;
 
-const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, itemPath, menuIsCollapsed, actualAccountName, collapseMenu, setIsMobile, trySwitchAccount}) => {
+const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, itemPath, menuIsCollapsed, actualAccountName, actualRole, collapseMenu, setIsMobile, trySwitchAccount}) => {
     
     const [__menuIsCollapsed, setMenuIsCollapsed] = useState(menuIsCollapsed);
     // console.log(' >>>>>>  DashboardContainer >> menuIsCollapsed >>' , menuIsCollapsed)
@@ -79,7 +79,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
               </a>
               {isMobile?(<AccountSelector onChange={switchAccount} isMobile={isMobile}/>):(null)}
             </div>
-            <div className={"logo_extra"}>
+            <div className={"logo_extra "+actualRole}>
               {__menuIsCollapsed?(null):<>
                                           <span>{globalCfg.currency.symbol}<UserBalance userId={actualAccountName} /></span>
                                           <br/> <span className="small">BALANCE</span> 
@@ -106,6 +106,8 @@ const DashboardContainer =
     state => ({
       menuIsCollapsed :     menuRedux.isCollapsed(state),
       actualAccountName :   loginRedux.actualAccountName(state),
+      actualRole :          loginRedux.actualRole(state),
+      
     }),
     dispatch => ({
       collapseMenu:         bindActionCreators(menuRedux.collapseMenu, dispatch),

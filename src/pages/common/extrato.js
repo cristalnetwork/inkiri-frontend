@@ -368,6 +368,12 @@ class Extrato extends Component {
     const stats                = this.renderTableViewStats();
     const my_tabs              = tabs[this.props.actualRoleId];
     
+    if(!my_tabs)
+    {
+      console.log(this.props.actualRoleId)
+      console.log(this.props.actualRole)
+      return (null);
+    }
     return (
       <>
         <PageHeader

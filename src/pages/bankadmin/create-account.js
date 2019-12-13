@@ -141,19 +141,7 @@ class CreateAccount extends Component {
     const my_options          = globalCfg.bank.newAccountTypesOptions();
     const { getFieldDecorator } = this.props.form;
     const {account_type}        = this.state;
-    /*
-    <Form.Item label="Account Type">
-                      {getFieldDecorator('account_type', {
-                        rules: [{ required: true, message: 'Please select an account type!' }],
-                        initialValue: account_type
-                      })(
-                        <Select onChange={this.handleAccountTypeChange}>
-                          <Option value="1">Personal Account</Option>
-                          <Option value="2">Business Account</Option>
-                        </Select>
-                      )}
-                    </Form.Item>
-                    */
+    
     return (
       <Form.Item label="Account Type" className="money-transfer__rowX">
           {getFieldDecorator( 'account_type', {
@@ -259,7 +247,8 @@ class CreateAccount extends Component {
     /* Manual Validation
      * Check if it's a business account -> must have at least one manager account */
     const {account_type, permissions} = this.state;
-    if(globalCfg.bank.isBusinessAccount(account_type) && (!permissions || !permissions['owner'] || permissions['owner'].length<1))
+    if(  (globalCfg.bank.isBusinessAccount(account_type) || globalCfg.bank.isFoundationAccount(account_type) )
+        && (!permissions || !permissions['owner'] || permissions['owner'].length<1))
     {
       this.openNotificationWithIcon("error", "Consider authorizing at least one owner account!","")  
       return;
@@ -620,7 +609,8 @@ class CreateAccount extends Component {
     }
   
     //
-    if(globalCfg.bank.isBusinessAccount(account_type))
+    if(globalCfg.bank.isBusinessAccount(account_type)
+      ||  globalCfg.bank.isFoundationAccount(account_type))
     {
       const {business_name, alias} = this.state;
       return (<>
