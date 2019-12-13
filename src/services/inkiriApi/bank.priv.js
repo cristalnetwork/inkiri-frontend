@@ -673,7 +673,7 @@ export const listRequestsForProvider = (page, limit, provider_id) =>   new Promi
   });
 });
 
-export const refundWithdrawRequest  = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, tx_id);
+export const refundWithdrawRequest  = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, tx_id, false, REQUEST_ADMIN);
 export const acceptWithdrawRequest  = (sender, request_id)               => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, undefined, undefined, false, REQUEST_ADMIN);
 export const updateWithdraw         = (sender, request_id, tx_id)        => updateRequest(sender, request_id, undefined, tx_id);
 
@@ -701,25 +701,6 @@ export const createWithdraw = (account_name, amount) =>   new Promise((res,rej)=
   });
   
 });
-// export const createProviderPayment = (account_name, amount, provider_id) =>   new Promise((res,rej)=> {  
-//   const path    = globalCfg.api.endpoint + '/requests';
-//   const method  = 'POST';
-//   const post_params = {
-//           'from':               account_name
-//           , 'requested_type':   globalCfg.api.TYPE_PROVIDER
-//           , 'amount':           Number(amount).toFixed(2)
-//           , 'provider':         provider_id
-//         };
-//   console.log(' inkiriApi::createProviderPayment >> ABOUT TO POST', JSON.stringify(post_params))
-//   jwtHelper.apiCall(path, method, post_params)
-//     .then((data) => {
-//         console.log(' inkiriApi::createProviderPayment >> RESPONSE', JSON.stringify(data))
-//         res(data)
-//       }, (ex) => {
-//         console.log(' inkiriApi::createProviderPayment >> ERROR ', JSON.stringify(ex))
-//         rej(ex);
-//       });
-// });
 
 export const createProviderPaymentEx = (account_name, amount, provider_id, provider_extra, attachments) =>   new Promise((res,rej)=> {
   
@@ -782,7 +763,7 @@ export const createProviderPaymentEx = (account_name, amount, provider_id, provi
     );
 });
 
-export const refundExternal             = (sender, request_id, state, tx_id)       => updateRequest(sender, request_id, state, undefined, tx_id);
+export const refundExternal             = (sender, request_id, state, tx_id)       => updateRequest(sender, request_id, state, undefined, tx_id, false, REQUEST_ADMIN);
 export const updateProviderPayment      = (sender, request_id, tx_id)              => updateRequest(sender, request_id, undefined, tx_id);
 export const cancelExternal             = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined);
 
@@ -790,7 +771,7 @@ export const processExternal            = (sender, request_id)                  
 export const acceptExternal             = (sender, request_id, attachments)        => updateExternal(sender, request_id, globalCfg.api.STATE_ACCEPTED, attachments, true);
 
 export const updateExternalFiles        = (sender, request_id, state, attachments) => updateExternal(sender, request_id, state, attachments);
-
+export const updateExternalFilesAdmin   = (sender, request_id, state, attachments) => updateExternal(sender, request_id, state, attachments, true);
 //export const updateExternal             = (sender, request_id, request_type, state, attachments) =>   new Promise((res,rej)=> {
 export const updateExternal             = (sender, request_id, state, attachments, is_admin) =>   new Promise((res,rej)=> {  
 

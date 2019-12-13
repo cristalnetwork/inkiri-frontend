@@ -106,18 +106,6 @@ const routes  = {
                     }
                 ]
             },
-            // {
-            //     key: 'personal_receive_money',
-            //     title: 'Receive',
-            //     icon: 'plus-square',
-            //     items: [
-            //         {
-            //             key: routes_config.pathNames.commonRequestMoney,
-            //             path: routes_config.pathNames.commonRequestMoney,
-            //             title: 'Request money',
-            //         }
-            //     ]
-            // },
             {
                 // key: routes_config.pathNames.personalSendMoney,
                 key: 'personal_send_money',

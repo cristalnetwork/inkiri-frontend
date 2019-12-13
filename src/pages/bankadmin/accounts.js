@@ -339,7 +339,7 @@ class AdminAccounts extends Component {
   render() {
     const content               = this.renderContent();
     const stats                 = this.renderTableViewStats();
-    const filters               = this.renderFilterContent();
+    const filters               = (null); //this.renderFilterContent();
     const _href                 = globalCfg.bank.customers;
     const {routes, loading}     = this.state;
     return (

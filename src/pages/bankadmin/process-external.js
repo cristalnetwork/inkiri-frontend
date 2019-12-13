@@ -399,7 +399,7 @@ class processExternal extends Component {
     const {request} = that.state;
     
     // api.bank.updateProviderPaymentFiles(this.props.actualAccountName ,request.id, request.state, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
-    api.bank.updateExternalFiles(this.props.actualAccountName ,request.id, request.state, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
+    api.bank.updateExternalFilesAdmin(this.props.actualAccountName ,request.id, request.state, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
     .then( (data) => {
         that.setState({pushingTx:false})
         that.openNotificationWithIcon("success", 'Nota uploaded successfully');

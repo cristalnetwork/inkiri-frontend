@@ -53,7 +53,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
         
       };
 
-      //collapsed={menuIsCollapsed} 
+    const hidden_if_collapsed = __menuIsCollapsed?' hidden':'';
     return (
         <Layout style={{ minHeight: '100vh' }}>
         <Sider 
@@ -79,7 +79,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
               </a>
               {isMobile?(<AccountSelector onChange={switchAccount} isMobile={isMobile}/>):(null)}
             </div>
-            <div className={"logo_extra "+actualRole}>
+            <div className={"logo_extra "+actualRole+hidden_if_collapsed}>
               {__menuIsCollapsed?(null):<>
                                           <span>{globalCfg.currency.symbol}<UserBalance userId={actualAccountName} /></span>
                                           <br/> <span className="small">BALANCE</span> 

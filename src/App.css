@@ -59,7 +59,7 @@
 /*HACK FOR FILTERS*/
 .filter_form{
   background-color: #f0f0f0;
-  padding:8px; 
+  padding:8px!important; 
   margin-bottom: 8px; 
 }
 .filter_form.ant-form-inline{
