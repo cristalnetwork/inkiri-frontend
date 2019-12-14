@@ -240,7 +240,7 @@ class Exchange extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Request a payment to a provider">
+          title="Request an exchange">
         </PageHeader>
 
         <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>

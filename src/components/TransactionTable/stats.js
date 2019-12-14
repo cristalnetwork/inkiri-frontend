@@ -107,7 +107,7 @@ const TableStats = ({stats_array, title, visible}) => {
       unCheckedChildren={<Icon type="eye-invisible" />}
     */
     return (
-      <div className="styles standardList statsWidget">
+      <div className={"styles standardList statsWidget "+(my_visible?'':'content_hidden')}>
         <Switch 
           defaultChecked={my_visible} 
           onChange={onChange} 

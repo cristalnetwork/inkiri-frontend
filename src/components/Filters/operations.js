@@ -26,6 +26,7 @@ const OperationsFilter = (props) => {
     const [callback, setCallback]      = useState(props.callback);
     const [key, setKey]                = useState(props.the_key);
     const [show_search, setShowSearch] = useState(props.show_search||false);
+    const [is_loading, setIsLoading]   = useState(props.isOperationsLoading||false);
 
     const default_filter               = { 
         operation_type:   undefined     // ['ALL']
@@ -43,6 +44,8 @@ const OperationsFilter = (props) => {
         setIsAdmin(props.isAdmin);
       if(callback!=props.callback)
         setCallback(props.callback);
+      if(is_loading!=props.isOperationsLoading)
+        setIsLoading(props.isOperationsLoading);
       if(key!=props.the_key)
         setKey(props.the_key);
       if(filter!=props.filterKeyValues[key] && filter!=default_filter)
@@ -57,7 +60,9 @@ const OperationsFilter = (props) => {
     });
 
     const resetFilter = (e) => {
+      console.log( ' -- resetFilter -- #1')
       e.preventDefault();
+      console.log( ' -- resetFilter -- #2')
       if(key)
         props.deleteFilterKeyValue(key)
     }
@@ -195,10 +200,10 @@ const OperationsFilter = (props) => {
         
         
         <Form.Item style={{alignSelf:'flex-end', alignItems:'flex-end', flex:1}}>
-          <Button htmlType="submit">
+          <Button htmlType="submit" disabled={is_loading}>
             Filter
           </Button>
-          <Button type="link" onClick={() => resetFilter}>
+          <Button type="link" disabled={is_loading} onClick={(event) => resetFilter(event)}>
             Reset
           </Button>
         </Form.Item>
@@ -211,7 +216,9 @@ const OperationsFilter = (props) => {
 export default Form.create() (connect(
     (state)=> ({
       isAdmin:               loginRedux.isAdmin(state),
-      filterKeyValues:       operationsRedux.filterKeyValues(state)
+      filterKeyValues:       operationsRedux.filterKeyValues(state),
+      isOperationsLoading:   operationsRedux.isOperationsLoading(state),
+
     }),
     (dispatch)=>({
       trySetFilterKeyValue:  bindActionCreators(operationsRedux.trySetFilterKeyValue, dispatch),

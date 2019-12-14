@@ -18,10 +18,11 @@ const END_LOAD_BLOCKCHAIN_OPERATIONS     = 'operations/END_LOAD_BLOCKCHAIN_OPERA
 
 const TRY_SET_FILTER_KEY_VALUE           = 'operations/TRY_SET_FILTER_KEY_VALUE';
 const SET_FILTER_KEY_VALUE               = 'operations/SET_FILTER_KEY_VALUE';
-const DELETE_FILTER_KEY_VALUE            = 'operations/DELETE_FILTER_KEY_VALUE';
 
 const TRY_FILTER_OPERATIONS              = 'operations/TRY_FILTER_OPERATIONS';
 const SET_FILTERED_OPERATIONS            = 'operations/SET_FILTERED_OPERATIONS';
+
+// const LOAD_OPERATIONS                    = 'operations/LOAD_OPERATIONS'
 
 // Creadores de acciones (se pueden usar desde los compoenentes)
 export const loadBlockchainOperations    = ()       =>({ type: LOAD_BLOCKCHAIN_OPERATIONS});
@@ -35,7 +36,7 @@ export const prependBlockchainOperations = (data)   =>({ type: PREPEND_BLOCKCHAI
 
 export const trySetFilterKeyValue        = (key, value)   =>({ type: TRY_SET_FILTER_KEY_VALUE, payload: { key:key, value:value }});
 export const setFilterKeyValue           = (key, value)   =>({ type: SET_FILTER_KEY_VALUE, payload: { key:key, value:value }});
-export const deleteFilterKeyValue        = (key)    =>({ type: DELETE_FILTER_KEY_VALUE, payload: { key:key }});
+export const deleteFilterKeyValue        = (key)          =>({ type: TRY_SET_FILTER_KEY_VALUE, payload: { key:key , value:{} }});
 
 export const tryFilterOperations         = ()       =>({ type: TRY_FILTER_OPERATIONS });
 export const setFilteredOperations       = (opers)  =>({ type: SET_FILTERED_OPERATIONS , payload: { filtered_operations : opers }});
@@ -127,22 +128,32 @@ function* tryFilterOperationsSaga(){
   const raw_operations = store.getState().operations.raw_operations;
   const filters        = store.getState().operations.filter_key_values;
 
-  
   if(!raw_operations || !filters){
     // fire error
-    yield put( setFilteredOperations( raw_operations||[] ) )
+    yield put( setFilteredOperations( raw_operations||{} ) )
     return;
   }
 
   // console.log('raw_operations ->', JSON.stringify(raw_operations));
   try{
-    const filter_keys = Object.keys(filters);
-    const filtered_operations = filter_keys.map(
+    const filters_keys = Object.keys(filters);
+    // console.log(' -- tryFilterOperationsSaga: #1', filters_keys)
+    const filtered_operations = filters_keys.map(
       (filter_key) => {
-        const filter = filters[filter_key];
-
+        // console.log(' -- tryFilterOperationsSaga: #2', filter_key)
+        const filter               = filters[filter_key];
+        // console.log(' -- tryFilterOperationsSaga: #3', filter)
+        const current_filter_keys  = Object.keys(filter);
+        // console.log(' -- tryFilterOperationsSaga: #4', current_filter_keys)
+        if(!current_filter_keys.length)
+        {
+          // console.log(' -- tryFilterOperationsSaga: #5')
+          return [...raw_operations];
+        }
+        // console.log(' -- tryFilterOperationsSaga: #6')
         return raw_operations.filter( (oper) => {
           const filter_account_name = filter['account_name'];
+          console.log(' -- tryFilterOperationsSaga: #7')
           if(!filter_account_name)
             return true;
           return oper.data.from==filter_account_name || oper.data.to==filter_account_name
@@ -150,7 +161,8 @@ function* tryFilterOperationsSaga(){
       }
     )
     
-    const ret = _.zipObject([filter_keys], [filtered_operations])
+    const ret = _.zipObject(filters_keys, filtered_operations)
+    // console.log('zipObject:', JSON.stringify(ret))
     yield put( setFilteredOperations(ret||{}) )
   }catch(e){
     console.log(' -- tryFilterOperationsSaga: exception', JSON.stringify(e))
@@ -174,6 +186,7 @@ store.injectSaga('operations', [
   takeEvery(TRY_SET_FILTER_KEY_VALUE, trySetFiltersSaga),
   
   takeEvery(TRY_FILTER_OPERATIONS, tryFilterOperationsSaga),
+
 ]);
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
@@ -261,13 +274,6 @@ function reducer(state = defaultState, action = {}) {
       return  {
         ...state,
         filter_key_values : { ..._filter_key_values, [action.payload.key] : action.payload.value }
-      }
-    case DELETE_FILTER_KEY_VALUE:
-      let _filter_key_values1 = state.filter_key_values;
-      delete _filter_key_values1[action.payload.key];
-      return  {
-        ...state,
-        filter_key_values : { ..._filter_key_values1 }
       }
     case SET_FILTERED_OPERATIONS:
       // console.log(' redux SET_FILTERED_OPERATIONS->', action.payload.filtered_operations)

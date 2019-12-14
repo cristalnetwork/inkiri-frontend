@@ -1,4 +1,4 @@
-const env        = "env";
+const env        = "dev";
 
 const language   = "english";
 
