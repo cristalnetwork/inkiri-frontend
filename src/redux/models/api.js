@@ -199,6 +199,7 @@ function reducer(state = defaultState, action = {}) {
       }
     
     case CLEAR_ERRORS_AND_RESULTS:
+      console.log('redux->CLEAR_ERRORS_AND_RESULTS')
       return {
         ...state
         , errors: []

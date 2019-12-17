@@ -30,9 +30,8 @@ const TxResult = ({result_type, title, message, tx_id, error, cb}) => {
     const default_message_suc = 'Cloud server takes up to 30 seconds, please wait!';
     const default_message_err = 'Please check and modify the following information before resubmitting.';
 
-    let buttons = [(<Button type="primary" key="go-to-dashboard" onClick={()=>backToDashboard()}>
-                  Go to dashboard
-                </Button>)];
+    let buttons = [ <Button type="primary" icon="close-circle" key="close" onClick={()=>reset()}>Close</Button>,
+                    <Button key="go-to-dashboard" onClick={()=>backToDashboard()}>Go to dashboard</Button>];
     //
     if(result_type=='ok') result_type='success'
     if(result_type=='success' && tx_id)
@@ -41,7 +40,6 @@ const TxResult = ({result_type, title, message, tx_id, error, cb}) => {
       buttons.push(<Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>)
     }
     //
-    buttons.push(<Button shape="circle" icon="close-circle" key="close" onClick={()=>reset()} />);
 
     const default_title  = (result_type=='error')?default_title_err:default_title_suc;
     const default_mesage = (result_type=='error')?default_message_err:default_message_suc;

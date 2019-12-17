@@ -26,8 +26,9 @@ class AutocompleteAccount extends Component {
     this.state = {
       fetching:            false,
       size:                props.size,
+      value:               props.value,
       data:                [],
-      value:               undefined, // <- This shold receive value prop!
+      
       selected:            undefined,
       form:                props.form,
       exclude_list:        props.exclude_list,
@@ -42,14 +43,19 @@ class AutocompleteAccount extends Component {
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.handleChange               = this.handleChange.bind(this)
     this.setAccounts                = this.setAccounts.bind(this)
-    this.loadAccounts              = this.loadAccounts.bind(this)
-    // this.lastFetchId   = 0;
-    // this.fetchProvider = debounce(this.fetchProvider, 800);
+    this.loadAccounts               = this.loadAccounts.bind(this)
+    this.reset                      = this.reset.bind(this)
   }
 
   componentDidMount(){
     // this.props.loadAccounts();
     this.setAccounts();
+    
+    if(typeof this.props.onRef==='function')
+    {
+      console.log('YES')
+      this.props.onRef(this)
+    }
   }
 
   componentDidUpdate(prevProps, prevState) 
@@ -75,6 +81,11 @@ class AutocompleteAccount extends Component {
         this.setAccounts();
       }
 
+      // if(prevProps.value !== this.props.value )
+      // {
+      //   this.setState({value:value});
+      // }
+
       if(prevProps.exclude_list !== this.props.exclude_list )
       {  
         this.setState({
@@ -84,6 +95,11 @@ class AutocompleteAccount extends Component {
         });
       }
     // this.setState({fetching: false});
+  }
+
+  componentWillUnmount() {
+    if(typeof this.props.onRef==='function')
+      this.props.onRef(undefined)
   }
 
   setAccounts = () => {
@@ -148,6 +164,10 @@ class AutocompleteAccount extends Component {
     if(typeof callback === 'function')
       callback(changedValue);
   };
+
+  reset = () => {
+    this.props.form.setFieldsValue({[this.props.name]:''})
+  }
 
   onChange = (o) => {
 

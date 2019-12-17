@@ -270,8 +270,9 @@ export const getColumnsForRequests = (callback, is_admin) => {
       title: '#',
       key: 'action',
       render: (text, record) => {
-        const title = 'Details';
-        return request_helper.getProcessButton(record, callback, title);
+        const isFinished = globalCfg.api.isFinished(record);
+        const title      = isFinished ? 'Details' : 'Process';
+        return request_helper.getProcessButton(record, callback, title, !isFinished);
       },
     },
     //

@@ -216,6 +216,12 @@ const api = {
   , isProviderPayment  : (request) => { return (request.tx_type==api.TYPE_PROVIDER||request.requested_type==api.TYPE_PROVIDER)}
   , isExchange         : (request) => { return (request.tx_type==api.TYPE_EXCHANGE||request.requested_type==api.TYPE_EXCHANGE)}
   , isService          : (request) => { return (request.tx_type==api.TYPE_SERVICE||request.requested_type==api.TYPE_SERVICE)}
+  , requiresAttach     : (request) => { 
+      return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER].includes(request.state);
+  }
+  , canRefund          : (request) => { 
+      return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER, api.TYPE_WITHDRAW].includes(request.state);
+  }
   , getTypes           : () => { return [ api.TYPE_DEPOSIT, api.TYPE_EXCHANGE, api.TYPE_PAYMENT, api.TYPE_PROVIDER, api.TYPE_SEND, api.TYPE_WITHDRAW, api.TYPE_SERVICE];}
   , STATE_REQUESTED             : 'state_requested'
   , STATE_PROCESSING            : 'state_processing'
@@ -248,21 +254,21 @@ const api = {
   , stateToColor : (request_state) => {
       // source: https://mdbootstrap.com/live/_doc/all-colors.html
       const states = {
-        [api.STATE_REQUESTED]        : '#2BBBAD', //'#fa8c16', 
-        [api.STATE_PROCESSING]       : '#00695c', //'#acd126', 
-        [api.STATE_ACCEPTED]         : '#00C851', //'#70d147', 
+        [api.STATE_REQUESTED]        : 'rgba(43, 187, 173, 0.5)'  , // '#2BBBAD'
+        [api.STATE_PROCESSING]       : 'rgba(0, 105, 92, 0.5)'    , // '#00695c', 
+        [api.STATE_ACCEPTED]         : 'rgba(0, 200, 81, 0.5)'    , // '#00C851', 
         
-        [api.STATE_REFUNDED]         : '#aa66cc', //'red', //'#2f54eb', //'geekblue',
-        [api.STATE_REVERTED]         : '#9933CC', // 'red', //'#2f54eb', //'geekblue',
+        [api.STATE_REFUNDED]         : 'rgba(170, 102, 204, 0.5)' , // '#aa66cc', 
+        [api.STATE_REVERTED]         : 'rgba(153, 51, 204, 0.5)'  , // '#9933CC', 
 
-        [api.STATE_REJECTED]         : '#CC0000', //'red', 
-        [api.STATE_ERROR]            : '#CC0000', //'red', 
+        [api.STATE_REJECTED]         : 'rgba(204, 0, 0, 0.5)'     , // '#CC0000', 
+        [api.STATE_ERROR]            : 'rgba(204, 0, 0, 0.5)'     , // '#CC0000', 
 
-        [api.STATE_CANCELED]         : '#ff4444', //'#fa541c',
+        [api.STATE_CANCELED]         : 'rgba(255, 68, 68, 0.5)'   , // '#ff4444', 
 
-        [api.STATE_VIRTUAL_PENDING]  : '#ffbb33'
+        [api.STATE_VIRTUAL_PENDING]  : 'rgba(255, 187, 51, 0.5)' , // '#ffbb33'
       } 
-      return states[request_state] || 'gray';
+      return states[request_state] ||  'rgba(80,80,80,0.5)' ;//'gray';
     }
   , getStates           : () => { return [api.STATE_REQUESTED, api.STATE_PROCESSING, api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_ERROR, api.STATE_REFUNDED, api.STATE_REVERTED, api.STATE_CANCELED];}
   , isOnBlockchain      : (request) => {
@@ -272,7 +278,7 @@ const api = {
       return request.tx_id || request.transaction_id;
     }
   , isFinished         : (request) => {
-      return [api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR].includes(request.state);
+      return [api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR, api.STATE_CANCELED].includes(request.state);
     }
   , isProcessing       : (request) => {
       return [api.STATE_PROCESSING].indexOf(request.state)>=0;

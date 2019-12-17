@@ -80,17 +80,22 @@ const OperationsFilter = (props) => {
       
       props.form.validateFields((err, values) => {
         
-        // console.log('applyFilter => ', values);
-
-        const x = _.index( values, {
+        return;
+        
+        const obj = _.index( values, {
           pathFormat: 'string',
           leavesOnly: true,
           includeRoot: !_.isArray(values)}) 
         
-        console.log(JSON.stringify(x))
-        console.log(x)
-        
-        return;
+        const filtered  = _.reduce(obj, function(result, value, key) {
+          if(value)
+            result[key] = value;
+          return result;
+        }, {});
+
+        console.log(JSON.stringify(filtered))
+                
+        // {"request.requested_type[0]":"type_exchange","request.requested_type[1]":"type_payment","date_range[0]":null,"date_range[1]":null,"data.from":"businesstest"}
         
         if (err) {
           // openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    

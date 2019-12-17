@@ -4,6 +4,7 @@ import { Layout, PageHeader } from 'antd';
 import * as globalCfg from '@app/configs/global';
 
 import InkiriHeader from '@app/components/InkiriHeader';
+
 import * as menuRedux from '@app/redux/models/menu'
 import * as loginRedux from '@app/redux/models/login'
 
@@ -14,21 +15,20 @@ import useMedia from 'react-media-hook2';
 
 import AccountSelector from '@app/components/InkiriHeader/accountSelector';
 import UserBalance from '@app/components/InkiriHeader/userBalance';
+import * as components_helper from '@app/components/helper';
 
 const { Header, Content, Footer, Sider } = Layout;
 
-const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, itemPath, menuIsCollapsed, actualAccountName, actualRole, collapseMenu, setIsMobile, trySwitchAccount}) => {
+const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, itemPath, menuIsCollapsed, actualAccountName, actualRole
+                              , collapseMenu, setIsMobile, trySwitchAccount}) => {
     
-    const [__menuIsCollapsed, setMenuIsCollapsed] = useState(menuIsCollapsed);
-    // console.log(' >>>>>>  DashboardContainer >> menuIsCollapsed >>' , menuIsCollapsed)
-    // const onCollapse = (e) => {
-    //   // collapseMenu(!menuIsCollapsed);
-    // };
-
+    const [menu_is_collapsed, setMenuIsCollapsed] = useState(menuIsCollapsed);
+    
     useEffect(() => {
-      if(__menuIsCollapsed!=menuIsCollapsed)
+      if(menu_is_collapsed!=menuIsCollapsed)
         setMenuIsCollapsed(menuIsCollapsed);
       console.log('dashboard::useEffect::menuIsCollapsed', menuIsCollapsed);
+
     })
 
     const isMobile = useMedia({
@@ -53,21 +53,20 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
         
       };
 
-    const hidden_if_collapsed = __menuIsCollapsed?' hidden':'';
+    const hidden_if_collapsed = menu_is_collapsed?' hidden':'';
     return (
         <Layout style={{ minHeight: '100vh' }}>
         <Sider 
           collapsible 
-          collapsed={__menuIsCollapsed} 
+          collapsed={menu_is_collapsed} 
           onCollapse={(collapsed, type) => {onCollapse(collapsed, type)}}
-          defaultCollapsed={__menuIsCollapsed} 
+          defaultCollapsed={menu_is_collapsed} 
           theme="light"
           breakpoint="sm"
           onBreakpoint={broken => {
             // console.log( ' >>> Sider::broken? >>>' , broken);
           }}
           collapsedWidth={isMobile?0:80}
-          
           >
 
             <div className={"logo" + logo_mobile}>
@@ -75,12 +74,12 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
                 <div className="img_container">
                   <img src="/favicons/favicon-32x32.png" />
                 </div>
-                {__menuIsCollapsed?(null):(<span>INKIRI BANK</span>)}
+                {menu_is_collapsed?(null):(<span>INKIRI BANK</span>)}
               </a>
               {isMobile?(<AccountSelector onChange={switchAccount} isMobile={isMobile}/>):(null)}
             </div>
             <div className={"logo_extra "+actualRole+hidden_if_collapsed}>
-              {__menuIsCollapsed?(null):<>
+              {menu_is_collapsed?(null):<>
                                           <span>{globalCfg.currency.symbol}<UserBalance userId={actualAccountName} /></span>
                                           <br/> <span className="small">BALANCE</span> 
                                         </>}
@@ -108,8 +107,10 @@ const DashboardContainer =
       actualAccountName :   loginRedux.actualAccountName(state),
       actualRole :          loginRedux.actualRole(state),
       
+
     }),
     dispatch => ({
+
       collapseMenu:         bindActionCreators(menuRedux.collapseMenu, dispatch),
       setIsMobile:          bindActionCreators(menuRedux.setIsMobile, dispatch),
       trySwitchAccount:     bindActionCreators(loginRedux.trySwitchAccount, dispatch),

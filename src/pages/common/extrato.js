@@ -363,6 +363,10 @@ class Extrato extends Component {
             dataSource={this.state.txs} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
+            onRow={(record, rowIndex) => {
+              return { onDoubleClick: event => { this.onTransactionClick(record) }
+              };
+            }}
             scroll={{ x: 700 }}
             />
         </>

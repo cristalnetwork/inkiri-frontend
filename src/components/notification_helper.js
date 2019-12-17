@@ -1,30 +1,41 @@
 import React from 'react'
 import { notification } from 'antd';
 
-export const openNotificationWithIcon = (type, title, message) => {
+export const openNotificationWithIcon = (type, title, message, onClose) => {
+  
   notification[type]({
-    message: title,
-    description:message,
+    key:         `key_${Math.random()}`,
+    message:     title,
+    description: message,
+    onClose:      () => {
+      console.log(' NOTIF LLAMA A onClose')
+      if(typeof onClose === 'function')
+        onClose();
+    },
+    style: {
+      width: 600,
+      marginLeft: 400 - 600
+    },
   });
 }
 
-export const errorNotification = (title, message) => {
-  openNotificationWithIcon('error', title, message)
+export const errorNotification = (title, message, onClose) => {
+  openNotificationWithIcon('error', title, message, onClose)
 }
 
-export const successNotification = (title, message) => {
-  openNotificationWithIcon('success', title, message)
+export const successNotification = (title, message, onClose) => {
+  openNotificationWithIcon('success', title, message, onClose)
 }
 
-export const infoNotification = (title, message) => {
-  openNotificationWithIcon('info', title, message)
+export const infoNotification = (title, message, onClose) => {
+  openNotificationWithIcon('info', title, message, onClose)
 }
 
-export const warningNotification = (title, message) => {
-  openNotificationWithIcon('warning', title, message)
+export const warningNotification = (title, message, onClose) => {
+  openNotificationWithIcon('warning', title, message, onClose)
 }
 
-export const exceptionNotification = (title, ex) => {
+export const exceptionNotification = (title, ex, onClose) => {
   const message = (ex && Object.keys(ex).length>0)?JSON.stringify(ex):'Please check internet connection and/or service availability!';
-  openNotificationWithIcon('error', title, message)
+  openNotificationWithIcon('error', title, message, onClose)
 }

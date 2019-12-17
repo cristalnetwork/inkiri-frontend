@@ -166,6 +166,10 @@ class TransactionTable extends Component {
         pagination={this.state.pagination}
         scroll={{ x: 700 }}
         expandedRowRender={columns_helper.expandedRequestRowRender}
+        onRow={(record, rowIndex) => {
+              return { onDoubleClick: event => { this.props.callback(record) }
+              };
+            }}
       />
     
     )

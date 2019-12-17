@@ -186,7 +186,7 @@ export const getBlockchainLink = (tx_id, withIcon, size, text) => {
   return (<Button title="View transaction on blockchain explorer" type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} title="View on Blockchain" style={{color:'inherit', paddingLeft:0}}>{_text}&nbsp;{icon}</Button>)
 }
 //
-export const getProcessButton = (request, callback, text) => {
+export const getProcessButton = (request, callback, text, is_primary) => {
   const title = (typeof text==='undefined')?((globalCfg.api.isFinished(request))?"Details":"Process"):text;
 
   const buttonClick = (callback, request) => {
@@ -196,7 +196,7 @@ export const getProcessButton = (request, callback, text) => {
       return;
     }
   }
-  return (<Button key={'details_'+request.id} size="small" onClick={()=>{ buttonClick(callback, request) }}>{title}</Button>);
+  return (<Button key={'details_'+request.id} size="small" type={is_primary?'primary':'default'} onClick={()=>{ buttonClick(callback, request) }}>{title}</Button>);
 }
 //
 

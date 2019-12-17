@@ -80,22 +80,10 @@ class SendMoney extends Component {
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
     if(prevProps.getErrors!=this.props.getErrors){
-      const ex = this.props.getLastError;
-      new_state = {...new_state, 
-          getErrors:     this.props.getErrors, 
-          result:        ex?'error':undefined, 
-          error:         ex?JSON.stringify(ex):null}
-      if(ex)
-        components_helper.notif.exceptionNotification("An error occurred!", ex);
     }
     if(prevProps.getResults!=this.props.getResults){
-      const lastResult = this.props.getLastResult;
-      new_state = {...new_state, 
-        getResults:      this.props.getResults, 
-        result:          lastResult?'ok':undefined, 
-        result_object:   lastResult};
-      if(lastResult)
-        components_helper.notif.successNotification('Operation completed successfully')
+      const that = this;
+      setTimeout(()=> that.resetPage() ,100);
     }
 
 
@@ -120,13 +108,6 @@ class SendMoney extends Component {
     });
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-
   backToDashboard = async () => {
     this.props.history.push({
       pathname: `/common/extrato`
@@ -135,14 +116,16 @@ class SendMoney extends Component {
 
   resetResult(){
     this.setState({...DEFAULT_RESULT});
-    // reset Errors and results
-    this.props.clearAll();
   }
 
   resetPage(){
     this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
-    // reset Errors and results
-    this.props.clearAll();
+    if(this.autocompleteWidget)
+    {
+      const that = this;
+      setTimeout(()=> that.autocompleteWidget.reset() ,100);
+    }
+    this.props.form.setFieldsValue({'transfer_extra.message':''})
     
   }
 
@@ -180,38 +163,8 @@ class SendMoney extends Component {
       </Form.Item>
     )
   }
+  
   //
-  // onInputAmount(event){
-  //   event.preventDefault();
-  //   const the_value = event.target.value;
-  //   const _input_amount = this.state.input_amount;
-  //   this.props.form.setFieldsValue({'input_amount.value':the_value})
-  //   this.setState({input_amount: {..._input_amount, value: the_value}}, 
-  //     () => {
-  //       if(the_value && the_value.toString().length){
-  //         const value = the_value.toString();
-  //         var digitCount = value.length > 0 ? value.replace(/\./g,"").replace(/,/g,"").length : 1
-  //         var symbolCount = value.length > 0 ? value.length - digitCount : 0;
-  //         const isMobile = false;
-  //         var size = isMobile ? 48 : 100
-
-  //         if(digitCount > 7){
-  //           size = isMobile ? 40 : 48
-  //         } else if(digitCount > 4){
-  //           size = isMobile ? 48 : 70
-  //         }
-
-  //         const {input_amount} = this.state;
-  //         this.setState({
-  //                 input_amount : {
-  //                   ...input_amount
-  //                   , style :         {fontSize: size, width:(digitCount * (size*0.6))+(symbolCount * (size*0.2)) }
-  //                   , symbol_style: {fontSize:  (size*0.6)}
-  //                 }
-  //               });
-  //       }
-  //     });
-  // }
 
   onInputAmount(param){
     let the_value = param;
@@ -256,6 +209,7 @@ class SendMoney extends Component {
   }
 
   onPay = () => {
+    
     this.props.form.validateFields((err, values) => {
       if (err) {
         //
@@ -268,7 +222,7 @@ class SendMoney extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (err) {
-        //
+        components_helper.notif.errorNotification("Errors!",JSON.stringify(err));
         return;
       }
       this.doPayOrSend(values, false);
@@ -281,19 +235,19 @@ class SendMoney extends Component {
     
     if(isNaN(input_amount.value))
     {
-      this.openNotificationWithIcon("error", "Valid number required for amount","Please type a validnumber greater than 0!")    
+      components_helper.notif.errorNotification("Valid number required for amount","Please type a validnumber greater than 0!");
       return;
     }
     if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
     {
       const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-      this.openNotificationWithIcon("error", `Amount must be equal or less than balance ${balance_txt}!`); //`
+      components_helper.notif.errorNotification(`Amount must be equal or less than balance ${balance_txt}!`); //`
       return;
     }
 
     if(this.props.isBusiness && !(transfer_extra || transfer_extra[globalCfg.api.TRANSFER_REASON]))
     {
-      this.openNotificationWithIcon("error", 'Please choose a transfer reason.');
+      components_helper.notif.errorNotification('Please choose a transfer reason.');
       return;
     }
 
@@ -377,6 +331,9 @@ class SendMoney extends Component {
 
     const { getFieldDecorator }               = this.props.form;
     const { input_amount, isFetching}           = this.state;
+
+    // <Button size="large" key="payButton" type="link" onClick={this.onPay} style={{marginLeft:8}}loading={isFetching} ><FontAwesomeIcon icon="shopping-bag" size="1x"/>&nbsp;PAY</Button>
+
     return (
         <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
           
@@ -384,7 +341,7 @@ class SendMoney extends Component {
             
             <div className="money-transfer">    
                
-              <AutocompleteAccount callback={this.onSelect} form={this.props.form} name="receipt" />
+              <AutocompleteAccount onRef={ref => (this.autocompleteWidget = ref)} callback={this.onSelect} form={this.props.form} name="receipt"  />
 
               <Form.Item label="Amount" className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
@@ -432,7 +389,6 @@ class SendMoney extends Component {
 
             <div className="mp-box__actions mp-box__shore">
               <Button size="large" key="sendButton" htmlType="submit" type="primary" loading={isFetching} ><FontAwesomeIcon icon="paper-plane" size="1x"/>&nbsp; SEND</Button>
-              <Button size="large" key="payButton" type="link" onClick={this.onPay} style={{marginLeft:8}}loading={isFetching} ><FontAwesomeIcon icon="shopping-bag" size="1x"/>&nbsp;PAY</Button>
             </div>
 
           </Form>  

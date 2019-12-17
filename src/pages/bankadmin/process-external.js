@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login'
 import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
+import * as apiRedux from '@app/redux/models/api';
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
@@ -46,9 +47,8 @@ class processExternal extends Component {
     this.state = {
       referrer:        (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined,
       loading:      false,
-      receipt:      '',
-      amount:       0,
-      memo:         '',
+      isFetching:   false,
+      
       pushingTx:    false,
       
       ...DEFAULT_RESULT,
@@ -59,11 +59,8 @@ class processExternal extends Component {
       ...DEFAULT_ATTACHS,
     };
 
-    // this.handleSearch = this.handleSearch.bind(this); 
-    this.onSelect                   = this.onSelect.bind(this); 
     this.renderContent              = this.renderContent.bind(this); 
     this.resetPage                  = this.resetPage.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
   }
 
@@ -84,32 +81,54 @@ class processExternal extends Component {
     }
   }
 
+  componentDidUpdate(prevProps, prevState) 
+  {
+    let new_state = {};
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+    if(prevProps.getErrors!=this.props.getErrors){
+      const ex = this.props.getLastError;
+      new_state = {...new_state, 
+          getErrors:     this.props.getErrors, 
+          result:        ex?'error':undefined, 
+          error:         ex?JSON.stringify(ex):null}
+      if(ex)
+        components_helper.notif.exceptionNotification("An error occurred!", ex);
+    }
+    if(prevProps.getResults!=this.props.getResults){
+      const lastResult = this.props.getLastResult;
+      new_state = {...new_state, 
+        getResults:      this.props.getResults, 
+        result:          lastResult?'ok':undefined, 
+        result_object:   lastResult};
+      if(lastResult)
+      {
+        const that = this;
+        setTimeout(()=> that.reload() ,250);
+        components_helper.notif.successNotification('Operation completed successfully')
+      }
+    }
+
+
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
+  }
+
   reload(){
     const that      = this;
     const {request} = this.state;
-    this.setState({pushingTx:true});
+    this.setState({loading:true});
     api.bank.getRequestById(request.id)
         .then( (data) => {
-            that.setState({pushingTx:false, request:data, ...DEFAULT_ATTACHS})
+            that.setState({loading:false, request:data, ...DEFAULT_ATTACHS})
           },
           (ex) => {
-            that.openNotificationWithIcon("error", 'An error occurred reloading request', JSON.stringify(ex));
-            that.setState({pushingTx:false, ...DEFAULT_ATTACHS});
+            components_helper.notif.exceptionNotification("An error occurred reloading request!", ex);
+            that.setState({loading:false, ...DEFAULT_ATTACHS});
             console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
           }  
         );
-  }
-
-  onSelect(value) {
-    console.log('onSelect', value);
-    this.setState({receipt:value})
-  }
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
 
   getPropsForUploader(name){
@@ -129,7 +148,7 @@ class processExternal extends Component {
       beforeUpload: file => {
         if(this.state.attachments[name] && this.state.attachments[name].length>0)
         {
-          this.openNotificationWithIcon("info", "Only 1 file allowed")    
+          components_helper.notif.infoNotification("Only 1 file allowed");
           return false;
         }
 
@@ -233,12 +252,12 @@ class processExternal extends Component {
         api.bank.processExternal(that.props.actualAccountName, request.id)
         .then( (data) => {
             that.setState({pushingTx:false})
-            that.openNotificationWithIcon("success", 'Request changed successfully');
+            components_helper.notif.successNotification('Request changed successfully');
             that.reload();
           },
           (ex) => {
             that.setState({pushingTx:false})
-            that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
+            components_helper.notif.exceptionNotification("An error occurred!", ex);
             console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
           }  
         );
@@ -264,7 +283,7 @@ class processExternal extends Component {
     const my_COMPROBANTE   = this.getAttach(globalCfg.api.COMPROBANTE);
     if(!my_COMPROBANTE)
     {
-      this.openNotificationWithIcon("error", 'Comprobante attachments is required', 'Please attach a Comprobante pdf file.');
+      components_helper.notif.errorNotification('Comprobante attachments is required', 'Please attach a Comprobante pdf file.');
       return;
     }  
     let attachs = {[globalCfg.api.COMPROBANTE]:my_COMPROBANTE};
@@ -291,13 +310,13 @@ class processExternal extends Component {
         api.bank.acceptExternal(that.props.actualAccountName, request.id, attachs)
         .then( (data) => {
             that.setState({pushingTx:false})
-            that.openNotificationWithIcon("success", 'Request accepted successfully');
+            components_helper.notif.successNotification('Request accepted successfully');
             that.reload();
           },
           (ex) => {
             console.log(' ** ERROR @ acceptWithComprobanteRequest', JSON.stringify(ex));
             that.setState({pushingTx:false})
-            that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
+            components_helper.notif.exceptionNotification("An error occurred!", ex);
           }  
         );
         
@@ -368,18 +387,18 @@ class processExternal extends Component {
               // that.clearAttachments();
               that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request.id} });
               that.reload();
-              that.openNotificationWithIcon("success", 'Request refunded successfully');
+              components_helper.notif.successNotification('Request refunded successfully');
 
             }, (ex2) => {
               console.log(' processExternal::refund (error#2) >>  ', JSON.stringify(ex2));
-              that.openNotificationWithIcon("error", 'Refund completed succesfully but could not update request', JSON.stringify(ex2));
+              components_helper.notif.exceptionNotification('Refund completed succesfully but could not update request', ex2);              
               that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
           });
 
       }, (ex1) => {
         
         console.log(' processExternal::refund (error#1) >>  ', JSON.stringify(ex1));
-        that.openNotificationWithIcon("error", 'Refund could not be completed', JSON.stringify(ex1));
+        components_helper.notif.exceptionNotification('Refund could not be completed', ex1);              
         that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
 
       });
@@ -390,7 +409,7 @@ class processExternal extends Component {
     const my_NOTA_FISCAL   = this.getAttach(globalCfg.api.NOTA_FISCAL);
     if(!my_NOTA_FISCAL)
     {
-      this.openNotificationWithIcon("error", 'Nota Fiscal attachment is required', 'Please attach a Nota Fiscal PDF file.');
+      components_helper.notif.errorNotification('Nota Fiscal attachment is required', 'Please attach a Nota Fiscal PDF file.');
       return;
     }   
     
@@ -402,12 +421,12 @@ class processExternal extends Component {
     api.bank.updateExternalFilesAdmin(this.props.actualAccountName ,request.id, request.state, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
     .then( (data) => {
         that.setState({pushingTx:false})
-        that.openNotificationWithIcon("success", 'Nota uploaded successfully');
+        components_helper.notif.successNotification('Nota uploaded successfully');
         that.reload();
       },
       (ex) => {
         that.setState({pushingTx:false})
-        that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
+        components_helper.notif.exceptionNotification('An error occurred', ex);
         console.log(' ** ERROR @ updateRequest', JSON.stringify(ex))
       }  
     );
@@ -428,13 +447,13 @@ class processExternal extends Component {
         api.bank.acceptWithdrawRequest(that.props.actualAccountName, request.id)
         .then( (data) => {
             that.setState({pushingTx:false})
-            that.openNotificationWithIcon("success", 'Withdraw request accepted successfully');
+            components_helper.notif.successNotification('Withdraw request accepted successfully');
             that.reload();
           },
           (ex) => {
             console.log(' ** ERROR @ acceptWithdraw', JSON.stringify(ex));
             that.setState({pushingTx:false})
-            that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
+            components_helper.notif.exceptionNotification('An error occurred!', ex);
           }  
         );
         
@@ -468,18 +487,19 @@ class processExternal extends Component {
               // that.clearAttachments();
               that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request.id} });
               that.reload();
-              that.openNotificationWithIcon("success", 'Request refunded successfully');
+              components_helper.notif.successNotification('Request refunded successfully');
 
             }, (ex2) => {
               console.log(' processExternal::refund (error#2) >>  ', JSON.stringify(ex2));
-              that.openNotificationWithIcon("error", 'Refund completed succesfully but could not update request', JSON.stringify(ex2));
+              components_helper.notif.exceptionNotification('Refund completed succesfully but could not update request', ex2);
               that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
           });
 
       }, (ex1) => {
         
         console.log(' processExternal::refund (error#1) >>  ', JSON.stringify(ex1));
-        that.openNotificationWithIcon("error", 'Refund could not be completed', JSON.stringify(ex1));
+        components_helper.notif.exceptionNotification('Refund could not be completed', ex1);
+
         that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
 
       });
@@ -519,23 +539,27 @@ class processExternal extends Component {
                     that.reload();
                     that.setState({result:'ok', pushingTx:false, result_object:data});
 
+                    components_helper.notif.successNotification('Issue completed successfully');
+
                   }, (err) => {
                     
                     that.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
-                    that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
+                    components_helper.notif.exceptionNotification('An error occurred', err);
                   }
                 )
               }
               else{
                 that.setState({result:'error', pushingTx:false, error:'UNKNOWN!'});
-                that.openNotificationWithIcon("error", 'An error occurred', 'UNKNOWN!'+JSON.stringify(data));
+                components_helper.notif.errorNotification('An error occurred', 'UNKNOWN!'+JSON.stringify(data));
+                
+
               }
               
             }, (ex)=>{
               console.log(' processRequest::issue (error#1) >>  ', JSON.stringify(ex));
               that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
-              that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
-
+              components_helper.notif.exceptionNotification('An error occurred', ex);
+              
             });
         },
       onCancel() {
@@ -646,9 +670,20 @@ export default Form.create() (withRouter(connect(
         isLoading:          loginRedux.isLoading(state),
         balance:            balanceRedux.userBalanceFormatted(state),
         isAdmin:            loginRedux.isAdmin(state),
-        isBusiness:         loginRedux.isBusiness(state)
+        isBusiness:         loginRedux.isBusiness(state),
+
+
+        isFetching:       apiRedux.isFetching(state),
+        getErrors:        apiRedux.getErrors(state),
+        getLastError:     apiRedux.getLastError(state),
+        getResults:       apiRedux.getResults(state),
+        getLastResult:    apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
+        callAPI:          bindActionCreators(apiRedux.callAPI, dispatch),
+        callAPIEx:        bindActionCreators(apiRedux.callAPIEx, dispatch),
+        clearAll:         bindActionCreators(apiRedux.clearAll, dispatch),
+
         // isAdmin:    bindActionCreators(loginRedux.isAdmin, dispatch),
         // isBusiness: bindActionCreators(loginRedux.isBusiness, dispatch)
     })

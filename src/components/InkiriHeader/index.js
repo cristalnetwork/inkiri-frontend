@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 
 import UserBalance from './userBalance';
 
+import * as apiRedux from '@app/redux/models/api';
 import * as menuRedux from '@app/redux/models/menu'
 import * as loginRedux from '@app/redux/models/login'
 
@@ -13,6 +14,7 @@ import * as loginRedux from '@app/redux/models/login'
 import './right_content.less';
 
 import AccountSelector from '@app/components/InkiriHeader/accountSelector';
+import * as components_helper from '@app/components/helper';
 
 import * as globalCfg from '@app/configs/global';
 
@@ -29,13 +31,46 @@ class InkiriHeader extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    let new_state = {};
+
     if(this.props.isMobile!=prevProps.isMobile)
-      this.setState({isMobile:this.props.isMobile})
+      new_state = {...new_state, isMobile:this.props.isMobile}
 
     if(this.props.menuIsCollapsed!=prevProps.menuIsCollapsed)
-      this.setState({menuIsCollapsed:this.props.menuIsCollapsed})
-    
+      new_state = {...new_state, menuIsCollapsed:this.props.menuIsCollapsed}
+  
+
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+
+    if(prevProps.getErrors!=this.props.getErrors){
+      const ex = this.props.getLastError;
+      new_state = {...new_state, 
+          getErrors:     this.props.getErrors, 
+          result:        ex?'error':undefined, 
+          error:         ex?JSON.stringify(ex):null}
+      if(ex)
+        components_helper.notif.exceptionNotification("An error occurred!", ex, this.props.clearAll)
+    }
+
+    if(prevProps.getResults!=this.props.getResults){
+      const lastResult = this.props.getLastResult;
+      new_state = {...new_state, 
+        getResults:      this.props.getResults, 
+        result:          lastResult?'ok':undefined, 
+        result_object:   lastResult};
+      if(lastResult)
+      {
+        components_helper.notif.successNotification('Operation completed successfully', undefined, this.props.clearAll)
+      }
+    }
+
+
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
   }
+
   toggle = () => {
     this.props.collapseMenu(!this.props.menuIsCollapsed);
     // this.setState({
@@ -72,18 +107,19 @@ class InkiriHeader extends Component {
   render(){
     let header_content ;
     const {isMobile, menuIsCollapsed} = this.state;
-    const hidden_class = menuIsCollapsed? '':'hidden';
+    const logo_class = menuIsCollapsed? 'ant-pro-global-header-logo':'hidden';
+    
     if(isMobile)
     {
       header_content = (
         <>
-        <a className={`ant-pro-global-header-logo ${hidden_class}`} key="logo" href="/">
-          <img src="/favicons/favicon-32x32.png" alt="logo" />
-        </a>
-        <div className="right">
-          <span className="hidden">Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
-          <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
-        </div>
+          <a className={logo_class} key="logo" href="/">
+            <img src="/favicons/favicon-32x32.png" alt="logo"/>
+          </a>
+          <div className="right">
+            <span className="hidden">Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
+            <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
+          </div>
         </>
         );
     }
@@ -111,17 +147,27 @@ class InkiriHeader extends Component {
 
 }
 //
+//
 export default connect(
     (state)=> ({
       actualAccountName :   loginRedux.actualAccountName(state),
       menuIsCollapsed :     menuRedux.isCollapsed(state),
-      isMobile :            menuRedux.isMobile(state)
+      isMobile :            menuRedux.isMobile(state),
+    
+      isFetching:       apiRedux.isFetching(state),
+      getErrors:        apiRedux.getErrors(state),
+      getLastError:     apiRedux.getLastError(state),
+      getResults:       apiRedux.getResults(state),
+      getLastResult:    apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
-        // try: bindActionCreators(userRedux.tryUserState , dispatch),
-        tryLogin:           bindActionCreators(loginRedux.tryLogin, dispatch),
-        trySwitchAccount:   bindActionCreators(loginRedux.trySwitchAccount, dispatch),
-        logout:             bindActionCreators(loginRedux.logout, dispatch),
-        collapseMenu:       bindActionCreators(menuRedux.collapseMenu, dispatch)
+      callAPI:          bindActionCreators(apiRedux.callAPI, dispatch),
+      callAPIEx:        bindActionCreators(apiRedux.callAPIEx, dispatch),
+      clearAll:         bindActionCreators(apiRedux.clearAll, dispatch),
+
+      tryLogin:           bindActionCreators(loginRedux.tryLogin, dispatch),
+      trySwitchAccount:   bindActionCreators(loginRedux.trySwitchAccount, dispatch),
+      logout:             bindActionCreators(loginRedux.logout, dispatch),
+      collapseMenu:       bindActionCreators(menuRedux.collapseMenu, dispatch)
     })
 )(InkiriHeader)

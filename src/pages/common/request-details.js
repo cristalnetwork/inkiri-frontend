@@ -92,25 +92,28 @@ class requestDetails extends Component {
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
     if(prevProps.getErrors!=this.props.getErrors){
-      const ex = this.props.getLastError;
-      new_state = {...new_state, 
-          getErrors:     this.props.getErrors, 
-          result:        ex?'error':undefined, 
-          error:         ex?JSON.stringify(ex):null}
-      if(ex)
-        components_helper.notif.exceptionNotification("An error occurred!", ex);
+      
+      // const ex = this.props.getLastError;
+      // new_state = {...new_state, 
+      //     getErrors:     this.props.getErrors, 
+      //     result:        ex?'error':undefined, 
+      //     error:         ex?JSON.stringify(ex):null}
+      // if(ex)
+      //   components_helper.notif.exceptionNotification("An error occurred!", ex);
+    
     }
     if(prevProps.getResults!=this.props.getResults){
+      
       const lastResult = this.props.getLastResult;
-      new_state = {...new_state, 
-        getResults:      this.props.getResults, 
-        result:          lastResult?'ok':undefined, 
-        result_object:   lastResult};
+      // new_state = {...new_state, 
+      //   getResults:      this.props.getResults, 
+      //   result:          lastResult?'ok':undefined, 
+      //   result_object:   lastResult};
       if(lastResult)
       {
         const that = this;
         setTimeout(()=> that.reload() ,250);
-        components_helper.notif.successNotification('Operation completed successfully')
+        // components_helper.notif.successNotification('Operation completed successfully')
       }
     }
 
@@ -411,20 +414,6 @@ class requestDetails extends Component {
           }
         
         that.props.callAPI(step._function, step._params)
-        // that.setState({pushingTx:true});
-        // const {request} = that.state;
-        // api.bank.cancelService(that.props.actualAccountName, request.id)
-        // .then( (data) => {
-        //     that.setState({pushingTx:false})
-        //     that.openNotificationWithIcon("success", 'Request canceled successfully');
-        //     that.reload();
-        //   },
-        //   (ex) => {
-        //     console.log(' ** ERROR @ cancelRequest', JSON.stringify(ex))
-        //     that.setState({pushingTx:false})
-        //     that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
-        //   }  
-        // );
         
       },
       onCancel() {
@@ -433,6 +422,9 @@ class requestDetails extends Component {
       },
     });
   }
+
+  cancelRequestAndRefund = () => this.cancelRequest(true);
+  cancelRequestOnly      = () => this.cancelRequest(false);
 
   cancelRequest(refund_message){
     let that = this;  
@@ -450,19 +442,6 @@ class requestDetails extends Component {
           }
         
         that.props.callAPI(step._function, step._params)
-        
-        // api.bank.cancelExternal(that.props.actualAccountName, request.id)
-        // .then( (data) => {
-        //     that.setState({pushingTx:false})
-        //     that.openNotificationWithIcon("success", 'Request canceled successfully');
-        //     that.reload();
-        //   },
-        //   (ex) => {
-        //     console.log(' ** ERROR @ cancelRequest', JSON.stringify(ex))
-        //     that.setState({pushingTx:false})
-        //     that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
-        //   }  
-        // );
         
       },
       onCancel() {
@@ -540,7 +519,9 @@ class requestDetails extends Component {
     //
     const cancelServiceButton = (<Button loading={isFetching} size="large" onClick={() => this.cancelService(false)} key="cancelServiceButton" className="danger_color" style={{marginLeft:16}} type="link" >CANCEL</Button>);
     //
-    const cancelRefundButton  = (<Button loading={isFetching} size="large" onClick={() => this.cancelRequest(true)} key="cancelRefundButton" className="danger_color" style={{marginLeft:16}} type="link" >CANCEL</Button>);
+    const cancelRefundButton  = (<Button loading={isFetching} size="large" onClick={() => this.cancelRequestAndRefund()} key="cancelRefundButton" className="danger_color" style={{marginLeft:16}} type="link" >CANCEL</Button>);
+      //
+    const cancelButton        = (<Button loading={isFetching} size="large" onClick={() => this.cancelRequestOnly()} key="cancelButton" className="danger_color" style={{marginLeft:16}} type="link" >CANCEL</Button>);
     //
     const rejectButton        = (<Button loading={isFetching} size="large" onClick={() => this.rejectRequest()} key="rejectButton" className="danger_color" style={{marginLeft:16}} type="link" >REJECT</Button>);
     //
@@ -552,8 +533,12 @@ class requestDetails extends Component {
     //
     const refundButton        = (<Button loading={isFetching} size="large" onClick={() => this.refundRequest()} key="refundButton" type="primary" style={{marginLeft:16}} type="primary" >REFUND</Button>);
     //
+    const requires_attachment = globalCfg.api.requiresAttach(request);
+    const can_refund          = globalCfg.api.canRefund(request);
+
     switch (request.state){
       case globalCfg.api.STATE_REQUESTED:
+
         // Special case for Service request.
         if(this.props.isPersonal && globalCfg.api.isService(request))
         {
@@ -573,12 +558,12 @@ class requestDetails extends Component {
         if(this.props.isBusiness || this.props.isPersonal)
         {
           if(!request.attach_nota_fiscal_id)
-            return [attachNotaButton, cancelRefundButton];
-          return [cancelRefundButton];
+            return [(requires_attachment&&attachNotaButton), (can_refund&&cancelRefundButton), (!can_refund&&cancelButton)];
+          return [(can_refund&&cancelRefundButton), (!can_refund&&cancelButton)];
         }
 
-        if(!request.attach_nota_fiscal_id)
-          return [processButton, attachNotaButton, rejectButton];
+        if(!request.attach_nota_fiscal_id )
+          return [processButton, (requires_attachment&&attachNotaButton), rejectButton];
         return [processButton, rejectButton];
       break;
       case globalCfg.api.STATE_PROCESSING:
@@ -590,7 +575,7 @@ class requestDetails extends Component {
 
         if(this.props.isBusiness || this.props.isPersonal)
           if(!request.attach_nota_fiscal_id)
-            return [attachNotaButton];
+            return [(requires_attachment&&attachNotaButton)];
           else
             return [];
         return [acceptButton, revertButton];
@@ -618,7 +603,7 @@ class requestDetails extends Component {
         }
 
         if(!request.attach_nota_fiscal_id)
-          return [attachNotaButton];
+          return [(requires_attachment&&attachNotaButton)];
         return [];
       break;
       case globalCfg.api.STATE_ERROR:
@@ -643,14 +628,12 @@ class requestDetails extends Component {
     {
       routes         = routesService.breadcrumbForPaths([referrer, this.props.location.pathname]);
     }
-    const title         = this.props.isAdmin?'Process External Transfer':'Request details';
-    const subTitle      = this.props.isAdmin?'Process customer request':'';
+    const title         = 'Request details';
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title={title}
-          subTitle={subTitle}>
+          title={title}>
         </PageHeader>
         
         {content}
