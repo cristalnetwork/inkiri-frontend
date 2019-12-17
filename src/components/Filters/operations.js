@@ -17,6 +17,14 @@ import * as form_helper from '@app/components/Form/form_helper';
 
 import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
+
+import lodash from 'lodash';
+import deepdash from 'deepdash';
+const _ = deepdash(lodash);
+
+// import _ from 'lodash';
+// import deepdash from 'deepdash/deepdash';
+
 const { MonthPicker, RangePicker } = DatePicker;
 const { Option } = Select;
 
@@ -72,8 +80,18 @@ const OperationsFilter = (props) => {
       
       props.form.validateFields((err, values) => {
         
-        console.log('applyFilter => ', values);
+        // console.log('applyFilter => ', values);
 
+        const x = _.index( values, {
+          pathFormat: 'string',
+          leavesOnly: true,
+          includeRoot: !_.isArray(values)}) 
+        
+        console.log(JSON.stringify(x))
+        console.log(x)
+        
+        return;
+        
         if (err) {
           // openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
           console.log(' ERRORS!! >> ', err)
@@ -144,10 +162,18 @@ const OperationsFilter = (props) => {
         
         <AutocompleteAccount 
                 autoFocus 
-                label={'Account name'}
+                label={'Sender'}
                 not_required={true}
                 form={_form} 
-                name="account_name" 
+                name="data.from" 
+                without_icon={true}
+                size="default"/>
+        <AutocompleteAccount 
+                autoFocus 
+                label={'Receiver/recipient'}
+                not_required={true}
+                form={_form} 
+                name="data.to" 
                 without_icon={true}
                 size="default"/>
 
@@ -162,7 +188,7 @@ const OperationsFilter = (props) => {
 
         { form_helper.getSelectItem(_form
             , filter
-            , 'operation_type'
+            , 'request.requested_type'
             , renderSelectTxTypeOptions()
             , 'Operation'
             , 'Operation'
@@ -170,7 +196,7 @@ const OperationsFilter = (props) => {
             , dropdownRender
             , undefined) }
 
-        { form_helper.getSelectItem(_form
+        { false && form_helper.getSelectItem(_form
             , filter
             , 'in_out'
             , renderSelectInOutOptions()
@@ -180,7 +206,7 @@ const OperationsFilter = (props) => {
             , dropdownRender
             , undefined) }
 
-        { form_helper.getSelectItem(_form
+        { false && form_helper.getSelectItem(_form
             , filter
             , 'account_type'
             , renderSelectAccountTypeOptions()

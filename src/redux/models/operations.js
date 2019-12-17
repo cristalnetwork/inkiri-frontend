@@ -129,34 +129,38 @@ function* tryFilterOperationsSaga(){
   const filters        = store.getState().operations.filter_key_values;
 
   if(!raw_operations || !filters){
-    // fire error
+    // fire error ?
     yield put( setFilteredOperations( raw_operations||{} ) )
     return;
   }
 
-  // console.log('raw_operations ->', JSON.stringify(raw_operations));
+  console.log(JSON.stringify(raw_operations));
+
   try{
     const filters_keys = Object.keys(filters);
-    // console.log(' -- tryFilterOperationsSaga: #1', filters_keys)
     const filtered_operations = filters_keys.map(
       (filter_key) => {
-        // console.log(' -- tryFilterOperationsSaga: #2', filter_key)
         const filter               = filters[filter_key];
-        // console.log(' -- tryFilterOperationsSaga: #3', filter)
         const current_filter_keys  = Object.keys(filter);
-        // console.log(' -- tryFilterOperationsSaga: #4', current_filter_keys)
         if(!current_filter_keys.length)
         {
-          // console.log(' -- tryFilterOperationsSaga: #5')
           return [...raw_operations];
         }
-        // console.log(' -- tryFilterOperationsSaga: #6')
+        console.log('current_filter_keys:', current_filter_keys)
         return raw_operations.filter( (oper) => {
-          const filter_account_name = filter['account_name'];
-          console.log(' -- tryFilterOperationsSaga: #7')
-          if(!filter_account_name)
-            return true;
-          return oper.data.from==filter_account_name || oper.data.to==filter_account_name
+          
+          return current_filter_keys.filter( _filter_field => {
+            console.log('current_filter_keys._filter_field :', _filter_field)
+            const filter_fileds = _filter_field.split('|')
+            filter_fileds.filter(filter_field => {
+              return filter_field.reduce((acc, field) => acc[field], oper) == filter[_filter_field]
+            })
+          }).length > 0;
+          
+          // const filter_account_name = filter['account_name'];
+          // if(!filter_account_name)
+          //   return true;
+          // return oper.data.from==filter_account_name || oper.data.to==filter_account_name
         });   
       }
     )
@@ -169,6 +173,7 @@ function* tryFilterOperationsSaga(){
     console.log(' filter:', JSON.stringify(filters))
   }
 }
+
 
 function* initOperationsReduxSaga () {
   // yield put({type: core.ACTION_START, payload: { loadBlockchainOperations: 'Loading blockahin operations'}})
