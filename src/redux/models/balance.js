@@ -29,8 +29,8 @@ function* loadBalanceSaga({action, payload}) {
 
   const { data }= yield api.getAccountBalance(account_name);
   if(data) {
-    const original = data.balance||0;
-    let amount     = original;
+    const balance           = data.balance||0;
+    let without_overdraft   = balance;
     try{
       console.log('--balance redux#1:')
       if(!store.getState().accounts.bank_account)
@@ -40,11 +40,11 @@ function* loadBalanceSaga({action, payload}) {
       console.log('--balance redux#2:', oft)
       const oft_number = globalCfg.currency.toNumber(oft);
       console.log('--balance redux#3:', oft_number)
-      amount = amount - oft_number; 
+      without_overdraft = without_overdraft - oft_number; 
     }catch(e){
       console.log('--balance error#1:', JSON.stringify(e))
     }
-    yield put(setBalance({account_name, balance: {balance:amount, original:original}}))
+    yield put(setBalance({account_name, balance: {balance:balance, without_overdraft:without_overdraft}}))
   }
 }
 
@@ -86,6 +86,10 @@ store.injectSaga('balances', [
 // Selectores - Conocen el stado y retornan la info que es necesaria
 export const userBalance           = (state) => state.balances.balance;
 export const userBalanceFormatted  = (state) => Number(state.balances.balance).toFixed(2);
+
+export const userBalanceNoOft      = (state) => state.balances.without_overdraft;
+export const userBalanceNoOftFormatted  = (state) => Number(state.balances.without_overdraft).toFixed(2);
+
 export const isLoading             = (state) => state.balances.isLoading > 0
 export const currencyStats         = (state) => state.balances.currency_stats
 export const isLoadingStats        = (state) => state.balances.is_loading_stats
@@ -93,7 +97,7 @@ export const isLoadingStats        = (state) => state.balances.is_loading_stats
 // El reducer del modelo
 const defaultState = {
   balance:           0,
-  original:          0,
+  without_overdraft:          0,
   isLoading:         0,
   currency_stats:    {},
   is_loading_stats:  false
@@ -126,7 +130,7 @@ function reducer(state = defaultState, action = {}) {
       return  {
         ...state
         , balance:     action.payload.balance.balance 
-        , original:     action.payload.balance.original
+        , without_overdraft:     action.payload.balance.without_overdraft
         // , accounts: [
         //   ...state.accounts.filter(x =>x.key !== action.payload.key), //Quito el balance anterior
         //   action.payload //Agrego el nuevo

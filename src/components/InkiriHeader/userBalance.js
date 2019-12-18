@@ -59,7 +59,7 @@ class UserBalance extends Component  {
 
 export default connect(
     (state)=> ({
-        balance:   balanceRedux.userBalanceFormatted(state),
+        balance:   balanceRedux.userBalanceNoOftFormatted(state),
         loading:   balanceRedux.isLoading(state),
     }),
     (dispatch) => ({

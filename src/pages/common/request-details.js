@@ -112,7 +112,7 @@ class requestDetails extends Component {
       if(lastResult)
       {
         const that = this;
-        setTimeout(()=> that.reload() ,250);
+        setTimeout(()=> that.reload() ,100);
         // components_helper.notif.successNotification('Operation completed successfully')
       }
     }

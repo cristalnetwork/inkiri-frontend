@@ -367,7 +367,7 @@ class Extrato extends Component {
               return { onDoubleClick: event => { this.onTransactionClick(record) }
               };
             }}
-            scroll={{ x: 700 }}
+            scroll={{ x: 950 }}
             />
         </>
       );

@@ -79,15 +79,18 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
       title: 'From',
       dataIndex: 'data.from',
       key: 'from',
+      width: '110px',
     },
     {
       title: 'To',
       dataIndex: 'data.to',
       key: 'to',
+      width: '110px',
     },
     {
       title: '#',
       key: 'action',
+      width: '80px',
       render: (text, record) => {
         // const process     = request_helper.(record, callback, 'Details');
         // const blockchain  = request_helper.getBlockchainLink(record.transaction_id, true);
@@ -98,11 +101,12 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
     },
     //
     {
-      title: '$',
-      align: 'right',
-      dataIndex: 'amount',
-      key: 'amount',
-      className:'amount_col',
+      title:       '$',
+      align:       'right',
+      dataIndex:   'amount',
+      key:         'amount',
+      fixed:       'right',
+      className:   'amount_col',
       render: (amount, record) => {
         const negative = request_helper.blockchain.isNegativeTransaction(record)
         return (
@@ -197,7 +201,7 @@ export const getColumnsForRequests = (callback, is_admin) => {
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.block_time_number - b.block_time_number,
       align: 'left',
-      width: '15%',
+      width: '150px',
       render: (block_time, record) => {
         return (
             <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
@@ -211,7 +215,7 @@ export const getColumnsForRequests = (callback, is_admin) => {
       title: 'Type',
       dataIndex: 'tx_type',
       key: 'tx_type',
-      width: '35%',
+      width: '400px',
       render: (tx_type, record) => {
         
         return (<span className="name_value_row ">
@@ -258,17 +262,18 @@ export const getColumnsForRequests = (callback, is_admin) => {
       title: 'From',
       dataIndex: 'from',
       key: 'from',
-      width: '10%',
+      width: '110px',
     },
     {
       title: 'To',
       dataIndex: 'to',
       key: 'to',
-      width: '10%',
+      width: '110px',
     },
     {
       title: '#',
       key: 'action',
+      width: '80px',
       render: (text, record) => {
         const isFinished = globalCfg.api.isFinished(record);
         const title      = isFinished ? 'Details' : 'Process';
@@ -277,11 +282,12 @@ export const getColumnsForRequests = (callback, is_admin) => {
     },
     //
     {
-      title: '$',
-      align: 'right',
-      dataIndex: 'amount',
-      key: 'amount',
-      className:'amount_col',
+      title:       '$',
+      align:       'right',
+      dataIndex:   'amount',
+      key:         'amount',
+      fixed:       'right',
+      className:   'amount_col',
       render: (amount, record) => {
         const negative = request_helper.blockchain.isNegativeTransaction(record)
         return (
