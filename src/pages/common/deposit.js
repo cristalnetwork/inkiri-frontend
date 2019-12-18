@@ -9,8 +9,6 @@ import * as apiRedux from '@app/redux/models/api';
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
-import PropTypes from "prop-types";
-
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
@@ -62,15 +60,6 @@ class DepositMoney extends Component {
     this.onInputAmount              = this.onInputAmount.bind(this);
   }
 
-  static propTypes = {
-    // match: PropTypes.object.isRequired,
-    // location: PropTypes.object.isRequired,
-    // history: PropTypes.object.isRequired
-    match: PropTypes.object,
-    location: PropTypes.object,
-    history: PropTypes.object
-  };
-
   componentDidMount(){
     
     this.getNextEnvelopeId();
@@ -83,22 +72,27 @@ class DepositMoney extends Component {
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
     if(prevProps.getErrors!=this.props.getErrors){
-      const ex = this.props.getLastError;
-      new_state = {...new_state, 
-          getErrors:     this.props.getErrors, 
-          result:        ex?'error':undefined, 
-          error:         ex?JSON.stringify(ex):null}
-      if(ex)
-        components_helper.notif.exceptionNotification("An error occurred!", ex);
+      // const ex = this.props.getLastError;
+      // new_state = {...new_state, 
+      //     getErrors:     this.props.getErrors, 
+      //     result:        ex?'error':undefined, 
+      //     error:         ex?JSON.stringify(ex):null}
+      // if(ex)
+      //   components_helper.notif.exceptionNotification("An error occurred!", ex);
     }
     if(prevProps.getResults!=this.props.getResults){
       const lastResult = this.props.getLastResult;
-      new_state = {...new_state, 
-        getResults:      this.props.getResults, 
-        result:          lastResult?'ok':undefined, 
-        result_object:   lastResult};
+      // new_state = {...new_state, 
+      //   getResults:      this.props.getResults, 
+      //   result:          lastResult?'ok':undefined, 
+      //   result_object:   lastResult};
       if(lastResult)
-        components_helper.notif.successNotification('Operation completed successfully')
+      {
+        const that = this;
+        setTimeout(()=> that.resetPage() ,100);
+        // components_helper.notif.successNotification('Operation completed successfully')
+      }
+       
     }
 
 
@@ -132,14 +126,14 @@ class DepositMoney extends Component {
   resetResult(){
     this.setState({...DEFAULT_RESULT});
     // reset Errors and results
-    this.props.clearAll();
+    // this.props.clearAll();
   }
 
   resetPage(){
     this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
     this.getNextEnvelopeId();
     // reset Errors and results
-    this.props.clearAll();
+    // this.props.clearAll();
   }
 
   userResultEvent = (evt_type) => {

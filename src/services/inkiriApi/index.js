@@ -416,9 +416,9 @@ export const chargeService = async (auth_account, auth_priv, account_name, provi
 
 
 export const refund                 = (sender_account, sender_priv, receiver_account, amount, request_id, tx_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('bck|' + request_id + '|' + tx_id));
-export const sendMoney              = (sender_account, sender_priv, receiver_account, amount, memo)       => transferMoney(sender_account, sender_priv, receiver_account, amount, ('snd|'+memo)); 
-export const sendPayment            = (sender_account, sender_priv, receiver_account, amount, memo)       => transferMoney(sender_account, sender_priv, receiver_account, amount, ('pay|'+memo)); 
-export const requestProviderPayment = (sender_account, sender_priv, receiver_account, amount, request_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('prv|' + request_id)); 
+export const sendMoney              = (sender_account, sender_priv, receiver_account, amount, memo)              => transferMoney(sender_account, sender_priv, receiver_account, amount, ('snd|'+memo)); 
+export const sendPayment            = (sender_account, sender_priv, receiver_account, amount, memo)              => transferMoney(sender_account, sender_priv, receiver_account, amount, ('pay|'+memo)); 
+export const requestProviderPayment = (sender_account, sender_priv, receiver_account, amount, request_id)        => transferMoney(sender_account, sender_priv, receiver_account, amount, ('prv|' + request_id)); 
 export const requestExchange        = (sender_account, sender_priv, receiver_account, amount, bank_account_id, request_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('xch|' + request_id + '|' + bank_account_id)); 
 export const requestWithdraw        = (sender_account, sender_priv, receiver_account, amount, request_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('wth|' + request_id)); 
 

@@ -36,6 +36,10 @@
   }
 }
 
+.right {
+  float: right;
+  overflow: hidden;
+}
 /*.right {
   float: right;
   height: 100%;

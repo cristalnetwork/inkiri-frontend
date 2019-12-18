@@ -274,7 +274,7 @@ class Operations extends Component {
             dataSource={this.state.txs} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
-            scroll={{ x: 700 }}
+            scroll={{ x: 950 }}
             />
         </>
       );
