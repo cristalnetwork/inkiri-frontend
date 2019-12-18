@@ -71,15 +71,6 @@ class DepositMoney extends Component {
     if(prevProps.isFetching!=this.props.isFetching){
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
-    if(prevProps.getErrors!=this.props.getErrors){
-      // const ex = this.props.getLastError;
-      // new_state = {...new_state, 
-      //     getErrors:     this.props.getErrors, 
-      //     result:        ex?'error':undefined, 
-      //     error:         ex?JSON.stringify(ex):null}
-      // if(ex)
-      //   components_helper.notif.exceptionNotification("An error occurred!", ex);
-    }
     if(prevProps.getResults!=this.props.getResults){
       const lastResult = this.props.getLastResult;
       // new_state = {...new_state, 
@@ -125,15 +116,11 @@ class DepositMoney extends Component {
 
   resetResult(){
     this.setState({...DEFAULT_RESULT});
-    // reset Errors and results
-    // this.props.clearAll();
   }
 
   resetPage(){
     this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
     this.getNextEnvelopeId();
-    // reset Errors and results
-    // this.props.clearAll();
   }
 
   userResultEvent = (evt_type) => {
@@ -338,7 +325,7 @@ class DepositMoney extends Component {
         >
           
         </PageHeader>
-          <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+          <div style={{ margin: '0 0px', padding: 24}}>
             <div className="ly-main-content content-spacing cards">
               <section className="mp-box mp-box__shadow money-transfer__box">
                 {content}
@@ -358,8 +345,6 @@ export default Form.create() (withRouter(connect(
         isLoading:          loginRedux.isLoading(state),
     
         isFetching:         apiRedux.isFetching(state),
-        getErrors:          apiRedux.getErrors(state),
-        getLastError:       apiRedux.getLastError(state),
         getResults:         apiRedux.getResults(state),
         getLastResult:      apiRedux.getLastResult(state),
     }),

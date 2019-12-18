@@ -68,22 +68,22 @@ class Exchange extends Component {
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
     if(prevProps.getErrors!=this.props.getErrors){
-      const ex = this.props.getLastError;
-      new_state = {...new_state, 
-          getErrors:     this.props.getErrors, 
-          result:        ex?'error':undefined, 
-          error:         ex?JSON.stringify(ex):null}
-      if(ex)
-        components_helper.notif.exceptionNotification("An error occurred!", ex);
+      // const ex = this.props.getLastError;
+      // new_state = {...new_state, 
+      //     getErrors:     this.props.getErrors, 
+      //     result:        ex?'error':undefined, 
+      //     error:         ex?JSON.stringify(ex):null}
+      // if(ex)
+      //   components_helper.notif.exceptionNotification("An error occurred!", ex);
     }
     if(prevProps.getResults!=this.props.getResults){
       const lastResult = this.props.getLastResult;
-      new_state = {...new_state, 
-        getResults:      this.props.getResults, 
-        result:          lastResult?'ok':undefined, 
-        result_object:   lastResult};
       if(lastResult)
-        components_helper.notif.successNotification('Operation completed successfully')
+      {  
+        const that = this;
+        setTimeout(()=> that.resetPage() ,100);
+        // components_helper.notif.successNotification('Operation completed successfully')
+      }
     }
 
 
@@ -178,10 +178,9 @@ class Exchange extends Component {
     if(this.childForm)
     {
       const that = this;
-      setTimeout(()=> that.childForm.resetForm() ,1000);
+      setTimeout(()=> that.childForm.resetForm() ,50);
     }
-    // reset Errors and results
-    this.props.clearAll();
+    
   }
 
   resetPage(){
@@ -192,10 +191,8 @@ class Exchange extends Component {
     {
 
       const that = this;
-      setTimeout(()=> that.childForm.resetForm() ,1000);
+      setTimeout(()=> that.childForm.resetForm() ,50);
     }
-    // reset Errors and results
-    this.props.clearAll();
   }
 
   userResultEvent = (evt_type) => {
@@ -243,7 +240,7 @@ class Exchange extends Component {
           title="Request an exchange">
         </PageHeader>
 
-        <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+        <div style={{ margin: '0 0px', padding: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
               {content}

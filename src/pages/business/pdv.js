@@ -16,7 +16,7 @@ import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 import { withRouter } from "react-router-dom";
 
-import { Drawer, BackTop, Table, Select, Result, Card, PageHeader, Tag, Button, Spin } from 'antd';
+import { Drawer, Table, Select, Result, Card, PageHeader, Tag, Button, Spin } from 'antd';
 import { message, notification, Form, Icon, InputNumber, Input } from 'antd';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
@@ -514,7 +514,7 @@ class PDV extends Component {
           </div>      
         </div>
 
-        <BackTop />
+        
 
         <Card 
           title="ÚLTIMAS COBRANÇAS EFETUADAS" 

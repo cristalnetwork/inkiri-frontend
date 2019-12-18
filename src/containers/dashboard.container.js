@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, PageHeader } from 'antd';
+import { Layout, PageHeader, BackTop } from 'antd';
 
 import * as globalCfg from '@app/configs/global';
 
@@ -93,6 +93,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
           <Content style={{ margin: '24px 16px 0' }}>
 
             { Children? <Children/>: false }
+            <BackTop />
           </Content>
           <Footer style={{ textAlign: 'center' }}>{ footerText || "INKIRI © 2019"}</Footer>
         </Layout>
