@@ -129,7 +129,7 @@ h3.fileds_header{
     margin: 6px 0 !important;
 }
 
-.row_tx_description{
+.row_tx_title{
   font-size: 16px;
   font-weight: 600;
 }
@@ -148,6 +148,7 @@ h3.fileds_header{
 ,.money-transfer__select .ant-input:hover, .money-transfer__row .ant-input:hover{
   border:none!important;
 }
+
 .money-transfer__select .ant-select-focused .ant-select-selection, .money-transfer__select .ant-select-selection:focus, .money-transfer__select .ant-select-selection:active
 , .money-transfer__row .ant-select-focused ,.money-transfer__row .ant-select-selection:focus, .money-transfer__row .ant-select-selection:active
 , .money-transfer__select .ant-input:hover, .money-transfer__row .ant-input:hover

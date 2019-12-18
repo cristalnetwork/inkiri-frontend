@@ -316,7 +316,7 @@ export const columnsForAccounts = (callback) => {
                 {request_helper.getAccountTypeIcon(record.account_type)} 
               </div>
               <div className="row_value wider">
-                <span className="row_tx_description">{record.key}</span> 
+                <span className="row_tx_title">{record.key}</span> 
                  {request_helper.getAccountStateTag(record, true)} 
               </div>   
             </span>);
@@ -473,7 +473,7 @@ export const columnsForProfiles = (callback) => {
                 {request_helper.getAccountTypeIcon(record.account_type)} 
               </div>
               <div className="row_value wider">
-                <span className="row_tx_description">{request_helper.getProfileName(record)}</span> 
+                <span className="row_tx_title">{request_helper.getProfileName(record)}</span> 
                 <br/>@{record.account_name} 
               </div>   
             </span>)
@@ -526,7 +526,7 @@ export const columnsForIUGU = (callback) => {
                 {request_helper.iugu.stateIcon(record)} 
               </div>
               <div className="row_value wider">
-                <span className="row_tx_description">
+                <span className="row_tx_title">
                   {request_helper.iugu.header(record)}
                 </span> 
                 <br/>{request_helper.iugu.stateLabel(record)}
@@ -595,7 +595,7 @@ export const columnsForCrew = (callback, job_positions) => {
                 {request_helper.getAccountTypeIcon(record.member.account_type)} 
               </div>
               <div className="row_value wider">
-                <span className="row_tx_description">{request_helper.getProfileName(record.member)}</span> 
+                <span className="row_tx_title">{request_helper.getProfileName(record.member)}</span> 
                 <br/>@{record.member.account_name} 
               </div>   
             </span>)
@@ -653,7 +653,7 @@ export const columnsForSalaries = (callback, remove_callback, job_positions) => 
                 {request_helper.getAccountTypeIcon(record.member.account_type)} 
               </div>
               <div className="row_value wider">
-                <span className="row_tx_description">{request_helper.getProfileName(record.member)}</span> 
+                <span className="row_tx_title">{request_helper.getProfileName(record.member)}</span> 
                 <br/>@{record.member.account_name} 
               </div>   
             </span>)
@@ -738,7 +738,7 @@ export const columnsForServices = (callback, services_states) => {
               </div>
             </div>
             <div className="row_value wider">
-              <span className="row_tx_description">{record.title}</span> 
+              <span className="row_tx_title">{record.title}</span> 
                <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
                  {record.description} 
                </div>
@@ -809,7 +809,7 @@ export const columnsForServiceContract = (callback) => {
               </div>
             </div>
             <div className="row_value wider">
-              <span className="row_tx_description">@{account}</span> 
+              <span className="row_tx_title">@{account}</span> 
                
             </div>   
           </span>)
@@ -880,11 +880,12 @@ export const columnsForContractedServices = (callback, services_states) => {
         title: 'Service',
         dataIndex: 'title',
         key: 'title',
-        width:'40%',
+        width:'350px',
         render: (title, record) => {
             const service  = record.service||{};
             const provider = service.created_by||{};
             const _service_state = getStateDesc(service.state);
+            const _service_id    = `#${service.serviceCounterId}`;
             return (<span className="name_value_row">
             <div className="row_name centered flex_fixed_width_5em" >
               <div className="ui-row__col ui-row__col--heading">
@@ -894,13 +895,13 @@ export const columnsForContractedServices = (callback, services_states) => {
               </div>
             </div>
             <div className="row_value wider">
-              <span className="row_tx_description">{service.title}</span> 
+              <span className="row_tx_title">{service.title}</span> 
                <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
                  {service.description}
                  <br/>
                  <br/>Provider: @{provider.account_name}
                  <br/>Status: {_service_state}
-                 <br/> 
+                 <br/>Service Id: {_service_id} 
                </div>
             </div>   
           </span>)
@@ -911,7 +912,7 @@ export const columnsForContractedServices = (callback, services_states) => {
         title: 'Contract',
         key: 'begins_at',
         dataIndex: 'begins_at',
-        width:'30%',
+        width:'250px',
         render: (begins_at, record) => {
           
           const {last_charged, total_charged} = api.pap_helper.getChargeInfo(record);
@@ -935,12 +936,13 @@ export const columnsForContractedServices = (callback, services_states) => {
         title: 'Price',
         key: 'amount',
         dataIndex: 'amount',
-        width:'15%',
+        width:'110px',
         render: (amount, record) => {
-          
+          const service = record.service;
+          const price = service?(globalCfg.currency.toCurrencyString(service.amount)):'N/A';
           return (
             <span>
-              {globalCfg.currency.toCurrencyString(amount)}
+              {price}
             </span> 
           )}
       },
@@ -948,7 +950,7 @@ export const columnsForContractedServices = (callback, services_states) => {
         title: 'Action',
         key: 'action',        
         align: 'right',
-        width:'15%',
+        width:'110px',
         render: (text, record) => {
           const children = (<Button key={'children_'+record.id} onClick={()=>{ callback(record, events.CHILDREN) }}  icon="download" size="small" >Payments</Button>);
           return (<>{children}</>);
@@ -977,7 +979,7 @@ export const columnsForServiceContractPayment = (callback) => {
               </div>
             </div>
             <div className="row_value wider">
-              <span className="row_tx_description">{record.sub_header}</span> 
+              <span className="row_tx_title">{record.sub_header}</span> 
                <div className="hidden" style={{maxWidth:400, overflowWrap:'normal'}}>
                  <ul>
                    <li><Tag key={'warning_'+Math.random()}>Open to view details</Tag></li>

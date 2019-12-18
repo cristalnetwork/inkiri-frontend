@@ -216,8 +216,8 @@ class ServiceForm extends Component {
               
               <div className="money-transfer">    
 
-                  {form_helper.simple(form_helper.getStringItem(form,   service   , 'title'        , 'Service title' ,       'Please input a valid title!'))}
-                  {form_helper.simple(form_helper.getTextareaItem(form, service , 'description'  , 'Service description' , 'Please input a valid description!'))}
+                  {form_helper.simple(form_helper.getStringItem(form,   service   , 'title'      , 'Service title'      , 'Please input a valid title!'))}
+                  {form_helper.simple(form_helper.getTextareaItem(form, service   , 'description', 'Service description'))}
 
                   <Form.Item label="Amount" className="money-transfer__row input-price row-complementary row-complementary-bottom" style={{textAlign: 'center', height:'180px'}}
                     extra={<>Monthly price.</>}

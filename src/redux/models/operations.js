@@ -134,7 +134,7 @@ function* tryFilterOperationsSaga(){
     return;
   }
 
-  console.log(JSON.stringify(raw_operations));
+  // console.log(JSON.stringify(raw_operations));
 
   try{
     const filters_keys = Object.keys(filters);
@@ -171,6 +171,7 @@ function* tryFilterOperationsSaga(){
   }catch(e){
     console.log(' -- tryFilterOperationsSaga: exception', JSON.stringify(e))
     console.log(' filter:', JSON.stringify(filters))
+    // ToDo: putError!
   }
 }
 

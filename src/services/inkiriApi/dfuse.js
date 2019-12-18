@@ -225,35 +225,95 @@ const transformTransactionsImpl = (txs, account_name) => {
   return my_txs.filter(tx=> tx!=null);
 }
 
-export const listPAPPayments = async (account_name, provider, customer, cursor) => new Promise(async(res,rej)=> {
+// export const listPAPPaymentsOLD = async (account_name, provider, customer, cursor) => new Promise(async(res,rej)=> {
+  
+//   const query = `action:${globalCfg.bank.table_paps_charge}  account:${globalCfg.currency.token} data.from:${customer} data.to:${provider}`;
+  
+//   console.log('listPAPPayments:', query);
+//   let options = { 
+//     limit: globalCfg.dfuse.default_page_size 
+//     , sort: 'desc'
+//     , irreversibleOnly: false};
+
+//   if(cursor)
+//     options['cursor'] = cursor;
+//   let client = createClient();
+//   client.searchTransactions(
+//       query,
+//       options
+//     )
+//     .then( (data) => {
+//       const txs = transformTransactionsImpl(data.transactions, account_name);
+//       res ({data:{txs:txs, cursor:data.cursor}})
+//       client.release();
+//     }, (ex) => {
+//       console.log('dfuse::listTransactions >> ERROR#1 ', JSON.stringify(ex));
+//       rej(ex);
+//       client.release();
+//     });
+  
+// })  
+
+export const listPAPPayments = async (account_name, provider, customer, service_id, cursor) => new Promise(async(res,rej)=> {
+  console.log(' listPAPPayments => ', account_name)
   
   const query = `action:${globalCfg.bank.table_paps_charge}  account:${globalCfg.currency.token} data.from:${customer} data.to:${provider}`;
   
-  console.log('listPAPPayments:', query);
-  let options = { 
-    limit: globalCfg.dfuse.default_page_size 
-    , sort: 'desc'
-    , irreversibleOnly: false};
+  // const query = `action:chargepap  account: data.from:tutinopablo1 data.to:organicvegan`;
 
-  if(cursor)
-    options['cursor'] = cursor;
+  const searchTransactions = `query ($limit: Int64, $irreversibleOnly:Boolean, $cursor:String){
+    searchTransactionsForward(query: "${query}", limit: $limit, irreversibleOnly: $irreversibleOnly, cursor:$cursor) {
+      cursor 
+      results { 
+        block { num id timestamp}
+        undo trace { 
+          id 
+          topLevelActions {
+            account
+            name
+            authorization {
+                actor
+                permission
+            }
+            data
+        }
+        } 
+      }
+    }
+  }`;
+
   let client = createClient();
-  client.searchTransactions(
-      query,
-      options
-    )
-    .then( (data) => {
-      const txs = transformTransactionsImpl(data.transactions, account_name);
-      res ({data:{txs:txs, cursor:data.cursor}})
-      client.release();
-    }, (ex) => {
-      console.log('dfuse::listTransactions >> ERROR#1 ', JSON.stringify(ex));
-      rej(ex);
-      client.release();
-    });
-  
-})  
+  try {
+    const response = await client.graphql(searchTransactions, {
+      variables: { limit:             100 
+                  , irreversibleOnly: false
+                  , cursor:           cursor||null
+        }
+    })
 
+    console.log(response)
+    const results = response.data.searchTransactionsForward.results || []
+    if (results.length <= 0) {
+      res ({data:{txs:[], cursor:''}})
+      console.log("Oups nothing found")
+      return;
+    }
+
+    // console.log(' dfuse::queryTransactions >> RAW data >>', JSON.stringify(response));
+
+    const txs = transformTransactionsImpl(results, account_name);
+    console.log(' DFUSE transformo las txs!!!!!!', txs.length)
+    console.log(' FILTERING service_id >>', service_id);
+    res ({data:{txs:txs.reverse().filter(tx=>parseInt(tx.data.service_id)==parseInt(service_id)), cursor:response.data.searchTransactionsForward.cursor}})
+    
+  } catch (error) {
+    rej(error);
+    console.log("An error occurred", error)
+  }
+
+  client.release()
+
+});
 
 /*
 

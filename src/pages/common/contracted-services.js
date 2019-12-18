@@ -84,7 +84,6 @@ class Services extends Component {
 
     this.loadServices                 = this.loadServices.bind(this);  
     this.loadServicesStates           = this.loadServicesStates.bind(this);  
-    this.openNotificationWithIcon     = this.openNotificationWithIcon.bind(this); 
     this.onContractListCallback       = this.onContractListCallback.bind(this);
     this.getColumns                   = this.getColumns.bind(this);
     this.onNewService                 = this.onNewService.bind(this); 
@@ -128,7 +127,6 @@ class Services extends Component {
 
   onNewService = () => {
     
-    // this.openNotificationWithIcon("warning", "Not implemented yet");    
     this.setState({active_view:STATE_NEW_SERVICE})
   }
 
@@ -165,7 +163,7 @@ class Services extends Component {
     const {events} = columns_helper;
     switch(event){
       case events.VIEW:
-        this.openNotificationWithIcon("warning", "Not implemented yet");    
+        components_helper.notif.warningNotification("Not implemented yet!");
         break;
       case events.REMOVE:
         break;
@@ -174,7 +172,7 @@ class Services extends Component {
         // this.setState({active_view: STATE_EDIT_SERVICE, active_view_object:service})
         break;
       case events.DISABLE:
-        // this.openNotificationWithIcon("warning", "Not implemented yet");    
+        
         // this.onDisableService(service);
         break;
       case events.CHILDREN:
@@ -199,7 +197,7 @@ class Services extends Component {
         break;
       case events.NEW_CHILD:
         // this.setState({active_view: STATE_NEW_SERVICE_CONTRACT, active_view_object:service})
-        // this.openNotificationWithIcon("warning", "Not implemented yet");    
+        
         break;
     }
     return;
@@ -247,7 +245,7 @@ class Services extends Component {
 
     if(byCustServ && byCustServ.rows.length>0)
     {
-      that.openNotificationWithIcon("error", 'Duplicated customer service provisioning', 'Customer account is already hiring selected service.');
+      components_helper.notif.errorNotification('Duplicated customer service provisioning', 'Customer account is already hiring selected service.');
       return;
     }
 
@@ -262,13 +260,13 @@ class Services extends Component {
           .then((res)=>{
             console.log(' >> doDeposit >> ', JSON.stringify(res));
             that.setState({pushingTx:false, result:'ok'})
-            that.openNotificationWithIcon("success", 'Service provisioning requested successfully');
-
+            components_helper.notif.successNotification('Service provisioning requested successfully');
+            
             setTimeout(()=>that.setState({active_view:STATE_LIST_SERVICES}),1000);
             
 
           }, (err)=>{
-            that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
+            components_helper.notif.exceptionNotification('An error occurred', err);
             that.setState({result:'error', error:err, pushingTx:false});
           })
         
@@ -302,12 +300,12 @@ class Services extends Component {
     
     api.bank.createOrUpdateService((values._id || undefined), account_name, values.title, values.description, values.input_amount.value, undefined)
       .then((res)=>{
-        that.openNotificationWithIcon("success", "Service saved successfully!")    
+        components_helper.notif.successNotification("Service saved successfully!");
         that.reloadServices();
         that.resetPage(STATE_LIST_SERVICES);
       }, (err)=>{
         console.log(' >> createOrUpdateService >> ', JSON.stringify(err));
-        that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
+        components_helper.notif.exceptionNotification('An error occurred', err);
         that.setState({pushingTx:false});
       })
  
@@ -330,7 +328,7 @@ class Services extends Component {
     try {
       data = await api.bank.getServicesStates();
     } catch (e) {
-      this.openNotificationWithIcon("error", "Error retrieveing Services States", JSON.stringify(e));
+      components_helper.notif.exceptionNotification('Error retrieveing Services States', e);
       this.setState({ loading:false})
       return;
     }
@@ -363,7 +361,7 @@ class Services extends Component {
 
     if(!can_get_more)
     {
-      this.openNotificationWithIcon("info", "Nope!");
+      components_helper.notif.infoNotification('Nope!');
       this.setState({loading:false});
       return;
     }
@@ -379,7 +377,7 @@ class Services extends Component {
     try{
       contracts = await eos_table_getter.listPapByCustomer(account_name, undefined, cursor)
     }catch(e){
-      this.openNotificationWithIcon("error", "An error occurred while fetching your contracts.", JSON.stringify(e));
+      components_helper.notif.exceptionNotification('An error occurred while fetching your contracts', e);
       console.log(e)
       return;
     }
@@ -395,9 +393,9 @@ class Services extends Component {
     const data = contracts.rows.map(contract => {return{...contract, service:_services[contract.service_id] }})
         
 
-    // console.log('services:', services)
-    // console.log('contracts:', contracts)
-    // console.log('data:', data)
+    console.log(' ######### services >>>>>>>>>> ',  JSON.stringify(services))
+    console.log(' ######### contracts >>>>>>>>>> ', JSON.stringify(contracts))
+    console.log(' ######### data >>>>>>>>>> ', JSON.stringify(data))
     that.onNewData({services:data, more:data.more, cursor:data.next_key});
 
     
@@ -422,19 +420,13 @@ class Services extends Component {
 
     if(!has_received_new_data && _services && _services.length>0)
     {
-      this.openNotificationWithIcon("info", "End of services list")
+      components_helper.notif.infoNotification('End of services list')
     }
     // else
     //   this.computeStats();
   }
 
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
   // Component Events
   
   render() {
@@ -537,7 +529,7 @@ class Services extends Component {
                 dataSource={services} 
                 footer={() => this.renderFooter()}
                 pagination={this.state.pagination}
-                scroll={{ x: 700 }}
+                scroll={{ x: 820 }}
                 />
           </div>
         </Card>

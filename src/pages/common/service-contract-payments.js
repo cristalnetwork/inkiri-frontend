@@ -91,7 +91,7 @@ class ServiceContractsPaymments extends Component {
         referrer:        location.state.referrer
       }, async () => {
           
-          const _y_dummy = await this.loadServiceContractsPayments();  
+          const _y_dummy = await this.loadServiceContractsPayments();
       });
     }
     else
@@ -142,12 +142,12 @@ class ServiceContractsPaymments extends Component {
         payments:      [],
         cursor:        null
       }, async () => {
-        const dummy_2 = await this.loadServiceContractsPayments(true);
+        const dummy_2 = await this.loadServiceContractsPayments();
 
       });  
   }
 
-  loadServiceContractsPayments = async (is_first) => {
+  loadServiceContractsPayments = async () => {
 
     const {contract, service, can_get_more, cursor} = this.state;
     const me = this.props.actualAccountName;
@@ -165,13 +165,13 @@ class ServiceContractsPaymments extends Component {
     const provider_account = contract.provider||contract.to;
     const customer_account = contract.account||contract.from;
     
-    // console.log('contract:', contract)
-    // console.log('service:', service)
-    // console.log('customer:', customer_account, 'provider:',provider_account);
+    console.log(' #################### contract:', contract)
+    console.log(' #################### service:', service)
+    console.log(' #################### customer:', customer_account, 'provider:',provider_account);
     
 
     try{
-      payments = await api.dfuse.listPAPPayments(me, provider_account, customer_account, cursor);
+      payments = await api.dfuse.listPAPPayments(me, provider_account, customer_account, service.serviceCounterId, cursor);
     }catch(e){
       this.openNotificationWithIcon('error', 'An error occurred while fetching contracts.', JSON.stringify(e))
       

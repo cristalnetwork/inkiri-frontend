@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
+import * as apiRedux from '@app/redux/models/api';
 
 import * as globalCfg from '@app/configs/global';
 
@@ -109,6 +110,22 @@ class Services extends Component {
     if(prevProps.provider !== provider) {
       this.setState({ provider:provider || this.props.actualAccountProfile});
     }
+
+    if(prevProps.getResults!=this.props.getResults){
+      const that          = this;
+      const {active_view} = this.state;
+      
+      if(active_view==STATE_NEW_SERVICE_CONTRACT)
+        setTimeout(()=>that.setState({active_view:STATE_LIST_SERVICES}),250);
+      if(active_view==STATE_EDIT_SERVICE || active_view==STATE_NEW_SERVICE)
+        setTimeout(()=> {
+          that.reloadServices();
+          that.resetPage(STATE_LIST_SERVICES);
+        },250);
+      
+
+    }
+    
   }
 
   onNewService = () => {
@@ -193,33 +210,17 @@ class Services extends Component {
     {
       return;
     }
-
-    console.log(values)
-    
     
     const that                                       = this;
     const {customer, begins_at, expires_at, periods} = values;
     const sender                                     = that.props.actualAccountName;
     const {provider, active_view_object}             = this.state;
     const service                                    = active_view_object;
-
-    console.log(' >> values:');
-    console.log(values);
-
-    console.log( ' >> my data:')
-    console.log(' - provider : ', provider);
-    console.log(' - customer : ', customer)
-    console.log(' - service : ', service)
-    console.log(' - begins_at : ', begins_at)
-    console.log(' - expires_at : ', expires_at)
-
     // 1 check if service is already been provisioned to customer:
     const customer_account_name = customer;
     const service_id_num        = service.serviceCounterId;
-
     const byCustServ = await eos_table_getter.papByCustomerService(customer_account_name, service_id_num, 0);
-    console.log('byCustServ', byCustServ)
-
+    
     if(byCustServ && byCustServ.rows.length>0)
     {
       components_helper.notif.errorNotification('Duplicated customer service provisioning', 'Customer account is already hiring selected service.');
@@ -231,20 +232,22 @@ class Services extends Component {
                   at a <b>{globalCfg.currency.toCurrencyString(service.amount)}</b> monthly price bases, 
                   for <b>{periods}</b> periods/months, begining at <b>{begins_at.format(form_helper.MONTH_FORMAT)}</b></p>),
       onOk() {
-        that.setState({pushingTx:true});
-        api.bank.sendServiceRequest(provider, customer, service, begins_at, expires_at)
-          .then((res)=>{
-            console.log(' >> sendServiceRequest >> ', JSON.stringify(res));
-            that.setState({pushingTx:false, result:'ok'})
-            
-            components_helper.notif.successNotification('Service provisioning requested successfully');
-            setTimeout(()=>that.setState({active_view:STATE_LIST_SERVICES}),1000);
-            
 
-          }, (err)=>{
-            components_helper.notif.exceptionNotification('An error occurred', err);
-            that.setState({result:'error', error:err, pushingTx:false});
-          })
+        const _function = 'bank.sendServiceRequest';
+        that.props.callAPI(_function, [provider, customer, service, begins_at, expires_at])
+
+        // that.setState({pushingTx:true});
+        // api.bank.sendServiceRequest(provider, customer, service, begins_at, expires_at)
+        //   .then((res)=>{
+        //     console.log(' >> sendServiceRequest >> ', JSON.stringify(res));
+        //     that.setState({pushingTx:false, result:'ok'})
+            
+        //     components_helper.notif.successNotification('Service provisioning requested successfully');
+        //     setTimeout(()=>that.setState({active_view:STATE_LIST_SERVICES}),1000);
+        //   }, (err)=>{
+        //     components_helper.notif.exceptionNotification('An error occurred', err);
+        //     that.setState({result:'error', error:err, pushingTx:false});
+        //   })
         
       },
       onCancel() {
@@ -274,16 +277,19 @@ class Services extends Component {
     const account_name   = this.props.actualAccountName;
     this.setState({pushingTx:true})
     
-    api.bank.createOrUpdateService((values._id || undefined), account_name, values.title, values.description, values.input_amount.value, undefined)
-      .then((res)=>{
-        components_helper.notif.successNotification("Service saved successfully!");
-        that.reloadServices();
-        that.resetPage(STATE_LIST_SERVICES);
-      }, (err)=>{
-        console.log(' >> createOrUpdateService >> ', JSON.stringify(err));
-        components_helper.notif.exceptionNotification("An error occurred", err);
-        that.setState({pushingTx:false});
-      })
+    const _function = 'bank.createOrUpdateService';
+    that.props.callAPI(_function, [(values._id || undefined), account_name, values.title, values.description, values.input_amount.value])
+
+    // api.bank.createOrUpdateService((values._id || undefined), account_name, values.title, values.description, values.input_amount.value, undefined)
+    //   .then((res)=>{
+    //     components_helper.notif.successNotification("Service saved successfully!");
+    //     that.reloadServices();
+    //     that.resetPage(STATE_LIST_SERVICES);
+    //   }, (err)=>{
+    //     console.log(' >> createOrUpdateService >> ', JSON.stringify(err));
+    //     components_helper.notif.exceptionNotification("An error occurred", err);
+    //     that.setState({pushingTx:false});
+    //   })
  
 
   }
@@ -506,8 +512,17 @@ export default  (withRouter(connect(
         actualRoleId:         loginRedux.actualRoleId(state),
         actualRole:           loginRedux.actualRole(state),
         actualAccountProfile: loginRedux.actualAccountProfile(state),
+    
+
+        isFetching:         apiRedux.isFetching(state),
+        getErrors:          apiRedux.getErrors(state),
+        getLastError:       apiRedux.getLastError(state),
+        getResults:         apiRedux.getResults(state),
+        getLastResult:      apiRedux.getLastResult(state)
     }),
     (dispatch)=>({
+        callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),
+
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(Services))
