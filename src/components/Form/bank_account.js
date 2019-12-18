@@ -114,7 +114,7 @@ class BankAccountForm extends Component {
                     rules: [{ required: true, message: 'Please input a Bank name!', whitespace: true }],
                     initialValue:bank_account.bank_name||''
                   })(
-                    <Input className="money-transfer__input" placeholder="Bank Name" />
+                    <Input autoFocus className="money-transfer__input" placeholder="Bank Name" />
                   )}
                 </Form.Item>
               </div>

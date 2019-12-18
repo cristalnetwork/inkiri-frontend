@@ -201,6 +201,7 @@ class ExchangeForm extends Component {
   resetForm(){
     console.log('exchangeForm->ResetForm')
     this.setState({...DEFAULT_STATE});
+    this.props.form.setFieldsValue({'bank_account':''})
   }
 
   onInputAmount(event){
