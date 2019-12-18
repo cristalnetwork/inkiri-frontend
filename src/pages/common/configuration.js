@@ -37,11 +37,11 @@ import AccountRolesView, {ENUM_EVENT_RELOAD_PERMISSIONS, ENUM_AUTHORITY_CHANGE, 
 import AddRoleForm from '@app/components/Form/add_role';
 import AccountView , {ENUM_EVENT_EDIT_PROFILE_ALIAS}from '@app/components/Views/account';
 
-const ACTIVE_TAB_PROFILE               = 'active_tab_profile';
+export const ACTIVE_TAB_PROFILE               = 'active_tab_profile';
 const ACTIVE_TAB_PROFILE_EDIT_PROFILE  = 'active_tab_profile_edit_profile';
 const ACTIVE_TAB_INFO                  = 'active_tab_info';
 const ACTIVE_TAB_INFO_EDIT_ALIAS       = 'active_tab_info_edit_alias';
-const ACTIVE_TAB_PROFILE_BANK_ACCOUNT  = 'active_tab_profile_add_or_update_bank_account';
+export const ACTIVE_TAB_PROFILE_BANK_ACCOUNT  = 'active_tab_profile_add_or_update_bank_account';
 const ACTIVE_TAB_ACCOUNTS              = 'active_tab_accounts';
 const ACTIVE_TAB_ROLES                 = 'active_tab_roles';
 const ACTIVE_TAB_ROLES_NEW             = 'active_tab_roles_new';
@@ -60,8 +60,8 @@ class Configuration extends Component {
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       pushingTx:           false,
-      active_tab:          ACTIVE_TAB_PROFILE,
-      active_tab_action:   ACTIVE_TAB_PROFILE,
+      active_tab:          props.location.state.active_tab || ACTIVE_TAB_PROFILE,
+      active_tab_action:   props.location.state.active_tab_action ||ACTIVE_TAB_PROFILE,
       active_tab_object:   null,
       profile:             props.actualAccountProfile,
       eos_account:         props.eos_account,

@@ -56,7 +56,7 @@ class Exchange extends Component {
 
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.resetResult                  = this.resetResult.bind(this); 
+    this.resetResult                = this.resetResult.bind(this); 
 
     this.userResultEvent            = this.userResultEvent.bind(this); 
   }
@@ -126,44 +126,6 @@ class Exchange extends Component {
 
     that.props.callAPIEx(steps);
     
-    // api.bank.createExchangeRequest(sender, amount, bank_account_object, attachments_array)
-    // api.requestExchange(sender, privateKey, exchange_account, amount, bank_account, request_id)       
-    // api.bank.updateExchangeRequest(sender, request_id, send_tx.data.transaction_id)
-
-    // api.bank.createExchangeRequest(sender, amount, bank_account_object, attachments_array)
-    //   .then((data) => {
-    //     console.log(' createExchangeRequest::send (then#1) >>  ', JSON.stringify(data));
-    //      if(!data || !data.id)
-    //      {
-    //         that.setState({result:'error', uploading: false, pushingTx:false, error:'Cant create request nor upload files.'});
-    //         return;
-    //      }
-    //      const request_id       = data.id;
-    //      const exchange_account = globalCfg.bank.exchange_account; 
-    //      api.requestExchange(sender, privateKey, exchange_account, amount, request_id, bank_account)
-    //       .then((data1) => {
-    //         const send_tx             = data1;
-    //         console.log(' createExchangeRequest::send (then#2) >>  ', JSON.stringify(send_tx));
-    //         api.bank.updateExchangeRequest(sender, request_id, send_tx.data.transaction_id)
-    //           .then((data2) => {
-    //               that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
-    //               components_helper.notif.successNotification('Exchange requested successfully')
-    //             }, (ex2) => {
-    //               console.log(' createExchangeRequest::send (error#3) >>  ', JSON.stringify(ex2));
-    //               that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
-    //           });
-    //         setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
-    //       }, (ex1) => {
-    //         console.log(' SendMoney::send (error#2) >>  ', JSON.stringify(ex1));
-    //         that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
-    //       });
-    //   }, (ex) => {
-    //     console.log(' createProviderPayment::send (error#1) >>  ', JSON.stringify(ex));
-    //     that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex)});
-    //   });
-    
-    
-
   };
 
   backToDashboard = async () => {

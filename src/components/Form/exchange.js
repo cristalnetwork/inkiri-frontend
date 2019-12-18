@@ -10,7 +10,7 @@ import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
 import * as components_helper from '@app/components/helper';
-
+import {ACTIVE_TAB_PROFILE, ACTIVE_TAB_PROFILE_BANK_ACCOUNT} from '@app/pages/common/configuration';
 import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
@@ -235,6 +235,16 @@ class ExchangeForm extends Component {
       });
   }
 
+  onNewBankAccount =() =>{
+    this.props.history.push({
+      pathname: `/common/configuration`
+      , state: { 
+          active_tab: ACTIVE_TAB_PROFILE
+          , active_tab_action:  ACTIVE_TAB_PROFILE_BANK_ACCOUNT
+        }
+    })
+  }
+
   renderBankOptionsItem(){
     const {profile} = this.state;
     if(!profile || !profile.bank_accounts)
@@ -242,7 +252,7 @@ class ExchangeForm extends Component {
 
     const { getFieldDecorator } = this.props.form;
     return (
-      <Form.Item className="money-transfer__row row-complementary money-transfer__select ">
+      <Form.Item className="money-transfer__row row-complementary money-transfer__select ">          
           {getFieldDecorator( 'bank_account', {
             rules: [{ required: true, message: 'Please select a Bank Account'}]
             , onChange: (e) => this.handleBankAccountChange(e)
@@ -275,10 +285,11 @@ class ExchangeForm extends Component {
               <div className="money-transfer__row row-complementary" >
                   <div className="badge badge-extra-small badge-circle addresse-avatar">
                       <span className="picture">
-                        <FontAwesomeIcon icon="university" size="lg" color="gray"/>
+                        <FontAwesomeIcon icon="university" size="lg" color="black"/>
                       </span>
                   </div>
                   <div className="money-transfer__input money-transfer__select">
+                    <Button type="default" icon="plus" size="small" onClick={() => this.onNewBankAccount()} title="Add new bank account" style={{position:'absolute', right:8, top:8}}/>
                     {bank_options_item}
                   </div>
               </div>

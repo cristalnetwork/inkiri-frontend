@@ -241,7 +241,7 @@ class DepositMoney extends Component {
               <div className="money-transfer__row row-complementary money-transfer__select row-complementary-bottom flex_row" >
                   <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
                       <span className="picture">
-                        <FontAwesomeIcon icon="envelope" size="lg" color="gray"/>
+                        <FontAwesomeIcon icon="envelope" size="lg" color="black"/>
                       </span>
                   </div>
                   <div className="money-transfer__input money-transfer__select">
@@ -254,7 +254,7 @@ class DepositMoney extends Component {
               <div className="money-transfer__row row-complementary money-transfer__select flex_row" >
                   <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
                       <span className="picture">
-                        <FontAwesomeIcon icon="dollar-sign" size="lg" color="gray"/>
+                        <FontAwesomeIcon icon="dollar-sign" size="lg" color="black"/>
                       </span>
                   </div>
                   <div className="money-transfer__input money-transfer__select">

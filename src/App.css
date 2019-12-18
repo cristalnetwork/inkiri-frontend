@@ -355,3 +355,7 @@ h3.fileds_header{
 .redoButton:hover{
   color: #40a9ff!important;
 }
+
+select .anticon {
+  color:rgba(0,0,0,1)!important;
+}
