@@ -32,6 +32,16 @@ class ProviderSearch extends Component {
     
   }
 
+  // componentDidUpdate(prevProps, prevState) 
+  // {
+  //   console.log(' provider search update')
+  //   console.log(this.state.value)
+  //   console.log(this.props.value )
+  //   if(this.state.value !== this.props.value )
+  //     {
+  //       this.setState({value:this.props.value});
+  //     }
+  // }
 
   fetchProvider = value => {
     // const {value} = this.state;
@@ -86,6 +96,7 @@ class ProviderSearch extends Component {
 
 
   render() {
+    //  
     const { fetching, data, value } = this.state;
     return (
       <Select
@@ -95,7 +106,7 @@ class ProviderSearch extends Component {
         allowClear={true}
         autoFocus={true}
         maxTagCount={1}
-        value={value}
+        value={value}  
         placeholder="Select provider by name or CNPJ"
         notFoundContent='No data'
         defaultActiveFirstOption={false}

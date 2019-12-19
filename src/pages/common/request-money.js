@@ -85,9 +85,9 @@ class RequestMoney extends Component {
 
     if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       const that = this;
-      console.log(' ** why clearing page???');
-      console.log(prevProps.getResults)
-      console.log(this.props.getResults)
+      // console.log(' ** why clearing page???');
+      // console.log(prevProps.getResults)
+      // console.log(this.props.getResults)
       setTimeout(()=> that.resetPage() ,100);
     }
 

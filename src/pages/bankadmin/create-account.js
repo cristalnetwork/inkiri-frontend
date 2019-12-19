@@ -223,7 +223,7 @@ class CreateAccount extends Component {
         
         if(current_step==1 && default_keys.wif==generated_keys.wif)
         {
-          const _seed_value = form.getFieldValue('password');
+          const _seed_value = this.props.form.getFieldValue('password');
           this.generateKeys(_seed_value);
         }
 

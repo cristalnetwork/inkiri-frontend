@@ -25,18 +25,8 @@ import Tx from '@app/components/TransactionCard/tx';
 
 import '../bankadmin/request.less';
 
-import TxResult from '@app/components/TxResult';
-import {RESET_PAGE, RESET_RESULT, DASHBOARD, CUSTOM} from '@app/components/TxResult';
-
 const { Paragraph, Text } = Typography;
 const { confirm } = Modal;
-
-
-const DEFAULT_RESULT = {
-  result:             undefined,
-  result_object:      undefined,
-  error:              {},
-}
 
 class transactionDetails extends Component {
   constructor(props) {
@@ -47,28 +37,14 @@ class transactionDetails extends Component {
     console.log( ' >> transactionDetails referrer > ', location.referrer)
     this.state = {
       loading:      false,
-      receipt:      '',
-      amount:       0,
-      memo:         '',
-      pushingTx:    false,
-      
-      ...DEFAULT_RESULT,
       
       request:      null,
       transaction:  transaction,
       referrer:     referrer,
-
-      attachments:       {
-        [globalCfg.api.NOTA_FISCAL]       : undefined,
-        [globalCfg.api.BOLETO_PAGAMENTO]  : undefined,
-        [globalCfg.api.COMPROBANTE]       : undefined,
-      },
     };
 
     this.renderContent              = this.renderContent.bind(this); 
-    this.resetPage                  = this.resetPage.bind(this); 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
-    this.userResultEvent            = this.userResultEvent.bind(this); 
     this.onViewRequest              = this.onViewRequest.bind(this); 
   }
 
@@ -157,25 +133,6 @@ class transactionDetails extends Component {
     })
   }
 
-  resetPage(){
-    this.setState({...DEFAULT_RESULT});
-    // this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
-  }
-
-  resetResult(){
-    this.setState({...DEFAULT_RESULT});
-  }
-
-  userResultEvent = (evt_type) => {
-    // console.log(' ** userResultEvent -> EVT: ', evt_type)
-    if(evt_type==DASHBOARD)
-      this.backToDashboard();
-    if(evt_type==RESET_RESULT)
-      this.resetResult();
-    if(evt_type==RESET_PAGE)
-      this.resetPage();
-  }
-
   onViewRequest = (request) => {
     
     const pathname = (this.props.isAdmin ? `/${this.props.actualRole}/external-transfers-process-request` : '/common/request-details')
@@ -190,40 +147,16 @@ class transactionDetails extends Component {
 
   renderContent() {
   
-    if(this.state.result)
-    {
-      const result_type = this.state.result;
-      const title       = null;
-      const message     = null;
-      const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
-      const error       = this.state.error
-      
-      const result = (<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />);
-      return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-                <div className="ly-main-content content-spacing cards">
-                  <section className="mp-box mp-box__shadow money-transfer__box">
-                    {result}
-                  </section>
-                </div>      
-              </div>);
-    }
-    //
-
-    const {transaction, request, pushingTx, loading}      = this.state;
+    const {transaction, request, loading}      = this.state;
                   
     return(
-      <Spin spinning={pushingTx||loading} delay={500} tip={pushingTx?'Pushing transaction...':'Loading request...'}>
+      <Spin spinning={loading} delay={500} tip={'Loading request...'}>
         <Tx 
               transaction={transaction} 
               request={request} 
               admin={this.props.isAdmin}
               onViewRequest={this.onViewRequest}
         />
-        <div className="c-detail bottom">
-          <Card style={ { marginBottom: 24, textAlign:'center' } }  >
-          
-          </Card>
-        </div>
       </Spin>);
   }
   

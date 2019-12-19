@@ -24,13 +24,6 @@ export const toReadable = (account_name, transaction) => {
     ? transaction.data
     : transaction.lifecycle.execution_trace;
 
-  // const is_event         = (typeof transaction.lifecycle === 'undefined');
-  // const operations       = (is_event)
-  //   ?[transaction.data.trace] // .act
-  //   : transaction.lifecycle.execution_trace.action_traces //[0].act
-  // const transaction_data = (is_event)
-  //   ? transaction.data
-  //   : transaction.lifecycle.execution_trace;
   const getMainAction = (operation) => {
     return operation.act?operation.act:operation;
   }
@@ -60,11 +53,30 @@ export const toReadable = (account_name, transaction) => {
 
 const toReadableGraphQL = (account_name, tx) => {
 
-  const readable_operations   = tx.trace.topLevelActions.map( operation => getOperationMetadata(account_name, operation));
+  let readable_operations   = tx.trace.topLevelActions.map( operation => getOperationMetadata(account_name, operation));
   // const readable_transaction = buildHeadersMulti(account_name, operations[0].act)
-  const total_Amount          = tx.trace.topLevelActions.reduce(function (accumulator, operation) {
+  let total_Amount          = tx.trace.topLevelActions.reduce(function (accumulator, operation) {
     return accumulator + globalCfg.currency.toNumber(operation.data.quantity);
   }, 0);
+
+  let my_oper  = readable_operations[0];
+  let raw_oper = tx.trace.topLevelActions[0];
+  const test   = readable_operations.filter(oper => oper.to==account_name).length>0;
+  if(tx.trace.topLevelActions.length>1 
+      && my_oper.request.requested_type==globalCfg.api.TYPE_SALARY
+      && test)
+  {
+    my_oper  = readable_operations.filter(oper => oper.to==account_name)[0];
+    // console.log('readable_operations:', readable_operations)
+    raw_oper = tx.trace.topLevelActions.filter(oper => oper.data.to==account_name)[0];
+    // console.log('tx.trace.topLevelActions:', tx.trace.topLevelActions)
+    readable_operations = [my_oper];
+    total_Amount = globalCfg.currency.toNumber(raw_oper.data.quantity);
+    // console.log('raw_oper:', raw_oper);
+
+  }
+
+  
 
   return {
     id :                 tx.trace.id
@@ -72,10 +84,9 @@ const toReadableGraphQL = (account_name, tx) => {
     , block_time:        tx.block.timestamp.split('.')[0]
     , block_time_number: Number(tx.block.timestamp.split('.')[0].replace(/-/g,'').replace(/T/g,'').replace(/:/g,'') )
     , block_num:         tx.block.num
-    , ...tx.trace.topLevelActions[0]
-
+    , ...raw_oper
     , operations:         readable_operations
-    , ...readable_operations[0]
+    , ...my_oper
     // , ...readable_transaction
     , amount : total_Amount
   }
@@ -189,7 +200,18 @@ function getTxSubCode(tx)              { const memo = getTxMemoSplitted(tx); ret
 function combineTxNameCode(tx)         { return getTxName(tx) + '_' + getTxCode(tx) ; }
 function isTransfer(param)             { return param=='transfer';}
 function isIssue(param)                { return param=='issue'; }
-function isSender(account_name, tx)    { return tx.data.to!==account_name; }
+function isSender(account_name, tx)    { 
+  const ret = tx.data.to!==account_name; 
+  
+  // if(tx.data.memo && tx.data.memo.indexOf('slr')>-1)
+  // {
+  //   console.log(' -- isSender')
+  //   console.log(' tx:', tx)
+  //   console.log(' account_name', account_name)
+  //   console.log(' result?', ret)
+  // }
+
+  return ret;}
 
 // function mayTxHaveNewerTx(tx_code){
 //   const search = ['transfer_bck']; 

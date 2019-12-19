@@ -94,25 +94,26 @@ class RequestPayment extends Component {
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
     if(prevProps.getErrors!=this.props.getErrors){
-      const ex = this.props.getLastError;
-      new_state = {...new_state, 
-          getErrors:     this.props.getErrors, 
-          result:        ex?'error':undefined, 
-          error:         ex?JSON.stringify(ex):null}
-      if(ex)
-        components_helper.notif.exceptionNotification("An error occurred!", ex);
+      // const ex = this.props.getLastError;
+      // new_state = {...new_state, 
+      //     getErrors:     this.props.getErrors, 
+      //     result:        ex?'error':undefined, 
+      //     error:         ex?JSON.stringify(ex):null}
+      // if(ex)
+      //   components_helper.notif.exceptionNotification("An error occurred!", ex);
     }
     if(prevProps.getResults!=this.props.getResults){
-      const lastResult = this.props.getLastResult;
-      new_state = {...new_state, 
-        getResults:      this.props.getResults, 
-        result:          lastResult?'ok':undefined, 
-        result_object:   lastResult};
+      // const lastResult = this.props.getLastResult;
+      // new_state = {...new_state, 
+      //   getResults:      this.props.getResults, 
+      //   result:          lastResult?'ok':undefined, 
+      //   result_object:   lastResult};
       
-      console.log('lastResult:', lastResult)
+      // console.log('lastResult:', lastResult)
       
-      if(lastResult)
-        components_helper.notif.successNotification('Operation completed successfully')
+      // if(lastResult)
+      //   components_helper.notif.successNotification('Operation completed successfully')
+      this.resetPage()
     }
 
 
@@ -299,13 +300,16 @@ class RequestPayment extends Component {
   resetResult(){
     this.setState({...DEFAULT_RESULT});
     // reset Errors and results
-    this.props.clearAll();
+    // this.props.clearAll();
   }
 
   resetPage(){
     this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
+    this.props.form.resetFields();
+    // this.props.form.setFieldsValue({'provider':''})
+    // components_helper.notif.infoNotification('Me llamaron a resetear!')
     // reset Errors and results
-    this.props.clearAll();
+    // this.props.clearAll();
   }
 
   userResultEvent = (evt_type) => {
