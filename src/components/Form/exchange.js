@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
+import * as menuRedux from '@app/redux/models/menu';
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
@@ -237,6 +238,11 @@ class ExchangeForm extends Component {
   }
 
   onNewBankAccount =() =>{
+    this.props.setReferrer(  'Back to request exchange!'
+                             , this.props.location.pathname
+                             , this.state.referrer
+                             , 'university')
+
     this.props.history.push({
       pathname: `/common/configuration`
       , state: { 
@@ -371,6 +377,7 @@ export default Form.create() (withRouter(connect(
         balance:              balanceRedux.userBalance(state),
     }),
     (dispatch)=>({
+        setReferrer:          bindActionCreators(menuRedux.setReferrer, dispatch),
     })
 )(ExchangeForm) )
 );

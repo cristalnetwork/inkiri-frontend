@@ -13,6 +13,7 @@ import * as loginRedux from '@app/redux/models/login'
 // import './index.less';
 import './right_content.less';
 
+import ReferrerWidget  from '@app/components/InkiriHeader/referrer_widget';
 import AccountSelector from '@app/components/InkiriHeader/accountSelector';
 import * as components_helper from '@app/components/helper';
 
@@ -24,7 +25,8 @@ class InkiriHeader extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isMobile         : props.isMobile
+      isMobile:       props.isMobile,
+      referrer:       props.referrer 
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleLogout = this.handleLogout.bind(this);
@@ -35,6 +37,9 @@ class InkiriHeader extends Component {
 
     if(this.props.isMobile!=prevProps.isMobile)
       new_state = {...new_state, isMobile:this.props.isMobile}
+
+    if(this.props.referrer!=prevProps.referrer)
+      new_state = {...new_state, referrer:this.props.referrer}
 
     if(this.props.menuIsCollapsed!=prevProps.menuIsCollapsed)
       new_state = {...new_state, menuIsCollapsed:this.props.menuIsCollapsed}
@@ -106,7 +111,7 @@ class InkiriHeader extends Component {
 
   render(){
     let header_content ;
-    const {isMobile, menuIsCollapsed} = this.state;
+    const {referrer, isMobile, menuIsCollapsed} = this.state;
     const logo_class = menuIsCollapsed? 'ant-pro-global-header-logo':'hidden';
     
     // if(isMobile)
@@ -135,6 +140,7 @@ class InkiriHeader extends Component {
     //     </div>
     //   );
     // }
+    
     if(isMobile)
     {
       header_content = (
@@ -153,6 +159,7 @@ class InkiriHeader extends Component {
       header_content=(
         <div className="right">
           <div className="header_element_container">
+           <ReferrerWidget />
            <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">Logout</Button>
           </div>
         </div>
@@ -173,24 +180,25 @@ class InkiriHeader extends Component {
 //
 export default connect(
     (state)=> ({
-      actualAccountName :   loginRedux.actualAccountName(state),
-      menuIsCollapsed :     menuRedux.isCollapsed(state),
-      isMobile :            menuRedux.isMobile(state),
-    
-      isFetching:       apiRedux.isFetching(state),
-      getErrors:        apiRedux.getErrors(state),
-      getLastError:     apiRedux.getLastError(state),
-      getResults:       apiRedux.getResults(state),
-      getLastResult:    apiRedux.getLastResult(state),
+      actualAccountName : loginRedux.actualAccountName(state),
+      menuIsCollapsed :   menuRedux.isCollapsed(state),
+      isMobile :          menuRedux.isMobile(state),
+      
+      isFetching:         apiRedux.isFetching(state),
+      getErrors:          apiRedux.getErrors(state),
+      getLastError:       apiRedux.getLastError(state),
+      getResults:         apiRedux.getResults(state),
+      getLastResult:      apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
-      callAPI:          bindActionCreators(apiRedux.callAPI, dispatch),
-      callAPIEx:        bindActionCreators(apiRedux.callAPIEx, dispatch),
-      clearAll:         bindActionCreators(apiRedux.clearAll, dispatch),
+      callAPI:            bindActionCreators(apiRedux.callAPI, dispatch),
+      callAPIEx:          bindActionCreators(apiRedux.callAPIEx, dispatch),
+      clearAll:           bindActionCreators(apiRedux.clearAll, dispatch),
 
       tryLogin:           bindActionCreators(loginRedux.tryLogin, dispatch),
       trySwitchAccount:   bindActionCreators(loginRedux.trySwitchAccount, dispatch),
       logout:             bindActionCreators(loginRedux.logout, dispatch),
-      collapseMenu:       bindActionCreators(menuRedux.collapseMenu, dispatch)
+      collapseMenu:       bindActionCreators(menuRedux.collapseMenu, dispatch),
+
     })
 )(InkiriHeader)

@@ -76,7 +76,7 @@ class RequestPayment extends Component {
 
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.resetResult                  = this.resetResult.bind(this); 
+    this.resetResult                = this.resetResult.bind(this); 
 
     this.handleProviderChange       = this.handleProviderChange.bind(this);
     this.onInputAmount              = this.onInputAmount.bind(this);
@@ -419,7 +419,11 @@ class RequestPayment extends Component {
   onNewProvider =() =>{
 
     //this.props.setLastRootMenuFullpath(this.props.location.pathname);
-    this.props.setReferrer(this.props.location.pathname, this.state.referrer)
+    this.props.setReferrer(  'Back to request provider payment!'
+                             , this.props.location.pathname
+                             , this.state.referrer
+                             , 'truck-moving')
+    
     this.props.history.push({
       pathname: `/common/create-provider`
       , state: { 

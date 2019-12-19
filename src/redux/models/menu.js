@@ -33,7 +33,7 @@ export const collapseMenu             = (is_collapsed)               =>({ type: 
 export const setLastRootMenuFullpath  = (fullpath)                   =>({ type: TRY_SET_MENU_FATHER, payload: { fullpath }});
 export const setIsMobile              = (is_mobile)                  =>({ type: TRY_MOBILE, payload: { is_mobile } });
 
-export const setReferrer              = (referrer, referrer_father)  =>({ type: SET_REFERRER, payload: { referrer:referrer, referrer_father:referrer_father } });
+export const setReferrer              = (title, referrer, father, icon)  =>({ type: SET_REFERRER, payload: { title:title, referrer:referrer, father:father, icon:icon} });
 export const clearReferrer            = ()                           =>({ type: CLEAR_REFERRER });
 
 //Eventos que requieren del async
@@ -95,7 +95,9 @@ export const lastRootMenu  = (state) => state.menu.last_root_menu_fullpath
 export const isMobile      = (state) => state.menu.is_mobile
 
 export const referrer      = (state) => { return { referrer:           state.menu.referrer
-                                                   , referrer_father:  state.menu.referrer_father }; }
+                                                   , referrer_father:  state.menu.referrer_father 
+                                                   , referrer_title:   state.menu.referrer_title
+                                                   , referrer_icon:    state.menu.referrer_icon }; }
 
 // El reducer del modelo
 const defaultState = { 
@@ -107,7 +109,9 @@ const defaultState = {
   is_mobile:                 false,
 
   referrer:                  null,
-  referrer_father:           null
+  referrer_father:           null,
+  referrer_title:            '',
+  referrer_icon:             ''
 };
 
 function reducer(state = defaultState, action = {}) {
@@ -149,15 +153,19 @@ function reducer(state = defaultState, action = {}) {
         }
     case SET_REFERRER:
         return {
-            ...state,
-            referrer:              action.payload.referrer,
-            referrer_father:       action.payload.referrer_father||null
+            ...state
+            , referrer:            action.payload.referrer
+            , referrer_father:     action.payload.father||null
+            , referrer_title:      action.payload.title
+            , referrer_icon:        action.payload.icon
         }
     case CLEAR_REFERRER:
         return {
-            ...state,
-            referrer:              null,
-            referrer_father:       null
+            ...state
+            , referrer:           ''
+            , referrer_father:    ''
+            , referrer_title:     null
+            , referrer_icon:      null
         }
     case CLEAN_MENU:
       return defaultState
