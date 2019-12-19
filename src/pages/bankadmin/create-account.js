@@ -18,14 +18,9 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
+import debounce from 'lodash/debounce';
 
-import {
-  Tooltip,
-  Cascader,
-  Select,
-  Checkbox,
-  DatePicker 
-} from 'antd';
+import { Tooltip, Cascader, Select, Checkbox, DatePicker } from 'antd';
 
 import { Divider, Steps, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
 import { List, Skeleton, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
@@ -63,6 +58,7 @@ const dateFormat =  'YYYY/MM/DD';
 const DEFAULT_STATE = {
       current_step:     0,
 
+      account_name_status: '',
       account_name:     '',
       password:         '',
       confirm_password: '',
@@ -96,6 +92,7 @@ const DEFAULT_STATE = {
       permissions:      undefined,
       alias:            '',
     };
+
 class CreateAccount extends Component {
   constructor(props) {
     super(props);
@@ -123,9 +120,7 @@ class CreateAccount extends Component {
     this.handleAddPermissionSubmit = this.handleAddPermissionSubmit.bind(this);
     
     this.resetPage                     = this.resetPage.bind(this); 
-    this.openNotificationWithIcon      = this.openNotificationWithIcon.bind(this); 
     this.generateKeys                  = this.generateKeys.bind(this); 
-    this.genAccountName                = this.genAccountName.bind(this); 
     this.doCreateAccount               = this.doCreateAccount.bind(this); 
     this.validateNConfirmCreateAccount = this.validateNConfirmCreateAccount.bind(this); 
     this.handleAccountTypeChange       = this.handleAccountTypeChange.bind(this);
@@ -134,8 +129,40 @@ class CreateAccount extends Component {
     this.onNewPermission               = this.onNewPermission.bind(this);
     this.onCancelNewPermission         = this.onCancelNewPermission.bind(this);
     this.onDeletePermission            = this.onDeletePermission.bind(this);
-
+    this.handleAcountNameChange        = this.handleAcountNameChange.bind(this);
+    
+    this.timeout_id = null;
   }
+
+  handleAcountNameChange = (e) =>{
+    
+    clearTimeout(this.timeout_id);
+
+    const {form} = this.props
+    let that     = this;
+
+    this.timeout_id = setTimeout( () => {
+
+      const account_name        = form.getFieldValue('account_name')
+      const account_name_length = (account_name||'').length;
+      const account_name_status = (account_name_length==12)
+      ?'Thats ok! 12 characters length'
+      :`You typed ${account_name_length} characters. 12 are required!`
+
+      // that.generateKeys(undefined);
+      const {default_keys} = that.state;
+      that.setState({ generated_keys:         default_keys
+                      , account_name_status:  account_name_status})
+      // if(account_name_length==0){
+      // }
+      // else{
+      // }
+
+    }, 150);
+    
+  }
+  
+  
 
   renderAccountTypesOptions(){
     const my_options          = globalCfg.bank.newAccountTypesOptions();
@@ -160,7 +187,7 @@ class CreateAccount extends Component {
   validateStep = () => new Promise((res, rej) => {
     
     console.log(' createAccount::validateStep() ENTER');
-    const {current_step, account_name} = this.state;
+    const {current_step, account_name, default_keys, generated_keys} = this.state;
     console.log(` createAccount::validateStep() current_step: ${current_step} | account_name:${account_name}`);
     
     try{
@@ -170,7 +197,7 @@ class CreateAccount extends Component {
         if (err)
         {  
           // console.log(' >> INVALID STEP >> ERR >>: ', JSON.stringify(err) )
-          this.openNotificationWithIcon('error', 'Something went wrong!', JSON.stringify(err))
+          components_helper.notif.exceptionNotification("Something went wrong!", err);
           rej(JSON.stringify(err));
           return;
         }
@@ -188,18 +215,25 @@ class CreateAccount extends Component {
           // values['account_name']  = (my_account_name.replace(/ /g, '')+'123451234512345').substring(0, 12);
           
           const seeds = globalCfg.bank.isPersonalAccount(this.state.account_type) 
-            ? [values.last_name.trim().toLowerCase(), values.first_name.trim().toLowerCase()] 
+            ? [values.first_name.trim().toLowerCase(), values.last_name.trim().toLowerCase()] 
             : [values.business_name.trim().toLowerCase()];
 
           values['account_name'] = api.nameHelper.generateAccountName(seeds);
         }
+        
+        if(current_step==1 && default_keys.wif==generated_keys.wif)
+        {
+          const _seed_value = form.getFieldValue('password');
+          this.generateKeys(_seed_value);
+        }
+
         this.setState(values);
         res(true);
 
       });
     }catch(e){
       // console.log(` createAccount::validateStep() ex: ${e}`);
-      this.openNotificationWithIcon('error', 'Something went wrong!', JSON.stringify(e))
+      components_helper.notif.exceptionNotification('Something went wrong!', e);
       rej(e)
     } 
     
@@ -214,13 +248,13 @@ class CreateAccount extends Component {
     }
     catch(e)
     {
-      this.openNotificationWithIcon("error", "Something went wrong!");        
+      components_helper.notif.exceptionNotification('Something went wrong!', e);
       return;
     } 
     
     if(!validStep)
     {
-      this.openNotificationWithIcon("error", "Something went wrong!","Step is not valid.")        
+      components_helper.notif.errorNotification("Something went wrong!","Step is not valid.")        
       return;
     }
     const {current_step} = this.state;
@@ -250,7 +284,7 @@ class CreateAccount extends Component {
     if(  (globalCfg.bank.isBusinessAccount(account_type) || globalCfg.bank.isFoundationAccount(account_type) )
         && (!permissions || !permissions['owner'] || permissions['owner'].length<1))
     {
-      this.openNotificationWithIcon("error", "Consider authorizing at least one owner account!","")  
+      components_helper.notif.errorNotification("Consider authorizing at least one owner account!");  
       return;
     }
     const modal_content = this.getAccountDescription();
@@ -339,12 +373,12 @@ class CreateAccount extends Component {
         my_permissions[new_perm_name]=[];
       if(my_permissions[new_perm_name].indexOf(values.permissioned)>-1)
       {
-        this.openNotificationWithIcon("warning", "Account already added to authorized list","")  
+        components_helper.notif.errorNotification("Account already added to authorized list")  
         return;
       }
       my_permissions[new_perm_name].push(values.permissioned)
       this.setState({permissions:my_permissions, adding_new_perm:false})
-      this.openNotificationWithIcon("success", "Account added to authorized list","")
+      components_helper.notif.successNotification("Account added to authorized list")
     });
     
   };
@@ -384,12 +418,6 @@ class CreateAccount extends Component {
     const { value } = e.target;
     this.setState({ confirmDirty: this.state.confirmDirty || !!value });
   };
-
-  genAccountName(){
-    // do gen account name
-    // this.setState({account_name:'something_really_cool'})
-    // value={this.state.account_name}
-  }
 
   generateKeys(do_generate, callback){
 
@@ -490,13 +518,6 @@ class CreateAccount extends Component {
   };
 
   /* ************************************************* */
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
 
   backToDashboard = async () => {
     this.props.history.push({
@@ -701,7 +722,8 @@ class CreateAccount extends Component {
     */
     if(current_step==1)
     {  
-      const {account_name, password, confirm_password, default_keys, generated_keys} = this.state;  
+      const {account_name, account_name_status, password, confirm_password, default_keys, generated_keys} = this.state;  
+      
       content = (
         <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>
           <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
@@ -710,17 +732,16 @@ class CreateAccount extends Component {
               <h3 className="fileds_header">EOS ACCOUNT NAME SECTION</h3>
               <Form.Item
                 extra={<>EOS Account names must be exactly 12 characters long and consist of lower case characters and digits up until 5. <br/>Validate account name if new at <a href={globalCfg.eos.create_account}  target="_blank">this validator</a> . </>}
-                label="Account name">
+                label="Account name"
+                help={account_name_status} >
                 {getFieldDecorator('account_name', {
                   rules: [
                     { required: true, message: 'Please input account name!', whitespace: true }
                      , { max: 12, message: '12 characters max' }
                      , { min: 12, message: '12 characters min' }
-                     , {
-                        validator: this.validateAccountName, 
-                      }
-                    ],
-                  initialValue: account_name
+                     , {validator: this.validateAccountName, }]
+                     , onChange: (e) => this.handleAcountNameChange(e)
+                     , initialValue: account_name
                 })(<Input  />)}
               </Form.Item>
               
@@ -759,7 +780,7 @@ class CreateAccount extends Component {
               <h3 className="fileds_header">KEYS GENERATED FROM PASSWORD</h3>
               <Form.Item label="Private Key" extra="You can copy and keep this private key for security reasons.">
                 <Input readOnly addonAfter={
-                    <CopyToClipboard text={generated_keys.wif} onCopy={() => this.openNotificationWithIcon("success", "Key copied successfully","") }>
+                    <CopyToClipboard text={generated_keys.wif} onCopy={() => components_helper.notif.successNotification("Key copied successfully") }>
                        <Button type="link" icon="copy" />
                     </CopyToClipboard>
                 } value={generated_keys.wif} />

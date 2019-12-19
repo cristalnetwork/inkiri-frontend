@@ -390,7 +390,7 @@ class RequestMoney extends Component {
         >
           
         </PageHeader>
-          <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+          <div style={{ margin: '0 0px', padding: 24}}>
             <div className="ly-main-content content-spacing cards">
               <section className="mp-box mp-box__shadow money-transfer__box">
                 {content}
