@@ -106,6 +106,11 @@ class TransactionCard extends Component {
           <TransactionTypeAndAmount request={request}/>
 
           <TransactionPetitioner profile={request.requested_by}/>
+
+          {
+            request.requested_to && 
+            <TransactionPetitioner title="Requested to" profile={request.requested_to}/>
+          }
           
           <TransactionEnvelope request={request} />
           

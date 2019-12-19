@@ -36,29 +36,46 @@ const { TabPane } = Tabs;
 const { Option } = Select;
 const { Search, TextArea } = Input;
 
+// const tabs = {
+//   [globalCfg.bank.ACCOUNT_TYPE_BUSINESS]: {
+//     [DISPLAY_ALL_TXS]:    'Movements',
+//     [DISPLAY_DEPOSIT]:    'Deposits',
+//     [DISPLAY_WITHDRAWS]:  'Withdraws',
+//     [DISPLAY_PROVIDER]:   'Provider Payments',
+//     [DISPLAY_SERVICE]:    'Services',
+//     [DISPLAY_PAYMENTS]:   'Payments',
+//   },
+//   [globalCfg.bank.ACCOUNT_TYPE_PERSONAL]: {
+//     [DISPLAY_ALL_TXS]:    'Movements',
+//     [DISPLAY_DEPOSIT]:    'Deposits',
+//     [DISPLAY_WITHDRAWS]:  'Withdraws',
+//     [DISPLAY_EXCHANGES]:  'Exchanges',
+//     [DISPLAY_SERVICE]:    'Services',
+//     [DISPLAY_PAYMENTS]:   'Payments',
+//   },
+//   [globalCfg.bank.ACCOUNT_TYPE_FOUNDATION]: {
+//     [DISPLAY_ALL_TXS]:    'Movements',
+//     [DISPLAY_DEPOSIT]:    'Deposits',
+//     [DISPLAY_WITHDRAWS]:  'Withdraws',
+//     [DISPLAY_SERVICE]:    'Services',
+//     [DISPLAY_PAYMENTS]:   'Payments',
+//   }
+  
+//   // [DISPLAY_REQUESTS] : 'Requests',
+// }
+
 const tabs = {
   [globalCfg.bank.ACCOUNT_TYPE_BUSINESS]: {
     [DISPLAY_ALL_TXS]:    'Movements',
-    [DISPLAY_DEPOSIT]:    'Deposits',
-    [DISPLAY_WITHDRAWS]:  'Withdraws',
-    [DISPLAY_PROVIDER]:   'Provider Payments',
-    [DISPLAY_SERVICE]:    'Services',
-    [DISPLAY_PAYMENTS]:   'Payments',
+    [DISPLAY_REQUESTS]:   'Requests'
   },
   [globalCfg.bank.ACCOUNT_TYPE_PERSONAL]: {
     [DISPLAY_ALL_TXS]:    'Movements',
-    [DISPLAY_DEPOSIT]:    'Deposits',
-    [DISPLAY_WITHDRAWS]:  'Withdraws',
-    [DISPLAY_EXCHANGES]:  'Exchanges',
-    [DISPLAY_SERVICE]:    'Services',
-    [DISPLAY_PAYMENTS]:   'Payments',
+    [DISPLAY_REQUESTS]:   'Requests'
   },
   [globalCfg.bank.ACCOUNT_TYPE_FOUNDATION]: {
     [DISPLAY_ALL_TXS]:    'Movements',
-    [DISPLAY_DEPOSIT]:    'Deposits',
-    [DISPLAY_WITHDRAWS]:  'Withdraws',
-    [DISPLAY_SERVICE]:    'Services',
-    [DISPLAY_PAYMENTS]:   'Payments',
+    [DISPLAY_REQUESTS]:   'Requests'
   }
   
   // [DISPLAY_REQUESTS] : 'Requests',
@@ -333,6 +350,18 @@ class Extrato extends Component {
           key={'table_'+DISPLAY_SERVICE} 
           need_refresh={this.state.need_refresh[DISPLAY_SERVICE]}
           request_type={DISPLAY_SERVICE} 
+          onChange={this.onTableChange}
+          callback={this.onRequestClick}
+          />
+      );
+    }
+    //
+    if(this.state.active_tab==DISPLAY_REQUESTS){
+      content = (
+        <TransactionTable 
+          key={'table_'+DISPLAY_REQUESTS} 
+          need_refresh={this.state.need_refresh[DISPLAY_REQUESTS]}
+          request_type={DISPLAY_REQUESTS} 
           onChange={this.onTableChange}
           callback={this.onRequestClick}
           />

@@ -207,6 +207,9 @@ export const acceptServiceRequest = (sender, request_id, c2c_player, tx_id) => u
 export const failedWithdraw = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, false);
 export const failedProviderPay = (sender, request_id)           => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, false);
 
+export const updatePaymentRequest = (sender, request_id, c2c_player, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, tx_id, undefined, true, c2c_player);
+export const rejectPaymentRequest = (sender, request_id, c2c_player)        => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, true, c2c_player);
+
 export const REQUEST_SENDER   = 'request_sender';
 export const REQUEST_RECEIVER = 'request_receiver';
 export const REQUEST_ADMIN    = 'request_admin';
@@ -905,6 +908,32 @@ export const createExchangeRequest      = (account_name, amount, bank_account, a
 
 export const updateExchangeRequest      = (sender, request_id, tx_id) => updateRequest(sender, request_id, undefined, tx_id);
 
+export const createMoneyRequest = (sender, request_type, requested, amount, memo) =>   new Promise((res,rej)=> {
+    
+  const path    = globalCfg.api.endpoint + '/requests';
+  const method  = 'POST';
+  const post_params = {
+          'from':               sender
+          , 'requested_type':   request_type
+          , 'amount':           Number(amount).toFixed(2)
+          , 'description':      memo
+          , 'to':               requested
+          
+        };
+
+  auth()
+    .then((token) => {
+      jwtHelper.apiCall(path, method, post_params)
+        .then((data) => {
+            res(data)
+          }, (ex) => {
+            rej(ex);
+          });
+  }, (ex) => {
+      rej(ex);
+  });
+  
+});
 
 export const processIuguInvoiceById = (iugu_invoice_id) =>   new Promise((res,rej)=> {
   

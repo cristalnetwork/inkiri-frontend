@@ -216,6 +216,9 @@ const api = {
   , isProviderPayment  : (request) => { return (request.tx_type==api.TYPE_PROVIDER||request.requested_type==api.TYPE_PROVIDER)}
   , isExchange         : (request) => { return (request.tx_type==api.TYPE_EXCHANGE||request.requested_type==api.TYPE_EXCHANGE)}
   , isService          : (request) => { return (request.tx_type==api.TYPE_SERVICE||request.requested_type==api.TYPE_SERVICE)}
+  , isSend             : (request) => { return (request.tx_type==api.TYPE_SEND||request.requested_type==api.TYPE_SEND)}
+  , isPayment          : (request) => { return (request.tx_type==api.TYPE_PAYMENT||request.requested_type==api.TYPE_PAYMENT)}
+  , isSendOrPayment    : (request) => { return api.isPayment(request)||api.isSend(request)}
   , requiresAttach     : (request) => { 
       return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER].includes(request.state);
   }

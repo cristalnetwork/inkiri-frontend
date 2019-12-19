@@ -459,7 +459,8 @@ select .anticon {
   font-size: 24px;
 }
 .menu_balance_currency{
-  line-height:  40px;
+  /*line-height:  40px;*/
+  font-size:      12px;
   /*flex-grow:    3;
   text-align:   right; */
 }

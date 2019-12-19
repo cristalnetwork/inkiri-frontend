@@ -271,14 +271,14 @@ const common = [
      container: 'dashboard' ,
      role:      '*' 
   },
-  // {
-  //    key:       pathNames.commonRequestMoney,
-  //    fileName:  'request-money',
-  //    area:      'common',
-  //    path:      'request-money',
-  //    container: 'dashboard' ,
-  //    role:      '*' 
-  // },
+  {
+     key:       pathNames.commonRequestMoney,
+     fileName:  'request-money',
+     area:      'common',
+     path:      'request-money',
+     container: 'dashboard' ,
+     role:      '*' 
+  },
   {
      key:       pathNames.commonConfiguration,
      fileName:  'configuration',

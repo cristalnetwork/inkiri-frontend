@@ -10,11 +10,6 @@ const routes  = {
                 title: 'My money',
                 icon: 'wallet',
                 items: [
-                    // {
-                    //     key: routes_config.pathNames.personalExtracto,
-                    //     path: routes_config.pathNames.personalExtracto,
-                    //     title: 'Extrato',
-                    // },
                     {
                         key: routes_config.pathNames.commonExtrato,
                         path: routes_config.pathNames.commonExtrato,
@@ -37,18 +32,18 @@ const routes  = {
                     }
                 ]
             },
-            // {
-            //     key: 'personal_receive_money',
-            //     title: 'Receive',
-            //     icon: 'plus-square',
-            //     items: [
-            //         {
-            //             key: routes_config.pathNames.commonRequestMoney,
-            //             path: routes_config.pathNames.commonRequestMoney,
-            //             title: 'Request money',
-            //         }
-            //     ]
-            // },
+            {
+                key: 'personal_receive_money',
+                title: 'Receive',
+                icon: 'plus-square',
+                items: [
+                    {
+                        key: routes_config.pathNames.commonRequestMoney,
+                        path: routes_config.pathNames.commonRequestMoney,
+                        title: 'Request money',
+                    }
+                ]
+            },
             {
                 // key: routes_config.pathNames.personalSendMoney,
                 key: 'personal_send_money',
@@ -84,11 +79,6 @@ const routes  = {
                 title: 'My money',
                 icon: 'wallet',
                 items: [
-                    // {
-                    //     key: routes_config.pathNames.personalExtracto,
-                    //     path: routes_config.pathNames.personalExtracto,
-                    //     title: 'Extrato',
-                    // },
                     {
                         key: routes_config.pathNames.commonExtrato,
                         path: routes_config.pathNames.commonExtrato,
@@ -103,6 +93,18 @@ const routes  = {
                         key: routes_config.pathNames.commonWithdraw,
                         path: routes_config.pathNames.commonWithdraw,
                         title: 'Withdraw',
+                    }
+                ]
+            },
+            {
+                key: 'personal_receive_money',
+                title: 'Receive',
+                icon: 'plus-square',
+                items: [
+                    {
+                        key: routes_config.pathNames.commonRequestMoney,
+                        path: routes_config.pathNames.commonRequestMoney,
+                        title: 'Request money',
                     }
                 ]
             },
@@ -282,12 +284,18 @@ const routes  = {
                         key:         routes_config.pathNames.businessPDV,
                         path:        routes_config.pathNames.businessPDV,
                         title:       'Vendas - PDV',
+                        permission:  'owner,active,pdv'
                     },
                     {
                         key:         routes_config.pathNames.commonServices,
                         path:        routes_config.pathNames.commonServices,
                         title:       'Serviços oferecidos',
                         permission:  'owner,active'
+                    },
+                    {
+                        key: routes_config.pathNames.commonRequestMoney,
+                        path: routes_config.pathNames.commonRequestMoney,
+                        title: 'Request money',
                     }
                 ]
             },

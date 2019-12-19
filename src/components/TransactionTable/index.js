@@ -101,9 +101,10 @@ class TransactionTable extends Component {
     const limit          = this.state.limit;
     const that           = this;
     
+    const req_type = this.props.request_type==DISPLAY_REQUESTS?undefined:this.props.request_type;
     if(this.state.for_admin)
     {
-      const req_type = this.props.request_type;
+      // const req_type = this.props.request_type==DISPLAY_REQUESTS?undefined:this.props.request_type;
       api.bank.listRequests(page, limit, req_type)
         .then( (res) => {
             that.onNewData(res);
@@ -117,10 +118,10 @@ class TransactionTable extends Component {
       return;
     }
 
-    const _to = (this.props.request_type==globalCfg.api.TYPE_SERVICE)?account_name:null;
-    // const _to = null;
+    // const _to = (this.props.request_type==globalCfg.api.TYPE_SERVICE)?account_name:null;
+    const _to = account_name;
 
-    api.bank.listMyRequests(account_name, page, limit, this.props.request_type, _to)
+    api.bank.listMyRequests(account_name, page, limit, req_type, _to)
       .then( (res) => {
           that.onNewData(res);
         } ,(ex) => {
