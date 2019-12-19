@@ -5,11 +5,17 @@
 @pro-header-hover-bg: @component-background;
 @pro-header-box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
 
+@admin-color:      #4285F4;
+@personal-color:   #FF8800;
+@business-color:   #9933CC;
+@foundation-color: #aa66cc;
+
 .logo_extra{
   display: inline-block;
-  height: @layout-header-height;
+  /*height: @layout-header-height ;*/
+  height: 120px;
   line-height: 20px;
-  padding: 0 0 0 24px;
+  padding: 0 0 0 0px;
   font-size: 14px;
   
   vertical-align: top;
@@ -18,16 +24,26 @@
   width:100%;
   border-bottom: 1px #f0f2f5 solid;
 
-  /*admin*/
-  background-color:#4285F4;
+  
+  &.admin{
+    .menu_balance_wrapper{
+      background-color:@admin-color;
+    }
+  }
   &.personal{
-    background-color:#FF8800;
+    .menu_balance_wrapper{
+      background-color:@personal-color;
+    }
   }
   &.business{
-    background-color:#9933CC;
+    .menu_balance_wrapper{
+      background-color:@business-color;
+    }
   }
   &.foundation{
-    background-color:#aa66cc;
+    .menu_balance_wrapper{
+      background-color:@foundation-color;
+    }
   }
   color:#fff;
   button{
@@ -38,10 +54,22 @@
     color:rgba(255, 255, 255, 1);
     }
   }
-  span.small{
-  font-size:11px;
-  }
+  
 }
+
+.menu_account_selected.admin{
+  color:@admin-color;
+}
+.menu_account_selected.personal{
+  color:@personal-color;
+}
+.menu_account_selected.business{
+  color:@business-color;
+}
+.menu_account_selected.foundation{
+  color:@foundation-color;
+}
+
 .logo {
   display: inline-block;
   height: @layout-header-height;

@@ -14,7 +14,6 @@ module.exports = override(
         '@font-family': "'Proxima Nova', -apple-system,'Helvetica Neue',Helvetica,Roboto,Arial,sans-serif ;"
         , '@code-family': "'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;"
         // , '@shadow-color' : 'transparent'
-
       },
       ident: 'postcss',
       sourceMap: true, // should skip in production

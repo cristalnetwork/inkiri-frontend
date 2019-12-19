@@ -302,7 +302,7 @@ export const listPAPPayments = async (account_name, provider, customer, service_
     // console.log(' dfuse::queryTransactions >> RAW data >>', JSON.stringify(response));
 
     const txs = transformTransactionsImpl(results, account_name);
-    console.log(' DFUSE transformo las txs!!!!!!', txs.length)
+    // console.log(' DFUSE transformo las txs!!!!!!', txs.length)
     console.log(' FILTERING service_id >>', service_id);
     res ({data:{txs:txs.reverse().filter(tx=>parseInt(tx.data.service_id)==parseInt(service_id)), cursor:response.data.searchTransactionsForward.cursor}})
     

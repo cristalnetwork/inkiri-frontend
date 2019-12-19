@@ -19,6 +19,9 @@ const SET_MENU_FATHER        = 'menu/SET_MENU_FATHER'
 const TRY_MOBILE             = 'menu/TRY_MOBILE'
 const SET_MOBILE             = 'menu/SET_MOBILE'
 
+const SET_REFERRER           = 'menu/SET_REFERRER'
+const CLEAR_REFERRER         = 'menu/CLEAR_REFERRER'
+
 // Creadores de acciones (se pueden usar desde los compoenentes)
 export const getMenu                  = (account_name, account_type) =>({ type: GET_ASYNC, payload: { account_name, account_type }});
 export const getMenuFail              = (error)                      =>({ type: GET_FAIL, payload: { error }});
@@ -29,6 +32,9 @@ export const collapseMenu             = (is_collapsed)               =>({ type: 
 
 export const setLastRootMenuFullpath  = (fullpath)                   =>({ type: TRY_SET_MENU_FATHER, payload: { fullpath }});
 export const setIsMobile              = (is_mobile)                  =>({ type: TRY_MOBILE, payload: { is_mobile } });
+
+export const setReferrer              = (referrer, referrer_father)  =>({ type: SET_REFERRER, payload: { referrer:referrer, referrer_father:referrer_father } });
+export const clearReferrer            = ()                           =>({ type: CLEAR_REFERRER });
 
 //Eventos que requieren del async
 function* getMenuSaga({ type, payload }) {
@@ -88,6 +94,9 @@ export const isCollapsed   = (state) => state.menu.is_collapsed
 export const lastRootMenu  = (state) => state.menu.last_root_menu_fullpath
 export const isMobile      = (state) => state.menu.is_mobile
 
+export const referrer      = (state) => { return { referrer:           state.menu.referrer
+                                                   , referrer_father:  state.menu.referrer_father }; }
+
 // El reducer del modelo
 const defaultState = { 
   items:                     [], 
@@ -95,7 +104,10 @@ const defaultState = {
   is_collapsed:              false, 
   error:                     undefined, 
   last_root_menu_fullpath:   undefined, 
-  is_mobile:                 false
+  is_mobile:                 false,
+
+  referrer:                  null,
+  referrer_father:           null
 };
 
 function reducer(state = defaultState, action = {}) {
@@ -103,38 +115,49 @@ function reducer(state = defaultState, action = {}) {
     case SET:
       return {
         ...state,
-        items: action.payload.menu.items
+        items:                     action.payload.menu.items
       };
     case GET_ASYNC:
       return  {
         ...state,
-        loading: state.loading +1
+        loading:                   state.loading +1
       }
     case GET_FAIL:
         return {
           ...state,
-          error: action.payload.error
+          error:                   action.payload.error
         }
     case GET_ASYNC_END:
       return {
         ...state,
-        loading: state.loading - 1
+        loading:                   state.loading - 1
       }
     case SET_COLLAPSE:
-      console.log(' ############ menuREDUX::SET_COLLAPSE -> ALGUIEN ME LLAMO!!! action.payload >> ', action.payload)
       return {
         ...state,
-        is_collapsed: action.payload.is_collapsed
+        is_collapsed:              action.payload.is_collapsed
       }
      case SET_MENU_FATHER:
        return{
         ...state, 
-        last_root_menu_fullpath: action.payload.fullpath
+        last_root_menu_fullpath:   action.payload.fullpath
       }
     case SET_MOBILE:
         return {
             ...state,
-            is_mobile: action.payload.is_mobile
+            is_mobile:             action.payload.is_mobile
+        }
+    case SET_REFERRER:
+        return {
+            ...state,
+            referrer:              action.payload.referrer,
+            referrer_father:       action.payload.referrer_father||null
+        }
+    case CLEAR_REFERRER:
+        return {
+            ...state,
+            referrer:              null,
+            referrer_father:       null
         }
     case CLEAN_MENU:
       return defaultState

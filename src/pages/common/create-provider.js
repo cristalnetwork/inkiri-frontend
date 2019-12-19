@@ -105,9 +105,14 @@ class CreateProvider extends Component {
   }
 
   backToDashboard = async () => {
-    this.props.history.push({
-      pathname: `/${this.props.actualRole}/dashboard`
-    })
+    if(this.props.isAdmin)
+      this.props.history.push({
+        pathname: `/bankadmin/dashboard`
+      })
+    else
+      this.props.history.push({
+        pathname: `common/extrato`
+      })
   }
 
   backToProviders = async () => {
@@ -390,8 +395,9 @@ class CreateProvider extends Component {
 export default Form.create() (withRouter(connect(
     (state)=> ({
         actualAccountName:    loginRedux.actualAccountName(state),
-        actualRole:       loginRedux.actualRole(state),
-        isLoading:        loginRedux.isLoading(state)
+        actualRole:           loginRedux.actualRole(state),
+        isAdmin:              loginRedux.isAdmin(state),
+        isLoading:            loginRedux.isLoading(state)
     }),
     (dispatch)=>({
         

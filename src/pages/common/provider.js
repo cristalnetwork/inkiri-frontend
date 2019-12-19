@@ -12,7 +12,6 @@ import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 
 import _ from 'lodash';
-import PropTypes from "prop-types";
 
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
@@ -58,20 +57,10 @@ class Provider extends Component {
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetPage                  = this.resetPage.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderProviderInfo         = this.renderProviderInfo.bind(this);
     this.onUpdateProvider           = this.onUpdateProvider.bind(this);
     this.onPaymentClick             = this.onPaymentClick.bind(this);
   }
-
-  static propTypes = {
-    // match: PropTypes.object.isRequired,
-    // location: PropTypes.object.isRequired,
-    // history: PropTypes.object.isRequired
-    match: PropTypes.object,
-    location: PropTypes.object,
-    history: PropTypes.object
-  };
 
   componentDidUpdate(prevProps, prevState) 
   {
@@ -136,7 +125,7 @@ class Provider extends Component {
 
     if(!has_received_new_data && !first_call)
     {
-      this.openNotificationWithIcon("info", "End of transactions","You have reached the end of transaction list!")
+      components_helper.notif.infoNotification("End of transactions","You have reached the end of transaction list!");
     }
     // else
     //   this.computeStats();
@@ -161,19 +150,12 @@ class Provider extends Component {
     this.setState({updating:false});
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-
   //
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (err) {
-        this.openNotificationWithIcon("warning", "Please check fields notifications!","")  
+        components_helper.notif.warningNotification("Please check fields notifications!");
         return;
       }
       console.log('Received values of form: ', values);
@@ -200,14 +182,19 @@ class Provider extends Component {
   }
 
   backToDashboard = async () => {
-    this.props.history.push({
-      pathname: `/${this.props.actualRole}/dashboard`
-    })
+    if(this.props.isAdmin)
+      this.props.history.push({
+        pathname: `/bankadmin/dashboard`
+      })
+    else
+      this.props.history.push({
+        pathname: `common/extrato`
+      })
   }
 
   backToProviders = async () => {
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/providers`
+      pathname: `/common/providers`
     })
   }
 
@@ -541,12 +528,13 @@ class Provider extends Component {
 //
 export default Form.create() (withRouter(connect(
     (state)=> ({
-        accounts:         accountsRedux.accounts(state),
-        actualAccountName:    loginRedux.actualAccountName(state),
-        actualRole:       loginRedux.actualRole(state),
-        actualPrivateKey: loginRedux.actualPrivateKey(state),
-        isLoading:        loginRedux.isLoading(state),
-        balance:          balanceRedux.userBalanceFormatted(state),
+        accounts:           accountsRedux.accounts(state),
+        actualAccountName:  loginRedux.actualAccountName(state),
+        actualRole:         loginRedux.actualRole(state),
+        actualPrivateKey:   loginRedux.actualPrivateKey(state),
+        isLoading:          loginRedux.isLoading(state),
+        isAdmin:            loginRedux.isAdmin(state),
+        balance:            balanceRedux.userBalanceFormatted(state),
     }),
     (dispatch)=>({
         

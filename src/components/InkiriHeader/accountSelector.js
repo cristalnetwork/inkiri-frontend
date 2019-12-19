@@ -97,9 +97,9 @@ const AccountSelector = ({allAccounts, actualAccountName, currentAccount, onChan
 
 export default connect(
     (state)=> ({
-        allAccounts:     loginRedux.allAccounts(state),
+        allAccounts:         loginRedux.allAccounts(state),
         actualAccountName:   loginRedux.actualAccountName(state),
-        currentAccount:  loginRedux.currentAccount(state),
-        isLoading:       loginRedux.isLoading(state)
+        currentAccount:      loginRedux.currentAccount(state),
+        isLoading:           loginRedux.isLoading(state)
     })
 )(AccountSelector)

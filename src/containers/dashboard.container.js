@@ -13,14 +13,14 @@ import { bindActionCreators } from 'redux';
 
 import useMedia from 'react-media-hook2';
 
-import AccountSelector from '@app/components/InkiriHeader/accountSelector';
-import UserBalance from '@app/components/InkiriHeader/userBalance';
+import MenuBalanceView from '@app/components/Views/balance_menu'
+import MenuAccountView from '@app/components/Views/account_menu'
 import * as components_helper from '@app/components/helper';
 
 const { Header, Content, Footer, Sider } = Layout;
 
-const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, itemPath, menuIsCollapsed, actualAccountName, actualRole
-                              , collapseMenu, setIsMobile, trySwitchAccount}) => {
+const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, itemPath, menuIsCollapsed, actualAccountName, actualRole, currentAccount
+                              , collapseMenu, setIsMobile}) => {
     
     const [menu_is_collapsed, setMenuIsCollapsed] = useState(menuIsCollapsed);
     
@@ -41,11 +41,6 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
       setIsMobile(isMobile)
     }
     
-    const switchAccount = (account_name) => {
-      // console.log(`selected ${account_name}`);
-      trySwitchAccount(account_name);
-    }
-
     const onCollapse = (collapsed, type )=> {
         // console.log('dashboard::onCollpase:', collapsed, type);
         if(type=='clickTrigger')
@@ -74,17 +69,20 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
                 <div className="img_container">
                   <img src="/favicons/favicon-32x32.png" />
                 </div>
-                {menu_is_collapsed?(null):(<span>INKIRI BANK</span>)}
+                {!menu_is_collapsed && (<span>INKIRI BANK</span>)}
               </a>
-              {isMobile?(<AccountSelector onChange={switchAccount} isMobile={isMobile}/>):(null)}
+              
             </div>
             <div className={"logo_extra "+actualRole+hidden_if_collapsed}>
-              {menu_is_collapsed?(null):<>
-                                          <span>{globalCfg.currency.symbol}<UserBalance userId={actualAccountName} /></span>
-                                          <br/> <span className="small">BALANCE</span> 
-                                        </>}
+              { !menu_is_collapsed && 
+                <MenuBalanceView />
+              }
+              {
+                !menu_is_collapsed &&
+                <MenuAccountView account={currentAccount} className="menu_account_item" />
+              }
             </div>
-            { Menu? <Menu area={area} fileName={fileName} itemPath={itemPath} />: false }
+            { Menu? <Menu renderAccounts={true} area={area} fileName={fileName} itemPath={itemPath} />: false }
         </Sider>
         <Layout>
           <Header style={{ background: '#fff', padding: 0 }}>
@@ -104,17 +102,15 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
 const DashboardContainer =
  connect(
     state => ({
-      menuIsCollapsed :     menuRedux.isCollapsed(state),
-      actualAccountName :   loginRedux.actualAccountName(state),
-      actualRole :          loginRedux.actualRole(state),
-      
-
+      menuIsCollapsed:      menuRedux.isCollapsed(state),
+      actualAccountName:    loginRedux.actualAccountName(state),
+      actualRole:           loginRedux.actualRole(state),
+      currentAccount:       loginRedux.currentAccount(state),
     }),
     dispatch => ({
 
       collapseMenu:         bindActionCreators(menuRedux.collapseMenu, dispatch),
       setIsMobile:          bindActionCreators(menuRedux.setIsMobile, dispatch),
-      trySwitchAccount:     bindActionCreators(loginRedux.trySwitchAccount, dispatch),
     })
 )(_DashboardContainer)
 

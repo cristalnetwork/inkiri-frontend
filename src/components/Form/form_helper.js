@@ -12,7 +12,7 @@ export const MONTH_FORMAT           = 'YYYY/MM';
 export const MONTH_FORMAT_HUMANIZED = 'MMMM YYYY';
 export const DATE_FORMAT            = 'YYYY/MM/DD';
 
-export const getSelectItem = (_form, object, field, options, title, placeholder, mode, dropdownRender, required_message) => {
+export const getSelectItem = (_form, object, field, options, title, placeholder, mode, dropdownRender, required_message, allow_clear) => {
     
     const _mode                    = mode?mode:'multiple';
     const { getFieldDecorator }    = _form;
@@ -24,6 +24,7 @@ export const getSelectItem = (_form, object, field, options, title, placeholder,
                   initialValue:initial_value
                 })(
                     <Select 
+                      allowClear={allow_clear||false}
                       placeholder={placeholder}
                       mode={mode}
                       optionLabelProp="label"

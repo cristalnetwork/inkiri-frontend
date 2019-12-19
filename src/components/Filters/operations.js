@@ -199,7 +199,8 @@ const OperationsFilter = (props) => {
             , 'Operation'
             , 'multiple'
             , dropdownRender
-            , undefined) }
+            , undefined
+            , true) }
 
         { false && form_helper.getSelectItem(_form
             , filter
@@ -209,7 +210,8 @@ const OperationsFilter = (props) => {
             , 'IN / OUT'
             , 'multiple'
             , dropdownRender
-            , undefined) }
+            , undefined
+            , true) }
 
         { false && form_helper.getSelectItem(_form
             , filter
@@ -219,7 +221,8 @@ const OperationsFilter = (props) => {
             , 'Account type'
             , 'multiple'
             , dropdownRender
-            , undefined) }
+            , undefined
+            , true) }
 
         { form_helper.getDateRangeItem (_form
             , filter

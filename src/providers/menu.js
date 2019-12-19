@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React, {useEffect, useState} from 'react'
 import { connect } from 'react-redux'
 
 import * as menuRedux from '@app/redux/models/menu'
@@ -9,22 +9,31 @@ import { Menu, Icon } from 'antd';
 import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 
+import MenuAccountView from '@app/components/Views/account_menu'
 import * as routes_config from '@app/configs/routes'
 
 import { getRootKeys } from '@app/services/routes'
 
 const  { SubMenu } = Menu;
 
-export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actualAccountName, actualRole , actualRoleId,  actualPermission, lastRootMenu, menuIsCollapsed}) => {
+export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [], allAccounts, getMenu, trySwitchAccount2, actualAccountName, actualRole , actualRoleId,  actualPermission, 
+                             lastRootMenu, menuIsCollapsed}) => {
+        
+        const [myActualAccountName, setActualAccountName]   = useState(null);
+        const [myActualrole, setActualRole]                 = useState(null);
         
         useEffect(()=>{
-            getMenu(actualAccountName, actualRole)
+            if(myActualrole!=actualRole && myActualAccountName!=actualAccountName)
+            {
+              setActualAccountName(actualAccountName);
+              setActualRole(actualRole);
+              getMenu(actualAccountName, actualRole);
+            }
         })
+
 
         let selected = routes_config.getItemByAreaNFilename(area, fileName, itemPath)
         
-        // console.log(' >> PRE >> menu >> selected:', JSON.stringify(selected))
-
         if(((!selected || selected.father_key==='*') || area==='common') && lastRootMenu)
         {
             const path_parts = lastRootMenu.split('/'); 
@@ -60,6 +69,29 @@ export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actua
         }
         //
         
+        // trySwitchAccount(account_name)
+
+        const handleSwitch = (account_name, role) => {
+          if(account_name==actualAccountName && actualRole==role)
+            return;
+          console.log(' SWITCH ACCOUNT TO:', account_name, role);
+          trySwitchAccount2(account_name);
+        }
+
+        const renderAccountsMenu = () => {
+          // if(!renderAccounts || !allAccounts || allAccounts.length<2)
+          //   return (null);
+          
+          return(<SubMenu title={<span><Icon type="smile" /><span>Accounts</span></span>} key="accounts_menu_key">
+                  {allAccounts.map(acc => 
+                    <Menu.Item key={acc.permissioner.account_name} style={{height:'auto', minHeight: '40px'}} onClick={()=>handleSwitch(acc.permissioner.account_name, acc.permission)} >
+                      <MenuAccountView account={acc}/>
+                    </Menu.Item>
+                  )}
+                 </SubMenu>);
+        }
+        // `
+        
         return (
                 <Menu
                     defaultSelectedKeys={aa}
@@ -67,6 +99,7 @@ export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actua
                     mode="inline"
                     theme="light"
                 >
+                    { renderAccountsMenu() }
                     { items.map(renderItem) }
                 </Menu>
         )
@@ -77,6 +110,7 @@ export const MenuByRole = ({area, fileName, itemPath, items = [], getMenu, actua
 export default connect(
     state => ({
         items:                 menuRedux.getMenuItems(state),
+        allAccounts:           loginRedux.allAccounts(state),
         actualAccountName:     loginRedux.actualAccountName(state),
         actualRole:            loginRedux.actualRole(state),
         actualRoleId:          loginRedux.actualRoleId(state),
@@ -85,6 +119,7 @@ export default connect(
         menuIsCollapsed :      menuRedux.isCollapsed(state)
     }),
     dispatch => ({
-        getMenu:               bindActionCreators( menuRedux.getMenu, dispatch)
+        getMenu:               bindActionCreators( menuRedux.getMenu, dispatch),
+        trySwitchAccount2:     bindActionCreators(loginRedux.trySwitchAccount2, dispatch),
     })
 )(MenuByRole)

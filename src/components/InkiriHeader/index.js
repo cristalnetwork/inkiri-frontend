@@ -109,6 +109,32 @@ class InkiriHeader extends Component {
     const {isMobile, menuIsCollapsed} = this.state;
     const logo_class = menuIsCollapsed? 'ant-pro-global-header-logo':'hidden';
     
+    // if(isMobile)
+    // {
+    //   header_content = (
+    //     <>
+    //       <a className={logo_class} key="logo" href="/">
+    //         <img src="/favicons/favicon-32x32.png" alt="logo"/>
+    //       </a>
+    //       <div className="right">
+    //         <span className="hidden">Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
+    //         <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
+    //       </div>
+    //     </>
+    //     );
+    // }
+    // else{
+    //   //
+    //   header_content=(
+    //     <div className="right">
+    //       <div className="header_element_container">
+    //         <AccountSelector onChange={this.handleChange} isMobile={isMobile}/>
+    //          &nbsp; <span className="hidden"> Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
+    //        <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">Logout</Button>
+    //       </div>
+    //     </div>
+    //   );
+    // }
     if(isMobile)
     {
       header_content = (
@@ -117,7 +143,6 @@ class InkiriHeader extends Component {
             <img src="/favicons/favicon-32x32.png" alt="logo"/>
           </a>
           <div className="right">
-            <span className="hidden">Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
             <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
           </div>
         </>
@@ -128,8 +153,6 @@ class InkiriHeader extends Component {
       header_content=(
         <div className="right">
           <div className="header_element_container">
-            <AccountSelector onChange={this.handleChange} isMobile={isMobile}/>
-             &nbsp; <span className="hidden"> Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
            <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">Logout</Button>
           </div>
         </div>

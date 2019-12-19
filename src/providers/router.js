@@ -55,10 +55,10 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           
           if(actualRole=='business') 
           { 
-            history.push(`/common/extrato`);
+            // history.push(`/common/extrato`);
             // history.push(`/common/salaries`);
             // history.push(`/common/send`);
-            // history.push(`/${actualRole}/providers-payments-request`);
+            history.push(`/${actualRole}/providers-payments-request`);
             // history.push(`/common/deposit`);
             // history.push(`/common/withdraw`);
             // history.push(`/${actualRole}/pdv`);
@@ -71,8 +71,8 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           }  
           
           if(actualRole=='personal') {
-              // history.push(`/common/extrato`);
-              history.push(`/common/contracted-services`);
+              history.push(`/common/extrato`);
+              // history.push(`/common/contracted-services`);
               // history.push(`/common/send`);
               // history.push(`/common/deposit`);
               // history.push(`/common/withdraw`);

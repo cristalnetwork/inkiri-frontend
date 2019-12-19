@@ -7,6 +7,7 @@ import * as loginRedux from '@app/redux/models/login'
 import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
 import * as apiRedux from '@app/redux/models/api';
+import * as menuRedux from '@app/redux/models/menu';
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
@@ -415,6 +416,18 @@ class RequestPayment extends Component {
     };
   }
 
+  onNewProvider =() =>{
+
+    //this.props.setLastRootMenuFullpath(this.props.location.pathname);
+    this.props.setReferrer(this.props.location.pathname, this.state.referrer)
+    this.props.history.push({
+      pathname: `/common/create-provider`
+      , state: { 
+          referrer: this.props.location.pathname
+        }
+    })
+  }
+
   renderContent() {
     
     const {result, result_object, error} = this.state;
@@ -446,6 +459,7 @@ class RequestPayment extends Component {
                       </span>
                   </div>
                   <div className="money-transfer__input money-transfer__select">
+                    <Button type="default" icon="plus" size="small" onClick={() => this.onNewProvider()} title="Add new provider" style={{position:'absolute', right:8, top:8}}/>
                     <Form.Item>
                       {getFieldDecorator('provider', {
                         rules: [{ validator: this.validateProvider }],
@@ -543,7 +557,7 @@ class RequestPayment extends Component {
           title="Request a payment to a provider">
         </PageHeader>
 
-        <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+        <div style={{ margin: '0 0px', marginTop: 12}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
               {content}
@@ -577,7 +591,9 @@ export default Form.create() (withRouter(connect(
         callAPIEx:        bindActionCreators(apiRedux.callAPIEx, dispatch),
         clearAll:         bindActionCreators(apiRedux.clearAll, dispatch),
         setResult:        bindActionCreators(apiRedux.setResult, dispatch),
-        loadBalance:      bindActionCreators(balanceRedux.loadBalance, dispatch)
+        loadBalance:      bindActionCreators(balanceRedux.loadBalance, dispatch),
+
+        setReferrer:      bindActionCreators(menuRedux.setReferrer, dispatch),
     })
 )(RequestPayment) )
 );
