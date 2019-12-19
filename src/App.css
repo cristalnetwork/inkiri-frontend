@@ -374,11 +374,11 @@ select .anticon {
 
 
 /*.ant-menu-inline .ant-menu-item, .ant-menu-inline .ant-menu-submenu-title*/
-.account_menu_item li, ul#accounts_menu_key li{
+/*.account_menu_item li, ul#accounts_menu_key li{
   height:auto;
   min-height: 40px;
   background-color: #ff6699;
-}
+}*/
 
 .account_menu_item .menu_account_container, .menu_account_container{
   display:         flex;
@@ -386,6 +386,7 @@ select .anticon {
   justify-content: flex-start;
   align-items:     flex-start;
   padding-left:    28px; 
+  margin-top:      -8px; 
 }
 .account_menu_item .menu_account_name, .menu_account_name{
   font-weight:     bold;
@@ -407,12 +408,22 @@ select .anticon {
   font-weight:     bold;
 }
 
+
+
+
+
+
 .menu_account_item{
-  padding:8px;
+  padding:16px 8px;
   color:rgba(0, 0, 0, 0.65);
+}
+.menu_account_item .menu_account_name{
+  font-size:   18px;
+  line-height: 18px;
 }
 .menu_account_item .menu_account_container{
   padding-left:    18px; 
+  margin-top:      4px;
 }
 .menu_account_item .menu_account_permission{
   font-size:       10px;
@@ -435,7 +446,7 @@ select .anticon {
   flex-direction:  row;
   justify-content: flex-start;
   align-items:     flex-start;
-  padding:8px;
+  padding:16px 8px;
 }
 .menu_balance_container{
   display:         flex;
