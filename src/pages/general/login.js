@@ -58,7 +58,7 @@ class Login extends Component {
     return (
       <>
         <div className="login-header">
-          <h1 align="center"><img src="/favicons/favicon-32x32.png" alt="" /> Inkiri Bank</h1>
+          <h1 align="center" className="omnes_isologo"><img src="/favicons/favicon-32x32.png" alt="" /> Inkiri Bank</h1>
         </div> 
         <Form onSubmit={this.handleSubmit} className="login-form">
 

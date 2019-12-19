@@ -201,36 +201,18 @@ const routes  = {
                         path:         routes_config.pathNames.bankadminPDA,
                         title:        'PDA',
                     },
-                    // {
-                    //     key:          routes_config.pathNames.commonServices,
-                    //     path:         routes_config.pathNames.commonServices,
-                    //     title:        'Serviços oferecidos',
-                    //     permission:   'active'
-                    // },
-                    // {
-                    //     key:          routes_config.pathNames.commonContractedServices,
-                    //     path:         routes_config.pathNames.commonContractedServices,
-                    //     title:        'Serviços Contratados',
-                    //     permission:   'active'
-                    // },
-
                 ]
             },
             {
                 key:                  routes_config.pathNames.bankadminStaff,
-                title:                'Staff',
-                icon:                 'team',
+                title:                'Teams',
+                icon:                 'usergroup-add',
                 permission:           'active',
                 items: [
                     {
-                        key:          routes_config.pathNames.commonSalaries,
-                        path:         routes_config.pathNames.commonSalaries,
-                        title:        'Salaries',
-                    },
-                    {
-                        key:          routes_config.pathNames.commonCrew,
-                        path:         routes_config.pathNames.commonCrew,
-                        title:        'Crew',
+                        key:          routes_config.pathNames.bankadminTeams,
+                        path:         routes_config.pathNames.bankadminTeams,
+                        title:        'Teams',
                     }
 
                 ]

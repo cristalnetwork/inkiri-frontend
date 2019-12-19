@@ -95,10 +95,12 @@ class Operations extends Component {
           , referrer: this.props.location.pathname
         }
     })
-
   }
 
   componentDidMount(){
+    const {page_key} = this.state;
+    // Set default filter state for oprations: get all!!!
+    this.props.trySetFilterKeyValue(page_key, {});
     this.loadBlockchainTXs();
   } 
 
@@ -113,6 +115,7 @@ class Operations extends Component {
       if(prevProps.operations !== this.props.operations )
       {
         const opers = this.props.operations[this.state.page_key];
+        console.log('opers:', opers)
         const pagination    = {...this.state.pagination};
         pagination.pageSize = opers.length;
         pagination.total    = opers.length;
@@ -338,7 +341,8 @@ export default  (withRouter(connect(
         page_key_values:      pageRedux.pageKeyValues(state),
     }),
     (dispatch)=>({
-        setPageKeyValue:              bindActionCreators(pageRedux.setPageKeyValue, dispatch),
+        setPageKeyValue:      bindActionCreators(pageRedux.setPageKeyValue, dispatch),
+        trySetFilterKeyValue: bindActionCreators(operationsRedux.trySetFilterKeyValue, dispatch),
 
         loadOldBlockchainOperations:  bindActionCreators(operationsRedux.loadOldBlockchainOperations, dispatch),
         loadBlockchainOperations:     bindActionCreators(operationsRedux.loadBlockchainOperations, dispatch),

@@ -225,7 +225,8 @@ class Salaries extends Component {
     try {
       team = await api.bank.getTeam(this.props.actualAccountName);
     } catch (e) {
-      components_helper.notif.exceptionNotification("Error retrieveing Team", e);
+      // components_helper.notif.exceptionNotification("Error retrieveing Team", e);
+      components_helper.notif.infoNotification("Error retrieveing Team... or there is no team!", e);
       this.setState({ loading:false})
       return;
     } 

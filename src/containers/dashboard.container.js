@@ -69,7 +69,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
                 <div className="img_container">
                   <img src="/favicons/favicon-32x32.png" />
                 </div>
-                {!menu_is_collapsed && (<span>INKIRI BANK</span>)}
+                {!menu_is_collapsed && (<span className="omnes_isologo">INKIRI BANK</span>)}
               </a>
               
             </div>

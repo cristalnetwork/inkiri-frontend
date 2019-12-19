@@ -27,6 +27,14 @@
     src: url(/fonts/proxima-nova/proximanova-semibold.woff2) format("woff2"), url(/fonts/proxima-nova/proximanova-semibold.woff) format("woff"), url(/fonts/proxima-nova/proximanova-semibold.ttf) format("truetype")
 }
 
+@font-face {
+    font-family: "Omnes";
+    font-weight: 400;
+    font-style:  normal;
+    src: url(/fonts/omnes-font/07dc45de3c2d37fcd503045055b2253b.woff2) format("woff2"), url(/fonts/omnes-font/07dc45de3c2d37fcd503045055b2253b.woff) format("woff"), url(/fonts/omnes-font/07dc45de3c2d37fcd503045055b2253b.ttf) format("truetype")
+}
+
+
 .ant-page-header {
   background-color: #ffffff;
 }
@@ -468,4 +476,10 @@ select .anticon {
   font-size:10px;
   line-height:10px;
   padding-right: 5px;
+}
+
+
+.omnes_isologo{
+  font-family: Omnes;
+  font-size:   14px!important;
 }
