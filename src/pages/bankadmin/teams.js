@@ -57,148 +57,9 @@ class Crew extends Component {
   }
   
   componentDidMount(){
-    this.loadTeam();  
-    this.loadJobPositions();
+    this.loadTeams();  
+    
   } 
-
-  onNewMember = () => {
-    this.setState({active_view:STATE_NEW_MEMBER})
-  }
-
-  onEditMember = (member) => {
-    this.setState({active_view: STATE_EDIT_MEMBER, active_view_object:member})
-  }
-
-  onRemoveMember = (member) => {
-    const that           = this;
-    Modal.confirm({
-      title: 'Confirm delete member.',
-      content: (<p>You are about to remove <b>{member.member.account_name}</b> from the crew. Continue or cancel.</p>),
-      onOk() {
-        const {team}         = that.state;
-        if(!team)
-        {
-          that.setState({pushingTx:false})
-          components_helper.notif.infoNotification('We cant get the team id. Please reload page.');
-          return;
-        }
-        const teamId         = team?team.id:null;
-        const account_name   = that.props.actualAccountName;
-        const members = team.members.filter(item => item._id!=member._id)
-        that.setState({pushingTx:true})
-        api.bank.createOrUpdateTeam(teamId, account_name, members)
-          .then((res)=>{
-            components_helper.notif.successNotification('Member removed from team successfully!');
-            that.loadTeam();
-            that.resetPage(STATE_LIST_MEMBERS);
-          }, (err)=>{
-            console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
-            components_helper.notif.exceptionNotification('An error occurred', err);
-            that.setState({pushingTx:false});
-          })
-     
-      },
-      onCancel() {
-        
-      },
-    });
-
-  }
-
-  onMembersListCallback(member, event){
-
-    switch(event){
-      case columns_helper.events.VIEW:
-        console.log(event)
-        break;
-      case columns_helper.events.REMOVE:
-        this.onRemoveMember(member);
-        break;
-      case columns_helper.events.EDIT:
-        // console.log(event)
-        this.onEditMember(member);
-        break;
-    }
-    return;
-
-  }
-
-  memberFormCallback = async (error, cancel, values) => {
-    // console.log(` ## memberFormCallback(error:${error}, cancel:${cancel}, values:${values})`)
-    // console.log(' memberFormCallback:', JSON.stringify(values))
-    
-    if(cancel)
-    {
-      this.setState({active_view:STATE_LIST_MEMBERS})
-      return;
-    }
-    if(error)
-    {
-      return;
-    }
-
-    // {"position":"job_position_tronco","member":"corpodoyoga1","input_amount":{"value":"15000"}}
-
-    const that           = this;
-    const {team}         = this.state;
-    const teamId         = team?team.id:null;
-    const account_name   = this.props.actualAccountName;
-    this.setState({pushingTx:true})
-    let member_profile   = null;
-    
-    // New member!
-    if(!values._id)
-      try{
-        member_profile = await api.bank.getProfile(values.member);
-      }catch(e){
-        this.setState({pushingTx:false})
-        components_helper.notif.exceptionNotification('Cant retrieve new member profile!', e);
-        return;
-      }         
-
-
-    const new_member = {
-      _id:        member_profile ? undefined : values._id,
-      member:     member_profile ? member_profile._id : values.member,
-      position:   values.position,
-      wage:       values.input_amount.value
-    }
-    
-    // already a member?
-    if(!values._id && team && team.members && team.members.filter(member => member.member._id==new_member.member).length>0)
-    {
-      this.setState({pushingTx:false})
-      components_helper.notif.errorNotification('Selected profile is already a member!');
-      return;
-    }
-
-    const members        = team
-      ? [  ...(team.members.filter(member=>member._id!=new_member._id))
-                .map((member) => {return {_id        : member._id
-                                          , member   : member.member._id
-                                          , position : member.position
-                                          , wage     : member.wage};
-                                        })
-           , new_member]
-      : [new_member];
-
-    // console.log(' -> values -> ', JSON.stringify(values));
-    // console.log(' -> members -> ', JSON.stringify(members));
-    // return;
-    api.bank.createOrUpdateTeam(teamId, account_name, members)
-      .then((res)=>{
-        components_helper.notif.successNotification("Member saved to team successfully!");
-        // that.openNotificationWithIcon("success", "Member saved to team successfully!")    
-        that.loadTeam();
-        that.resetPage(STATE_LIST_MEMBERS);
-      }, (err)=>{
-        console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
-        components_helper.notif.exceptionNotification("An error occurred", err);
-        that.setState({pushingTx:false});
-      })
- 
-
-  }
 
   resetPage(active_view){
     let my_active_view = active_view?active_view:this.state.active_view;
@@ -226,7 +87,7 @@ class Crew extends Component {
     this.setState({ job_positions: data.job_positions, loading:false})
   }
 
-  loadTeam = async () => {
+  loadTeams = async () => {
 
     this.setState({loading:true});
 
