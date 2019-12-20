@@ -238,7 +238,7 @@ class ExchangeForm extends Component {
   }
 
   onNewBankAccount =() =>{
-    this.props.setReferrer(  'Back to request exchange!'
+    this.props.setReferrer(  'Back to request exchange'
                              , this.props.location.pathname
                              , this.state.referrer
                              , 'university')

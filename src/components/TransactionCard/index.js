@@ -24,6 +24,7 @@ import TransactionProvider from '@app/components/TransactionCard/provider';
 import TransactionBlockchain from '@app/components/TransactionCard/blockchain';
 import TransactionAttachments from '@app/components/TransactionCard/attachments';
 import TransactionEnvelope from '@app/components/TransactionCard/envelope';
+import NameValueIcon from '@app/components/TransactionCard/name_value_icon';
 
 import TransactionBankAccount from '@app/components/TransactionCard/bank_account';
 
@@ -68,7 +69,9 @@ class TransactionCard extends Component {
   }
   
   getAlert(request){
-    if(globalCfg.api.isProcessing(request) && globalCfg.api.isProviderPayment(request) && this.props.isAdmin)
+    if(globalCfg.api.isProcessing(request) 
+        && (globalCfg.api.isProviderPayment(request) || globalCfg.api.isExchange(request) )
+        && this.props.isAdmin)
       return ( <Alert
                   message="Bank transfer required!"
                   description={(<>
@@ -112,12 +115,16 @@ class TransactionCard extends Component {
             <TransactionPetitioner title="Requested to" profile={request.requested_to}/>
           }
           
+          {
+            request.description 
+            && <NameValueIcon name="Message" value={request.description} icon="comment" />
+          }
           <TransactionEnvelope request={request} />
           
           {
-            (globalCfg.api.isExchange(request))?
-            (<TransactionBankAccount bank_account={bank_account} alone_component={false} />)
-            :(<TransactionProvider request={request}/>)
+            (globalCfg.api.isExchange(request))
+              ?(<TransactionBankAccount bank_account={bank_account} alone_component={false} />)
+              :(<TransactionProvider request={request}/>)
           }
 
           {

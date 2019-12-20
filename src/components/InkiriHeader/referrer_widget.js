@@ -66,10 +66,9 @@ class ReferrerWidget extends React.Component {
     );
     const currentUser ={};
     return (
-      <HeaderDropdown overlay={menuHeaderDropdown} style={{marginRigth:16}}>
-        
+      <HeaderDropdown overlay={menuHeaderDropdown} style={{marginRigth:16}} className="temp_alert_action">
           <span className={`action account`}>
-            <FontAwesomeIcon icon={referrer.referrer_icon} color="#eb2f96"/>
+            <FontAwesomeIcon icon={referrer.referrer_icon} className="fa_icon"/>
           </span>
         
       </HeaderDropdown>

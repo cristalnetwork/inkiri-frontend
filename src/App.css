@@ -418,19 +418,22 @@ select .anticon {
 
 
 
-
-
-
 .menu_account_item{
-  padding:16px 8px;
-  color:rgba(0, 0, 0, 0.65);
+  padding:  16px 8px 16px 24px;
+  color:    rgba(0, 0, 0, 0.65);
+}
+
+.menu_account_item .anticon{
+  min-width: 14px;
+  margin-right: 10px;
+  color: #000;
 }
 .menu_account_item .menu_account_name{
   font-size:   18px;
   line-height: 18px;
 }
 .menu_account_item .menu_account_container{
-  padding-left:    18px; 
+  padding-left:    28px; 
   margin-top:      4px;
 }
 .menu_account_item .menu_account_permission{
@@ -482,4 +485,16 @@ select .anticon {
 .omnes_isologo{
   font-family: Omnes;
   font-size:   14px!important;
+}
+
+
+
+.temp_alert_action{
+  background-color: rgb(108, 84, 163);
+}
+.temp_alert_action .fa_icon{
+  color: white;
+}
+.temp_alert_action:hover .fa_icon{
+  color: rgb(108, 84, 163);
 }

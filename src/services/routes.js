@@ -156,17 +156,17 @@ const routes  = {
                         title: 'Operations',
                         
                     },
-                    {
-                        key: routes_config.pathNames.bankadminExternalTransfers,
-                        path: routes_config.pathNames.bankadminExternalTransfers,
-                        title: 'External Transfers',
-
-                    },
                     // {
-                    //     key: routes_config.pathNames.commonServices,
-                    //     path: routes_config.pathNames.commonServices,
-                    //     title: 'Services - PAP',
+                    //     key: routes_config.pathNames.bankadminExternalTransfers,
+                    //     path: routes_config.pathNames.bankadminExternalTransfers,
+                    //     title: 'External Transfers',
+
                     // },
+                    {
+                        key: routes_config.pathNames.bankadminServices,
+                        path: routes_config.pathNames.bankadminSoon,
+                        title: 'Services - PAP',
+                    },
                     {
                         key: routes_config.pathNames.bankadminIugu,
                         path: routes_config.pathNames.bankadminIugu,
@@ -201,22 +201,27 @@ const routes  = {
                         path:         routes_config.pathNames.bankadminPDA,
                         title:        'PDA',
                     },
-                ]
-            },
-            {
-                key:                  routes_config.pathNames.bankadminStaff,
-                title:                'Teams',
-                icon:                 'usergroup-add',
-                permission:           'active',
-                items: [
                     {
                         key:          routes_config.pathNames.bankadminTeams,
-                        path:         routes_config.pathNames.bankadminTeams,
+                        path:         routes_config.pathNames.bankadminSoon,
                         title:        'Teams',
-                    }
-
+                    },
                 ]
             },
+            // {
+            //     key:                  routes_config.pathNames.bankadminStaff,
+            //     title:                'Teams',
+            //     icon:                 'usergroup-add',
+            //     permission:           'active',
+            //     items: [
+            //         {
+            //             key:          routes_config.pathNames.bankadminTeams,
+            //             path:         routes_config.pathNames.bankadminTeams,
+            //             title:        'Teams',
+            //         }
+
+            //     ]
+            // },
             {
                 key:                  routes_config.pathNames.bankadminConfiguration,
                 path:                 routes_config.pathNames.bankadminConfiguration,

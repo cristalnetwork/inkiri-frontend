@@ -13,11 +13,11 @@ import ItemBlockchainLink from '@app/components/TransactionCard/item_blockchain_
 const TransactionBlockchain = (props) => {
     
     const [request, setRequest]          = useState(props.request);    
-    const [title, setTitle]              = useState(props.title||'Customer payment');    
+    const [title, setTitle]              = useState(props.title||'Money transfer');    
 
     useEffect(() => {
       setRequest(props.request);
-      setTitle(props.title||'Customer payment');    
+      setTitle(props.title||'Money transfer');    
     });
 
     if(!request || (!request.tx_id && !request.refund_tx_id))

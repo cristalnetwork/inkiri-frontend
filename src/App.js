@@ -7,13 +7,13 @@ import './App.css';
 import './App.less';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faMinusCircle, faFileSignature, faUserMinus, faUserPlus, faCalendarAlt, faCalculator, faShapes, faMoneyCheckAlt, faTrafficLight, faPiggyBank, faKeyboard, faKey, faExclamationCircle, faShieldAlt, faUserShield, faExternalLinkAlt, faQuestionCircle, faMagic, faCreditCard, faPaperPlane, faShoppingBag, faStore, faExchangeAlt, faArrowUp, faArrowDown, faArrowAltCircleUp, faUniversity, faPhone, faMapMarkerAlt, faIdCard, faUser, faUserCircle, faDollarSign, faEnvelope, faFlagCheckered, faUserClock, faCloud, faFilePdf, faTruckMoving, faFileInvoice, faFileInvoiceDollar, faReceipt, faChevronRight } from '@fortawesome/free-solid-svg-icons'
+import { faMinusCircle, faComment, faFileSignature, faUserMinus, faUserPlus, faCalendarAlt, faCalculator, faShapes, faMoneyCheckAlt, faTrafficLight, faPiggyBank, faKeyboard, faKey, faExclamationCircle, faShieldAlt, faUserShield, faExternalLinkAlt, faQuestionCircle, faMagic, faCreditCard, faPaperPlane, faShoppingBag, faStore, faExchangeAlt, faArrowUp, faArrowDown, faArrowAltCircleUp, faUniversity, faPhone, faMapMarkerAlt, faIdCard, faUser, faUserCircle, faDollarSign, faEnvelope, faFlagCheckered, faUserClock, faCloud, faFilePdf, faTruckMoving, faFileInvoice, faFileInvoiceDollar, faReceipt, faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { fab } from '@fortawesome/free-brands-svg-icons';
 
 const App = () =>{
     
 
-    library.add(fab, faMinusCircle, faFileSignature,faUserMinus, faUserPlus, faCalculator, faCalendarAlt, faShapes, faTrafficLight, faMoneyCheckAlt, faPiggyBank, faKey, faKeyboard, faExclamationCircle, faShieldAlt, faUserShield, faExternalLinkAlt, faQuestionCircle, faMagic, faCreditCard, faPaperPlane, faShoppingBag, faStore, faExchangeAlt, faArrowUp, faArrowDown, faArrowAltCircleUp, faUniversity, faMapMarkerAlt, faPhone, faIdCard, faUser, faUserCircle, faDollarSign, faEnvelope, faFlagCheckered, faUserClock, faCloud, faTruckMoving, faFileInvoiceDollar, faFileInvoice, faReceipt, faFilePdf, faChevronRight)
+    library.add(fab, faComment, faMinusCircle, faFileSignature,faUserMinus, faUserPlus, faCalculator, faCalendarAlt, faShapes, faTrafficLight, faMoneyCheckAlt, faPiggyBank, faKey, faKeyboard, faExclamationCircle, faShieldAlt, faUserShield, faExternalLinkAlt, faQuestionCircle, faMagic, faCreditCard, faPaperPlane, faShoppingBag, faStore, faExchangeAlt, faArrowUp, faArrowDown, faArrowAltCircleUp, faUniversity, faMapMarkerAlt, faPhone, faIdCard, faUser, faUserCircle, faDollarSign, faEnvelope, faFlagCheckered, faUserClock, faCloud, faTruckMoving, faFileInvoiceDollar, faFileInvoice, faReceipt, faFilePdf, faChevronRight)
 
     return (
       <div className="App">

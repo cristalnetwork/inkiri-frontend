@@ -423,7 +423,7 @@ class RequestPayment extends Component {
   onNewProvider =() =>{
 
     //this.props.setLastRootMenuFullpath(this.props.location.pathname);
-    this.props.setReferrer(  'Back to request provider payment!'
+    this.props.setReferrer(  'Back to request provider payment'
                              , this.props.location.pathname
                              , this.state.referrer
                              , 'truck-moving')

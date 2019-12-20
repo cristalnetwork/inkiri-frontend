@@ -39,7 +39,7 @@ const MenuAccountView = (props) => {
     }
 
     return (
-      <div className={`${props.className}`}>
+      <div className={`${props.className||''}`}>
         <Icon type={getIconForAccountType(account)} className={` ${props.actualRole} ${account.permissioner.account_name==props.actualAccountName?'menu_account_selected':''}`}/>
         &nbsp;{getDisplayAccountData(account)}
       </div>

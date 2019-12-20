@@ -6,11 +6,13 @@ export const pathNames = utils.arrToObj([
     
     // 'personalConfiguration',
 
+    'bankadminSoon',
     'bankadminDashboard',
     'bankadminTransactions',
     'bankadminOperations',
-    'bankadminExternalTransfers',
-    'bankadminExternalTransfers_ProcessExternal',
+    'bankadminServices',
+    // 'bankadminExternalTransfers',
+    // 'bankadminExternalTransfers_ProcessExternal',
     'bankadminIugu',
     'bankadminIugu_Details',
     'bankadminConfiguration',
@@ -96,22 +98,30 @@ const bankadmin = [
        role:      'bankadmin'
     },
     {
-       key:       pathNames.bankadminExternalTransfers,
-       fileName:  'external-transfers',
+       key:       pathNames.bankadminServices,
+       fileName:  'servicesX',
        area:      'bankadmin',
-       path:      'external-transfers',
+       path:      'services',
        container: 'dashboard',
        role:      'bankadmin'
     },
-    {
-       key:         pathNames.bankadminExternalTransfers_ProcessExternal,
-       father_key : '*',
-       fileName:    'process-external',
-       area:        'bankadmin',
-       path:        'external-transfers-process-request',
-       container:   'dashboard',
-       role:        'bankadmin'
-    },
+    // {
+    //    key:       pathNames.bankadminExternalTransfers,
+    //    fileName:  'external-transfers',
+    //    area:      'bankadmin',
+    //    path:      'external-transfers',
+    //    container: 'dashboard',
+    //    role:      'bankadmin'
+    // },
+    // {
+    //    key:         pathNames.bankadminExternalTransfers_ProcessExternal,
+    //    father_key : '*',
+    //    fileName:    'process-external',
+    //    area:        'bankadmin',
+    //    path:        'external-transfers-process-request',
+    //    container:   'dashboard',
+    //    role:        'bankadmin'
+    // },
     {
        key:         pathNames.bankadminIugu,
        fileName:    'iugu',
@@ -200,7 +210,7 @@ const bankadmin = [
     },
     {
        key:       pathNames.bankadminTeams,
-       fileName:  'teams',
+       fileName:  'teamsX',
        area:      'bankadmin',
        path:      'teams',
        container: 'dashboard',
