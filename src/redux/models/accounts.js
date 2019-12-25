@@ -45,7 +45,7 @@ function* loadAccountsSaga() {
 function* loadBankAccountSaga({ type, payload }){
   const { account_name } = payload
   const data = yield api.getBankAccount(account_name);
-  console.log(' * loadBankAccountSaga:', data)
+  // console.log(' * loadBankAccountSaga:', data)
   if(data) {
     yield put(setBankAccount(data))
     yield put(balance.loadBalance(account_name))
@@ -54,13 +54,14 @@ function* loadBankAccountSaga({ type, payload }){
 function* loadEOSAccountSaga({ type, payload }){
   const { account_name } = payload
   const {data} = yield api.getAccount(account_name);
-  console.log(' * loadEOSAccountSaga:', data)
+  // console.log(' * loadEOSAccountSaga:', data)
   if(data) {
     yield put(setEosAccount(data))
   }
 }
 
 function* initLoadAccounts () {
+  console.log( ' # core.INIT@accounts-saga ' )
   yield put({type: core.ACTION_START, payload: { loadAccounts: 'Loading accounts'}})
   yield call(loadAccountsSaga)
   yield put({type: core.ACTION_END, payload: 'loadAccounts'})
@@ -68,6 +69,7 @@ function* initLoadAccounts () {
 
 //Se envan las sagas a redux estableciendo que y cuantas veces dispara la funcià¸£à¸“n
 store.injectSaga('accounts', [
+  // takeEvery(core.INIT_READY_TO_START, initLoadAccounts),
   takeEvery(core.INIT, initLoadAccounts),
   takeEvery(LOAD_ACCOUNTS,     loadAccountsSaga),
   takeEvery(LOAD_BANK_ACCOUNT, loadBankAccountSaga),

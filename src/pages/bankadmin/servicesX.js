@@ -76,7 +76,7 @@ class Crew extends Component {
     let data = null;
 
     try {
-      data = await api.bank.getJobPositions();
+      // data = await api.bank.getJobPositions();
     } catch (e) {
       // this.openNotificationWithIcon("error", "Error retrieveing Job Positions", JSON.stringify(e));
       components_helper.notif.exceptionNotification("Error retrieveing Job Positions", e);

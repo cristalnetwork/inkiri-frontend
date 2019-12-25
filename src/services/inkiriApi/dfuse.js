@@ -352,7 +352,7 @@ query{
 export const queryTransactionsNew = (account, last_block) => queryTransactions(account, null, last_block+1);
 export const queryTransactionsCursor = (account, cursor)  => queryTransactions(account, cursor, null);
 export const queryTransactions = async (account, cursor, last_block) => new Promise(async(res,rej)=> {
-  console.log(' queryTransactions => ', account)
+  // console.log(' queryTransactions => ', account)
   if(!account)
     account = {  acount_name:     globalCfg.currency.issuer
                  , account_type:  globalCfg.bank.ACCOUNT_TYPE_BANK_ADMIN};
@@ -405,7 +405,7 @@ export const queryTransactions = async (account, cursor, last_block) => new Prom
     // console.log(' dfuse::queryTransactions >> RAW data >>', JSON.stringify(response));
 
     const txs = transformTransactionsImpl(results, account_name);
-    console.log(' DFUSE transformo las txs!!!!!!', txs.length)
+    // console.log(' DFUSE transformo las txs!!!!!!', txs.length)
     // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
     res ({data:{txs:txs.reverse(), cursor:response.data.searchTransactionsForward.cursor}})
     

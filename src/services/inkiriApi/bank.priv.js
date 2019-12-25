@@ -544,23 +544,23 @@ export const getTeam = (account_name) =>   new Promise((res,rej)=> {
 
 });
 
-export const getJobPositions = () =>   new Promise((res,rej)=> {  
-  const path    = globalCfg.api.endpoint + '/teams_positions';
-  const method  = 'GET';
-  auth()
-    .then((token) => {
-      jwtHelper.apiCall(path, method)
-        .then((data) => {
-            console.log(' inkiriApi::getJobPositions >> RESPONSE', JSON.stringify(data))
-            res(data)
-          }, (ex) => {
-            console.log(' inkiriApi::getJobPositions >> ERROR ', JSON.stringify(ex))
-            rej(ex);
-          });
-    }, (ex) => {
-        rej(ex);
-    });
-});
+// export const getJobPositions = () =>   new Promise((res,rej)=> {  
+//   const path    = globalCfg.api.endpoint + '/teams_positions';
+//   const method  = 'GET';
+//   auth()
+//     .then((token) => {
+//       jwtHelper.apiCall(path, method)
+//         .then((data) => {
+//             console.log(' inkiriApi::getJobPositions >> RESPONSE', JSON.stringify(data))
+//             res(data)
+//           }, (ex) => {
+//             console.log(' inkiriApi::getJobPositions >> ERROR ', JSON.stringify(ex))
+//             rej(ex);
+//           });
+//     }, (ex) => {
+//         rej(ex);
+//     });
+// });
 
 export const createOrUpdateTeam = (teamId, account_name, members) =>   new Promise((res,rej)=> {  
 

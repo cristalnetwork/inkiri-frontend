@@ -29,6 +29,7 @@ export default function configureStore(initialState) {
   // Create an inject reducer function
   // This function adds the async reducer, and creates a new combined reducer
   store.injectReducer = (key, asyncReducer) => {
+    console.log(' .. me injectaron:', key)
     store.asyncReducers[key] = asyncReducer;
     store.replaceReducer(createReducer(store.asyncReducers));
   };
@@ -51,4 +52,4 @@ export const store = configureStore({})
 
 //Start redux logic
 store.injectSaga('core', coreSagas  )
-setTimeout(()=>store.dispatch({type: 'core/BOOT'}),1000);
+setTimeout(()=>store.dispatch({type: 'core/BOOT'}), 250); //1000

@@ -1,4 +1,30 @@
 
+export const objectsEqual = (a, b) => {
+  if (a === b) return true;
+  if (a == null && b == null) return true;
+  if (a == null || b == null) return false;
+  const a_keys = Object.keys(a);
+  const b_keys = Object.keys(b);
+  if (a_keys.length != b_keys.length) return false;
+  for (var i = 0; i < a_keys.length; ++i) {
+    if (a[a_keys[i]] !== b[a_keys[i]]) return false;
+  }
+  return true;
+}
+
+
+export const objectNullOrEmpty = (o) => {
+  if(!o) return true;
+  if(Object.keys(o).length==0) return true;
+  return false;
+}
+
+export const arrayNullOrEmpty = (a) => {
+  if(!a) return true;
+  if(!Array.isArray(a)) return true;
+  if(a.length==0) return true;
+  return false;
+}
 export const arraysEqual = (a, b) => {
   if (a === b) return true;
   if (a == null && b == null) return true;

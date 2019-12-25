@@ -40,7 +40,8 @@ export const setProfile = ({account_name, profile})        =>({ type: SET_PROFIL
 const ACCOUNT_DATA = 'account_data'
 
 //Eventos que requieren del async
-function* loadLoginData() {
+function* initLoginDataSaga() {
+    console.log( ' # core.INIT@login-saga ' )
     yield put({ type: core.ACTION_START, payload: { login: 'Check local storage' } })
     const { data } = yield getStorage(ACCOUNT_DATA);
     // console.log(' loginREDUX::loadLoginData >> storage >> ', JSON.stringify(data))
@@ -88,10 +89,10 @@ function* tryLoginSaga({ type, payload }) {
 function* trySwitchAccountSaga({ type, payload }) {
 
     const { account_name } = payload
-    console.log(' LOGIN REDUX >> trySwitchAccountSaga >> ', account_name);
+    // console.log(' LOGIN REDUX >> trySwitchAccountSaga >> ', account_name);
     const { data } = yield getStorage(ACCOUNT_DATA);
     if (account_name === data.account_name) {
-        console.log(' LOGIN REDUX >> trySwitchAccountSaga >> NOTHING TO DO >> account_name===data.account_name', account_name);
+        // console.log(' LOGIN REDUX >> trySwitchAccountSaga >> NOTHING TO DO >> account_name===data.account_name', account_name);
         yield put({ type: TRY_SWITCH_END })
         return;
     }
@@ -100,7 +101,7 @@ function* trySwitchAccountSaga({ type, payload }) {
 
     const profile = yield api.bank.getProfile(account_name);
     stateData['profile'] = profile;
-    console.log(' LOGIN REDUX >> trySwitchAccountSaga >>putting new data', JSON.stringify(stateData));
+    // console.log(' LOGIN REDUX >> trySwitchAccountSaga >>putting new data', JSON.stringify(stateData));
     setStorage(ACCOUNT_DATA, { account_name: account_name
                                , password: data.password
                                , remember: data.remember
@@ -117,10 +118,10 @@ function* trySwitchAccountSaga({ type, payload }) {
 function* trySwitchAccount2Saga({ type, payload }) {
 
     const { account_name, role } = payload
-    console.log(' LOGIN REDUX >> trySwitchAccount2Saga >> ', account_name, role);
+    // console.log(' LOGIN REDUX >> trySwitchAccount2Saga >> ', account_name, role);
     const { data } = yield getStorage(ACCOUNT_DATA);
     if (account_name === data.account_name) {
-        console.log(' LOGIN REDUX >> trySwitchAccount2Saga >> NOTHING TO DO >> account_name===data.account_name', account_name);
+        // console.log(' LOGIN REDUX >> trySwitchAccount2Saga >> NOTHING TO DO >> account_name===data.account_name', account_name);
         yield put({ type: TRY_SWITCH_END })
         return;
     }
@@ -129,7 +130,7 @@ function* trySwitchAccount2Saga({ type, payload }) {
 
     const profile = yield api.bank.getProfile(account_name);
     stateData['profile'] = profile;
-    console.log(' LOGIN REDUX >> trySwitchAccount2Saga >>putting new data', JSON.stringify(stateData));
+    // console.log(' LOGIN REDUX >> trySwitchAccount2Saga >>putting new data', JSON.stringify(stateData));
     setStorage(ACCOUNT_DATA, { account_name: account_name
                                , password: data.password
                                , remember: data.remember
@@ -187,7 +188,8 @@ function accountsToArray(accounts) {
 
 //Se envan las sagas a redux estableciendo que y cuantas veces dispara la funcià¸£à¸“n
 store.injectSaga('login', [
-    takeEvery(core.INIT, loadLoginData),
+    // takeEvery(core.INIT_READY_TO_START, initLoginDataSaga),
+    takeEvery(core.INIT, initLoginDataSaga),
     takeEvery(TRY_LOGIN, tryLoginSaga),
     takeEvery(TRY_SWITCH, trySwitchAccountSaga),
     takeEvery(TRY_SWITCH2, trySwitchAccount2Saga),
@@ -262,7 +264,7 @@ function reducer(state = defaultState, action = {}) {
                 loading: state.loading - 1
             }
         case SET_LOGIN:
-            console.log( ' loginREDUX >> action.payload.password >> ' , action.payload.current_account)
+            // console.log( ' loginREDUX >> action.payload.password >> ' , action.payload.current_account)
 
             return {
                 ...state,

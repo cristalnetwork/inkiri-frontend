@@ -27,7 +27,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
     useEffect(() => {
       if(menu_is_collapsed!=menuIsCollapsed)
         setMenuIsCollapsed(menuIsCollapsed);
-      console.log('dashboard::useEffect::menuIsCollapsed', menuIsCollapsed);
+      // console.log('dashboard::useEffect::menuIsCollapsed', menuIsCollapsed);
 
     })
 

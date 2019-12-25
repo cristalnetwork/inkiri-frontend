@@ -177,6 +177,7 @@ function* tryFilterOperationsSaga(){
 
 
 function* initOperationsReduxSaga () {
+  console.log( ' # core.INIT@operations-saga ' )
   // yield put({type: core.ACTION_START, payload: { loadBlockchainOperations: 'Loading blockahin operations'}})
   yield call(loadBlockchainOperationsSaga)
   // yield put({type: core.ACTION_END, payload: 'loadBlockchainOperations'})

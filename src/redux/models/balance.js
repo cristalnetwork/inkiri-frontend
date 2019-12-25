@@ -24,7 +24,7 @@ export const setCurrencyStats    = (stats) =>({ type: SET_CURRENCY_STATS, payloa
 //Eventos que requieren del async
 function* loadBalanceSaga({action, payload}) {
   const { account_name } = payload;
-  console.log(' -- loadBalanceSaga (LOAD_BALANCE) me llamaron con account_name:', account_name)
+  // console.log(' -- loadBalanceSaga (LOAD_BALANCE) me llamaron con account_name:', account_name)
   if(!account_name) return;
 
   const { data }= yield api.getAccountBalance(account_name);
@@ -32,17 +32,17 @@ function* loadBalanceSaga({action, payload}) {
     const balance           = data.balance||0;
     let without_overdraft   = balance;
     try{
-      console.log('--balance redux#1:')
+      // console.log('--balance redux#1:')
       if(!store.getState().accounts.bank_account)
         yield put(accounts.loadBankAccount(account_name))
       
       const oft = store.getState().accounts.bank_account.overdraft;
-      console.log('--balance redux#2:', oft)
+      // console.log('--balance redux#2:', oft)
       const oft_number = globalCfg.currency.toNumber(oft);
-      console.log('--balance redux#3:', oft_number)
+      // console.log('--balance redux#3:', oft_number)
       without_overdraft = without_overdraft - oft_number; 
     }catch(e){
-      console.log('--balance error#1:', JSON.stringify(e))
+      // console.log('--balance error#1:', JSON.stringify(e))
     }
     yield put(setBalance({account_name, balance: {balance:balance, without_overdraft:without_overdraft}}))
   }
@@ -59,7 +59,7 @@ function* loadCurrencyStatsSaga() {
     return;
   }
   catch(e){
-    console.log(e);
+    // console.log(e);
     yield put({ type: END_LOAD_CURRENCY_STATS })
     // TODO -> throw global error!
   }
@@ -69,8 +69,9 @@ function* refreshBalanceSaga({action, payload}){
 
 }
 function* initBalanceReduxSaga () {
+  console.log( ' # core.INIT@balance-saga ' )
   // yield put({type: core.ACTION_START, payload: { loadCurrencyStats: 'Loading currency stats'}})
-  console.log('balance-redux :: Me llamo core?')
+  // console.log('balance-redux :: Me llamo core?')
   yield call(loadCurrencyStatsSaga)
   // yield put({type: core.ACTION_END, payload: 'loadCurrencyStats'})
 }
@@ -78,6 +79,7 @@ function* initBalanceReduxSaga () {
 //Se envan las sagas a redux estableciendo que y cuantas veces dispara la función
 store.injectSaga('balances', [
   takeEvery(core.INIT, initBalanceReduxSaga),
+  // takeEvery(core.INIT_READY_TO_START, initBalanceReduxSaga),
   takeEvery(LOAD_BALANCE, loadBalanceSaga),
   takeEvery(LOAD_CURRENCY_STATS, loadCurrencyStatsSaga),
   

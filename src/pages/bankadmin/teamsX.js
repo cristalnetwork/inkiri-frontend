@@ -31,6 +31,7 @@ const STATE_LIST_MEMBERS = 'state_list_members';
 const STATE_NEW_MEMBER   = 'state_new_member';
 const STATE_EDIT_MEMBER  = 'state_edit_member';
 
+
 class Crew extends Component {
   constructor(props) {
     super(props);
@@ -76,7 +77,7 @@ class Crew extends Component {
     let data = null;
 
     try {
-      data = await api.bank.getJobPositions();
+      // data = await api.bank.getJobPositions();
     } catch (e) {
       // this.openNotificationWithIcon("error", "Error retrieveing Job Positions", JSON.stringify(e));
       components_helper.notif.exceptionNotification("Error retrieveing Job Positions", e);

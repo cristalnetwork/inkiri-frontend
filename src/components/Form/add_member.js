@@ -5,11 +5,14 @@ import { bindActionCreators } from 'redux';
 
 import * as accountsRedux from '@app/redux/models/accounts';
 import * as loginRedux from '@app/redux/models/login'
+import * as graphqlRedux from '@app/redux/models/graphql'
 
+import * as utils from '@app/utils/utils';
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
 import * as request_helper from '@app/components/TransactionCard/helper';
+import * as components_helper from '@app/components/helper';
 
 import AutocompleteAccount from '@app/components/AutocompleteAccount';
 import ProfileMini from '@app/components/TransactionCard/profile_mini';
@@ -35,36 +38,41 @@ class AddMemberForm extends Component {
     super(props);
 
     this.state = {
-      job_positions: props.job_positions,
-      member:        props.member,
-      callback:      props.callback,
+      job_positions:   props.jobPositions,
+      member:          props.member,
+      callback:        props.callback,
       // position:      props.position,
       // wage:          props.wage,
       ...DEFAULT_STATE
     };
     this.onInputAmount              = this.onInputAmount.bind(this);
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.onSelect                   = this.onSelect.bind(this)
     this.handleJobPositionChange    = this.handleJobPositionChange.bind(this); 
   }
 
   componentDidMount(){
-    this.setDefaultWage();
+    if(utils.arrayNullOrEmpty(this.state.job_positions))
+      this.props.loadConfig();
+    else
+      this.setDefaultWage();
   }
 
   componentDidUpdate(prevProps, prevState) 
   {
-      if(prevProps.job_positions !== this.props.job_positions) {
-        this.setState({
-            job_positions: this.props.job_positions,
-            member:        this.props.member,
-            // position:      this.props.position,
-            // wage:          this.props.wage,
-            callback:      this.props.callback
-          });
-        this.setDefaultWage();
-      }
+    if(!utils.objectsEqual(prevProps.jobPositions, this.props.jobPositions) ){  
+    // if(prevProps.jobPositions !== this.props.jobPositions) {
+      // console.log(prevProps.jobPositions, this.props.jobPositions)
+      this.setState({
+          job_positions: this.props.jobPositions,
+          // member:        this.props.member,
+          // callback:      this.props.callback
+      }, () => {
+          this.setDefaultWage();
+      });
+    }
+    // else
+    //   this.setDefaultWage();
   }
 
   setDefaultWage = () =>{
@@ -72,18 +80,6 @@ class AddMemberForm extends Component {
     if(!member)
       return;
     this.onInputAmount(member.wage);
-    // this.setState(prevState => {
-    //   let input_amount = Object.assign({}, prevState.input_amount);
-    //   input_amount.value = member.wage;                     
-    //   return { input_amount };                                 
-    // })
-  }
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
 
   /*
@@ -100,7 +96,7 @@ class AddMemberForm extends Component {
   handleJobPositionChange = (value) => {
     
     const {job_positions} = this.state;
-    const wage = job_positions.filter(j=>j.key==value)[0].wage;
+    const wage = job_positions.filter(j=>j.key==value)[0].amount;
     this.onInputAmount(wage);
 
   }
@@ -115,7 +111,7 @@ class AddMemberForm extends Component {
     this.props.form.validateFields((err, values) => {
       
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+        components_helper.notif.errorNotification("Validation errors","Please verifiy errors on screen!")    
         console.log(' ERRORS!! >> ', err)
         return;
       }
@@ -125,7 +121,7 @@ class AddMemberForm extends Component {
         const exists = this.props.accounts.filter( account => account.key==values.member);
         if(!exists || exists.length==0)
         {
-          this.openNotificationWithIcon("error", 'Please select an account from the list.');
+          components_helper.notif.errorNotification('Please select an account from the list.')    
           return;
         }
       }
@@ -202,6 +198,7 @@ class AddMemberForm extends Component {
     const {job_positions, member} = this.state;
     if(!job_positions)
       return (null);
+
     const position                = (member)?member.position:undefined;
     const { getFieldDecorator }   = this.props.form;
     const selector = (<Form.Item>
@@ -214,7 +211,7 @@ class AddMemberForm extends Component {
             {
               job_positions.map( position => 
                 {
-                  return (<Select.Option key={'position_'+position.key} value={position.key} label={position.title}>{ position.title } </Select.Option> )
+                  return (<Select.Option key={'position_'+position.key} value={position.key} label={position.value}>{ position.value } </Select.Option> )
                 }
               )
             }
@@ -296,9 +293,10 @@ export default Form.create() (withRouter(connect(
     (state)=> ({
         accounts:           accountsRedux.accounts(state),
         actualAccountName:  loginRedux.actualAccountName(state),
+        jobPositions:       graphqlRedux.jobPositions(state),
     }),
     (dispatch)=>({
-        
+        loadConfig:         bindActionCreators(graphqlRedux.loadConfig, dispatch),
     })
 )(AddMemberForm) )
 );

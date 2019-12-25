@@ -31,6 +31,8 @@ import * as utils from '@app/utils/utils';
 import { DatePicker } from 'antd';
 import moment from 'moment';
 
+import * as gqlService from '@app/services/inkiriApi/graphql'
+
 const { MonthPicker, RangePicker } = DatePicker;
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -225,7 +227,8 @@ class Extrato extends Component {
     return x?x:_default;
   }
 
-  refreshCurrentTable(){
+  refreshCurrentTable = async () => {
+      
     const that = this;
     const {active_tab} = this.state;
     
@@ -468,7 +471,6 @@ export default  (withRouter(connect(
         isOperationsLoading:  operationsRedux.isOperationsLoading(state),
         operationsCursor:     operationsRedux.operationsCursor(state),
         filterKeyValues:      operationsRedux.filterKeyValues(state),
-    
 
         page_key_values:      pageRedux.pageKeyValues(state),
     }),

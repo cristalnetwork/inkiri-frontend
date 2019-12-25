@@ -1,7 +1,6 @@
-const env        = "prod";
+const env        = "dev";
 
 const language   = "english";
-
 
 const currency = {
   token:            "cristaltoken",
@@ -167,7 +166,8 @@ const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristaltoken
 
 const api_version = '/api/v1';
 const api = {
-  endpoint                    : base_url+ api_version
+  endpoint                    : base_url + api_version
+  , graphql_endpoint          : base_url + api_version + '/graphql'
   , default_page_size         : 25
   , FIAT_CURR_BRL             : 'BRL'
   , FIAT_CURR_IK              : 'IK$'

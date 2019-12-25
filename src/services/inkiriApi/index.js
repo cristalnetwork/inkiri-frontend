@@ -74,10 +74,10 @@ export const findBankAccount = async (account_name) => {
     , show_payer :  false
   });
   const _found = (response.rows&&response.rows.length>0);
-  if(_found)
-    console.log(' InkiriApi::findBankAccount >> ', JSON.stringify(response.rows[0]));
-  else
-    console.log(' InkiriApi::findBankAccount >> ', 'NOT FOUND');
+  // if(_found)
+  //   console.log(' InkiriApi::findBankAccount >> ', JSON.stringify(response.rows[0]));
+  // else
+  //   console.log(' InkiriApi::findBankAccount >> ', 'NOT FOUND');
   return _found?{...response.rows[0]}:undefined;
 }
 

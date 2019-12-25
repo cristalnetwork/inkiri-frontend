@@ -5,6 +5,8 @@ import { bindActionCreators } from 'redux';
 
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
+import * as graphqlRedux from '@app/redux/models/graphql'
+import * as apiRedux from '@app/redux/models/api';
 
 import * as globalCfg from '@app/configs/global';
 
@@ -36,16 +38,17 @@ class Crew extends Component {
     super(props);
     this.state = {
       routes :            routesService.breadcrumbForPaths(props.location.pathname),
-      loading:            false,
-      pushingTx:          false,
-      team:               null,
-      job_positions:      [],
+      loading:            props.isLoading,
+      isFetching:         props.isFetching,
+      
+      team:               props.team,
+      job_positions:      props.jobPositions,
+      
       active_view:        STATE_LIST_MEMBERS,
       active_view_object: null,
     };
 
-    this.loadTeam                   = this.loadTeam.bind(this);  
-    this.loadJobPositions           = this.loadJobPositions.bind(this);  
+    this.loadTeam                   = this.loadTeam.bind(this);
     this.onMembersListCallback      = this.onMembersListCallback.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
     this.onNewMember                = this.onNewMember.bind(this); 
@@ -57,10 +60,62 @@ class Crew extends Component {
   }
   
   componentDidMount(){
-    this.loadTeam();  
-    this.loadJobPositions();
+    const {team, job_positions} = this.state;
+    if(!team)    
+    {
+      this.loadTeam();
+    }
+
+    if(utils.objectNullOrEmpty(job_positions))
+    {
+      this.props.loadConfig();
+    }
   } 
 
+  componentDidUpdate(prevProps, prevState) 
+  {
+    let new_state = {};
+    if(prevProps.jobPositions !== this.props.jobPositions) {
+      new_state = {...new_state, job_positions: this.props.jobPositions}
+    }
+
+    if(prevProps.team !== this.props.team) {
+      new_state = {...new_state, team: this.props.team}
+    }
+
+    if(prevProps.isLoading !== this.props.isLoading) {
+      new_state = {...new_state, loading: this.props.isLoading}
+    }
+
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+    
+    if(prevProps.getErrors!=this.props.getErrors){
+    }
+
+    if(prevProps.getResults!=this.props.getResults){
+      const that = this;
+      setTimeout(()=> {
+        that.loadTeam();
+        that.resetPage(STATE_LIST_MEMBERS);
+      } ,100);
+    }
+
+    if(Object.keys(new_state).length>0)      
+      this.setState(new_state, () => {
+            // ??
+        });
+  }
+
+  loadTeam =() =>{
+    if(!this.props.actualAccountName || !this.props.actualRoleId)
+    {
+      components_helper.notif.warningNotification("Please verify credentials");
+      return;
+    }
+    this.props.loadData(this.props.actualAccountName, this.props.actualRoleId)
+  }
   onNewMember = () => {
     this.setState({active_view:STATE_NEW_MEMBER})
   }
@@ -78,24 +133,26 @@ class Crew extends Component {
         const {team}         = that.state;
         if(!team)
         {
-          that.setState({pushingTx:false})
           components_helper.notif.infoNotification('We cant get the team id. Please reload page.');
           return;
         }
-        const teamId         = team?team.id:null;
+        const teamId         = team?team._id:null;
         const account_name   = that.props.actualAccountName;
         const members = team.members.filter(item => item._id!=member._id)
-        that.setState({pushingTx:true})
-        api.bank.createOrUpdateTeam(teamId, account_name, members)
-          .then((res)=>{
-            components_helper.notif.successNotification('Member removed from team successfully!');
-            that.loadTeam();
-            that.resetPage(STATE_LIST_MEMBERS);
-          }, (err)=>{
-            console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
-            components_helper.notif.exceptionNotification('An error occurred', err);
-            that.setState({pushingTx:false});
-          })
+
+        const _function = 'bank.createOrUpdateTeam';
+        that.props.callAPI(_function, [teamId, account_name, members])
+
+        // api.bank.createOrUpdateTeam(teamId, account_name, members)
+        //   .then((res)=>{
+        //     components_helper.notif.successNotification('Member removed from team successfully!');
+        //     that.loadTeam();
+        //     that.resetPage(STATE_LIST_MEMBERS);
+        //   }, (err)=>{
+        //     console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
+        //     components_helper.notif.exceptionNotification('An error occurred', err);
+        //     that.setState({pushingTx:false});
+        //   })
      
       },
       onCancel() {
@@ -137,13 +194,10 @@ class Crew extends Component {
       return;
     }
 
-    // {"position":"job_position_tronco","member":"corpodoyoga1","input_amount":{"value":"15000"}}
-
     const that           = this;
     const {team}         = this.state;
-    const teamId         = team?team.id:null;
+    const teamId         = team?team._id:null;
     const account_name   = this.props.actualAccountName;
-    this.setState({pushingTx:true})
     let member_profile   = null;
     
     // New member!
@@ -151,7 +205,6 @@ class Crew extends Component {
       try{
         member_profile = await api.bank.getProfile(values.member);
       }catch(e){
-        this.setState({pushingTx:false})
         components_helper.notif.exceptionNotification('Cant retrieve new member profile!', e);
         return;
       }         
@@ -167,7 +220,6 @@ class Crew extends Component {
     // already a member?
     if(!values._id && team && team.members && team.members.filter(member => member.member._id==new_member.member).length>0)
     {
-      this.setState({pushingTx:false})
       components_helper.notif.errorNotification('Selected profile is already a member!');
       return;
     }
@@ -182,20 +234,21 @@ class Crew extends Component {
            , new_member]
       : [new_member];
 
-    // console.log(' -> values -> ', JSON.stringify(values));
-    // console.log(' -> members -> ', JSON.stringify(members));
-    // return;
-    api.bank.createOrUpdateTeam(teamId, account_name, members)
-      .then((res)=>{
-        components_helper.notif.successNotification("Member saved to team successfully!");
-        // that.openNotificationWithIcon("success", "Member saved to team successfully!")    
-        that.loadTeam();
-        that.resetPage(STATE_LIST_MEMBERS);
-      }, (err)=>{
-        console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
-        components_helper.notif.exceptionNotification("An error occurred", err);
-        that.setState({pushingTx:false});
-      })
+    
+    const _function = 'bank.createOrUpdateTeam';
+    that.props.callAPI(_function, [teamId, account_name, members])
+
+    // api.bank.createOrUpdateTeam(teamId, account_name, members)
+    //   .then((res)=>{
+    //     components_helper.notif.successNotification("Member saved to team successfully!");
+    //     // that.openNotificationWithIcon("success", "Member saved to team successfully!")    
+    //     that.loadTeam();
+    //     that.resetPage(STATE_LIST_MEMBERS);
+    //   }, (err)=>{
+    //     console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
+    //     components_helper.notif.exceptionNotification("An error occurred", err);
+    //     that.setState({pushingTx:false});
+    //   })
  
 
   }
@@ -204,45 +257,7 @@ class Crew extends Component {
     let my_active_view = active_view?active_view:this.state.active_view;
     this.setState({ 
         active_view:   my_active_view
-        , pushingTx:   false
       });    
-  }
-
-
-  loadJobPositions = async () => {
-    this.setState({loading:true});
-
-    let data = null;
-
-    try {
-      data = await api.bank.getJobPositions();
-    } catch (e) {
-      // this.openNotificationWithIcon("error", "Error retrieveing Job Positions", JSON.stringify(e));
-      components_helper.notif.exceptionNotification("Error retrieveing Job Positions", e);
-      this.setState({ loading:false})
-      return;
-    }
-    // console.log(data.job_positions)
-    this.setState({ job_positions: data.job_positions, loading:false})
-  }
-
-  loadTeam = async () => {
-
-    this.setState({loading:true});
-
-    let team = null;
-
-    try {
-      team = await api.bank.getTeam(this.props.actualAccountName);
-    } catch (e) {
-      components_helper.notif.infoNotification("Error retrieveing Team... or there is no team!", e);
-      // this.openNotificationWithIcon("error", "Error retrieveing Team", JSON.stringify(e));
-      this.setState({ loading:false})
-      return;
-    } 
-    // console.log(JSON.stringify(team));
-    this.setState({ team: team, loading:false})
-        
   }
 
   // Component Events
@@ -273,7 +288,7 @@ class Crew extends Component {
   }
   //
   renderContent(){
-    const {team, loading, active_view, active_view_object, job_positions } = this.state;
+    const {team, loading, active_view, active_view_object, job_positions, isFetching } = this.state;
 
     
     if(active_view==STATE_EDIT_MEMBER)
@@ -282,8 +297,8 @@ class Crew extends Component {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
-              <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-                <AddMemberForm key="add_member_form" 
+              <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
+                <AddMemberForm key="edit_member_form" 
                   callback={this.memberFormCallback} 
                   job_positions={job_positions} 
                   member={active_view_object}/>    
@@ -299,7 +314,7 @@ class Crew extends Component {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
-              <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+              <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
                 <AddMemberForm key="add_member_form" callback={this.memberFormCallback} job_positions={job_positions}/>    
               </Spin>
             </section>
@@ -321,7 +336,7 @@ class Crew extends Component {
           <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
             <Table
                 key="team_members" 
-                rowKey={record => record.member.id} 
+                rowKey={record => record.member._id} 
                 loading={loading} 
                 columns={this.getColumns()} 
                 dataSource={members} 
@@ -336,11 +351,24 @@ class Crew extends Component {
 //
 export default  (withRouter(connect(
     (state)=> ({
-        actualAccountName:    loginRedux.actualAccountName(state),
-        actualRoleId:     loginRedux.actualRoleId(state),
-        actualRole:       loginRedux.actualRole(state),
+        actualAccountName:  loginRedux.actualAccountName(state),
+        actualRoleId:       loginRedux.actualRoleId(state),
+        actualRole:         loginRedux.actualRole(state),
+        jobPositions:       graphqlRedux.jobPositions(state),
+        team:               graphqlRedux.team(state),
+        isLoading:          graphqlRedux.isLoading(state),
+        
+        isFetching:         apiRedux.isFetching(state),
+        getErrors:          apiRedux.getErrors(state),
+        getLastError:       apiRedux.getLastError(state),
+        getResults:         apiRedux.getResults(state),
+        getLastResult:      apiRedux.getLastResult(state)
     }),
     (dispatch)=>({
+        callAPI:            bindActionCreators(apiRedux.callAPI, dispatch),
+
+        loadConfig:         bindActionCreators(graphqlRedux.loadConfig, dispatch),
+        loadData:           bindActionCreators(graphqlRedux.loadData, dispatch),
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(Crew))
