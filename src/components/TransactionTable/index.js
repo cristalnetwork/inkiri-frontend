@@ -7,6 +7,7 @@ import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
+import * as gqlService from '@app/services/inkiriApi/graphql'
 
 import { Button} from 'antd';
 import { Table } from 'antd';
@@ -83,7 +84,7 @@ class TransactionTable extends Component {
     
   }
 
-  loadTxs(){
+  loadTxs = async () =>{
 
     const can_get_more   = this.state.can_get_more;
     if(!can_get_more)
@@ -92,7 +93,7 @@ class TransactionTable extends Component {
       return;
     }
 
-    const account_name = this.props.actualAccountName;
+    const account_name = this.state.for_admin?'':this.props.actualAccountName;
     
     
     this.setState({loading:true});
@@ -101,35 +102,36 @@ class TransactionTable extends Component {
     const limit          = this.state.limit;
     const that           = this;
     
-    const req_type = this.props.request_type==DISPLAY_REQUESTS?undefined:this.props.request_type;
-    if(this.state.for_admin)
-    {
-      // const req_type = this.props.request_type==DISPLAY_REQUESTS?undefined:this.props.request_type;
-      api.bank.listRequests(page, limit, req_type)
-        .then( (res) => {
-            that.onNewData(res);
-          } ,(ex) => {
-            console.log('---- ERROR:', JSON.stringify(ex));
-            console.log(ex);
-            ui_helper.notif.exceptionNotification("An error occurred fetching data", ex)  
-            that.setState({loading:false});  
-          } 
-        )
-      return;
-    }
+    const requested_type = this.props.request_type==DISPLAY_REQUESTS?'':this.props.request_type;
+    // if(this.state.for_admin)
+    // {
+    //   // const requested_type = this.props.request_type==DISPLAY_REQUESTS?undefined:this.props.request_type;
+    //   api.bank.listRequests(page, limit, requested_type)
+    //     .then( (res) => {
+    //         that.onNewData(res);
+    //       } ,(ex) => {
+    //         console.log('---- ERROR:', JSON.stringify(ex));
+    //         console.log(ex);
+    //         ui_helper.notif.exceptionNotification("An error occurred fetching data", ex)  
+    //         that.setState({loading:false});  
+    //       } 
+    //     )
+    //   return;
+    // }
 
-    // const _to = (this.props.request_type==globalCfg.api.TYPE_SERVICE)?account_name:null;
-    const _to = account_name;
+    const data = await gqlService.requests({account_name, page, requested_type});
+    // console.log(data);
+    that.onNewData(data);
 
-    api.bank.listMyRequests(account_name, page, limit, req_type, _to)
-      .then( (res) => {
-          that.onNewData(res);
-        } ,(ex) => {
-          console.log('---- ERROR:', JSON.stringify(ex));
-          ui_helper.notif.exceptionNotification("An error occurred fetching data", ex)
-          that.setState({loading:false});  
-        } 
-      );
+    // api.bank.listMyRequests(account_name, page, limit, req_type, _to)
+    //   .then( (res) => {
+    //       that.onNewData(res);
+    //     } ,(ex) => {
+    //       console.log('---- ERROR:', JSON.stringify(ex));
+    //       ui_helper.notif.exceptionNotification("An error occurred fetching data", ex)
+    //       that.setState({loading:false});  
+    //     } 
+    //   );
     
   }
 
@@ -159,7 +161,7 @@ class TransactionTable extends Component {
     return (
       <Table 
         key={'tx_table__'+this.props.request_type}
-        rowKey={record => record.id} 
+        rowKey={record => record._id} 
         loading={this.state.loading} 
         columns={this.getColumnsForType()} 
         dataSource={this.state.txs} 

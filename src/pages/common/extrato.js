@@ -18,6 +18,7 @@ import * as components_helper from '@app/components/helper';
 import { Tooltip, Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Row, Col } from 'antd';
 import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimple} from '@app/components/TransactionTable/stats';
 import OperationsFilter from '@app/components/Filters/operations';
+import RequestsFilter from '@app/components/Filters/requests';
 
 import { notification, Table, Divider, Spin } from 'antd';
 
@@ -443,9 +444,10 @@ class Extrato extends Component {
             >
 
               { 
-                isMobile
-                  ?(null)
-                  :<OperationsFilter the_key={page_key} />
+                !isMobile &&
+                  active_tab==DISPLAY_ALL_TXS
+                  ?<OperationsFilter the_key={page_key} />
+                  :<RequestsFilter />
               }
 
               {stats}

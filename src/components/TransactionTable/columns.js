@@ -286,7 +286,7 @@ export const getColumnsForRequests = (callback, is_admin) => {
       align:       'right',
       dataIndex:   'amount',
       key:         'amount',
-      fixed:       'right',
+      // fixed:       'right',
       className:   'amount_col',
       render: (amount, record) => {
         const negative = request_helper.blockchain.isNegativeTransaction(record)

@@ -8,7 +8,6 @@ export const openNotificationWithIcon = (type, title, message, onClose) => {
     message:     title,
     description: message,
     onClose:      () => {
-      console.log(' NOTIF LLAMA A onClose')
       if(typeof onClose === 'function')
         onClose();
     },
