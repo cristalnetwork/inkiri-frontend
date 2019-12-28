@@ -7,6 +7,16 @@ import InkiriHeader from '@app/components/InkiriHeader';
 
 import * as menuRedux from '@app/redux/models/menu'
 import * as loginRedux from '@app/redux/models/login'
+// Meta HACK!
+import * as account_redux from '@app/redux/models/accounts';
+import * as api_redux from '@app/redux/models/api';
+import * as balance_redux from '@app/redux/models/balance';
+import * as core_redux from '@app/redux/models/core';
+import * as graphql_redux from '@app/redux/models/graphql';
+// import * as login_redux from '@app/redux/models/login';
+// import * as menu_redux from '@app/redux/models/menu';
+import * as operations_redux from '@app/redux/models/operations';
+import * as page_redux from '@app/redux/models/page';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';

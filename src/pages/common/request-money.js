@@ -144,30 +144,30 @@ class RequestMoney extends Component {
       this.resetPage();
   }
 
-  renderTransferReason(){
-    const option_type  = globalCfg.api.TRANSFER_REASON;
-    const option_types = globalCfg.api.getTransferReasons();
+  // renderTransferReason(){
+  //   const option_type  = globalCfg.api.TRANSFER_REASON;
+  //   const option_types = globalCfg.api.getTransferReasons();
     
-    const my_options = option_types[option_type];
+  //   const my_options = option_types[option_type];
     
-    if(!my_options)
-      return (<></>);
-    //
-    const { getFieldDecorator } = this.props.form;
+  //   if(!my_options)
+  //     return (<></>);
+  //   //
+  //   const { getFieldDecorator } = this.props.form;
     
-    return (
-      <Form.Item className="money-transfer__row">
-          {getFieldDecorator( 'transfer_extra.'+option_type, {
-            rules: [{ required: true, message: 'Please select a '+ my_options.title}]
-            , onChange: (e) => this.handleChange(e, option_type)
-          })(
-            <Select placeholder={'Choose ' + my_options.title} optionLabelProp="label">
-            {my_options.options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.label}>{ opt.label } </Select.Option> )}
-            </Select>
-          )}
-      </Form.Item>
-    )
-  }
+  //   return (
+  //     <Form.Item className="money-transfer__row">
+  //         {getFieldDecorator( 'transfer_extra.'+option_type, {
+  //           rules: [{ required: true, message: 'Please select a '+ my_options.title}]
+  //           , onChange: (e) => this.handleChange(e, option_type)
+  //         })(
+  //           <Select placeholder={'Choose ' + my_options.title} optionLabelProp="label">
+  //           {my_options.options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.label}>{ opt.label } </Select.Option> )}
+  //           </Select>
+  //         )}
+  //     </Form.Item>
+  //   )
+  // }
   
   //
 
@@ -255,8 +255,8 @@ class RequestMoney extends Component {
     const amount           = input_amount.value;
     let memo               = '';
     
-    console.log('transfer_extra:', JSON.stringify(transfer_extra))
-    console.log('message:',transfer_extra.message, ' | reason:', transfer_extra[globalCfg.api.TRANSFER_REASON])
+    // console.log('transfer_extra:', JSON.stringify(transfer_extra))
+    // console.log('message:',transfer_extra.message, ' | reason:', transfer_extra[globalCfg.api.TRANSFER_REASON])
     
     // if(this.props.isBusiness)
     // {  
@@ -308,8 +308,7 @@ class RequestMoney extends Component {
       
       return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
     }
-    // const option = this.props.isBusiness?this.renderTransferReason():(null);
-
+    
     const { getFieldDecorator }               = this.props.form;
     const { input_amount, isFetching}           = this.state;
 

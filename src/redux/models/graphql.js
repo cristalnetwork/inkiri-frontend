@@ -4,6 +4,7 @@ import * as api from '@app/services/inkiriApi'
 import * as gqlService from '@app/services/inkiriApi/graphql'
 import * as core from './core';
 import * as globalCfg from '@app/configs/global';
+import * as utils from '@app/utils/utils';
 
 const LOAD_CONFIG          = 'graphql/LOAD_CONFIG'
 const END_LOAD_CONFIG      = 'graphql/END_LOAD_CONFIG'
@@ -101,15 +102,21 @@ store.injectSaga('graphql', [
 // Selectores - Conocen el stado y retornan la info que es necesaria
 export const isLoading            = (state) => state.graphql.is_loading ;
 export const isLoaded             = (state) => state.graphql.loaded ;
-export const getConfig            = (state) => state.graphql.config ;
+export const getConfig            = (state) => {
+    if(utils.objectNullOrEmpty(state.graphql.config))
+    {
+      put({ type: LOAD_CONFIG }) 
+    }
+    return state.graphql.config; };
 
-export const jobPositions         = (state) => state.graphql.config['configurationsJobPositions']
-export const payVehicles          = (state) => state.graphql.config['configurationsPayVehicles']
-export const payCategories        = (state) => state.graphql.config['configurationsPayCategory']
-export const payTypes             = (state) => state.graphql.config['configurationsPayType']
-export const payModes             = (state) => state.graphql.config['configurationsPayMode']
-export const externalTxFees       = (state) => state.graphql.config['configurationsExternalTxFee']
-export const accountConfigs       = (state) => state.graphql.config['configurationsAccountConfig']
+export const jobPositions         = (state) => getConfig(state)['configurationsJobPositions']
+export const payVehicles          = (state) => getConfig(state)['configurationsPayVehicles']
+export const payCategories        = (state) => getConfig(state)['configurationsPayCategory']
+export const payTypes             = (state) => getConfig(state)['configurationsPayType']
+export const payModes             = (state) => getConfig(state)['configurationsPayMode']
+export const externalTxFees       = (state) => getConfig(state)['configurationsExternalTxFee']
+export const accountConfigs       = (state) => getConfig(state)['configurationsAccountConfig']
+export const transferReasons      = (state) => getConfig(state)['configurationsTransfersReasons']
 
 export const team                 = (state) => state.graphql.data[globalCfg.bank.ACCOUNT_TYPE_BUSINESS]
                                                 ?state.graphql.data[globalCfg.bank.ACCOUNT_TYPE_BUSINESS]['team']

@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import * as pageRedux from '@app/redux/models/page'
+import * as loginRedux from '@app/redux/models/login'
 
 import RequestsFilter from '@app/components/Filters/requests';
 import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimple} from '@app/components/TransactionTable/stats';
@@ -62,12 +63,10 @@ const RequestListWidget = (props) => {
   const buildStats = (txs) => {
     
     console.log('buildStats')
-    const money_in  = txs.filter( tx => request_helper.blockchain.isNegativeTransaction(tx)===false 
-                                        && request_helper.blockchain.isValidTransaction(tx))
+    const money_in  = txs.filter( tx => request_helper.blockchain.is_money_in(tx, props.actualAccountName))
                     .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
-    const money_out = txs.filter( tx => request_helper.blockchain.isNegativeTransaction(tx)
-                                        && request_helper.blockchain.isValidTransaction(tx))
+    const money_out = txs.filter( tx => request_helper.blockchain.is_money_out(tx, props.actualAccountName))
                     .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
     const count = txs.length;
@@ -110,6 +109,7 @@ const RequestListWidget = (props) => {
 
 export default connect(
     (state)=> ({
+        actualAccountName:    loginRedux.actualAccountName(state),
         page_key_values:      pageRedux.pageKeyValues(state),
     }),
     (dispatch)=>({

@@ -170,6 +170,34 @@ const GET_CONFIG = gql`
       created_at
       updated_at
     }
+    configurationsTransfersReasons{
+      _id
+      created_by{
+        _id
+        account_name
+      }
+      updated_by{
+        _id
+        account_name
+      }
+      configurationCounterId
+      father
+      key
+      value
+      amount
+      bank_account{
+        bank_name
+        agency
+        cc
+      }
+      account{
+        account_type
+        fee
+        overdraft
+      }
+      created_at
+      updated_at
+    }
   }
 `;
 

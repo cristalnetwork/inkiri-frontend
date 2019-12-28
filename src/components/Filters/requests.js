@@ -99,9 +99,6 @@ const RequestsFilter = (props) => {
           return;
         }
 
-        // filtered:  {"requested_type[0]":"type_payment","state":"state_processing","from":"pablotutino2","to":"pablotutino2"}
-        // values:    {"requested_type":["type_payment"],"state":"state_processing","date_range":[null,null],"from":"pablotutino2","to":"pablotutino2"}
-
         let filtered = {...values, 'requested_type' : values['requested_type'] && values['requested_type'].join(',')}
         const date_range = values['date_range']
         if(date_range && date_range[0] && date_range[1])
@@ -114,7 +111,6 @@ const RequestsFilter = (props) => {
           return result;
         }, {});
 
-        // console.log(' .. firing event...', filtered_nn)
         fireEvent(null, null, filtered_nn)
       });
     }

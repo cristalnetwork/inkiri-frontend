@@ -1,4 +1,12 @@
+import _ from 'lodash';
 
+export const configArrayToObj = (a) => {
+  return _.reduce(a, function(result, value, key) {
+      result[value.key] = value;
+      return result;
+    }, {});
+
+}
 export const objectsEqual = (a, b) => {
   if (a === b) return true;
   if (a == null && b == null) return true;

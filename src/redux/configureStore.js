@@ -21,7 +21,7 @@ export default function configureStore(initialState) {
   )(createStore); 
 
   //Create store
-  const store =createStoreWithMiddleware(createReducer(),  initialState)
+  const store = createStoreWithMiddleware(createReducer(),  initialState)
   
   // Add a dictionary to keep track of the registered async reducers
   store.asyncReducers = {};

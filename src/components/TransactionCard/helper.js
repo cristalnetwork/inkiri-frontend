@@ -306,6 +306,12 @@ export const getFileUploader = (title, props) => {
 */
 //
 export const blockchain = {
+  is_money_in:  (tx, account_name, account_type) => {
+    return false; 
+  },
+  is_money_out: (tx, account_name, account_type) => {
+    return false;
+  },
   isValidTransaction : (tx) => {
     const request = tx.request?tx.request:tx;
     return request.state?globalCfg.api.onOkPath(request):true;
@@ -333,7 +339,7 @@ export const blockchain = {
 }
 
 /*
-* Helper functions for blockchain transcations
+* Helper functions for IUGU transcations
 */
 //
 export const iugu = {

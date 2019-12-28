@@ -7,6 +7,7 @@ import * as accountsRedux from '@app/redux/models/accounts'
 import * as loginRedux from '@app/redux/models/login';
 import * as balanceRedux from '@app/redux/models/balance';
 import * as apiRedux from '@app/redux/models/api';
+import * as graphqlRedux from '@app/redux/models/graphql'
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
@@ -47,7 +48,7 @@ class SendMoney extends Component {
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       isFetching:          props.isFetching,
-      
+      transferReasons:     props.transferReasons,
       ...DEFAULT_STATE,
       ...DEFAULT_RESULT,
 
@@ -77,8 +78,9 @@ class SendMoney extends Component {
       const that = this;
       setTimeout(()=> that.resetPage() ,100);
     }
-
-
+    if(!utils.objectsEqual(prevProps.transferReasons, this.props.transferReasons) ){  
+      new_state = {...new_state, transferReasons:this.props.transferReasons}
+    }
     if(Object.keys(new_state).length>0)      
         this.setState(new_state);
   }
@@ -133,10 +135,7 @@ class SendMoney extends Component {
 
   renderTransferReason(){
     const option_type  = globalCfg.api.TRANSFER_REASON;
-    const option_types = globalCfg.api.getTransferReasons();
-    
-    const my_options = option_types[option_type];
-    
+    const my_options   = this.state.transferReasons;
     if(!my_options)
       return (<></>);
     //
@@ -145,11 +144,11 @@ class SendMoney extends Component {
     return (
       <Form.Item className="money-transfer__row">
           {getFieldDecorator( 'transfer_extra.'+option_type, {
-            rules: [{ required: true, message: 'Please select a '+ my_options.title}]
+            rules: [{ required: true, message: 'Please select a transfer reason'}]
             , onChange: (e) => this.handleChange(e, option_type)
           })(
-            <Select placeholder={'Choose ' + my_options.title} optionLabelProp="label">
-            {my_options.options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.label}>{ opt.label } </Select.Option> )}
+            <Select placeholder={'Choose a transfer reason'} optionLabelProp="label">
+            {my_options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.value}>{ opt.value } </Select.Option> )}
             </Select>
           )}
       </Form.Item>
@@ -435,7 +434,10 @@ export default Form.create() (withRouter(connect(
         getErrors:          apiRedux.getErrors(state),
         getLastError:       apiRedux.getLastError(state),
         getResults:         apiRedux.getResults(state),
-        getLastResult:      apiRedux.getLastResult(state)
+        getLastResult:      apiRedux.getLastResult(state),
+
+        transferReasons:    graphqlRedux.transferReasons(state),
+        getConfig:          graphqlRedux.getConfig(state),
     }),
     (dispatch)=>({
         callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),
