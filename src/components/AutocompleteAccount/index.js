@@ -28,7 +28,7 @@ class AutocompleteAccount extends Component {
       size:                props.size,
       value:               props.value,
       data:                [],
-      
+      validation_rule:     props.validation_rule,
       selected:            undefined,
       form:                props.form,
       exclude_list:        props.exclude_list,
@@ -41,7 +41,7 @@ class AutocompleteAccount extends Component {
     };
 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
-    this.handleChange               = this.handleChange.bind(this)
+    this.handleSelect               = this.handleSelect.bind(this)
     this.setAccounts                = this.setAccounts.bind(this)
     this.loadAccounts               = this.loadAccounts.bind(this)
     this.reset                      = this.reset.bind(this)
@@ -56,6 +56,11 @@ class AutocompleteAccount extends Component {
       console.log('YES')
       this.props.onRef(this)
     }
+  }
+  
+  componentWillUnmount() {
+    if(typeof this.props.onRef==='function')
+      this.props.onRef(undefined)
   }
 
   componentDidUpdate(prevProps, prevState) 
@@ -97,11 +102,6 @@ class AutocompleteAccount extends Component {
     // this.setState({fetching: false});
   }
 
-  componentWillUnmount() {
-    if(typeof this.props.onRef==='function')
-      this.props.onRef(undefined)
-  }
-
   setAccounts = () => {
     const {accounts, actualAccountName, filter, exclude_list} = this.props;
     
@@ -134,13 +134,17 @@ class AutocompleteAccount extends Component {
       description:message,
     });
   }
-
-  handleChange = (value, option) => {
-    console.log(' *** handleChange >> ', value, option)
+  handleChange = (value) => {
+    console.log(' ::handleChange', value)
+  }
+  handleSearch = (value) => {
+    console.log(' ::handleSearch', value)
+  }
+  handleSelect = (value, option) => {
+    console.log(' *** handleSelect >> ', value, option)
     this.setState({
       selected:value,
       value:value,
-      data: [],
       fetching: false,
     });
 
@@ -189,7 +193,8 @@ class AutocompleteAccount extends Component {
     //
     const { getFieldDecorator }             = form;
     const {without_icon, readOnly, value, size,
-        data, fetching, label, not_required}    = this.state;
+        data, fetching, label, not_required,
+        validation_rule}                    = this.state;
     const {isLoading, name}                 = this.props;
     let selector                            = null;
     //
@@ -207,20 +212,26 @@ class AutocompleteAccount extends Component {
     //
     }
     else{
-      //className="extra-large"
+      /*
+        onChange={this.handleChange} 
+        onSearch={this.handleSearch} 
+      */
       selector = (<Form.Item label={label}>
                         {getFieldDecorator(name, {
-                        rules: [{ required: !not_required, message: (!not_required)?'Please choose a customer!':undefined }]
+                        rules: [{ required: !not_required, message: (!not_required)?'Please choose a customer!':undefined , validator: validation_rule}]
                       })(
                           <AutoComplete 
                             size={size||'large'} 
                             dataSource={data.map(this.renderAccount)} 
                             style={{ width: '100%' }} 
-                            onSelect={this.handleChange} 
-                            placeholder="Type account name" 
+                            onSelect={this.handleSelect} 
+                            placeholder="Type account name"
                             filterOption={(inputValue, option) =>
-                              option.key.indexOf(inputValue) !== -1
-                            }                           
+                              {
+                                // console.log('>>filterOption >> ',inputValue, option);
+                                return option.key.indexOf(inputValue) !== -1;
+                              }
+                            } 
                             optionLabelProp="value" >
                                <Input suffix={<Button loading={isLoading} type="link" icon="redo" className="redoButton"  title="Can't find account? Click to reload accounts!!!"  onClick={this.loadAccounts}></Button>} />
                             </AutoComplete>

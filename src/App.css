@@ -70,6 +70,7 @@
   padding:8px!important; 
   margin-bottom: 8px; 
 }
+
 .filter_form.ant-form-inline{
   display: flex!important;
   flex-direction: row!important;

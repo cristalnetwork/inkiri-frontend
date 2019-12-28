@@ -226,6 +226,7 @@ const api = {
       return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER, api.TYPE_WITHDRAW].includes(request.state);
   }
   , getTypes           : () => { return [ api.TYPE_DEPOSIT, api.TYPE_EXCHANGE, api.TYPE_PAYMENT, api.TYPE_PROVIDER, api.TYPE_SEND, api.TYPE_WITHDRAW, api.TYPE_SERVICE];}
+
   , STATE_REQUESTED             : 'state_requested'
   , STATE_PROCESSING            : 'state_processing'
   , STATE_REJECTED              : 'state_rejected'

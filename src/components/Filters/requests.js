@@ -10,36 +10,35 @@ import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import * as form_helper from '@app/components/Form/form_helper';
 
 import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
 
-import lodash from 'lodash';
-import deepdash from 'deepdash';
-const _ = deepdash(lodash);
+// import lodash from 'lodash';
+// import deepdash from 'deepdash';
+// const _ = deepdash(lodash);
 
-// import _ from 'lodash';
-// import deepdash from 'deepdash/deepdash';
+import _ from 'lodash';
 
 const { MonthPicker, RangePicker } = DatePicker;
 const { Option } = Select;
-
+var __formValuesChanged = null;
 const RequestsFilter = (props) => {
     
     const [is_admin, setIsAdmin]       = useState(props.isAdmin);
     const [callback, setCallback]      = useState(props.callback);
+    const [buttonType, setButtonType]  = useState('default');
     const [key, setKey]                = useState(props.the_key);
     const [show_search, setShowSearch] = useState(props.show_search||false);
     const [is_loading, setIsLoading]   = useState(props.isOperationsLoading||false);
 
     const default_filter               = { 
-        operation_type:   undefined     // ['ALL']
+        operation_type:   undefined     
         , date_range:     [null, null]
-        , account_type:   undefined     // ['ALL']
+        , account_type:   undefined     
+        , state:          undefined     
         , search_text:    ''
         , in_out:         undefined
 
@@ -48,32 +47,51 @@ const RequestsFilter = (props) => {
     const [filter, setFilter]          = useState(props.filter||default_filter);
 
     useEffect(() => {
-      if(is_admin!=props.is_admin)
-        setIsAdmin(props.isAdmin);
-      if(callback!=props.callback)
-        setCallback(props.callback);
-      if(is_loading!=props.isOperationsLoading)
-        setIsLoading(props.isOperationsLoading);
-      if(key!=props.the_key)
-        setKey(props.the_key);
-      if(filter!=props.filterKeyValues[key] && filter!=default_filter)
-      {
-        // console.log(' filter form useEffect::')
-        // console.log(props.filterKeyValues)
-        // console.log(default_filter)
-        // setFilter(props.filterKeyValues[key]||default_filter)
-      }
-      if(show_search!=props.show_search)
-        setShowSearch(props.show_search);
-    });
+      setCallback(props.callback);
+      console.log(' cb#1 ', typeof props.callback)
+    }, [props.callback]);
+
+    // useEffect(() => {
+    //   if(is_admin!=props.is_admin)
+    //     setIsAdmin(props.isAdmin);
+    //   if(callback!=props.callback)
+    //     setCallback(props.callback);
+    //   if(is_loading!=props.isOperationsLoading)
+    //     setIsLoading(props.isOperationsLoading);
+    //   if(key!=props.the_key)
+    //     setKey(props.the_key);
+    //   if(filter!=props.filterKeyValues[key] && filter!=default_filter)
+    //   {
+    //     // console.log(' filter form useEffect::')
+    //     // console.log(props.filterKeyValues)
+    //     // console.log(default_filter)
+    //     // setFilter(props.filterKeyValues[key]||default_filter)
+    //   }
+    //   // if(show_search!=props.show_search)
+    //   //   setShowSearch(props.show_search);
+    // });
 
     const resetFilter = (e) => {
       console.log( ' -- resetFilter -- #1')
       e.preventDefault();
       console.log( ' -- resetFilter -- #2')
+      props.form.resetFields();
       fireEvent(null, null, {})      
     }
     
+    const handleAccountChange = (value, sender) => {
+      // console.log( 'request-filter::handleAccountChange:', props.form.getFieldValue('to'), props.form.getFieldValue('from'))
+      // if(props.form.getFieldValue('to') && props.form.getFieldValue('from'))
+      // {
+      //   props.form.setFieldsValue({'to':''});
+      // }
+    }
+
+    const formValuesChanged = () => {
+      console.log(' .... formValuesChanged ....')
+      setButtonType('primary')
+    }
+    __formValuesChanged = formValuesChanged
     const applyFilter = (e) => {
       e.preventDefault();
       
@@ -85,30 +103,31 @@ const RequestsFilter = (props) => {
           return;
         }
 
-        const obj = _.index( values, {
-          pathFormat: 'string',
-          leavesOnly: true,
-          includeRoot: !_.isArray(values)}) 
-        
-        const filtered  = _.reduce(obj, function(result, value, key) {
+        // filtered:  {"requested_type[0]":"type_payment","state":"state_processing","from":"pablotutino2","to":"pablotutino2"}
+        // values:    {"requested_type":["type_payment"],"state":"state_processing","date_range":[null,null],"from":"pablotutino2","to":"pablotutino2"}
+
+        let filtered = {...values, 'requested_type' : values['requested_type'] && values['requested_type'].join(',')}
+        const date_range = values['date_range']
+        if(date_range && date_range[0] && date_range[1])
+          filtered = {...filtered, date_from: date_range[0] ,date_to: date_range[1]};
+        delete filtered.date_range;
+        // limpiamos las keys que estan vacias
+        const filtered_nn  = _.reduce(filtered, function(result, value, key) {
           if(value)
             result[key] = value;
           return result;
         }, {});
 
-        console.log(JSON.stringify(filtered))
-        
-
-        console.log('.. filter values   ..??? => values:', JSON.stringify(values))
-        console.log('.. should apply filter   ..??? => key:', key)
-        fireEvent(null, null, values)
+        console.log(' .. firing event...', filtered_nn)
+        fireEvent(null, null, filtered_nn)
       });
     }
 
 
     const fireEvent = (error, cancel, data) => {
-      if(typeof callback === 'function') {
-          callback(error, cancel, data)
+      setButtonType('default')
+      if(typeof props.callback === 'function') {
+          props.callback(error, cancel, data)
       }
     }
     
@@ -131,45 +150,56 @@ const RequestsFilter = (props) => {
           )
     }
     //
-    /*
-      <Form.Item label="In-Out">
-        <Select 
-            defaultValue={filter.in_out}
-            placeholder="In-Out"
-            mode="multiple"
-            style={{ minWidth: '250px' }}
-            defaultValue={['ALL']}
-            optionLabelProp="label">
-              {renderSelectInOutOptions()}
-          </Select>
-      </Form.Item>
-    */
+    const renderRequestStates = () => {
+      return (
+        globalCfg.api.getStates().map( tx_state => {return(<Option key={'option'+tx_state} value={tx_state} label={globalCfg.api.stateToText(tx_state)}>{ utils.capitalize(globalCfg.api.stateToText(tx_state)) } </Option>)})
+          )
+    }
+    //
+    const validateAccountNames = (rule, value, callback) => {
+      const { form } = props;
+      if(!props.is_admin && props.form.getFieldValue('to') && props.form.getFieldValue('from')){
+        callback('Cant search by both sender/from and receiver/to account!');
+        return;
+      }
+      callback();
+    };
     //
     const dropdownRender = (menu) => 
           (<div style={{minWidth:250}}>
             {menu}
           </div>);
     //
-    const _form = props.form;
+    const className = `filter_form ${buttonType}`; 
+    const _form     = props.form;
+    
     if(!filter)
       return (null);
+    
     return( 
-      <Form layout="inline" className="filter_form" onSubmit={applyFilter}>
+      <Form 
+        layout="inline" 
+        className={className}
+        onSubmit={applyFilter}
+        onChange={formValuesChanged}
+        >
         
-        <AutocompleteAccount 
+        <AutocompleteAccount
+                validation_rule={validateAccountNames} 
                 autoFocus 
                 label={'From'}
                 not_required={true}
                 form={_form} 
-                name="data.from" 
+                name="from" 
                 without_icon={true}
                 size="default"/>
-        <AutocompleteAccount 
+        <AutocompleteAccount
+                validation_rule={validateAccountNames} 
                 autoFocus 
                 label={'To'}
                 not_required={true}
                 form={_form} 
-                name="data.to" 
+                name="to" 
                 without_icon={true}
                 size="default"/>
 
@@ -184,7 +214,7 @@ const RequestsFilter = (props) => {
 
         { form_helper.getSelectItem(_form
             , filter
-            , 'request.requested_type'
+            , 'requested_type'
             , renderSelectTxTypeOptions()
             , 'Operation'
             , 'Operation'
@@ -215,17 +245,28 @@ const RequestsFilter = (props) => {
             , undefined
             , true) }
 
+        { form_helper.getSelectItem(_form
+            , filter
+            , 'state'
+            , renderRequestStates()
+            , 'State'
+            , 'State'
+            , 'default'
+            , dropdownRender
+            , undefined
+            , true) }
+
         { form_helper.getDateRangeItem (_form
             , filter
             , 'date_range'
             , 'Date Range'
             , undefined
-            , undefined) }
-
+            , undefined
+            , true) }
         
         
         <Form.Item style={{alignSelf:'flex-end', alignItems:'flex-end', flex:1}}>
-          <Button htmlType="submit" disabled={is_loading}>
+          <Button htmlType="submit" disabled={is_loading} type={buttonType}>
             Filter
           </Button>
           <Button type="link" disabled={is_loading} onClick={(event) => resetFilter(event)}>
@@ -238,7 +279,16 @@ const RequestsFilter = (props) => {
 
 }
 //
-export default Form.create() (connect(
+export default Form.create({
+  onValuesChange: (props, changeValues, allValues) => {
+    console.log(' ++onValuesChange', changeValues, allValues);if(typeof __formValuesChanged === 'function')
+
+    {
+      console.log(' ++onValuesChange:YEAH!', changeValues, allValues);
+      __formValuesChanged();
+    }  
+  }})
+   (connect(
     (state)=> ({
       isAdmin:               loginRedux.isAdmin(state),
       filterKeyValues:       operationsRedux.filterKeyValues(state),

@@ -28,22 +28,24 @@ export const  DISPLAY_SERVICE    = globalCfg.api.TYPE_SERVICE;
 export const  DISPLAY_PDA        = globalCfg.api.TYPE_DEPOSIT+'|'+globalCfg.api.TYPE_WITHDRAW;
 export const  DISPLAY_EXTERNAL   = globalCfg.api.TYPE_EXCHANGE+'|'+globalCfg.api.TYPE_PROVIDER;
 //
-
+const CLEAR_TX_STATE = {}
 class TransactionTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      txs:           [],
-      loading:       false,
-      page:          -1, 
-      limit:         globalCfg.api.default_page_size,
-      can_get_more:  true,
-      for_admin:     props.i_am_admin
+      txs:               [],
+      page:              -1, 
+      loading:           false,
+      limit:             globalCfg.api.default_page_size,
+      can_get_more:      true,
+      for_admin:         props.i_am_admin,
+      requests_filter:   {}
     };
     // this.handleChange      = this.handleChange.bind(this);
     this.onNewData         = this.onNewData.bind(this);
     this.renderFooter      = this.renderFooter.bind(this); 
     this.getColumnsForType = this.getColumnsForType.bind(this);
+    this.applyFilter       = this.applyFilter.bind(this);
   }
 
   getColumnsForType =() =>{
@@ -52,8 +54,29 @@ class TransactionTable extends Component {
     return columns_helper.getColumnsForRequests(this.props.callback, is_admin);
   }
   
+  
   componentDidMount(){
+    if(typeof this.props.onRef==='function')
+    {
+      console.log('YES')
+      this.props.onRef(this);
+    }
+
     this.loadTxs();
+  }
+  
+  componentWillUnmount() {
+    if(typeof this.props.onRef==='function')
+      this.props.onRef(undefined)
+  }
+
+  applyFilter = (filter) =>{
+    console.log(' -- table-widget::applyFilter:', filter)
+    this.setState({
+      requests_filter:filter
+    },() => {
+      this.refresh();
+    });
   }
 
   renderFooter(){
@@ -62,15 +85,14 @@ class TransactionTable extends Component {
 
   refresh(){
     const that = this;
-    
-      this.setState(
-        {txs:[]
-          , can_get_more:true
-          , page:-1}
-        , ()=>{
-          that.loadTxs();
-        })
-      return;
+    this.setState({
+      txs:[]
+      , can_get_more:true
+      , page:-1}
+    , ()=>{
+      that.loadTxs();
+    })
+    return;
   }
 
   componentDidUpdate(prevProps) {
@@ -86,15 +108,14 @@ class TransactionTable extends Component {
 
   loadTxs = async () =>{
 
-    const can_get_more   = this.state.can_get_more;
+    const {can_get_more, requests_filter, for_admin}   = this.state;
     if(!can_get_more)
     {
       this.setState({loading:false});
       return;
     }
 
-    const account_name = this.state.for_admin?'':this.props.actualAccountName;
-    
+    const account_name = for_admin?'':this.props.actualAccountName;
     
     this.setState({loading:true});
 
@@ -103,35 +124,30 @@ class TransactionTable extends Component {
     const that           = this;
     
     const requested_type = this.props.request_type==DISPLAY_REQUESTS?'':this.props.request_type;
-    // if(this.state.for_admin)
-    // {
-    //   // const requested_type = this.props.request_type==DISPLAY_REQUESTS?undefined:this.props.request_type;
-    //   api.bank.listRequests(page, limit, requested_type)
-    //     .then( (res) => {
-    //         that.onNewData(res);
-    //       } ,(ex) => {
-    //         console.log('---- ERROR:', JSON.stringify(ex));
-    //         console.log(ex);
-    //         ui_helper.notif.exceptionNotification("An error occurred fetching data", ex)  
-    //         that.setState({loading:false});  
-    //       } 
-    //     )
-    //   return;
-    // }
-
-    const data = await gqlService.requests({account_name, page, requested_type});
-    // console.log(data);
-    that.onNewData(data);
-
-    // api.bank.listMyRequests(account_name, page, limit, req_type, _to)
-    //   .then( (res) => {
-    //       that.onNewData(res);
-    //     } ,(ex) => {
-    //       console.log('---- ERROR:', JSON.stringify(ex));
-    //       ui_helper.notif.exceptionNotification("An error occurred fetching data", ex)
-    //       that.setState({loading:false});  
-    //     } 
-    //   );
+    if(!for_admin && (requests_filter.to||requests_filter.from))
+    {
+      if(requests_filter.to)
+      {  
+        requests_filter.from=account_name;
+      }
+      else
+        if(requests_filter.from)
+        {
+          requests_filter.to=account_name;
+        }
+    }
+    const filter_obj = {limit, account_name, page, requested_type, ...requests_filter};
+    console.log(' TABLE filter_obj:', filter_obj);
+    try{
+      const data = await gqlService.requests(filter_obj);
+      that.onNewData(data);
+    }
+    catch(e)
+    {
+      this.setState({loading:false});
+      ui_helper.notif.exceptinoNotification("An error occurred while fetching requests", e);
+      return;
+    }
     
   }
 
@@ -145,11 +161,20 @@ class TransactionTable extends Component {
 
     const has_received_new_data = (txs && txs.length>0);
 
-    this.setState({pagination:pagination, txs:_txs, can_get_more:(has_received_new_data && txs.length==this.state.limit), loading:false})
+    const {page}   = this.state;
+    const the_page = has_received_new_data?(page+1):page;
+    this.setState({
+      page:           the_page,
+      pagination:     pagination, 
+      txs:            _txs, 
+      can_get_more:   (has_received_new_data && txs.length==this.state.limit), 
+      loading:        false
+    });
 
     if(!has_received_new_data)
     {
-      ui_helper.notif.infoNotification("End of transactions","You have reached the end of transaction list!")
+      const msg = (page>0)?'You have reached the end of the list!':'Oops... there is no records for this filter!';
+      ui_helper.notif.infoNotification(msg)
     }
     else
       if(typeof this.props.onChange === 'function') {

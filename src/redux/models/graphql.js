@@ -115,8 +115,6 @@ export const team                 = (state) => state.graphql.data[globalCfg.bank
                                                 ?state.graphql.data[globalCfg.bank.ACCOUNT_TYPE_BUSINESS]['team']
                                                 :null
 
-
-
 // El reducer del modelo
 const defaultState = {
   is_loading:        false,

@@ -120,17 +120,35 @@ export const getMonthItem = (_form, object, field, title, required_message, read
               </Form.Item>);
   }
 //
-export const getDateRangeItem = (_form, object, field, title, required_message, format) => {
+const getRanges = () =>{
+  return {
+           'Today': [moment(), moment()],
+           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+           'This Month': [moment().startOf('month'), moment().endOf('month')],
+           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+}
+//
+export const getDateRangeItem = (_form, object, field, title, required_message, format, show_ranges) => {
     const { getFieldDecorator }    = _form;
     const _value                   = object[field];
     const initialValue             = object
       ?[getMoment(_value[0]), getMoment(_value[1])]
       :undefined;
+    const ranges = show_ranges
+      ?getRanges()
+      :null;
     return (<Form.Item label={title}>
                 {getFieldDecorator(field, {
                 rules: [{ required: (required_message!==undefined), message: required_message }],
                 initialValue: initialValue
-              })( <DatePicker.RangePicker style={{width:'100%'}} format={format||DATE_FORMAT} />)}
+              })( <DatePicker.RangePicker 
+                      style={{width:'100%'}} 
+                      format={format||DATE_FORMAT} 
+                      ranges={ranges}
+                      />)}
               </Form.Item>);
   }
 

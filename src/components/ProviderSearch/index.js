@@ -75,7 +75,6 @@ class ProviderSearch extends Component {
     this.setState({
       selected:value,
       value:value,
-      data: [],
       fetching: false,
     });
 

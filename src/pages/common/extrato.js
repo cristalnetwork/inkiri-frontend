@@ -90,6 +90,9 @@ class Extrato extends Component {
     super(props);
     this.state = {
       page_key:            props.location.pathname,
+      page_key_operations: `${props.location.pathname}_${DISPLAY_ALL_TXS}`,
+      page_key_requests:   `${props.location.pathname}_${DISPLAY_REQUESTS}`,
+      
       txs:                 props.operations[props.location.pathname],
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       loading:             props.isOperationsLoading,
@@ -104,9 +107,9 @@ class Extrato extends Component {
 
       pagination:          { pageSize: 0 , total: 0 },
       
-      //active_tab:          DISPLAY_ALL_TXS
       page_key_values:     props.page_key_values,
-      active_tab:          utils .twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_tab', DISPLAY_ALL_TXS)
+      // active_tab:          utils.twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_tab', DISPLAY_ALL_TXS)
+      active_tab:          utils.twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_tab', DISPLAY_REQUESTS)
     };
 
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
@@ -118,6 +121,8 @@ class Extrato extends Component {
 
     this.onTransactionClick         = this.onTransactionClick.bind(this);
     this.onRequestClick             = this.onRequestClick.bind(this);
+
+    this.requestFilterCallback      = this.requestFilterCallback.bind(this);
   }
   
   onTransactionClick(transaction){
@@ -257,6 +262,28 @@ class Extrato extends Component {
   }
   // Component Events
 
+  requestFilterCallback(error, cancel, values) {
+    
+    if(cancel)
+    {
+      return;
+    }
+    if(error)
+    {
+      return;
+    }
+
+
+    if(this.table_widget && values!==undefined)
+    {
+      const that = this;
+      setTimeout(()=> that.table_widget.applyFilter(values) ,100);
+    }
+
+    console.log(' -- extrato::requestFilterCallback:', values)
+
+  }
+
   onTabChange(key) {
     // console.log(key);
     //this.setState({active_tab:key})
@@ -296,84 +323,23 @@ class Extrato extends Component {
 
   renderContent(){
     let content = null;
-    if(this.state.active_tab==DISPLAY_DEPOSIT){
+    const {active_tab} = this.state;
+
+    if(active_tab!==DISPLAY_ALL_TXS){ // DISPLAY_REQUESTS
       content = (
         <TransactionTable 
-          key={'table_'+DISPLAY_DEPOSIT} 
-          need_refresh={this.state.need_refresh[DISPLAY_DEPOSIT]}
-          request_type={DISPLAY_DEPOSIT} 
+          key={'table_'+active_tab} 
+          need_refresh={this.state.need_refresh[active_tab]}
+          request_type={active_tab} 
           onChange={this.onTableChange}
           callback={this.onRequestClick}
+          onRef={ref => (this.table_widget = ref)}
           />
       );
     }
 
     //
-
-    if(this.state.active_tab==DISPLAY_WITHDRAWS){
-      content = (
-        <TransactionTable 
-          key={'table_'+DISPLAY_WITHDRAWS} 
-          need_refresh={this.state.need_refresh[DISPLAY_WITHDRAWS]}
-          request_type={DISPLAY_WITHDRAWS} 
-          onChange={this.onTableChange}
-          callback={this.onRequestClick}
-          />
-      );
-    }
-    
-    //
-    if(this.state.active_tab==DISPLAY_PROVIDER){
-      content = (
-        <TransactionTable 
-          key={'table_'+DISPLAY_PROVIDER} 
-          need_refresh={this.state.need_refresh[DISPLAY_PROVIDER]}
-          request_type={DISPLAY_PROVIDER} 
-          onChange={this.onTableChange}
-          callback={this.onRequestClick}
-          />
-      );
-    }
-
-    if(this.state.active_tab==DISPLAY_EXCHANGES){
-      content = (
-        <TransactionTable 
-          key={'table_'+DISPLAY_EXCHANGES} 
-          need_refresh={this.state.need_refresh[DISPLAY_EXCHANGES]}
-          request_type={DISPLAY_EXCHANGES} 
-          onChange={this.onTableChange}
-          callback={this.onRequestClick}
-          />
-      );
-    }
-    
-    //
-    if(this.state.active_tab==DISPLAY_SERVICE){
-      content = (
-        <TransactionTable 
-          key={'table_'+DISPLAY_SERVICE} 
-          need_refresh={this.state.need_refresh[DISPLAY_SERVICE]}
-          request_type={DISPLAY_SERVICE} 
-          onChange={this.onTableChange}
-          callback={this.onRequestClick}
-          />
-      );
-    }
-    //
-    if(this.state.active_tab==DISPLAY_REQUESTS){
-      content = (
-        <TransactionTable 
-          key={'table_'+DISPLAY_REQUESTS} 
-          need_refresh={this.state.need_refresh[DISPLAY_REQUESTS]}
-          request_type={DISPLAY_REQUESTS} 
-          onChange={this.onTableChange}
-          callback={this.onRequestClick}
-          />
-      );
-    }
-
-    //
-    if(this.state.active_tab==DISPLAY_ALL_TXS){
+    if(active_tab==DISPLAY_ALL_TXS){
       
       content = (
         <>
@@ -447,7 +413,7 @@ class Extrato extends Component {
                 !isMobile &&
                   active_tab==DISPLAY_ALL_TXS
                   ?<OperationsFilter the_key={page_key} />
-                  :<RequestsFilter />
+                  :<RequestsFilter callback={this.requestFilterCallback} />
               }
 
               {stats}
