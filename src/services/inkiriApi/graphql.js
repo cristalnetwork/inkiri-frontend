@@ -32,7 +32,24 @@ const client = new ApolloClient({
 
 const GET_CONFIG = gql`
   {
-  
+    configuration{
+      _id
+      created_by{
+        _id
+        account_name
+      }
+      updated_by{
+        _id
+        account_name
+      }
+      configurationCounterId
+      father
+      key
+      value
+      amount
+      created_at
+      updated_at
+    }
     configurationsJobPositions{
       _id
       created_by{

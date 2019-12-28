@@ -245,7 +245,7 @@ class AutocompleteAccount extends Component {
     return (<div className="money-transfer__row row-complementary row-complementary-bottom money-transfer__select" >
               <div className="badge badge-extra-small badge-circle addresse-avatar ">
                   <span className="picture">
-                    <FontAwesomeIcon icon="user" size="lg" color="gray"/>
+                    <FontAwesomeIcon icon="user" size="lg" color="black"/>
                   </span>
               </div>
               <div className="money-transfer__input money-transfer__select">

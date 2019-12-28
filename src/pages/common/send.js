@@ -135,7 +135,11 @@ class SendMoney extends Component {
 
   renderTransferReason(){
     const option_type  = globalCfg.api.TRANSFER_REASON;
-    const my_options   = this.state.transferReasons;
+    const my_options   = this.state.transferReasons.sort(function(a,b){ 
+      if(a.key.endsWith('another')) return 1;
+      if(b.key.endsWith('another')) return -1;
+      return a.value>b.value?1:-1;
+    });
     if(!my_options)
       return (<></>);
     //
@@ -322,8 +326,6 @@ class SendMoney extends Component {
 
     const { getFieldDecorator }               = this.props.form;
     const { input_amount, isFetching}           = this.state;
-
-    // <Button size="large" key="payButton" type="link" onClick={this.onPay} style={{marginLeft:8}}loading={isFetching} ><FontAwesomeIcon icon="shopping-bag" size="1x"/>&nbsp;PAY</Button>
 
     return (
         <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">

@@ -8,11 +8,12 @@ import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
 import * as apiRedux from '@app/redux/models/api';
 import * as menuRedux from '@app/redux/models/menu';
+import * as graphqlRedux from '@app/redux/models/graphql'
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
-import PropTypes from "prop-types";
+import * as utils from '@app/utils/utils';
 
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
@@ -65,6 +66,7 @@ class RequestPayment extends Component {
     super(props);
     this.state = {
       
+      flatConfig:         props.flatConfig,
       ...DEFAULT_STATE,
       ...DEFAULT_RESULT,
       
@@ -93,7 +95,7 @@ class RequestPayment extends Component {
     if(prevProps.isFetching!=this.props.isFetching){
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
-    if(prevProps.getErrors!=this.props.getErrors){
+    if(!utils.objectsEqual(prevProps.getErrors, this.props.getErrors)){
       // const ex = this.props.getLastError;
       // new_state = {...new_state, 
       //     getErrors:     this.props.getErrors, 
@@ -102,7 +104,7 @@ class RequestPayment extends Component {
       // if(ex)
       //   components_helper.notif.exceptionNotification("An error occurred!", ex);
     }
-    if(prevProps.getResults!=this.props.getResults){
+    if(!utils.objectsEqual(prevProps.getResults, this.props.getResults)){
       // const lastResult = this.props.getLastResult;
       // new_state = {...new_state, 
       //   getResults:      this.props.getResults, 
@@ -115,7 +117,9 @@ class RequestPayment extends Component {
       //   components_helper.notif.successNotification('Operation completed successfully')
       this.resetPage()
     }
-
+    if(prevProps.flatConfig!=this.props.flatConfig){
+      new_state = {...new_state, flatConfig:this.props.flatConfig}
+    }
 
     if(Object.keys(new_state).length>0)      
         this.setState(new_state);
@@ -129,12 +133,12 @@ class RequestPayment extends Component {
   }
 
   handleProviderChange(provider){
-    console.log(' #evt() handleProviderChange: ', provider);
+    // console.log(' #evt() handleProviderChange: ', provider);
     this.setState({provider: provider })
   }
 
   validateProvider = (rule, value, callback) => {
-    console.log(' #fn() validateProvider >> provider:', this.state.provider)
+    // console.log(' #fn() validateProvider >> provider:', this.state.provider)
     // console.log(' >> validateProvider >> value: ', value)
     if (this.state.provider && this.state.provider.key) {
       callback();
@@ -150,10 +154,6 @@ class RequestPayment extends Component {
     }
     callback('Amount must greater than zero!');
   };
-
-  paymentModeRequiresBoleto(){
-    return this.state.provider_extra.payment_mode==globalCfg.api.PAYMENT_MODE_BOLETO;
-  }
 
   handleSubmit = e => {
     e.preventDefault();
@@ -243,49 +243,6 @@ class RequestPayment extends Component {
 
       that.props.callAPIEx(steps);
       
-      // api.bank.createProviderPaymentEx(sender, amount, provider_id, values, attachments_array)
-      //   .then((data) => {
-      //     console.log(' createProviderPayment::send (then#1) >>  ', JSON.stringify(data));
-           
-      //      if(!data || !data.id)
-      //      {
-      //         that.setState({result:'error', uploading: false, pushingTx:false, error:'Cant create request nor upload files.'});
-      //         return;
-      //      }
-
-      //      const request_id       = data.id;
-      //      const provider_account = globalCfg.bank.provider_account; 
-           
-      //      api.requestProviderPayment(sender, privateKey, provider_account, amount, request_id)
-      //       .then((data1) => {
-
-      //         const send_tx             = data1;
-      //         console.log(' requestProviderPayment::send (then#2) >>  ', JSON.stringify(send_tx));
-              
-      //         api.bank.updateProviderPayment(sender, request_id, send_tx.data.transaction_id)
-      //           .then((data2) => {
-
-      //               that.clearAttachments();
-      //               that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
-      //               that.openNotificationWithIcon("success", 'Provider Payment requested successfully');
-
-      //             }, (ex2) => {
-      //               console.log(' createProviderPayment::send (error#3) >>  ', JSON.stringify(ex2));
-      //               that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
-      //           });
-
-      //         setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
-
-      //       }, (ex1) => {
-              
-      //         console.log(' requestProviderPayment::send (error#2) >>  ', JSON.stringify(ex1));
-      //         that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
-
-      //       });
-
-      //   }, (ex) => {
-      //     console.log(' createProviderPayment::send (error#1) >>  ', JSON.stringify(ex));
-      //     that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex)});
       //   });
       
     });
@@ -361,13 +318,20 @@ class RequestPayment extends Component {
       });
   }
 
-
   renderPaymentOption(option_type){
-    const option_types = globalCfg.api.getPaymentOptions();
     
-    const my_options = option_types[option_type];
-    
-    if(!my_options)
+    const {flatConfig} = this.state;
+    // console.log('flatConfig', flatConfig)
+    if(!flatConfig)
+      return null;
+    const options = flatConfig.filter(opt=>opt.father==option_type).sort(function(a,b){ 
+      if(a.key.endsWith('another')) return 1;
+      if(b.key.endsWith('another')) return -1;
+      return a.value>b.value?1:-1;
+    })
+
+    const title   = globalCfg.api.getPaymentTitles()[option_type];
+    if(!options)
       return (<></>);
     //
     const { getFieldDecorator } = this.props.form;
@@ -375,11 +339,11 @@ class RequestPayment extends Component {
     return (
       <Form.Item className="money-transfer__row">
           {getFieldDecorator( 'provider_extra.'+option_type, {
-            rules: [{ required: true, message: 'Please select a/an '+ my_options.title}]
+            rules: [{ required: true, message: 'Please select a/an '+ title}]
             , onChange: (e) => this.handleChange(e, option_type)
           })(
-            <Select placeholder={'Choose ' + my_options.title} optionLabelProp="label">
-            {my_options.options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.label}>{ opt.label } </Select.Option> )}
+            <Select placeholder={'Choose ' + title} optionLabelProp="label">
+            {options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.value}>{ opt.value } </Select.Option> )}
             </Select>
           )}
       </Form.Item>
@@ -436,6 +400,11 @@ class RequestPayment extends Component {
     })
   }
 
+  paymentModeRequiresBoleto = () =>{
+    const selected_mode = this.state.provider_extra[globalCfg.api.PAYMENT_MODE];
+    if(!selected_mode) return false;
+    return selected_mode.endsWith('boleto');
+  }
   renderContent() {
     
     const {result, result_object, error} = this.state;
@@ -454,7 +423,7 @@ class RequestPayment extends Component {
     const notaUploaderProps                                = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
     const boletoUploaderProps                              = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
     const { getFieldDecorator }                            = this.props.form;
-
+    const require_boleto                                   = this.paymentModeRequiresBoleto();
     return (
       <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
         <Form onSubmit={this.handleSubmit}>
@@ -463,7 +432,7 @@ class RequestPayment extends Component {
               <div className="money-transfer__row row-complementary" >
                   <div className="badge badge-extra-small badge-circle addresse-avatar">
                       <span className="picture">
-                        <FontAwesomeIcon icon="truck-moving" size="lg" color="gray"/>
+                        <FontAwesomeIcon icon="truck-moving" size="lg" color="black"/>
                       </span>
                   </div>
                   <div className="money-transfer__input money-transfer__select">
@@ -518,14 +487,13 @@ class RequestPayment extends Component {
               {this.renderPaymentOption(globalCfg.api.PAYMENT_VEHICLE)}
               {this.renderPaymentOption(globalCfg.api.PAYMENT_CATEGORY)}
               {this.renderPaymentOption(globalCfg.api.PAYMENT_TYPE)}
-              
               {this.renderPaymentOption(globalCfg.api.PAYMENT_MODE)}
               
               <div className="money-transfer__row file_selector">
                 <Form.Item>
-                  <Upload.Dragger multiple={false} disabled={this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO} {...boletoUploaderProps}>
+                  <Upload.Dragger multiple={false} disabled={!require_boleto} {...boletoUploaderProps}>
                     <p className="ant-upload-drag-icon">
-                      <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={(this.state.provider_extra[globalCfg.api.PAYMENT_MODE]!=globalCfg.api.PAYMENT_MODE_BOLETO)?"gray":"inherit"}/>
+                      <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={(!require_boleto)?"gray":"inherit"}/>
                     </p>
                     <p className="ant-upload-text">Boleto Pagamento</p>
                   </Upload.Dragger>,
@@ -594,6 +562,8 @@ export default Form.create() (withRouter(connect(
         getLastError:     apiRedux.getLastError(state),
         getResults:       apiRedux.getResults(state),
         getLastResult:    apiRedux.getLastResult(state),
+
+        flatConfig:       graphqlRedux.flatConfig(state),
     }),
     (dispatch)=>({
         callAPIEx:        bindActionCreators(apiRedux.callAPIEx, dispatch),
