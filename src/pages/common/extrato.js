@@ -27,14 +27,12 @@ import { DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, 
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
-import * as utils from '@app/utils/utils';
+import RequestListWidget from '@app/components/request-list-widget';
 
-import { DatePicker } from 'antd';
-import moment from 'moment';
+import * as utils from '@app/utils/utils';
 
 import * as gqlService from '@app/services/inkiriApi/graphql'
 
-const { MonthPicker, RangePicker } = DatePicker;
 const { TabPane } = Tabs;
 const { Option } = Select;
 const { Search, TextArea } = Input;
@@ -70,7 +68,7 @@ const { Search, TextArea } = Input;
 const tabs = {
   [globalCfg.bank.ACCOUNT_TYPE_BUSINESS]: {
     [DISPLAY_ALL_TXS]:    'Movements',
-    [DISPLAY_REQUESTS]:   'Requests'
+    [DISPLAY_REQUESTS]:   'Requests',
   },
   [globalCfg.bank.ACCOUNT_TYPE_PERSONAL]: {
     [DISPLAY_ALL_TXS]:    'Movements',
@@ -123,6 +121,8 @@ class Extrato extends Component {
     this.onRequestClick             = this.onRequestClick.bind(this);
 
     this.requestFilterCallback      = this.requestFilterCallback.bind(this);
+
+    this.mounted = false;
   }
   
   onTransactionClick(transaction){
@@ -150,6 +150,7 @@ class Extrato extends Component {
   }
 
   componentDidMount(){
+    this.mounted = true;
     const {page_key} = this.state;
     // Set default filter state for oprations: get all!!!
     this.props.trySetFilterKeyValue(page_key, {});
@@ -277,7 +278,9 @@ class Extrato extends Component {
     if(this.table_widget && values!==undefined)
     {
       const that = this;
-      setTimeout(()=> that.table_widget.applyFilter(values) ,100);
+      setTimeout(()=> {
+        that.table_widget.applyFilter(values)
+      } ,100);
     }
 
     console.log(' -- extrato::requestFilterCallback:', values)
@@ -377,7 +380,44 @@ class Extrato extends Component {
       {content}</div>)
   }
   //
+
   render() {
+    if(!this.mounted)
+      return null;
+    const {routes, active_tab, isMobile, page_key} = this.state;
+    const my_tabs              = tabs[this.props.actualRoleId];
+    return (
+      <>
+        <PageHeader
+          extra={[
+            <Button size="small" key="refresh" icon="redo" disabled={this.state.loading} onClick={()=>this.refreshCurrentTable()} ></Button>,
+            
+          ]}
+          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
+          title="Extrato"
+          subTitle="List of transactions"
+        >
+        </PageHeader>
+
+        <div className="styles standardList" style={{ marginTop: 24 }}>
+          <Card key={'card_master'}  
+            tabList={ Object.keys(my_tabs).map(key_tab => { return {key: key_tab, tab: my_tabs[key_tab]} } ) }
+            activeTabKey={active_tab}
+            onTabChange={ (key) => this.onTabChange(key)}
+            >
+
+            <RequestListWidget 
+              request_type={DISPLAY_REQUESTS} 
+              key={this.props.location.pathname} 
+              callback={this.onRequestClick} />
+    
+          </Card>
+        </div>
+      </>
+    );
+  }
+  //
+  renderX() {
     const {routes, active_tab, isMobile, page_key} = this.state;
     const content              = this.renderContent();
     const stats                = this.renderTableViewStats();
@@ -389,6 +429,7 @@ class Extrato extends Component {
       console.log(this.props.actualRole)
       return (null);
     }
+    
     return (
       <>
         <PageHeader

@@ -2,22 +2,32 @@ import gql from 'graphql-tag';
 import * as globalCfg from '@app/configs/global';
 import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-boost'
 import { ApolloProvider, useQuery } from '@apollo/react-hooks';
+import { createHttpLink } from 'apollo-link-http';
+import { setContext } from 'apollo-link-context';
+import * as jwtHelper from './jwt-helper';
 
 /*
 * Apollo configuration
-* Missing credentials!
 */
-const cache = new InMemoryCache();
+const httpLink = createHttpLink({
+  uri:  globalCfg.api.graphql_endpoint
+});
+const authLink = setContext((_, { headers }) => {
+  // get the authentication token from local storage if it exists
+  const bearer_token = jwtHelper.getBearerTokenByKey(jwtHelper.BANK_AUTH_TOKEN_KEY);
+  console.log(bearer_token);
+  // return the headers to the context so httpLink can read them
+  return {
+    headers: {
+      ...headers,
+      authorization: bearer_token
+    }
+  }
+});
+
 const client = new ApolloClient({
-  cache,
-  link: new HttpLink({
-    uri:  globalCfg.api.graphql_endpoint,
-    // headers: {
-    //   authorization: localStorage.getItem('token'),
-    //   'client-name': 'Space Explorer [web]',
-    //   'client-version': '1.0.0',
-    // },
-  }),
+  link: authLink.concat(httpLink),
+  cache: new InMemoryCache()
 });
 
 const GET_CONFIG = gql`
@@ -368,11 +378,8 @@ export const requests = async ({page, requested_type='', account_name='', from='
     from=to=account_name;
   }
   const a        = {page:page.toString(), requested_type:requested_type, from:from, to:to, provider_id:provider_id, state:state, id:id, requestCounterId:requestCounterId, tx_id:tx_id, refund_tx_id:refund_tx_id, attach_nota_fiscal_id:attach_nota_fiscal_id, attach_boleto_pagamento_id:attach_boleto_pagamento_id, attach_comprobante_id:attach_comprobante_id, deposit_currency:deposit_currency, date_from:date_from, date_to:date_to};
-  // const vars     = a.reduce((prev,act) => { if(act) prev[act] = act; return prev; } , {});
-  // const gql_vars = Object.keys(vars).map(key=> `${key}:$${key}`).join(',') 
   console.log(JSON.stringify(a));
-  console.log(GET_REQUESTS);
-  // console.log(vars);
+  // console.log(GET_REQUESTS);
   return runQuery(GET_REQUESTS, a, 'requests');
 }
 
@@ -391,7 +398,7 @@ const runQuery = async (query, variables, _field) => {
       console.log(error);  
       return null;
     }
-    console.log(data);
+    // console.log(data);
     if(_field)
       return data[_field]
     return data;

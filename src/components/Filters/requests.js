@@ -48,7 +48,6 @@ const RequestsFilter = (props) => {
 
     useEffect(() => {
       setCallback(props.callback);
-      console.log(' cb#1 ', typeof props.callback)
     }, [props.callback]);
 
     // useEffect(() => {
@@ -72,9 +71,7 @@ const RequestsFilter = (props) => {
     // });
 
     const resetFilter = (e) => {
-      console.log( ' -- resetFilter -- #1')
       e.preventDefault();
-      console.log( ' -- resetFilter -- #2')
       props.form.resetFields();
       fireEvent(null, null, {})      
     }
@@ -88,7 +85,6 @@ const RequestsFilter = (props) => {
     }
 
     const formValuesChanged = () => {
-      console.log(' .... formValuesChanged ....')
       setButtonType('primary')
     }
     __formValuesChanged = formValuesChanged
@@ -118,7 +114,7 @@ const RequestsFilter = (props) => {
           return result;
         }, {});
 
-        console.log(' .. firing event...', filtered_nn)
+        // console.log(' .. firing event...', filtered_nn)
         fireEvent(null, null, filtered_nn)
       });
     }
@@ -281,10 +277,10 @@ const RequestsFilter = (props) => {
 //
 export default Form.create({
   onValuesChange: (props, changeValues, allValues) => {
-    console.log(' ++onValuesChange', changeValues, allValues);if(typeof __formValuesChanged === 'function')
-
+    // console.log(' ++onValuesChange', changeValues, allValues);
+    if(typeof __formValuesChanged === 'function')
     {
-      console.log(' ++onValuesChange:YEAH!', changeValues, allValues);
+      // console.log(' ++onValuesChange:YEAH!', changeValues, allValues);
       __formValuesChanged();
     }  
   }})
