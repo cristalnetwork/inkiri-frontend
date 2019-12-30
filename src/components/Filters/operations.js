@@ -31,7 +31,7 @@ const { Option } = Select;
 const OperationsFilter = (props) => {
     
     const [is_admin, setIsAdmin]       = useState(props.isAdmin);
-    const [callback, setCallback]      = useState(props.callback);
+    // const [callback, setCallback]      = useState(props.callback);
     const [key, setKey]                = useState(props.the_key);
     const [show_search, setShowSearch] = useState(props.show_search||false);
     const [is_loading, setIsLoading]   = useState(props.isOperationsLoading||false);
@@ -48,31 +48,29 @@ const OperationsFilter = (props) => {
     const [filter, setFilter]          = useState(props.filter||default_filter);
 
     useEffect(() => {
-      if(is_admin!=props.is_admin)
-        setIsAdmin(props.isAdmin);
-      if(callback!=props.callback)
-        setCallback(props.callback);
-      if(is_loading!=props.isOperationsLoading)
-        setIsLoading(props.isOperationsLoading);
-      if(key!=props.the_key)
-        setKey(props.the_key);
-      if(filter!=props.filterKeyValues[key] && filter!=default_filter)
-      {
-        // console.log(' filter form useEffect::')
-        // console.log(props.filterKeyValues)
-        // console.log(default_filter)
-        // setFilter(props.filterKeyValues[key]||default_filter)
-      }
-      if(show_search!=props.show_search)
-        setShowSearch(props.show_search);
+      // if(is_admin!=props.is_admin)
+      //   setIsAdmin(props.isAdmin);
+      // if(callback!=props.callback)
+      //   setCallback(props.callback);
+      // if(is_loading!=props.isOperationsLoading)
+      //   setIsLoading(props.isOperationsLoading);
+      // if(key!=props.the_key)
+      //   setKey(props.the_key);
+      // if(filter!=props.filterKeyValues[key] && filter!=default_filter)
+      // {
+      //   // console.log(' filter form useEffect::')
+      //   // console.log(props.filterKeyValues)
+      //   // console.log(default_filter)
+      //   // setFilter(props.filterKeyValues[key]||default_filter)
+      // }
+      // if(show_search!=props.show_search)
+      //   setShowSearch(props.show_search);
     });
 
     const resetFilter = (e) => {
-      console.log( ' -- resetFilter -- #1')
       e.preventDefault();
-      console.log( ' -- resetFilter -- #2')
-      if(key)
-        props.deleteFilterKeyValue(key)
+      props.form.resetFields();
+      fireEvent(null, null, {})      
     }
     
     const applyFilter = (e) => {
@@ -80,44 +78,39 @@ const OperationsFilter = (props) => {
       
       props.form.validateFields((err, values) => {
         
-        return;
-        
-        const obj = _.index( values, {
-          pathFormat: 'string',
-          leavesOnly: true,
-          includeRoot: !_.isArray(values)}) 
-        
-        const filtered  = _.reduce(obj, function(result, value, key) {
-          if(value)
-            result[key] = value;
-          return result;
-        }, {});
-
-        console.log(JSON.stringify(filtered))
-                
-        // {"request.requested_type[0]":"type_exchange","request.requested_type[1]":"type_payment","date_range[0]":null,"date_range[1]":null,"data.from":"businesstest"}
-        
         if (err) {
           // openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
           console.log(' ERRORS!! >> ', err)
           return;
         }
 
-        // fireEvent(null, null, values);
-        console.log('.. filter values   ..??? => values:', JSON.stringify(values))
-        console.log('.. should apply filter   ..??? => key:', key)
-        if(key)
-        {
-          props.trySetFilterKeyValue(key, values)   
-          // props.setFilterKeyValue(key, {s:Math.random()});   
-        }
+        console.log(values)
+        // const obj = _.index( values, {
+        //   pathFormat: 'string',
+        //   leavesOnly: true,
+        //   includeRoot: !_.isArray(values)}) 
+        
+        const filtered = _.reduce(values, function(result, value, key) {
+          if(_.isArray(value))
+          {  
+            if(!utils.arrayNullOrEmpty(value, true))
+              result[key] = value;
+          }
+          else 
+            if(typeof value !== 'undefined' && value!= null)
+              result[key] = value;
+          return result;
+        }, {});
+
+        fireEvent(null, null, filtered);
+        
       });
     }
 
 
     const fireEvent = (error, cancel, data) => {
-      if(typeof callback === 'function') {
-          callback(error, cancel, data)
+      if(typeof props.callback === 'function') {
+          props.callback(error, cancel, data)
       }
     }
     
@@ -140,19 +133,14 @@ const OperationsFilter = (props) => {
           )
     }
     //
-    /*
-      <Form.Item label="In-Out">
-        <Select 
-            defaultValue={filter.in_out}
-            placeholder="In-Out"
-            mode="multiple"
-            style={{ minWidth: '250px' }}
-            defaultValue={['ALL']}
-            optionLabelProp="label">
-              {renderSelectInOutOptions()}
-          </Select>
-      </Form.Item>
-    */
+    const validateAccountNames = (rule, value, callback) => {
+      const { form } = props;
+      if(!props.is_admin && props.form.getFieldValue('to') && props.form.getFieldValue('from')){
+        callback('Cant search by both sender/from and receiver/to account!');
+        return;
+      }
+      callback();
+    };
     //
     const dropdownRender = (menu) => 
           (<div style={{minWidth:250}}>
@@ -166,19 +154,21 @@ const OperationsFilter = (props) => {
       <Form layout="inline" className="filter_form" onSubmit={applyFilter}>
         
         <AutocompleteAccount 
+                validation_rule={validateAccountNames} 
                 autoFocus 
                 label={'Sender'}
                 not_required={true}
                 form={_form} 
-                name="data.from" 
+                name="from" 
                 without_icon={true}
                 size="default"/>
+
         <AutocompleteAccount 
-                autoFocus 
+                validation_rule={validateAccountNames} 
                 label={'Receiver/recipient'}
                 not_required={true}
                 form={_form} 
-                name="data.to" 
+                name="to" 
                 without_icon={true}
                 size="default"/>
 
@@ -193,7 +183,7 @@ const OperationsFilter = (props) => {
 
         { form_helper.getSelectItem(_form
             , filter
-            , 'request.requested_type'
+            , 'requested_type'
             , renderSelectTxTypeOptions()
             , 'Operation'
             , 'Operation'
@@ -229,7 +219,8 @@ const OperationsFilter = (props) => {
             , 'date_range'
             , 'Date Range'
             , undefined
-            , undefined) }
+            , undefined
+            , true) }
 
         
         

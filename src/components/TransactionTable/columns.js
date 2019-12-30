@@ -92,10 +92,8 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
       key: 'action',
       width: '80px',
       render: (text, record) => {
-        // const process     = request_helper.(record, callback, 'Details');
-        // const blockchain  = request_helper.getBlockchainLink(record.transaction_id, true);
-        const process     = request_helper.getButtonIcon('info', callback, record)
-        const blockchain  = request_helper.getBlockchainLink(record.transaction_id, true, null, null);
+        const process     = request_helper.getButtonIcon('', callback, record, 'Details')
+        const blockchain  = request_helper.getBlockchainLink(record.transaction_id, false, null, 'Blockchain');
         return (<>{process}&nbsp;{blockchain}</>)
       },
     },

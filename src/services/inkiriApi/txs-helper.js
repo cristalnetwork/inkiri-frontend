@@ -1,6 +1,5 @@
-// humanizeTXs
 import * as globalCfg from '@app/configs/global';
-
+import * as utils from '@app/utils/utils';
 /*
 * Explode raw event/search result transaction to a human readable format.
 *  
@@ -38,7 +37,7 @@ export const toReadable = (account_name, transaction) => {
   return {
     id :                (!is_ws_event)?transaction_data.id:transaction_data.trx_id
     , block_time:        transaction_data.block_time.split('.')[0]
-    , block_time_number: Number(transaction_data.block_time.split('.')[0].replace(/-/g,'').replace(/T/g,'').replace(/:/g,'') )
+    , block_time_number: utils.dateToNumber(transaction_data.block_time)
     , transaction_id:    (is_ws_event)?transaction_data.trx_id:transaction_data.id
     , block_num:         transaction_data.block_num
     
@@ -82,7 +81,7 @@ const toReadableGraphQL = (account_name, tx) => {
     id :                 tx.trace.id
     , transaction_id:    tx.trace.id
     , block_time:        tx.block.timestamp.split('.')[0]
-    , block_time_number: Number(tx.block.timestamp.split('.')[0].replace(/-/g,'').replace(/T/g,'').replace(/:/g,'') )
+    , block_time_number: utils.dateToNumber(tx.block.block_time)
     , block_num:         tx.block.num
     , ...raw_oper
     , operations:         readable_operations

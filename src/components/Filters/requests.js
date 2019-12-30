@@ -88,6 +88,7 @@ const RequestsFilter = (props) => {
       setButtonType('primary')
     }
     __formValuesChanged = formValuesChanged
+    
     const applyFilter = (e) => {
       e.preventDefault();
       
@@ -187,7 +188,6 @@ const RequestsFilter = (props) => {
                 size="default"/>
         <AutocompleteAccount
                 validation_rule={validateAccountNames} 
-                autoFocus 
                 label={'To'}
                 not_required={true}
                 form={_form} 

@@ -15,7 +15,7 @@ import * as request_helper from '@app/components/TransactionCard/helper';
 const RequestListWidget = (props) => {
 
   // const [stored, setStored]             = useState(props.page_key_values);
-  const [key, setKey]                   = useState(props.key);
+  const [key, setKey]                   = useState(props.the_key);
   const [request_type, setRequestType]  = useState(props.request_type);
   // const [cb, setCB]                     = useState(props.callback);
   

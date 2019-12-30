@@ -499,3 +499,13 @@ select .anticon {
 .temp_alert_action:hover .fa_icon{
   color: rgb(108, 84, 163);
 }
+
+.load_more_txs{
+  color: rgb(105, 123, 140);
+  width: 100%;
+  background-color: #f0f0f0;
+  margin: 4px 0px;
+  font-size: 12px;
+  line-height: 10px;
+  height: 24px;
+}

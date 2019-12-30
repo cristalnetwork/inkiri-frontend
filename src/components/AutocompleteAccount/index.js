@@ -141,7 +141,7 @@ class AutocompleteAccount extends Component {
     console.log(' ::handleSearch', value)
   }
   handleSelect = (value, option) => {
-    console.log(' *** handleSelect >> ', value, option)
+    // console.log(' *** handleSelect >> ', value, option)
     this.setState({
       selected:value,
       value:value,

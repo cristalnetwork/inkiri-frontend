@@ -200,7 +200,7 @@ export const getProcessButton = (request, callback, text, is_primary) => {
 }
 //
 
-export const getButtonIcon = (icon, callback, param) => {
+export const getButtonIcon = (icon, callback, param, title) => {
   const buttonClick = (callback, request) => {
     if(typeof callback === 'function')
     {
@@ -208,7 +208,7 @@ export const getButtonIcon = (icon, callback, param) => {
       return;
     }
   }
-  return (<Button key={Math.random()} size="small" title="Operation details" onClick={()=>{ buttonClick(callback, param) }} icon={icon} />);
+  return (<Button key={Math.random()} size="small" onClick={()=>{ buttonClick(callback, param) }} icon={icon}>{title}</Button>);
 }
 //
 export const getStyledAmount = (request, negative) => {

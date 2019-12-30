@@ -1,5 +1,9 @@
 import _ from 'lodash';
 
+export const dateToNumber = (d) => {
+  if(!d) return 0;
+  return Number(d.split('.')[0].replace(/-/g,'').replace(/T/g,'').replace(/:/g,'').replace(/Z/g,'') )
+}
 export const configArrayToObj = (a) => {
   return _.reduce(a, function(result, value, key) {
       result[value.key] = value;
@@ -27,10 +31,19 @@ export const objectNullOrEmpty = (o) => {
   return false;
 }
 
-export const arrayNullOrEmpty = (a) => {
+export const arrayNullOrEmpty = (a, check_values) => {
   if(!a) return true;
   if(!Array.isArray(a)) return true;
   if(a.length==0) return true;
+  if(check_values)
+  {
+    let _emty = true;
+    for (var i = 0; i < a.length; ++i) {
+      _emty = _emty && (!a[i])
+    } 
+    if(_emty)
+      return true;
+  }
   return false;
 }
 export const arraysEqual = (a, b) => {
