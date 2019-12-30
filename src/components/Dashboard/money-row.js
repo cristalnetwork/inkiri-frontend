@@ -10,6 +10,7 @@ import styles from './style.less';
 
 // import './stolen.css';
 import './umi.e70625bc.css';
+import { injectIntl } from "react-intl";
 
 const topColResponsiveProps = {
   xs: 24,
@@ -20,24 +21,26 @@ const topColResponsiveProps = {
   style: { marginBottom: 24 },
 };
 
-const MoneyRow = ({ loading, rawData, visitData }) => {
+const MoneyRow = ({ loading, rawData, visitData, intl }) => {
 
   const [data, setData] = useState(rawData||{})
   
   useEffect(() => {
       setData(rawData||{});
     });
+  
+  const {formatMessage} = intl;
 
   return (
-  <Row gutter={24} type="flex">
+    <Row gutter={24} type="flex">
     
     <Col {...topColResponsiveProps}>
       <ChartCard
         bordered={false}
-        title={"Bank Balance"}
+        title={formatMessage({id:'components.dashboard.money_widget.money_supply'})}
         action={
           <Tooltip
-            title={"Total supply - IK$  in circulation"}
+            title={ formatMessage({id:'components.dashboard.money_widget.money_supply_description'}) }
           >
             <Icon type="info-circle-o" />
           </Tooltip>
@@ -47,15 +50,15 @@ const MoneyRow = ({ loading, rawData, visitData }) => {
         contentHeight={77}
       >
         <Field
-            label={"Digital IK$"}
+            label={ formatMessage({id:'components.dashboard.money_widget.money_supply_digital'}) }
             value={`IK$ ${numeral(0).format('0,0')}`}
           />
         <Field
-            label={"Paper IK$"}
+            label={ formatMessage({id:'components.dashboard.money_widget.money_supply_paper'}) }
             value={`IK$ ${numeral(0).format('0,0')}`}
           />
         <Field
-            label={"Fiat BRL"}
+            label={ formatMessage({id:'components.dashboard.money_widget.money_supply_fiat_brl'}) }
             value={`BRL ${numeral(0).format('0,0')}`}
           />
       </ChartCard>
@@ -64,10 +67,10 @@ const MoneyRow = ({ loading, rawData, visitData }) => {
     <Col {...topColResponsiveProps}>
       <ChartCard
         bordered={false}
-        title={"Total IUGU"}
+        title={ formatMessage({id:'components.dashboard.money_widget.total_iugu'}) }
         action={
           <Tooltip
-            title={"IUGU sales"}
+            title={ formatMessage({id:'components.dashboard.money_widget.total_iugu_description'}) }
           >
             <Icon type="info-circle-o" />
           </Tooltip>
@@ -76,18 +79,18 @@ const MoneyRow = ({ loading, rawData, visitData }) => {
         total={() => <Yuan>0</Yuan>}
         footer={
           <Field
-            label={"Daily Sales"}
+            label={ formatMessage({id:'components.dashboard.money_widget.daily_sales'}) }
             value={`BRL ${numeral(0).format('0,0')}`}
           />
         }
         contentHeight={46}
       >
         <Trend flag="up" style={{ marginRight: 16 }}>
-          Weekly Changes
+          { formatMessage({id:'components.dashboard.money_widget.weekly_changes'}) }
           <span className={'trendText'}>?%</span>
         </Trend>
         <Trend flag="down">
-          Daily Changes
+          { formatMessage({id:'components.dashboard.money_widget.daily_changes'}) }
           <span className={'trendText'}>?%</span>
         </Trend>
       </ChartCard>
@@ -97,20 +100,16 @@ const MoneyRow = ({ loading, rawData, visitData }) => {
       <ChartCard
         bordered={false}
         loading={loading}
-        title={"Volume de Transações"}
+        title={ formatMessage({id:'components.dashboard.money_widget.transaction_volume'}) }
         action={
-          <Tooltip
-            title={
-              "Introduce" 
-            }
-          >
+          <Tooltip title={ formatMessage({id:'components.dashboard.money_widget.transaction_volume_description'}) }>
             <Icon type="info-circle-o" />
           </Tooltip>
         }
         total={numeral(0).format('0,0')}
         footer={
           <Field
-            label={"Daily Transactions"}
+            label={formatMessage({id:'components.dashboard.money_widget.daily_transactions'})}
             value={ `BRL ${numeral(0).format('0,0')}`}
           />
         }
@@ -119,31 +118,7 @@ const MoneyRow = ({ loading, rawData, visitData }) => {
         <MiniArea color="#975FE4" data={visitData} />
       </ChartCard>
     </Col>
-    <Col {...topColResponsiveProps}>
-      <ChartCard
-        bordered={false}
-        loading={loading}
-        title={"Total issued"}
-        action={
-          <Tooltip
-            title={"Introduce"}
-          >
-            <Icon type="info-circle-o" />
-          </Tooltip>
-        }
-        total={numeral(0).format('0,0')}
-        footer={
-          <Field
-            label={"Daily issuing"}
-            value="0%"
-          />
-        }
-        contentHeight={46}
-      >
-        <MiniBar data={visitData} />
-      </ChartCard>
-    </Col>
   </Row>
 );
 }
-export default MoneyRow;
+export default injectIntl(MoneyRow);

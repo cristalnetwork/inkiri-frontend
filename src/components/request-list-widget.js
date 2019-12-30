@@ -12,24 +12,17 @@ import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimp
 import TransactionTable, { DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
 import * as request_helper from '@app/components/TransactionCard/helper';
 
+import { injectIntl } from "react-intl";
+
 const RequestListWidget = (props) => {
 
   // const [stored, setStored]             = useState(props.page_key_values);
   const [key, setKey]                   = useState(props.the_key);
   const [request_type, setRequestType]  = useState(props.request_type);
-  // const [cb, setCB]                     = useState(props.callback);
-  
+
   const [table_ref, setTableRef]        = useState(null);
   const [stats, setStats]               = useState([]);
   
-  // useEffect(() => {
-  //   setCB(props.callback);
-  // }, [props.callback]);
-
-  // useEffect(() => {
-  //   setStored(props.page_key_values);
-  // }, [props.page_key_values]);
-
   var t_id2 = null;
   const requestFilterCallback = (error, cancel, values) => {
     
@@ -72,10 +65,10 @@ const RequestListWidget = (props) => {
     const count = txs.length;
     
     const items = [
-        buildItemUp('Entradas', money_in)
-        , buildItemDown('Saidas', money_out)
-        , buildItemCompute('Variacao de caja', (money_in-money_out))
-        , buildItemSimple('Transações', (count||0))
+        buildItemUp(props.intl.formatMessage( { id:'components.request-list-widget.stats.money-in'}) , money_in)
+        , buildItemDown(props.intl.formatMessage( { id:'components.request-list-widget.stats.money-out'}) , money_out)
+        , buildItemCompute(props.intl.formatMessage( { id:'components.request-list-widget.stats.balance-movement'}) , (money_in-money_out))
+        , buildItemSimple(props.intl.formatMessage( { id:'components.request-list-widget.stats.transactions-count'}) , (count||0))
       ];
     console.log('...about to set stats')
     setStats(items);
@@ -118,5 +111,5 @@ export default connect(
         setPageKeyValue:      bindActionCreators(pageRedux.setPageKeyValue, dispatch),
       
     })
-)(RequestListWidget)
+)(injectIntl(RequestListWidget))
 

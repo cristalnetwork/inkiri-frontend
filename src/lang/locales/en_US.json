@@ -32,7 +32,51 @@
   "menu.item.crew"                  : "Crew",
   "menu.item.settings"              : "Settings",
 
-  "components.AutocompleteAcount.index.placeholder"   : "Type account name",
-  "components.AutocompleteAcount.index.title"         : "Can't find account? Click to reload accounts!", 
+  "components.AutocompleteAcount.index.placeholder"         : "Type account name",
+  "components.AutocompleteAcount.index.title"               : "Can't find account? Click to reload accounts!", 
+  "components.tx-list-widget.refresh"                       : "Click to load new operations!",
+  "components.request-list-widget.stats.money-in"           : "Money in",
+  "components.request-list-widget.stats.money-out"          : "Money out",
+  "components.request-list-widget.stats.balance-movement"   : "Movement",
+  "components.request-list-widget.stats.transactions-count" : "Transactions",
+  "components.notification_helper.no-connection"            : "Please check internet connection and service availability!",
+
+  "pages.bankadmin.dashboard.account_widget.title"          :"Accounts",
+  "pages.bankadmin.dashboard.account_widget.tooltip"        :"Account info is not updated? ... Click to reload account's data!",
+  "pages.bankadmin.dashboard.pending_operations_widget.title" : "Pending operations",
+  "pages.bankadmin.dashboard.money_issuance_widget.title"   : "Money supply",
+  "pages.bankadmin.dashboard.money_issuance_widget.tooltip" : "Currency info is not updated? ... Click to reload data!",
+
+  "components.dashboard.account_widget.personal_accounts"   :"Personal accounts",
+  "components.dashboard.account_widget.business_accounts"   :"Business accounts",
+  "components.dashboard.account_widget.foundation_accounts" :"Fund accounts",
+  "components.dashboard.account_widget.negative_balance_accounts" :"Negative balance",
+  "components.dashboard.account_widget.active_accounts"     :"Active accounts",
+  "components.dashboard.account_widget.active_accounts"     :"Active accounts",
+
+  "components.dashboard.money_widget.money_supply"          : "Total supply",
+  "components.dashboard.money_widget.money_supply_description" : "Total supply - IK$  in circulation",
+  "components.dashboard.money_widget.money_supply_digital"  : "Digital IK$",
+  "components.dashboard.money_widget.money_supply_paper"    : "Paper IK$",
+  "components.dashboard.money_widget.money_supply_fiat_brl" : "Fiat BRL",
+
+  "components.dashboard.money_widget.total_iugu"            : "Total IUGU",
+  "components.dashboard.money_widget.total_iugu_description": "Total IUGU sales",
+  "components.dashboard.money_widget.daily_sales"           : "Daily sales",
+
+  "components.dashboard.money_widget.weekly_changes"        : "Weekly changes",
+  "components.dashboard.money_widget.daily_changes"         : "Daily changes",
+  
+  "components.dashboard.money_widget.transaction_volume"             : "Transactions volume",
+  "components.dashboard.money_widget.transaction_volume_description" : "Total sum of transactions",
+  "components.dashboard.money_widget.daily_transactions"             : "Daily transactions",
+
+  "components.dashboard.pending_widget.exchanges"                       : "Pending Exchanges", 
+  "components.dashboard.pending_widget.total_amount_requested"          : "Total amount requested", 
+  "components.dashboard.pending_widget.providers_payments"              : "Providers Payments", 
+  "components.dashboard.pending_widget.providers_payments_spendings"    : "Spendings", 
+  "components.dashboard.pending_widget.providers_payments_investments"  : "Investments", 
+
+
   "userBox.message"                                   : "¿Desea continuar la sesión con el usuario {account} ({account_id})?"
 }

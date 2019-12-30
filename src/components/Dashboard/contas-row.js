@@ -9,6 +9,7 @@ import styles from './style.less';
 
 import _ from 'lodash';
 
+import { injectIntl } from "react-intl";
 
 import * as globalCfg from '@app/configs/global';
 
@@ -24,7 +25,7 @@ const topColResponsiveProps = {
   style: { marginBottom: 24 },
 };
 
-const ContasRow = ({ loading, rawData }) => {
+const ContasRow = ({ loading, rawData , intl}) => {
 
   const [data, setData] = useState(rawData||{})
   
@@ -32,7 +33,7 @@ const ContasRow = ({ loading, rawData }) => {
       setData(rawData||{});
   });
 
-  const display_ = [globalCfg.bank.ACCOUNT_TYPE_PERSONAL, globalCfg.bank.ACCOUNT_TYPE_BUSINESS];
+  const display_ = [globalCfg.bank.ACCOUNT_TYPE_PERSONAL, globalCfg.bank.ACCOUNT_TYPE_BUSINESS, globalCfg.bank.ACCOUNT_TYPE_FOUNDATION];
   const total    = data?data.length:0;
   const _data     = !data
     ?display_:
@@ -53,23 +54,23 @@ const ContasRow = ({ loading, rawData }) => {
           return result;
         }, {});
 
-
+  const {formatMessage} = intl;
   return (
     <Row gutter={24} type="flex">
       <Col {...topColResponsiveProps}>
         <ChartCard
           loading={loading}
           bordered={false}
-          title={"Pessoales"}
+          title={ formatMessage({id:'components.dashboard.account_widget.personal_accounts'}) }
           total={display_data[globalCfg.bank.ACCOUNT_TYPE_PERSONAL].count}
           footer={
             <div style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
               <Trend flag="up" style={{ marginRight: 16 }}>
-                No negativo
+                { formatMessage({id:'components.dashboard.account_widget.negative_balance_accounts'}) }
                 <span className={'trendText'}>?%</span>
               </Trend>
               <Trend flag="down">
-                Ativas
+                { formatMessage({id:'components.dashboard.account_widget.active_accounts'}) }
                 <span className={'trendText'}>?%</span>
               </Trend>
             </div>
@@ -79,20 +80,21 @@ const ContasRow = ({ loading, rawData }) => {
           <MiniProgress percent={display_data[globalCfg.bank.ACCOUNT_TYPE_PERSONAL].percent} strokeWidth={8} target={100} color="#13C2C2" />
         </ChartCard>
       </Col>
+      
       <Col {...topColResponsiveProps}>
         <ChartCard
           loading={loading}
           bordered={false}
-          title={"Empresas"}
+          title={ formatMessage({id:'components.dashboard.account_widget.business_accounts'}) }
           total={display_data[globalCfg.bank.ACCOUNT_TYPE_BUSINESS].count}
           footer={
             <div style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
               <Trend flag="up" style={{ marginRight: 16 }}>
-                No negativo
+                { formatMessage({id:'components.dashboard.account_widget.negative_balance_accounts'}) }
                 <span className={'trendText'}>?%</span>
               </Trend>
               <Trend flag="down">
-                Ativas
+                { formatMessage({id:'components.dashboard.account_widget.active_accounts'}) }
                 <span className={'trendText'}>?%</span>
               </Trend>
             </div>
@@ -102,8 +104,32 @@ const ContasRow = ({ loading, rawData }) => {
           <MiniProgress percent={display_data[globalCfg.bank.ACCOUNT_TYPE_BUSINESS].percent} strokeWidth={8} target={100} color="#13C2C2" />
         </ChartCard>
       </Col>
+
+      <Col {...topColResponsiveProps}>
+        <ChartCard
+          loading={loading}
+          bordered={false}
+          title={ formatMessage({id:'components.dashboard.account_widget.foundation_accounts'}) }
+          total={display_data[globalCfg.bank.ACCOUNT_TYPE_FOUNDATION].count}
+          footer={
+            <div style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
+              <Trend flag="up" style={{ marginRight: 16 }}>
+                { formatMessage({id:'components.dashboard.account_widget.negative_balance_accounts'}) }
+                <span className={'trendText'}>?%</span>
+              </Trend>
+              <Trend flag="down">
+                { formatMessage({id:'components.dashboard.account_widget.active_accounts'}) }
+                <span className={'trendText'}>?%</span>
+              </Trend>
+            </div>
+          }
+          contentHeight={46}
+        >
+          <MiniProgress percent={display_data[globalCfg.bank.ACCOUNT_TYPE_FOUNDATION].percent} strokeWidth={8} target={100} color="#13C2C2" />
+        </ChartCard>
+      </Col>
     </Row>
   );
 };
 
-export default ContasRow;
+export default injectIntl(ContasRow);

@@ -11,7 +11,8 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faMinusCircle, faComment, faFileSignature, faUserMinus, faUserPlus, faCalendarAlt, faCalculator, faShapes, faMoneyCheckAlt, faTrafficLight, faPiggyBank, faKeyboard, faKey, faExclamationCircle, faShieldAlt, faUserShield, faExternalLinkAlt, faQuestionCircle, faMagic, faCreditCard, faPaperPlane, faShoppingBag, faStore, faExchangeAlt, faArrowUp, faArrowDown, faArrowAltCircleUp, faUniversity, faPhone, faMapMarkerAlt, faIdCard, faUser, faUserCircle, faDollarSign, faEnvelope, faFlagCheckered, faUserClock, faCloud, faFilePdf, faTruckMoving, faFileInvoice, faFileInvoiceDollar, faReceipt, faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { fab } from '@fortawesome/free-brands-svg-icons';
 
-import { LocaleProvider } from "antd";
+// import { LocaleProvider } from "antd";
+import { ConfigProvider } from "antd";
 import { IntlProvider } from "react-intl";
 import AppLocale from "./lang";
 const currentAppLocale = AppLocale['en'];
@@ -20,7 +21,7 @@ const currentAppLocale = AppLocale['en'];
 const App = () =>{
     library.add(fab, faComment, faMinusCircle, faFileSignature,faUserMinus, faUserPlus, faCalculator, faCalendarAlt, faShapes, faTrafficLight, faMoneyCheckAlt, faPiggyBank, faKey, faKeyboard, faExclamationCircle, faShieldAlt, faUserShield, faExternalLinkAlt, faQuestionCircle, faMagic, faCreditCard, faPaperPlane, faShoppingBag, faStore, faExchangeAlt, faArrowUp, faArrowDown, faArrowAltCircleUp, faUniversity, faMapMarkerAlt, faPhone, faIdCard, faUser, faUserCircle, faDollarSign, faEnvelope, faFlagCheckered, faUserClock, faCloud, faTruckMoving, faFileInvoiceDollar, faFileInvoice, faReceipt, faFilePdf, faChevronRight)
    return (
-      <LocaleProvider locale={currentAppLocale.antd}>
+      <ConfigProvider locale={currentAppLocale.antd}>
         <IntlProvider
           locale={currentAppLocale.locale}
           messages={currentAppLocale.messages}>
@@ -30,7 +31,7 @@ const App = () =>{
               </Provider>
             </div>
         </IntlProvider>
-      </LocaleProvider>
+      </ConfigProvider>
     );
 }
 
