@@ -13,7 +13,7 @@ import MenuAccountView from '@app/components/Views/account_menu'
 import * as routes_config from '@app/configs/routes'
 
 import { getRootKeys } from '@app/services/routes'
-
+import IntlMessages from "@app/components/intl-messages";
 const  { SubMenu } = Menu;
 
 export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [], allAccounts, getMenu, trySwitchAccount2, actualAccountName, actualRole , actualRoleId,  actualPermission, 
@@ -52,7 +52,7 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
 
           if(item.items) {
               return (
-              <SubMenu title={<span>{ item.icon? <Icon type={item.icon} />: false }<span>{item.title}</span></span>} key={item.key}>
+              <SubMenu title={<span>{ item.icon? <Icon type={item.icon} />: false }<span><IntlMessages id={item.title} defaultMessage={item.title} /></span></span>} key={item.key}>
                   { item.items.map(renderItem) }
               </SubMenu>
               );
@@ -61,7 +61,7 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
               <Menu.Item key={item.key} disabled={item.path!=item.key} className={ item.icon?'is_root_menu':''}>
                   <Link to={routes_config.getPath(item.path || item.key)}>
                       { item.icon? <Icon type={item.icon} />: false }
-                      <span>{item.title}</span>
+                      <span><IntlMessages id={item.title} defaultMessage={item.title} /></span>
                   </Link>
               </Menu.Item>
               );

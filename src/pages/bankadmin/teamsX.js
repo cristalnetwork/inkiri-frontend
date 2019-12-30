@@ -32,7 +32,7 @@ const STATE_NEW_MEMBER   = 'state_new_member';
 const STATE_EDIT_MEMBER  = 'state_edit_member';
 
 
-class Crew extends Component {
+class Teams extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -205,5 +205,5 @@ export default  (withRouter(connect(
     (dispatch)=>({
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(Crew))
+)(Teams))
 );

@@ -50,7 +50,7 @@ function* loadBlockchainOperationsSaga() {
   if(!current_account)
   {
     console.log('#ERROR# loadBlockchainOperationsSaga -> no tengo login!')
-    yield put({ type: TRY_FILTER_OPERATIONS })
+    yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
     return;
   }
   try
@@ -127,10 +127,10 @@ function* loadNewBlockchainOperationsSaga() {
 function* trySetFiltersSaga({ type, payload }){
   const {key, value} = payload;
   yield put(setFilterKeyValue(key, value));
-  if(utils.objectNullOrEmpty(value))
-  {
-    yield put({ type: LOAD_BLOCKCHAIN_OPERATIONS })    
-  }
+  // if(utils.objectNullOrEmpty(value))
+  // {
+  //   yield put({ type: LOAD_BLOCKCHAIN_OPERATIONS })    
+  // }
   yield put({ type: TRY_FILTER_OPERATIONS })
 
 }

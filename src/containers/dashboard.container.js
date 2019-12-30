@@ -13,8 +13,7 @@ import * as api_redux from '@app/redux/models/api';
 import * as balance_redux from '@app/redux/models/balance';
 import * as core_redux from '@app/redux/models/core';
 import * as graphql_redux from '@app/redux/models/graphql';
-// import * as login_redux from '@app/redux/models/login';
-// import * as menu_redux from '@app/redux/models/menu';
+
 import * as operations_redux from '@app/redux/models/operations';
 import * as page_redux from '@app/redux/models/page';
 
@@ -26,6 +25,8 @@ import useMedia from 'react-media-hook2';
 import MenuBalanceView from '@app/components/Views/balance_menu'
 import MenuAccountView from '@app/components/Views/account_menu'
 import * as components_helper from '@app/components/helper';
+
+import IntlMessages from "@app/components/intl-messages";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -79,7 +80,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
                 <div className="img_container">
                   <img src="/favicons/favicon-32x32.png" />
                 </div>
-                {!menu_is_collapsed && (<span className="omnes_isologo">INKIRI BANK</span>)}
+                {!menu_is_collapsed && (<span className="omnes_isologo"><IntlMessages id="inkiri.bank.uppercase" /></span>)}
               </a>
               
             </div>
@@ -103,7 +104,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
             { Children? <Children/>: false }
             <BackTop />
           </Content>
-          <Footer style={{ textAlign: 'center' }}>{ footerText || "INKIRI © 2019"}</Footer>
+          <Footer style={{ textAlign: 'center' }}>{ footerText || `INKIRI © ${(new Date()).getFullYear()}`}</Footer>
         </Layout>
       </Layout>
     );
@@ -122,6 +123,6 @@ const DashboardContainer =
       collapseMenu:         bindActionCreators(menuRedux.collapseMenu, dispatch),
       setIsMobile:          bindActionCreators(menuRedux.setIsMobile, dispatch),
     })
-)(_DashboardContainer)
+) (_DashboardContainer)
 
 export default DashboardContainer;

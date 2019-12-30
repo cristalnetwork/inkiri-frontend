@@ -15,8 +15,12 @@ import * as form_helper from '@app/components/Form/form_helper';
 import { withRouter } from "react-router-dom";
 
 import { Spin, Select, notification, Empty, Button, Form, message, AutoComplete, Input, Icon } from 'antd';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import { injectIntl } from "react-intl";
+// import IntlMessages from "@app/components/intl-messages";
+// props.intl.formatMessage
+
 
 class AutocompleteAccount extends Component {
   constructor(props) {
@@ -186,7 +190,8 @@ class AutocompleteAccount extends Component {
   };
 
   render = () => {
-    const { form }                          = this.state;
+    const { formatMessage }  = this.props.intl;
+    const { form }           = this.state;
     if(!form)
       return (null);
     //
@@ -224,7 +229,7 @@ class AutocompleteAccount extends Component {
                             dataSource={data.map(this.renderAccount)} 
                             style={{ width: '100%' }} 
                             onSelect={this.handleSelect} 
-                            placeholder="Type account name"
+                            placeholder={ formatMessage({id:"components.AutocompleteAcount.index.placeholder"}) }
                             filterOption={(inputValue, option) =>
                               {
                                 // console.log('>>filterOption >> ',inputValue, option);
@@ -232,7 +237,7 @@ class AutocompleteAccount extends Component {
                               }
                             } 
                             optionLabelProp="value" >
-                               <Input suffix={<Button loading={isLoading} type="link" icon="redo" className="redoButton"  title="Can't find account? Click to reload accounts!!!"  onClick={this.loadAccounts}></Button>} />
+                               <Input suffix={<Button loading={isLoading} type="link" icon="redo" className="redoButton"  title={ formatMessage({id:"components.AutocompleteAcount.index.title"})}  onClick={this.loadAccounts}></Button>} />
                             </AutoComplete>
                         )}
                       </Form.Item>);
@@ -265,6 +270,6 @@ export default (connect(
     (dispatch)=>({
         loadAccounts:       bindActionCreators(accountsRedux.loadAccounts, dispatch)        
     })
-)(AutocompleteAccount) )
+) (injectIntl(AutocompleteAccount)) )
 ;
 
