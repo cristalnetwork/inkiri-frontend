@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import { Card, Row, Col, Statistic, Icon, Switch } from 'antd';
 import { connect } from 'react-redux'
 import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
 
 import './stats.css';
 

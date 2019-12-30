@@ -1,11 +1,9 @@
 import React from 'react'
 import { Popconfirm, Alert, Button, Tag, Icon } from 'antd';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as form_helper from '@app/components/Form/form_helper';
 import moment from 'moment';
 
-import * as utils from '@app/utils/utils';
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 
@@ -138,7 +136,6 @@ export const expandedRequestRowRender = (record) => {
   switch (record.requested_type){
     case globalCfg.api.TYPE_PROVIDER:
       const blockchain  = record.tx_id?request_helper.getBlockchainLink(record.tx_id, true):(null);
-      
       return (
             <>
               <span key={'tags'+record.id}>Provider:&nbsp;<b>{ request_helper.getRequestProviderDesc(record)}</b></span>
@@ -147,30 +144,26 @@ export const expandedRequestRowRender = (record) => {
               <br/>{default_info}
             </>
             );
-    break;
     //
     case globalCfg.api.TYPE_EXCHANGE:
       const bank_account = record.bank_account || {};
       const blockchain_xch  = record.tx_id?request_helper.getBlockchainLink(record.tx_id, true):(null);
-        return (
+      return (
             <><span key={'tags'+record.id}>Bank Account&nbsp;<Icon type="bank" />: <b>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</b></span>
             <br/>{blockchain_xch}
             <br/>{default_info}
             </>
             );
       
-    break;
     //
     case globalCfg.api.TYPE_WITHDRAW:
       const blockchain_wth  = record.tx_id?request_helper.getBlockchainLink(record.tx_id, true):(null);
-        return (
+      return (
             <>{blockchain_wth}
               <br/>{default_info}
             </>
             );
       
-    break;
-
     //
     case globalCfg.api.TYPE_DEPOSIT:
       const envelope_id     = api.bank.envelopeIdFromRequest(record);
@@ -179,12 +172,10 @@ export const expandedRequestRowRender = (record) => {
           <br/><span key={'deposit_currency_'+record.id}>CURRENCY: <b>{record.deposit_currency}</b></span>
           <br/>{default_info}
         </>;
-    break;
-    
     //
     default:
       return default_info;
-    break;
+    
   } 
   
 }

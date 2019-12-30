@@ -26,8 +26,8 @@ const MoneyRow = ({ loading, rawData, visitData, intl }) => {
   const [data, setData] = useState(rawData||{})
   
   useEffect(() => {
-      setData(rawData||{});
-    });
+      setData(rawData);
+    }, [rawData]);
   
   const {formatMessage} = intl;
 

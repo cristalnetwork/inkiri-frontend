@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Skeleton, List, Card, Empty, Button, Icon, message } from 'antd';
+import { Modal, Skeleton, List, Card, Button, Icon } from 'antd';
 import { connect } from 'react-redux'
 import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 // import Skeleton from '@app/components/Views/skeleton';
 export const ENUM_EVENT_NEW_PERMISSION      = 'event_new_permission';
@@ -15,26 +13,36 @@ export const ENUM_AUTHORITY_CHANGE          = 'event_authority_change';
 
 const AccountRolesView = (props) => {
     
-    const [loading, setLoading]        = useState(false);
-    const [account, setAccount]        = useState(null);
-    const [eos_account, setEosAccount] = useState(null);
-    const [onEvent, setOnEvent]        = useState(null);
+    const [loading, setLoading]        = useState(props.loading);
+    const [account, setAccount]        = useState(props.account);
+    const [eos_account, setEosAccount] = useState(props.eos_account);
     const [authority, setAuthority]    = useState();
     const [is_admin, setIsAdmin]       = useState(props.isAdmin);
     
 
     useEffect(() => {
         setAccount(props.account);
+    }, [props.account]);
+
+    useEffect(() => {
         setEosAccount(props.eos_account);
-        setOnEvent(props.onEvent||null);
-        setLoading(props.loading||false);
+    }, [props.eos_account]);
+
+    useEffect(() => {
+        setLoading(props.loading);
+    }, [props.loading]);
+
+    useEffect(() => {
         setAuthority(props.authority||'owner');
+    }, [props.authority]);
+
+    useEffect(() => {
         setIsAdmin(props.isAdmin);
-    });
+    }, [props.isAdmin]);
 
     const fireEvent = (eventType, object) => {
-      if(typeof onEvent === 'function') {
-          onEvent(eventType, object)
+      if(typeof props.onEvent === 'function') {
+          props.onEvent(eventType, object)
       }
     }
     const tabChange = (authority) => {

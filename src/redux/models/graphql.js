@@ -1,6 +1,5 @@
 import { takeEvery, put, call } from '@redux-saga/core/effects';
 import { store } from '../configureStore'
-import * as api from '@app/services/inkiriApi'
 import * as gqlService from '@app/services/inkiriApi/graphql'
 import * as core from './core';
 import * as globalCfg from '@app/configs/global';

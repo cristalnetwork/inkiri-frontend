@@ -3,11 +3,9 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
-import * as loginRedux from '@app/redux/models/login'
-import * as globalCfg from '@app/configs/global';
 import { withRouter } from "react-router-dom";
 
-import { Badge, Dropdown, Button, Avatar, Icon, Menu, Spin } from 'antd';
+import { Icon, Menu } from 'antd';
 
 import * as menuRedux from '@app/redux/models/menu'
 
@@ -64,7 +62,6 @@ class ReferrerWidget extends React.Component {
         </Menu.Item>
       </Menu>
     );
-    const currentUser ={};
     return (
       <HeaderDropdown overlay={menuHeaderDropdown} style={{marginRigth:16}} className="temp_alert_action">
           <span className={`action account`}>

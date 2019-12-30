@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import { Alert, Form, Icon, Input, Button, Checkbox, Drawer } from 'antd';
-import UserSelector from '@app/components/InkiriHeader/userSelector'
+import { Alert, Form, Icon, Input, Button, Checkbox } from 'antd';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login';
@@ -104,7 +103,7 @@ class Login extends Component {
               valuePropName: 'checked',
               initialValue: true,
             })(<Checkbox>Remember me</Checkbox>)}
-            <a className="login-form-forgot" href="#" disabled>
+            <a className="login-form-forgot" href="#" disabled >
               Forgot password
             </a>
             <Button type="primary" htmlType="submit" className="login-form-button" loading={this.props.isLoading}>

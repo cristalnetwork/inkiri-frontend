@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Select, Button, Input, DatePicker } from 'antd';
-import moment from 'moment';
+import { Form, Select, Button } from 'antd';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -15,19 +14,15 @@ import * as form_helper from '@app/components/Form/form_helper';
 
 import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
-
-// import lodash from 'lodash';
-// import deepdash from 'deepdash';
-// const _ = deepdash(lodash);
+import { injectIntl } from "react-intl";
 
 import _ from 'lodash';
 
-const { MonthPicker, RangePicker } = DatePicker;
 const { Option } = Select;
 var __formValuesChanged = null;
 const RequestsFilter = (props) => {
     
-    const [is_admin, setIsAdmin]       = useState(props.isAdmin);
+    // const [is_admin, setIsAdmin]       = useState(props.isAdmin);
     const [callback, setCallback]      = useState(props.callback);
     const [buttonType, setButtonType]  = useState('default');
     const [key, setKey]                = useState(props.the_key);
@@ -46,27 +41,11 @@ const RequestsFilter = (props) => {
 
     const [filter, setFilter]          = useState(props.filter||default_filter);
 
+    const {formatMessage} = props.intl;
+
     useEffect(() => {
       setCallback(props.callback);
     }, [props.callback]);
-
-    // useEffect(() => {
-    //   if(callback!=props.callback)
-    //     setCallback(props.callback);
-    //   if(is_loading!=props.isOperationsLoading)
-    //     setIsLoading(props.isOperationsLoading);
-    //   if(key!=props.the_key)
-    //     setKey(props.the_key);
-    //   if(filter!=props.filterKeyValues[key] && filter!=default_filter)
-    //   {
-    //     // console.log(' filter form useEffect::')
-    //     // console.log(props.filterKeyValues)
-    //     // console.log(default_filter)
-    //     // setFilter(props.filterKeyValues[key]||default_filter)
-    //   }
-    //   // if(show_search!=props.show_search)
-    //   //   setShowSearch(props.show_search);
-    // });
 
     const resetFilter = (e) => {
       e.preventDefault();
@@ -93,7 +72,7 @@ const RequestsFilter = (props) => {
       props.form.validateFields((err, values) => {
         
         if (err) {
-          fireEvent(err, null, null)
+          fireEvent(err, null, null);
           console.log(' ERRORS!! >> ', err)
           return;
         }
@@ -150,7 +129,8 @@ const RequestsFilter = (props) => {
     const validateAccountNames = (rule, value, callback) => {
       const { form } = props;
       if(!props.isAdmin && form.getFieldValue('to') && form.getFieldValue('from')){
-        callback('Cant search by both sender/from and receiver/to account!');
+        const message = formatMessage({id:'components.filters.requests.error_sender_receiver'})
+        callback(message);
         return;
       }
       callback();
@@ -167,6 +147,15 @@ const RequestsFilter = (props) => {
     if(!filter)
       return (null);
     
+    const fromText        = formatMessage({id:'components.filters.requests.from'})
+    const toText          = formatMessage({id:'components.filters.requests.to'})
+    const searchText      = formatMessage({id:'components.filters.requests.search'})
+    const operationText   = formatMessage({id:'components.filters.requests.operation'})
+    const accountTypeText = formatMessage({id:'components.filters.requests.account_type'})
+    const stateText       = formatMessage({id:'components.filters.requests.state'})
+    const dateRangeText   = formatMessage({id:'components.filters.requests.date_range'})    
+    const externalText    = formatMessage({id:'components.filters.requests.external'})    
+
     return( 
       <Form 
         layout="inline" 
@@ -178,7 +167,7 @@ const RequestsFilter = (props) => {
         <AutocompleteAccount
                 validation_rule={validateAccountNames} 
                 autoFocus 
-                label={'From'}
+                label={fromText}
                 not_required={true}
                 form={_form} 
                 name="from" 
@@ -186,7 +175,7 @@ const RequestsFilter = (props) => {
                 size="default"/>
         <AutocompleteAccount
                 validation_rule={validateAccountNames} 
-                label={'To'}
+                label={toText}
                 not_required={true}
                 form={_form} 
                 name="to" 
@@ -196,8 +185,8 @@ const RequestsFilter = (props) => {
         { show_search && form_helper.getSearchItem(_form
             , filter
             , 'search_text'
-            , 'Search'
-            , 'Search'
+            , searchText
+            , searchText
             , undefined
             , undefined)
         }
@@ -206,8 +195,8 @@ const RequestsFilter = (props) => {
             , filter
             , 'requested_type'
             , renderSelectTxTypeOptions()
-            , 'Operation'
-            , 'Operation'
+            , operationText
+            , operationText
             , 'multiple'
             , dropdownRender
             , undefined
@@ -217,8 +206,8 @@ const RequestsFilter = (props) => {
             , filter
             , 'in_out'
             , renderSelectInOutOptions()
-            , 'IN / OUT'
-            , 'IN / OUT'
+            , externalText
+            , externalText
             , 'multiple'
             , dropdownRender
             , undefined
@@ -228,8 +217,8 @@ const RequestsFilter = (props) => {
             , filter
             , 'account_type'
             , renderSelectAccountTypeOptions()
-            , 'Account type'
-            , 'Account type'
+            , accountTypeText
+            , accountTypeText
             , 'multiple'
             , dropdownRender
             , undefined
@@ -239,8 +228,8 @@ const RequestsFilter = (props) => {
             , filter
             , 'state'
             , renderRequestStates()
-            , 'State'
-            , 'State'
+            , stateText
+            , stateText
             , 'default'
             , dropdownRender
             , undefined
@@ -249,7 +238,7 @@ const RequestsFilter = (props) => {
         { form_helper.getDateRangeItem (_form
             , filter
             , 'date_range'
-            , 'Date Range'
+            , dateRangeText
             , undefined
             , undefined
             , true) }
@@ -257,10 +246,10 @@ const RequestsFilter = (props) => {
         
         <Form.Item style={{alignSelf:'flex-end', alignItems:'flex-end', flex:1}}>
           <Button htmlType="submit" disabled={is_loading} type={buttonType}>
-            Filter
+            { formatMessage({id:'components.filters.requests.filter'}) }
           </Button>
           <Button type="link" disabled={is_loading} onClick={(event) => resetFilter(event)}>
-            Reset
+            { formatMessage({id:'components.filters.requests.reset'}) }
           </Button>
         </Form.Item>
       </Form>
@@ -286,9 +275,6 @@ export default Form.create({
 
     }),
     (dispatch)=>({
-      trySetFilterKeyValue:  bindActionCreators(operationsRedux.trySetFilterKeyValue, dispatch),
-      // setFilterKeyValue:     bindActionCreators(operationsRedux.setFilterKeyValue, dispatch),
-      deleteFilterKeyValue:  bindActionCreators(operationsRedux.deleteFilterKeyValue, dispatch),
-    
+      
     })
-)(RequestsFilter) );
+)( injectIntl(RequestsFilter) ) );

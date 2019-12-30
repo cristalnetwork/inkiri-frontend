@@ -1,59 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { notification, Input, Form, AutoComplete, Button, Icon, message } from 'antd';
+import { notification, Input, Form, Button } from 'antd';
 import { withRouter } from "react-router-dom";
 import { connect } from 'react-redux'
 import * as accountsRedux from '@app/redux/models/accounts'
 import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import AutocompleteAccount from '@app/components/AutocompleteAccount';
+import * as components_helper from '@app/components/helper';
 
 const PaymentForm = (props) => {
     
-    const [business, setBusiness]             = useState(props.business)
-    const [amount, setAmount]                 = useState(props.amount)
     const [payer, setPayer]                   = useState(props.payer)
-    const [callback, setCallback]             = useState(props.callback)
     const [password, setPassword]             = useState(props.password||'')
     const [showUserSearch, setShowUserSearch] = useState(props.showUserSearch||false)
 
     useEffect(() => {
-      setBusiness(props.business);
-      setAmount(props.amount);
-      setPayer(props.payer);
-      setCallback(props.callback);
       setShowUserSearch(props.showUserSearch||false);
-    });
+    }, [props.showUserSearch]);
 
     const onCancel = (e) => {
-      // console.log('why#1?')
-       // e.preventDefault();
       fireEvent(null, true, null);
-
     }
 
     const fireEvent = (error, cancel, data) => {
-      // console.log('why#88?', typeof  callback)
-      if(typeof  callback === 'function') {
-        callback(error, cancel, data);
+      if(typeof  props.callback === 'function') {
+        props.callback(error, cancel, data);
       }
-        
     };
-
-    const openNotificationWithIcon = (type, title, message) => {
-      notification[type]({
-        message: title,
-        description:message,
-      });
-    }
 
     const handleSubmit = (e) => {
       e.preventDefault();
-      // openNotificationWithIcon("info", "onpay event")    
       props.form.validateFields((err, values) => {
         if (err) {
-          openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+          components_helper.notif.errorNotification("Validation errors","Please verifiy errors on screen!")    
           console.log(' ERRORS!! >> ', err)
           return;
         }
@@ -61,7 +40,7 @@ const PaymentForm = (props) => {
         console.log(values)
         if(showUserSearch && props.accounts.filter(acc=>acc.key==values.payer).length==0)
         {
-          openNotificationWithIcon("error", "Please select a valid payer account")    
+          components_helper.notif.errorNotification("Validation errors", "Please select a valid payer account")    
           return;
         }
          

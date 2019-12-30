@@ -14,7 +14,6 @@ import * as loginRedux from '@app/redux/models/login'
 import './right_content.less';
 
 import ReferrerWidget  from '@app/components/InkiriHeader/referrer_widget';
-import AccountSelector from '@app/components/InkiriHeader/accountSelector';
 import * as components_helper from '@app/components/helper';
 
 import * as globalCfg from '@app/configs/global';
@@ -113,33 +112,6 @@ class InkiriHeader extends Component {
     let header_content ;
     const {referrer, isMobile, menuIsCollapsed} = this.state;
     const logo_class = menuIsCollapsed? 'ant-pro-global-header-logo':'hidden';
-    
-    // if(isMobile)
-    // {
-    //   header_content = (
-    //     <>
-    //       <a className={logo_class} key="logo" href="/">
-    //         <img src="/favicons/favicon-32x32.png" alt="logo"/>
-    //       </a>
-    //       <div className="right">
-    //         <span className="hidden">Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
-    //         <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
-    //       </div>
-    //     </>
-    //     );
-    // }
-    // else{
-    //   //
-    //   header_content=(
-    //     <div className="right">
-    //       <div className="header_element_container">
-    //         <AccountSelector onChange={this.handleChange} isMobile={isMobile}/>
-    //          &nbsp; <span className="hidden"> Balance {globalCfg.currency.symbol}<UserBalance userId={this.props.actualAccountName} /> </span>
-    //        <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">Logout</Button>
-    //       </div>
-    //     </div>
-    //   );
-    // }
     
     if(isMobile)
     {

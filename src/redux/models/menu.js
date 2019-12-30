@@ -1,6 +1,6 @@
 // import * as api from '../../services/userApi'
 import { getRoutesByRole } from '@app/services/routes'
-import { takeEvery, call, put } from '@redux-saga/core/effects';
+import { takeEvery, put } from '@redux-saga/core/effects';
 import { store } from '@app/redux/configureStore'
 
 // ConstantesT
@@ -45,7 +45,7 @@ function* getMenuSaga({ type, payload }) {
       // yield put(setMenu({ role: data.role, menu: getRoutesByRole( data.role )}))
     // }
     
-    const {account_name, account_type } = payload;
+    const {account_type } = payload;
     // console.log(' --------------- getMENUSAGA > payload', payload)
     // console.log(' --------------- getMENUSAGA > account_name', account_name)
     // console.log(' --------------- getMENUSAGA > account_type', account_type)

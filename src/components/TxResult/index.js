@@ -1,7 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import * as balanceRedux from '@app/redux/models/balance'
-import { bindActionCreators } from 'redux';
 import { Result, Button, Typography, Icon } from 'antd';
 import * as globalCfg from '@app/configs/global';
 
@@ -68,10 +66,7 @@ const TxResult = ({result_type, title, message, tx_id, error, cb}) => {
 
 export default connect(
     (state)=> ({
-        // balance:   balanceRedux.userBalanceFormatted(state),
-        // loading:   balanceRedux.isLoading(state),
     }),
     (dispatch) => ({
-        // loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
 )(TxResult)

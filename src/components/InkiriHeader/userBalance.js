@@ -16,9 +16,6 @@ class UserBalance extends Component  {
       }
 
     componentDidMount() {
-        // const {userId, loadBalance} = this.props;
-        // // console.log(' >> userBalance::componentDidMount userId: ', userId)
-        // loadBalance(userId);
         this.reloadBalance();
     }
 
@@ -37,20 +34,14 @@ class UserBalance extends Component  {
       const {userId, loadBalance} = this.props;
       loadBalance(userId);
     }
-    // componentWillReceiveProps(newProps) {
-    //     const {userId, loadBalance} = this.props;
-    //     if(newProps.userId !== userId) {
-    //         loadBalance(newProps.userId)
-    //     }
-    // }
     
     render() {
-        const {userId, loading}         = this.props;
+        const {loading}         = this.props;
         const {balance, showCurrency}   = this.state;
         const currency                  = showCurrency
             ?(<span className="menu_balance_currency">{globalCfg.currency.symbol}&nbsp;</span>)
             :(null);
-        // console.log(' >> userBalance::render userID: ', userId, ' | balance: ', balance)
+        //
         return (
         <>
             {

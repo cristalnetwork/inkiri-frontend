@@ -65,14 +65,18 @@ const ContasRow = ({ loading, rawData , intl}) => {
           total={display_data[globalCfg.bank.ACCOUNT_TYPE_PERSONAL].count}
           footer={
             <div style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
-              <Trend flag="up" style={{ marginRight: 16 }}>
-                { formatMessage({id:'components.dashboard.account_widget.negative_balance_accounts'}) }
-                <span className={'trendText'}>?%</span>
-              </Trend>
-              <Trend flag="down">
-                { formatMessage({id:'components.dashboard.account_widget.active_accounts'}) }
-                <span className={'trendText'}>?%</span>
-              </Trend>
+              <Tooltip title={ formatMessage({id:'components.dashboard.account_widget.negative_balance_accounts'}) }>
+                <Trend flag="up" style={{ marginRight: 16 }}>
+                  { formatMessage({id:'components.dashboard.account_widget.negative_balance_accounts_mini'}) }
+                  <span className={'trendText'}>?%</span>
+                </Trend>
+              </Tooltip>
+              <Tooltip title={ formatMessage({id:'components.dashboard.account_widget.active_accounts'}) }>
+                <Trend flag="down">
+                  { formatMessage({id:'components.dashboard.account_widget.active_accounts_mini'}) }
+                  <span className={'trendText'}>?%</span>
+                </Trend>
+              </Tooltip>
             </div>
           }
           contentHeight={46}
@@ -89,14 +93,18 @@ const ContasRow = ({ loading, rawData , intl}) => {
           total={display_data[globalCfg.bank.ACCOUNT_TYPE_BUSINESS].count}
           footer={
             <div style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
-              <Trend flag="up" style={{ marginRight: 16 }}>
-                { formatMessage({id:'components.dashboard.account_widget.negative_balance_accounts'}) }
-                <span className={'trendText'}>?%</span>
-              </Trend>
-              <Trend flag="down">
-                { formatMessage({id:'components.dashboard.account_widget.active_accounts'}) }
-                <span className={'trendText'}>?%</span>
-              </Trend>
+              <Tooltip title={ formatMessage({id:'components.dashboard.account_widget.negative_balance_accounts'}) }>
+                <Trend flag="up" style={{ marginRight: 16 }}>
+                  { formatMessage({id:'components.dashboard.account_widget.negative_balance_accounts_mini'}) }
+                  <span className={'trendText'}>?%</span>
+                </Trend>
+              </Tooltip>
+              <Tooltip title={ formatMessage({id:'components.dashboard.account_widget.active_accounts'}) }>
+                <Trend flag="down">
+                  { formatMessage({id:'components.dashboard.account_widget.active_accounts_mini'}) }
+                  <span className={'trendText'}>?%</span>
+                </Trend>
+              </Tooltip>
             </div>
           }
           contentHeight={46}
@@ -113,14 +121,18 @@ const ContasRow = ({ loading, rawData , intl}) => {
           total={display_data[globalCfg.bank.ACCOUNT_TYPE_FOUNDATION].count}
           footer={
             <div style={{ whiteSpace: 'nowrap', overflow: 'hidden' }}>
-              <Trend flag="up" style={{ marginRight: 16 }}>
-                { formatMessage({id:'components.dashboard.account_widget.negative_balance_accounts'}) }
-                <span className={'trendText'}>?%</span>
-              </Trend>
-              <Trend flag="down">
-                { formatMessage({id:'components.dashboard.account_widget.active_accounts'}) }
-                <span className={'trendText'}>?%</span>
-              </Trend>
+              <Tooltip title={ formatMessage({id:'components.dashboard.account_widget.negative_balance_accounts'}) }>
+                <Trend flag="up" style={{ marginRight: 16 }}>
+                  { formatMessage({id:'components.dashboard.account_widget.negative_balance_accounts_mini'}) }
+                  <span className={'trendText'}>?%</span>
+                </Trend>
+              </Tooltip>
+              <Tooltip title={ formatMessage({id:'components.dashboard.account_widget.active_accounts'}) }>
+                <Trend flag="down">
+                  { formatMessage({id:'components.dashboard.account_widget.active_accounts_mini'}) }
+                  <span className={'trendText'}>?%</span>
+                </Trend>
+              </Tooltip>
             </div>
           }
           contentHeight={46}

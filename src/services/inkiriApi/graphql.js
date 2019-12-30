@@ -1,7 +1,8 @@
 import gql from 'graphql-tag';
 import * as globalCfg from '@app/configs/global';
-import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-boost'
-import { ApolloProvider, useQuery } from '@apollo/react-hooks';
+// import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-boost'
+import { ApolloClient, InMemoryCache } from 'apollo-boost'
+// import { ApolloProvider, useQuery } from '@apollo/react-hooks';
 import { createHttpLink } from 'apollo-link-http';
 import { setContext } from 'apollo-link-context';
 import * as jwtHelper from './jwt-helper';

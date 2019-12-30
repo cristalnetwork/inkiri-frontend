@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import * as globalCfg from '@app/configs/global';
-import { store } from '@app/redux/configureStore';
 
 export const BANK_AUTH_TOKEN_KEY     = 'bank_auth_token_key';
 export const DFUSE_AUTH_TOKEN_KEY    = 'dfuse_auth_token_key';
@@ -20,18 +19,18 @@ export const buildResponse = (_token) => {
   return {token:_token, bearer_token: getBearerToken(_token)};
 }
 
-const isTokenExpired = (token) => {
-  const _jwt_decode = jwt.decode(token);
-  if (token && _jwt_decode) {
-    const expires_at = _jwt_decode.expires_at;
-    const now = new Date();
-    do_log && console.log (' ********************************************')
-    do_log && console.log (JSON.stringify(expires_at));
-    const expired = (expires_at < Math.floor((new Date()).getTime() / 1000));
-    return expired;
-  }
-  return true;
-}
+// const isTokenExpired = (token) => {
+//   const _jwt_decode = jwt.decode(token);
+//   if (token && _jwt_decode) {
+//     const expires_at = _jwt_decode.expires_at;
+//     const now = new Date();
+//     do_log && console.log (' ********************************************')
+//     do_log && console.log (JSON.stringify(expires_at));
+//     const expired = (expires_at < Math.floor((new Date()).getTime() / 1000));
+//     return expired;
+//   }
+//   return true;
+// }
 
 export const getBearerTokenByKey = (key) => {
   if(!key)
@@ -58,7 +57,7 @@ export const getTokenIfNotExpired = (key) => {
   if(!_token) return null;
   let json_token = JSON.parse(_token);
   do_log && console.log( 'jwtHelper::getTokenIfNotExpired >> ', json_token)
-  // return (isTokenExpired(json_token.token))?null:json_token.token;
+
   return isTimestampExpired(json_token.expires_at)?null:json_token.token;
 }
 

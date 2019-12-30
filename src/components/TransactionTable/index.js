@@ -6,7 +6,6 @@ import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
-import * as api from '@app/services/inkiriApi';
 import * as gqlService from '@app/services/inkiriApi/graphql'
 
 import { Button} from 'antd';
@@ -28,7 +27,6 @@ export const  DISPLAY_SERVICE    = globalCfg.api.TYPE_SERVICE;
 export const  DISPLAY_PDA        = globalCfg.api.TYPE_DEPOSIT+'|'+globalCfg.api.TYPE_WITHDRAW;
 export const  DISPLAY_EXTERNAL   = globalCfg.api.TYPE_EXCHANGE+'|'+globalCfg.api.TYPE_PROVIDER;
 //
-const CLEAR_TX_STATE = {}
 class TransactionTable extends Component {
   constructor(props) {
     super(props);

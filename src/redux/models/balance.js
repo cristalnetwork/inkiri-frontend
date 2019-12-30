@@ -65,9 +65,6 @@ function* loadCurrencyStatsSaga() {
   }
 }
 
-function* refreshBalanceSaga({action, payload}){
-
-}
 function* initBalanceReduxSaga () {
   console.log( ' # core.INIT@balance-saga ' )
   // yield put({type: core.ACTION_START, payload: { loadCurrencyStats: 'Loading currency stats'}})
