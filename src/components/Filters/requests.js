@@ -51,8 +51,6 @@ const RequestsFilter = (props) => {
     }, [props.callback]);
 
     // useEffect(() => {
-    //   if(is_admin!=props.is_admin)
-    //     setIsAdmin(props.isAdmin);
     //   if(callback!=props.callback)
     //     setCallback(props.callback);
     //   if(is_loading!=props.isOperationsLoading)
@@ -151,7 +149,7 @@ const RequestsFilter = (props) => {
     //
     const validateAccountNames = (rule, value, callback) => {
       const { form } = props;
-      if(!props.is_admin && props.form.getFieldValue('to') && props.form.getFieldValue('from')){
+      if(!props.isAdmin && form.getFieldValue('to') && form.getFieldValue('from')){
         callback('Cant search by both sender/from and receiver/to account!');
         return;
       }

@@ -23,6 +23,11 @@ const TxListWidget = (props) => {
   const [txs, setTxs]                   = useState(props.operations[props.the_key]||props.rawOperations);
   const [pagination, setPagination]     = useState({ pageSize: 0 , total: 0 })
   const [isMobile, setIsMobile]         = useState(props.isMobile)
+  const [isOperationsLoading, setIsOperationsLoading] = useState(props.isOperationsLoading)
+
+  useEffect(() => {
+    setIsOperationsLoading(props.isOperationsLoading);
+  }, [props.isOperationsLoading]);
 
   useEffect(() => {
     setIsMobile(props.isMobile);
@@ -124,14 +129,14 @@ const TxListWidget = (props) => {
                 icon="plus" 
                 onClick={() => props.loadNewBlockchainOperations()} 
                 className="load_more_txs"
-                disabled={props.isOperationsLoading} 
+                disabled={isOperationsLoading} 
                 >More</Button>
             </Tooltip>
         </div>
         <Table
           key={'table_'+key} 
           rowKey={record => record.id} 
-          loading={props.isOperationsLoading} 
+          loading={isOperationsLoading} 
           columns={ columns_helper.getColumnsBlockchainTXs(onTransactionClick)} 
           dataSource={txs} 
           footer={() => footer()}

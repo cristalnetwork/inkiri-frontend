@@ -58,7 +58,6 @@ class TransactionTable extends Component {
   componentDidMount(){
     if(typeof this.props.onRef==='function')
     {
-      console.log('YES')
       this.props.onRef(this);
     }
 

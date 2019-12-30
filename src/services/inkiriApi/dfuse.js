@@ -352,11 +352,15 @@ query{
 export const queryTransactionsNew = (account, last_block) => queryTransactions(account, null, last_block+1);
 export const queryTransactionsCursor = (account, cursor)  => queryTransactions(account, cursor, null);
 export const queryTransactions = async (account, cursor, last_block) => new Promise(async(res,rej)=> {
-  // console.log(' queryTransactions => ', account)
+  
+  console.log(' queryTransactions::account => ', account)
+  
   if(!account)
     account = {  acount_name:     globalCfg.currency.issuer
                  , account_type:  globalCfg.bank.ACCOUNT_TYPE_BANK_ADMIN};
+  
   const {account_name, account_type} = account;                 
+
   const query          = {
         [globalCfg.bank.ACCOUNT_TYPE_BANKADMIN]  : `account:${globalCfg.currency.token}`
         , [globalCfg.bank.ACCOUNT_TYPE_PERSONAL] : `account: ${globalCfg.currency.token} (data.from:${account_name} OR data.to:${account_name} OR data.account:${account_name})`

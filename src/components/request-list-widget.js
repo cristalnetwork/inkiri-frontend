@@ -102,6 +102,7 @@ const RequestListWidget = (props) => {
         request_type={request_type} 
         callback={onRequestClick}
         onRef={ref => (setTableRef(ref))}
+        i_am_admin={props.isAdmin}
         />
       </>
     )
@@ -111,6 +112,7 @@ export default connect(
     (state)=> ({
         actualAccountName:    loginRedux.actualAccountName(state),
         page_key_values:      pageRedux.pageKeyValues(state),
+        isAdmin:              loginRedux.isAdmin(state),
     }),
     (dispatch)=>({
         setPageKeyValue:      bindActionCreators(pageRedux.setPageKeyValue, dispatch),

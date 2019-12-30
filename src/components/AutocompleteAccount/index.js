@@ -53,7 +53,6 @@ class AutocompleteAccount extends Component {
     
     if(typeof this.props.onRef==='function')
     {
-      console.log('YES')
       this.props.onRef(this)
     }
   }

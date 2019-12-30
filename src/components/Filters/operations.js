@@ -37,9 +37,9 @@ const OperationsFilter = (props) => {
     const [is_loading, setIsLoading]   = useState(props.isOperationsLoading||false);
 
     const default_filter               = { 
-        operation_type:   undefined     // ['ALL']
+        operation_type:   undefined     
         , date_range:     [null, null]
-        , account_type:   undefined     // ['ALL']
+        , account_type:   undefined     
         , search_text:    ''
         , in_out:         undefined
 
@@ -47,6 +47,10 @@ const OperationsFilter = (props) => {
 
     const [filter, setFilter]          = useState(props.filter||default_filter);
 
+    useEffect(() => {
+      setIsLoading(props.isOperationsLoading)
+    }, [props.isOperationsLoading]);
+    
     useEffect(() => {
       // if(is_admin!=props.is_admin)
       //   setIsAdmin(props.isAdmin);
@@ -135,7 +139,7 @@ const OperationsFilter = (props) => {
     //
     const validateAccountNames = (rule, value, callback) => {
       const { form } = props;
-      if(!props.is_admin && props.form.getFieldValue('to') && props.form.getFieldValue('from')){
+      if(!props.isAdmin && props.form.getFieldValue('to') && props.form.getFieldValue('from')){
         callback('Cant search by both sender/from and receiver/to account!');
         return;
       }
@@ -225,7 +229,7 @@ const OperationsFilter = (props) => {
         
         
         <Form.Item style={{alignSelf:'flex-end', alignItems:'flex-end', flex:1}}>
-          <Button htmlType="submit" disabled={is_loading}>
+          <Button htmlType="submit" disabled={is_loading} loading={is_loading}>
             Filter
           </Button>
           <Button type="link" disabled={is_loading} onClick={(event) => resetFilter(event)}>

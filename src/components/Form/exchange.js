@@ -110,11 +110,8 @@ class ExchangeForm extends Component {
     console.log('if(typeof this.props.onRef===function) ?? ', typeof this.props.onRef)
     if(typeof this.props.onRef==='function')
     {
-      console.log('YES')
       this.props.onRef(this)
     }
-    else
-      console.log('NO')
   }
   componentWillUnmount() {
     if(typeof this.props.onRef==='function')
