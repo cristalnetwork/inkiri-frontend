@@ -12,8 +12,6 @@ import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
 
-import PropTypes from "prop-types";
-
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
@@ -76,12 +74,6 @@ class iuguDetails extends Component {
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
   }
-
-  static propTypes = {
-    match: PropTypes.object,
-    location: PropTypes.object,
-    history: PropTypes.object
-  };
 
   componentDidMount(){
     const { match, location, history } = this.props;

@@ -16,7 +16,6 @@ import ServiceCard from '@app/components/TransactionCard/service_card';
 import AccountName from '@app/components/TransactionCard/account_name';
 import NameValueIcon from '@app/components/TransactionCard/name_value_icon';
 
-import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
 import { Select, notification, Empty, Button, Form, message, AutoComplete, Input, Icon } from 'antd';

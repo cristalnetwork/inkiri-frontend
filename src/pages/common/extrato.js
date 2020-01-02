@@ -97,8 +97,6 @@ class Extrato extends Component {
     
     this.onTransactionClick         = this.onTransactionClick.bind(this);
     this.onRequestClick             = this.onRequestClick.bind(this);
-
-    this.requestFilterCallback      = this.requestFilterCallback.bind(this);
   }
   
   onTransactionClick(transaction){

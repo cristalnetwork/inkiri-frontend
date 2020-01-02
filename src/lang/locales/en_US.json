@@ -32,6 +32,27 @@
   "menu.item.crew"                  : "Crew",
   "menu.item.settings"              : "Settings",
 
+  "global.cancel"                   : "Cancel",
+  "global.authorize"                : "Authorize",
+  "global.submit"                   : "Submit",
+  "global.invoice"                  : "Invoice",
+  "global.pay"                      : "Pay",
+
+  "global.dates.today"              : "Today",
+  "global.dates.since_yesterday"    : "Since yesterday",
+  "global.dates.last_7_days"        : "Last 7 Days",
+  "global.dates.last_30_days"       : "Last 30 Days",
+  "global.dates.this_month"         : "This Month",
+  "global.dates.last_month"         : "Last Month",
+
+  "errors.occurred_title"                                   : "An error occurred",
+  "errors.validation_title"                                 : "Validation errors",
+  "errors.verify_on_screen"                                 : "Please verifiy errors on screen!",
+  "errors.select_account_from_list"                         : "Please select an account from the list.",
+  "errors.select_valid_payer_account"                       : "Please select a valid payer account",
+  "infos.only_one_file"                                     : "Only 1 file allowed",
+
+
   "components.AutocompleteAcount.index.placeholder"         : "Type account name",
   "components.AutocompleteAcount.index.title"               : "Can't find account? Click to reload accounts!", 
   "components.tx-list-widget.refresh"                       : "Click to load new operations!",
@@ -92,5 +113,51 @@
 
   "components.filters.operations.sender"                                : "Sender",
   "components.filters.operations.receiver"                              : "Receiver",
+
+  "components.forms.add_member.member"                                  : "Member",
+  "components.forms.add_member.choose_job_position"                     : "Choose a job position",
+  "components.forms.add_member.modify_member"                           : "Modify Member",
+  "components.forms.add_member.add_member"                              : "Add Member",
+  
+  "components.forms.validators.forgot_job_position"                     : "Please select a job position!",
+  "components.forms.validators.forgot_profile"                          : "Please choose a a profile!",
+  "components.forms.validators.forgot_amount"                           : "Please input an amount!",
+  "components.forms.validators.forgot_bank_name"                        : "Please input a Bank name!",
+  "components.forms.validators.forgot_bank_agency"                      : "Please input a Bank Agency!",
+  "components.forms.validators.forgot_bank_cc"                          : "Please input a Bank CC!",
+  "components.forms.validators.valid_number_required"                   : "Valid number required",
+  "components.forms.validators.valid_number_required_description"       : "Please type a valid number greater than 0.00 !",
+  "components.forms.validators.minimum_amount_required"                 : "Amount must be equal or less than balance {balance}",
+
+
+  "components.TransactionCard.index.bank_transfer_required"             : "Bank transfer required!",
+  "components.TransactionCard.index.bank_transfer_description"          : "Please complete the following tasks required for this operation:",
+  "components.TransactionCard.index.bank_transfer_description_1"        : "1.- Log into your Commercial Bank online service and proceed to send the money by wire transfer.",
+  "components.TransactionCard.index.bank_transfer_description_2"        : "2.- Attach a copy of the bank transfer voucher/receipt pdf file.",
+  "components.TransactionCard.index.bank_transfer_description_3"        : "3.- Press 'Finish' button.",
+
+  "components.TransactionCard.index.response_transaction"               : "Response transaction",
+  "components.TransactionCard.index.requested_to"                       : "Requested to",
+  "components.TransactionCard.index.message"                            : "Message",
+  
+  "components.Forms.bank_account.forgot_choose_bank_account"            : "Please select a Bank Account",
+  "components.Forms.bank_account.bank_name_placeholder"                 : "Bank Name",
+  "components.Forms.bank_account.bank_agency_placeholder"               : "Bank Agency",
+  "components.Forms.bank_account.bank_cc_placeholder"                   : "Bank CC",
+
+  "components.Forms.exchange.back_to_ref_after_create"                  : "Back to request exchange",
+  "components.Forms.exchange.choose_bank_account"                       : "Choose a Bank Account",
+  "components.Forms.exchange.add_bank_account_title"                    : "Add new bank account",
+
+  "components.Forms.payment.password_validation"                        : "Input a valid password",
+  "components.Forms.payment.password_placeholder"                       : "Password or private key",
+
+
+  "pages.bankadmin.account.error_reloading_profile"                     : "An error occurred reloading profile",
+  "pages.bankadmin.account.error_reloading_account"                     : "An error occurred reloading account",
+  "pages.bankadmin.account.success_alias_updated"                       : "Alias updated successfully",
+  
+
+
   "userBox.message"                                   : "¿Desea continuar la sesión con el usuario {account} ({account_id})?"
 }

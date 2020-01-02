@@ -10,8 +10,6 @@ import * as balanceRedux from '@app/redux/models/balance'
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
-import PropTypes from "prop-types";
-
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
@@ -60,8 +58,8 @@ class Configuration extends Component {
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       pushingTx:           false,
-      active_tab:          props.location.state.active_tab || ACTIVE_TAB_PROFILE,
-      active_tab_action:   props.location.state.active_tab_action ||ACTIVE_TAB_PROFILE,
+      active_tab:          (props.location.state&&props.location.state.active_tab) || ACTIVE_TAB_PROFILE,
+      active_tab_action:   (props.location.state&&props.location.state.active_tab_action) ||ACTIVE_TAB_PROFILE,
       active_tab_object:   null,
       profile:             props.actualAccountProfile,
       eos_account:         props.eos_account,

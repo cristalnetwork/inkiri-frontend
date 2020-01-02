@@ -16,7 +16,6 @@ import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
 import ServiceCard from '@app/components/TransactionCard/service_card';
 
-import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
 import { Select, notification, Empty, Button, Form, message, AutoComplete, Input, Icon } from 'antd';

@@ -311,7 +311,7 @@ const routes  = {
             },
             {
                 key:         'biz_staff',
-                title:       'Staff',
+                title:       'menu.item.staff',
                 icon:        'team',
                 permission:  'owner,active',
                 items: [

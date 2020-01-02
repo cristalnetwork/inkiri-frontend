@@ -241,7 +241,7 @@ const RequestsFilter = (props) => {
             , dateRangeText
             , undefined
             , undefined
-            , true) }
+            , props.intl) }
         
         
         <Form.Item style={{alignSelf:'flex-end', alignItems:'flex-end', flex:1}}>

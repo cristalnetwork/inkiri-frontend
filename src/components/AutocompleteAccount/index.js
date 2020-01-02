@@ -222,7 +222,7 @@ class AutocompleteAccount extends Component {
       */
       selector = (<Form.Item label={label}>
                         {getFieldDecorator(name, {
-                        rules: [{ required: !not_required, message: (!not_required)?'Please choose a customer!':undefined , validator: validation_rule}]
+                        rules: [{ required: !not_required, message: (!not_required)?'Please choose an account!':undefined , validator: validation_rule}]
                       })(
                           <AutoComplete 
                             size={size||'large'} 

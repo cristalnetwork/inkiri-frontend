@@ -12,8 +12,6 @@ import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 
-import PropTypes from "prop-types";
-
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
@@ -63,12 +61,6 @@ class processExternal extends Component {
     this.resetPage                  = this.resetPage.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
   }
-
-  static propTypes = {
-    match: PropTypes.object,
-    location: PropTypes.object,
-    history: PropTypes.object
-  };
 
   componentDidMount(){
     const { match, location, history } = this.props;
@@ -243,7 +235,7 @@ class processExternal extends Component {
   processRequest(){
     let that = this;  
     that.setState({pushingTx:true});
-    
+    console.log(this.state.request);
     Modal.confirm({
       title: 'Confirm process request step',
       content: 'You will now send the wire transfer and upload the bank receipt.',
@@ -571,6 +563,7 @@ class processExternal extends Component {
   
   getActionsForRequest(){
     const {request, pushingTx}    = this.state;
+
     const processButton = (<Button loading={pushingTx} size="large" onClick={() => this.processRequest()} key="processButton" type="primary" title="" >PROCESS REQUEST</Button>);
     //
     const acceptWithComprobanteButton = (<Button loading={pushingTx} size="large" onClick={() => this.acceptWithComprobanteRequest()} key="acceptWithComprobanteButton" type="primary" title="" >ACCEPT</Button>);

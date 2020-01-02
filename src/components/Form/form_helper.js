@@ -4,6 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as moment from 'moment';
 import 'moment/locale/pt-br';
 
+import { injectIntl } from "react-intl";
+import {useIntl} from 'react-intl';
+
 moment.locale('pt-BR');
 
 const {TextArea} = Input;
@@ -120,16 +123,33 @@ export const getMonthItem = (_form, object, field, title, required_message, read
               </Form.Item>);
   }
 //
-const getRanges = () =>{
+// const getRanges = injectIntl (({intl}) =>{
+//   console.log(' ========================================= tripa')
+//   console.log(' >> ', intl.formatMessage({id:'global.dates.today'}));
+//   return {
+//            [intl.formatMessage({id:'global.dates.today'})]:           [moment(), moment()],
+//            [intl.formatMessage({id:'global.dates.since_yesterday'})]: [moment().subtract(1, 'days'), moment()],
+//            [intl.formatMessage({id:'global.dates.last_7_days'})]:     [moment().subtract(6, 'days'), moment()],
+//            [intl.formatMessage({id:'global.dates.last_30_days'})]:    [moment().subtract(29, 'days'), moment()],
+//            [intl.formatMessage({id:'global.dates.this_month'})]:      [moment().startOf('month'), moment().endOf('month')],
+//            [intl.formatMessage({id:'global.dates.last_month'})]:      [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+//         }
+// });
+const getRanges = (intl) =>{
+  // const intl = useIntl()
+  console.log(' ========================================= tripa')
+  console.log(' >> ', intl.formatMessage({id:'global.dates.today'}));
   return {
-           'Today': [moment(), moment()],
-           'Since yesterday': [moment().subtract(1, 'days'), moment()],
-           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-           'This Month': [moment().startOf('month'), moment().endOf('month')],
-           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+           [intl.formatMessage({id:'global.dates.today'})]:           [moment(), moment()],
+           [intl.formatMessage({id:'global.dates.since_yesterday'})]: [moment().subtract(1, 'days'), moment()],
+           [intl.formatMessage({id:'global.dates.last_7_days'})]:     [moment().subtract(6, 'days'), moment()],
+           [intl.formatMessage({id:'global.dates.last_30_days'})]:    [moment().subtract(29, 'days'), moment()],
+           [intl.formatMessage({id:'global.dates.this_month'})]:      [moment().startOf('month'), moment().endOf('month')],
+           [intl.formatMessage({id:'global.dates.last_month'})]:      [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
         }
-}
+};
+
+
 //
 export const getDateRangeItem = (_form, object, field, title, required_message, format, show_ranges) => {
     const { getFieldDecorator }    = _form;
@@ -138,7 +158,7 @@ export const getDateRangeItem = (_form, object, field, title, required_message, 
       ?[getMoment(_value[0]), getMoment(_value[1])]
       :undefined;
     const ranges = show_ranges
-      ?getRanges()
+      ?getRanges(show_ranges)
       :null;
     return (<Form.Item label={title}>
                 {getFieldDecorator(field, {
@@ -168,7 +188,7 @@ export const withIcon = (icon, item, select) => {
   return (<div className={`money-transfer__row row-complementary row-complementary-bottom ${classname}`} >
               <div className="badge badge-extra-small badge-circle addresse-avatar ">
                   <span className="picture">
-                    <FontAwesomeIcon icon={icon} size="lg" color="gray"/>
+                    <FontAwesomeIcon icon={icon} size="lg" color="black"/>
                   </span>
               </div>
               <div className={`money-transfer__input money-transfer__select`}>

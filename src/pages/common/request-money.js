@@ -13,8 +13,6 @@ import * as globalCfg from '@app/configs/global';
 
 import * as utils from '@app/utils/utils';
 
-import PropTypes from "prop-types";
-
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
@@ -66,12 +64,6 @@ class RequestMoney extends Component {
     this.handleChange               = this.handleChange.bind(this);
     this.handleMessageChange        = this.handleMessageChange.bind(this);
   }
-
-  static propTypes = {
-    match: PropTypes.object,
-    location: PropTypes.object,
-    history: PropTypes.object
-  };
 
   componentDidUpdate(prevProps, prevState) 
   {

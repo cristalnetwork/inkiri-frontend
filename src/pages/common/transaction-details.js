@@ -15,7 +15,6 @@ import * as utils from '@app/utils/utils';
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
 import { Modal, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
@@ -47,12 +46,6 @@ class transactionDetails extends Component {
     this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.onViewRequest              = this.onViewRequest.bind(this); 
   }
-
-  static propTypes = {
-    match: PropTypes.object,
-    location: PropTypes.object,
-    history: PropTypes.object
-  };
 
   componentDidMount(){
     const { match, location, history, lastRootMenu } = this.props;

@@ -10,8 +10,6 @@ import * as balanceRedux from '@app/redux/models/balance'
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
-import PropTypes from "prop-types";
-
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
@@ -34,6 +32,8 @@ import Skeleton from '@app/components/Views/skeleton';
 import AccountView , {ENUM_EVENT_EDIT_PROFILE_ALIAS}from '@app/components/Views/account';
 import AccountRolesView, {ENUM_EVENT_RELOAD_PERMISSIONS, ENUM_AUTHORITY_CHANGE, ENUM_EVENT_NEW_PERMISSION, ENUM_EVENT_DELETE_PERMISSION} from '@app/components/Views/roles';
 import AddRoleForm from '@app/components/Form/add_role';
+
+import { injectIntl } from "react-intl";
 
 // const ACTIVE_TAB_PROFILE               = 'active_tab_profile';
 // const ACTIVE_TAB_PROFILE_EDIT_PROFILE  = 'active_tab_profile_edit_profile';
@@ -70,7 +70,6 @@ class Profile extends Component {
 
     this.renderContent              = this.renderContent.bind(this); 
     this.resetResult                = this.resetResult.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.onAccountEvents            = this.onAccountEvents.bind(this); 
     this.onRoleEvents               = this.onRoleEvents.bind(this); 
@@ -85,13 +84,6 @@ class Profile extends Component {
     
   }
  
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-
   /*
   * Components Events
   */
@@ -113,7 +105,7 @@ class Profile extends Component {
           that.setState({pushingTx:false, profile:data})
         },
         (ex) => {
-          that.openNotificationWithIcon("error", 'An error occurred reloading profile', JSON.stringify(ex));
+          components_helper.notif.exceptionNotification( that.props.intl.formatMessage({id:'pages.bankadmin.account.error_reloading_profile'}), ex );    
           that.setState({pushingTx:false});
           console.log(' ** ERROR @ reload', JSON.stringify(ex))
         }  
@@ -265,16 +257,14 @@ class Profile extends Component {
     
     api.bank.createOrUpdateUser(id, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias)
       .then((res)=>{
-        that.openNotificationWithIcon("success", "Alias updated successfully")    
+        components_helper.notif.successNotification(  that.props.intl.formatMessage({id:'pages.bankadmin.account.success_alias_updated'}) );
         that.reloadProfile();
         that.resetPage(ACTIVE_TAB_INFO);
-        // console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(res));
-        // that.setState({result:'ok'});
-        // that.setState({pushingTx:false});
+        
 
       }, (err)=>{
         console.log(' >> onUpdateProfile >> ', JSON.stringify(err));
-        that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
+        components_helper.notif.exceptionNotification(  that.props.intl.formatMessage({id:'errors.occurred_title'}), err );
         that.setState({pushingTx:false});
       })
 
@@ -316,7 +306,7 @@ class Profile extends Component {
             that.setState({pushingTx:false, account:data})
           },
           (ex) => {
-            that.openNotificationWithIcon("error", 'An error occurred reloading account', JSON.stringify(ex));
+            components_helper.notif.exceptionNotification(  that.props.intl.formatMessage({id:'pages.bankadmin.account.error_reloading_account'}), ex );
             that.setState({pushingTx:false});
             console.log(' ** ERROR @ reload', JSON.stringify(ex))
           }  
@@ -464,5 +454,5 @@ export default Form.create() (withRouter(connect(
         // loadProfile:          bindActionCreators(loginRedux.loadProfile, dispatch)
     })
 
-)(Profile) )
+) ( injectIntl(Profile) ) )
 );

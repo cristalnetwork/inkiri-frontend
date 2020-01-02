@@ -113,15 +113,15 @@ const bankadmin = [
     //    container: 'dashboard',
     //    role:      'bankadmin'
     // },
-    // {
-    //    key:         pathNames.bankadminExternalTransfers_ProcessExternal,
-    //    father_key : '*',
-    //    fileName:    'process-external',
-    //    area:        'bankadmin',
-    //    path:        'external-transfers-process-request',
-    //    container:   'dashboard',
-    //    role:        'bankadmin'
-    // },
+    {
+       key:         pathNames.bankadminExternalTransfers_ProcessExternal,
+       father_key : '*',
+       fileName:    'process-external',
+       area:        'bankadmin',
+       path:        'external-transfers-process-request',
+       container:   'dashboard',
+       role:        'bankadmin'
+    },
     {
        key:         pathNames.bankadminIugu,
        fileName:    'iugu',

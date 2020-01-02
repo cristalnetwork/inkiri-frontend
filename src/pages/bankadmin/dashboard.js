@@ -27,7 +27,7 @@ import * as utils from '@app/utils/utils';
 
 import moment from 'moment';
 
-import { injectIntl } from "react-intl";
+import { FormattedMessage, injectIntl } from "react-intl";
 
 class Operations extends Component {
   constructor(props) {

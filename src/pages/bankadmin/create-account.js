@@ -12,8 +12,6 @@ import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 import moment from 'moment';
 
-import PropTypes from "prop-types";
-
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';

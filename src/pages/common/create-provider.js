@@ -12,8 +12,6 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import PropTypes from "prop-types";
-
 import { Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 

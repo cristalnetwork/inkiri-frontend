@@ -10,7 +10,6 @@ import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
 
-import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 import * as request_helper from '@app/components/TransactionCard/helper';
 

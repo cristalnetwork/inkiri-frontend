@@ -16,9 +16,13 @@ const AccountRolesView = (props) => {
     const [loading, setLoading]        = useState(props.loading);
     const [account, setAccount]        = useState(props.account);
     const [eos_account, setEosAccount] = useState(props.eos_account);
-    const [authority, setAuthority]    = useState();
+    const [authority, setAuthority]    = useState(props.authority||'owner');
     const [is_admin, setIsAdmin]       = useState(props.isAdmin);
-    
+    const [onEvent, setOnEvent]        = useState(props.onEvent);    
+
+    useEffect(() => {
+        setOnEvent(props.onEvent);
+    }, [props.onEvent]);
 
     useEffect(() => {
         setAccount(props.account);
@@ -33,7 +37,7 @@ const AccountRolesView = (props) => {
     }, [props.loading]);
 
     useEffect(() => {
-        setAuthority(props.authority||'owner');
+        setAuthority(props.authority);
     }, [props.authority]);
 
     useEffect(() => {
@@ -41,13 +45,11 @@ const AccountRolesView = (props) => {
     }, [props.isAdmin]);
 
     const fireEvent = (eventType, object) => {
-      if(typeof props.onEvent === 'function') {
-          props.onEvent(eventType, object)
+      if(typeof onEvent === 'function') {
+          onEvent(eventType, object)
       }
     }
     const tabChange = (authority) => {
-      // console.log(tab_key);
-      // setAuthority(tab_key);
       fireEvent(ENUM_AUTHORITY_CHANGE, authority); 
     }
 

@@ -10,15 +10,18 @@ import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
 
-import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
-import { notification, Select, Button , Form, Icon, InputNumber, Input, DatePicker } from 'antd';
+import * as components_helper from '@app/components/helper';
+
+import { Select, Button , Form, Icon, InputNumber, Input } from 'antd';
 import moment from 'moment';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import * as form_helper from '@app/components/Form/form_helper';
+
+import { injectIntl } from "react-intl";
 
 const DEFAULT_STATE = {
     _id:            null,
@@ -44,17 +47,16 @@ const DEFAULT_STATE = {
 class ProfileForm extends Component {
   constructor(props) {
     super(props);
+    const default_text = this.props.intl.formatMessage({id:'global.submit'});
     this.state = {
       mode            : props.mode || 'full',
       profile         : props.profile || DEFAULT_STATE,
       alone_component : props.alone_component || false,
-      button_text     : props.button_text || 'SUBMIT',
+      button_text     : props.button_text || default_text,
       callback        : props.callback ,
     };
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
-
   }
 
   componentDidUpdate(prevProps, prevState) 
@@ -64,17 +66,10 @@ class ProfileForm extends Component {
             mode            : this.props.mode || 'full',
             profile         : this.props.profile || DEFAULT_STATE,
             alone_component : this.props.alone_component || false,
-            button_text     : this.props.button_text || 'SUBMIT',
+            button_text     : this.props.button_text,
             callback        : this.props.callback 
           });
       }
-  }
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
 
   fireEvent = (error, cancel, data) => {
@@ -89,14 +84,14 @@ class ProfileForm extends Component {
     this.props.form.validateFields((err, values) => {
       
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+        components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'errors.validation_title'}), this.props.intl.formatMessage({id:'errors.verify_on_screen'}) )    
         console.log(' ERRORS!! >> ', err)
         return;
       }
       
       if(!this.state.profile)
       {
-        this.openNotificationWithIcon("error", 'You must choose a Profile!');
+        components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'components.forms.validators.forgot_profile'}))
         return;
       }
       
@@ -116,6 +111,9 @@ class ProfileForm extends Component {
     const { mode, profile, button_text } = this.state;
     const business                       = (globalCfg.bank.isBusinessAccount(profile));
     const { form }                       = this.props;
+    // const account_name_desc              =
+    // const account_name_message
+
     if(mode=='full')
       return (
         <Form onSubmit={this.handleSubmit} className="with_labels">
@@ -211,5 +209,5 @@ export default Form.create() (withRouter(connect(
     (dispatch)=>({
         
     })
-)(ProfileForm) )
+)(injectIntl(ProfileForm)) )
 );

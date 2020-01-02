@@ -208,7 +208,7 @@ const OperationsFilter = (props) => {
             , dateRangeText
             , undefined
             , undefined
-            , true) }
+            , props.intl) }
 
         
         

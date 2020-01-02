@@ -17,8 +17,6 @@ import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 import { withRouter } from "react-router-dom";
 
-import PropTypes from "prop-types";
-
 import { Modal, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
 
@@ -66,13 +64,7 @@ class requestDetails extends Component {
     this.resetPage                  = this.resetPage.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
   }
-
-  static propTypes = {
-    match: PropTypes.object,
-    location: PropTypes.object,
-    history: PropTypes.object
-  };
-
+  
   componentDidMount(){
     const { match, location, history, lastRootMenu } = this.props;
     if(location && location.state && location.state.request)

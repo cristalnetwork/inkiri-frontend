@@ -10,12 +10,14 @@ import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
 
-import PropTypes from "prop-types";
+import * as components_helper from '@app/components/helper';
+
 import { withRouter } from "react-router-dom";
 
-import { notification, Select, Button , Form, Icon, InputNumber, Input } from 'antd';
+import { Select, Button , Form, Icon, InputNumber, Input } from 'antd';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { injectIntl } from "react-intl";
 
 const DEFAULT_STATE = {
     _id:           null,
@@ -28,16 +30,18 @@ const DEFAULT_STATE = {
 class BankAccountForm extends Component {
   constructor(props) {
     super(props);
+    
+    const default_text = this.props.intl.formatMessage({id:'global.submit'});
+
     this.state = {
       bank_account    : props.bank_account || {...DEFAULT_STATE},
       alone_component : props.alone_component || false,
-      button_text     : props.button_text || 'SUBMIT',
+      button_text     : props.button_text || default_text,
       callback        : props.callback ,
     };
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.handleBankAccountChange    = this.handleBankAccountChange.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
+    this.handleBankAccountChange    = this.handleBankAccountChange.bind(this);     
 
   }
 
@@ -47,17 +51,10 @@ class BankAccountForm extends Component {
           this.setState({
             bank_account    : this.props.bank_account || {...DEFAULT_STATE},
             alone_component : this.props.alone_component || false,
-            button_text     : this.props.button_text || 'SUBMIT',
+            button_text     : this.props.button_text,
             callback        : this.props.callback 
           });
       }
-  }
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
 
   /*
@@ -80,14 +77,14 @@ class BankAccountForm extends Component {
     this.props.form.validateFields((err, values) => {
       
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+        components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'errors.validation_title'}), this.props.intl.formatMessage({id:'errors.verify_on_screen'}) )    
         console.log(' ERRORS!! >> ', err)
         return;
       }
       
       if(!this.state.bank_account)
       {
-        this.openNotificationWithIcon("error", 'You must choose a Bank Account!');
+        components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'components.Forms.bank_account.forgot_choose_bank_account'}) )    
         return;
       }
       
@@ -103,7 +100,15 @@ class BankAccountForm extends Component {
 
   renderContent() {  
     const { bank_account, button_text } = this.state;
-    const { getFieldDecorator }                  = this.props.form;
+    const { getFieldDecorator }         = this.props.form;
+    const { formatMessage }             = this.props.intl;
+    
+    const bank_name_message         = formatMessage({id:'components.forms.validators.forgot_bank_name'})
+    const bank_agency_message       = formatMessage({id:'components.forms.validators.forgot_bank_agency'})
+    const bank_cc_message           = formatMessage({id:'components.forms.validators.forgot_bank_cc'})
+    const bank_name_placeholder     = formatMessage({id:'components.Forms.bank_account.bank_name_placeholder'})
+    const bank_agency_placeholder   = formatMessage({id:'components.Forms.bank_account.bank_agency_plaveholder'})
+    const bank_cc_placeholder       = formatMessage({id:'components.Forms.bank_account.bank_cc_plaveholder'})
     return (
       <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">
@@ -111,10 +116,12 @@ class BankAccountForm extends Component {
               <div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
                 <Form.Item label="Bank Name">
                   {getFieldDecorator('bank_account.bank_name', {
-                    rules: [{ required: true, message: 'Please input a Bank name!', whitespace: true }],
+                    rules: [{ required:   true, 
+                              message:    bank_name_message, 
+                              whitespace: true }],
                     initialValue:bank_account.bank_name||''
                   })(
-                    <Input autoFocus className="money-transfer__input" placeholder="Bank Name" />
+                    <Input autoFocus className="money-transfer__input" placeholder={bank_name_placeholder} />
                   )}
                 </Form.Item>
               </div>
@@ -122,10 +129,12 @@ class BankAccountForm extends Component {
               <div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
                 <Form.Item label="Agency">
                   {getFieldDecorator('bank_account.agency', {
-                    rules: [{ required: true, message: 'Please input an Agency!', whitespace: true }],
+                    rules: [{ required:   true, 
+                              message:    bank_agency_message , 
+                              whitespace: true }],
                     initialValue:bank_account.agency||''
                   })(
-                    <Input className="money-transfer__input"  placeholder="Agency" />
+                    <Input className="money-transfer__input"  placeholder={bank_agency_placeholder} />
                   )}
                 </Form.Item>
               </div>
@@ -133,10 +142,12 @@ class BankAccountForm extends Component {
               <div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
                 <Form.Item label="CC">
                   {getFieldDecorator('bank_account.cc', {
-                    rules: [{ required: true, message: 'Please input a CC!', whitespace: true }],
+                    rules: [{ required:      true
+                              , message:     bank_cc_message
+                              , whitespace:  true }],
                     initialValue:bank_account.cc||''
                   })(
-                    <Input className="money-transfer__input"  placeholder="CC" />
+                    <Input className="money-transfer__input"  placeholder={bank_cc_placeholder} />
                   )}
                 </Form.Item>
               </div>
@@ -145,7 +156,9 @@ class BankAccountForm extends Component {
             
             <div className="mp-box__actions mp-box__shore">
                 <Button size="large" key="addOrUpdateBankAccount" htmlType="submit" type="primary" >{button_text}</Button>
-                <Button size="large" key="cancelBankAccount" type="link" onClick={ () => this.fireEvent(null, true, null)}>CANCEL</Button>
+                <Button size="large" key="cancelBankAccount" type="link" onClick={ () => this.fireEvent(null, true, null)}>
+                  {this.props.intl.formatMessage({id:'global.cancel'})}
+                </Button>
             </div>
 
         </Form>
@@ -189,5 +202,5 @@ export default Form.create() (withRouter(connect(
     (dispatch)=>({
         
     })
-)(BankAccountForm) )
+)( injectIntl(BankAccountForm)) )
 );

@@ -199,13 +199,6 @@ h3.fileds_header{
 .icon_color_default , .icon_color_default .ant-upload-drag-icon { color:rgba(0, 0, 0, 0.85)!important; }
 .icon_color_green   , .icon_color_green .ant-upload-drag-icon   { color:#3db389!important; }
 
-/*.flex_row{
-    display: flex;
-    align-items: center;
-    flex-direction: row!important;
-    justify-content: flex-start;
-    overflow:hidden;
-}*/
 .display_block{display:block!important;}
 .display_block.addresse-avatar{top:0px;}
 .addresse-avatar{top:0px!important;}
@@ -253,6 +246,12 @@ h3.fileds_header{
 }
 .flex_row{
     flex-direction: row!important;
+}
+.flex_row_start{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    overflow:hidden;
 }
 .flex_column{
     flex-direction: column!important;
