@@ -10,13 +10,14 @@ import * as apiRedux from '@app/redux/models/api';
 import * as menuRedux from '@app/redux/models/menu'
 import * as loginRedux from '@app/redux/models/login'
 
-// import './index.less';
 import './right_content.less';
 
 import ReferrerWidget  from '@app/components/InkiriHeader/referrer_widget';
 import * as components_helper from '@app/components/helper';
 
 import * as globalCfg from '@app/configs/global';
+
+import { injectIntl } from "react-intl";
 
 const { Header } = Layout;
 
@@ -55,7 +56,7 @@ class InkiriHeader extends Component {
           result:        ex?'error':undefined, 
           error:         ex?JSON.stringify(ex):null}
       if(ex)
-        components_helper.notif.exceptionNotification("An error occurred!", ex, this.props.clearAll)
+        components_helper.notif.exceptionNotification(  this.props.intl.formatMessage({id:'errors.occurred_title'}), ex, this.props.clearAll)
     }
 
     if(prevProps.getResults!=this.props.getResults){
@@ -66,7 +67,7 @@ class InkiriHeader extends Component {
         result_object:   lastResult};
       if(lastResult)
       {
-        components_helper.notif.successNotification('Operation completed successfully', undefined, this.props.clearAll)
+        components_helper.notif.successNotification(this.props.intl.formatMessage({id:'success.oper_completed_succ'}), undefined, this.props.clearAll)
       }
     }
 
@@ -77,9 +78,6 @@ class InkiriHeader extends Component {
 
   toggle = () => {
     this.props.collapseMenu(!this.props.menuIsCollapsed);
-    // this.setState({
-    //   collapsed: !this.state.collapsed,
-    // });
   };
 
   accountToString(account){
@@ -92,13 +90,14 @@ class InkiriHeader extends Component {
     this.props.trySwitchAccount(account_name);
   }
 
+  
   handleLogout() {
     const that = this;
+    const {formatMessage} = this.props.intl;
     Modal.confirm({
-      title: 'Logout confirmation',
-      content: 'Please confirm logout action',
+      title: formatMessage({id:'components.InkiriHeader.logout_title'}),
+      content: formatMessage({id:'components.InkiriHeader.logout_message'}),
       onOk() {
-
         that.props.logout();
       },
       onCancel() {
@@ -132,7 +131,9 @@ class InkiriHeader extends Component {
         <div className="right">
           <div className="header_element_container">
            <ReferrerWidget />
-           <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">Logout</Button>
+           <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">
+             {this.props.intl.formatMessage({id:'global.logout'})}
+           </Button>
           </div>
         </div>
       );
@@ -173,4 +174,4 @@ export default connect(
       collapseMenu:       bindActionCreators(menuRedux.collapseMenu, dispatch),
 
     })
-)(InkiriHeader)
+)( injectIntl(InkiriHeader))

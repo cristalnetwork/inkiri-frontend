@@ -239,12 +239,14 @@ class AddMemberForm extends Component {
     const job_options_item         = this.renderJobPosition();
     const member_selector          = this.renderMemberSelector();
     const button_text              = member?formatMessage({id:'components.forms.add_member.modify_member'}):formatMessage({id:'components.forms.add_member.add_member'});
+    const amount_title            = formatMessage( {id: 'global.amount' } );
+
     return (
         <Form onSubmit={this.handleSubmit}>
           <div className="money-transfer">    
             {member_selector}
             {job_options_item}
-            <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+            <Form.Item label={amount_title} className="money-transfer__row input-price" style={{textAlign: 'center'}}>
                   {getFieldDecorator('input_amount.value', {
                     rules: [{ required: true, 
                         message: formatMessage({id:'components.forms.validators.forgot_amount'}), 

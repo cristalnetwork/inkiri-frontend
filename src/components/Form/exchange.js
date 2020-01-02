@@ -285,6 +285,10 @@ class ExchangeForm extends Component {
     const { getFieldDecorator }                  = this.props.form;
     const bank_options_item                      = this.renderBankOptionsItem();
     const notaUploaderProps                      = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
+
+    const { formatMessage }       = this.props.intl;
+    const amount_title            = formatMessage( {id: 'global.amount' } );
+
     return (
         <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">
@@ -305,7 +309,7 @@ class ExchangeForm extends Component {
               </div>
 
                 
-              <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+              <Form.Item label={amount_title} className="money-transfer__row input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
                       rules: [{ required:  true
                           , message:       this.props.intl.formatMessage({id:'components.forms.validators.forgot_amount'})

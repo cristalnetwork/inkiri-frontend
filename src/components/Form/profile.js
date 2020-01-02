@@ -111,48 +111,71 @@ class ProfileForm extends Component {
     const { mode, profile, button_text } = this.state;
     const business                       = (globalCfg.bank.isBusinessAccount(profile));
     const { form }                       = this.props;
-    // const account_name_desc              =
-    // const account_name_message
+
+    const { formatMessage }              = this.props.intl;
+
+    const account_name_desc              = formatMessage({id:'components.Forms.profile.account_name_desc'})
+    const account_name_message           = formatMessage({id:'components.Forms.profile.account_name_message'})
+    const last_name_desc                 = formatMessage({id:'components.Forms.profile.last_name_desc'})
+    const last_name_message              = formatMessage({id:'components.Forms.profile.last_name_message'})
+    const first_name_desc                = formatMessage({id:'components.Forms.profile.first_name_desc'})
+    const first_name_message             = formatMessage({id:'components.Forms.profile.first_name_message'})
+    const biz_name_desc                  = formatMessage({id:'components.Forms.profile.biz_name_desc'})
+    const biz_name_message               = formatMessage({id:'components.Forms.profile.biz_name_message'})
+    const alias_name_desc                = formatMessage({id:'components.Forms.profile.alias_name_desc'})
+    const alias_name_message             = formatMessage({id:'components.Forms.profile.alias_name_message'})
+    const email_desc                     = formatMessage({id:'components.Forms.profile.email_desc'})
+    const email_message                  = formatMessage({id:'components.Forms.profile.email_message'})
+    const cpf_desc                       = formatMessage({id:'components.Forms.profile.cpf_desc'})
+    const cpf_message                    = formatMessage({id:'components.Forms.profile.cpf_message'})
+    const birthday_desc                  = formatMessage({id:'components.Forms.profile.birthday_desc'})
+    const birthday_message               = formatMessage({id:'components.Forms.profile.birthday_message'})
+    const phone_desc                     = formatMessage({id:'components.Forms.profile.phone_desc'})
+    const phone_message                  = formatMessage({id:'components.Forms.profile.phone_message'})
+    const street_desc                    = formatMessage({id:'components.Forms.profile.street_desc'})
+    const city_desc                      = formatMessage({id:'components.Forms.profile.city_desc'})
+    const state_desc                     = formatMessage({id:'components.Forms.profile.state_desc'})
+    const zip_desc                       = formatMessage({id:'components.Forms.profile.zip_desc'})
+    const country_desc                   = formatMessage({id:'components.Forms.profile.country_desc'})
 
     if(mode=='full')
       return (
         <Form onSubmit={this.handleSubmit} className="with_labels">
             <div className="money-transfer">
 
-              {form_helper.simple(form_helper.getStringItem(form, profile , 'account_name'  , 'Account name' , 'Please input a valid account name!', true))}
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'account_name'  , account_name_desc , account_name_message, true))}
 
               {!business? 
                 (<>
-                  {form_helper.simple(form_helper.getStringItem(form, profile , 'last_name'     , 'Last name'    , 'Please input a valid last name!'))}
-                  {form_helper.simple(form_helper.getStringItem(form, profile , 'first_name'    , 'First name'   , 'Please input a valid first name!'))}
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'last_name'     , last_name_desc    , first_name_desc ))}
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'first_name'    , first_name_desc   , first_name_message ))}
                  </>)
                 :
                 (<>
-                  {form_helper.simple(form_helper.getStringItem(form, profile , 'business_name'    , 'Business name' , 'Please input a valid business name!') )}
-                  {form_helper.simple(form_helper.getStringItem(form, profile , 'alias'    , 'IUGU alias'   , 'Please input a valid alias!'))}
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'business_name'    , biz_name_desc, biz_name_message) )}
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'alias'            , alias_name_desc, alias_name_message))}
                  </>)
 
               }
-              {form_helper.simple(form_helper.getEmailItem(form,  profile , 'email'         , 'Email'        , 'Please input a valid email!') )}
-              {!business 
-                  && form_helper.simple(form_helper.getStringItem(form, profile , 'legal_id'      , 'CPF'          , 'Please input a valid CPF!')) }
-              {!business 
-                  && form_helper.simple(form_helper.getDateItem(form, profile   , 'birthday'      , 'Birthday'     , 'Please input a valid Date!')) }
-              
-              {form_helper.simple(form_helper.getStringItem(form, profile , 'phone'         , 'Phone number' , 'Please input a valid phone number!')) }
+              {form_helper.simple(form_helper.getEmailItem(form,  profile , 'email'                 , email_desc        , email_message) )}
+              {!business && form_helper.simple(form_helper.getStringItem(form, profile , 'legal_id' , cpf_desc          , cpf_message)) }
+              {!business && form_helper.simple(form_helper.getDateItem(form, profile   , 'birthday' , birthday_desc     , birthday_message )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'phone'                 , phone_desc        , phone_message)) }
               
               <br/><br/><div className="c-header-detail__head u-clearfix"><div className="c-header-detail__title">Address</div></div>
               
-              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.street'  , 'Street'     )) }
-              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.city'    , 'City'       )) }
-              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.state'   , 'State'      )) }
-              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.zip'     , 'ZIP'        )) }
-              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.country' , 'Country'    )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.street'  , street_desc     )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.city'    , city_desc       )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.state'   , state_desc      )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.zip'     , zip_desc        )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.country' , country_desc    )) }
             </div>
             
             <div className="mp-box__actions mp-box__shore">
                 <Button size="large" key="updateProfile" htmlType="submit" type="primary" >{button_text}</Button>
-                <Button size="large" key="cancelProfile" type="link" onClick={ () => this.fireEvent(null, true, null)}>CANCEL</Button>
+                <Button size="large" key="cancelProfile" type="link" onClick={ () => this.fireEvent(null, true, null)}>
+                  { formatMessage({id:'global.cancel'}) }
+                </Button>
             </div>
 
         </Form>
@@ -162,14 +185,16 @@ class ProfileForm extends Component {
     //MODE==alias
     return (<Form onSubmit={this.handleSubmit} className="with_labels">
             <div className="money-transfer">
-              {form_helper.simple(form_helper.getStringItem(form, profile , 'account_name'   , 'Account name'  , 'Please input a valid account name!', true))}
-              {form_helper.simple(form_helper.getStringItem(form, profile , 'business_name'  , 'Business name' , 'Please input a valid business name!'))}
-              {business && form_helper.simple(form_helper.getStringItem(form, profile , 'alias'          , 'IUGU alias'    , 'Please input a valid alias!'))}
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'account_name'       , account_name_desc  , account_name_message, true))}
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'business_name'      , biz_name_desc  , biz_name_message))}
+              {business && form_helper.simple(form_helper.getStringItem(form, profile , 'alias'  , alias_name_desc  , alias_name_message))}
 
             </div>
             <div className="mp-box__actions mp-box__shore">
                 <Button size="large" key="updateProfile" htmlType="submit" type="primary" >{button_text}</Button>
-                <Button size="large" key="cancelProfile" type="link" onClick={ () => this.fireEvent(null, true, null)}>CANCEL</Button>
+                <Button size="large" key="cancelProfile" type="link" onClick={ () => this.fireEvent(null, true, null)}>
+                  { formatMessage({id:'global.cancel'}) }
+                </Button>
             </div>
         </Form>);
   }

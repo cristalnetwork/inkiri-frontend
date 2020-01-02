@@ -11,6 +11,7 @@ import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as form_helper from '@app/components/Form/form_helper';
+import * as components_helper from '@app/components/helper';
 
 import ServiceCard from '@app/components/TransactionCard/service_card';
 import AccountName from '@app/components/TransactionCard/account_name';
@@ -18,9 +19,10 @@ import NameValueIcon from '@app/components/TransactionCard/name_value_icon';
 
 import { withRouter } from "react-router-dom";
 
-import { Select, notification, Empty, Button, Form, message, AutoComplete, Input, Icon } from 'antd';
+import { Select, Empty, Button, Form, message, AutoComplete, Input, Icon } from 'antd';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import { injectIntl } from "react-intl";
 
 class ServiceContractChargeForm extends Component {
   constructor(props) {
@@ -34,11 +36,7 @@ class ServiceContractChargeForm extends Component {
 
     };
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.onSelect                   = this.onSelect.bind(this)
-  }
-
-  componentDidMount(){
   }
 
   componentDidUpdate(prevProps, prevState) 
@@ -50,13 +48,6 @@ class ServiceContractChargeForm extends Component {
             callback:        this.props.callback
           });
       }
-  }
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
 
   /*
@@ -76,11 +67,12 @@ class ServiceContractChargeForm extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    
+    const {formatMessage}   = this.props.intl;
+
     this.props.form.validateFields((err, values) => {
       
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+        components_helper.notif.errorNotification( formatMessage({id:'errors.validation_title'}), formatMessage({id:'errors.verify_on_screen'}) )    
         console.log(' ERRORS!! >> ', err)
         return;
       }
@@ -104,29 +96,30 @@ class ServiceContractChargeForm extends Component {
     const charge_info             = api.pap_helper.getChargeInfo(contract);
     const next_month              = charge_info.next.format(form_helper.MONTH_FORMAT_HUMANIZED);
 
-    const button_text             = 'CHARGE';
+    
+    const {formatMessage}         = this.props.intl;
+    const button_text             = formatMessage({id:'global.charge'});
+    const customer                = formatMessage({id:'global.customer'});
+    const month_to_charge         = formatMessage({id:'components.Forms.service_contract_charge.next_month_to_charge'});
+    const days_remaining          = formatMessage({id:'components.Forms.service_contract_charge.days_remaining_to_charge'});
+
     return (
             
             <>
             <ServiceCard service={service} provider={provider} smallStyle={true} />
 
-            <AccountName account_name={contract.account} title={"Customer"} not_alone={false} />
+            <AccountName account_name={contract.account} title={customer} not_alone={false} />
 
-            <NameValueIcon name="Next month to charge" value={next_month} icon="calendar-alt" />
+            <NameValueIcon name={month_to_charge} value={next_month} icon="calendar-alt" />
 
             {charge_info.days_to_charge>=0
-              ?(<NameValueIcon name="Days remaining to charge" value={charge_info.days_to_charge} icon="calculator" />)
+              ?(<NameValueIcon name={days_remaining} value={charge_info.days_to_charge} icon="calculator" />)
               :(null)}
 
             <Form onSubmit={this.handleSubmit}>
-              
-              <div className="money-transfer no_label">    
-                  
-
-              </div>
               <div className="mp-box__actions mp-box__shore">
                 <Button size="large" key="requestButton" htmlType="submit" type="primary" htmlType="submit" disabled={charge_info.days_to_charge>=0}>{button_text}</Button>
-                <Button size="large" className="danger_color" type="link" onClick={()=>{this.fireEvent(null, true, null)}}>Cancel</Button>
+                <Button size="large" className="danger_color" type="link" onClick={()=>{this.fireEvent(null, true, null)}}>{ formatMessage({id:'global.cancel'}) }</Button>
               </div>
                 
               
@@ -145,7 +138,7 @@ export default Form.create() (withRouter(connect(
     (dispatch)=>({
         
     })
-)(ServiceContractChargeForm) )
+)( injectIntl(ServiceContractChargeForm)) )
 );
 
 

@@ -23,6 +23,8 @@ import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 import PaymentForm from '@app/components/Form/payment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
+import { injectIntl } from "react-intl";
+
 // Dfuse WebSocket
 import { InboundMessageType, createDfuseClient } from '@dfuse/client';
 
@@ -219,14 +221,18 @@ class PDV extends Component {
     const { loading, input_amount } = this.state;
     const { getFieldDecorator } = this.props.form;
 
+    const { formatMessage }       = this.props.intl;
+    const amount_title            = formatMessage( {id: 'global.amount' } );
+    const amount_message          = formatMessage( {id: 'components.forms.validators.forgot_amount' } );
+
     return (
       <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
         <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">
               
-              <Form.Item label="Amount" className="money-transfer__row input-price row-complementary" style={{textAlign: 'center'}}>
+              <Form.Item label={amount_title} className="money-transfer__row input-price row-complementary" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
-                      rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
+                      rules: [{ required: true, message: amount_message, whitespace: true, validator: this.checkPrice }],
                       initialValue: input_amount.value,
 
                     })( 
@@ -618,5 +624,5 @@ export default Form.create() (withRouter(connect(
     (dispatch)=>({
         loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
-)(PDV) )
+)( injectIntl(PDV)) )
 );

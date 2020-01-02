@@ -264,7 +264,7 @@ class Profile extends Component {
 
       }, (err)=>{
         console.log(' >> onUpdateProfile >> ', JSON.stringify(err));
-        components_helper.notif.exceptionNotification(  that.props.intl.formatMessage({id:'errors.occurred_title'}), err );
+        components_helper.notif.exceptionNotification(  that.props.intl.formatMessage({id:'errors.occurred_title'}), err );       
         that.setState({pushingTx:false});
       })
 

@@ -37,6 +37,11 @@
   "global.submit"                   : "Submit",
   "global.invoice"                  : "Invoice",
   "global.pay"                      : "Pay",
+  "global.amount"                   : "Amount",
+  "global.customer"                 : "Customer",
+  "global.charge"                   : "Charge",
+  "global.logout"                   : "Logout",
+  "global.clear"                    : "Clear",
 
   "global.dates.today"              : "Today",
   "global.dates.since_yesterday"    : "Since yesterday",
@@ -51,7 +56,8 @@
   "errors.select_account_from_list"                         : "Please select an account from the list.",
   "errors.select_valid_payer_account"                       : "Please select a valid payer account",
   "infos.only_one_file"                                     : "Only 1 file allowed",
-
+  "validator.check_amount"                                  : "Please type an amount greater than zero!", 
+  "success.oper_completed_succ"                             : "Operation completed successfully",
 
   "components.AutocompleteAcount.index.placeholder"         : "Type account name",
   "components.AutocompleteAcount.index.title"               : "Can't find account? Click to reload accounts!", 
@@ -152,12 +158,66 @@
   "components.Forms.payment.password_validation"                        : "Input a valid password",
   "components.Forms.payment.password_placeholder"                       : "Password or private key",
 
+  "components.Forms.profile.account_name_desc"                          : "Account name",
+  "components.Forms.profile.account_name_message"                       : "Please input a valid account name!",
+  "components.Forms.profile.last_name_desc"                             : "Last name",
+  "components.Forms.profile.last_name_message"                          : "Please input a valid last name!",
+  "components.Forms.profile.first_name_desc"                            : "First name",
+  "components.Forms.profile.first_name_message"                         : "Please input a valid first name!",
+  "components.Forms.profile.biz_name_desc"                              : "Business name ",
+  "components.Forms.profile.biz_name_message"                           : "Please input a valid business name!",
+  "components.Forms.profile.alias_name_desc"                            : "IUGU alias",
+  "components.Forms.profile.alias_name_message"                         : "Please input a valid alias!",
+  "components.Forms.profile.email_desc"                                 : "Email",
+  "components.Forms.profile.email_message"                              : "Please input a valid email!",
+  "components.Forms.profile.cpf_desc"                                   : "CPF",
+  "components.Forms.profile.cpf_message"                                : "Please input a valid CPF!",
+  "components.Forms.profile.birthday_desc"                              : "Birthday",
+  "components.Forms.profile.birthday_message"                           : "Please input a valid Date!",
+  "components.Forms.profile.phone_desc"                                 : "Phone number",
+  "components.Forms.profile.phone_message"                              : "Please input a valid phone number!",
+  "components.Forms.profile.street_desc"                                : "Street",
+  "components.Forms.profile.city_desc"                                  : "City",
+  "components.Forms.profile.state_desc"                                 : "State",
+  "components.Forms.profile.zip_desc"                                   : "ZIP",
+  "components.Forms.profile.country_desc"                               : "Country",
+
+  "components.Forms.salary.confirm_title"                               : "Confirm salaries payment",
+  "components.Forms.salary.confirm_content"                             : "You are about to pay salaries for <bold>{total}</bold>. Continue or cancel.",
+
+  "components.Forms.salary.description_title"                           : "Payment Desciription",
+  "components.Forms.salary.description_message"                         : "Please type a description!",
+  "components.Forms.salary.worked_month_title"                          : "Worked Month",
+  "components.Forms.salary.worked_month_message"                        : "Please type a valid Date!",
+  "components.Forms.salary.wages_message"                               : "Wages",
+
+  "components.Forms.service.status_title"                               : "Choose a status",
+  "components.Forms.service.status_message"                             : "Please select a status",
+  "components.forms.service.modify_service"                             : "Modify Service",
+  "components.forms.service.add_service"                                : "Add Service",
+
+  "components.Forms.service.service_title"                              : "Service title",
+  "components.Forms.service.service_message"                            : "Please input a valid title!",
+  "components.Forms.service.service_description"                        : "Service description",
+  "components.Forms.service.monthly_price"                              : "Monthly price", 
+  
+  "components.Forms.service_contract.send_request"                      : "Send request",
+  "components.Forms.service_contract.send_request"                      : "Send request",
+
+  "components.Forms.service_contract.service_begins_at"                 : "Service begins at", 
+  "components.Forms.service_contract.service_begins_at_msg"             : "Please input a valid month!",
+  "components.Forms.service_contract.service_expires_at"                : "Service expires at",
+  "components.Forms.service_contract.month_range_error"                 : "Month range error",
+  "components.Forms.service_contract.month_range_error_message"         : "Initial service month should be prior to or equal than ending one.",
+   
+  "components.Forms.service_contract_charge.next_month_to_charge"       : "Next month to charge",
+  "components.Forms.service_contract_charge.days_remaining_to_charge"   : "Days remaining to charge",
+
+  "components.InkiriHeader.logout_title"                                : "Logout confirmation",
+  "components.InkiriHeader.logout_message"                              : "Please confirm logout action",
 
   "pages.bankadmin.account.error_reloading_profile"                     : "An error occurred reloading profile",
   "pages.bankadmin.account.error_reloading_account"                     : "An error occurred reloading account",
-  "pages.bankadmin.account.success_alias_updated"                       : "Alias updated successfully",
-  
-
-
-  "userBox.message"                                   : "¿Desea continuar la sesión con el usuario {account} ({account_id})?"
+  "pages.bankadmin.account.success_alias_updated"                       : "Alias updated successfully"
+ 
 }

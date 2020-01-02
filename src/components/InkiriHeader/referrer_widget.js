@@ -13,10 +13,7 @@ import HeaderDropdown from './HeaderDropdown';
 import './index.less';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-// export interface GlobalHeaderRightProps extends ConnectProps {
-//   currentUser?: CurrentUser;
-//   menu?: boolean;
-// }
+import { injectIntl } from "react-intl";
 
 class ReferrerWidget extends React.Component {
 
@@ -58,7 +55,7 @@ class ReferrerWidget extends React.Component {
         <Menu.Divider />
         <Menu.Item key="clear_referrer">
           <Icon type="close" />
-          Clear
+          { this.props.intl.formatMessage({id:'global.clear'}) }
         </Menu.Item>
       </Menu>
     );
@@ -83,5 +80,5 @@ export default (withRouter(connect(
       
       clearReferrer:      bindActionCreators(menuRedux.clearReferrer, dispatch),
     })
-)(ReferrerWidget) ));
+)( injectIntl(ReferrerWidget)) ));
 

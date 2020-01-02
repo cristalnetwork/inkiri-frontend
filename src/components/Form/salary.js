@@ -12,8 +12,9 @@ import * as validators from '@app/components/Form/validators';
 
 import { withRouter } from "react-router-dom";
 import * as request_helper from '@app/components/TransactionCard/helper';
-
-import { Modal, List, Skeleton, notification, Select, Button , Form, Icon, InputNumber, Input, DatePicker } from 'antd';
+import * as components_helper from '@app/components/helper';
+        
+import { Modal, List, Skeleton, Select, Button , Form, Icon, InputNumber, Input, DatePicker } from 'antd';
 import InfiniteScroll from 'react-infinite-scroller';
 
 import * as form_helper from '@app/components/Form/form_helper';
@@ -21,6 +22,8 @@ import * as form_helper from '@app/components/Form/form_helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import * as moment from 'moment';
+
+import { injectIntl } from "react-intl";
 
 class SalaryForm extends Component {
   constructor(props) {
@@ -40,7 +43,6 @@ class SalaryForm extends Component {
     };
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
 
   }
 
@@ -55,13 +57,6 @@ class SalaryForm extends Component {
       }
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-
   fireEvent = (error, cancel, data) => {
     const {callback} = this.state;
     if(typeof  callback === 'function') {
@@ -71,18 +66,21 @@ class SalaryForm extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    
+    const {total}           = this.state.payment;
+    const {formatMessage}   = this.props.intl;
+
     this.props.form.validateFields((err, values) => {
       
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+        components_helper.notif.errorNotification( formatMessage({id:'errors.validation_title'}), formatMessage({id:'errors.verify_on_screen'}) )    
         console.log(' ERRORS!! >> ', err)
         return;
       }
       const that = this;
       Modal.confirm({
-        title: 'Confirm salaries payment',
-        content: (<p>You are about to pay salaries for <b>{this.state.payment.total}</b>. Continue or cancel.</p>),
+        title: 'components.Forms.salary.confirm_title',
+        content: (<p>{ formatMessage({id: 'components.Forms.salary.confirm_content', total: total, bold: str => <b>{str}</b> })
+         }</p>),
         onOk() {
           that.fireEvent(null, null, values);
         },
@@ -91,14 +89,6 @@ class SalaryForm extends Component {
         },
       });
 
-      // if(!this.state.profile)
-      // {
-      //   this.openNotificationWithIcon("error", 'You must choose a Profile!');
-      //   return;
-      // }
-      
-      
-      
     });
   };
 
@@ -113,20 +103,26 @@ class SalaryForm extends Component {
   renderContent() {  
     const { members, job_positions, payment }   = this.state;
     const { form }                              = this.props;
-    
-    const getJobPositionTitle = (position,  job_positions) => {
+    const  getJobPositionTitle  = (position,  job_positions) => {
       const _position = job_positions?job_positions.filter(pos=>pos.key==position)[0].title:position;
       return _position;
     }
+    const { formatMessage }      = this.props.intl;
+    const description_title      = formatMessage( {id: 'components.Forms.salary.description_title' } );
+    const description_message    = formatMessage( {id: 'components.Forms.salary.description_message' } );
+    const worked_month_title     = formatMessage( {id: 'components.Forms.salary.worked_month_title' } );
+    const worked_month_message   = formatMessage( {id: 'components.Forms.salary.worked_month_message' } );
+    const wages_message          = formatMessage( {id: 'components.Forms.salary.wages_message' } );
+
     return (
         <Form onSubmit={this.handleSubmit} className="with_labels">
             <div className="money-transfer">
-              {form_helper.simple(form_helper.getStringItem(form, payment , 'description'  , 'Payment Desciription' , 'Please input a description!'))}
-              {form_helper.simple(form_helper.getMonthItem(form,  payment  , 'worked_month' , 'Worked Month'         , 'Please input a valid Date!'))}
+              {form_helper.simple(form_helper.getStringItem(form, payment ,  'description'  , description_title, description_message))}
+              {form_helper.simple(form_helper.getMonthItem(form,  payment  , 'worked_month' , worked_month_title, worked_month_message))}
               
               <br/><br/>
               <div className="c-header-detail__head u-clearfix">
-                <div className="c-header-detail__title">Wages</div>
+                <div className="c-header-detail__title">{wages_message}</div>
                 <div className="c-header-detail__actions"><strong>{payment.total}</strong></div>
               </div>
               
@@ -143,7 +139,7 @@ class SalaryForm extends Component {
                   renderItem={member => (
                     <List.Item>
                         <List.Item.Meta
-                          avatar={<span className="ant-avatar"> <FontAwesomeIcon icon={['fab', 'pagelines']} size="lg" color="gray"/> </span>}
+                          avatar={<span className="ant-avatar"> <FontAwesomeIcon icon={['fab', 'pagelines']} size="lg" color="black"/> </span>}
                           title={<a href="#">{request_helper.getProfileName(member.member)}</a>}
                           description={'@'+member.member.account_name}
                         />
@@ -162,8 +158,12 @@ class SalaryForm extends Component {
             </div>
             
             <div className="mp-box__actions mp-box__shore">
-                <Button size="large" key="paySalaries" htmlType="submit" type="primary" >PAY</Button>
-                <Button size="large" key="cancelPayment" type="link" onClick={ () => this.fireEvent(null, true, null)}>CANCEL</Button>
+                <Button size="large" key="paySalaries" htmlType="submit" type="primary" >
+                  { formatMessage({id:'global.pay'}) }
+                </Button>
+                <Button size="large" key="cancelPayment" type="link" onClick={ () => this.fireEvent(null, true, null)}>
+                  { formatMessage({id:'global.cancel'}) }
+                </Button>
             </div>
 
         </Form>
@@ -206,5 +206,5 @@ export default Form.create() (withRouter(connect(
     (dispatch)=>({
         
     })
-)(SalaryForm) )
+)( injectIntl(SalaryForm)) )
 );

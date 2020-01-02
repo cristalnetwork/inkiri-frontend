@@ -11,6 +11,7 @@ import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as form_helper from '@app/components/Form/form_helper';
+import * as components_helper from '@app/components/helper';
 
 import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
@@ -18,9 +19,11 @@ import ServiceCard from '@app/components/TransactionCard/service_card';
 
 import { withRouter } from "react-router-dom";
 
-import { Select, notification, Empty, Button, Form, message, AutoComplete, Input, Icon } from 'antd';
+import { Select, Empty, Button, Form, message, AutoComplete, Input, Icon } from 'antd';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import { injectIntl } from "react-intl"; 
 
 class ServiceContractForm extends Component {
   constructor(props) {
@@ -35,7 +38,6 @@ class ServiceContractForm extends Component {
 
     };
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.onSelect                   = this.onSelect.bind(this)
   }
 
@@ -55,13 +57,6 @@ class ServiceContractForm extends Component {
       }
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-
   /*
   * Components' Events.
   */
@@ -79,11 +74,12 @@ class ServiceContractForm extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
+    const {formatMessage}   = this.props.intl;
     
     this.props.form.validateFields((err, values) => {
       
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+        components_helper.notif.errorNotification( formatMessage({id:'errors.validation_title'}), formatMessage({id:'errors.verify_on_screen'}) )    
         console.log(' ERRORS!! >> ', err)
         return;
       }
@@ -93,7 +89,7 @@ class ServiceContractForm extends Component {
         const exists = this.props.accounts.filter( account => account.key==values.customer);
         if(!exists || exists.length==0)
         {
-          this.openNotificationWithIcon("error", 'Please select an account from the list.');
+          components_helper.notif.errorNotification( formatMessage({id:'errors.select_account_from_list'}), )    
           return;
         }
       }
@@ -101,7 +97,9 @@ class ServiceContractForm extends Component {
       let periods = api.pap_helper.getServicePeriods(values);
       if(periods<=0)
       {
-        this.openNotificationWithIcon("error", 'Month range error', 'Initial service month should be prior to or equal than ending one.');
+        
+        components_helper.notif.errorNotification( formatMessage({id:'components.Forms.service_contract.month_range_error'})
+            , formatMessage({id:'components.Forms.service_contract.month_range_error_message'}) );     
         return;
       }
 
@@ -131,7 +129,13 @@ class ServiceContractForm extends Component {
     
     const customer_selector       = (<AutocompleteAccount callback={this.onSelect} form={form} name="customer" />)
     
-    const button_text             = 'SEND REQUEST';
+    const {formatMessage}         = this.props.intl;
+    const button_text             = formatMessage({id:'components.Forms.service_contract.send_request'});
+    const service_begins_at       = formatMessage({id:'components.Forms.service_contract.service_begins_at'});
+    const service_begins_at_msg   = formatMessage({id:'components.Forms.service_contract.service_begins_at_msg'});
+    const service_expires_at      = formatMessage({id:'components.Forms.service_contract.service_expires_at'});
+    const service_expires_at_msg  = service_begins_at_msg;
+
     return (
             
             <>
@@ -143,14 +147,16 @@ class ServiceContractForm extends Component {
 
                   {customer_selector}
 
-                  {form_helper.withIcon('calendar-alt', form_helper.getMonthItem(form, null , 'begins_at'  , 'Service begins at'  , 'Please input a valid month!'))}
-                  {form_helper.withIcon('calendar-alt', form_helper.getMonthItem(form, null , 'expires_at' , 'Service expires at' , 'Please input a valid month!'))}
+                  {form_helper.withIcon('calendar-alt', form_helper.getMonthItem(form, null , 'begins_at'  , service_begins_at, service_begins_at_msg))}
+                  {form_helper.withIcon('calendar-alt', form_helper.getMonthItem(form, null , 'expires_at' , service_expires_at, service_expires_at_msg))}
                   
 
               </div>
               <div className="mp-box__actions mp-box__shore">
                 <Button size="large" key="requestButton" htmlType="submit" type="primary" htmlType="submit" >{button_text}</Button>
-                <Button size="large" className="danger_color" type="link" onClick={()=>{this.fireEvent(null, true, null)}}>Cancel</Button>
+                <Button size="large" className="danger_color" type="link" onClick={()=>{this.fireEvent(null, true, null)}}>
+                  { formatMessage({id:'global.cancel'}) }
+                </Button>
               </div>
                 
               
@@ -170,7 +176,7 @@ export default Form.create() (withRouter(connect(
     (dispatch)=>({
         
     })
-)(ServiceContractForm) )
+)( injectIntl(ServiceContractForm)) )
 );
 
 
