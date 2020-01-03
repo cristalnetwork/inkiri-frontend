@@ -487,6 +487,17 @@
   "pages.bankadmin.operations.tab.blockchain_transactions"              : "Blockchain transactions",
   "pages.bankadmin.operations.tab.requests"                             : "Requests",
 
+  "pages.bankadmin.pda.end_of_list"                                     : "You have reach the end of transaction list",
+  "pages.bankadmin.pda.no_records_for_filter"                           : "Oops... there is no records for this filter!",
+  "pages.bankadmin.pda.deposit"                                         : "Deposit",
+  "pages.bankadmin.pda.withdraw"                                        : "Withdraw",
+  "pages.bankadmin.pda.title"                                           : "PDA",
+  "pages.bankadmin.pda.title_hint"                                      : "Deposits and Withdraws",
+  "pages.bankadmin.pda.stats.deposits"                                  : "{currency_symbol} deposits",
+  "pages.bankadmin.pda.stats.withdraws"                                 : "Withdraws",
+  "pages.bankadmin.pda.stats.pending"                                   : "Pending",
+  "pages.bankadmin.pda.stats.stats"                                     : "Stats",
+  
   "dummy" : "dummy"
  
 }

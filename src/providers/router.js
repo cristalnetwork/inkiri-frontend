@@ -32,7 +32,7 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
         {
           if(actualRole=='bankadmin') 
           {
-            history.push(`/${actualRole}/dashboard`);
+            // history.push(`/${actualRole}/dashboard`);
             // history.push(`/common/salaries`);
             // history.push(`/common/crew`);
             // history.push(`/${actualRole}/configuration`);
@@ -42,7 +42,7 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
             // history.push(`/${actualRole}/provider-profile`);
             // history.push(`/${actualRole}/providers`);
             // history.push(`/${actualRole}/external-transfers`);
-            // history.push(`/${actualRole}/pda`);
+            history.push(`/${actualRole}/pda`);
             // history.push(`/${actualRole}/accounts`);
             // history.push(`/${actualRole}/create-account`);
             // history.push({
