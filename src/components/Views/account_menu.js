@@ -3,6 +3,7 @@ import { Empty, Button, Icon, message } from 'antd';
 import { connect } from 'react-redux'
 import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
+import { injectIntl } from "react-intl";
 
 const MenuAccountView = (props) => {
     
@@ -10,6 +11,15 @@ const MenuAccountView = (props) => {
     useEffect(() => {
         setAccount(props.account);
     });
+
+    const [role_text, setRoleText] = useState('');    
+    const [type_text, setTypeText] = useState('');
+    
+    useEffect(() => {
+      setRoleText(props.intl.formatMessage({id:'components.Views.account_menu.role'}));
+      setTypeText( props.intl.formatMessage({id:'components.Views.account_menu.type'}) );
+    }, []);
+
 
     if(!account)
       return (null);
@@ -24,8 +34,8 @@ const MenuAccountView = (props) => {
       return (<>
                 <span className="menu_account_name">{account_name}</span>
                 <div className="menu_account_container">
-                  <span className="menu_account_permission">ROLE: <span>{account_permission}</span></span>
-                  <span className="menu_account_type">TYPE: <span>{account_type}</span></span>
+                  <span className="menu_account_permission"><span class="uppercase">{role_text}</span>: <span>{account_permission}</span></span>
+                  <span className="menu_account_type"><span class="uppercase">{type_text}</span>: <span>{account_type}</span></span>
                 </div>
               </>);
     }
@@ -55,5 +65,5 @@ export default connect(
         // currentAccount:  loginRedux.currentAccount(state),
         // isLoading:       loginRedux.isLoading(state)
     })
-)(MenuAccountView)
+)(injectIntl(MenuAccountView))
 

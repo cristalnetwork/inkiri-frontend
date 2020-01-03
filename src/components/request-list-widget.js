@@ -70,6 +70,7 @@ const RequestListWidget = (props) => {
         , buildItemCompute(props.intl.formatMessage( { id:'components.request-list-widget.stats.balance-movement'}) , (money_in-money_out))
         , buildItemSimple(props.intl.formatMessage( { id:'components.request-list-widget.stats.transactions-count'}) , (count||0))
       ];
+      
     console.log('...about to set stats')
     setStats(items);
   }

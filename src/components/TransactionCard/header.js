@@ -12,8 +12,8 @@ const TransactionHeader = ({request, transaction}) => {
     
     const getFormatter = (id, request_id, request_date) => {
       return <InjectMessage 
-        id={id}
-        values={ {request_id:     request_id
+              id={id}
+              values={ {request_id:     request_id
                   , request_date: request_date
                   , bold: (str) => <b>{str}</b>
                 }} />

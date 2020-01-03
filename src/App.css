@@ -508,3 +508,5 @@ select .anticon {
   line-height: 10px;
   height: 24px;
 }
+
+span.uppercase {text-transform: uppercase;}

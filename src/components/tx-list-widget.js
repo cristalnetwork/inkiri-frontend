@@ -16,6 +16,7 @@ import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimp
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
+import { injectIntl } from "react-intl";
 import InjectMessage from "@app/components/intl-messages";
 
 const TxListWidget = (props) => {
@@ -97,10 +98,10 @@ const TxListWidget = (props) => {
     const count = txs.length;
     
     const items = [
-        buildItemUp('Entradas', money_in)
-        , buildItemDown('Saidas', money_out)
-        , buildItemCompute('Variacao de caja', (money_in-money_out))
-        , buildItemSimple('Transações', (count||0))
+        buildItemUp(props.intl.formatMessage( { id:'components.request-list-widget.stats.money-in'}) , money_in)
+        , buildItemDown(props.intl.formatMessage( { id:'components.request-list-widget.stats.money-out'}) , money_out)
+        , buildItemCompute(props.intl.formatMessage( { id:'components.request-list-widget.stats.balance-movement'}) , (money_in-money_out))
+        , buildItemSimple(props.intl.formatMessage( { id:'components.request-list-widget.stats.transactions-count'}) , (count||0))
       ];
     setStats(items);
   }
@@ -174,5 +175,5 @@ export default connect(
         loadBlockchainOperations:     bindActionCreators(operationsRedux.loadBlockchainOperations, dispatch),
         loadNewBlockchainOperations:  bindActionCreators(operationsRedux.loadNewBlockchainOperations, dispatch),
     })
-)(TxListWidget)
+)(injectIntl(TxListWidget))
 

@@ -13,7 +13,7 @@ const Skeleton = ({content, icon}) => {
                 <div id="pickfiles" className="add-picture-badge-img" style={{width: 125, height: 125, zIndex: 10, position: 'relative'}}>
                   <span id="pickfileDefault" className="add-picture-badge" style={{border: '1px solid rgb(153, 153, 153)', backgroundColor: 'white', display:'flex', justifyContent:'center', alignItems:'center'}}
                     >
-                    <FontAwesomeIcon icon={icon||'user'} size="4x" color="gray"/>
+                    <FontAwesomeIcon icon={icon||'user'} size="4x" color="black"/>
                   </span>
                   
                 </div>
