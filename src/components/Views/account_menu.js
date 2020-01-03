@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Empty, Button, Icon, message } from 'antd';
+import { Icon } from 'antd';
 import { connect } from 'react-redux'
 import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
@@ -10,7 +10,7 @@ const MenuAccountView = (props) => {
     const [account, setAccount]       = useState(null);
     useEffect(() => {
         setAccount(props.account);
-    });
+    }, [props.account]);
 
     const [role_text, setRoleText] = useState('');    
     const [type_text, setTypeText] = useState('');
@@ -34,8 +34,8 @@ const MenuAccountView = (props) => {
       return (<>
                 <span className="menu_account_name">{account_name}</span>
                 <div className="menu_account_container">
-                  <span className="menu_account_permission"><span class="uppercase">{role_text}</span>: <span>{account_permission}</span></span>
-                  <span className="menu_account_type"><span class="uppercase">{type_text}</span>: <span>{account_type}</span></span>
+                  <span className="menu_account_permission"><span className="uppercase">{role_text}</span>: <span>{account_permission}</span></span>
+                  <span className="menu_account_type"><span className="uppercase">{type_text}</span>: <span>{account_type}</span></span>
                 </div>
               </>);
     }

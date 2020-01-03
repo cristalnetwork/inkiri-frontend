@@ -1,22 +1,9 @@
 import React from 'react'
-import { Menu, Dropdown, Button, Icon, message } from 'antd';
 import { connect } from 'react-redux'
-// import * as loginRedux from '@app/redux/models/login'
-import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const NameValueIcon = ({name, value, icon, not_alone}) => {
     
-    /*
-    <div className="ui-avatar">
-                        <div className="ui-avatar__content ui-avatar__content--initials">
-                          <FontAwesomeIcon icon={icon} size="lg" color="#1890ff"/>
-                        </div>
-                      </div>
-                      */
-                      
     const item = (<>
                   <div className="ui-row__col ui-row__col--heading">
                       <div className="ui-avatar">
@@ -52,9 +39,5 @@ const NameValueIcon = ({name, value, icon, not_alone}) => {
 
 export default connect(
     (state)=> ({
-        // allAccounts:     loginRedux.allAccounts(state),
-        // actualAccountName:   loginRedux.actualAccountName(state),
-        // currentAccount:  loginRedux.currentAccount(state),
-        // isLoading:       loginRedux.isLoading(state)
     })
 )(NameValueIcon)

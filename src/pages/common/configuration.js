@@ -433,7 +433,7 @@ class Configuration extends Component {
     if(active_tab==ACTIVE_TAB_ROLES){
       if(active_tab_action==ACTIVE_TAB_ROLES_NEW)
       {
-        const {authority} = active_tab_object;
+        const authority = active_tab_object;
         return (
           <Skeleton 
             content={

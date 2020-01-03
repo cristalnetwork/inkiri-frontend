@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Empty, Button, Icon, message } from 'antd';
+import { Button } from 'antd';
 import { connect } from 'react-redux'
-// import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Skeleton from '@app/components/Views/skeleton';
 
@@ -26,9 +22,15 @@ const AccountView = (props) => {
 
     useEffect(() => {
         setAccount(props.account);
+    }, [props.account]);
+
+    useEffect(() => {
         setProfile(props.profile);
-        setOnEvent(props.onEvent||null);
-    });
+    }, [props.profile]);
+
+    useEffect(() => {
+        setOnEvent(props.onEvent);
+    }, [props.onEvent]);
 
     const [edit_iugu_alias_text, setIuguAliasEditText] = useState('');    
     const [iugu_alias, setIugu_alias] = useState('');

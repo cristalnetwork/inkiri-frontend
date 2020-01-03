@@ -1,22 +1,16 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
-
-import * as api from '@app/services/inkiriApi';
-import * as globalCfg from '@app/configs/global';
-import * as validators from '@app/components/Form/validators';
 
 import * as components_helper from '@app/components/helper';
 
 import { withRouter } from "react-router-dom";
 
-import { Select, Button , Form, Icon, InputNumber, Input } from 'antd';
+import { Button , Form, Input } from 'antd';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { injectIntl } from "react-intl";
 
 const DEFAULT_STATE = {

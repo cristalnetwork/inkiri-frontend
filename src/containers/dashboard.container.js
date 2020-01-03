@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, PageHeader, BackTop } from 'antd';
-
-import * as globalCfg from '@app/configs/global';
+import { Layout, BackTop } from 'antd';
 
 import InkiriHeader from '@app/components/InkiriHeader';
 
@@ -24,7 +22,6 @@ import useMedia from 'react-media-hook2';
 
 import MenuBalanceView from '@app/components/Views/balance_menu'
 import MenuAccountView from '@app/components/Views/account_menu'
-import * as components_helper from '@app/components/helper';
 
 import InjectMessage from "@app/components/intl-messages";
 
@@ -36,11 +33,8 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
     const [menu_is_collapsed, setMenuIsCollapsed] = useState(menuIsCollapsed);
     
     useEffect(() => {
-      if(menu_is_collapsed!=menuIsCollapsed)
-        setMenuIsCollapsed(menuIsCollapsed);
-      // console.log('dashboard::useEffect::menuIsCollapsed', menuIsCollapsed);
-
-    })
+      setMenuIsCollapsed(menuIsCollapsed);
+    }, [menuIsCollapsed])
 
     const isMobile = useMedia({
       id: 'DashboardContainer',
@@ -78,7 +72,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
             <div className={"logo" + logo_mobile}>
               <a href="/">
                 <div className="img_container">
-                  <img src="/favicons/favicon-32x32.png" />
+                  <img alt="Logo" src="/favicons/favicon-32x32.png" />
                 </div>
                 {!menu_is_collapsed && (<span className="omnes_isologo"><InjectMessage id="inkiri.bank.uppercase" /></span>)}
               </a>

@@ -1,6 +1,5 @@
-import { takeEvery, put, call } from '@redux-saga/core/effects';
+import { takeEvery, put } from '@redux-saga/core/effects';
 import { store } from '../configureStore'
-import * as core from './core';
 
 // Constantes
 const TRY_SET_PAGE_KEY_VALUE           = 'operations/TRY_SET_PAGE_KEY_VALUE';

@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -7,27 +7,19 @@ import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
 import * as accountsRedux from '@app/redux/models/accounts';
 
-import * as globalCfg from '@app/configs/global';
-import * as api from '@app/services/inkiriApi';
-
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import IntroduceRow from '@app/components/Dashboard/introduce-row';
+// import IntroduceRow from '@app/components/Dashboard/introduce-row';
 import ContasRow from '@app/components/Dashboard/contas-row';
 import PendingRow from '@app/components/Dashboard/pending-row';
 import MoneyRow from '@app/components/Dashboard/money-row';
-
-import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
-
-import { notification, Table, Divider, Spin } from 'antd';
-
-import * as utils from '@app/utils/utils';
+import { PageHeader, Button } from 'antd';
 
 import moment from 'moment';
 
-import { FormattedMessage, injectIntl } from "react-intl";
+import { injectIntl } from "react-intl";
 
 class Operations extends Component {
   constructor(props) {
@@ -39,9 +31,6 @@ class Operations extends Component {
       accounts:            props.accounts,
       currencyStats:       props.currencyStats
     };
-
-    
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
   }
   
   
@@ -75,13 +64,6 @@ class Operations extends Component {
         this.setState({currencyStats: this.props.currencyStats});
         // console.log('dashboard-didupdate-currencyStats:', this.props.currencyStats)
       }
-  }
-  
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
   
   render() {

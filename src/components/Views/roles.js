@@ -3,7 +3,6 @@ import { Modal, Skeleton, List, Card, Button, Icon } from 'antd';
 import { connect } from 'react-redux'
 import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
 
 import { injectIntl } from "react-intl";
 import InjectMessage from "@app/components/intl-messages";

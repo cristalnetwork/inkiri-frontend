@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -16,38 +16,37 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import debounce from 'lodash/debounce';
-
-import { Tooltip, Cascader, Select, Checkbox, DatePicker } from 'antd';
-
-import { Divider, Steps, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
-import { List, Skeleton, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { Select, DatePicker, Divider, Steps, Card, PageHeader,Button, Spin } from 'antd';
+import { List, Skeleton, Form, Icon, Input, } from 'antd';
 
 import { Modal } from 'antd';
+
+import TxResult from '@app/components/TxResult';
+import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
-import {formItemLayout,tailFormItemLayout } from '@app/utils/utils';
+import {formItemLayout } from '@app/utils/utils';
+
+import { injectIntl } from "react-intl";
+import InjectMessage from "@app/components/intl-messages";
 
 const { confirm } = Modal;
-const { Option } = Select;
-const AutoCompleteOption = AutoComplete.Option;
-const { Paragraph, Text } = Typography;
 
 const { Step } = Steps;
 
 const steps = [
   {
-    title: 'Account Info + Profile Info',
+    title: 'pages.bankadmin.create_account.step_1',
     content: 'First-content',
   },
   {
-    title: 'Account Details',
+    title: 'pages.bankadmin.create_account.step_2',
     content: 'Second-content',
   },
   {
-    title: 'Account Roles',
+    title: 'pages.bankadmin.create_account.step_3',
     content: 'Last-content',
   },
 ];
@@ -128,6 +127,7 @@ class CreateAccount extends Component {
     this.onCancelNewPermission         = this.onCancelNewPermission.bind(this);
     this.onDeletePermission            = this.onDeletePermission.bind(this);
     this.handleAcountNameChange        = this.handleAcountNameChange.bind(this);
+    this.userResultEvent            = this.userResultEvent.bind(this); 
     
     this.timeout_id = null;
   }
@@ -344,13 +344,6 @@ class CreateAccount extends Component {
 
   // Events
   componentDidMount(){
-    
-    // console.log('BEGIN generateAccountName')
-    // const test       = api.nameHelper.generateAccountName(['biz#1']);
-    // const valid_test = api.nameHelper.isValidAccountName(test);
-    // console.log(test, valid_test?'VALID':'INVALID')
-    // console.log('END generateAccountName')
-
     this.props.loadAccounts();
   }
 
@@ -523,11 +516,13 @@ class CreateAccount extends Component {
     })
   }
 
-  resetPage(full){
-    if(full)
-      this.setState({...DEFAULT_STATE, result: undefined, result_object: undefined, error: {}});
-    else
-      this.setState({result: undefined, result_object: undefined, error: {}});
+  resetPage(){
+    this.setState({...DEFAULT_STATE, result: undefined, result_object: undefined, error: {}});
+      
+  }
+
+  resetResult(){
+    this.setState({result: undefined, result_object: undefined, error: {}});
   }
 
   fieldsByAccountType(){
@@ -670,73 +665,77 @@ class CreateAccount extends Component {
   }
   //
   
-  renderStep(current_step){
+  renderStep0 = () => {
+    const {formatMessage}       = this.props.intl;
     const { getFieldDecorator } = this.props.form;
     const account_options       = this.renderAccountTypesOptions();
-    
-    let content = null;
-    
-    if(current_step==0)
-    {
-      const {account_type, account_fee, account_overdraft, first_name, last_name, email, legal_id, birthday, phone, address} = this.state;  
-        content = (
-              <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>
-                <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-                  <Form {...formItemLayout} onSubmit={this.handleSubmit}>
-                    
-                    <h3 className="fileds_header">ACCOUNT SECTION</h3>
-                    
-                        {account_options}
-                    
-                    <Form.Item label="Fee">
-                        {getFieldDecorator('account_fee', {
-                          rules: [{ required: true, message: 'Please input fee!', whitespace: true, validator: this.validateNumberGToEZ}],
-                          initialValue: account_fee||0
-                        })(<Input type="tel" step="0.01" />)}
-                    </Form.Item>
+    const {account_type, account_fee, account_overdraft, first_name, last_name, email, legal_id, birthday, phone, address} = this.state;  
+    return (
+          <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>
+            <Spin spinning={this.state.pushingTx} delay={500} tip={ formatMessage({id:'pages.bankadmin.create_account.pushing_transaction'}) } >
+              <Form {...formItemLayout} onSubmit={this.handleSubmit}>
+                
+                <h3 className="fileds_header">{ formatMessage({id:'pages.bankadmin.create_account.account_section'}) }</h3>
+                
+                    {account_options}
+                
+                <Form.Item label={formatMessage({id:'pages.bankadmin.create_account.fee'})}>
+                    {getFieldDecorator('account_fee', {
+                      rules: [{ required: true
+                                , message: formatMessage({id:'pages.bankadmin.create_account.fee_validation_message'})
+                                , whitespace: true
+                                , validator: this.validateNumberGToEZ}],
+                      initialValue: account_fee||0
+                    })(<Input type="tel" step="0.01" />)}
+                </Form.Item>
 
-                    <Form.Item
-                      label="Overdraft"
-                      extra="Credit. Kind of initial balance"
-                      >
-                        {getFieldDecorator('account_overdraft', {
-                          rules: [{ required: true, message: 'Please input overdraft!', whitespace: true , validator: this.validateNumberGToEZ}],
-                          initialValue: account_overdraft||0
-                        })(<Input type="tel" step="0.01" />)}
-                      </Form.Item>
+                <Form.Item
+                  label={formatMessage({id:'pages.bankadmin.create_account.overdraft'})}
+                  extra={formatMessage({id:'pages.bankadmin.create_account.overdraft_extra'})}
+                  >
+                    {getFieldDecorator('account_overdraft', {
+                      rules: [{ required: true
+                                , message: formatMessage({id:'pages.bankadmin.create_account.overdraft_validation_message'})
+                                , whitespace: true 
+                                , validator: this.validateNumberGToEZ}],
+                      initialValue: account_overdraft||0
+                    })(<Input type="tel" step="0.01" />)}
+                  </Form.Item>
 
-                      {this.fieldsByAccountType()}
-                    
-                  </Form>
-                </Spin>
-              </div>
-          );
-    }
-    
-    //
-    /*
-      , account_name_validating, account_name_validated
-      addonAfter={<Button type="link" icon="check" loading={account_name_validating} onClick={() => {this.validateAccountName()}} />}
-    */
-    if(current_step==1)
-    {  
-      const {account_name, account_name_status, password, confirm_password, default_keys, generated_keys} = this.state;  
+                  {this.fieldsByAccountType()}
+                
+              </Form>
+            </Spin>
+          </div>);
+  }
+
+  renderAccountHint =() =>{
+    const {formatMessage} = this.props.intl;
+    return ([1,2,3,4,5].map(i=>
+              <span key={`key_${Math.random()}`}>{formatMessage({id:`pages.bankadmin.create_account.account_name_help_${i}`})}<br/></span>
+          ))
+  }
+  //`
+  renderStep1 = () => {
+    const {formatMessage}       = this.props.intl;
+    const { getFieldDecorator } = this.props.form;
+    const {account_name, account_name_status, password, confirm_password, default_keys, generated_keys} = this.state;  
       
-      content = (
+    return (
         <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>
-          <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+          <Spin spinning={this.state.pushingTx} delay={500} tip={formatMessage({id:'pages.bankadmin.create_account.pushing_transaction'})}>
             <Form {...formItemLayout} onSubmit={this.handleSubmitS1}>
               
-              <h3 className="fileds_header">EOS ACCOUNT NAME SECTION</h3>
+              <h3 className="fileds_header">{ formatMessage({id:'pages.bankadmin.create_account.eos_account_name_section'}) }</h3>
               <Form.Item
-                extra={<>EOS Account names must be exactly 12 characters long and consist of lower case characters and digits up until 5. <br/>Validate account name if new at <a href={globalCfg.eos.create_account}  target="_blank">this validator</a> . </>}
-                label="Account name"
+                extra={<>{this.renderAccountHint()}</>}
+                label={formatMessage({id:'pages.bankadmin.create_account.account_name'})}
                 help={account_name_status} >
                 {getFieldDecorator('account_name', {
                   rules: [
-                    { required: true, message: 'Please input account name!', whitespace: true }
-                     , { max: 12, message: '12 characters max' }
-                     , { min: 12, message: '12 characters min' }
+                    { required: true, message: formatMessage({id:'pages.bankadmin.create_account.account_name_validation'}), whitespace: true }
+                     , { max: 12, message: formatMessage({id:'pages.bankadmin.create_account.account_name_validation_12_chars_max'}) }
+                     , { min: 12, message: formatMessage({id:'pages.bankadmin.create_account.account_name_validation_12_chars_min'}) }
                      , {validator: this.validateAccountName, }]
                      , onChange: (e) => this.handleAcountNameChange(e)
                      , initialValue: account_name
@@ -744,16 +743,16 @@ class CreateAccount extends Component {
               </Form.Item>
               
               <Divider />
-              <h3 className="fileds_header">SECURITY</h3>
+              <h3 className="fileds_header">{ formatMessage({id:'pages.bankadmin.create_account.security_section'}) }</h3>
               
-              <Form.Item label="Password" hasFeedback>
+              <Form.Item label={ formatMessage({id:'pages.bankadmin.create_account.password'}) } hasFeedback>
                 {getFieldDecorator('password', {
                   rules: [
                     {
                       required: true,
-                      message: 'Please input password!',
+                      message:  formatMessage({id:'pages.bankadmin.create_account.password_validation'}),
                     }
-                    ,{ min: 4, message: '4 characters min' }
+                    ,{ min: 4, message: formatMessage({id:'pages.bankadmin.create_account.password_validation_4_chars_min'}) }
                     ,{
                       validator: this.validateToNextPassword,
                     },
@@ -761,12 +760,13 @@ class CreateAccount extends Component {
                   initialValue: password
                 })(<Input.Password visibilityToggle="true" />)}
               </Form.Item>
-              <Form.Item label="Confirm Password" hasFeedback>
+
+              <Form.Item label={ formatMessage({id:'pages.bankadmin.create_account.confirm_password'}) } hasFeedback>
                 {getFieldDecorator('confirm_password', {
                   rules: [
                     {
                       required: true,
-                      message: 'Please confirm password!',
+                      message: formatMessage({id:'pages.bankadmin.create_account.confirm_password_validation'}),
                     },
                     {
                       validator: this.compareToFirstPassword,
@@ -775,75 +775,96 @@ class CreateAccount extends Component {
                   initialValue: confirm_password
                 })(<Input.Password visibilityToggle="true" onBlur={this.handleConfirmBlur} />)}
               </Form.Item>
-              <h3 className="fileds_header">KEYS GENERATED FROM PASSWORD</h3>
-              <Form.Item label="Private Key" extra="You can copy and keep this private key for security reasons.">
+              <h3 className="fileds_header">{ formatMessage({id:'pages.bankadmin.create_account.keys_section'}) }</h3>
+              <Form.Item label={ formatMessage({id: 'pages.bankadmin.create_account.private_key' }) } 
+                         extra={ formatMessage({id: 'pages.bankadmin.create_account.private_key_hint'}) }>
                 <Input readOnly addonAfter={
-                    <CopyToClipboard text={generated_keys.wif} onCopy={() => components_helper.notif.successNotification("Key copied successfully") }>
+                    <CopyToClipboard text={generated_keys.wif} onCopy={() => components_helper.notif.successNotification( formatMessage({id:'pages.bankadmin.create_account.key_copied_message'}) ) }>
                        <Button type="link" icon="copy" />
                     </CopyToClipboard>
                 } value={generated_keys.wif} />
               </Form.Item>
-              <Form.Item label="Public key">
+              <Form.Item label={ formatMessage({id: 'pages.bankadmin.create_account.public_key' }) } >
                 <Input readOnly addonAfter={<Icon type="global" />} value={generated_keys.pub_key}  />
               </Form.Item>
             </Form>
           </Spin>
         </div>
       );
-    }
-    
+  }
+
+  renderStep2 = () => {
     const {adding_new_perm} = this.state;
 
-    if(current_step==2 && !adding_new_perm){
+    if(!adding_new_perm){
       const {account_type} = this.state;  
-      // const permConf = globalCfg.bank.listPermsByAccountType();
-      // const xx = this.renderAllPerms(permConf[account_type]);
-      const xx = this.renderAllPerms(globalCfg.bank.getPermsForAccountType(account_type));
-      content = (xx);
+      return (this.renderAllPerms(globalCfg.bank.getPermsForAccountType(account_type)));
     }
     
-    if(current_step==2 && adding_new_perm)
-    {
-      const {active_tab_key} = this.state;
-      const account_name = globalCfg.bank.issuer;
-      content = (
-        <Card 
-          title={(<span>New Permission for <strong>{utils.capitalize(active_tab_key)} </strong> </span> )}
-          key={'_new_perm'}
-          style = { { marginBottom: 24 } } 
-          extra = {<Button key="_new_perm_cancel" icon="close" size="small" onClick={() => this.onCancelNewPermission()}> Cancel</Button>}
-          >
-          <div style={{ margin: '0 auto', width:'100%', padding: 24, background: '#fff'}}>
+    const {formatMessage}       = this.props.intl;
+    const {active_tab_key}      = this.state;
+    const authority             = formatMessage({id:`components.Views.roles.${active_tab_key}`});
+    console.log(`components.Views.roles.${active_tab_key}`, active_tab_key, '->', authority)
+    const authority_tab_text    = formatMessage({id: 'pages.bankadmin.create_account.new_perm_title'}, {  authority: authority, bold: (str) => <b key={Math.random()}>{str}</b> });
+    const cancel_text           = formatMessage({id:'global.cancel'});                                             
+    const account_name          = globalCfg.bank.issuer;
 
-            <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-              <Form onSubmit={this.handleAddPermissionSubmit}>
+    return (
+      <Card 
+        title={(<>{authority_tab_text}</> )}
+        key={'_new_perm'}
+        style = { { marginBottom: 24 } } 
+        extra = {<Button key="_new_perm_cancel" icon="close" size="small" onClick={() => this.onCancelNewPermission()}> {cancel_text}</Button>}
+        >
+        <div style={{ margin: '0 auto', width:'100%', padding: 24, background: '#fff'}}>
+
+          <Spin spinning={this.state.pushingTx} delay={500} tip={ formatMessage({id:'pages.bankadmin.create_account.pushing_transaction'}) } >
+            <Form onSubmit={this.handleAddPermissionSubmit}>
+              
+              <AutocompleteAccount 
+                  autoFocus 
+                  callback={this.onSelect} 
+                  form={this.props.form} 
+                  name="permissioned" 
+                  exclude_list={[account_name]} 
+                  filter={globalCfg.bank.ACCOUNT_TYPE_PERSONAL}/>
+
+              <Form.Item>
+                <Button type="primary" htmlType="submit" className="login-form-button">
+                  { formatMessage({id:'pages.bankadmin.create_account.authorize'}) }
+                </Button>
                 
-                <AutocompleteAccount 
-                    autoFocus 
-                    callback={this.onSelect} 
-                    form={this.props.form} 
-                    name="permissioned" 
-                    exclude_list={[account_name]} 
-                    filter={globalCfg.bank.ACCOUNT_TYPE_PERSONAL}/>
+              </Form.Item>
+            </Form>
+          </Spin>
+        
+        </div>
+      </Card>
+    ); 
+    
+  }
 
-                <Form.Item>
-                  <Button type="primary" htmlType="submit" className="login-form-button">
-                    Authorize
-                  </Button>
-                  
-                </Form.Item>
-              </Form>
-            </Spin>
-          
-          </div>
-        </Card>
-      ); 
-    }
+  renderStep(current_step){
+    const { getFieldDecorator } = this.props.form;
+    const {formatMessage}       = this.props.intl;
+    let content = null;
+    
+    if(current_step==0)
+      content = this.renderStep0();
+    
+   
+    if(current_step==1)
+      content = this.renderStep1();
+    
+    if(current_step==2)
+      content = this.renderStep2()
+
+    const step_title = formatMessage({id:steps[current_step].title});
 
     return (
         <>
           <Card 
-            title={(<span><strong>{steps[current_step].title} </strong> </span> )}
+            title={(<span><strong>{step_title}</strong> </span> )}
             key={'new_perm'}
             style = { { marginBottom: 24, marginTop: 24 } } 
             loading={this.state.pushingTx}
@@ -854,17 +875,17 @@ class CreateAccount extends Component {
             <div className="steps-action">
               {current_step > 0 && (
                 <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>
-                  Previous
+                  { formatMessage({id:'pages.bankadmin.create_account.nav.previous'})}
                 </Button>
               )}
               {current_step < steps.length - 1 && (
                 <Button type="primary" onClick={() => this.next()}>
-                  Next
+                  { formatMessage({id:'pages.bankadmin.create_account.nav.next'})}
                 </Button>
               )}
               {current_step === steps.length - 1 && (
                 <Button type="primary" onClick={() => this.validateNConfirmCreateAccount()} disabled={this.state.pushingTx} disabled={this.state.adding_new_perm}>
-                  Create Account
+                  { formatMessage({id:'pages.bankadmin.create_account.nav.create_account'})}
                 </Button>
               )}
             </div>
@@ -879,16 +900,18 @@ class CreateAccount extends Component {
   }
 
   renderAllPerms(perms) {
-    const {active_tab_key} = this.state;
+    const {active_tab_key}  = this.state;
+    const {formatMessage}   = this.props.intl;
+
     return (
       <Card 
         key={'card_master'}
         style = { { marginBottom: 24 } } 
-        extra = {<Button key="_new_perm" size="small" icon="plus" onClick={() => this.onNewPermission(active_tab_key)}> Authorize account</Button>}
-        tabList={perms.filter(perm => {return perm=='owner';}).map(perm=>{
+        extra = {<Button key="_new_perm" size="small" icon="plus" onClick={() => this.onNewPermission(active_tab_key)}> { formatMessage({id:'pages.bankadmin.create_account.authorize_account'})}</Button>}
+        tabList={perms.filter(perm => perm=='owner' ).map(perm=>{
           return {key: perm
                   , tab: (
-                    <span>{utils.capitalize(perm)} ({this.getPermissionsCount(perm)})</span>
+                    <span><InjectMessage id={`components.Views.roles.${perm}`} /> ({this.getPermissionsCount(perm)})</span>
                   )}
   
         })}
@@ -947,12 +970,13 @@ class CreateAccount extends Component {
     let list = [];
     if(perm && perm.length>0)
       list = perm[0].required_auth.accounts.filter(acc => acc.permission.actor.trim()!=eos_account.account_name.trim());
-    //<Icon type="user" />
-    // console.log(' >> reduced perm_name >> ', perm_name,JSON.stringify(list))
+    
+    const {formatMessage} = this.props.intl;
+    const authority       = formatMessage({id:`components.Views.roles.${perm_name}`});
     return (
       <Card 
         key={'card_'+perm_name}
-        title = { utils.capitalize(perm_name) + " Permissions" }  
+        title = { formatMessage({id:'pages.bankadmin.create_account.authority_permissions', authority}) }  
         style = { { marginBottom: 24 } } 
         extra = {<a key={'new_'+perm_name} href="#">+ New</a>}
         >
@@ -964,7 +988,7 @@ class CreateAccount extends Component {
             dataSource={list}
             renderItem={item => (
               <List.Item
-                actions={[<a key={"delete-"+item.permission.actor+item.permission.permission}>DELETE</a>]}
+                actions={[<a key={"delete-"+item.permission.actor+item.permission.permission}>{formatMessage({id:'pages.bankadmin.create_account.delete_permission'})}</a>]}
               >
                 <Skeleton avatar title={false} loading={item.loading} active>
                   <List.Item.Meta
@@ -985,70 +1009,40 @@ class CreateAccount extends Component {
   }
 
   //
-  renderResult() {
-  
-    if(this.state.result=='ok')
-    {
-      const account_name = this.state.result_object.account_name;
-      const _href        = api.dfuse.getBlockExplorerAccountLink(account_name);
-      // console.log(' >>>>> api.dfuse.getBlockExplorerTxLink: ', _href)
-      
-      return (
-        <div style={{ margin: '0 0px', padding: 24, background: '#fff'}}>
-          <Result
-          status="success"
-          title="Account created successfully!"
-          subTitle="Transaction completed succesfully. Blockchain takes up to 30 seconds to reveal changes, please wait."
-          extra={[
-            <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>
-              Go to dashboard
-            </Button>,
-            <Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title="View on Blockchain">B-Chain</Button>,
-            <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetPage(true)} />
-           ]}
-          />
-        </div>)
-    }
-
-    //
-    if(this.state.result=='error')
-    {
-
-      // <Button key="re-send">Try sending again</Button>,
-      return (
-        <div style={{ margin: '0 0px', padding: 24, background: '#fff'}}>
-          <Result
-                status="error"
-                title="Transaction Failed"
-                subTitle="Please check and modify the following information before resubmitting."
-                extra={[
-                  <Button type="primary" key="go-to-dashboard" onClick={()=>this.backToDashboard()}>Go to dashboard</Button>,
-                  <Button shape="circle" icon="close-circle" key="close" onClick={()=>this.resetPage(false)} />
-                ]}
-              >
-                <div className="desc">
-                  <Paragraph>
-                    <Text
-                      strong
-                      style={{ fontSize: 16, }}
-                    >
-                      The content you submitted has the following error:
-                    </Text>
-                  </Paragraph>
-                  <Paragraph>
-                    <Icon style={{ color: 'red' }} type="close-circle" /> {this.state.error}
-                  </Paragraph>
-                </div>
-              </Result>
-        </div>)
-    }
+  userResultEvent = (evt_type) => {
+    console.log(' ** userResultEvent -> EVT: ', evt_type)
+    if(evt_type==DASHBOARD)
+      this.backToDashboard();
+    if(evt_type==RESET_RESULT)
+      this.resetResult();
+    if(evt_type==RESET_PAGE)
+      this.resetPage();
     
-    // ** hack for sublime renderer ** //
-
+  }
+  //
+  renderResult() {
+    
+    if(this.state.result)
+    {
+      const result_type = this.state.result;
+      const title       = this.props.intl.formatMessage({id:'pages.bankadmin.create_account.succedd_message'});
+      //const _href        = api.dfuse.getBlockExplorerAccountLink(account_name);
+      const message     = null;
+      const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
+      const error       = this.state.error
+      
+      const result = (<TxResult result_type={result_type} title={title} message={message} error={error} cb={this.userResultEvent}  />);
+      return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+                <div className="ly-main-content content-spacing cards">
+                  <section className="mp-box mp-box__shadow money-transfer__box">
+                    {result}
+                  </section>
+                </div>      
+              </div>);
+    }
   }
   
-  // ** hack for sublime renderer ** //
-
+  //
   render() {
     const {current_step, result} = this.state;
     let content = null;
@@ -1064,17 +1058,13 @@ class CreateAccount extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-    
-          title="Create Account"
-          subTitle=""
-          
-        >          
-        </PageHeader>
+          title={ this.props.intl.formatMessage({id:'pages.bankadmin.create_account.title'}) }
+        />
         
           <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24}}>
             <Steps current={current_step}>
               {steps.map(item => (
-                <Step key={item.title} title={item.title} />
+                <Step key={item.title} title={<InjectMessage id={item.title} />} />
               ))}
             </Steps>
           </div>
@@ -1101,5 +1091,5 @@ export default Form.create() (withRouter(connect(
     (dispatch)=>({
       loadAccounts: bindActionCreators(accountsRedux.loadAccounts, dispatch)        
     })
-)(CreateAccount) )
+)(injectIntl(CreateAccount)) )
 );

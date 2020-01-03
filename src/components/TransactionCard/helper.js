@@ -1,4 +1,4 @@
-import React , {Component} from 'react';
+import React from 'react';
 import { Upload, Tag, Button, Icon } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as utils from '@app/utils/utils';

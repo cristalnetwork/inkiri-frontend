@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import * as routes_config from '@app/configs/routes'
 
 const routes  = {

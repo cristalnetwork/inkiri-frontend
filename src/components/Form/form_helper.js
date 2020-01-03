@@ -1,11 +1,8 @@
 import React from 'react'
-import { Select, Form, Icon, Input, DatePicker } from 'antd';
+import { Select, Form, Input, DatePicker } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as moment from 'moment';
 import 'moment/locale/pt-br';
-
-import { injectIntl } from "react-intl";
-import {useIntl} from 'react-intl';
 
 moment.locale('pt-BR');
 
@@ -122,21 +119,9 @@ export const getMonthItem = (_form, object, field, title, required_message, read
               })( <DatePicker.MonthPicker style={{width:'100%'}} format={MONTH_FORMAT} disabled={_readonly}/>)}
               </Form.Item>);
   }
+
 //
-// const getRanges = injectIntl (({intl}) =>{
-//   console.log(' ========================================= tripa')
-//   console.log(' >> ', intl.formatMessage({id:'global.dates.today'}));
-//   return {
-//            [intl.formatMessage({id:'global.dates.today'})]:           [moment(), moment()],
-//            [intl.formatMessage({id:'global.dates.since_yesterday'})]: [moment().subtract(1, 'days'), moment()],
-//            [intl.formatMessage({id:'global.dates.last_7_days'})]:     [moment().subtract(6, 'days'), moment()],
-//            [intl.formatMessage({id:'global.dates.last_30_days'})]:    [moment().subtract(29, 'days'), moment()],
-//            [intl.formatMessage({id:'global.dates.this_month'})]:      [moment().startOf('month'), moment().endOf('month')],
-//            [intl.formatMessage({id:'global.dates.last_month'})]:      [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-//         }
-// });
 const getRanges = (intl) =>{
-  // const intl = useIntl()
   console.log(' ========================================= tripa')
   console.log(' >> ', intl.formatMessage({id:'global.dates.today'}));
   return {

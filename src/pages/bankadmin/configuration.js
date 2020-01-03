@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -8,27 +8,26 @@ import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
 
 import * as api from '@app/services/inkiriApi';
-import * as globalCfg from '@app/configs/global';
 
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Card, PageHeader, Button, Spin, notification, Icon } from 'antd';
+import { Card, PageHeader, Spin } from 'antd';
 import { Tabs } from 'antd';
 
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
-// import './configuration.css'; 
 import _ from 'lodash';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import * as utils from '@app/utils/utils';
 
 import Skeleton from '@app/components/Views/skeleton';
 import AccountRolesView, {ENUM_EVENT_RELOAD_PERMISSIONS, ENUM_AUTHORITY_CHANGE, ENUM_EVENT_NEW_PERMISSION, ENUM_EVENT_DELETE_PERMISSION} from '@app/components/Views/roles';
 import AddRoleForm from '@app/components/Form/add_role';
+
+import { injectIntl } from "react-intl";
 
 const ACTIVE_TAB_BANK_ACCOUNTS         = 'active_tab_bank_accounts';
 const ACTIVE_TAB_ROLES                 = 'active_tab_roles';
@@ -63,7 +62,6 @@ class Configuration extends Component {
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetResult                = this.resetResult.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
     
 
@@ -73,13 +71,6 @@ class Configuration extends Component {
     
     this.onTabChange                = this.onTabChange.bind(this); 
 
-  }
- 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
 
   /*
@@ -121,7 +112,8 @@ class Configuration extends Component {
     this.props.form.validateFields((err, values) => {
       
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+        const {formatMessage} = this.ptops.intl;
+        components_helper.notif.errorNotification( formatMessage({id:'errors.validation_title'}), formatMessage({id:'errors.verify_on_screen'}) )    
         console.log(' ERRORS!! >> ', err)
         return;
       }
@@ -175,6 +167,7 @@ class Configuration extends Component {
         break;
       case ENUM_AUTHORITY_CHANGE:
         this.setState({role_authority:object});
+        break;
       default:
       case ENUM_EVENT_RELOAD_PERMISSIONS:
         this.props.loadEosAccount(this.props.actualAccountName);
@@ -200,7 +193,6 @@ class Configuration extends Component {
   addPermission = async (permissioned, perm_name) => {
     this.setState({pushingTx:true});
     const {eos_account}  = this.state;
-    console.log(' addPermission: => ',eos_account)
     const new_perm       = api.getNewPermissionObj (eos_account, permissioned, perm_name)
     this.setAccountPermission(perm_name, new_perm);
   }
@@ -210,17 +202,14 @@ class Configuration extends Component {
     this.setState({pushingTx:true});
     
     const {eos_account}  = this.state;
-    let the_authority = eos_account.permissions.filter( perm => perm.perm_name==perm_name )[0]
-    
-    
-    let new_authority = Object.assign({}, the_authority); 
+    let the_authority    = eos_account.permissions.filter( perm => perm.perm_name==perm_name )[0]
+    let new_authority    = Object.assign({}, the_authority); 
 
     _.remove(new_authority.required_auth.accounts, function(e) {
       return e.permission.actor === actor && e.permission.permission === permission;
     });
     
     this.setAccountPermission(perm_name, new_authority.required_auth);
-    
   }
 
   setAccountPermission(perm_name, new_perm){
@@ -230,18 +219,15 @@ class Configuration extends Component {
     
     api.setAccountPermission(eos_account.account_name, this.props.actualPrivateKey, perm_name, new_perm)
       .then(data => {
-        console.log(' ### setAccountPermission >>> ', JSON.stringify(data))
         that.props.loadEosAccount(that.props.actualAccountName);
         that.setState({result:'ok', pushingTx:false, result_object:data});
       }, (ex)=>{
-        console.log( ' ### setAccountPermission >>> ERROR >> ', JSON.stringify(ex))
         that.props.loadEosAccount(that.props.actualAccountName);
         that.setState({pushingTx:false, result:'error', error:JSON.stringify(ex)});
       });
   }
 
   onCancelNewPermission(){
-    // this.setState({active_tab_action:ACTIVE_TAB_ROLES, active_tab_object:{authority:object}});
     this.resetPage(ACTIVE_TAB_ROLES);
   }
 
@@ -287,16 +273,21 @@ class Configuration extends Component {
       
     }
 
+    const {formatMessage}          = this.props.intl;
+    const pushing_transaction_intl = formatMessage({id:'global.pushing_transaction'});
+
     if(active_tab==ACTIVE_TAB_ROLES){
       if(active_tab_action==ACTIVE_TAB_ROLES_NEW)
       {
-        const {authority} = active_tab_object;
+        const authority             = formatMessage({id:`components.Views.roles.${active_tab_object}`});
+        const authority_tab_text    = formatMessage({id: 'pages.bankadmin.configuration.new_perm_title'}, {  authority: authority, bold: (str) => <b key={Math.random()}>{str}</b> });
+        //  
         return (
           <Skeleton 
             content={
-              <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+              <Spin spinning={pushingTx} delay={500} tip={pushing_transaction_intl}>
                 <Card 
-                  title={(<span>New permission for <strong>{utils.capitalize(authority)} </strong> </span> )}
+                  title={(<span> {authority_tab_text} </span> )}
                   key={'new_perm'}
                   style = { { marginBottom: 24 } } 
                   >
@@ -310,7 +301,7 @@ class Configuration extends Component {
       return (
         <Skeleton 
         content={
-          <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+          <Spin spinning={pushingTx} delay={500} tip={pushing_transaction_intl}>
             <div className="c-detail">
               <AccountRolesView 
                 account={this.state.bank_account} 
@@ -326,19 +317,20 @@ class Configuration extends Component {
   }
 
   render() {
-    let content     = this.renderContent();
-    const {routes}  = this.state;
+    let content             = this.renderContent();
+    const {routes}          = this.state;
+    const {formatMessage}   = this.props.intl;
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Configuration"
+          title={formatMessage({id:'pages.bankadmin.configuration.title'})}
           footer={
             <Tabs defaultActiveKey={ACTIVE_TAB_ROLES} onChange={this.onTabChange}>
-              <Tabs.TabPane tab="Roles"         key={ACTIVE_TAB_ROLES} />
-              <Tabs.TabPane tab="Bank Accounts" key={ACTIVE_TAB_BANK_ACCOUNTS} disabled />
-              <Tabs.TabPane tab="Permissions"   key={ACTIVE_TAB_PERMISSIONS} disabled />
-              <Tabs.TabPane tab="Parameters"    key={ACTIVE_TAB_PARAMETERS} disabled />
+              <Tabs.TabPane tab={formatMessage({id:'pages.bankadmin.configuration.roles'})}         key={ACTIVE_TAB_ROLES} />
+              <Tabs.TabPane tab={formatMessage({id:'pages.bankadmin.configuration.bank'})}          key={ACTIVE_TAB_BANK_ACCOUNTS} disabled />
+              <Tabs.TabPane tab={formatMessage({id:'pages.bankadmin.configuration.permissions'})}   key={ACTIVE_TAB_PERMISSIONS} disabled />
+              <Tabs.TabPane tab={formatMessage({id:'pages.bankadmin.configuration.parameters'})}    key={ACTIVE_TAB_PARAMETERS} disabled />
             </Tabs>
           }>
         </PageHeader>
@@ -379,5 +371,5 @@ export default withRouter(connect(
         loadEosAccount:       bindActionCreators(accountsRedux.loadEosAccount, dispatch)
     })
 
-)(Configuration) )
+)(injectIntl(Configuration)) )
 ;

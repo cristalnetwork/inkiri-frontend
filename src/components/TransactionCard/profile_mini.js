@@ -1,21 +1,10 @@
 import React from 'react'
-import { Menu, Dropdown, Button, Icon, message } from 'antd';
 import { connect } from 'react-redux'
-// import * as loginRedux from '@app/redux/models/login'
-import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const ProfileMini = ({profile, title, not_alone, gray_bg}) => {
       
-    /*
-    <div className="ui-avatar">
-                        <div className="ui-avatar__content ui-avatar__content--initials">
-                          <FontAwesomeIcon icon="user" size="lg" color="gray"/>
-                        </div>
-                      </div>
-                      */
     const gray_bg_classname = gray_bg===true?' ui-info-row--background-gray ':' ui-info-row ';
     const item = (<>
                   <div className="ui-row__col ui-row__col--heading">
@@ -57,9 +46,5 @@ const ProfileMini = ({profile, title, not_alone, gray_bg}) => {
 
 export default connect(
     (state)=> ({
-        // allAccounts:     loginRedux.allAccounts(state),
-        // actualAccountName:   loginRedux.actualAccountName(state),
-        // currentAccount:  loginRedux.currentAccount(state),
-        // isLoading:       loginRedux.isLoading(state)
     })
 )(ProfileMini)

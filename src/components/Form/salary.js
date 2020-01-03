@@ -1,20 +1,17 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
 
-import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
-import * as validators from '@app/components/Form/validators';
 
 import { withRouter } from "react-router-dom";
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as components_helper from '@app/components/helper';
         
-import { Modal, List, Skeleton, Select, Button , Form, Icon, InputNumber, Input, DatePicker } from 'antd';
+import { Modal, List, Button , Form, } from 'antd';
 import InfiniteScroll from 'react-infinite-scroller';
 
 import * as form_helper from '@app/components/Form/form_helper';

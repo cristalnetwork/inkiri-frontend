@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Dropdown, Button, Icon, message } from 'antd';
 import { connect } from 'react-redux'
-// import * as loginRedux from '@app/redux/models/login'
-import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
-
 import { injectIntl } from "react-intl";
 
 import TransactionTitle from '@app/components/TransactionCard/title';
@@ -18,8 +12,8 @@ const TransactionBlockchain = (props) => {
 
     useEffect(() => {
       setRequest(props.request);
-      setTitle(props.title||money_transfer_text);    
-    });
+      setTitle(props.title);    
+    }, [props.request]);
 
     const [tx_refund_text, setRefundText]               = useState('');    
     const [money_transfer_text, setMoneyTransferText]   = useState('');    
@@ -40,7 +34,7 @@ const TransactionBlockchain = (props) => {
         
         <div className="ui-list">
           <ul className="ui-list__content">
-            <ItemBlockchainLink tx_id={request.tx_id}        title={title} />
+            <ItemBlockchainLink tx_id={request.tx_id}        title={title||money_transfer_text} />
             <ItemBlockchainLink tx_id={request.refund_tx_id} title={tx_refund_text} />
           </ul>
         </div>

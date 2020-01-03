@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Empty, Button, Icon, message } from 'antd';
+import React from 'react';
 import { connect } from 'react-redux'
 import * as loginRedux from '@app/redux/models/login'
-import * as globalCfg from '@app/configs/global';
 import UserBalance from '@app/components/InkiriHeader/userBalance';
 import InjectMessage from "@app/components/intl-messages";
 

@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -9,7 +9,7 @@ import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
@@ -17,22 +17,14 @@ import * as columns_helper from '@app/components/TransactionTable/columns';
 import TableStats from '@app/components/TransactionTable/stats'; 
 import * as stats_helper from '@app/components/TransactionTable/stats';
 
-import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col, List } from 'antd';
-import { Form, Input, Icon} from 'antd';
-import { notification, Table, Divider, Spin } from 'antd';
-
-import {DISPLAY_ALL_TXS} from '@app/components/TransactionTable';
-
-import * as utils from '@app/utils/utils';
+import { Radio, Select, Card, PageHeader, Tabs, Button } from 'antd';
+import { Form, Input} from 'antd';
+import { Table, Spin } from 'antd';
 
 import _ from 'lodash';
 
-const { TabPane } = Tabs;
-const FormItem = Form.Item;
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
-const { Option } = Select;
-const { Search, TextArea } = Input;
+import { injectIntl } from "react-intl";
+import InjectMessage from "@app/components/intl-messages";
 
 class AdminAccounts extends Component {
   constructor(props) {
@@ -47,21 +39,14 @@ class AdminAccounts extends Component {
       can_get_more:   true,
       cursor:         '',
       stats:          undefined,
-      // active_tab:     DISPLAY_ALL_TXS
     };
 
     this.loadAccounts               = this.loadAccounts.bind(this);  
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderFooter               = this.renderFooter.bind(this); 
     this.onNewData                  = this.onNewData.bind(this);
-    // this.onTabChange                = this.onTabChange.bind(this);
-    // this.onTableChange              = this.onTableChange.bind(this);
     this.onButtonClick              = this.onButtonClick.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
     this.onNewAccount               = this.onNewAccount.bind(this); 
-    this.renderAccountTypeFilter    = this.renderAccountTypeFilter.bind(this);
-    this.renderAccountStateFilter   = this.renderAccountStateFilter.bind(this);
-    this.renderFilterContent        = this.renderFilterContent.bind(this);
   }
 
   getColumns(){
@@ -129,9 +114,8 @@ class AdminAccounts extends Component {
     this.setState({loading:true});
 
     
-    // let page           = (this.state.page<0)?0:(this.state.page+1);
-    // const limit          = this.state.limit;
-    let that           = this;
+    const {formatMessage} = this.props.intl;
+    let that              = this;
     
     api.listBankAccounts()
     .then( async (res) => {
@@ -148,24 +132,24 @@ class AdminAccounts extends Component {
           values = await Promise.all(promises);
         }
         catch(err){
-          this.openNotificationWithIcon("error", "Error loading Account info", JSON.stringify(err));
+          components_helper.notif.exceptionNotification( formatMessage({id:'pages.bankadmin.accounts.error.loading_account'}), err);
           that.setState({loading:false});  
         }
 
         if(!values)
         {
-          this.openNotificationWithIcon("error", "Can NOT load accounts' balances neither accounts' balances.");
+          components_helper.notif.errorNotification( formatMessage({id:'pages.bankadmin.accounts.error.cant_load_balances_profiles'}));
           // return;
         }
 
         if(values && !values[0])
         {
-          this.openNotificationWithIcon("error", "Can NOT load accounts' balances");
+          components_helper.notif.errorNotification( formatMessage({id:'pages.bankadmin.accounts.error.cant_load_balances'}));
         }
 
         if(values && !values[1])
         {
-          this.openNotificationWithIcon("error", "Can NOT load accounts' aliases");
+          components_helper.notif.errorNotification( formatMessage({id:'pages.bankadmin.accounts.error.cant_load_profiles'}));          
         }
 
         const __balances = (values&&values.length>0)?values[0]:[];
@@ -206,7 +190,11 @@ class AdminAccounts extends Component {
 
     if(!has_received_new_data)
     {
-      this.openNotificationWithIcon("info", "End of accounts","You have reached the end of account list!")
+      const {formatMessage} = this.props.intl;
+      components_helper.notif.infoNotification(
+        formatMessage({id:'pages.bankadmin.accounts.end_of_accounts'})
+        , formatMessage({id:'pages.bankadmin.accounts.end_of_accounts_message'}) 
+      );
     }
     else
       this.computeStats();
@@ -235,7 +223,7 @@ class AdminAccounts extends Component {
 
     this.setState({stats:{
         total :               accounts?accounts.length:0
-        , pending:            'N/A' 
+        , pending:            this.props.intl.formatMessage({id: 'pages.bankadmin.accounts.not_available'})
         , negative_balance:   negative
         , admin:              admin
         , personal:           personal
@@ -248,7 +236,7 @@ class AdminAccounts extends Component {
   getDefaultStats(){
     return {
         total:               0
-        , pending:           'N/A' 
+        , pending:           this.props.intl.formatMessage({id: 'pages.bankadmin.accounts.not_available'})
         , negative_balance:  0
         , admin:             0
         , personal:          0
@@ -261,85 +249,16 @@ class AdminAccounts extends Component {
     return x?x:this.getDefaultStats();
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
   // Component Events
-  
-
-  
   renderFooter(){
-    return (<Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadAccounts()}>More!!</Button>)
-  }
-
-  //
-  
-  renderFilterContent(){
-    const optTypes  = this.renderAccountTypeFilter();
-    const optStates = this.renderAccountStateFilter();
-    return(
-      <div className="filter_wrap">
-        <Row>
-          <Col span={24}>
-            <Form layout="inline" className="filter_form" onSubmit={this.handleSubmit}>
-              <Form.Item label="Account Type">
-                {optTypes}
-              </Form.Item>
-              <Form.Item label="Account State">
-                {optStates}
-              </Form.Item>
-              <Form.Item  label="Search">
-                  <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
-              </Form.Item>
-              <Form.Item>
-                <Button htmlType="submit" disabled>
-                  Filter
-                </Button>
-              </Form.Item>
-            </Form>
-          </Col>
-        </Row>
-      </div>
-    );
-  }
-
-  // 
-  renderAccountStateFilter(){
-    console.log(' ** renderAccountStateFilter')
-    return (
-      <Select placeholder="Account status"
-                    mode="multiple"
-                    style={{ minWidth: '250px' }}
-                    defaultValue={['ALL']}
-                    optionLabelProp="label">
-        {globalCfg.bank.listAccountStates()
-          .map( account_state => <Option key={'option'+account_state} value={account_state} label={utils.firsts(account_state)}>{ utils.capitalize(account_state) } </Option> )}
-    </Select>
-    )
+    return (<Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadAccounts()}>
+        { this.props.intl.formatMessage({id: 'pages.bankadmin.accounts.load_more_records'})}
+      </Button>)
   }
   //
-  renderAccountTypeFilter(){
-    console.log(' ** renderAccountTypeFilter')
-    return (<Select placeholder="Account type"
-                    mode="multiple"
-                    style={{ minWidth: '250px' }}
-                    defaultValue={['ALL']}
-                    optionLabelProp="label">
-
-      {globalCfg.bank.listAccountTypes()
-        .map( account_type => 
-          <Option key={'option_'+account_type} value={account_type} label={account_type}>{ account_type } </Option> 
-        )}
-      </Select>);
-  }
-  
   render() {
     const content               = this.renderContent();
     const stats                 = this.renderTableViewStats();
-    const filters               = (null); //this.renderFilterContent();
     const _href                 = globalCfg.bank.customers;
     const {routes, loading}     = this.state;
     return (
@@ -348,11 +267,12 @@ class AdminAccounts extends Component {
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={[
             <Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadAccounts()} ></Button>,
-            <Button size="small" type="link" href={_href} target="_blank" key="view-on-blockchain_" icon="cloud" >View Accounts on Blockchain</Button>,
-            <Button size="small" type="primary" key="_new_account" icon="plus" onClick={()=>{this.onNewAccount()}}> Account</Button>,
+            <Button size="small" href={_href} target="_blank" key="view-on-blockchain_" icon="cloud" >
+              &nbsp; <InjectMessage id="pages.bankadmin.accounts.list_accounts_on_blockchain" /> 
+            </Button>,
+            <Button size="small" type="primary" key="_new_account" icon="plus" onClick={()=>{this.onNewAccount()}}>&nbsp;<InjectMessage id="pages.bankadmin.accounts.new_account_text" /> </Button>,
           ]}
-          title="Accounts"
-          subTitle="Bank Accounts Administration"
+          title={this.props.intl.formatMessage({id: 'pages.bankadmin.accounts.title'})}
         >
           
         </PageHeader>
@@ -364,7 +284,6 @@ class AdminAccounts extends Component {
           style={{ marginTop: 24 }}
           headStyle={{display:'none'}}
         >
-          {filters}
           {stats}
           {content}
         </Card>
@@ -376,15 +295,16 @@ class AdminAccounts extends Component {
   //
   renderTableViewStats(){
     const {total, pending, negative_balance, personal, business, admin, foundation} = this.currentStats();  
+    const {formatMessage} = this.props.intl;
     const items = [
-        stats_helper.buildItemSimple('TOTAL', total)
-        , stats_helper.buildItemPending('PENDING', pending)
-        , stats_helper.buildItemSimple('NEGATIVE', negative_balance, '#cf1322')
-        , stats_helper.buildItemSimple('PERSONAL', personal)
-        , stats_helper.buildItemSimple('BUSINESS', business)
-        , stats_helper.buildItemSimple('ADMIN', admin)
+        stats_helper.buildItemSimple(    formatMessage({id:'pages.bankadmin.accounts.total'}), total)
+        , stats_helper.buildItemPending( formatMessage({id:'pages.bankadmin.accounts.pending'}), pending)
+        , stats_helper.buildItemSimple(  formatMessage({id:'pages.bankadmin.accounts.negative'}), negative_balance, '#cf1322')
+        , stats_helper.buildItemSimple(  formatMessage({id:'pages.bankadmin.accounts.personal'}), personal)
+        , stats_helper.buildItemSimple(  formatMessage({id:'pages.bankadmin.accounts.business'}), business)
+        , stats_helper.buildItemSimple(  formatMessage({id:'pages.bankadmin.accounts.admin'}), admin)
       ]
-    return (<TableStats title="STATS" stats_array={items}/>)
+    return (<TableStats title={formatMessage({id:'pages.bankadmin.accounts.stats'})} stats_array={items}/>)
   }
 
   renderContent(){
@@ -416,5 +336,5 @@ export default  (withRouter(connect(
     (dispatch)=>({
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(AdminAccounts))
+)(injectIntl(AdminAccounts)))
 );

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Form, Select, Button } from 'antd';
 
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux';
 
 import * as operationsRedux from '@app/redux/models/operations'
 import * as loginRedux from '@app/redux/models/login'
@@ -53,14 +52,6 @@ const RequestsFilter = (props) => {
       fireEvent(null, null, {})      
     }
     
-    const handleAccountChange = (value, sender) => {
-      // console.log( 'request-filter::handleAccountChange:', props.form.getFieldValue('to'), props.form.getFieldValue('from'))
-      // if(props.form.getFieldValue('to') && props.form.getFieldValue('from'))
-      // {
-      //   props.form.setFieldsValue({'to':''});
-      // }
-    }
-
     const formValuesChanged = () => {
       setButtonType('primary')
     }
@@ -260,15 +251,12 @@ const RequestsFilter = (props) => {
 //
 export default Form.create({
   onValuesChange: (props, changeValues, allValues) => {
-    // console.log(' ++onValuesChange', changeValues, allValues);
     if(typeof __formValuesChanged === 'function')
     {
-      // console.log(' ++onValuesChange:YEAH!', changeValues, allValues);
       __formValuesChanged();
     }  
   }})
-   (connect(
-    (state)=> ({
+   (connect((state)=> ({
       isAdmin:               loginRedux.isAdmin(state),
       filterKeyValues:       operationsRedux.filterKeyValues(state),
       isOperationsLoading:   operationsRedux.isOperationsLoading(state),

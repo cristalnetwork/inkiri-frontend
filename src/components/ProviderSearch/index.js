@@ -1,11 +1,7 @@
 import React, {Component} from 'react'
-import { Spin, Icon, Autocomplete, Select } from 'antd';
+import { Select } from 'antd';
 
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux';
-
-import * as loginRedux from '@app/redux/models/login'
-import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 
 import debounce from 'lodash/debounce';

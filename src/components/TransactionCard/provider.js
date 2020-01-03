@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Dropdown, Button, Icon, message } from 'antd';
+import { Icon } from 'antd';
 import { connect } from 'react-redux'
 // import * as loginRedux from '@app/redux/models/login'
-import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import TransactionBankAccount from '@app/components/TransactionCard/bank_account';
@@ -24,7 +21,7 @@ const TransactionProvider = (props) => {
           setBankAccount(props.request.provider.bank_accounts[0]);
         else
           setBankAccount(null);
-    });
+    }, [props.request]);
 
     if(!request || !bank_account)
       return (null);

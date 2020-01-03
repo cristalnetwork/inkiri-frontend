@@ -1,10 +1,7 @@
 import React from 'react'
-import { Menu, Dropdown, Button, Icon, message } from 'antd';
 import { connect } from 'react-redux'
-// import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
 import ItemAmount from '@app/components/TransactionCard/item_amount';
-import * as request_helper from '@app/components/TransactionCard/helper';
 
 import InjectMessage from "@app/components/intl-messages";
 
@@ -37,7 +34,7 @@ const TransactionTypeAndAmount = ({request, transaction, custom}) => {
               <div className="ui-row__col ui-row__col--heading">
                   <div className="ui-avatar">
                       <div className="ui-avatar__content ui-avatar__content--icon">
-                        <img width="30" height="auto" src="/images/eos_logo.444cd068.svg" />
+                        <img alt="EOS logo" width="30" height="auto" src="/images/eos_logo.444cd068.svg" />
                       </div>
                   </div>
               </div>

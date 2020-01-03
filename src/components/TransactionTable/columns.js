@@ -7,7 +7,6 @@ import moment from 'moment';
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 
-import { injectIntl } from 'react-intl';
 import InjectMessage from "@app/components/intl-messages";
 
 export const events = {

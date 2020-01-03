@@ -1,10 +1,8 @@
 import React, {Component} from 'react'
-import { Layout, Icon, Button, Tag, Modal } from 'antd';
+import { Layout, Button, Modal } from 'antd';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
-
-import UserBalance from './userBalance';
 
 import * as apiRedux from '@app/redux/models/api';
 import * as menuRedux from '@app/redux/models/menu'
@@ -14,8 +12,6 @@ import './right_content.less';
 
 import ReferrerWidget  from '@app/components/InkiriHeader/referrer_widget';
 import * as components_helper from '@app/components/helper';
-
-import * as globalCfg from '@app/configs/global';
 
 import { injectIntl } from "react-intl";
 

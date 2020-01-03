@@ -1,11 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Alert } from 'antd';
 import { connect } from 'react-redux'
-// import * as loginRedux from '@app/redux/models/login'
-import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import IuguIconImage from '@app/components/TransactionCard/iugu_icon';
 
 import { injectIntl } from "react-intl";
@@ -48,9 +43,5 @@ const IuguAlias = ({profile, alone_component, intl}) => {
 //
 export default connect(
     (state)=> ({
-        // allAccounts:     loginRedux.allAccounts(state),
-        // actualAccountName:   loginRedux.actualAccountName(state),
-        // currentAccount:  loginRedux.currentAccount(state),
-        // isLoading:       loginRedux.isLoading(state)
     })
 )( injectIntl(IuguAlias))

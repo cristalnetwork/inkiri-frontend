@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { notification, Input, Form, Button } from 'antd';
+import { Input, Form, Button } from 'antd';
 import { withRouter } from "react-router-dom";
 import { connect } from 'react-redux'
 import * as accountsRedux from '@app/redux/models/accounts'

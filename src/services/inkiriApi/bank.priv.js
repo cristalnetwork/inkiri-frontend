@@ -862,8 +862,8 @@ export const createExchangeRequest      = (account_name, amount, bank_account, a
 
   const bearer_token = jwtHelper.getBearerTokenByKey();
       
-  fetch(globalCfg.api.endpoint + '/requests_files', { // Your POST endpoint
-      method: 'POST',
+  fetch(path, { // Your POST endpoint
+      method: method,
       headers: {
         Authorization: bearer_token
       },

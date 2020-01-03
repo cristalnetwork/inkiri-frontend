@@ -1,22 +1,13 @@
 import React, {Component} from 'react'
-import { Alert, Upload, Tag, Spin, Icon, Autocomplete, Button, message } from 'antd';
+import { Button } from 'antd';
 
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
-import * as api from '@app/services/inkiriApi';
-
-import debounce from 'lodash/debounce';
 
 import { withRouter } from "react-router-dom";
 
-import * as utils from '@app/utils/utils';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-import * as request_helper from '@app/components/TransactionCard/helper';
 import TransactionHeader from '@app/components/TransactionCard/header';
 import TransactionTypeAndAmount from '@app/components/TransactionCard/type_and_amount';
 
@@ -26,10 +17,7 @@ import TxOperation from '@app/components/TransactionCard/tx_operation';
 import ItemBlockchainLink from '@app/components/TransactionCard/item_blockchain_link';
 import ItemLink           from '@app/components/TransactionCard/item_link';
 
-import InjectMessage from "@app/components/intl-messages";
 import { injectIntl } from "react-intl";
-
-const { Dragger } = Upload;
 
 /*
 * ToDo: We should re read https://github.com/ant-design/ant-design/blob/master/components/form/demo/customized-form-controls.md

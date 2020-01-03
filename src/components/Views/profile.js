@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Empty, Button, Icon, message } from 'antd';
+import { Empty, Button } from 'antd';
 import { connect } from 'react-redux'
-// import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import Skeleton from '@app/components/Views/skeleton';
 
-import TransactionCard from '@app/components/TransactionCard';
 import TransactionPetitioner from '@app/components/TransactionCard/petitioner';
 import TransactionProfile from '@app/components/TransactionCard/profile';
 import TransactionBankAccount from '@app/components/TransactionCard/bank_account';
@@ -29,8 +24,11 @@ const ConfigurationProfile = (props) => {
 
     useEffect(() => {
         setProfile(props.profile);
-        setOnEvent(props.onEvent||null);
-    });
+    }, [props.profile]);
+
+    useEffect(() => {
+        setOnEvent(props.onEvent);
+    }, [props.onEvent]);
 
     const fireEvent = (eventType, object) => {
       if(typeof onEvent === 'function') {
@@ -62,14 +60,14 @@ const ConfigurationProfile = (props) => {
     const editProfileButton     = (<Button type="default" icon="edit" size={size} onClick={() => fireEvent(ENUM_EVENT_EDIT_PROFILE, profile)} title={edit_text} />)
     const newBankAccountButton  = (<Button type="default" icon="plus" size={size} onClick={() => fireEvent(ENUM_EVENT_NEW_BANK_ACCOUNT, null)} title={add_bank_text} />)
     
-    const printAddress = () => {
-      return Object.values(profile.address).join(', ')
-    }
-    const profileName  = () => {
-      if(profile.account_type=='business')
-        return profile.business_name;
-      return profile.first_name + ' ' + profile.last_name;
-    }
+    // const printAddress = () => {
+    //   return Object.values(profile.address).join(', ')
+    // }
+    // const profileName  = () => {
+    //   if(profile.account_type=='business')
+    //     return profile.business_name;
+    //   return profile.first_name + ' ' + profile.last_name;
+    // }
 
     const renderBankAccounts = () => {
       if(!profile || !profile.bank_accounts || profile.bank_accounts.length<=0)

@@ -1,7 +1,6 @@
-import { takeEvery, put, call } from '@redux-saga/core/effects';
+import { takeEvery, put } from '@redux-saga/core/effects';
 import { store } from '../configureStore'
 import * as api from '@app/services/inkiriApi'
-import * as core from './core';
 
 import {LOAD_BALANCE} from './balance';
 

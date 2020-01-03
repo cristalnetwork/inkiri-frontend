@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Dropdown, Button, Icon, message } from 'antd';
+import { Icon } from 'antd';
 import { connect } from 'react-redux'
 // import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
 import * as form_helper from '@app/components/Form/form_helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as moment from 'moment';
@@ -14,11 +12,16 @@ const ServiceCardPeriods = (props) => {
     
     const [service_extra, setServiceExtra]     = useState(null);
     const [price, setPrice]                    = useState(0.0);
-    const [alone_component, setAloneComponent] = useState(false);
+    const [alone_component, setAloneComponent] = useState(props.alone_component);
+    
     useEffect(() => {
         setServiceExtra(props.service_extra);
         setPrice(props.price);
-    });
+    }, [props.service_extra]);
+
+    useEffect(() => {
+        setAloneComponent(props.alone_component);
+    }, [props.alone_component]);
 
     if(!service_extra)
       return (null);

@@ -1,7 +1,6 @@
-import React, {useState, Component} from 'react';
+import React, {Component} from 'react';
 
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
 import * as accountsRedux from '@app/redux/models/accounts'
@@ -14,18 +13,12 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
-import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
-import { Tabs } from 'antd';
+import { Card, PageHeader, Spin , Form , Tabs } from 'antd';
 
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
 import _ from 'lodash';
-
-import * as utils from '@app/utils/utils';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import ProfileForm from '@app/components/Form/profile';
 import Skeleton from '@app/components/Views/skeleton';
@@ -35,9 +28,6 @@ import AddRoleForm from '@app/components/Form/add_role';
 
 import { injectIntl } from "react-intl";
 
-// const ACTIVE_TAB_PROFILE               = 'active_tab_profile';
-// const ACTIVE_TAB_PROFILE_EDIT_PROFILE  = 'active_tab_profile_edit_profile';
-// const ACTIVE_TAB_PROFILE_BANK_ACCOUNT  = 'active_tab_profile_add_or_update_bank_account';
 const ACTIVE_TAB_INFO                  = 'active_tab_info';
 const ACTIVE_TAB_INFO_EDIT_ALIAS       = 'active_tab_info_edit_alias';
 const ACTIVE_TAB_EXTRATO               = 'active_tab_extrato';
@@ -80,8 +70,7 @@ class Profile extends Component {
     this.addPermission              = this.addPermission.bind(this);
     this.onAddPermission            = this.onAddPermission.bind(this);
     this.onUpdateProfile            = this.onUpdateProfile.bind(this);
-    
-    
+
   }
  
   /*
@@ -107,7 +96,6 @@ class Profile extends Component {
         (ex) => {
           components_helper.notif.exceptionNotification( that.props.intl.formatMessage({id:'pages.bankadmin.account.error_reloading_profile'}), ex );    
           that.setState({pushingTx:false});
-          console.log(' ** ERROR @ reload', JSON.stringify(ex))
         }  
       );
     
@@ -136,6 +124,7 @@ class Profile extends Component {
         break;
       case ENUM_AUTHORITY_CHANGE:
         this.setState({role_authority:object});
+        break;
       case ENUM_EVENT_RELOAD_PERMISSIONS:
         this.reloadAccount()
         break;
@@ -252,8 +241,6 @@ class Profile extends Component {
     const {business_name, alias} = new_profile;
     
     this.setState({active_tab_object:values, pushingTx:true})
-    // console.log(' >> profile::OLD values: ', JSON.stringify(profile))
-    // console.log(' >> profile::NEW values: ', JSON.stringify(new_profile))
     
     api.bank.createOrUpdateUser(id, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias)
       .then((res)=>{
@@ -341,15 +328,17 @@ class Profile extends Component {
     }
 
     const { account, active_tab, active_tab_action, active_tab_object, pushingTx } = this.state;
-    
+    const {formatMessage}          = this.props.intl;
+    const pushing_transaction_intl = formatMessage({id:'global.pushing_transaction'});
+
     if(active_tab==ACTIVE_TAB_INFO){
       if(active_tab_action==ACTIVE_TAB_INFO_EDIT_ALIAS)
       {
-        const button_text = 'UPDATE ALIAS';
+        const button_text = formatMessage({id:'pages.bankadmin.account.update_alias_button'});
         return (
           <Skeleton 
             content={
-              <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+              <Spin spinning={pushingTx} delay={500} tip={pushing_transaction_intl} >
                 <ProfileForm 
                   profile={this.state.profile} 
                   alone_component={false} 
@@ -369,13 +358,15 @@ class Profile extends Component {
     if(active_tab==ACTIVE_TAB_ROLES){
       if(active_tab_action==ACTIVE_TAB_ROLES_NEW)
       {
-        const {authority} = active_tab_object;
+        const authority             = formatMessage({id:`components.Views.roles.${active_tab_object}`});
+        const authority_tab_text    = formatMessage({id: 'pages.bankadmin.account.new_perm_title'}, {  authority: authority, bold: (str) => <b key={Math.random()}>{str}</b> });
+        
         return (
           <Skeleton 
             content={
-              <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+              <Spin spinning={pushingTx} delay={500} tip={pushing_transaction_intl}>
                 <Card 
-                  title={(<span>New permission for <strong>{utils.capitalize(authority)} </strong> </span> )}
+                  title={(<span>{authority_tab_text}</span> )}
                   key={'new_perm'}
                   style = { { marginBottom: 24 } } 
                   >
@@ -385,11 +376,10 @@ class Profile extends Component {
             icon="user-shield" />  );
       }
 
-      // return <AccountRolesView account={this.state.account} eos_account={this.state.eos_account} />
       return (
         <Skeleton 
         content={
-          <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+          <Spin spinning={pushingTx} delay={500} tip={pushing_transaction_intl}>
             <div className="c-detail">
               <AccountRolesView 
                 account={this.state.account} 
@@ -407,9 +397,10 @@ class Profile extends Component {
   }
 
   render() {
-    let content     = this.renderContent();
-    const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
-    const {account} = this.state;
+    let content               = this.renderContent();
+    const routes              = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
+    const {account}           = this.state;
+    const {formatMessage}     = this.props.intl;
     return (
       <>
         <PageHeader
@@ -417,9 +408,9 @@ class Profile extends Component {
           title={(<>{account.key}@{globalCfg.bank.getAccountType(account.account_type)}</>)}
           footer={
             <Tabs defaultActiveKey="1" onChange={this.onTabChange}>
-              <Tabs.TabPane tab="Info"      key={ACTIVE_TAB_INFO} />
-              <Tabs.TabPane tab="Roles"     key={ACTIVE_TAB_ROLES} />
-              <Tabs.TabPane tab="Extrato"   key={ACTIVE_TAB_EXTRATO} disabled />
+              <Tabs.TabPane tab={formatMessage({id:'pages.bankadmin.account.tab.info'})}      key={ACTIVE_TAB_INFO} />
+              <Tabs.TabPane tab={formatMessage({id:'pages.bankadmin.account.tab.roles'})}     key={ACTIVE_TAB_ROLES} />
+              <Tabs.TabPane tab={formatMessage({id:'pages.bankadmin.account.tab.extrato'})}   key={ACTIVE_TAB_EXTRATO} disabled />
             </Tabs>
           }>
         </PageHeader>

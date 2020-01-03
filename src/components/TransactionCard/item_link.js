@@ -1,5 +1,4 @@
 import React from 'react';
-import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const ItemLink = ({link, icon, icon_size, is_external}) => {

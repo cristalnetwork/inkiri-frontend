@@ -1,6 +1,5 @@
 import React from 'react';
-import { Table, Input, Button, Popconfirm, Form } from 'antd';
-import InjectMessage from "@app/components/intl-messages";
+import { Input, Form } from 'antd';
 
 const EditableContext = React.createContext();
 

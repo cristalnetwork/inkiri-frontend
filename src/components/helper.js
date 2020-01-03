@@ -1,5 +1,5 @@
 import React from 'react'
-import { Icon, Button} from 'antd';
+import { Icon } from 'antd';
 import { Link } from 'react-router-dom';
 import * as notification from './notification_helper';
 

@@ -1,5 +1,4 @@
 import { takeEvery, put, } from '@redux-saga/core/effects';
-import { store } from '@app/redux/configureStore'
 
 // Constantes
 export const INIT                = 'core/BOOT'
