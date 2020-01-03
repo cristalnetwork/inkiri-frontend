@@ -31,8 +31,8 @@ const TxResult = ({result_type, title, message, tx_id, error, cb, intl}) => {
     const default_message_suc = intl.formatMessage({id:'components.TxResult.index.wait'}) ;
     const default_message_err = intl.formatMessage({id:'components.TxResult.index.check_and_resubmit'}) ;
 
-    let buttons = [ <Button type="primary" icon="close-circle" key="close" onClick={()=>reset()}><InjectMessage id="components.TxResult.index.close" /></Button>,
-                    <Button key="go-to-dashboard" onClick={()=>backToDashboard()}><InjectMessage id="components.TxResult.index.go_to_dashboard" /></Button>];
+    let buttons = [ <Button type="primary" icon="close-circle" key="close" onClick={()=>reset()}>&nbsp;<InjectMessage id="components.TxResult.index.close" /></Button>,
+                    <Button key="go-to-dashboard" onClick={()=>backToDashboard()}>&nbsp;<InjectMessage id="components.TxResult.index.go_to_dashboard" /></Button>];
     //
     if(result_type=='ok') result_type='success'
     if(result_type=='success' && tx_id)

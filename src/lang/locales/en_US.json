@@ -73,6 +73,7 @@
   "errors.verify_on_screen"                                 : "Please verifiy errors on screen!",
   "errors.select_account_from_list"                         : "Please select an account from the list.",
   "errors.select_valid_payer_account"                       : "Please select a valid payer account",
+  "errors.unknown"                                          : "Something went wrong!",
   "infos.only_one_file"                                     : "Only 1 file allowed",
   "validator.check_amount"                                  : "Please type an amount greater than zero!", 
   "success.oper_completed_succ"                             : "Operation completed successfully",
@@ -452,6 +453,20 @@
   "pages.bankadmin.create_account.authorize_account"                    : "Authorize account",
   "pages.bankadmin.create_account.delete_permission"                    : "Delete",
   "pages.bankadmin.create_account.authority_permissions"                : "{authority} permissions",
+  "pages.bankadmin.create_account.invalid_step"                         : "Step is not valid.",
+  "pages.bankadmin.create_account.one_permission_required"              : "Consider authorizing at least one owner account!",
+  "pages.bankadmin.create_account.confirm_creation"                     : "Please confirm creation of a <bold>{type_desc} Account</bold>. Account name: <bold>{account_name}</bold>. Name: <bold>{complete_name}</bold>. Fee: {_fee} . Overdraft: {_overdraft} .",
+
+  "pages.bankadmin.iugu.end_of_invoices"                                : "End of invoices",
+  "pages.bankadmin.iugu.end_of_invoices_message"                        : "You have reached the end of IUGU invoices list!",
+  "pages.bankadmin.iugu.more_invoices"                                  : "More!",
+  "pages.bankadmin.iugu.title"                                          : "IUGU payments",
+  "pages.bankadmin.iugu.stats.issued"                                   : "Issued",
+  "pages.bankadmin.iugu.stats.pending"                                  : "Pending",
+  "pages.bankadmin.iugu.stats.error"                                    : "Error",
+  "pages.bankadmin.iugu.stats.total"                                    : "Total",
+  "pages.bankadmin.iugu.stats.payments"                                 : "Payments",
+  "pages.bankadmin.iugu.stats.stats"                                    : "Stats",
 
   "dummy" : "dummy"
  

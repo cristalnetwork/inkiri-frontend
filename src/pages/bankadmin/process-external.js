@@ -162,11 +162,11 @@ class processExternal extends Component {
     })
   }
 
-  backToReferrer = async () => {
-    this.props.history.push({
-      pathname: `/${this.props.actualRole}/external-transfers`
-    })
-  }
+  // backToReferrer = async () => {
+  //   this.props.history.push({
+  //     pathname: `/${this.props.actualRole}/external-transfers`
+  //   })
+  // }
 
   resetPage(){
     this.setState({...DEFAULT_RESULT, ...DEFAULT_ATTACHS});

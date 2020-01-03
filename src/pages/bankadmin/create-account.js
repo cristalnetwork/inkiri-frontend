@@ -127,7 +127,7 @@ class CreateAccount extends Component {
     this.onCancelNewPermission         = this.onCancelNewPermission.bind(this);
     this.onDeletePermission            = this.onDeletePermission.bind(this);
     this.handleAcountNameChange        = this.handleAcountNameChange.bind(this);
-    this.userResultEvent            = this.userResultEvent.bind(this); 
+    this.userResultEvent               = this.userResultEvent.bind(this); 
     
     this.timeout_id = null;
   }
@@ -195,7 +195,7 @@ class CreateAccount extends Component {
         if (err)
         {  
           // console.log(' >> INVALID STEP >> ERR >>: ', JSON.stringify(err) )
-          components_helper.notif.exceptionNotification("Something went wrong!", err);
+          components_helper.notif.exceptionNotification( this.props.intl.formatMessage({id:'errors.unknown'}), err);
           rej(JSON.stringify(err));
           return;
         }
@@ -231,7 +231,7 @@ class CreateAccount extends Component {
       });
     }catch(e){
       // console.log(` createAccount::validateStep() ex: ${e}`);
-      components_helper.notif.exceptionNotification('Something went wrong!', e);
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'errors.unknown'}), e);
       rej(e)
     } 
     
@@ -246,13 +246,14 @@ class CreateAccount extends Component {
     }
     catch(e)
     {
-      components_helper.notif.exceptionNotification('Something went wrong!', e);
+
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'errors.unknown'}), e);
       return;
     } 
     
     if(!validStep)
     {
-      components_helper.notif.errorNotification("Something went wrong!","Step is not valid.")        
+      components_helper.notif.errorNotification(this.props.intl.formatMessage({id:'errors.unknown'}), this.props.intl.formatMessage({id:'pages.bankadmin.create_account.invalid_step'}))        
       return;
     }
     const {current_step} = this.state;
@@ -270,7 +271,17 @@ class CreateAccount extends Component {
     const type_desc     = utils.capitalize(globalCfg.bank.getAccountType(account_type));
     const _fee          = globalCfg.currency.toCurrencyString(account_fee);
     const _overdraft    = globalCfg.currency.toCurrencyString(account_overdraft)
-    return (<span>Please confirm creation of a <b>{type_desc} Account</b>. <br/>Account name: <b>{account_name}</b>.<br/> Name: <b>{complete_name}</b>.<br/> Fee: {_fee}<br/> Overdraft: {_overdraft}</span>);
+
+    const message = this.props.intl.formatMessage({id:'pages.bankadmin.create_account.confirm_creation'}, 
+                                        { type_desc: type_desc
+                                          , account_name: account_name
+                                          , complete_name: complete_name
+                                          , _fee:  _fee
+                                          , _overdraft: _overdraft
+                                          , bold: (str) => <b key={Math.random()}>{str}</b> 
+                                        });
+    // return (<span>Please confirm creation of a <b>{type_desc} Account</b>. <br/>Account name: <b>{account_name}</b>.<br/> Name: <b>{complete_name}</b>.<br/> Fee: {_fee}<br/> Overdraft: {_overdraft}</span>);
+    return (<span>{message}</span>);
   }
   //
 
@@ -282,13 +293,13 @@ class CreateAccount extends Component {
     if(  (globalCfg.bank.isBusinessAccount(account_type) || globalCfg.bank.isFoundationAccount(account_type) )
         && (!permissions || !permissions['owner'] || permissions['owner'].length<1))
     {
-      components_helper.notif.errorNotification("Consider authorizing at least one owner account!");  
+      components_helper.notif.errorNotification(this.props.intl.formatMessage({id:'pages.bankadmin.create_account.one_permission_required'}));  
       return;
     }
     const modal_content = this.getAccountDescription();
     const that          = this;
     confirm({
-      title: 'Create Account',
+      title: this.props.intl.formatMessage({id:'pages.bankadmin.create_account.title'}),
       content: modal_content,
       onOk() {
         that.doCreateAccount();
@@ -344,6 +355,7 @@ class CreateAccount extends Component {
 
   // Events
   componentDidMount(){
+
     this.props.loadAccounts();
   }
 

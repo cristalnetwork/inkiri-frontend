@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -10,28 +10,19 @@ import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
 
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-
-import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col, List } from 'antd';
-import { Form, Input, Icon} from 'antd';
-import { notification, Table, Divider, Spin } from 'antd';
+import { Card, PageHeader, Button, Table } from 'antd';
 
 import {DISPLAY_ALL_TXS, DISPLAY_PROVIDER, DISPLAY_EXCHANGES} from '@app/components/TransactionTable';
 import TableStats, { buildItemMoneyPending, buildItemUp, buildItemDown, buildItemCompute, buildItemSimple, buildItemMoney, buildItemPending} from '@app/components/TransactionTable/stats';
-
-import * as utils from '@app/utils/utils';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as columns_helper from '@app/components/TransactionTable/columns';
+
 import * as request_helper from '@app/components/TransactionCard/helper';
 
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
-const { Option } = Select;
-const { Search, TextArea } = Input;
+import { injectIntl } from "react-intl";
 
 class Iugu extends Component {
   constructor(props) {
@@ -50,11 +41,8 @@ class Iugu extends Component {
     };
 
     this.loadExternalTxs            = this.loadExternalTxs.bind(this);  
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderFooter               = this.renderFooter.bind(this); 
     this.onNewData                  = this.onNewData.bind(this);
-    // this.onTabChange                = this.onTabChange.bind(this);
-    this.onTableChange              = this.onTableChange.bind(this);
     this.onInvoiceClick             = this.onInvoiceClick.bind(this);
   }
   
@@ -117,7 +105,10 @@ class Iugu extends Component {
 
     if(!has_received_new_data)
     {
-      this.openNotificationWithIcon("info", "End of invoices","You have reached the end of paid invoices list!")
+      components_helper.notif.infoNotification( 
+        this.props.intl.formatMessage({id:'pages.bankadmin.iugu.end_of_invoices'}),
+        this.props.intl.formatMessage({id:'pages.bankadmin.iugu.end_of_invoices_message'})
+      );
     }
     else
       this.computeStats();
@@ -162,21 +153,8 @@ class Iugu extends Component {
     return x?x:_default;
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
   // Component Events
   
-  onTableChange(key, txs) {
-    // console.log(key);
-    // this.setState({active_tab:key})
-    if(key==this.state.active_tab )
-      this.computeStats(txs);
-  }
-
   onInvoiceClick(invoice){
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
@@ -192,59 +170,10 @@ class Iugu extends Component {
   }
 
   renderFooter(){
-    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadExternalTxs()}>More!!</Button> </>)
-  }
-
-  //
-  renderSelectTxTypeOptions(){
-    return (
-      [globalCfg.api.TYPE_PROVIDER, globalCfg.api.TYPE_EXCHANGE ].map( tx_type => {return(<Option key={'option'+tx_type} value={tx_type} label={utils.firsts(tx_type.split('_')[1])}>{ utils.capitalize(tx_type.split('_')[1]) } </Option>)})
-        )
-  }
-  // 
-  renderSelectTxStateOptions(){
-    return (
-      globalCfg.api.getStates().map( tx_state => {return(<Option key={'option'+tx_state} value={tx_state} label={utils.firsts(tx_state.split('_')[1])}>{ utils.capitalize(tx_state.split('_')[1]) } </Option>)})
-        )
-  }
-  //
-  renderFilterContent() {
-    return (
-      <div className="filter_wrap">
-        <Row>
-          <Col span={24}>
-            <Form layout="inline" className="filter_form" onSubmit={this.handleSubmit}>
-              <Form.Item label="Transaction type">
-                  <Select placeholder="Transaction type"
-                    mode="multiple"
-                    style={{ minWidth: '250px' }}
-                    defaultValue={['ALL']}
-                    optionLabelProp="label">
-                      {this.renderSelectTxTypeOptions()}
-                  </Select>
-              </Form.Item>
-              <Form.Item label="Transaction status">
-                <Select placeholder="Transaction status"
-                    mode="multiple"
-                    style={{ minWidth: '250px' }}
-                    defaultValue={['ALL']}
-                    optionLabelProp="label">
-                      {this.renderSelectTxStateOptions()}
-                  </Select>
-              </Form.Item>
-              <Form.Item label="Search">
-                  <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
-              </Form.Item>
-              <Form.Item>
-                <Button htmlType="submit" disabled>
-                  Filter
-                </Button>
-              </Form.Item>
-            </Form>
-          </Col>
-        </Row>
-      </div>
-    );
+    
+    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadExternalTxs()}>
+        {this.props.intl.formatMessage({id:'pages.bankadmin.iugu.more_invoices'})}
+      </Button> </>)
   }
 
   
@@ -252,14 +181,12 @@ class Iugu extends Component {
     //
     const content               = this.renderContent();
     const stats                 = this.renderTableViewStats();
-    const filters               = this.renderFilterContent();
     const {routes, loading}     = this.state;
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="IUGU payments"
-          subTitle="List of Invoices Paid via IUGU" 
+          title={this.props.intl.formatMessage({id:'pages.bankadmin.iugu.title'})}
           extra={[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadTxs()} ></Button>,]}
           />
           
@@ -269,9 +196,7 @@ class Iugu extends Component {
           bordered={false}
           style={{ marginTop: 24 }}
           headStyle={{display:'none'}}
-          extra={this.renderHeaderFilter()}
         >
-          {filters}
           {stats}
           {content}
         </Card>
@@ -280,30 +205,18 @@ class Iugu extends Component {
   }
 //
 
-  renderHeaderFilter(){ /* Currently hidden! */
-    return(
-      <div className="styles extraContent hidden" >
-        <RadioGroup defaultValue="all">
-          <RadioButton value="all">all</RadioButton>
-          <RadioButton value="progress">progress</RadioButton>
-          <RadioButton value="waiting">waiting</RadioButton>
-        </RadioGroup>&nbsp;
-        <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
-      </div>
-    )};
-    //
-  
   renderTableViewStats(){
     const {processed, waiting, error, total, count} = this.currentStats();  
+    const {formatMessage} = this.props.intl;
     const items = [
-        buildItemMoney('ISSUED', processed)
-        , buildItemMoneyPending('PENDING', waiting)
-        , buildItemMoney('ERROR', error, '#cf1322')
-        , buildItemMoney('TOTAL', total)
-        , buildItemSimple('PAYMENTS', count)
+        buildItemMoney(formatMessage({id:'pages.bankadmin.iugu.stats.issued'}), processed)
+        , buildItemMoneyPending(formatMessage({id:'pages.bankadmin.iugu.stats.pending'}), waiting)
+        , buildItemMoney(formatMessage({id:'pages.bankadmin.iugu.stats.error'}), error, '#cf1322')
+        , buildItemMoney(formatMessage({id:'pages.bankadmin.iugu.stats.total'}), total)
+        , buildItemSimple(formatMessage({id:'pages.bankadmin.iugu.stats.payments'}), count)
         
       ]
-    return (<TableStats title="STATS" stats_array={items}/>)
+    return (<TableStats title={formatMessage({id:'pages.bankadmin.iugu.stats.stats'})} stats_array={items}/>)
   }
 
   renderContent(){
@@ -332,5 +245,5 @@ export default  (withRouter(connect(
     (dispatch)=>({
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(Iugu))
+)(injectIntl(Iugu)))
 );
