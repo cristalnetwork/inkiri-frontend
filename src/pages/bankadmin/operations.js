@@ -28,12 +28,14 @@ import * as ui_helper from '@app/components/helper';
 
 import { DISPLAY_PDA, DISPLAY_EXTERNAL, DISPLAY_ALL_TXS, DISPLAY_REQUESTS} from '@app/components/TransactionTable';
 
+import { injectIntl } from "react-intl";
+
 const { TabPane } = Tabs;
 
 
 const tabs = {
-  [DISPLAY_ALL_TXS] :   'Blockchain transactions',       
-  [DISPLAY_REQUESTS] :  'Requests', 
+  [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+  [DISPLAY_REQUESTS] :  'requests', 
   // [DISPLAY_PDA] :       'Deposits & Withdraws requests', 
   // [DISPLAY_EXTERNAL] :  'External transfers requests',   
 }
@@ -143,22 +145,22 @@ class Operations extends Component {
 
     const {routes, active_tab, isMobile, page_keys} = this.state;
     const widget_key = page_keys[active_tab];
-    console.log('operations::widget_key:', widget_key)
+    
     const content = (active_tab==DISPLAY_ALL_TXS)
       ? (<TxListWidget the_key={widget_key} callback={this.onTransactionClick} />)
       : (<RequestListWidget request_type={active_tab} the_key={widget_key} callback={this.onRequestClick} onRef={ref => (this.table_widget = ref)}/>);
-    // extra={[<Button size="small" key="refresh" icon="redo" disabled={this.state.loading} onClick={()=>this.refreshCurrentTable()} ></Button>,]}
+    
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Operations"
+          title={this.props.intl.formatMessage({id:'pages.bankadmin.operations.title'})}
         >
         </PageHeader>
 
         <div className="styles standardList" style={{ marginTop: 24 }}>
           <Card key={'card_master'}  
-            tabList={ Object.keys(tabs).map(key_tab => { return {key: key_tab, tab: tabs[key_tab]} } ) }
+            tabList={ Object.keys(tabs).map(key_tab => { return {key: key_tab, tab: this.props.intl.formatMessage({id:`pages.bankadmin.operations.tab.${tabs[key_tab]}`}) } } ) }
             activeTabKey={active_tab}
             onTabChange={ (key) => this.onTabChange(key)}
             >
@@ -187,4 +189,4 @@ export default  (withRouter(connect(
 
         setLastRootMenuFullpath:      bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(Operations)));
+)(injectIntl(Operations))));

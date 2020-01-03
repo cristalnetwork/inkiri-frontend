@@ -483,6 +483,10 @@
   "pages.bankadmin.iugu_details.re_process"                             : "RE PROCESS INVOICE",
   "pages.bankadmin.iugu_details.title"                                  : "IUGU payment details",
 
+  "pages.bankadmin.operations.title"                                    : "Operations",
+  "pages.bankadmin.operations.tab.blockchain_transactions"              : "Blockchain transactions",
+  "pages.bankadmin.operations.tab.requests"                             : "Requests",
+
   "dummy" : "dummy"
  
 }
