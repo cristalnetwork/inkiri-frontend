@@ -535,8 +535,6 @@ class PDV extends Component {
             scroll={{ x: 700 }}
           />
         </Card>
-          
-
       </>
     );
   }

@@ -107,8 +107,8 @@ class BankAccountForm extends Component {
     const bank_agency_message       = formatMessage({id:'components.forms.validators.forgot_bank_agency'})
     const bank_cc_message           = formatMessage({id:'components.forms.validators.forgot_bank_cc'})
     const bank_name_placeholder     = formatMessage({id:'components.Forms.bank_account.bank_name_placeholder'})
-    const bank_agency_placeholder   = formatMessage({id:'components.Forms.bank_account.bank_agency_plaveholder'})
-    const bank_cc_placeholder       = formatMessage({id:'components.Forms.bank_account.bank_cc_plaveholder'})
+    const bank_agency_placeholder   = formatMessage({id:'components.Forms.bank_account.bank_agency_placeholder'})
+    const bank_cc_placeholder       = formatMessage({id:'components.Forms.bank_account.bank_cc_placeholder'})
     return (
       <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">

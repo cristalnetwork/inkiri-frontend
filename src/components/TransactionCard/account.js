@@ -6,6 +6,8 @@ import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
 
+import InjectMessage from "@app/components/intl-messages";
+
 const TransactionAccount = ({account}) => {
     
     return(
@@ -21,10 +23,10 @@ const TransactionAccount = ({account}) => {
                 </div>
                 <div className="ui-row__col ui-row__col--content">
                     <div className="ui-info-row__content">
-                        <div className="ui-info-row__title">{'Account name' }:&nbsp;<b>{account.account_name||account.key}</b></div>
+                        <div className="ui-info-row__title"><InjectMessage id="global.account_name" />:&nbsp;<b>{account.account_name||account.key}</b></div>
                           <div className="ui-info-row__details">
                               <ul>
-                                  <li>Account type: @{globalCfg.bank.getAccountType(account.account_type)}</li>
+                                  <li><InjectMessage id="global.account_type" />: @{globalCfg.bank.getAccountType(account.account_type)}</li>
                               </ul>
                           </div>
                     </div>

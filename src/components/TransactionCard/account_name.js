@@ -6,8 +6,13 @@ import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
 
-const AccountName = ({account_name, title, not_alone}) => {
+import { injectIntl } from "react-intl";
+
+const AccountName = ({account_name, title, not_alone, intl}) => {
     
+    let my_title = title;
+    if(!my_title)
+      my_title = intl.formatMessage({id:'global.customer'});
     const item = (<>
                   <div className="ui-row__col ui-row__col--heading">
                       <div className="ui-avatar">
@@ -18,7 +23,7 @@ const AccountName = ({account_name, title, not_alone}) => {
                   </div>
                   <div className="ui-row__col ui-row__col--content">
                       <div className="ui-info-row__content">
-                          <div className="ui-info-row__title">{title||'Customer' }:&nbsp;<b>{account_name}</b></div>
+                          <div className="ui-info-row__title">{my_title}:&nbsp;<b>{account_name}</b></div>
                       </div>
                   </div>
                 </>);
@@ -46,4 +51,4 @@ export default connect(
         // currentAccount:  loginRedux.currentAccount(state),
         // isLoading:       loginRedux.isLoading(state)
     })
-)(AccountName)
+)( injectIntl(AccountName))

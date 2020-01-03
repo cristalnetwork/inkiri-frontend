@@ -158,7 +158,7 @@ class transactionDetails extends Component {
 
     const {referrer} = this.state;
     let content      = this.renderContent();
-    let routes       = routesService.breadcrumbForFile(this.props.isAdmin?'external-transfers':'providers');
+    let routes       = []; //routesService.breadcrumbForFile(this.props.isAdmin?'external-transfers':'providers');
     if(referrer)
     {
       // console.log(' >> ABOUT TO GET BREADCUMBS FOR ... ', referrer);

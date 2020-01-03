@@ -6,15 +6,21 @@ import * as globalCfg from '@app/configs/global';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as utils from '@app/utils/utils'; 
 
+import InjectMessage from "@app/components/intl-messages";
+
 const IuguHeader = ({invoice}) => {
     
     let header = (null);
     let tag    = (null);
     if(invoice)
     {  
-      // header = 'IUGU Payment'
-      header = (<>TX #<b>{utils.trimCenter(invoice.iugu_id.id)}</b> • Created on <b>{request_helper.formatDate(invoice.original.created_at_iso)}</b></>);
-      //
+      header = <InjectMessage 
+                id="components.TransactionCard.header.tx_date_header"
+                values={ {request_id:     utils.trimCenter(invoice.iugu_id.id)
+                          , request_date: request_helper.formatDate(invoice.original.created_at_iso)
+                          , bold: (str) => <b>{str}</b>
+                        }} />
+      // header = (<>TX #<b>{utils.trimCenter(invoice.iugu_id.id)}</b> • Created on <b>{request_helper.formatDate(invoice.original.created_at_iso)}</b></>);
       tag    = request_helper.iugu.stateTag(invoice);
     }  
     if(invoice)

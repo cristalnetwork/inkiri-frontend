@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
+import InjectMessage from "@app/components/intl-messages";
 
 const TransactionPetitioner = ({profile, title, not_alone}) => {
     
@@ -18,10 +19,10 @@ const TransactionPetitioner = ({profile, title, not_alone}) => {
                   </div>
                   <div className="ui-row__col ui-row__col--content">
                       <div className="ui-info-row__content">
-                          <div className="ui-info-row__title">{title||'Requested by' }:&nbsp;<b>{request_helper.getProfileName(profile)}</b></div>
+                          <div className="ui-info-row__title">{title}:&nbsp;<b>{request_helper.getProfileName(profile)}</b></div>
                             <div className="ui-info-row__details">
                                 <ul>
-                                    <li>Account name: @{profile.account_name}</li>
+                                    <li><InjectMessage id="global.account_name" />: @{profile.account_name}</li>
                                 </ul>
                             </div>
                       </div>

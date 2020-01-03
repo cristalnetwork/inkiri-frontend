@@ -26,7 +26,7 @@ import MenuBalanceView from '@app/components/Views/balance_menu'
 import MenuAccountView from '@app/components/Views/account_menu'
 import * as components_helper from '@app/components/helper';
 
-import IntlMessages from "@app/components/intl-messages";
+import InjectMessage from "@app/components/intl-messages";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -80,7 +80,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
                 <div className="img_container">
                   <img src="/favicons/favicon-32x32.png" />
                 </div>
-                {!menu_is_collapsed && (<span className="omnes_isologo"><IntlMessages id="inkiri.bank.uppercase" /></span>)}
+                {!menu_is_collapsed && (<span className="omnes_isologo"><InjectMessage id="inkiri.bank.uppercase" /></span>)}
               </a>
               
             </div>

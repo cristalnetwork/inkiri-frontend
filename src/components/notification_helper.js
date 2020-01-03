@@ -1,6 +1,5 @@
 import React from 'react'
 import { notification } from 'antd';
-import IntlMessages from "@app/components/intl-messages";
 
 export const openNotificationWithIcon = (type, title, message, onClose) => {
   
@@ -38,6 +37,5 @@ export const warningNotification = (title, message, onClose) => {
 export const exceptionNotification = (title, ex, onClose) => {
   const message = (ex && Object.keys(ex).length>0)?JSON.stringify(ex):'Please check internet connection and service availability!';
   openNotificationWithIcon('error', title, message, onClose)
-
 }
 

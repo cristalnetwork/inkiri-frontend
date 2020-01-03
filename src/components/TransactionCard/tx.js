@@ -26,10 +26,10 @@ import TxOperation from '@app/components/TransactionCard/tx_operation';
 import ItemBlockchainLink from '@app/components/TransactionCard/item_blockchain_link';
 import ItemLink           from '@app/components/TransactionCard/item_link';
 
-const { Dragger } = Upload;
+import InjectMessage from "@app/components/intl-messages";
+import { injectIntl } from "react-intl";
 
-// const icon_color_default = '#1890ff';
-// const icon_color_green   = '#3db389';
+const { Dragger } = Upload;
 
 /*
 * ToDo: We should re read https://github.com/ant-design/ant-design/blob/master/components/form/demo/customized-form-controls.md
@@ -73,9 +73,10 @@ class Tx extends Component {
 
   render() {
     const { transaction, request }   = this.state;
+    const { formatMessage } = this.props.intl;
     let operations = (null);
     if(transaction.operations && transaction.operations.length>0)
-      operations =(<><TransactionTitle title="Operations" />{transaction.operations.map(operation => <TxOperation key={Math.random()} operation={operation} />)}</>);
+      operations =(<><TransactionTitle title={ formatMessage({id:'global.operations'}) } />{transaction.operations.map(operation => <TxOperation key={Math.random()} operation={operation} />)}</>);
     //
     return (
       <>
@@ -87,16 +88,13 @@ class Tx extends Component {
 
           {request?
           (<ItemLink 
-              link={<Button type="link" size="large" onClick={() => this.onEvent()} >View request</Button>}
+              link={<Button type="link" size="large" onClick={() => this.onEvent()} >{ formatMessage({id:'global.view_request'}) }</Button>}
               icon="file-invoice" 
               is_external={false}
                     />) : (null)}
 
-          <ItemBlockchainLink tx_id={transaction.transaction_id} title={'Transaction'} />
-
+          <ItemBlockchainLink tx_id={transaction.transaction_id} title={ formatMessage({id:'global.transaction'}) } />
           {operations}
-
-
       </div>
     </>);
 
@@ -120,4 +118,4 @@ export default (withRouter(connect(
         // isAdmin:    bindActionCreators(loginRedux.isAdmin, dispatch),
         // isBusiness: bindActionCreators(loginRedux.isBusiness, dispatch)
     })
-)(Tx) ) );
+)( injectIntl(Tx)) ) );

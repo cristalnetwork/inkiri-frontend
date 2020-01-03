@@ -21,7 +21,7 @@ const ProfileMini = ({profile, title, not_alone, gray_bg}) => {
                   <div className="ui-row__col ui-row__col--heading">
                       <div className="badge badge-extra-small badge-circle addresse-avatar ">
                         <span className="picture">
-                          <FontAwesomeIcon icon="user" size="lg" color="gray"/>
+                          <FontAwesomeIcon icon="user" size="lg" color="black"/>
                         </span>
                       </div>
                   </div>

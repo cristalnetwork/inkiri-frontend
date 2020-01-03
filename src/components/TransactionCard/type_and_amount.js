@@ -6,6 +6,8 @@ import * as globalCfg from '@app/configs/global';
 import ItemAmount from '@app/components/TransactionCard/item_amount';
 import * as request_helper from '@app/components/TransactionCard/helper';
 
+import InjectMessage from "@app/components/intl-messages";
+
 const TransactionTypeAndAmount = ({request, transaction, custom}) => {
     
     let description = (null);
@@ -17,7 +19,7 @@ const TransactionTypeAndAmount = ({request, transaction, custom}) => {
     }
     //
     if(request){
-      description = (<>{globalCfg.api.typeToText(request.requested_type).toUpperCase()} <small>request</small></>);
+      description = (<>{globalCfg.api.typeToText(request.requested_type).toUpperCase()} <small><InjectMessage id="global.request" /></small></>);
       amount      = (<ItemAmount amount={request.amount} />);
     }
     
@@ -25,7 +27,6 @@ const TransactionTypeAndAmount = ({request, transaction, custom}) => {
       description = transaction.name.toUpperCase();
       if(transaction.request && transaction.request.requested_type)
       {
-        console.log(' ** TransactionTypeAndAmount: ', transaction.request)
         description = globalCfg.api.typeToText(transaction.request.requested_type).toUpperCase();
       }
       amount      = (<ItemAmount amount={transaction.amount} symbol={globalCfg.currency.symbol} />);
@@ -41,24 +42,24 @@ const TransactionTypeAndAmount = ({request, transaction, custom}) => {
                   </div>
               </div>
               <div className="ui-row__col ui-row__col--content">
-                  <div className="c-ticket ">
+                <div className="c-ticket ">
+                  <ul>
+                    <li className="c-ticket__section ">
                       <ul>
-                          <li className="c-ticket__section ">
-                              <ul>
-                                  <li className="c-ticket__item c-ticket-subtotal">
-                                      <div className="c-ticket__row">
-                                        <div className="c-ticket__title request_details_title">
-                                          {description}
-                                        </div>
-                                        <div className="c-ticket__amount ">
-                                          {amount}
-                                        </div>
-                                      </div>
-                                  </li>
-                              </ul>
-                          </li>
+                        <li className="c-ticket__item c-ticket-subtotal">
+                          <div className="c-ticket__row">
+                            <div className="c-ticket__title request_details_title">
+                              {description}
+                            </div>
+                            <div className="c-ticket__amount ">
+                              {amount}
+                            </div>
+                          </div>
+                        </li>
                       </ul>
-                  </div>
+                    </li>
+                  </ul>
+                </div>
               </div>
           </li>
         </ul>

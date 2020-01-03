@@ -5,8 +5,10 @@ import { connect } from 'react-redux'
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
 import ItemAmount from '@app/components/TransactionCard/item_amount';
+
+import InjectMessage from "@app/components/intl-messages";
 
 const TxOperation = (props) => {
     
@@ -38,12 +40,16 @@ const TxOperation = (props) => {
                                         <div className="c-ticket__title ">
                                           {operation.sub_header}
                                           <div className="ui-info-row__details name_value_row">
-                                             <div className="row_name">From</div> 
+                                             <div className="row_name">
+                                               <InjectMessage id="components.TransactionCard.tx_operation.from_sender" />
+                                             </div> 
                                              <div className="row_value">{operation.from}</div> 
                                           </div>
                                           <div className="ui-info-row__details name_value_row">
-                                            <div className="row_name">To</div> 
-                                             <div className="row_value">{operation.to}</div> 
+                                            <div className="row_name">
+                                              <InjectMessage id="components.TransactionCard.tx_operation.to_receiver" />
+                                            </div> 
+                                            <div className="row_value">{operation.to}</div> 
                                           </div>
                                         </div>
                                         <div className="c-ticket__amount ">
@@ -58,42 +64,6 @@ const TxOperation = (props) => {
               </div>
           </li>);
 
-    // return (<li className="ui-row ui-info-row ui-info-row--medium ui-info-row">
-    //                   <div className="ui-row__col ui-row__col--heading">
-    //                       <div className="ui-avatar ">
-    //                           <div className="ui-avatar__content ui-avatar__content--icon">
-    //                             <Icon type="info-circle" theme="twoTone" style={{fontSize:30}} />
-    //                           </div>
-    //                       </div>
-    //                   </div>
-    //                   <div className="ui-row__col ui-row__col--content">
-    //                     <div className="ui-info-row__content">
-    //                           <div className="ui-info-row__title">{operation.sub_header}</div>
-    //                           <div className="ui-info-row__details name_value_row">
-    //                              <div className="row_name">From</div> 
-    //                              <div className="row_value">{operation.from}</div> 
-    //                           </div>
-    //                           <div className="ui-info-row__details name_value_row">
-    //                             <div className="row_name">To</div> 
-    //                              <div className="row_value">{operation.to}</div> 
-    //                           </div>
-    //                       </div>
-    //                   </div>
-
-    //                   <li className="c-ticket__item c-ticket-subtotal">
-    //                       <div className="c-ticket__row">
-    //                         <div className="c-ticket__title request_details_title">
-    //                           {description}
-    //                         </div>
-    //                         <div className="c-ticket__amount ">
-    //                           {amount}
-    //                         </div>
-    //                       </div>
-    //                   </li>
-                                  
-                          
-    //             </li>);
-    
 }
 //
 export default connect(

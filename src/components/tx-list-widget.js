@@ -16,7 +16,7 @@ import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimp
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
-import IntlMessages from "@app/components/intl-messages";
+import InjectMessage from "@app/components/intl-messages";
 
 const TxListWidget = (props) => {
 
@@ -125,7 +125,7 @@ const TxListWidget = (props) => {
         { !isMobile && <OperationsFilter callback={operationsFilterCallback} /> }
         <TableStats stats_array={stats}/>
         <div className="code-box-actions">
-            <Tooltip title={<IntlMessages id="components.tx-list-widget.refresh" />} >
+            <Tooltip title={<InjectMessage id="components.tx-list-widget.refresh" />} >
               <Button 
                 type="link" 
                 icon="plus" 

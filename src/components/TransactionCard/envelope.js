@@ -7,10 +7,14 @@ import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
+import InjectMessage from "@app/components/intl-messages";
+
 const TransactionEnvelope = ({request}) => {
     const envelope_id = request_helper.envelopeIdFromRequest(request);
+    
     if(!globalCfg.api.isDeposit(request))
         return (null);
+
     return(
       <div className="ui-list">
         <ul className="ui-list__content">
@@ -18,13 +22,13 @@ const TransactionEnvelope = ({request}) => {
                 <div className="ui-row__col ui-row__col--heading">
                     <div className="ui-avatar">
                       <div className="ui-avatar__content ui-avatar__content--icon">
-                        <FontAwesomeIcon icon="envelope" size="lg" color="gray"/>
+                        <FontAwesomeIcon icon="envelope" size="lg" color="black"/>
                       </div>
                     </div>
                 </div>
                 <div className="ui-row__col ui-row__col--content">
                     <div className="ui-info-row__content">
-                        <div className="ui-info-row__title">Envelope ID: <b>{envelope_id}</b></div>
+                        <div className="ui-info-row__title"><InjectMessage id="components.TransactionCard.envelope.envelope_description" />: <b>{envelope_id}</b></div>
                     </div>
                 </div>
             </li>

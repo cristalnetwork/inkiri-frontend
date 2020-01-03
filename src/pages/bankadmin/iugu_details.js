@@ -187,7 +187,7 @@ class iuguDetails extends Component {
             <ul className="ui-list__content">
               <IuguAlias profile={{alias:invoice.receipt_alias}} alone_component={false} />          
               {(invoice.receipt)?(
-                <TransactionPetitioner profile={invoice.receipt}/>
+                <TransactionPetitioner profile={invoice.receipt} title="Destination account" />
                 ):( <ErrorItem title={invoice.error} message="Cant fetch alias or there is no account related to invoice alias." />)}
             </ul>
           </div>

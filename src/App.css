@@ -196,7 +196,7 @@ h3.fileds_header{
 /* FONTAWESOME Icons for transactions */
 /*.icon_color_default { color:#1890ff; }*/
 /*.icon_color_default { color:gray; }*/
-.icon_color_default , .icon_color_default .ant-upload-drag-icon { color:rgba(0, 0, 0, 0.85)!important; }
+.icon_color_default , .icon_color_default .ant-upload-drag-icon { color:rgba(0, 0, 0, 0.99)!important; }
 .icon_color_green   , .icon_color_green .ant-upload-drag-icon   { color:#3db389!important; }
 
 .display_block{display:block!important;}

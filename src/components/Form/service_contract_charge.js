@@ -21,7 +21,6 @@ import { withRouter } from "react-router-dom";
 
 import { Select, Empty, Button, Form, message, AutoComplete, Input, Icon } from 'antd';
 
-
 import { injectIntl } from "react-intl";
 
 class ServiceContractChargeForm extends Component {

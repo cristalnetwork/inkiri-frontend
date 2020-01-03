@@ -51,7 +51,7 @@ export const getGoogleDocLink = (google_doc_id, with_icon, name, size) => {
   const icon = with_icon?(<FontAwesomeIcon icon={['fab', 'google-drive']} />):null;
   const href = getGoogleDocUrl(google_doc_id);
   const key = 'key_button_'+Math.random(); 
-  return (<Button type="link" href={href} target="_blank" key={key} size={size||'default'} style={{color:'inherit', paddingLeft:0}}>{name || 'Open file'} &nbsp; {icon}</Button>)
+  return (<Button type="link" href={href} target="_blank" key={key} size={size||'default'} style={{color:'inherit', paddingLeft:0}}>{name} &nbsp; {icon}</Button>)
 }
 //
 export const getGoogleDocLinkOrNothing = (google_doc_id, with_icon, name, size) => {
@@ -179,16 +179,15 @@ export const getProfileName = (profile) => {
 export const getBlockchainLink = (tx_id, withIcon, size, text) => {
   if(!tx_id)
     return (null);
-  const _text = (typeof text === 'undefined')?'Blockchain':text;
+  const _text = text; //(typeof text === 'undefined')?'Blockchain':text;
   const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
   const icon = (typeof withIcon==='undefined' || withIcon)?(<FontAwesomeIcon icon="external-link-alt" />):(null);
-  // return (<Button type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} icon={withIcon?'cloud':null} title="View on Blockchain" style={{color:'inherit', paddingLeft:0}}>{text||'Blockchain'}</Button>)
-  return (<Button title="View transaction on blockchain explorer" type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} title="View on Blockchain" style={{color:'inherit', paddingLeft:0}}>{_text}&nbsp;{icon}</Button>)
+  return (<Button title="View transaction on blockchain explorer" type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} style={{color:'inherit', paddingLeft:0}}>{_text}&nbsp;{icon}</Button>)
 }
 //
 export const getProcessButton = (request, callback, text, is_primary) => {
-  const title = (typeof text==='undefined')?((globalCfg.api.isFinished(request))?"Details":"Process"):text;
-
+  // const title = (typeof text==='undefined')?((globalCfg.api.isFinished(request))?"Details":"Process"):text;
+  const title = text;
   const buttonClick = (callback, request) => {
     if(typeof callback === 'function')
     {
@@ -215,14 +214,6 @@ export const getStyledAmount = (request, negative) => {
 
   const style = {color:((!globalCfg.api.onOkPath(request))?'gray':(negative?'red':'inherit')), fontSize:16};
 
-  // if(mp_style)
-  //   return(
-  //     <span className="price-tag c-activity-row__price--classic price-tag-billing">
-  //       <span className={"price-tag-negative-symbol " + (negative?'':'hidden')} style={style}>-</span>
-  //       <span className="price-tag-fraction" style={style}>{globalCfg.currency.toCurrencyString(request.amount).replace(' ', /&nbsp;/)}</span>
-  //     </span>
-  //   );
-  //
   const currency_parts = globalCfg.currency.toCurrencyString(request.amount).split(' ');
   const symbol = currency_parts[0]
   const amount = currency_parts[1]
@@ -328,13 +319,6 @@ export const blockchain = {
       globalCfg.api.TYPE_PROVIDER, 
       globalCfg.api.TYPE_SEND, 
       globalCfg.api.TYPE_SERVICE].includes(request.requested_type);
-    
-    // TYPE_DEPOSIT
-    // TYPE_ISSUE
-    // TYPE_IUGU
-    // TYPE_REFUND
-    // TYPE_UPSERT
-    // TYPE_UNKNOWN
   }
 }
 

@@ -8,10 +8,12 @@ import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import IuguIconImage from '@app/components/TransactionCard/iugu_icon';
 
-const IuguAlias = ({profile, alone_component}) => {
+import { injectIntl } from "react-intl";
+
+const IuguAlias = ({profile, alone_component, intl}) => {
     
     const _alias = (profile && profile.alias)?profile.alias:( <Alert
-      message="If alias not set account is unabled to receive IUGU payments."
+      message={intl.formatMessage({id:'components.TransactionCard.iugu_alias.alias_not_set_error'})}
       type="warning"
       showIcon
     />);
@@ -51,4 +53,4 @@ export default connect(
         // currentAccount:  loginRedux.currentAccount(state),
         // isLoading:       loginRedux.isLoading(state)
     })
-)(IuguAlias)
+)( injectIntl(IuguAlias))

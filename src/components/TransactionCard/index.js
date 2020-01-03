@@ -97,7 +97,7 @@ class TransactionCard extends Component {
           
           <TransactionTypeAndAmount request={request}/>
 
-          <TransactionPetitioner profile={request.requested_by}/>
+          <TransactionPetitioner profile={request.requested_by} title="Requested by" />
 
           {
             request.requested_to && 

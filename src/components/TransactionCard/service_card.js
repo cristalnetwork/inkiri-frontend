@@ -5,10 +5,10 @@ import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import ItemAmount from '@app/components/TransactionCard/item_amount';
 import TransactionPetitioner from '@app/components/TransactionCard/petitioner';
 import ServiceCardPeriods from '@app/components/TransactionCard/service_card_periods'
+import { injectIntl } from "react-intl";
 
 const ServiceCard = (props) => {
     
@@ -36,14 +36,14 @@ const ServiceCard = (props) => {
     let _provider_widget = null;
     if(_provider && _provider.account_name!=actualAccountName)
     {
-      _provider_widget  = (<TransactionPetitioner profile={_provider} title="Provided by" not_alone={true}/>)
+      _provider_widget  = (<TransactionPetitioner profile={_provider} title={props.intl.formatMessage({id:'global.provided_by'})} not_alone={true}/>)
     }
 
     const _customer       = (request)?request.requested_to:null;
     let _customer_widget  = null;
     if(_customer && _customer.account_name!=actualAccountName)
     {
-      _customer_widget  = (<TransactionPetitioner profile={_customer} title="Requested to" not_alone={true}/>)
+      _customer_widget  = (<TransactionPetitioner profile={_customer} title={props.intl.formatMessage({id:'global.requested_to'})} not_alone={true}/>)
     }
 
     const _service_extra  = (request)?request.service_extra:null;
@@ -67,11 +67,9 @@ const ServiceCard = (props) => {
                                       <div className="c-ticket__row">
                                         <div className="c-ticket__title c-ticket__title_small request_details_title">
                                           {_service.title}
-
                                           <div className="ui-info-row__details">
                                             <ul><li>{_service.description}</li></ul>
                                           </div>
-
                                         </div>
                                         <div className="c-ticket__amount ">
                                           <ItemAmount amount={parseFloat(_service.amount).toFixed(2)} />
@@ -117,4 +115,4 @@ export default connect(
         // currentAccount:  loginRedux.currentAccount(state),
         // isLoading:       loginRedux.isLoading(state)
     })
-)(ServiceCard)
+)( injectIntl(ServiceCard))
