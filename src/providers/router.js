@@ -45,7 +45,6 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
             // history.push(`/${actualRole}/pda`);
             // history.push(`/${actualRole}/accounts`);
             // history.push(`/${actualRole}/create-account`);
-            
             // history.push({
             //   pathname: `/${actualRole}/external-transfers-process-request`
             //   , state: { request: request }

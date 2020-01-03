@@ -1,7 +1,6 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
 import * as accountsRedux from '@app/redux/models/accounts'
@@ -9,18 +8,14 @@ import * as balanceRedux from '@app/redux/models/balance'
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
 import * as request_helper from '@app/components/TransactionCard/helper';
 
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Alert, Modal, Card, PageHeader, Tag, Button, Spin } from 'antd';
-import { notification, Form, Icon, InputNumber, Input } from 'antd';
+import { Modal, Card, PageHeader, Button, Spin, Form } from 'antd';
 
-import TransactionCard from '@app/components/TransactionCard';
-import TransactionAccount from '@app/components/TransactionCard/account';
 import TransactionTitleAndAmount from '@app/components/TransactionCard/title_amount';
 import IuguAlias from '@app/components/TransactionCard/iugu_alias';
 import IuguHeader from '@app/components/TransactionCard/iugu_header';
@@ -34,6 +29,8 @@ import TransactionPetitioner from '@app/components/TransactionCard/petitioner';
 
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
+
+import { injectIntl } from "react-intl";
 
 const DEFAULT_RESULT = {
   result:             undefined,
@@ -71,13 +68,10 @@ class iuguDetails extends Component {
     this.onSelect                   = this.onSelect.bind(this); 
     this.renderContent              = this.renderContent.bind(this); 
     this.resetPage                  = this.resetPage.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
   }
 
   componentDidMount(){
-    const { match, location, history } = this.props;
-    // console.log( 'processRequest::router-params >>' , JSON.stringify(this.props.location.state.request) );
     if(this.props.location && this.props.location.state)
     {
       this.setState({  invoice : this.props.location.state.invoice })
@@ -94,7 +88,10 @@ class iuguDetails extends Component {
             that.setState({pushingTx:false, invoice:data})
           },
           (ex) => {
-            that.openNotificationWithIcon("error", 'An error occurred reloading invoice', JSON.stringify(ex));
+            components_helper.notif.exceptionNotification( 
+              that.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.error.while_reloading'}),
+              ex
+            );
             that.setState({pushingTx:false});
             console.log(' ** ERROR @ iuguDetails', JSON.stringify(ex))
           }  
@@ -104,13 +101,6 @@ class iuguDetails extends Component {
   onSelect(value) {
     console.log('onSelect', value);
     this.setState({receipt:value})
-  }
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
 
   backToDashboard = async () => {
@@ -170,30 +160,30 @@ class iuguDetails extends Component {
      //<Alert message={invoice.error} description="Cant fetch alias or there is no account related to invoice alias." type="error" showIcon/>
 
     return (
-      <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+      <Spin spinning={pushingTx} delay={500} tip={this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.pushing_tx'}) }>
         <div className="c-detail">
           
           <IuguHeader invoice={invoice} />
-          <TransactionTitle title="IUGU Payment" button={(null)} />
+          <TransactionTitle title={this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.iugu_payment'}) } button={(null)} />
           
-          <TransactionTitleAndAmount title='Amount'  amount={parseFloat(invoice.amount).toFixed(2)}/>
+          <TransactionTitleAndAmount title={this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.amount'})} amount={parseFloat(invoice.amount).toFixed(2)}/>
           <IuguInvoice invoice={invoice} />
           
 
           <ItemLink link={request_helper.iugu.iuguLink(invoice, false)} icon="file-invoice" is_external={true} />
 
-          <TransactionTitle title="Paid to:" button={(null)} />
+          <TransactionTitle title={ this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.paid_to'}) } button={(null)} />
           <div className="ui-list">
             <ul className="ui-list__content">
               <IuguAlias profile={{alias:invoice.receipt_alias}} alone_component={false} />          
               {(invoice.receipt)?(
-                <TransactionPetitioner profile={invoice.receipt} title="Destination account" />
-                ):( <ErrorItem title={invoice.error} message="Cant fetch alias or there is no account related to invoice alias." />)}
+                <TransactionPetitioner profile={invoice.receipt} title={ this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.destination_account'}) } />
+                ):( <ErrorItem title={invoice.error} message={ this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.cant_fetch_alias'}) } />)}
             </ul>
           </div>
           
           {(invoice.issued_tx_id)?(
-              <ItemBlockchainLink tx_id={invoice.issued_tx_id} title={'Issue transaction'} />
+              <ItemBlockchainLink tx_id={invoice.issued_tx_id} title={ this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.issue_tx'}) } />
               ):(null)}
 
         </div>
@@ -210,26 +200,30 @@ class iuguDetails extends Component {
     
     
     Modal.confirm({
-      title: 'Confirm re process invoice',
-      content: 'You will now try to issue to receipt alias.',
+      title: this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.confirm_re_process'}) ,
+      content: this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.about_to_issue'}),
       onOk() {
         that.setState({pushingTx:true});
         api.bank.processIuguInvoiceById(that.state.invoice.id)
         .then( (data) => {
             that.setState({pushingTx:false})
-            that.openNotificationWithIcon("success", 'Invoice processed successfully');
+            components_helper.notif.successNotification( 
+              that.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.success.process'}),
+            );
             that.reload();
           },
           (ex) => {
             that.setState({pushingTx:false})
-            that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(ex));
+            components_helper.notif.exceptionNotification( 
+              that.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.error.occurred_title'}),
+              ex
+            );
             console.log(' ** ERROR @ processInvoice', JSON.stringify(ex))
           }  
         );
         
       },
       onCancel() {
-        console.log('Cancel');
         that.setState({pushingTx:false})
       },
     });
@@ -240,7 +234,7 @@ class iuguDetails extends Component {
   getActionsForInvoice(){
     const {invoice, pushingTx}    = this.state;
     
-    const processButton = (<Button loading={pushingTx} size="large" onClick={() => this.processInvoice()} key="processButton" type="primary" title="" >RE PROCESS INVOICE</Button>);
+    const processButton = (<Button loading={pushingTx} size="large" onClick={() => this.processInvoice()} key="processButton" type="primary" title="" >{this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.re_process'})}</Button>);
     //
     switch (invoice.state){
       case request_helper.iugu.STATE_ERROR:
@@ -256,7 +250,7 @@ class iuguDetails extends Component {
   //
   render() {
     let content     = this.renderContent();
-    const title     = 'IUGU payment details';
+    const title     = this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.title'});
     const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     return (
       <>
@@ -289,5 +283,5 @@ export default Form.create() (withRouter(connect(
         // isAdmin:    bindActionCreators(loginRedux.isAdmin, dispatch),
         // isBusiness: bindActionCreators(loginRedux.isBusiness, dispatch)
     })
-)(iuguDetails) )
+)( injectIntl(iuguDetails)) )
 );
