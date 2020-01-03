@@ -11,6 +11,7 @@ import * as utils from '@app/utils/utils';
 
 import * as form_helper from '@app/components/Form/form_helper';
 
+import {DISPLAY_REQUESTS} from '@app/components/TransactionTable';
 import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
 import { injectIntl } from "react-intl";
@@ -27,6 +28,7 @@ const RequestsFilter = (props) => {
     const [key, setKey]                = useState(props.the_key);
     const [show_search, setShowSearch] = useState(props.show_search||false);
     const [is_loading, setIsLoading]   = useState(props.isOperationsLoading||false);
+    const [request_type, setRequest_type] = useState(props.request_type);
 
     const default_filter               = { 
         operation_type:   undefined     
@@ -94,8 +96,14 @@ const RequestsFilter = (props) => {
     
     
     const renderSelectTxTypeOptions = () => {
+      let allowed_tx_types = globalCfg.api.getTypes(); 
+      if(request_type!==DISPLAY_REQUESTS)
+      {
+        allowed_tx_types = request_type.split(',');
+      }
+      
       return (
-        globalCfg.api.getTypes().map( tx_type => {return(<Option key={'option'+tx_type} value={tx_type} label={utils.firsts(tx_type.split('_')[1])}>{ utils.capitalize(tx_type.split('_')[1]) } </Option>)})
+        globalCfg.api.getTypes().map( tx_type => {return allowed_tx_types.includes(tx_type) && (<Option key={'option'+tx_type} value={tx_type} label={utils.firsts(tx_type.split('_')[1])}>{ utils.capitalize(tx_type.split('_')[1]) } </Option>)})
           )
     }
     // 

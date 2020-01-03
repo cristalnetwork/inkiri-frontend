@@ -97,19 +97,6 @@ class PDA extends Component {
         />);
     //`
     
-    // return (<div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
-    //       <Table
-    //         key="table_all_requests" 
-    //         rowKey={record => record.id} 
-    //         loading={this.state.loading} 
-    //         columns={this.getColumns()} 
-    //         dataSource={this.state.txs} 
-    //         footer={() => this.renderFooter()}
-    //         pagination={this.state.pagination}
-    //         scroll={{ x: 700 }}
-    //         expandedRowRender={columns_helper.expandedRequestRowRender}
-    //         />
-    //       </div>);
   }
 
   

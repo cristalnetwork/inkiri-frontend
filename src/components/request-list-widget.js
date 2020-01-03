@@ -88,7 +88,7 @@ const RequestListWidget = (props) => {
 
   return(
       <>
-      <RequestsFilter callback={requestFilterCallback} />
+      <RequestsFilter callback={requestFilterCallback} request_type={request_type}/>
       <TableStats stats_array={stats}/>
       <TransactionTable 
         onChange={onTableChange}
