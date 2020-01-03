@@ -327,6 +327,13 @@
   "components.TransactionTable.columns.open_details"                    : "Open to view details",
   "components.TransactionTable.columns.blockchain_link_text"            : "Blockchain",
 
+  "components.TransactionTable.EditableTableRow.field_required"         : "{field} is required",
+  
+  "components.TransactionTable.index.load_more_records"                 : "Load more records",
+  "components.TransactionTable.index.error_loading"                     : "An error occurred while loading requests",
+  "components.TransactionTable.index.end_of_list"                       : "You have reached the end of the list!",
+  "components.TransactionTable.index.no_records_for_filter"             : "Oops... there is no records for this filter!",
+
   "pages.bankadmin.account.error_reloading_profile"                     : "An error occurred reloading profile",
   "pages.bankadmin.account.error_reloading_account"                     : "An error occurred reloading account",
   "pages.bankadmin.account.success_alias_updated"                       : "Alias updated successfully"

@@ -14,6 +14,9 @@ import { Table } from 'antd';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 import * as ui_helper from '@app/components/helper';
 
+import InjectMessage from "@app/components/intl-messages";
+import { injectIntl } from "react-intl";
+
 export const  DISPLAY_ALL_TXS    = 'all_txs';
 export const  DISPLAY_REQUESTS   = 'type_all';
 export const  DISPLAY_DEPOSIT    = globalCfg.api.TYPE_DEPOSIT;
@@ -26,6 +29,7 @@ export const  DISPLAY_SERVICE    = globalCfg.api.TYPE_SERVICE;
 
 export const  DISPLAY_PDA        = globalCfg.api.TYPE_DEPOSIT+'|'+globalCfg.api.TYPE_WITHDRAW;
 export const  DISPLAY_EXTERNAL   = globalCfg.api.TYPE_EXCHANGE+'|'+globalCfg.api.TYPE_PROVIDER;
+
 //
 class TransactionTable extends Component {
   constructor(props) {
@@ -77,7 +81,9 @@ class TransactionTable extends Component {
   }
 
   renderFooter(){
-    return (<><Button key={'load-more-data_'+this.props.request_type} disabled={!this.state.can_get_more} onClick={()=>this.loadTxs()}>More!!</Button> </>)
+    return (<><Button key={'load-more-data_'+this.props.request_type} disabled={!this.state.can_get_more} onClick={()=>this.loadTxs()}>
+                <InjectMessage id="components.TransactionTable.index.load_more_records" />
+              </Button> </>)
   }
 
   refresh(){
@@ -142,7 +148,7 @@ class TransactionTable extends Component {
     catch(e)
     {
       this.setState({loading:false});
-      ui_helper.notif.exceptinoNotification("An error occurred while fetching requests", e);
+      ui_helper.notif.exceptinoNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
       return;
     }
     
@@ -170,7 +176,11 @@ class TransactionTable extends Component {
 
     if(!has_received_new_data)
     {
-      const msg = (page>0)?'You have reached the end of the list!':'Oops... there is no records for this filter!';
+      const end_of_list           = this.props.intl.formatMessage({id:'components.TransactionTable.index.end_of_list'})
+      const no_records_for_filter = this.props.intl.formatMessage({id:'components.TransactionTable.index.no_records_for_filter'})
+      const msg = (page>0)
+        ?end_of_list
+        :no_records_for_filter;
       ui_helper.notif.infoNotification(msg)
     }
     else
@@ -211,4 +221,4 @@ export default connect(
         tryLogin: bindActionCreators(loginRedux.tryLogin, dispatch),
         logout: bindActionCreators(loginRedux.logout, dispatch)
     })
-)(TransactionTable)
+)( injectIntl(TransactionTable))
