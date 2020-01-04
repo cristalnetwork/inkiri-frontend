@@ -3,7 +3,7 @@ import _ from 'lodash';
 export const getFirstPart = (path, _default='') => {
   if(!path)
     return _default;
-  return path.split('/').slice(-1)[0]
+  return path.toString().split('/').slice(-1)[0]
 }
 
 export const dateToNumber = (d) => {

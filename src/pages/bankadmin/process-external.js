@@ -119,7 +119,7 @@ class processExternal extends Component {
             that.setState({loading:false, request:data, ...DEFAULT_ATTACHS})
           },
           (ex) => {
-            components_helper.notif.exceptionNotification("An error occurred reloading request!", ex);
+            components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'pages.bankadmin.process-external.error_reloading'}), ex);
             that.setState({loading:false, ...DEFAULT_ATTACHS});
             console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
           }  
@@ -143,7 +143,7 @@ class processExternal extends Component {
       beforeUpload: file => {
         if(this.state.attachments[name] && this.state.attachments[name].length>0)
         {
-          components_helper.notif.infoNotification("Only 1 file allowed");
+          components_helper.notif.infoNotification(this.props.intl.formatMessage({id:'pages.bankadmin.process-external.only_one_file'}));
           return false;
         }
 
@@ -221,7 +221,7 @@ class processExternal extends Component {
                   ,[globalCfg.api.COMPROBANTE] :comprobanteUploaderProps };
                    
     return (
-      <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+      <Spin spinning={pushingTx} delay={500} tip={this.props.intl.formatMessage({id:'pages.bankadmin.process-external.pushing_transaction'})}>
         <TransactionCard 
                 request={request} 
                 admin={this.props.isAdmin}
@@ -238,21 +238,21 @@ class processExternal extends Component {
   processRequest(){
     let that = this;  
     that.setState({pushingTx:true});
-    console.log(this.state.request);
+    const {formatMessage} = this.props.intl;
     Modal.confirm({
-      title: 'Confirm process request step',
-      content: 'You will now send the wire transfer and upload the bank receipt.',
+      title:   formatMessage({id:'pages.bankadmin.process-external.confirm_process_step'}),
+      content: formatMessage({id:'pages.bankadmin.process-external.confirm_process_step_message'}),
       onOk() {
         const {request} = that.state;
         api.bank.processExternal(that.props.actualAccountName, request.id)
         .then( (data) => {
             that.setState({pushingTx:false})
-            components_helper.notif.successNotification('Request changed successfully');
+            components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.change'}));
             that.reload();
           },
           (ex) => {
             that.setState({pushingTx:false})
-            components_helper.notif.exceptionNotification("An error occurred!", ex);
+            components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.occurred_title'}), ex);
             console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
           }  
         );
@@ -273,11 +273,12 @@ class processExternal extends Component {
   acceptWithComprobanteRequest(){
     let that = this;  
     // Check Comprobante
-    
+    const {formatMessage} = this.props.intl;
     const my_COMPROBANTE   = this.getAttach(globalCfg.api.COMPROBANTE);
     if(!my_COMPROBANTE)
     {
-      components_helper.notif.errorNotification('Comprobante attachments is required', 'Please attach a Comprobante pdf file.');
+
+      components_helper.notif.errorNotification(formatMessage({id:'pages.bankadmin.process-external.receipt_attach_required'}), formatMessage({id:'pages.bankadmin.process-external.receipt_attach_required_message'}));
       return;
     }  
     let attachs = {[globalCfg.api.COMPROBANTE]:my_COMPROBANTE};
@@ -292,8 +293,8 @@ class processExternal extends Component {
     that.setState({pushingTx:true});
     
     Modal.confirm({
-      title: 'You will accept the request',
-      content: 'Please confirm if you already have sent the money via wire transfer/boleto pagamento.',
+      title:   formatMessage({id:'pages.bankadmin.process-external.confirm_accept_step'}),
+      content: formatMessage({id:'pages.bankadmin.process-external.confirm_accept_step_message'}),
       onOk() {
         const {request} = that.state;
         
@@ -301,13 +302,13 @@ class processExternal extends Component {
         api.bank.acceptExternal(that.props.actualAccountName, request.id, attachs)
         .then( (data) => {
             that.setState({pushingTx:false})
-            components_helper.notif.successNotification('Request accepted successfully');
+            components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.accept'}));
             that.reload();
           },
           (ex) => {
             console.log(' ** ERROR @ acceptWithComprobanteRequest', JSON.stringify(ex));
             that.setState({pushingTx:false})
-            components_helper.notif.exceptionNotification("An error occurred!", ex);
+            components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.occurred_title'}), ex);
           }  
         );
         
@@ -324,10 +325,11 @@ class processExternal extends Component {
   }
   
   rejectRequest(){
-    const that       = this;
+    const that            = this;
+    const {formatMessage} = this.props.intl;
     Modal.confirm({
-      title: 'You will REJECT the request',
-      content: 'The request will be rejected and the amount will be refunded to the customer account.',
+      title:   formatMessage({id:'pages.bankadmin.process-external.confirm_reject_step'}),
+      content: formatMessage({id:'pages.bankadmin.process-external.confirm_reject_step_message'}),
       onOk() {
         that.doRefund(globalCfg.api.STATE_REJECTED);
       },
@@ -340,10 +342,11 @@ class processExternal extends Component {
   }
   
   revertRequest(){
-    const that       = this;
+    const that            = this;
+    const {formatMessage} = this.props.intl;
     Modal.confirm({
-      title:   'You will REVERT the request',
-      content: 'The request will be rejected and reverted, and the amount will be refunded to the customer account.',
+      title:   formatMessage({id:'pages.bankadmin.process-external.confirm_revert_step'}),
+      content: formatMessage({id:'pages.bankadmin.process-external.confirm_revert_step_message'}),
       onOk() {
         that.doRefund(globalCfg.api.STATE_REVERTED);  
       },
@@ -359,37 +362,33 @@ class processExternal extends Component {
     
     const that       = this;
     const {request}  = that.state;
+    const {formatMessage} = this.props.intl;
 
     that.setState({pushingTx:true});
     
     const sender      = this.props.actualAccountName;
     const amount      = request.amount;
     const privateKey  = this.props.actualPrivateKey;
-    // api.refund(sender, privateKey, request.from, amount, request.id, request.tx_id) // -> Error de uso de CPU :(
     api.refund(sender, privateKey, request.from, amount, request.id, '')
       .then((data) => {
-
         const send_tx             = data;
         console.log(' processExternal::refund (then#1) >>  ', JSON.stringify(send_tx));
-        
         api.bank.refundExternal(sender, request.id, new_state, send_tx.data.transaction_id)
           .then((data2) => {
-
               // that.clearAttachments();
               that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request.id} });
               that.reload();
-              components_helper.notif.successNotification('Request refunded successfully');
-
+              components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.refund'}));
             }, (ex2) => {
               console.log(' processExternal::refund (error#2) >>  ', JSON.stringify(ex2));
-              components_helper.notif.exceptionNotification('Refund completed succesfully but could not update request', ex2);              
+              components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.refund.1'}), ex2);              
               that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
           });
 
       }, (ex1) => {
         
         console.log(' processExternal::refund (error#1) >>  ', JSON.stringify(ex1));
-        components_helper.notif.exceptionNotification('Refund could not be completed', ex1);              
+        components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.refund.2'}), ex1);              
         that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
 
       });
@@ -397,10 +396,11 @@ class processExternal extends Component {
 
   attachNota(){
     
-    const my_NOTA_FISCAL   = this.getAttach(globalCfg.api.NOTA_FISCAL);
+    const {formatMessage} = this.props.intl;
+    const my_NOTA_FISCAL  = this.getAttach(globalCfg.api.NOTA_FISCAL);
     if(!my_NOTA_FISCAL)
     {
-      components_helper.notif.errorNotification('Nota Fiscal attachment is required', 'Please attach a Nota Fiscal PDF file.');
+      components_helper.notif.errorNotification( formatMessage({id:'pages.bankadmin.process-external.invoice_attach_required'}), formatMessage({id:'pages.bankadmin.process-external.invoice_attach_required_message'}));
       return;
     }   
     
@@ -412,12 +412,12 @@ class processExternal extends Component {
     api.bank.updateExternalFilesAdmin(this.props.actualAccountName ,request.id, request.state, {[globalCfg.api.NOTA_FISCAL]:my_NOTA_FISCAL})
     .then( (data) => {
         that.setState({pushingTx:false})
-        components_helper.notif.successNotification('Nota uploaded successfully');
+        components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.invoice_uploaded'}));
         that.reload();
       },
       (ex) => {
         that.setState({pushingTx:false})
-        components_helper.notif.exceptionNotification('An error occurred', ex);
+        components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.occurred_title'}), ex);
         console.log(' ** ERROR @ updateRequest', JSON.stringify(ex))
       }  
     );
@@ -428,23 +428,23 @@ class processExternal extends Component {
   acceptRequest(){
     const that = this;
     that.setState({pushingTx:true});
-    
+    const {formatMessage} = this.props.intl;
     Modal.confirm({
-      title: 'You will accept the request',
-      content: 'Please confirm if you already gave the paper money to the customer.',
+      title:   formatMessage({id:'pages.bankadmin.process-external.confirm_accept_step'}),
+      content: formatMessage({id:'pages.bankadmin.process-external.confirm_accept_step_message'}),
       onOk() {
         const {request} = that.state;
           
         api.bank.acceptWithdrawRequest(that.props.actualAccountName, request.id)
         .then( (data) => {
             that.setState({pushingTx:false})
-            components_helper.notif.successNotification('Withdraw request accepted successfully');
+            components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.withdraw.accept'}));
             that.reload();
           },
           (ex) => {
             console.log(' ** ERROR @ acceptWithdraw', JSON.stringify(ex));
             that.setState({pushingTx:false})
-            components_helper.notif.exceptionNotification('An error occurred!', ex);
+            components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.occurred_title'}), ex);
           }  
         );
         
@@ -458,41 +458,31 @@ class processExternal extends Component {
 
   doRejectAndRefundWithdraw(){
     
-    const that       = this;
-    const {request}  = that.state;
-
+    const that            = this;
+    const {request}       = that.state;
+    const {formatMessage} = this.props.intl;
     that.setState({pushingTx:true});
-    
     const sender      = this.props.actualAccountName;
     const amount      = request.amount;
     const privateKey  = this.props.actualPrivateKey;
     api.refund(sender, privateKey, request.from, amount, request.id, '')
       .then((data) => {
-
         const send_tx             = data;
-        console.log(' processExternal::refund (then#1) >>  ', JSON.stringify(send_tx));
-        
         api.bank.refundWithdrawRequest(sender, request.id, send_tx.data.transaction_id)
           .then((data2) => {
-
-              // that.clearAttachments();
               that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request.id} });
               that.reload();
-              components_helper.notif.successNotification('Request refunded successfully');
+              components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.refund'}));
 
             }, (ex2) => {
               console.log(' processExternal::refund (error#2) >>  ', JSON.stringify(ex2));
-              components_helper.notif.exceptionNotification('Refund completed succesfully but could not update request', ex2);
+              components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.refund.1'}), ex2);
               that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
           });
-
       }, (ex1) => {
-        
         console.log(' processExternal::refund (error#1) >>  ', JSON.stringify(ex1));
-        components_helper.notif.exceptionNotification('Refund could not be completed', ex1);
-
+        components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.refund.2'}), ex1);
         that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
-
       });
   }
 
@@ -501,48 +491,41 @@ class processExternal extends Component {
   */
   acceptDepositAndIssue(){
     const {id, amount, requested_by, requestCounterId, deposit_currency} = this.state.request;
-    const privateKey = this.props.actualPrivateKey;
-    const receiver   = requested_by.account_name;
-    const sender     = globalCfg.currency.issuer; //this.props.actualAccountName;
-    const admin_name = this.props.actualAccountName;
+    const privateKey      = this.props.actualPrivateKey;
+    const receiver        = requested_by.account_name;
+    const sender          = globalCfg.currency.issuer; //this.props.actualAccountName;
+    const admin_name      = this.props.actualAccountName;
+    const fiat            = globalCfg.api.fiatSymbolToMemo(deposit_currency)
+    const memo            = `dep|${fiat}|${requestCounterId.toString()}`;
+    const that            = this;
+    const {formatMessage} = this.props.intl;    
+    // const content    = `You will ISSUE ${globalCfg.currency.symbol}${amount} to ${requested_by.account_name}`;
 
-    const fiat       = globalCfg.api.fiatSymbolToMemo(deposit_currency)
-    const memo       = `dep|${fiat}|${requestCounterId.toString()}`;
-
-    const that       = this;
-    const content    = `You will ISSUE ${globalCfg.currency.symbol}${amount} to ${requested_by.account_name}`;
     Modal.confirm({
-      title: 'Please confirm issue operation ' + this.props.actualAccountName,
-      content: content,
+      title: formatMessage({id:'pages.bankadmin.process-external.confirm_deposit_step'}),
+      content: ( <p> { formatMessage({id:'pages.bankadmin.process-external.confirm_deposit_step_message'}, {currency_symbol:globalCfg.currency.symbol, amount:amount, receiver:requested_by.account_name, bold: str => <b>{str}</b> })  } </p> ) ,
       onOk() {
       
           that.setState({pushingTx:true});
           api.issueMoney(sender, privateKey, receiver, amount, memo)
             .then(data => {
-              console.log(' processRequest::issue (then#1) >>  ', JSON.stringify(data));
               if(data && data.data && data.data.transaction_id)
               {
                 // updeteo la tx
                 api.bank.setDepositOk(admin_name, id, data.data.transaction_id)
                 .then( (update_res) => {
-                    console.log(' processRequest::issue (then#2) >> update_res ', JSON.stringify(update_res), JSON.stringify(data));
-                    console.log(' processRequest::issue (then#2) >> data ', JSON.stringify(data));
                     that.reload();
                     that.setState({result:'ok', pushingTx:false, result_object:data});
-
-                    components_helper.notif.successNotification('Issue completed successfully');
-
+                    components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.deposit'}));
                   }, (err) => {
-                    
                     that.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
-                    components_helper.notif.exceptionNotification('An error occurred', err);
+                    components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.occurred_title'}), err);
                   }
                 )
               }
               else{
                 that.setState({result:'error', pushingTx:false, error:'UNKNOWN!'});
-                components_helper.notif.errorNotification('An error occurred', 'UNKNOWN!'+JSON.stringify(data));
-                
+                components_helper.notif.errorNotification(formatMessage({id:'pages.bankadmin.process-external.error.occurred_title'}), JSON.stringify(data));
 
               }
               
@@ -563,27 +546,27 @@ class processExternal extends Component {
   getActionsForRequest(){
     const {request, pushingTx}    = this.state;
 
-    const processButton = (<Button loading={pushingTx} size="large" onClick={() => this.processRequest()} key="processButton" type="primary" title="" >PROCESS REQUEST</Button>);
+    const processButton = (<Button loading={pushingTx} size="large" onClick={() => this.processRequest()} key="processButton" type="primary" title="" ><InjectMessage id="pages.bankadmin.process-external.action.process_request" /></Button>);
     //
-    const acceptWithComprobanteButton = (<Button loading={pushingTx} size="large" onClick={() => this.acceptWithComprobanteRequest()} key="acceptWithComprobanteButton" type="primary" title="" >ACCEPT</Button>);
+    const acceptWithComprobanteButton = (<Button loading={pushingTx} size="large" onClick={() => this.acceptWithComprobanteRequest()} key="acceptWithComprobanteButton" type="primary" title="" ><InjectMessage id="pages.bankadmin.process-external.action.accept" /></Button>);
     //
-    const cancelButton                = (<Button loading={pushingTx} size="large" onClick={() => this.cancelRequest()} key="cancelButton" className="danger_color" style={{marginLeft:16}} type="link" >CANCEL</Button>);
+    const cancelButton                = (<Button loading={pushingTx} size="large" onClick={() => this.cancelRequest()} key="cancelButton" className="danger_color" style={{marginLeft:16}} type="link" ><InjectMessage id="pages.bankadmin.process-external.action.cancel" /></Button>);
     //
-    const rejectButton                = (<Button loading={pushingTx} size="large" onClick={() => this.rejectRequest()} key="rejectButton" className="danger_color" style={{marginLeft:16}} type="link" >REJECT</Button>);
+    const rejectButton                = (<Button loading={pushingTx} size="large" onClick={() => this.rejectRequest()} key="rejectButton" className="danger_color" style={{marginLeft:16}} type="link" ><InjectMessage id="pages.bankadmin.process-external.action.reject" /></Button>);
     //
-    const revertButton                = (<Button loading={pushingTx} size="large" onClick={() => this.revertRequest()} key="revertButton" className="danger_color" style={{marginLeft:16}} type="link" >REVERT AND REFUND</Button>);
+    const revertButton                = (<Button loading={pushingTx} size="large" onClick={() => this.revertRequest()} key="revertButton" className="danger_color" style={{marginLeft:16}} type="link" ><InjectMessage id="pages.bankadmin.process-external.action.revert_and_refund" /></Button>);
     //
-    const attachNotaButton            = (<Button loading={pushingTx} size="large" onClick={() => this.attachNota()} key="updateButton" type="primary" style={{marginLeft:16}} type="primary" >UPLOAD NOTA</Button>);
+    const attachNotaButton            = (<Button loading={pushingTx} size="large" onClick={() => this.attachNota()} key="updateButton" type="primary" style={{marginLeft:16}} type="primary" ><InjectMessage id="pages.bankadmin.process-external.action.upload_nota" /></Button>);
     //
-    const attachFiles                 = (<Button loading={pushingTx} size="large" onClick={() => this.attachFiles()} key="attachButton" type="primary" style={{marginLeft:16}} type="primary" >ATTACH FILES</Button>);
+    const attachFiles                 = (<Button loading={pushingTx} size="large" onClick={() => this.attachFiles()} key="attachButton" type="primary" style={{marginLeft:16}} type="primary" ><InjectMessage id="pages.bankadmin.process-external.action.attach_files" /></Button>);
     //
-    const refundButton                = (<Button loading={pushingTx} size="large" onClick={() => this.refundRequest()} key="refundButton" type="primary" style={{marginLeft:16}} type="primary" >REFUND</Button>);
+    const refundButton                = (<Button loading={pushingTx} size="large" onClick={() => this.refundRequest()} key="refundButton" type="primary" style={{marginLeft:16}} type="primary" ><InjectMessage id="pages.bankadmin.process-external.action.refund" /></Button>);
     //
-    const acceptAndIssueButton        = (<Button loading={pushingTx} size="large" onClick={() => this.acceptDepositAndIssue()} key="acceptAndIssueButton" type="primary" style={{marginLeft:16}} type="primary" >ACCEPT AND ISSUE</Button>);
+    const acceptAndIssueButton        = (<Button loading={pushingTx} size="large" onClick={() => this.acceptDepositAndIssue()} key="acceptAndIssueButton" type="primary" style={{marginLeft:16}} type="primary" ><InjectMessage id="pages.bankadmin.process-external.action.accept_and_issue" /></Button>);
     //
-    const acceptButton                = (<Button loading={pushingTx} size="large" onClick={() => this.acceptRequest()} key="acceptButton" style={{marginLeft:16}} type="primary" >ACCEPT</Button>);
+    const acceptButton                = (<Button loading={pushingTx} size="large" onClick={() => this.acceptRequest()} key="acceptButton" style={{marginLeft:16}} type="primary" ><InjectMessage id="pages.bankadmin.process-external.action.accept" /></Button>);
     //
-    const rejectWithdrawButton        = (<Button loading={pushingTx} size="large" onClick={() => this.doRejectAndRefundWithdraw()} key="rejectWithdrawButton" className="danger_color" style={{marginLeft:16}} type="link" >REJECT AND REFUND</Button>);
+    const rejectWithdrawButton        = (<Button loading={pushingTx} size="large" onClick={() => this.doRejectAndRefundWithdraw()} key="rejectWithdrawButton" className="danger_color" style={{marginLeft:16}} type="link" ><InjectMessage id="pages.bankadmin.process-external.action.reject_and_refund" /></Button>);
     //
     switch (request.state){
       case globalCfg.api.STATE_REQUESTED:

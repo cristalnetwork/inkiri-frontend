@@ -36,7 +36,6 @@ class SalaryForm extends Component {
         worked_month: last_month,
         total:        globalCfg.currency.toCurrencyString(props.members.reduce((acc, member) => acc + Number(member.current_wage), 0))        
       }
-
     };
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
@@ -76,8 +75,7 @@ class SalaryForm extends Component {
       const that = this;
       Modal.confirm({
         title: 'components.Forms.salary.confirm_title',
-        content: (<p>{ formatMessage({id: 'components.Forms.salary.confirm_content', total: total, bold: str => <b>{str}</b> })
-         }</p>),
+        content: (<p>{ formatMessage({id: 'components.Forms.salary.confirm_content', total: total, bold: str => <b>{str}</b> }) }</p>),
         onOk() {
           that.fireEvent(null, null, values);
         },
