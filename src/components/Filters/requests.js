@@ -19,16 +19,18 @@ import { injectIntl } from "react-intl";
 import _ from 'lodash';
 
 const { Option } = Select;
+
 var __formValuesChanged = null;
 const RequestsFilter = (props) => {
     
     // const [is_admin, setIsAdmin]       = useState(props.isAdmin);
-    const [callback, setCallback]      = useState(props.callback);
-    const [buttonType, setButtonType]  = useState('default');
-    const [key, setKey]                = useState(props.the_key);
-    const [show_search, setShowSearch] = useState(props.show_search||false);
-    const [is_loading, setIsLoading]   = useState(props.isOperationsLoading||false);
-    const [request_type, setRequest_type] = useState(props.request_type);
+    const [callback, setCallback]           = useState(props.callback);
+    const [buttonType, setButtonType]       = useState('default');
+    const [key, setKey]                     = useState(props.the_key);
+    const [show_search, setShowSearch]      = useState(props.show_search||false);
+    const [is_loading, setIsLoading]        = useState(props.isOperationsLoading||false);
+    const [request_type, setRequest_type]   = useState(props.request_type);
+    const [hidden_fields, setHiddenFields]  = useState([]);
 
     const default_filter               = { 
         operation_type:   undefined     
@@ -47,6 +49,12 @@ const RequestsFilter = (props) => {
     useEffect(() => {
       setCallback(props.callback);
     }, [props.callback]);
+
+    useEffect(() => {
+      if(!Array.isArray(props.hidden_fields))
+        return;
+      setHiddenFields(props.hidden_fields || []);
+    }, [props.hidden_fields]);
 
     const resetFilter = (e) => {
       e.preventDefault();
@@ -163,7 +171,8 @@ const RequestsFilter = (props) => {
         onChange={formValuesChanged}
         >
         
-        <AutocompleteAccount
+        { !hidden_fields.includes('from') 
+          && <AutocompleteAccount
                 validation_rule={validateAccountNames} 
                 autoFocus 
                 label={fromText}
@@ -171,17 +180,21 @@ const RequestsFilter = (props) => {
                 form={_form} 
                 name="from" 
                 without_icon={true}
-                size="default"/>
-        <AutocompleteAccount
-                validation_rule={validateAccountNames} 
-                label={toText}
-                not_required={true}
-                form={_form} 
-                name="to" 
-                without_icon={true}
-                size="default"/>
+                size="default"/> 
+        }
+        { !hidden_fields.includes('to') 
+          && <AutocompleteAccount
+                        validation_rule={validateAccountNames} 
+                        label={toText}
+                        not_required={true}
+                        form={_form} 
+                        name="to" 
+                        without_icon={true}
+                        size="default"/>
+        }
 
-        { show_search && form_helper.getSearchItem(_form
+        { show_search 
+          && form_helper.getSearchItem(_form
             , filter
             , 'search_text'
             , searchText
@@ -190,7 +203,8 @@ const RequestsFilter = (props) => {
             , undefined)
         }
 
-        { form_helper.getSelectItem(_form
+        { !hidden_fields.includes('requested_type') 
+          && form_helper.getSelectItem(_form
             , filter
             , 'requested_type'
             , renderSelectTxTypeOptions()
@@ -199,9 +213,11 @@ const RequestsFilter = (props) => {
             , 'multiple'
             , dropdownRender
             , undefined
-            , true) }
+            , true) 
+        }
 
-        { false && form_helper.getSelectItem(_form
+        { false 
+          && form_helper.getSelectItem(_form
             , filter
             , 'in_out'
             , renderSelectInOutOptions()
@@ -212,7 +228,8 @@ const RequestsFilter = (props) => {
             , undefined
             , true) }
 
-        { false && form_helper.getSelectItem(_form
+        { false 
+          && form_helper.getSelectItem(_form
             , filter
             , 'account_type'
             , renderSelectAccountTypeOptions()
@@ -223,7 +240,8 @@ const RequestsFilter = (props) => {
             , undefined
             , true) }
 
-        { form_helper.getSelectItem(_form
+        { !hidden_fields.includes('state') && 
+          form_helper.getSelectItem(_form
             , filter
             , 'state'
             , renderRequestStates()
@@ -232,9 +250,11 @@ const RequestsFilter = (props) => {
             , 'default'
             , dropdownRender
             , undefined
-            , true) }
+            , true) 
+        }
 
-        { form_helper.getDateRangeItem (_form
+        { !hidden_fields.includes('date_range') 
+          && form_helper.getDateRangeItem (_form
             , filter
             , 'date_range'
             , dateRangeText

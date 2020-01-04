@@ -1,5 +1,11 @@
 import _ from 'lodash';
 
+export const getFirstPart = (path, _default='') => {
+  if(!path)
+    return _default;
+  return path.split('/').slice(-1)[0]
+}
+
 export const dateToNumber = (d) => {
   if(!d) return 0;
   return Number(d.split('.')[0].replace(/-/g,'').replace(/T/g,'').replace(/:/g,'').replace(/Z/g,'') )

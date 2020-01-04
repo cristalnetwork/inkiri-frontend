@@ -24,6 +24,9 @@ import TransactionCard from '@app/components/TransactionCard';
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
+import { injectIntl } from "react-intl";
+import InjectMessage from "@app/components/intl-messages";
+
 const DEFAULT_RESULT = {
   result:             undefined,
   result_object:      undefined,
@@ -41,7 +44,7 @@ class processExternal extends Component {
   constructor(props) {
     super(props);
     const request       = (props && props.location && props.location.state && props.location.state.request)? props.location.state.request : undefined;
-    const pathname      = props.location?props.location.pathname.split('/').slice(-1)[0]:'';
+    const pathname      = utils.getFirstPart(props.location);
     this.state = {
       referrer:        (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined,
       loading:      false,
@@ -68,7 +71,7 @@ class processExternal extends Component {
     if(this.props.location && this.props.location.state)
     {
       this.setState({request : this.props.location.state.request
-                      , pathname : this.props.location?this.props.location.pathname.split('/').slice(-1)[0]:''
+                      , pathname : utils.getFirstPart(this.props.location)
                       , ...DEFAULT_ATTACHS})
     }
   }
@@ -256,7 +259,6 @@ class processExternal extends Component {
         
       },
       onCancel() {
-        console.log('Cancel');
         that.setState({pushingTx:false})
       },
     });
@@ -296,9 +298,6 @@ class processExternal extends Component {
         const {request} = that.state;
         
         const my_COMPROBANTE   = that.getAttach(globalCfg.api.COMPROBANTE);
-        console.log(' ABOUT TO CALL API.BANK ')
-        console.log(' >> Comprobante:', my_COMPROBANTE);
-        console.log(' >> Request:', request.id)
         api.bank.acceptExternal(that.props.actualAccountName, request.id, attachs)
         .then( (data) => {
             that.setState({pushingTx:false})
@@ -343,7 +342,7 @@ class processExternal extends Component {
   revertRequest(){
     const that       = this;
     Modal.confirm({
-      title: 'You will REVERT the request',
+      title:   'You will REVERT the request',
       content: 'The request will be rejected and reverted, and the amount will be refunded to the customer account.',
       onOk() {
         that.doRefund(globalCfg.api.STATE_REVERTED);  
@@ -636,13 +635,12 @@ class processExternal extends Component {
   //
   render() {
     let content     = this.renderContent();
-    const title     = 'Process request';
     const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title={title}>
+          title={<InjectMessage id="pages.bankadmin.process-external.title" />}>
         </PageHeader>
 
         {content}
@@ -680,5 +678,5 @@ export default Form.create() (withRouter(connect(
         // isAdmin:    bindActionCreators(loginRedux.isAdmin, dispatch),
         // isBusiness: bindActionCreators(loginRedux.isBusiness, dispatch)
     })
-)(processExternal) )
+)( injectIntl(processExternal)) )
 );

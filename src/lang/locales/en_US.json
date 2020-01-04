@@ -497,7 +497,63 @@
   "pages.bankadmin.pda.stats.withdraws"                                 : "Withdraws",
   "pages.bankadmin.pda.stats.pending"                                   : "Pending",
   "pages.bankadmin.pda.stats.stats"                                     : "Stats",
+    
+  "pages.bankadmin.process-external.title"                              : "Process request",
+  "pages.bankadmin.process-external.error_reloading"                    : "An error occurred reloading request!",
+  "pages.bankadmin.process-external.only_one_file"                      : "Only 1 file allowed",
+  "pages.bankadmin.process-external.pushing_transaction"                : "Pushing transaction...",
+  "pages.bankadmin.process-external.confirm_process_step"               : "Confirm process request step",
+  "pages.bankadmin.process-external.confirm_process_step_message"       : "You will complete this action sending the wire transfer to the customer and uploading the bank receipt.",
+  "pages.bankadmin.process-external.success.change"                     : "Request changed successfully",
+  "pages.bankadmin.process-external.error.occurred_title"               : "Oops... an error occurred!",
+  "pages.bankadmin.process-external.receipt_attach_required"            : "Receipt attachment is required", 
+  "pages.bankadmin.process-external.receipt_attach_required_message"    : "Please attach a receipt pdf file.",
+  "pages.bankadmin.process-external.confirm_accept_step"                : "You will accept the request",
+  "pages.bankadmin.process-external.confirm_accept_step_message"        : "Please confirm if you already have sent the money via wire transfer/boleto pagamento.",
+  "pages.bankadmin.process-external.success.accept"                     : "Request accepted successfully",
+  "pages.bankadmin.process-external.confirm_reject_step"                : "You will REJECT the request",
+  "pages.bankadmin.process-external.confirm_reject_step_message"        : "The request will be rejected and the amount will be refunded to the customer account.",
+  "pages.bankadmin.process-external.confirm_revert_step"                : "You will REVERT the request",
+  "pages.bankadmin.process-external.confirm_revert_step_message"        : "The request will be rejected and reverted, and the amount will be refunded to the customer account.",
+  "pages.bankadmin.process-external.success.refund"                     : "Request refunded successfully",
+  "pages.bankadmin.process-external.error.refund.1"                     : "Refund completed succesfully but could not update request",
+  "pages.bankadmin.process-external.error.refund.2"                     : "Refund could not be completed",
+  "pages.bankadmin.process-external.invoice_attach_required"            : "Invoice attachment is required",
+  "pages.bankadmin.process-external.invoice_attach_required_message"    : "Please attach a Nota Fiscal PDF file.",
+  "pages.bankadmin.process-external.success.invoice_uploaded"           : "Nota uploaded successfully",
+  "pages.bankadmin.process-external.confirm_accept_step"                : "You will accept the request",
+  "pages.bankadmin.process-external.confirm_accept_step_message"        : "Please confirm if you already gave the paper money to the customer.",
+  "pages.bankadmin.process-external.success.withdraw.accept"            : "Withdraw request accepted successfully",
+  "pages.bankadmin.process-external.confirm_deposit_step"               : "You will <bold>issue</bold> {amount} to {reeceiver}",
+  "pages.bankadmin.process-external.confirm_deposit_step_message"       : "Please confirm issue operation",
+  "pages.bankadmin.process-external.success.deposit"                    : "Deposit and issue completed successfully",
+  "pages.bankadmin.process-external.action.process_request"             : "Process request",
+  "pages.bankadmin.process-external.action.accept"                      : "Accept",
+  "pages.bankadmin.process-external.action.cancel"                      : "Cancel",
+  "pages.bankadmin.process-external.action.reject"                      : "Reject",
+  "pages.bankadmin.process-external.action.revert_and_refund"           : "Revert and refund",
+  "pages.bankadmin.process-external.action.upload_nota"                 : "Upload invoice",
+  "pages.bankadmin.process-external.action.attach_files"                : "Attach files",
+  "pages.bankadmin.process-external.action.refund"                      : "Refund",
+  "pages.bankadmin.process-external.action.accept_and_issue"            : "Accept and issue",
+  "pages.bankadmin.process-external.action.accept"                      : "Accept",
+  "pages.bankadmin.process-external.action.reject_and_refund"           : "Reject and refund",
   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   "dummy" : "dummy"
  
 }

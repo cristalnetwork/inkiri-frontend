@@ -93,6 +93,7 @@ class PDA extends Component {
         the_key={'pda_wodget_key'} 
         callback={this.onProcessRequestClick} 
         onRef={ref => (this.table_widget = ref)}
+        filter_hidden_fields={['to']}
         request_type={`${DISPLAY_DEPOSIT},${DISPLAY_WITHDRAWS}`} 
         />);
     //`

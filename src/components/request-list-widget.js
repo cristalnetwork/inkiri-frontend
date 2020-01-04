@@ -17,12 +17,17 @@ import { injectIntl } from "react-intl";
 const RequestListWidget = (props) => {
 
   // const [stored, setStored]             = useState(props.page_key_values);
-  const [key, setKey]                   = useState(props.the_key);
-  const [request_type, setRequestType]  = useState(props.request_type);
+  const [key, setKey]                            = useState(props.the_key);
+  const [request_type, setRequestType]           = useState(props.request_type);
+  const [filter_hidden_fields, setHiddenFields]  = useState(props.search_hidden_fields || []);
 
   const [table_ref, setTableRef]        = useState(null);
   const [stats, setStats]               = useState([]);
   
+  useEffect(() => {
+      setHiddenFields(props.filter_hidden_fields || []);
+    }, [props.filter_hidden_fields]);
+
   var t_id2 = null;
   const requestFilterCallback = (error, cancel, values) => {
     
@@ -88,7 +93,10 @@ const RequestListWidget = (props) => {
 
   return(
       <>
-      <RequestsFilter callback={requestFilterCallback} request_type={request_type}/>
+      <RequestsFilter 
+        callback={requestFilterCallback} 
+        request_type={request_type}
+        hidden_fields={filter_hidden_fields}/>
       <TableStats stats_array={stats}/>
       <TransactionTable 
         onChange={onTableChange}
