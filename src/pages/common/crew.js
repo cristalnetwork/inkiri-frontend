@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -8,26 +8,23 @@ import * as loginRedux from '@app/redux/models/login'
 import * as graphqlRedux from '@app/redux/models/graphql'
 import * as apiRedux from '@app/redux/models/api';
 
-import * as globalCfg from '@app/configs/global';
-
 import * as api from '@app/services/inkiriApi';
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
-import TableStats from '@app/components/TransactionTable/stats'; 
-import * as stats_helper from '@app/components/TransactionTable/stats';
 
-import { Card, PageHeader, Tag, Tabs, Button, Form, Input, Icon} from 'antd';
-import { Modal, notification, Table, Divider, Spin } from 'antd';
+import { Card, PageHeader, Button} from 'antd';
+import { Modal, Table, Spin } from 'antd';
 
 import AddMemberForm from '@app/components/Form/add_member';
 import {DISPLAY_ALL_TXS} from '@app/components/TransactionTable';
 
 import * as utils from '@app/utils/utils';
 
-import _ from 'lodash';
+import { injectIntl } from "react-intl";
+import InjectMessage from "@app/components/intl-messages";
 
 const STATE_LIST_MEMBERS = 'state_list_members';
 const STATE_NEW_MEMBER   = 'state_new_member';
@@ -43,7 +40,7 @@ class Crew extends Component {
       
       team:               props.team,
       job_positions:      props.jobPositions,
-      
+      intl:               {},
       active_view:        STATE_LIST_MEMBERS,
       active_view_object: null,
     };
@@ -70,6 +67,22 @@ class Crew extends Component {
     {
       this.props.loadConfig();
     }
+
+    const {formatMessage} = this.props.intl;
+    const check_fields = formatMessage({id:'pages.common.crew.title.check_fields'});
+    const state_list_members = formatMessage({id:'pages.common.crew.title.state_list_members'});
+    const state_new_member = formatMessage({id:'pages.common.crew.title.state_new_member'});
+    const state_edit_member = formatMessage({id:'pages.common.crew.title.state_edit_member'});
+    const verify_credentials = formatMessage({id:'pages.common.crew.verify_credentials'});
+    const confirm_delete = formatMessage({id:'pages.common.crew.confirm_delete'});
+    const error_cant_get_team_id = formatMessage({id:'pages.common.crew.error_cant_get_team_id'});
+    const error_cant_get_member_profile = formatMessage({id:'pages.common.crew.error_cant_get_member_profile'});
+    const error_already_a_crew_member = formatMessage({id:'pages.common.crew.error_already_a_crew_member'});
+    const new_member = formatMessage({id:'pages.common.crew.new_member'});
+    const crew = formatMessage({id:'pages.common.crew.crew'});
+    const pushing_tx = formatMessage({id:'pages.common.crew.pushing_tx'});
+    
+    this.setState({intl:{check_fields, state_list_members, state_new_member, state_edit_member, verify_credentials, confirm_delete, error_cant_get_team_id, error_cant_get_member_profile, error_already_a_crew_member, new_member, crew, pushing_tx}});
   } 
 
   componentDidUpdate(prevProps, prevState) 
@@ -111,7 +124,7 @@ class Crew extends Component {
   loadTeam =() =>{
     if(!this.props.actualAccountName || !this.props.actualRoleId)
     {
-      components_helper.notif.warningNotification("Please verify credentials");
+      components_helper.notif.warningNotification(this.state.intl.verify_credentials);
       return;
     }
     this.props.loadData(this.props.actualAccountName, this.props.actualRoleId)
@@ -126,14 +139,15 @@ class Crew extends Component {
 
   onRemoveMember = (member) => {
     const that           = this;
+    const confirm_delete_message = this.props.intl.formatMessage({id:'pages.common.crew.confirm_delete_message'}, {member_account_name:member.member.account_name, bold: str => <b>{str}</b>});
     Modal.confirm({
-      title: 'Confirm delete member.',
-      content: (<p>You are about to remove <b>{member.member.account_name}</b> from the crew. Continue or cancel.</p>),
+      title: this.state.intl.confirm_delete ,
+      content: (<p>{confirm_delete_message}}</p>),
       onOk() {
         const {team}         = that.state;
         if(!team)
         {
-          components_helper.notif.infoNotification('We cant get the team id. Please reload page.');
+          components_helper.notif.infoNotification(this.state.intl.error_cant_get_team_id);
           return;
         }
         const teamId         = team?team._id:null;
@@ -142,17 +156,6 @@ class Crew extends Component {
 
         const _function = 'bank.createOrUpdateTeam';
         that.props.callAPI(_function, [teamId, account_name, members])
-
-        // api.bank.createOrUpdateTeam(teamId, account_name, members)
-        //   .then((res)=>{
-        //     components_helper.notif.successNotification('Member removed from team successfully!');
-        //     that.loadTeam();
-        //     that.resetPage(STATE_LIST_MEMBERS);
-        //   }, (err)=>{
-        //     console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
-        //     components_helper.notif.exceptionNotification('An error occurred', err);
-        //     that.setState({pushingTx:false});
-        //   })
      
       },
       onCancel() {
@@ -181,9 +184,6 @@ class Crew extends Component {
   }
 
   memberFormCallback = async (error, cancel, values) => {
-    // console.log(` ## memberFormCallback(error:${error}, cancel:${cancel}, values:${values})`)
-    // console.log(' memberFormCallback:', JSON.stringify(values))
-    
     if(cancel)
     {
       this.setState({active_view:STATE_LIST_MEMBERS})
@@ -205,7 +205,7 @@ class Crew extends Component {
       try{
         member_profile = await api.bank.getProfile(values.member);
       }catch(e){
-        components_helper.notif.exceptionNotification('Cant retrieve new member profile!', e);
+        components_helper.notif.exceptionNotification(this.state.intl.error_cant_get_member_profile, e);
         return;
       }         
 
@@ -220,7 +220,7 @@ class Crew extends Component {
     // already a member?
     if(!values._id && team && team.members && team.members.filter(member => member.member._id==new_member.member).length>0)
     {
-      components_helper.notif.errorNotification('Selected profile is already a member!');
+      components_helper.notif.errorNotification(this.state.intl.error_already_a_crew_member);
       return;
     }
 
@@ -237,20 +237,6 @@ class Crew extends Component {
     
     const _function = 'bank.createOrUpdateTeam';
     that.props.callAPI(_function, [teamId, account_name, members])
-
-    // api.bank.createOrUpdateTeam(teamId, account_name, members)
-    //   .then((res)=>{
-    //     components_helper.notif.successNotification("Member saved to team successfully!");
-    //     // that.openNotificationWithIcon("success", "Member saved to team successfully!")    
-    //     that.loadTeam();
-    //     that.resetPage(STATE_LIST_MEMBERS);
-    //   }, (err)=>{
-    //     console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
-    //     components_helper.notif.exceptionNotification("An error occurred", err);
-    //     that.setState({pushingTx:false});
-    //   })
- 
-
   }
 
   resetPage(active_view){
@@ -268,7 +254,7 @@ class Crew extends Component {
     
     const buttons = (active_view==STATE_LIST_MEMBERS)
       ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.loadTeam()} ></Button>, 
-        <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewMember()}}> Member</Button>]
+        <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewMember()}}> {this.state.intl.new_member}</Button>]
         :(null);
     //
     return (
@@ -276,7 +262,7 @@ class Crew extends Component {
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={buttons}
-          title="Crew"
+          title={this.state.intl.crew}
         >
           
         </PageHeader>
@@ -297,7 +283,7 @@ class Crew extends Component {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
-              <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
+              <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_tx}>
                 <AddMemberForm key="edit_member_form" 
                   callback={this.memberFormCallback} 
                   job_positions={job_positions} 
@@ -314,7 +300,7 @@ class Crew extends Component {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
-              <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
+              <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_tx}>
                 <AddMemberForm key="add_member_form" callback={this.memberFormCallback} job_positions={job_positions}/>    
               </Spin>
             </section>
@@ -371,5 +357,5 @@ export default  (withRouter(connect(
         loadData:           bindActionCreators(graphqlRedux.loadData, dispatch),
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(Crew))
+)( injectIntl(Crew)))
 );

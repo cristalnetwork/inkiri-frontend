@@ -943,7 +943,7 @@ export const columnsForContractedServices = (callback, services_states) => {
         align:     'right',
         width:     '110px',
         render: (text, record) => {
-          const children = (<Button key={'children_'+record.id} onClick={()=>{ callback(record, events.CHILDREN) }}  icon="download" size="small" ><InjectMessage id="components.TransactionTable.columns.payments" /></Button>);
+          const children = (<Button key={'children_'+record.id} onClick={()=>{ callback(record, events.CHILDREN) }}  icon="download" size="small" >&nbsp;<InjectMessage id="components.TransactionTable.columns.payments" /></Button>);
           return (<>{children}</>);
         }
       }
