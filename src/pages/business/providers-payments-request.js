@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -10,7 +10,6 @@ import * as apiRedux from '@app/redux/models/api';
 import * as menuRedux from '@app/redux/models/menu';
 import * as graphqlRedux from '@app/redux/models/graphql'
 
-import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
 import * as utils from '@app/utils/utils';
@@ -19,14 +18,16 @@ import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 import { withRouter } from "react-router-dom";
 
-import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
-import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { Select, PageHeader, Tag, Button, Spin } from 'antd';
+import { Upload, Form, InputNumber, Input } from 'antd';
 
 import ProviderSearch from '@app/components/ProviderSearch';
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import { injectIntl } from "react-intl";
 
 const { TextArea } = Input;
 
@@ -157,30 +158,33 @@ class RequestPayment extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    
+    const {formatMessage} = this.props.intl;
     this.props.form.validateFields((err, values) => {
       
       if (err) {
-        components_helper.notif.errorNotification("Validation errors","Please verifiy errors on screen!");
+        components_helper.notif.errorNotification( formatMessage({id:'errors.validation_title'}), formatMessage({id:'errors.verify_on_screen'}) )    
         console.log(' ERRORS!! >> ', err)
         return;
       }
       
       if(isNaN(this.state.input_amount.value))
       {
-        components_helper.notif.errorNotification("Valid number required","Please type a valid number greater than 0!");
+        const title = formatMessage({id: 'components.forms.validators.valid_number_required'})
+        const desc  = formatMessage({id: 'components.forms.validators.valid_number_required_description'})
+        components_helper.notif.errorNotification( title, desc);    
         return;
       }
       if(parseFloat(this.state.input_amount.value)>parseFloat(this.props.balance))
       {
         const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-        components_helper.notif.errorNotification(`Amount must be equal or less than balance ${balance_txt}!`); //`
+        const amount_message  = this.props.intl.formatMessage({id: 'components.forms.validators.minimum_amount_required'}, {balance:balance_txt})
         return;
       }
 
       if(!this.state.provider || !this.state.provider.key)
       {
-        components_helper.notif.errorNotification('Please choose a provider!');
+        const title = formatMessage({id: 'pages.business.providers-payments-request.valid_provider'})
+        components_helper.notif.errorNotification(title);    
         return;
       }
       
@@ -194,7 +198,9 @@ class RequestPayment extends Component {
       const has_boleto = (my_BOLETO_PAGAMENTO);
       if(this.paymentModeRequiresBoleto() && !has_boleto)
       {
-        components_helper.notif.errorNotification('BOLETO PAGAMENTO Payment MODE', 'Please attach Boleto Pagamento file.');
+        const title = formatMessage({id: 'pages.business.providers-payments-request.payment_slip_mode'})
+        const desc  = formatMessage({id: 'pages.business.providers-payments-request.payment_slip_mode.message'})
+        components_helper.notif.errorNotification( title, desc);    
         return;
       }  
 
@@ -210,15 +216,6 @@ class RequestPayment extends Component {
       
       const provider_account = globalCfg.bank.provider_account; 
     
-      // console.log('values:', values)
-      // console.log('values:', JSON.stringify(values));
-      // return;
-
-
-      // api.bank.createProviderPaymentEx(sender, amount, provider_id, values, attachments_array)
-      // api.requestProviderPayment(sender, privateKey, provider_account, amount, request_id)
-      // api.bank.updateProviderPayment(sender, request_id, undefined, send_tx.data.transaction_id)
-      
       const steps= [
         {
           _function:           'bank.createProviderPaymentEx'
@@ -330,19 +327,22 @@ class RequestPayment extends Component {
       return a.value>b.value?1:-1;
     })
 
-    const title   = globalCfg.api.getPaymentTitles()[option_type];
+    // const title   = globalCfg.api.getPaymentTitles()[option_type];
     if(!options)
       return (<></>);
     //
+    const {formatMessage}       = this.props.intl;
+    const title                 = formatMessage({id:`pages.business.providers-payments-request.${option_type}`}) 
+    const title_validation      = formatMessage({id:'pages.business.providers-payments-request.choose_option_validation'}, {option:title}) ;
+    const title_message         = formatMessage({id:'pages.business.providers-payments-request.choose_option_message'}, {option:title}) ;
     const { getFieldDecorator } = this.props.form;
-    
     return (
       <Form.Item className="money-transfer__row">
           {getFieldDecorator( 'provider_extra.'+option_type, {
-            rules: [{ required: true, message: 'Please select a/an '+ title}]
+            rules: [{ required: true, message: title_validation}]
             , onChange: (e) => this.handleChange(e, option_type)
           })(
-            <Select placeholder={'Choose ' + title} optionLabelProp="label">
+            <Select placeholder={title_message} optionLabelProp="label">
             {options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.value}>{ opt.value } </Select.Option> )}
             </Select>
           )}
@@ -368,7 +368,8 @@ class RequestPayment extends Component {
       beforeUpload: file => {
         if(this.state.attachments[name] && this.state.attachments[name].length>0)
         {
-          components_helper.notif.infoNotification("Only 1 file allowed");
+          const info_msg = this.props.intl.formatMessage({id:'pages.business.providers-payments-request.only_one_file'}) 
+          components_helper.notif.infoNotification(info_msg);
           return false;
         }
 
@@ -386,8 +387,8 @@ class RequestPayment extends Component {
 
   onNewProvider =() =>{
 
-    //this.props.setLastRootMenuFullpath(this.props.location.pathname);
-    this.props.setReferrer(  'Back to request provider payment'
+    const info_msg = this.props.intl.formatMessage({id:'pages.business.providers-payments-request.message_after_add_provider'}) 
+    this.props.setReferrer(  info_msg
                              , this.props.location.pathname
                              , this.state.referrer
                              , 'truck-moving')
@@ -424,8 +425,18 @@ class RequestPayment extends Component {
     const boletoUploaderProps                              = this.getPropsForUploader(globalCfg.api.BOLETO_PAGAMENTO);
     const { getFieldDecorator }                            = this.props.form;
     const require_boleto                                   = this.paymentModeRequiresBoleto();
+    
+    const {formatMessage}          = this.props.intl;
+    const pushing_transaction_intl = formatMessage({id:'pages.business.providers-payments-request.pushing_transaction'});
+    const validate_amount_text     = formatMessage({id:'pages.business.providers-payments-request.validate_amount'});
+    const add_new_provider         = formatMessage({id:'pages.business.providers-payments-request.add_new_provider'});
+    const invoice_text             = formatMessage({id:'global.invoice'});
+    const payment_slip_text        = formatMessage({id:'global.payment_slip'});
+    const memo                     = formatMessage({id:'global.memo'});
+    const memo_message             = formatMessage({id:'global.memo_message'});
+    const request_payment_text     = formatMessage({id:'pages.business.providers-payments-request.request_payment'});
     return (
-      <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
+      <Spin spinning={isFetching} delay={500} tip={pushing_transaction_intl} >
         <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">
               
@@ -436,7 +447,7 @@ class RequestPayment extends Component {
                       </span>
                   </div>
                   <div className="money-transfer__input money-transfer__select">
-                    <Button type="default" icon="plus" size="small" onClick={() => this.onNewProvider()} title="Add new provider" style={{position:'absolute', right:8, top:8}}/>
+                    <Button type="default" icon="plus" size="small" onClick={() => this.onNewProvider()} title={add_new_provider} style={{position:'absolute', right:8, top:8}}/>
                     <Form.Item>
                       {getFieldDecorator('provider', {
                         rules: [{ validator: this.validateProvider }],
@@ -450,9 +461,11 @@ class RequestPayment extends Component {
                 
               <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
-                      rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
+                      rules: [{ required: true
+                                , message: validate_amount_text
+                                , whitespace: true
+                                , validator: this.checkPrice }],
                       initialValue: input_amount.value,
-
                     })( 
                       <>  
                         <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
@@ -479,7 +492,7 @@ class RequestPayment extends Component {
                       <p className="ant-upload-drag-icon">
                         <FontAwesomeIcon icon="receipt" size="3x" />
                       </p>
-                      <p className="ant-upload-text">Nota Fiscal</p>
+                      <p className="ant-upload-text">{invoice_text}</p>
                     </Upload.Dragger>,
                 </Form.Item>
               </div>
@@ -495,17 +508,17 @@ class RequestPayment extends Component {
                     <p className="ant-upload-drag-icon">
                       <FontAwesomeIcon icon="file-invoice-dollar" size="3x" color={(!require_boleto)?"gray":"inherit"}/>
                     </p>
-                    <p className="ant-upload-text">Boleto Pagamento</p>
+                    <p className="ant-upload-text">{payment_slip_text}</p>
                   </Upload.Dragger>,
                 </Form.Item>
               </div>
 
               <div className="money-transfer__row row-expandable row-complementary-bottom"  id="divNote">
-                <Form.Item label="Memo">
+                <Form.Item label={memo}>
                   {getFieldDecorator('description', {})(
                   <TextArea 
                     className="money-transfer__input" 
-                    placeholder="Description, Memo or Note" autoSize={{ minRows: 3, maxRows: 6 }} 
+                    placeholder={memo_message} autoSize={{ minRows: 3, maxRows: 6 }} 
                     style={{overflow: 'hidden', overflowWrap: 'break-word', height: 31}}
                     />
                   )}
@@ -514,7 +527,9 @@ class RequestPayment extends Component {
               </div>
             </div>
             <div className="mp-box__actions mp-box__shore">
-                <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={this.state.uploading} title="" >REQUEST PAYMENT</Button>
+                <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={this.state.uploading} title="" >
+                  {request_payment_text}
+                </Button>
             </div>
         </Form>
       </Spin>
@@ -530,7 +545,7 @@ class RequestPayment extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Request a payment to a provider">
+          title={this.props.intl.formatMessage({id:'pages.business.providers-payments-request.title'})}>
         </PageHeader>
 
         <div style={{ margin: '0 0px', marginTop: 12}}>
@@ -573,5 +588,5 @@ export default Form.create() (withRouter(connect(
 
         setReferrer:      bindActionCreators(menuRedux.setReferrer, dispatch),
     })
-)(RequestPayment) )
+)( injectIntl(RequestPayment)) )
 );

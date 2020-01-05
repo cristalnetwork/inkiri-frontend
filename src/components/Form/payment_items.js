@@ -56,7 +56,7 @@ const PaymentItemsForm = (props) => {
 
     return (
           <Form onSubmit={handleSubmit}>
-            <div className="money-transfer">    
+            <div className="money-transfer simple_padding">    
               <div className="money-transfer__row row-complementary  flex_row_start" >
                   <Form.Item>
                       {getFieldDecorator( 'items', {

@@ -86,7 +86,7 @@ const PaymentForm = (props) => {
     
     return (
           <Form onSubmit={handleSubmit}>
-            <div className="money-transfer">    
+            <div className="money-transfer simple_padding">    
               
               {userSearch}
 

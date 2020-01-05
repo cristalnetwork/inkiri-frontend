@@ -155,7 +155,7 @@ class ExchangeForm extends Component {
       if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
       {
         const balance_txt     = globalCfg.currency.toCurrencyString(this.props.balance);
-        const amount_message  = this.props.intl.formatMessage({id: 'components.forms.validators.minimum_amount_required', balance:balance_txt})
+        const amount_message  = this.props.intl.formatMessage({id: 'components.forms.validators.minimum_amount_required'}, {balance:balance_txt})
         components_helper.notif.errorNotification(amount_message);
         // components_helper.notif.errorNotification(`Amount must be equal or less than balance ${balance_txt}!`);
         return;
