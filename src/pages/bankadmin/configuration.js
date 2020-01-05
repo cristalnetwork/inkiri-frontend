@@ -291,7 +291,7 @@ class Configuration extends Component {
                   key={'new_perm'}
                   style = { { marginBottom: 24 } } 
                   >
-                  <AddRoleForm owner={this.state.bank_account.key} authority={authority} callback={this.onAddPermission} />                  
+                  <AddRoleForm owner={this.state.bank_account.key} authority={active_tab_object} callback={this.onAddPermission} />                  
                 </Card>
               </Spin>} 
             icon="user-shield" />  );

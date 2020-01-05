@@ -12,8 +12,11 @@ const TransactionBlockchain = (props) => {
 
     useEffect(() => {
       setRequest(props.request);
-      setTitle(props.title);    
     }, [props.request]);
+
+    useEffect(() => {
+      setTitle(props.title);    
+    }, [props.title]);
 
     const [tx_refund_text, setRefundText]               = useState('');    
     const [money_transfer_text, setMoneyTransferText]   = useState('');    

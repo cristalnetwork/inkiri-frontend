@@ -360,7 +360,7 @@ class Profile extends Component {
       {
         const authority             = formatMessage({id:`components.Views.roles.${active_tab_object}`});
         const authority_tab_text    = formatMessage({id: 'pages.bankadmin.account.new_perm_title'}, {  authority: authority, bold: (str) => <b key={Math.random()}>{str}</b> });
-        
+        //
         return (
           <Skeleton 
             content={
@@ -370,12 +370,12 @@ class Profile extends Component {
                   key={'new_perm'}
                   style = { { marginBottom: 24 } } 
                   >
-                  <AddRoleForm owner={account.key} authority={authority} callback={this.onAddPermission} />                  
+                  <AddRoleForm owner={account.key} authority={active_tab_object} callback={this.onAddPermission} />                  
                 </Card>
               </Spin>} 
             icon="user-shield" />  );
       }
-
+      //
       return (
         <Skeleton 
         content={

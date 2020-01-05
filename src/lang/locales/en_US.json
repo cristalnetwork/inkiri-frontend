@@ -539,21 +539,47 @@
   "pages.bankadmin.process-external.action.accept"                      : "Accept",
   "pages.bankadmin.process-external.action.reject_and_refund"           : "Reject and refund",
   
+  "pages.bankadmin.profile.title"                                       : "Customer profile :)",
+  "pages.bankadmin.profile.error_reloading_profile"                     : "An error occurred reloading profile",
+  "pages.bankadmin.profile.succcess.bank_account_saved"                 : "Bank account saved successfully",
+  "pages.bankadmin.profile.error.occurred_title"                        : "Oops... an error occurred!",
+  "pages.bankadmin.profile.succcess.profile_updated"                    : "Profile updated successfully",
+  "pages.bankadmin.profile.update_bank_account"                         : "Update bank account",
+  "pages.bankadmin.profile.add_bank_account"                            : "Add bank account",
+  "pages.bankadmin.profile.pushing_transaction"                         : "Pushing transaction...",
+  "pages.bankadmin.profile.update_profile"                              : "Update profile",
+  "pages.bankadmin.profile.tab.profile"                                 : "Profile",
+  "pages.bankadmin.profile.tab.accounts"                                : "Accounts",
+  "pages.bankadmin.profile.tab.preferences"                             : "Preferences",
+  "pages.bankadmin.profile.tab.security"                                : "Security",
 
+  "pages.bankadmin.profiles.redirect.account_creation"                  : "account creation",
+  "pages.bankadmin.profiles.redirect.account_creation_notification"     : "Notification",
+  "pages.bankadmin.profiles.redirect.account_creation_message"          : "In order to create a profile, please refer to {button}",
+  "pages.bankadmin.profiles.error.retrieving_profiles"                  : "Error retrieveing profiles",
+  "pages.bankadmin.profiles.reached_end_of_profiles"                    : "End of profiles",
+  "pages.bankadmin.profiles.reached_end_of_profiles_message"            : "You have reached the end of profiles list!",
+  "pages.bankadmin.profiles.load_more_profiles"                         : "Load more profiles",
+  "pages.bankadmin.profiles.profile"                                    : "Profile",
+  "pages.bankadmin.profiles.profiles"                                   : "Profiles",
+  "pages.bankadmin.profiles.title"                                      : "Profiles",
+  "pages.bankadmin.profiles.subtitle"                                   : "Bank Profiles Administration",
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+  "pages.common.configuration.succcess.profile_updated"                 : "Profile updated successfully",
+  "pages.common.configuration.error.occurred_title"                     : "Oops... an error occurred!",
+  "pages.common.configuration.succcess.bank_account_saved"              : "Bank account saved successfully",
+  "pages.common.configuration.update_bank_account"                      : "Update bank account",
+  "pages.common.configuration.add_bank_account"                         : "Add bank account",
+  "pages.common.configuration.pushing_transaction"                      : "Pushing transaction...",
+  "pages.common.configuration.update_profile"                           : "Update profile",
+  "pages.common.configuration.new_perm_title"                           : "New <bold>{authority}</bold> permission",
+  "pages.common.configuration.tab.profile"                              : "Profile",
+  "pages.common.configuration.tab.accounts"                             : "Accounts",
+  "pages.common.configuration.tab.roles"                                : "Roles",
+  "pages.common.configuration.tab.preferences"                          : "Preferences",
+  "pages.common.configuration.tab.security"                             : "Security",
+  "pages.common.configuration.title"                                    : "Configuration",
+  
   "dummy" : "dummy"
  
 }

@@ -4,7 +4,6 @@ import { Button } from 'antd';
 import { connect } from 'react-redux'
 
 import * as loginRedux from '@app/redux/models/login'
-import * as globalCfg from '@app/configs/global';
 
 import { withRouter } from "react-router-dom";
 

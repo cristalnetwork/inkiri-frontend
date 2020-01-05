@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import { Select } from 'antd';
 
-import { connect } from 'react-redux'
 import * as api from '@app/services/inkiriApi';
 
 import debounce from 'lodash/debounce';

@@ -7,18 +7,15 @@ import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
-import * as api from '@app/services/inkiriApi';
-
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
 import { withRouter } from "react-router-dom";
 
-import { Radio, Select, Card, PageHeader, Button, Input, Table } from 'antd';
+import { Card, PageHeader, Button } from 'antd';
 
-import * as columns_helper from '@app/components/TransactionTable/columns';
-import { DISPLAY_PDA, DISPLAY_DEPOSIT, DISPLAY_WITHDRAWS} from '@app/components/TransactionTable';
-import TableStats, { buildItemMoneyPending, buildItemUp, buildItemDown, buildItemCompute, buildItemSimple, buildItemMoney, buildItemPending} from '@app/components/TransactionTable/stats';
+import { DISPLAY_DEPOSIT, DISPLAY_WITHDRAWS} from '@app/components/TransactionTable';
+// import TableStats, { buildItemMoneyPending, buildItemUp, buildItemDown, buildItemCompute, buildItemSimple, buildItemMoney, buildItemPending} from '@app/components/TransactionTable/stats';
 
 import RequestListWidget from '@app/components/request-list-widget';
 
