@@ -711,6 +711,12 @@
   "pages.common.deposit.title"                                         : "Deposit money",
   "pages.common.deposit.subtitle"                                      : "Deposit paper money and receive Inkiri on your account",
 
+  "pages.common.extrato.tab.blockchain_transactions"                   : "Blockchain transactions",
+  "pages.common.extrato.tab.requests"                                  : "Requests",
+  "pages.common.extrato.list_title.blockchain_transactions"            : "List of blockchain transactions",
+  "pages.common.extrato.list_title.requests"                           : "List of customers requests",
+  "pages.common.extrato.title"                                         : "Extrato",
+
   "pages.common.services.error.duplicated"                  : "Duplicated customer service provisioning', 'Customer account is already hiring selected service.",
   "dummy" : "dummy"
  

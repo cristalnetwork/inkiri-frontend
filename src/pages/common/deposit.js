@@ -23,7 +23,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { injectIntl } from "react-intl";
 import InjectMessage from "@app/components/intl-messages";
 
-
 const DEFAULT_RESULT = {
   result:             undefined,
   result_object:      undefined,
@@ -181,6 +180,7 @@ class DepositMoney extends Component {
   handleSubmit = e => {
     e.preventDefault();
     const that = this;
+    const {formatMessage} = this.props.intl;
     this.props.form.validateFields((err, values) => {
       if(err){
         components_helper.notif.errorNotification( formatMessage({id:'errors.validation_title'}), formatMessage({id:'errors.verify_on_screen'}) )    
@@ -190,7 +190,7 @@ class DepositMoney extends Component {
       const {input_amount} = this.state;
       const sender         = that.props.actualAccountName;
       const amount_string  = this.inputAmountToString();
-      const confirm_deposit_request_message = this.props.intl.formatMessage({id:'pages.common.deposit.confirm_deposit_request_message'}, {amount:amount_string});
+      const confirm_deposit_request_message = formatMessage({id:'pages.common.deposit.confirm_deposit_request_message'}, {amount:amount_string});
       Modal.confirm({
         title:   this.state.intl.confirm_deposit_request,
         content: confirm_deposit_request_message,

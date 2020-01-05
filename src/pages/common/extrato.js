@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -8,67 +8,37 @@ import * as loginRedux from '@app/redux/models/login'
 import * as pageRedux from '@app/redux/models/page'
 
 import * as globalCfg from '@app/configs/global';
-import * as api from '@app/services/inkiriApi';
 
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Tooltip, Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Row, Col } from 'antd';
+import { Card, PageHeader, Tabs} from 'antd';
 
-import { notification, Table, Divider, Spin } from 'antd';
-
-import { DISPLAY_PDA, DISPLAY_EXTERNAL, DISPLAY_ALL_TXS, DISPLAY_REQUESTS} from '@app/components/TransactionTable';
+import { DISPLAY_ALL_TXS, DISPLAY_REQUESTS} from '@app/components/TransactionTable';
 
 import RequestListWidget from '@app/components/request-list-widget';
 import TxListWidget from '@app/components/tx-list-widget';
 
 import * as utils from '@app/utils/utils';
 
-const { TabPane } = Tabs;
-const { Option } = Select;
-const { Search, TextArea } = Input;
+import { injectIntl } from "react-intl";
+import InjectMessage from "@app/components/intl-messages";
 
-// const tabs = {
-//   [globalCfg.bank.ACCOUNT_TYPE_BUSINESS]: {
-//     [DISPLAY_ALL_TXS]:    'Movements',
-//     [DISPLAY_DEPOSIT]:    'Deposits',
-//     [DISPLAY_WITHDRAWS]:  'Withdraws',
-//     [DISPLAY_PROVIDER]:   'Provider Payments',
-//     [DISPLAY_SERVICE]:    'Services',
-//     [DISPLAY_PAYMENTS]:   'Payments',
-//   },
-//   [globalCfg.bank.ACCOUNT_TYPE_PERSONAL]: {
-//     [DISPLAY_ALL_TXS]:    'Movements',
-//     [DISPLAY_DEPOSIT]:    'Deposits',
-//     [DISPLAY_WITHDRAWS]:  'Withdraws',
-//     [DISPLAY_EXCHANGES]:  'Exchanges',
-//     [DISPLAY_SERVICE]:    'Services',
-//     [DISPLAY_PAYMENTS]:   'Payments',
-//   },
-//   [globalCfg.bank.ACCOUNT_TYPE_FOUNDATION]: {
-//     [DISPLAY_ALL_TXS]:    'Movements',
-//     [DISPLAY_DEPOSIT]:    'Deposits',
-//     [DISPLAY_WITHDRAWS]:  'Withdraws',
-//     [DISPLAY_SERVICE]:    'Services',
-//     [DISPLAY_PAYMENTS]:   'Payments',
-//   }
-  
-//   // [DISPLAY_REQUESTS] : 'Requests',
-// }
+const { TabPane } = Tabs;
 
 const tabs = {
   [globalCfg.bank.ACCOUNT_TYPE_BUSINESS]: {
-    [DISPLAY_ALL_TXS]:    'Movements',
-    [DISPLAY_REQUESTS]:   'Requests',
+    [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+    [DISPLAY_REQUESTS] :  'requests', 
   },
   [globalCfg.bank.ACCOUNT_TYPE_PERSONAL]: {
-    [DISPLAY_ALL_TXS]:    'Movements',
-    [DISPLAY_REQUESTS]:   'Requests'
+    [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+    [DISPLAY_REQUESTS] :  'requests', 
   },
   [globalCfg.bank.ACCOUNT_TYPE_FOUNDATION]: {
-    [DISPLAY_ALL_TXS]:    'Movements',
-    [DISPLAY_REQUESTS]:   'Requests'
+    [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+    [DISPLAY_REQUESTS] :  'requests', 
   }
   
   // [DISPLAY_REQUESTS] : 'Requests',
@@ -94,7 +64,6 @@ class Extrato extends Component {
     };
 
     this.onTabChange                = this.onTabChange.bind(this);
-    
     this.onTransactionClick         = this.onTransactionClick.bind(this);
     this.onRequestClick             = this.onRequestClick.bind(this);
   }
@@ -172,14 +141,16 @@ class Extrato extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Extrato"
-          subTitle={`List of ${my_tabs[active_tab]}`}
+          title={this.props.intl.formatMessage({id:'pages.common.extrato.title'})}
+          subTitle={this.props.intl.formatMessage({id:`pages.common.extrato.list_title.${my_tabs[active_tab]}`}) }
         >
         </PageHeader>
 
         <div className="styles standardList" style={{ marginTop: 24 }}>
           <Card key={'card_master'}  
-            tabList={ Object.keys(my_tabs).map(key_tab => { return {key: key_tab, tab: my_tabs[key_tab]} } ) }
+            tabList={ Object.keys(my_tabs).map(key_tab => { return {key: key_tab, tab: 
+              this.props.intl.formatMessage({id:`pages.common.extrato.tab.${my_tabs[key_tab]}`})
+            } } ) }
             activeTabKey={active_tab}
             onTabChange={ (key) => this.onTabChange(key)}
             >
@@ -208,4 +179,4 @@ export default  (withRouter(connect(
 
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(Extrato)));
+)(injectIntl(Extrato))));
