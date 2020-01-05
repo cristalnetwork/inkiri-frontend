@@ -510,3 +510,17 @@ select .anticon {
 }
 
 span.uppercase {text-transform: uppercase;}
+
+div.headerList tr{
+  display:flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+div.headerList td{
+  display:flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex:1;
+}
+div.headerList td .ant-descriptions-item-label{ flex:1; }
+div.headerList td .ant-descriptions-item-content{flex:3; align-self: flex-start;}

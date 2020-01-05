@@ -432,7 +432,68 @@ export const requests = async ({page, requested_type='', account_name='', from='
 
 
 
-const runQuery = async (query, variables, _field) => {
+
+export const loadProvider = async (provider_id) => runQuery(GET_PROVIDER_DATA, {id:provider_id}, 'provider');
+const GET_PROVIDER_DATA  = gql`
+  query getProvider($id: String!) {
+    provider(id:$id){
+      _id
+      name
+      cnpj
+      email
+      phone
+      address{
+        street
+        city
+        state
+        zip
+        country
+      }
+      category
+      products_services
+      created_by{
+        _id
+        account_name
+        alias
+        first_name
+        last_name
+        email
+        legal_id
+        birthday
+        phone
+        account_type
+        business_name
+        created_at
+        userCounterId
+      }
+      updated_by{
+        _id
+        account_name
+        alias
+        first_name
+        last_name
+        email
+        legal_id
+        birthday
+        phone
+        account_type
+        business_name
+        created_at
+        userCounterId
+      }
+      state
+      bank_accounts{
+        _id
+        bank_name
+        agency
+        cc
+      }
+      providerCounterId
+    }
+  }
+`;
+
+const runQuery = async (query, variables, _return_field) => {
   // const client = useApolloClient();
 
   try{
@@ -446,8 +507,8 @@ const runQuery = async (query, variables, _field) => {
       return null;
     }
     // console.log(data);
-    if(_field)
-      return data[_field]
+    if(_return_field)
+      return data[_return_field]
     return data;
   }
   catch(e)

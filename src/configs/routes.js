@@ -376,7 +376,7 @@ const common = [
     {
        key:          pathNames.commonProviders_ProviderProfile,
        father_key :  '*',
-       fileName:     'provider',
+       fileName:     'provider-profile',
        area:         'common',
        path:         'provider-profile',
        container:    'dashboard',

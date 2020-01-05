@@ -40,11 +40,13 @@ const DEFAULT_PROVIDER = {
                       cc:    ''
                     }
 };
+
 const DEFAULT_RESULT = {
   result:             undefined,
   result_object:      undefined,
   error:              {},
 }
+
 class CreateProvider extends Component {
   constructor(props) {
     super(props);
