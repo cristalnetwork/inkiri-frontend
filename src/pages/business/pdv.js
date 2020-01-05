@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -14,21 +14,33 @@ import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 import { withRouter } from "react-router-dom";
 
-import { Drawer, Table, Select, Result, Card, PageHeader, Tag, Button, Spin } from 'antd';
-import { message, notification, Form, Icon, InputNumber, Input } from 'antd';
+import { Drawer, Table, Steps, Card, PageHeader, Button, Spin, Form, Icon, Input } from 'antd';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 import PaymentForm from '@app/components/Form/payment';
+import PaymentItemsForm from '@app/components/Form/payment_items';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { injectIntl } from "react-intl";
+import InjectMessage from "@app/components/intl-messages";
 
 // Dfuse WebSocket
 import { InboundMessageType, createDfuseClient } from '@dfuse/client';
 
-const { TextArea } = Input;
+const { Step } = Steps;
+const steps = [
+  {
+    title: 'pages.business.pdv.step.item_list',
+    content: 'First-content',
+  },
+  {
+    title: 'pages.business.pdv.step.payment',
+    content: 'Last-content',
+  },
+];
+
 
 const DEFAULT_STATE = {
       input_amount     :
@@ -39,6 +51,10 @@ const DEFAULT_STATE = {
                            },
       description:        '',
       show_payment:       false,
+      current_step:       0,
+      items:              '',
+      payer:              '',
+      password:           '',
 };
 
 const DEFAULT_RESULT = {
@@ -73,7 +89,6 @@ class PDV extends Component {
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetResult                  = this.resetResult.bind(this); 
 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.onInputAmount              = this.onInputAmount.bind(this);
     this.handleChange               = this.handleChange.bind(this);
     
@@ -84,6 +99,7 @@ class PDV extends Component {
     this.loadTransactionsForAccount = this.loadTransactionsForAccount.bind(this);
 
     this.onPaymentModalCallback     = this.onPaymentModalCallback.bind(this);
+    this.onPaymentItemsCallback     = this.onPaymentItemsCallback.bind(this);
 
     // Dfuse WebSocket
     this.stream = undefined
@@ -108,27 +124,22 @@ class PDV extends Component {
     callback('Amount must greater than zero!');
   };
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-
   handleSubmit = e => {
     e.preventDefault();
-    
+    const { formatMessage }    = this.props.intl;
     this.props.form.validateFields((err, values) => {
       
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+        components_helper.notif.errorNotification( formatMessage({id:'errors.validation_title'}), formatMessage({id:'errors.verify_on_screen'}) )    
         console.log(' ERRORS!! >> ', err)
         return;
       }
       
       if(isNaN(this.state.input_amount.value))
       {
-        this.openNotificationWithIcon("error", this.state.input_amount.value + " > valid number required","Please type a valid number greater than 0!")    
+        const title = formatMessage({id: 'pages.business.pdv.validators.valid_number_required'})
+        const desc  = formatMessage({id: 'pages.business.pdv.validators.valid_number_required_description'})
+        components_helper.notif.errorNotification( title, desc);    
         return;
       }
      
@@ -221,12 +232,15 @@ class PDV extends Component {
     const { loading, input_amount } = this.state;
     const { getFieldDecorator } = this.props.form;
 
-    const { formatMessage }       = this.props.intl;
-    const amount_title            = formatMessage( {id: 'global.amount' } );
-    const amount_message          = formatMessage( {id: 'components.forms.validators.forgot_amount' } );
-
+    const { formatMessage }    = this.props.intl;
+    const amount_title         = formatMessage( {id: 'global.amount' } );
+    const amount_message       = formatMessage( {id: 'components.forms.validators.forgot_amount' } );
+    const pushing_transaction  = formatMessage( {id: 'pages.business.pdv.pushing_transaction' } );
+    const customer_signature   = formatMessage( {id: 'pages.business.pdv.buttins.customer_signature'});
+    const qrcode               = formatMessage( {id: 'pages.business.pdv.buttins.qrcode'});
+    const send_request         = formatMessage( {id: 'pages.business.pdv.buttins.send_request'});
     return (
-      <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+      <Spin spinning={this.state.pushingTx} delay={500} tip={pushing_transaction}>
         <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">
               
@@ -259,9 +273,15 @@ class PDV extends Component {
               
             </div>
             <div className="mp-box__actions mp-box__shore">
-                <Button onClick={this.showPaymentModal} size="large" key="charge_keyboard_button" loading={loading}><FontAwesomeIcon icon="keyboard" size="1x"/>&nbsp;COLETAR VENDA</Button>
-                <Button disabled onClick={this.showQRModal}      size="large" key="charge_qr_button"       loading={loading} style={{marginLeft:8}} icon="qrcode">QRCODE</Button>
-                <Button disabled onClick={this.sharePayment}     size="large" key="charge_share_button"    loading={loading} style={{marginLeft:8}} ><FontAwesomeIcon icon={['fab', 'whatsapp-square']} />&nbsp;REQUEST  </Button>
+                <Button onClick={this.showPaymentModal} size="large" key="charge_keyboard_button" loading={loading}>
+                  <FontAwesomeIcon icon="keyboard" size="1x"/>&nbsp;{customer_signature}
+                </Button>
+                <Button disabled onClick={this.showQRModal} size="large" key="charge_qr_button" loading={loading} style={{marginLeft:8}} icon="qrcode">
+                  {qrcode}
+                </Button>
+                <Button disabled onClick={this.sharePayment} size="large" key="charge_share_button" loading={loading} style={{marginLeft:8}} ><FontAwesomeIcon icon={['fab', 'whatsapp-square']} />
+                  &nbsp;{send_request}
+                </Button>
             </div>
         </Form>
       </Spin>
@@ -272,10 +292,13 @@ class PDV extends Component {
 
   /* Payment methods */
   showPaymentModal = () => {
-    const {input_amount} = this.state;
+    const {input_amount}     = this.state;
+    const { formatMessage }  = this.props.intl;
     if(isNaN(input_amount.value) || parseFloat(input_amount.value)<=0)
     {
-      this.openNotificationWithIcon("error", "Valid amount required","Please type a valid number greater than 0!")    
+      const title = formatMessage({id: 'pages.business.pdv.validators.valid_number_required'})
+      const desc  = formatMessage({id: 'pages.business.pdv.validators.valid_number_required_description'})
+      components_helper.notif.errorNotification(title, desc);    
       return;
     }
 
@@ -291,27 +314,24 @@ class PDV extends Component {
   } 
 
   reloadTxs = async () =>{
+    const {formatMessage} = this.props.intl;
     this.setState({
         page:   -1, 
         txs:    [],
       }, async () => {
         try{
-          console.log(' reloadTxs -> stop')
           const ret = await this.stop();
-          console.log(' reloadTxs -> stop OK')
         }
         catch(e){
           console.log(' reloadTxs -> stop ERROR')
         }
         try{
-          console.log(' reloadTxs -> launchConnection')
           const ret = await this.launchConnection();
-          console.log(' reloadTxs -> launchConnection OK')
         }
         catch(e){
-          console.log(' reloadTxs -> launchConnection ERROR')
+          const title = formatMessage({id:'pages.business.pdv.error.cant_listen_to_transactions'})          
+          components_helper.notif.exceptionNotification( title, e);    
         }
-        console.log(' reloadTxs -> loadTransactionsForAccount')
         this.loadTransactionsForAccount(true);
       });  
   }
@@ -319,16 +339,15 @@ class PDV extends Component {
   loadTransactionsForAccount(is_first){
 
     let account_name = this.props.actualAccountName;
-    
+    const {formatMessage} = this.props.intl;
     let that = this;
     this.setState({loading:true});
-    // console.log(' <><><><><><><><><> this.state.cursor:', this.state.cursor)
     api.dfuse.incomingTransactions(account_name, (is_first===true?undefined:this.state.cursor))
     .then( (res) => {
         that.onNewData(res.data);
       } ,(ex) => {
-        // console.log(' -- extrato.js::listTransactions ERROR --');
-        // console.log('---- ERROR:', JSON.stringify(ex));
+        const title = formatMessage({id:'pages.business.pdv.error.cant_load_transactions'})          
+        components_helper.notif.exceptionNotification( title, ex);    
         that.setState({loading:false});  
       } 
     );
@@ -344,31 +363,45 @@ class PDV extends Component {
     pagination.total     = _txs.length;
 
     this.setState({pagination:pagination, txs:_txs, cursor:data.cursor, loading:false})
-    // if(prepend)
-    // {
-    //   const ids = data.txs.map(obj=>obj.id);
-    //   console.log(ids)
-    //   this.setState({selectedRowKeys:ids})
-    //   const that = this;
-    //   setTimeout(
-    //       function() {
-    //           that.setState({selectedRowKeys: []});
-    //       },
-    //       10000
-    //   );
-    // }
-
+    
     if(!data.txs || data.txs.length==0)
     {
-      this.openNotificationWithIcon("info", "End of transactions","You have reached the end of transaction list!")
+      const {formatMessage} = this.props.intl;
+      const title   = formatMessage({id: 'pages.business.pdv.reached_end_of_transactions'});
+      const message = formatMessage({id: 'pages.business.pdv.reached_end_of_transactions_message'});
+      components_helper.notif.infoNotification( title, message);    
     }
   }
   ///
   renderFooter(){
-    return (<><Button key="load-more-data" disabled={!this.state.cursor} onClick={()=>this.loadTransactionsForAccount(false)}>More!!</Button> </>)
+    return (<Button key="load-more-data" disabled={!this.state.cursor} onClick={()=>this.loadTransactionsForAccount(false)}>
+              <InjectMessage id="pages.business.pdv.load_older_transactions" />
+            </Button>)
   }
   //
-  onPaymentModalCallback = async (error, cancel, values) => {
+  onPaymentItemsCallback = async (error, cancel, values) => {
+    // if(cancel)
+    // {
+    //   this.setState({  
+    //       show_payment:   false
+    //   });
+    //   return;
+    // }
+    if(error)
+    {
+      return;
+    }
+
+    // console.log('values.items:', values.items)
+    
+    this.setState({
+        items: values.items
+    }, () => {
+      // this.next();
+    });
+  }
+  //
+  onPaymentModalCallback = (error, cancel, values) => {
     if(cancel)
     {
       this.setState({  
@@ -380,11 +413,20 @@ class PDV extends Component {
     {
       return;
     }
+    // console.log('values:', values);
+    const {payer, password} = values;
+    this.setState({payer: payer, password:password})
+    
+  }
+
+  doPay = async () => {
 
     this.setState({pushingTx:true})
     
-    const {payer, password} = values;
+    const {payer, password, items} = this.state;
+    const {formatMessage}          = this.props.intl;
 
+    console.log(payer, password, items);
     let public_key          = null;
     let private_key         = null;
     if(!api.eosHelper.isValidPrivate(password))
@@ -393,7 +435,7 @@ class PDV extends Component {
       try{
         seed  = globalCfg.eos.generateSeed(payer, password);
       }catch(e){
-        this.openNotificationWithIcon('error', 'An error occurred', JSON.stringify(e))
+        components_helper.notif.exceptionNotification( formatMessage({id:'errors.occurred_title'}) , e);
         return;
       }
       const keys  = api.eosHelper.seedPrivate(seed);
@@ -413,43 +455,67 @@ class PDV extends Component {
         accounts = await api.getKeyAccounts(public_key);
         console.log('accounts=>', accounts)
       } catch (e) {
-        this.openNotificationWithIcon("error", "Wrong password.", "Please verify password and try again. Message: "+ JSON.stringify(e));
+        components_helper.notif.errorNotification( 
+          formatMessage({id:'pages.business.pdv.error.wrong_password'})
+          , formatMessage({id:'pages.business.pdv.error.wrong_password_message'}));
         this.setState({pushingTx:false});
         return;
       }
      
     if(!accounts || accounts.length<=0){
-      that.openNotificationWithIcon("error", 'No accounts for given password.');
+      components_helper.notif.errorNotification( formatMessage({id:'pages.business.pdv.error.no_accounts'}));
       return;
     }
 
     const {input_amount}    = this.state;
     const that = this;
-    api.sendPayment(accounts[0], private_key, this.props.actualAccountName, input_amount.value, 'Payed at store.')
+    const items_text = (items||'').replace(/|/g, '').slice(0,50);
+    const stamp_text = formatMessage({id:'pages.business.pdv.message.payed_at_store'});
+    const memo = `${items_text} ${stamp_text}`;
+    api.sendPayment(accounts[0], private_key, this.props.actualAccountName, input_amount.value, memo)
       .then((data) => {
         console.log(' pdv::pay (then#1) >>  ', JSON.stringify(data));
-        // that.setState({result:'ok', pushingTx:false, result_object:data});
         that.setState({pushingTx:false, show_payment:false});
         that.resetState();
-        that.openNotificationWithIcon("success", 'Payment completed successfully');
+        components_helper.notif.successNotification( formatMessage({id:'pages.business.pdv.success.payment_completed'}) );
       }, (ex) => {
         console.log(' pdv::pay (error#1) >>  ', JSON.stringify(ex));
-        that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
-        // that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
+        components_helper.notif.exceptionNotification( formatMessage({id:'pages.business.pdv.error.payment_not_completed'}) , ex);
         that.setState({pushingTx:false});
       });
+  }
 
-
+  //
+  next = async () => {
+    const {current_step} = this.state;
+    this.setState({ current_step:current_step + 1 });
+  }
+  prev() {
+    const current_step = this.state.current_step - 1;
+    this.setState({ current_step });
   }
   //
   renderPaymentModal = () => {
-    const {show_payment, pushingTx, input_amount} = this.state;
+    const {show_payment, pushingTx, input_amount, current_step} = this.state;
     if(!show_payment)
       return (null);
-    const amount_string = globalCfg.currency.toCurrencyString(input_amount.value);
+    const amount_string     = globalCfg.currency.toCurrencyString(input_amount.value);
+    const {formatMessage}   = this.props.intl;
+    
+    //const title = formatMessage({id:'pages.business.pdv.customer_form.payment_message'}, {amount_string:amount_string, business:this.props.actualAccountName});
+    //<span className="ant-page-header-heading-title">{title}</span> <></>
+    const title = current_step==0
+      ?formatMessage({id:steps[current_step].title})
+      :formatMessage({id:'pages.business.pdv.customer_form.payment_message'}, {amount_string:amount_string, business:this.props.actualAccountName});
     return(
       <Drawer
-          title="PAYMENT"
+          title={<div style={{ margin: '0 auto', width:700}}>
+              <Steps current={current_step}>
+                {steps.map(item => (
+                  <Step key={item.title} title={<InjectMessage id={item.title} />} />
+                ))}
+              </Steps>
+            </div>}
           placement="top"
           closable={true}
           visible={this.state.show_payment}
@@ -460,28 +526,51 @@ class PDV extends Component {
           onClose={this.onCloseModal}
         >
           <div style={{width:'100%'}} className="flex_column">
-            <span className="ant-page-header-heading-title">Please, type your account password to proceed to pay {amount_string} to @{this.props.actualAccountName}.</span> 
-            
-            <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-              <div className="ly-main-content content-spacing cards">
-                <section className="mp-box mp-box__shadow__full money-transfer__box">
-                  <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
-                    <div className="c-detail">
-                      <PaymentForm
+            <Card 
+              title={(<span><strong>{title}</strong> </span> )}
+              key="payment"
+              loading={this.state.pushingTx}
+              style={{width:700}}
+              >
+                {current_step==0 && 
+                  <PaymentItemsForm items={this.state.items} callback={this.onPaymentItemsCallback } />                  
+                }
+                {current_step==1 && 
+                  <Spin spinning={pushingTx} delay={500} tip={formatMessage({id:'pages.business.pdv.customer_form.paying'})}>
+                       <PaymentForm
                         business={this.actualAccountName} 
                         amount={this.state.input_amount.value} 
                         showUserSearch={true}
-                        callback={ () => this.onPaymentModalCallback } />
-                    </div>
+                        callback={this.onPaymentModalCallback } />
+                    
                   </Spin>
-                </section>
-              </div>        
+                      
+                }
+            </Card>
+            <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24}}>
+              <div className="steps-action">
+                {current_step > 0 && (
+                  <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>
+                    { formatMessage({id:'pages.bankadmin.create_account.nav.previous'})}
+                  </Button>
+                )}
+                {current_step < steps.length - 1 && (
+                  <Button type="primary" onClick={() => this.next()}>
+                    { formatMessage({id:'pages.bankadmin.create_account.nav.next'})}
+                  </Button>
+                )}
+                {current_step === steps.length - 1 && (
+                  <Button type="primary" onClick={() => this.doPay()} disabled={this.state.pushingTx} disabled={this.state.adding_new_perm}>
+                    <FontAwesomeIcon icon="shopping-bag" size="1x"/>&nbsp;{formatMessage({id:'global.pay'})}
+                  </Button>
+                )}
+              </div>
             </div>
-
           </div>  
           
         </Drawer>);
   }
+  //
   onCloseModal = () => {
     this.setState({
       show_payment: false,
@@ -492,8 +581,13 @@ class PDV extends Component {
     const {loading, selectedRowKeys, connected} = this.state;
     const content         = this.renderContent();
     const routes          = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
-    const conn_title      = connected?'You are connected and receiving transaction!':'Something went wrong. You are not connected neither receiving transactions.'; 
-    const connection_icon = connected?(<Icon title={conn_title} key={Math.random()} type="check-circle" theme="twoTone" style={{fontSize:20}} twoToneColor="#52c41a"/>):(<Icon title={conn_title} key={Math.random()} type="api" theme="twoTone" twoToneColor="#eb2f96" style={{fontSize:20}} />)
+    const {formatMessage} = this.props.intl;
+    const conn_title      = connected
+      ?formatMessage({id:'pages.business.pdv.connection.ok_status'})
+      :formatMessage({id:'pages.business.pdv.connection.error_status'});
+    const connection_icon = connected
+      ?(<Icon title={conn_title} key={Math.random()} type="check-circle" theme="twoTone" style={{fontSize:20}} twoToneColor="#52c41a"/>)
+      :(<Icon title={conn_title} key={Math.random()} type="api" theme="twoTone" twoToneColor="#eb2f96" style={{fontSize:20}} />);
     
     const payModal = this.renderPaymentModal()
     
@@ -502,7 +596,7 @@ class PDV extends Component {
         
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="PDV - COLETAR VENDA"
+          title={formatMessage({id:'pages.business.pdv.title'})}
           extra={[
             <Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadTxs()} ></Button>,
             connection_icon]}
@@ -521,7 +615,7 @@ class PDV extends Component {
         
 
         <Card 
-          title="ÚLTIMAS COBRANÇAS EFETUADAS" 
+          title={formatMessage({id:'pages.business.pdv.transactions.title'})}
           extra={ <Spin spinning={this.state.loading} />}>
           <Table
             showHeader={false}
@@ -540,7 +634,6 @@ class PDV extends Component {
   }
 
   launchConnection = async() => {
-    console.log(' -- launchConnection:: connecting to dfuse socket -->', this.props.actualAccountName)
      try { 
       this.stream = await this.client.streamActionTraces({
                 account: globalCfg.currency.token 
@@ -560,15 +653,15 @@ class PDV extends Component {
   }
 
   onTransaction = async (message) => {
-    console.log(' ON TRANSACTION ', JSON.stringify(message))
+    // console.log(' ON TRANSACTION ', JSON.stringify(message))
     if (message.type !== InboundMessageType.ACTION_TRACE) {
       return
     }
 
     const txs = api.dfuse.transformTransactions(message, this.props.actualAccountName);
     this.onNewData({txs:txs, cursor:null}, true);
-    // message.success('New payment received!', 5);
-    this.openNotificationWithIcon("success", "New payment received!");
+    console.log(' ON TRANSACTION ', JSON.stringify(txs))
+    components_helper.notif.successNotification( this.props.intl.formatMessage({id:'pages.business.pdv.message.new_payment_received'}) );
 
     const that = this;
     setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
@@ -585,7 +678,6 @@ class PDV extends Component {
       this.stream = undefined;
     } catch (error) {
       console.log(' STOP - Cant close connection. ', JSON.stringify(error))
-      this.setState({ errorMessages: ["Unable to disconnect socket correctly.", JSON.stringify(error)]})
     }
   }
 
@@ -596,7 +688,6 @@ class PDV extends Component {
 
   onError = (error) => {
     console.log(' onError - An error occurred with the socket. ', JSON.stringify(error))
-    // this.setState({ errorMessages: ["An error occurred with the socket.", JSON.stringify(error)]})
   }
 
   componentWillUnmount() {

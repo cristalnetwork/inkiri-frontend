@@ -20,6 +20,14 @@ const PaymentForm = (props) => {
       setShowUserSearch(props.showUserSearch||false);
     }, [props.showUserSearch]);
 
+    useEffect(() => {
+        if (payer && password) {
+          handleSubmit();
+        }
+      },
+      [payer, password]
+    );
+
     const onCancel = (e) => {
       fireEvent(null, true, null);
     }
@@ -30,8 +38,11 @@ const PaymentForm = (props) => {
       }
     };
 
+    var t_id = null;
     const handleSubmit = (e) => {
-      e.preventDefault();
+
+      if(e)
+        e.preventDefault();
       props.form.validateFields((err, values) => {
         if (err) {
           components_helper.notif.errorNotification( props.intl.formatMessage({id:'errors.validation_title'}), props.intl.formatMessage({id:'errors.verify_on_screen'}) )    
@@ -46,16 +57,21 @@ const PaymentForm = (props) => {
           return;
         }
          
-        // console.log('why#2?')
-        fireEvent(null, null, values)
+        clearTimeout(t_id);
+        t_id = setTimeout(()=> {
+          fireEvent(null, null, values);
+        } ,400);
+        
       });
     }
     const onSelect =(account) =>{
       setPayer(account);
+      // props.form.getFieldValue('password') && handleSubmit();
     }
 
     const passwordChanged =(value) =>{
       setPassword(value);
+      // handleSubmit();
     }
 
     const { getFieldDecorator }  = props.form;
@@ -90,7 +106,7 @@ const PaymentForm = (props) => {
                         })(
                           <Input.Password 
                               placeholder={ props.intl.formatMessage({id:'components.Forms.payment.password_placeholder'}) }
-                              autoFocus
+                              autoFocus={!showUserSearch}
                               autoCapitalize="off"
                               size="large" 
                               visibilityToggle={false}
@@ -99,20 +115,55 @@ const PaymentForm = (props) => {
                     </Form.Item>
                   </div>
               </div>
-
             </div>
-
-            <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="payButton" type="primary" htmlType="submit" style={{marginLeft:8}} ><FontAwesomeIcon icon="shopping-bag" size="1x"/>
-                &nbsp;{props.intl.formatMessage({id:'global.pay'})}
-              </Button>
-              <Button size="large" key="cancelButton"  type="link" className="danger_color" style={{marginLeft:8}} onClick={()=>onCancel()} >
-                {props.intl.formatMessage({id:'global.cancel'})}
-              </Button>
-            </div>
-
           </Form>  
           );
+
+    // return (
+    //       <Form onSubmit={handleSubmit}>
+    //         <div className="money-transfer">    
+              
+    //           {userSearch}
+
+    //           <div className="money-transfer__row row-complementary money-transfer__select flex_row_start" >
+    //               <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
+    //                   <span className="picture">
+    //                     <FontAwesomeIcon icon="key" size="lg" color="black"/>
+    //                   </span>
+    //               </div>
+    //               <div className="money-transfer__input money-transfer__select">
+    //                 <Form.Item>
+    //                     {getFieldDecorator( 'password', {
+    //                       rules: [{ required:     true
+    //                                 , message:    props.intl.formatMessage({id:'components.Forms.payment.password_validation'}) }]
+    //                       , initialValue: password
+    //                       , onChange: passwordChanged
+    //                     })(
+    //                       <Input.Password 
+    //                           placeholder={ props.intl.formatMessage({id:'components.Forms.payment.password_placeholder'}) }
+    //                           autoFocus
+    //                           autoCapitalize="off"
+    //                           size="large" 
+    //                           visibilityToggle={false}
+    //                           />
+    //                     )}
+    //                 </Form.Item>
+    //               </div>
+    //           </div>
+
+    //         </div>
+
+    //         <div className="mp-box__actions mp-box__shore">
+    //           <Button size="large" key="payButton" type="primary" htmlType="submit" style={{marginLeft:8}} ><FontAwesomeIcon icon="shopping-bag" size="1x"/>
+    //             &nbsp;{props.intl.formatMessage({id:'global.pay'})}
+    //           </Button>
+    //           <Button size="large" key="cancelButton"  type="link" className="danger_color" style={{marginLeft:8}} onClick={()=>onCancel()} >
+    //             {props.intl.formatMessage({id:'global.cancel'})}
+    //           </Button>
+    //         </div>
+
+    //       </Form>  
+    //       );
     
 }
 //

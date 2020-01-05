@@ -300,7 +300,7 @@ class requestDetails extends Component {
         const steps= [
           {
             _function:           _function
-            , _params:           [sender, privateKey, receiver, amount, _id, memo]
+            , _params:           [sender, privateKey, receiver, amount, memo, _id]
           }, 
           {
             _function:           'bank.updatePaymentRequest'

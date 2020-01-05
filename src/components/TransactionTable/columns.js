@@ -66,7 +66,9 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
                   <div className="ui-info-row__details">
                       <ul>
                           <li>{is_admin?record.sub_header_admin_ex:record.sub_header}</li>
-                          
+                      </ul>
+                      <ul>
+                          <li><Icon type="message" theme="filled"/> {record.data && record.data.memo && record.data.memo.split('|').slice(-1)[0]}</li>
                       </ul>
                   </div>
                 </div>

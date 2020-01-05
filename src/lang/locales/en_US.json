@@ -179,6 +179,9 @@
   "components.Forms.payment.password_validation"                        : "Input a valid password",
   "components.Forms.payment.password_placeholder"                       : "Password or private key",
 
+  "components.Forms.payment_items.items_placeholder"                    : "What are you selling this time?",
+  "components.Forms.payment_items.next_button"                          : "Next",
+
   "components.Forms.profile.account_name_desc"                          : "Account name",
   "components.Forms.profile.account_name_message"                       : "Please input a valid account name!",
   "components.Forms.profile.last_name_desc"                             : "Last name",
@@ -580,6 +583,35 @@
   "pages.common.configuration.tab.security"                             : "Security",
   "pages.common.configuration.title"                                    : "Configuration",
   
+  "pages.business.pdv.validators.valid_number_required"                 : "Valid number required",
+  "pages.business.pdv.validators.valid_number_required_description"     : "Please type a valid number greater than 0.00 !", 
+  "pages.business.pdv.pushing_transaction"                              : "Pushing transaction...",
+  "pages.business.pdv.buttins.customer_signature"                       : "Customer signature",
+  "pages.business.pdv.buttins.qrcode"                                   : "QR-Code",
+  "pages.business.pdv.buttins.send_request"                             : "Send request",
+  "pages.business.pdv.error.cant_listen_to_transactions"                : "Oops... an error occurred while trying to listen to new transaction",
+  "pages.business.pdv.error.cant_load_transactions"                     : "Oops... an error occurred while reloading recent transactions",
+  "pages.business.pdv.reached_end_of_transactions"                      : "End of list",
+  "pages.business.pdv.reached_end_of_transactions_message"              : "You have reached the end of transaction list!",
+  "pages.business.pdv.load_older_transactions"                          : "Load older transactions",
+  "pages.business.pdv.error.wrong_password"                             : "Wrong password.",
+  "pages.business.pdv.error.wrong_password_message"                     : "Please verify password and try again.",
+  "pages.business.pdv.error.no_accounts"                                : "No accounts for given password",
+  "pages.business.pdv.message.payed_at_store"                           : "[Payed at store]",
+  "pages.business.pdv.success.payment_completed"                        : "Payment completed successfully",
+  "pages.business.pdv.error.payment_not_completed"                      : "Oops... an error occurred and the payment was not completed",
+  "pages.business.pdv.customer_form.title"                              : "Payment",
+  "pages.business.pdv.customer_form.payment_message"                    : "Type your password and pay {amount_string} to @{business}.",
+  "pages.business.pdv.customer_form.paying"                             : "Pushing transaction...",
+  "pages.business.pdv.connection.ok_status"                             : "You are connected and receiving transaction!",
+  "pages.business.pdv.connection.error_status"                          : "Something went wrong. You are not connected neither receiving transactions.",
+  "pages.business.pdv.title"                                            : "POS - Point of sale",
+  "pages.business.pdv.transactions.title"                               : "Recent incoming payments",
+  "pages.business.pdv.message.new_payment_received"                     : "New payment received",
+
+  "pages.business.pdv.step.item_list"                                   : "Items",
+  "pages.business.pdv.step.payment"                                     : "Payment",
+
   "dummy" : "dummy"
  
 }
