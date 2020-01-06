@@ -2,10 +2,9 @@ const env        = "prod";
 
 const language   = "english";
 
-
 const currency = {
-  token:            "inkiritoken1",
-  issuer:           "inkiritoken1",
+  token:            "cristaltoken",
+  issuer:           "cristaltoken",
   name:             "INKIRI",
   symbol:           "IK$",
   eos_symbol:       "INK",
@@ -15,18 +14,44 @@ const currency = {
                     },
   asset_precision:  4,
 
-  toCurrencyString: (value) => { return currency.symbol + ' ' + parseFloat(isNaN(value)?0:value).toFixed(2) ; }
+  toCurrencyString: (value) => { 
+    const _value = currency.toNumber(value);
+    return currency.symbol + ' ' + _value.toFixed(2) ; 
+  },
+
+  toNumber: (value) => 
+  {
+    if(!value)
+      value=0;
+    if(isNaN(value))
+      value = Number(value.replace(currency.eos_symbol, ''));
+    return parseFloat(value);
+  },
+
+  toEOSNumber: (amount) => 
+  {
+    return Number(amount).toFixed(4) + ' ' + currency.eos_symbol;
+  }
 };
 
 const bank = {
-  contract:                "inkirimaster",
-  issuer:                  "inkirimaster",
+  contract:                "cristaltoken",
+  issuer:                  "cristaltoken",
+  table_customers:         "customer", 
+  table_customers_action:  "upsertcust",
+  table_customers_delete:  "erasecust", 
 
-  exchange_account:        "inkirimaster",
-  provider_account:        "inkirimaster",
-  withdraw_account:        "inkirimaster",
+  table_paps:              'pap',
+  table_paps_action:       'upsertpap',
+  table_paps_delete:       'erasepap', 
+  table_paps_charge:       'chargepap',
+
+  exchange_account:        "cristaltoken",
+  provider_account:        "cristaltoken",
+  withdraw_account:        "cristaltoken",
   
-  customers:               'https://jungle.bloks.io/account/inkirimaster?loadContract=true&tab=Tables&account=inkirimaster&scope=inkirimaster&limit=100',
+  customers:               'https://jungle.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
+  
   ACCOUNT_TYPE_PERSONAL:   1,
   ACCOUNT_TYPE_BUSINESS:   2,
   ACCOUNT_TYPE_FOUNDATION: 3,
@@ -45,6 +70,22 @@ const bank = {
         }
     return perms[account_type];
   },
+  isValidPermission : (account_type, required_permission, my_permission) => {
+    const my_perms = bank.getPermsForAccountType(account_type);
+    const required_permission_array = required_permission.split(',');
+      
+    if(required_permission_array.length==1)
+    {
+      const ret = my_perms.indexOf(required_permission_array[0]) >= my_perms.indexOf(my_permission);
+      // console.log(required_permission, my_permission, ret)
+      return ret;
+    }
+
+    const ret =  required_permission_array.includes(my_permission);
+    // console.log(required_permission, my_permission, ret)
+    return ret;
+
+  },
   listAccountTypes   : () => { 
     //return [bank.ACCOUNT_TYPE_PERSONAL, bank.ACCOUNT_TYPE_BUSINESS, bank.ACCOUNT_TYPE_FOUNDATION, bank.ACCOUNT_TYPE_BANKADMIN];
     return bank.ACCOUNT_TYPES.filter((item, idx) => idx>0);
@@ -58,6 +99,10 @@ const bank = {
         {
           title : 'Business Account',
           key: bank.ACCOUNT_TYPE_BUSINESS
+        },
+        {
+          title : 'Foundation Account',
+          key: bank.ACCOUNT_TYPE_FOUNDATION
         }
       ];
   },
@@ -74,7 +119,7 @@ const bank = {
     return (parseInt(account_state)<bank.ACCOUNT_STATES.length)?bank.ACCOUNT_STATES[parseInt(account_state)]:undefined;
   },
   getAccountType : (account_type) => {
-    if(isNaN(account_type))
+      if(isNaN(account_type))
       return account_type;
     return (parseInt(account_type)<bank.ACCOUNT_TYPES.length)?bank.ACCOUNT_TYPES[parseInt(account_type)]:undefined;
   },
@@ -116,11 +161,13 @@ const bank = {
 };
 
 
-const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristal-backend.herokuapp.com';
+// const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristal-backend.herokuapp.com';
+const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristaltoken.herokuapp.com';
 
 const api_version = '/api/v1';
 const api = {
-  endpoint                    : base_url+ api_version
+  endpoint                    : base_url + api_version
+  , graphql_endpoint          : base_url + api_version + '/graphql'
   , default_page_size         : 25
   , FIAT_CURR_BRL             : 'BRL'
   , FIAT_CURR_IK              : 'IK$'
@@ -140,8 +187,14 @@ const api = {
   , TYPE_IUGU                 : 'type_iugu'
   , TYPE_REFUND               : 'type_refund'
   , TYPE_RECEIVE              : 'type_receive'
-  , TYPE_UPSERT               : 'type_upsert'
   , TYPE_UNKNOWN              : 'type_unknown'
+
+  , TYPE_NEW_ACCOUNT          : 'type_new_account'
+  , TYPE_UPSERT_CUST          : 'type_upsert_cust'
+  , TYPE_ERASE_CUST           : 'type_erase_cust'
+  , TYPE_UPSERT_PAP           : 'type_upsert_pap'
+  , TYPE_ERASE_PAP            : 'type_erase_pap'
+  , TYPE_CHARGE_PAP           : 'type_charge_pap'
 
   , typeToText : (request_type) => {
       const types = {
@@ -151,7 +204,7 @@ const api = {
         [api.TYPE_PROVIDER]    : 'provider payment', 
         [api.TYPE_SEND]        : 'send', 
         [api.TYPE_WITHDRAW]    : 'withdraw', 
-        [api.TYPE_SERVICE]     : 'service payment'
+        [api.TYPE_SERVICE]     : 'service provisioning'
       } 
       const ret = types[request_type];
       return ret?ret:request_type;
@@ -162,7 +215,18 @@ const api = {
   , isWithdraw         : (request) => { return (request.tx_type==api.TYPE_WITHDRAW||request.requested_type==api.TYPE_WITHDRAW)}
   , isProviderPayment  : (request) => { return (request.tx_type==api.TYPE_PROVIDER||request.requested_type==api.TYPE_PROVIDER)}
   , isExchange         : (request) => { return (request.tx_type==api.TYPE_EXCHANGE||request.requested_type==api.TYPE_EXCHANGE)}
+  , isService          : (request) => { return (request.tx_type==api.TYPE_SERVICE||request.requested_type==api.TYPE_SERVICE)}
+  , isSend             : (request) => { return (request.tx_type==api.TYPE_SEND||request.requested_type==api.TYPE_SEND)}
+  , isPayment          : (request) => { return (request.tx_type==api.TYPE_PAYMENT||request.requested_type==api.TYPE_PAYMENT)}
+  , isSendOrPayment    : (request) => { return api.isPayment(request)||api.isSend(request)}
+  , requiresAttach     : (request) => { 
+      return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER].includes(request.state);
+  }
+  , canRefund          : (request) => { 
+      return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER, api.TYPE_WITHDRAW].includes(request.state);
+  }
   , getTypes           : () => { return [ api.TYPE_DEPOSIT, api.TYPE_EXCHANGE, api.TYPE_PAYMENT, api.TYPE_PROVIDER, api.TYPE_SEND, api.TYPE_WITHDRAW, api.TYPE_SERVICE];}
+
   , STATE_REQUESTED             : 'state_requested'
   , STATE_PROCESSING            : 'state_processing'
   , STATE_REJECTED              : 'state_rejected'
@@ -172,36 +236,43 @@ const api = {
   , STATE_REFUNDED              : 'state_refunded'
   , STATE_REVERTED              : 'state_reverted'
   
+  , STATE_VIRTUAL_PENDING       : 'state_virtual_pending'
+
   , stateToText : (request_state) => {
       const states = {
-        [api.STATE_REQUESTED]    : 'requested', 
-        [api.STATE_PROCESSING]   : 'processing', 
+        [api.STATE_REQUESTED]      : 'requested', 
+        [api.STATE_PROCESSING]     : 'processing', 
         
-        [api.STATE_ACCEPTED]     : 'accepted', 
-        [api.STATE_REFUNDED]     : 'refunded',
-        [api.STATE_REVERTED]     : 'reverted',
+        [api.STATE_ACCEPTED]       : 'accepted', 
+        [api.STATE_REFUNDED]       : 'refunded',
+        [api.STATE_REVERTED]       : 'reverted',
         
-        [api.STATE_REJECTED]     : 'rejected', 
-        [api.STATE_ERROR]        : 'error', 
-        [api.STATE_CANCELED]     : 'canceled',
+        [api.STATE_REJECTED]       : 'rejected', 
+        [api.STATE_ERROR]          : 'error', 
+        [api.STATE_CANCELED]       : 'canceled',
+
+        [api.STATE_VIRTUAL_PENDING]: 'pending'
       }
       return states[request_state] || request_state;
     }
   , stateToColor : (request_state) => {
+      // source: https://mdbootstrap.com/live/_doc/all-colors.html
       const states = {
-        [api.STATE_REQUESTED]    : '#fa8c16', //'magenta', 
-        [api.STATE_PROCESSING]   : 'green', 
-        [api.STATE_ACCEPTED]     : 'green', 
+        [api.STATE_REQUESTED]        : 'rgba(43, 187, 173, 0.5)'  , // '#2BBBAD'
+        [api.STATE_PROCESSING]       : 'rgba(0, 105, 92, 0.5)'    , // '#00695c', 
+        [api.STATE_ACCEPTED]         : 'rgba(0, 200, 81, 0.5)'    , // '#00C851', 
         
-        [api.STATE_REFUNDED]     : 'red', //'#2f54eb', //'geekblue',
-        [api.STATE_REVERTED]     : 'red', //'#2f54eb', //'geekblue',
+        [api.STATE_REFUNDED]         : 'rgba(170, 102, 204, 0.5)' , // '#aa66cc', 
+        [api.STATE_REVERTED]         : 'rgba(153, 51, 204, 0.5)'  , // '#9933CC', 
 
-        [api.STATE_REJECTED]     : 'red', 
-        [api.STATE_ERROR]        : 'red', 
+        [api.STATE_REJECTED]         : 'rgba(204, 0, 0, 0.5)'     , // '#CC0000', 
+        [api.STATE_ERROR]            : 'rgba(204, 0, 0, 0.5)'     , // '#CC0000', 
 
-        [api.STATE_CANCELED]     : '#fa541c' //'red',
+        [api.STATE_CANCELED]         : 'rgba(255, 68, 68, 0.5)'   , // '#ff4444', 
+
+        [api.STATE_VIRTUAL_PENDING]  : 'rgba(255, 187, 51, 0.5)' , // '#ffbb33'
       } 
-      return states[request_state] || 'gray';
+      return states[request_state] ||  'rgba(80,80,80,0.5)' ;//'gray';
     }
   , getStates           : () => { return [api.STATE_REQUESTED, api.STATE_PROCESSING, api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_ERROR, api.STATE_REFUNDED, api.STATE_REVERTED, api.STATE_CANCELED];}
   , isOnBlockchain      : (request) => {
@@ -211,7 +282,7 @@ const api = {
       return request.tx_id || request.transaction_id;
     }
   , isFinished         : (request) => {
-      return [api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR].includes(request.state);
+      return [api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR, api.STATE_CANCELED].includes(request.state);
     }
   , isProcessing       : (request) => {
       return [api.STATE_PROCESSING].indexOf(request.state)>=0;
@@ -232,126 +303,19 @@ const api = {
       return ![api.STATE_REJECTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR, api.STATE_CANCELED].includes(request.state);
     }
   
-  , TRANSFER_REASON:                    'tx_r'
-  , TRANSFER_REASON_DISTRIBUTE_PROFIT : 'tx_r_distribute_profit'
-  , TRANSFER_REASON_ADJUSTMENT :        'tx_r_adjustment'
-  , TRANSFER_REASON_RENT :              'tx_r_rent'
-  , TRANSFER_REASON_INVESTMENT :        'tx_r_investment'
-  , TRANSFER_REASON_SUPPLIES :          'tx_r_supplies'
-  , TRANSFER_REASON_ANOTHER :           'tx_r_another'
-  , getTransferReasons : () => {
-    return {[api.TRANSFER_REASON] : { 
-                  title : 'Transfer reason'
-                  , options: [
-                    { 
-                      key: api.TRANSFER_REASON_DISTRIBUTE_PROFIT,
-                      label: 'Repasse Lucro'
-                    },
-                    { 
-                      key: api.TRANSFER_REASON_ADJUSTMENT,
-                      label: 'Repasse Ajuste'
-                    },
-                    { 
-                      key: api.TRANSFER_REASON_RENT,
-                      label: 'Aluguel'
-                    },
-                    { 
-                      key: api.TRANSFER_REASON_INVESTMENT,
-                      label: 'Investimento'
-                    },
-                    { 
-                      key: api.TRANSFER_REASON_SUPPLIES,
-                      label: 'Insumos'
-                    },
-                    { 
-                      key: api.TRANSFER_REASON_ANOTHER,
-                      label: 'Another...'
-                    },
-                  ]
-                }}
-  }
   , PAYMENT_VEHICLE               : 'payment_vehicle'
-  , PAYMENT_VEHICLE_INKIRI        : 'payment_vehicle_inkiri'
-  , PAYMENT_VEHICLE_INSTITUTO     : 'payment_vehicle_institute'
-
   , PAYMENT_CATEGORY              : 'payment_category'
-  , PAYMENT_CATEGORY_ALUGEL       : 'payment_category_alugel'
-  , PAYMENT_CATEGORY_INVESTIMENTO : 'payment_category_investimento'
-  , PAYMENT_CATEGORY_INSUMOS      : 'payment_category_insumos'
-  , PAYMENT_CATEGORY_ANOTHER      : 'payment_category_another'
-
   , PAYMENT_TYPE                  : 'payment_type'
-  , PAYMENT_TYPE_DESPESA          : 'payment_type_despesa'
-  , PAYMENT_TYPE_INVESTIMENTO     : 'payment_type_investimento'
-
   , PAYMENT_MODE                  : 'payment_mode'
-  , PAYMENT_MODE_TRANSFER         : 'payment_mode_transfer'
-  , PAYMENT_MODE_BOLETO           : 'payment_mode_boleto'
-
-  , getPaymentOptions             : () => {
-      return {
-                [api.PAYMENT_VEHICLE] : { 
-                  title : 'Pagamento via'
-                  , options: [
-                    {
-                      key: api.PAYMENT_VEHICLE_INKIRI,
-                      label:'Inkiri'
-                    }, 
-                    {
-                      key: api.PAYMENT_VEHICLE_INSTITUTO,
-                      label:'Instituto'
-                    }
-                  ]
-                }
-                , [api.PAYMENT_CATEGORY] : { 
-                  title : 'Category'
-                  , options: [
-                    {
-                      key: api.PAYMENT_CATEGORY_ALUGEL,
-                      label:'Alugel'
-                    }, 
-                    {
-                      key: api.PAYMENT_CATEGORY_INVESTIMENTO,
-                      label:'Investimento'
-                    }, 
-                    {
-                      key: api.PAYMENT_CATEGORY_INSUMOS,
-                      label:'Insumos'
-                    }, 
-                    {
-                      key: api.PAYMENT_CATEGORY_ANOTHER,
-                      label:'Another...'
-                    }
-                  ]
-                }
-                , [api.PAYMENT_TYPE] : { 
-                  title : 'Tipo saida'
-                  , options: [
-                    {
-                      key: api.PAYMENT_TYPE_DESPESA,
-                      label:'Despesa'
-                    }, 
-                    {
-                      key: api.PAYMENT_TYPE_INVESTIMENTO,
-                      label:'Investimento'
-                    }
-                  ]
-                }
-                , [api.PAYMENT_MODE] : { 
-                  title : 'Modo de Pagamento'
-                  , options: [
-                    {
-                      key: api.PAYMENT_MODE_TRANSFER,
-                      label:'Bank transfer'
-                    }, 
-                    {
-                      key: api.PAYMENT_MODE_BOLETO,
-                      label:'Boleto Pagamento'
-                    }
-                  ]
-                }
-      }
+  , getPaymentTitles : () => {
+    return {
+      [api.PAYMENT_VEHICLE]:   'Vehicle',
+      [api.PAYMENT_CATEGORY]:  'Category',
+      [api.PAYMENT_TYPE]:      'Type',
+      [api.PAYMENT_MODE]:      'Mode',
+    }
   }
+  
   , NOTA_FISCAL                   : 'attach_nota_fiscal'
   , BOLETO_PAGAMENTO              : 'attach_boleto_pagamento'
   , COMPROBANTE                   : 'attach_comprobante'
@@ -395,6 +359,4 @@ const dfuse = {
   }
 }
 
-// console.log(' *** EOS.ENDPOINT', eos.endpoint)
-// console.log(' *** API.ENDPOINT', api.endpoint)
 export { language, api, currency, dfuse, bank, eos };

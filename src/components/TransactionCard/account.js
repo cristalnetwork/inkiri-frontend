@@ -1,10 +1,9 @@
 import React from 'react'
-import { Menu, Dropdown, Button, Icon, message } from 'antd';
 import { connect } from 'react-redux'
-// import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
+
+import InjectMessage from "@app/components/intl-messages";
 
 const TransactionAccount = ({account}) => {
     
@@ -21,10 +20,10 @@ const TransactionAccount = ({account}) => {
                 </div>
                 <div className="ui-row__col ui-row__col--content">
                     <div className="ui-info-row__content">
-                        <div className="ui-info-row__title">{'Account name' }:&nbsp;<b>{account.account_name||account.key}</b></div>
+                        <div className="ui-info-row__title"><InjectMessage id="global.account_name" />:&nbsp;<b>{account.account_name||account.key}</b></div>
                           <div className="ui-info-row__details">
                               <ul>
-                                  <li>Account type: @{globalCfg.bank.getAccountType(account.account_type)}</li>
+                                  <li><InjectMessage id="global.account_type" />: @{globalCfg.bank.getAccountType(account.account_type)}</li>
                               </ul>
                           </div>
                     </div>
@@ -38,9 +37,5 @@ const TransactionAccount = ({account}) => {
 
 export default connect(
     (state)=> ({
-        // allAccounts:     loginRedux.allAccounts(state),
-        // actualAccountName:   loginRedux.actualAccountName(state),
-        // currentAccount:  loginRedux.currentAccount(state),
-        // isLoading:       loginRedux.isLoading(state)
     })
 )(TransactionAccount)

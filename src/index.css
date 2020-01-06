@@ -38,6 +38,10 @@
 
 .right {
   float: right;
+  overflow: hidden;
+}
+/*.right {
+  float: right;
   height: 100%;
   overflow: hidden;
   .action {
@@ -72,7 +76,7 @@
       background: rgba(255, 255, 255, 0.85);
     }
   }
-}
+}*/
 
 .dark {
   height: @layout-header-height;

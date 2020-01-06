@@ -1,33 +1,30 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
-
-import * as globalCfg from '@app/configs/global';
+import * as graphqlRedux from '@app/redux/models/graphql'
+import * as apiRedux from '@app/redux/models/api';
 
 import * as api from '@app/services/inkiriApi';
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
-import TableStats from '@app/components/TransactionTable/stats'; 
-import * as stats_helper from '@app/components/TransactionTable/stats';
 
-import { Card, PageHeader, Tag, Tabs, Button, Form, Input, Icon} from 'antd';
-import { Modal, notification, Table, Divider, Spin } from 'antd';
+import { Card, PageHeader, Button} from 'antd';
+import { Modal, Table, Spin } from 'antd';
 
 import AddMemberForm from '@app/components/Form/add_member';
 import {DISPLAY_ALL_TXS} from '@app/components/TransactionTable';
 
 import * as utils from '@app/utils/utils';
 
-import _ from 'lodash';
-
-const routes = routesService.breadcrumbForFile('accounts');
+import { injectIntl } from "react-intl";
+import InjectMessage from "@app/components/intl-messages";
 
 const STATE_LIST_MEMBERS = 'state_list_members';
 const STATE_NEW_MEMBER   = 'state_new_member';
@@ -38,17 +35,17 @@ class Crew extends Component {
     super(props);
     this.state = {
       routes :            routesService.breadcrumbForPaths(props.location.pathname),
-      loading:            false,
-      pushingTx:          false,
-      team:               null,
-      job_positions:      [],
+      loading:            props.isLoading,
+      isFetching:         props.isFetching,
+      
+      team:               props.team,
+      job_positions:      props.jobPositions,
+      intl:               {},
       active_view:        STATE_LIST_MEMBERS,
       active_view_object: null,
     };
 
-    this.loadTeam                   = this.loadTeam.bind(this);  
-    this.loadJobPositions           = this.loadJobPositions.bind(this);  
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
+    this.loadTeam                   = this.loadTeam.bind(this);
     this.onMembersListCallback      = this.onMembersListCallback.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
     this.onNewMember                = this.onNewMember.bind(this); 
@@ -60,49 +57,105 @@ class Crew extends Component {
   }
   
   componentDidMount(){
-    this.loadTeam();  
-    this.loadJobPositions();
+    const {team, job_positions} = this.state;
+    if(!team)    
+    {
+      this.loadTeam();
+    }
+
+    if(utils.objectNullOrEmpty(job_positions))
+    {
+      this.props.loadConfig();
+    }
+
+    const {formatMessage} = this.props.intl;
+    const check_fields = formatMessage({id:'pages.common.crew.title.check_fields'});
+    const state_list_members = formatMessage({id:'pages.common.crew.title.state_list_members'});
+    const state_new_member = formatMessage({id:'pages.common.crew.title.state_new_member'});
+    const state_edit_member = formatMessage({id:'pages.common.crew.title.state_edit_member'});
+    const verify_credentials = formatMessage({id:'pages.common.crew.verify_credentials'});
+    const confirm_delete = formatMessage({id:'pages.common.crew.confirm_delete'});
+    const error_cant_get_team_id = formatMessage({id:'pages.common.crew.error_cant_get_team_id'});
+    const error_cant_get_member_profile = formatMessage({id:'pages.common.crew.error_cant_get_member_profile'});
+    const error_already_a_crew_member = formatMessage({id:'pages.common.crew.error_already_a_crew_member'});
+    const new_member = formatMessage({id:'pages.common.crew.new_member'});
+    const crew = formatMessage({id:'pages.common.crew.crew'});
+    const pushing_tx = formatMessage({id:'pages.common.crew.pushing_tx'});
+    
+    this.setState({intl:{check_fields, state_list_members, state_new_member, state_edit_member, verify_credentials, confirm_delete, error_cant_get_team_id, error_cant_get_member_profile, error_already_a_crew_member, new_member, crew, pushing_tx}});
   } 
 
-  onNewMember = () => {
+  componentDidUpdate(prevProps, prevState) 
+  {
+    let new_state = {};
+    if(prevProps.jobPositions !== this.props.jobPositions) {
+      new_state = {...new_state, job_positions: this.props.jobPositions}
+    }
+
+    if(prevProps.team !== this.props.team) {
+      new_state = {...new_state, team: this.props.team}
+    }
+
+    if(prevProps.isLoading !== this.props.isLoading) {
+      new_state = {...new_state, loading: this.props.isLoading}
+    }
+
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
     
-    // this.openNotificationWithIcon("warning", "Not implemented yet");    
+    if(!utils.arraysEqual(prevProps.getErrors, this.props.getErrors)){
+    }
+
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
+      const that = this;
+      setTimeout(()=> {
+        that.loadTeam();
+        that.resetPage(STATE_LIST_MEMBERS);
+      } ,100);
+    }
+
+    if(Object.keys(new_state).length>0)      
+      this.setState(new_state, () => {
+            // ??
+        });
+  }
+
+  loadTeam =() =>{
+    if(!this.props.actualAccountName || !this.props.actualRoleId)
+    {
+      components_helper.notif.warningNotification(this.state.intl.verify_credentials);
+      return;
+    }
+    this.props.loadData(this.props.actualAccountName, this.props.actualRoleId)
+  }
+  onNewMember = () => {
     this.setState({active_view:STATE_NEW_MEMBER})
   }
 
   onEditMember = (member) => {
-    
-    // this.openNotificationWithIcon("warning", "Not implemented yet");    
     this.setState({active_view: STATE_EDIT_MEMBER, active_view_object:member})
   }
 
   onRemoveMember = (member) => {
     const that           = this;
+    const confirm_delete_message = this.props.intl.formatMessage({id:'pages.common.crew.confirm_delete_message'}, {member_account_name:member.member.account_name, bold: str => <b>{str}</b>});
     Modal.confirm({
-      title: 'Confirm delete member.',
-      content: (<p>You are about to remove <b>{member.member.account_name}</b> from the crew. Continue or cancel.</p>),
+      title: this.state.intl.confirm_delete ,
+      content: (<p>{confirm_delete_message}}</p>),
       onOk() {
         const {team}         = that.state;
         if(!team)
         {
-          that.setState({pushingTx:false})
-          that.openNotificationWithIcon('error', 'There was an error. We cant get the team id. Please reload page.');
+          components_helper.notif.infoNotification(this.state.intl.error_cant_get_team_id);
           return;
         }
-        const teamId         = team?team.id:null;
+        const teamId         = team?team._id:null;
         const account_name   = that.props.actualAccountName;
         const members = team.members.filter(item => item._id!=member._id)
-        that.setState({pushingTx:true})
-        api.bank.createOrUpdateTeam(teamId, account_name, members)
-          .then((res)=>{
-            that.openNotificationWithIcon("success", "Member removed from team successfully!")    
-            that.loadTeam();
-            that.resetPage(STATE_LIST_MEMBERS);
-          }, (err)=>{
-            console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
-            that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
-            that.setState({pushingTx:false});
-          })
+
+        const _function = 'bank.createOrUpdateTeam';
+        that.props.callAPI(_function, [teamId, account_name, members])
      
       },
       onCancel() {
@@ -131,9 +184,6 @@ class Crew extends Component {
   }
 
   memberFormCallback = async (error, cancel, values) => {
-    // console.log(` ## memberFormCallback(error:${error}, cancel:${cancel}, values:${values})`)
-    // console.log(' memberFormCallback:', JSON.stringify(values))
-    
     if(cancel)
     {
       this.setState({active_view:STATE_LIST_MEMBERS})
@@ -144,13 +194,10 @@ class Crew extends Component {
       return;
     }
 
-    // {"position":"job_position_tronco","member":"corpodoyoga1","input_amount":{"value":"15000"}}
-
     const that           = this;
     const {team}         = this.state;
-    const teamId         = team?team.id:null;
+    const teamId         = team?team._id:null;
     const account_name   = this.props.actualAccountName;
-    this.setState({pushingTx:true})
     let member_profile   = null;
     
     // New member!
@@ -158,8 +205,7 @@ class Crew extends Component {
       try{
         member_profile = await api.bank.getProfile(values.member);
       }catch(e){
-        this.setState({pushingTx:false})
-        this.openNotificationWithIcon('error', 'Cant retrieve new member profile!');
+        components_helper.notif.exceptionNotification(this.state.intl.error_cant_get_member_profile, e);
         return;
       }         
 
@@ -171,6 +217,12 @@ class Crew extends Component {
       wage:       values.input_amount.value
     }
     
+    // already a member?
+    if(!values._id && team && team.members && team.members.filter(member => member.member._id==new_member.member).length>0)
+    {
+      components_helper.notif.errorNotification(this.state.intl.error_already_a_crew_member);
+      return;
+    }
 
     const members        = team
       ? [  ...(team.members.filter(member=>member._id!=new_member._id))
@@ -182,92 +234,35 @@ class Crew extends Component {
            , new_member]
       : [new_member];
 
-    // console.log(' -> values -> ', JSON.stringify(values));
-    // console.log(' -> members -> ', JSON.stringify(members));
-    // return;
-    api.bank.createOrUpdateTeam(teamId, account_name, members)
-      .then((res)=>{
-        that.openNotificationWithIcon("success", "Member saved to team successfully!")    
-        that.loadTeam();
-        that.resetPage(STATE_LIST_MEMBERS);
-      }, (err)=>{
-        console.log(' >> createOrUpdateTeam >> ', JSON.stringify(err));
-        that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
-        that.setState({pushingTx:false});
-      })
- 
-
+    
+    const _function = 'bank.createOrUpdateTeam';
+    that.props.callAPI(_function, [teamId, account_name, members])
   }
 
   resetPage(active_view){
     let my_active_view = active_view?active_view:this.state.active_view;
     this.setState({ 
         active_view:   my_active_view
-        , pushingTx:   false
       });    
   }
 
-
-  loadJobPositions = async () => {
-    this.setState({loading:true});
-
-    let data = null;
-
-    try {
-      data = await api.bank.getJobPositions();
-    } catch (e) {
-      this.openNotificationWithIcon("error", "Error retrieveing Team", JSON.stringify(e));
-      this.setState({ loading:false})
-      return;
-    }
-    // console.log(data.job_positions)
-    this.setState({ job_positions: data.job_positions, loading:false})
-  }
-
-  loadTeam = async () => {
-
-    this.setState({loading:true});
-
-    let team = null;
-
-    try {
-      team = await api.bank.getTeam(this.props.actualAccountName);
-    } catch (e) {
-      this.openNotificationWithIcon("error", "Error retrieveing Team", JSON.stringify(e));
-      this.setState({ loading:false})
-      return;
-    } 
-    // console.log(JSON.stringify(team));
-    this.setState({ team: team, loading:false})
-        
-  }
-
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
   // Component Events
   
-  
   render() {
-    const content               = this.renderContent();
+    const content                          = this.renderContent();
+    const {routes, active_view, loading }  = this.state;
     
-    
-    const {routes, active_view}  = this.state;
-    const button = (active_view==STATE_LIST_MEMBERS)
-      ?(<Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewMember()}}> Member</Button>)
+    const buttons = (active_view==STATE_LIST_MEMBERS)
+      ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.loadTeam()} ></Button>, 
+        <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewMember()}}> {this.state.intl.new_member}</Button>]
         :(null);
+    //
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          extra={[
-            button,
-          ]}
-          title="Crew"
+          extra={buttons}
+          title={this.state.intl.crew}
         >
           
         </PageHeader>
@@ -279,7 +274,7 @@ class Crew extends Component {
   }
   //
   renderContent(){
-    const {team, loading, active_view, active_view_object, job_positions } = this.state;
+    const {team, loading, active_view, active_view_object, job_positions, isFetching } = this.state;
 
     
     if(active_view==STATE_EDIT_MEMBER)
@@ -288,8 +283,11 @@ class Crew extends Component {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
-              <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-                <AddMemberForm key="add_member_form" callback={this.memberFormCallback} job_positions={job_positions} member={active_view_object}/>    
+              <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_tx}>
+                <AddMemberForm key="edit_member_form" 
+                  callback={this.memberFormCallback} 
+                  job_positions={job_positions} 
+                  member={active_view_object}/>    
               </Spin>
             </section>
           </div>      
@@ -302,7 +300,7 @@ class Crew extends Component {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
-              <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+              <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_tx}>
                 <AddMemberForm key="add_member_form" callback={this.memberFormCallback} job_positions={job_positions}/>    
               </Spin>
             </section>
@@ -324,7 +322,7 @@ class Crew extends Component {
           <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
             <Table
                 key="team_members" 
-                rowKey={record => record.member.id} 
+                rowKey={record => record.member._id} 
                 loading={loading} 
                 columns={this.getColumns()} 
                 dataSource={members} 
@@ -339,12 +337,25 @@ class Crew extends Component {
 //
 export default  (withRouter(connect(
     (state)=> ({
-        actualAccountName:    loginRedux.actualAccountName(state),
-        actualRoleId:     loginRedux.actualRoleId(state),
-        actualRole:       loginRedux.actualRole(state),
+        actualAccountName:  loginRedux.actualAccountName(state),
+        actualRoleId:       loginRedux.actualRoleId(state),
+        actualRole:         loginRedux.actualRole(state),
+        jobPositions:       graphqlRedux.jobPositions(state),
+        team:               graphqlRedux.team(state),
+        isLoading:          graphqlRedux.isLoading(state),
+        
+        isFetching:         apiRedux.isFetching(state),
+        getErrors:          apiRedux.getErrors(state),
+        getLastError:       apiRedux.getLastError(state),
+        getResults:         apiRedux.getResults(state),
+        getLastResult:      apiRedux.getLastResult(state)
     }),
     (dispatch)=>({
+        callAPI:            bindActionCreators(apiRedux.callAPI, dispatch),
+
+        loadConfig:         bindActionCreators(graphqlRedux.loadConfig, dispatch),
+        loadData:           bindActionCreators(graphqlRedux.loadData, dispatch),
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(Crew))
+)( injectIntl(Crew)))
 );

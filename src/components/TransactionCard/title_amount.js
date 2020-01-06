@@ -1,10 +1,7 @@
 import React from 'react'
-import { Menu, Dropdown, Button, Icon, message } from 'antd';
 import { connect } from 'react-redux'
-// import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
 import ItemAmount from '@app/components/TransactionCard/item_amount';
-import * as request_helper from '@app/components/TransactionCard/helper';
 
 const TransactionTitleAndAmount = ({title, amount}) => {
     
@@ -44,9 +41,5 @@ const TransactionTitleAndAmount = ({title, amount}) => {
 
 export default connect(
     (state)=> ({
-        // allAccounts:     loginRedux.allAccounts(state),
-        // actualAccountName:   loginRedux.actualAccountName(state),
-        // currentAccount:  loginRedux.currentAccount(state),
-        // isLoading:       loginRedux.isLoading(state)
     })
 )(TransactionTitleAndAmount)

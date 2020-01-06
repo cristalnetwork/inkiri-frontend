@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import { Card, Row, Col, Statistic, Icon, Switch } from 'antd';
 import { connect } from 'react-redux'
 import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
 
 import './stats.css';
 
@@ -54,20 +53,19 @@ export const buildItem        = (title, value, type, color)  => {
 
 export const buildItemUp           = (title, value) => { return buildItem(title, value, STAT_UP_GREEN) }
 export const buildItemDown         = (title, value) => { return buildItem(title, value, STAT_DOWN_RED) }
-export const buildItemCompute      = (title, value) => { return buildItem(title, value, (value>0)?STAT_UP_GREEN:STAT_DOWN_RED) }
+export const buildItemCompute      = (title, value) => { return buildItem(title, value, (value>=0)?STAT_UP_GREEN:STAT_DOWN_RED) }
 export const buildItemSimple       = (title, value, color) => { return buildItem(title, value, STAT_DATA_ONLY, color) }
 export const buildItemMoney        = (title, value, color) => { return buildItem(title, value, STAT_DATA_MONEY, color) }
 export const buildItemPending      = (title, value) => { return buildItem(title, value, STAT_DATA_PENDING) }
 export const buildItemMoneyPending = (title, value) => { return buildItem(title, value, STAT_DATA_MONEY_PENDING) }
 
-const TableStats = ({stats_array, title, visible}) => {
+const TableStats = ({stats_array, title, visible, can_close=true}) => {
     
 
     // const [my_visible, setVisible]          = useState((visible===false)||true);
-    const [my_visible, setVisible]          = useState((visible===undefined)?true:visible);
+    const [my_visible, setVisible]          = useState((visible===undefined)?false:visible);
 
     useEffect(() => {
-
       // if(visible===undefined)
       //   visible = true;
       // setVisible(visible);
@@ -87,6 +85,8 @@ const TableStats = ({stats_array, title, visible}) => {
     }
     //
     const getStatItem = (item) =>{
+      if(!item)
+        return (null);
       return (<Col key={Math.random()} xs={24} sm={12} md={6} lg={_xl} xl={_xl}>
                 <Statistic
                     title={item.title}
@@ -105,14 +105,14 @@ const TableStats = ({stats_array, title, visible}) => {
       unCheckedChildren={<Icon type="eye-invisible" />}
     */
     return (
-      <div className="styles standardList statsWidget">
-        <Switch 
+      <div className={"styles standardList statsWidget "+(my_visible?'':'content_hidden')}>
+        { can_close && <Switch 
           defaultChecked={my_visible} 
           onChange={onChange} 
           style={{zIndex:10, position:'absolute', top:6, right:6}} 
           checkedChildren={<Icon type="eye" />}
           unCheckedChildren={<>Stats&nbsp;<Icon type="eye-invisible" /></>}
-          />
+          /> }
 
         <Card key="the_card_key" bordered={false} style={{background: '#F5F5F5'}} className={(my_visible?'':'hidden')} >
           <Row>

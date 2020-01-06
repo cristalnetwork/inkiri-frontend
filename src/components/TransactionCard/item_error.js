@@ -5,8 +5,8 @@ const ErrorItem = (props) => {
     
     <div className="ui-alert-message ui-alert-message--red">
       <div className=" HACK_ui-alert-message__heading_HACK ui-row__col ui-row__col--heading">
-        <div class="ui-avatar ">
-          <div class="ui-avatar__content ui-avatar__content--icon">
+        <div className="ui-avatar ">
+          <div className="ui-avatar__content ui-avatar__content--icon">
 
             <FontAwesomeIcon icon="exclamation-circle" size="2x" color="red" />        
           </div>

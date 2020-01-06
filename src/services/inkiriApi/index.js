@@ -1,12 +1,14 @@
 import * as globalCfg from '@app/configs/global';
 
-import * as eosHelper from './eosHelper.js';
+import * as eosHelper from './eos-helper.js';
+import * as nameHelper from './eosjs-name.js';
 import * as dfuse from './dfuse.js';
 import * as bank from './bank.priv.js';
-import * as jwt from './jwtHelper.js';
+import * as jwt from './jwt-helper.js';
+import * as pap_helper from './pre-auth-payments.helper.js';
 import ecc from 'eosjs-ecc';
 
-import * as txsHelper from './transactionHelper';
+import * as txsHelper from './txs-helper';
 
 // import { Api, JsonRpc, RpcError } from 'eosjs';
 import { Api, JsonRpc } from 'eosjs';
@@ -14,14 +16,13 @@ import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig';
 
 import _ from 'lodash';
 
+export {txsHelper};
+export {nameHelper};
 export {eosHelper};
 export {dfuse};
 export {bank};
 export {jwt};
-
-function formatAmount(amount){
-  return Number(amount).toFixed(4) + ' ' + globalCfg.currency.eos_symbol;
-}
+export {pap_helper};
 
 function prettyJson(input){
   return JSON.stringify(input, null, 2)
@@ -40,7 +41,7 @@ const listAllBankAccounts = async () => {
     json:           true                 
     , code:         globalCfg.bank.issuer
     , scope:        globalCfg.bank.issuer
-    , table:        'ikaccounts'        
+    , table:        globalCfg.bank.table_customers
     , limit:        1000
     , reverse:      false
     , show_payer :  false
@@ -65,7 +66,7 @@ export const findBankAccount = async (account_name) => {
     json:           true                 
     , code:         globalCfg.bank.issuer
     , scope:        globalCfg.bank.issuer
-    , table:        'ikaccounts'        
+    , table:        globalCfg.bank.table_customers
     , lower_bound:  account_name
     , upper_bound:  account_name
     , limit:        1
@@ -73,10 +74,10 @@ export const findBankAccount = async (account_name) => {
     , show_payer :  false
   });
   const _found = (response.rows&&response.rows.length>0);
-  if(_found)
-    console.log(' InkiriApi::findBankAccount >> ', JSON.stringify(response.rows[0]));
-  else
-    console.log(' InkiriApi::findBankAccount >> ', 'NOT FOUND');
+  // if(_found)
+  //   console.log(' InkiriApi::findBankAccount >> ', JSON.stringify(response.rows[0]));
+  // else
+  //   console.log(' InkiriApi::findBankAccount >> ', 'NOT FOUND');
   return _found?{...response.rows[0]}:undefined;
 }
 
@@ -104,6 +105,14 @@ const getAccountImpl = async (account_name) => {
   const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
   const response  = await jsonRpc.get_account(account_name)
   return {data:response}
+}
+
+export const getCurrencyStats = async () => { 
+  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
+  // console.log('getCurrencyStats.....')
+  const response  = await jsonRpc.get_currency_stats(globalCfg.currency.issuer, globalCfg.currency.eos_symbol)
+  // console.log(' API :)', response[globalCfg.currency.eos_symbol]);
+  return response[globalCfg.currency.eos_symbol];
 }
 
 /*
@@ -140,7 +149,7 @@ const getAccountBalanceImpl = async (account_name) => {
   // console.log(' ########## getAccountBalance:', JSON.stringify(response));
   // {"rows":[{"balance":"5498.0000 INK"}],"more":false}
   let res = {
-              balance:       (response && response.rows &&  response.rows.length)?txsHelper.getEOSQuantityToNumber(response.rows[0].balance):0,
+              balance:       (response && response.rows &&  response.rows.length)?globalCfg.currency.toNumber(response.rows[0].balance):0,
               balanceText:   (response && response.rows &&  response.rows.length)?response.rows[0].balance:0
             }
   return {data:res}
@@ -169,12 +178,15 @@ const pushTX = async (tx, privatekey) => {
     signatureProvider
   })
   const my_actions = Array.isArray(tx)?tx:[tx];
+  
+  console.log(' -- inkiriApi::pushTX::tx = ', my_actions, JSON.stringify(my_actions));
+
   try {
 	  const result = await api.transact(
 	    { actions: my_actions },
 	    {
 	      blocksBehind: 3,
-	      expireSeconds: 30
+	      expireSeconds: 60
 	    }
 	  );
 	  console.log(' InkiriApi::pushTX (then#1) >> ', JSON.stringify(result));
@@ -189,6 +201,8 @@ const pushTX = async (tx, privatekey) => {
 
 export const createAccount = async (creator_priv, new_account_name, new_account_public_key, account_type, fee, overdraft, permissions) => { 
 
+  const fee_string       = globalCfg.currency.toEOSNumber(fee);
+  const overdraft_string = globalCfg.currency.toEOSNumber(overdraft);
   let actions = [];
   let newAccountAction = 
     {
@@ -292,8 +306,8 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
     data: {
       from: globalCfg.bank.issuer,
       receiver: new_account_name,
-      stake_net_quantity: '1.0000 EOS',
-      stake_cpu_quantity: '1.0000 EOS',
+      stake_net_quantity: '0.2500 EOS',
+      stake_cpu_quantity: '0.2500 EOS',
       transfer: false,
     }
   }
@@ -301,39 +315,40 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
 
   const createBankAccountAction = {
     account: globalCfg.bank.issuer,
-    name: 'upsertikacc',
+    name: globalCfg.bank.table_customers_action,
     authorization: [{
       actor:       globalCfg.bank.issuer,
       permission:  'active',
     }],
     data: {
-      user            : new_account_name
-      , fee           : fee
-      , overdraft     : overdraft
+      to              : new_account_name
+      , fee           : fee_string
+      , overdraft     : overdraft_string
       , account_type  : account_type
       , state         : 1
+      , memo          : ''
     },
   }
-  // actions.push(createBankAccountAction)
+  
+  const issueAction = null;
   // This should be executed at the Smart Contract.
-
-  const issueAction = (overdraft>0)
-    ?{
-      account: globalCfg.currency.token,
-      name: "issue",
-      authorization: [
-        {
-          actor: globalCfg.currency.issuer,
-          permission: "active"
-        }
-      ],
-      data: {
-        to: new_account_name,
-        quantity: formatAmount(overdraft),
-        memo: ('oft|create')
-      }
-    }
-    :null;
+  // const issueAction = (overdraft>0)
+  //   ?{
+  //     account: globalCfg.currency.token,
+  //     name: "issue",
+  //     authorization: [
+  //       {
+  //         actor: globalCfg.currency.issuer,
+  //         permission: "active"
+  //       }
+  //     ],
+  //     data: {
+  //       to: new_account_name,
+  //       quantity: globalCfg.currency.toEOSNumber(overdraft),
+  //       memo: ('oft|create')
+  //     }
+  //   }
+  //   :null;
   // 
 
   actions = [newAccountAction, buyRamAction, delegateBWAction, createBankAccountAction]
@@ -343,11 +358,68 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
   return pushTX(actions, creator_priv);
 }
 
+export const acceptService = async (auth_account, auth_priv, account_name, provider_name, service_id, price, begins_at, periods, request_id) => { 
+
+  const acceptServiceAction = {
+    account:            globalCfg.bank.issuer,
+    name:               globalCfg.bank.table_paps_action,
+    authorization: [
+      {
+        actor:          auth_account,
+        permission:     "active"
+      }
+    ],
+    data: {
+      from:              account_name
+      , to:              provider_name
+      , service_id:      service_id
+      , price:           globalCfg.currency.toEOSNumber(price)
+      , begins_at:       begins_at
+      , periods:         periods
+      , last_charged:    0
+      , enabled:         globalCfg.bank.ACCOUNT_STATE_OK
+      , memo:            `pap|${request_id}`
+    }
+  }
+  
+  console.log(' InkiriApi::acceptService >> About to add push >> ', prettyJson(acceptServiceAction))
+
+  return pushTX(acceptServiceAction, auth_priv);
+
+}
+
+export const chargeService = async (auth_account, auth_priv, account_name, provider_name, service_id, quantity, period_to_charge) => { 
+
+  const acceptServiceAction = {
+    account:            globalCfg.bank.issuer,
+    name:               globalCfg.bank.table_paps_charge,
+    authorization: [
+      {
+        actor:          auth_account,
+        permission:     "active"
+      }
+    ],
+    data: {
+      from:              account_name
+      , to:              provider_name
+      , service_id:      service_id
+      , quantity:        quantity
+      , memo:            `pap|pay|${period_to_charge}`
+    }
+  }
+  
+  console.log(' InkiriApi::acceptService >> About to add push >> ', prettyJson(acceptServiceAction))
+
+  return pushTX(acceptServiceAction, auth_priv);
+
+}
+
+
 export const refund                 = (sender_account, sender_priv, receiver_account, amount, request_id, tx_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('bck|' + request_id + '|' + tx_id));
-export const sendMoney              = (sender_account, sender_priv, receiver_account, amount, memo)       => transferMoney(sender_account, sender_priv, receiver_account, amount, ('snd|'+memo)); 
-export const sendPayment            = (sender_account, sender_priv, receiver_account, amount, memo)       => transferMoney(sender_account, sender_priv, receiver_account, amount, ('pay|'+memo)); 
-export const requestProviderPayment = (sender_account, sender_priv, receiver_account, amount, request_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('prv|' + request_id)); 
-export const requestExchange        = (sender_account, sender_priv, receiver_account, amount, request_id, bank_account_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('xch|' + request_id + '|' + bank_account_id)); 
+export const sendMoney              = (sender_account, sender_priv, receiver_account, amount, memo)              => transferMoney(sender_account, sender_priv, receiver_account, amount, ('snd|'+memo)); 
+export const sendPayment            = (sender_account, sender_priv, receiver_account, amount, memo, request_id)  => transferMoney(sender_account, sender_priv, receiver_account, amount, ('pay|' + request_id + '|' + memo)); 
+export const requestProviderPayment = (sender_account, sender_priv, receiver_account, amount, request_id)        => transferMoney(sender_account, sender_priv, receiver_account, amount, ('prv|' + request_id)); 
+export const requestExchange        = (sender_account, sender_priv, receiver_account, amount, bank_account_id, request_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('xch|' + request_id + '|' + bank_account_id)); 
 export const requestWithdraw        = (sender_account, sender_priv, receiver_account, amount, request_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('wth|' + request_id)); 
 
 export const transferMoney          = async (sender_account, sender_priv, receiver_account, amount, memo) => { 
@@ -364,7 +436,7 @@ export const transferMoney          = async (sender_account, sender_priv, receiv
     data: {
       from: sender_account,
       to: receiver_account,
-      quantity: formatAmount(amount),
+      quantity: globalCfg.currency.toEOSNumber(amount),
       memo: memo
     }
   }
@@ -392,7 +464,7 @@ export const paySalaries = async(sender_account, sender_priv, to_amount_array, r
         data: {
           from:       sender_account,
           to:         payment.account_name,
-          quantity:   formatAmount(payment.amount),
+          quantity:   globalCfg.currency.toEOSNumber(payment.amount),
           memo:       memo
         }
       }
@@ -425,7 +497,7 @@ export const issueMoney = async (issuer_account, issuer_priv, receiver_account, 
     ],
     data: {
       to: receiver_account,
-      quantity: formatAmount(amount),
+      quantity: globalCfg.currency.toEOSNumber(amount),
       memo: memo||''
     }
   }
@@ -511,9 +583,10 @@ export const getNewPermissionObj = (eos_account_object, permissioned, perm_name)
   // console.log('getNewPermissionObj => ', perm)
   if(!perm || perm.length==0)
   {
+    // const not_exist = !perm;
     // console.log('getNewPermissionObj => ', 'podria hacerlo!!!  ||| perm_name:', perm_name)
     perm = Object.assign({}, default_perm);
-    // if(perm_name!=='owner')
+    // if(!not_exist && perm_name!=='owner')
     //   perm.parent = 'owner';
     perm.perm_name = perm_name;
     perm.required_auth.accounts.push(new_perm)
@@ -535,40 +608,6 @@ export const getNewPermissionObj = (eos_account_object, permissioned, perm_name)
   return perm.required_auth;
 }
 
-export const addPersonalBankAccount = async (auth_account, auth_priv, account_name) => { 
-
-	// cleos -u http://jungle2.cryptolions.io:80 push action ikmasterooo1 upsertikacc '{"user":"ikadminoooo1", "fee":5, "overdraft":0, "account_type":1, "state":1}' -p ikmasterooo1@active
-
-	console.log(' inkiriApi::addPersonalBankAccount ', 
-		'param@auth_account:', auth_account,
-		'param@auth_priv:', auth_priv,
-		'param@account_name:', account_name
-		);
-
-	const addAccountAction = {
-    account: globalCfg.bank.contract,
-    name: "upsertikacc",
-    authorization: [
-      {
-        actor: auth_account,
-        permission: "active"
-      }
-    ],
-    data: {
-      user : 					account_name
-      , fee : 				globalCfg.bank.DEFAULT_FEE
-      , overdraft: 		globalCfg.bank.DEFAULT_OVERDRAFT
-      , account_type: globalCfg.bank.ACCOUNT_TYPE_PERSONAL
-      , state: 				globalCfg.bank.ACCOUNT_STATE_OK
-    }
-  }
-  
-  console.log(' InkiriApi::addPersonalBankAccount >> About to add account >> ', prettyJson(addAccountAction))
-
-  return pushTX(addAccountAction, auth_priv);
-
-}
-
 // permissioning_accounts
 
   /*
@@ -578,7 +617,7 @@ export const addPersonalBankAccount = async (auth_account, auth_priv, account_na
     viewer -> --
 
 
-    admin account - inkirimaster
+    admin account - inkirimaster|cristaltoken
     owner -> root
     active -> manager, --
         pda  -> --
@@ -590,7 +629,7 @@ export const addPersonalBankAccount = async (auth_account, auth_priv, account_na
         pdv -> can sell
         viewer -> can view
 
-    Token issuer account - inkiritoken1
+    Token issuer account - inkiritoken1|cristaltoken
         owner -> private_key
         active -> inkirimaster
 
@@ -763,18 +802,23 @@ export const login = async (account_name, private_key) => {
     // return; 
   }
 
-  if(!bank_auth&&need_creation)
+  if(!bank_auth)
   {
-    try{
-      let bank_create = await bank.createUser(account_name, globalCfg.bank.getAccountType(customer_info.account_type));
-      bank_auth = await bank.auth(account_name, private_key);
-    }
-    catch(ex){
-      console.log('inkiriApi::login ERROR#2 >> !', JSON.stringify(ex)) 
-      throw new Error('Account is not on private servers!'); 
-      return;
-    }
+    throw new Error('Account is not a bank customer!'); 
+    return;
   }
+  // if(!bank_auth&&need_creation)
+  // {
+  //   try{
+  //     let bank_create = await bank.createUser(account_name, globalCfg.bank.getAccountType(customer_info.account_type));
+  //     bank_auth = await bank.auth(account_name, private_key);
+  //   }
+  //   catch(ex){
+  //     console.log('inkiriApi::login ERROR#2 >> !', JSON.stringify(ex)) 
+  //     throw new Error('Account is not on private servers!'); 
+  //     return;
+  //   }
+  // }
    
   
   let profile = null;

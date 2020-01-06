@@ -1,3 +1,78 @@
+import _ from 'lodash';
+
+export const getFirstPart = (path, _default='') => {
+  if(!path)
+    return _default;
+  return path.toString().split('/').slice(-1)[0]
+}
+
+export const dateToNumber = (d) => {
+  if(!d) return 0;
+  return Number(d.split('.')[0].replace(/-/g,'').replace(/T/g,'').replace(/:/g,'').replace(/Z/g,'') )
+}
+export const configArrayToObj = (a) => {
+  return _.reduce(a, function(result, value, key) {
+      result[value.key] = value;
+      return result;
+    }, {});
+
+}
+export const objectsEqual = (a, b) => {
+  if (a === b) return true;
+  if (a == null && b == null) return true;
+  if (a == null || b == null) return false;
+  const a_keys = Object.keys(a);
+  const b_keys = Object.keys(b);
+  if (a_keys.length != b_keys.length) return false;
+  for (var i = 0; i < a_keys.length; ++i) {
+    if (a[a_keys[i]] !== b[a_keys[i]]) return false;
+  }
+  return true;
+}
+
+
+export const objectNullOrEmpty = (o) => {
+  if(!o) return true;
+  if(Object.keys(o).length==0) return true;
+  return false;
+}
+
+export const arrayNullOrEmpty = (a, check_values) => {
+  if(!a) return true;
+  if(!Array.isArray(a)) return true;
+  if(a.length==0) return true;
+  if(check_values)
+  {
+    let _emty = true;
+    for (var i = 0; i < a.length; ++i) {
+      _emty = _emty && (!a[i])
+    } 
+    if(_emty)
+      return true;
+  }
+  return false;
+}
+export const arraysEqual = (a, b) => {
+  if (a === b) return true;
+  if (a == null && b == null) return true;
+  if (a == null || b == null) return false;
+  if (a.length != b.length) return false;
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+export const objectValueOrDefault = (obj, key, _default) =>{
+  if(!obj) return _default;
+  return obj[key]||_default
+}
+
+export const twoLevelObjectValueOrDefault = (obj, key, children_key, _default) =>{
+  if(!obj) return _default;
+  return objectValueOrDefault(obj[key], children_key, _default)
+}
+
 export const sliceAndJoinMemo = (s, extra) => {
   if (typeof s !== 'string') 
     s = '';
@@ -33,7 +108,7 @@ export const leadingZeros = (s, n) => {
   if (typeof s !== 'string') 
     s=s.toString();
   if (typeof n !== 'number') n=3;
-  return ('00000000'+s).substr(n);
+  return ('00000000000000000000'+s).substr(n);
 }
 
 export const arrToObj  = (a = []) => a.reduce((prev,act) => { prev[act] = act; return prev; } , {});

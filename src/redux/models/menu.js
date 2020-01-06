@@ -1,6 +1,6 @@
 // import * as api from '../../services/userApi'
 import { getRoutesByRole } from '@app/services/routes'
-import { takeEvery, call, put } from '@redux-saga/core/effects';
+import { takeEvery, put } from '@redux-saga/core/effects';
 import { store } from '@app/redux/configureStore'
 
 // ConstantesT
@@ -19,14 +19,22 @@ const SET_MENU_FATHER        = 'menu/SET_MENU_FATHER'
 const TRY_MOBILE             = 'menu/TRY_MOBILE'
 const SET_MOBILE             = 'menu/SET_MOBILE'
 
+const SET_REFERRER           = 'menu/SET_REFERRER'
+const CLEAR_REFERRER         = 'menu/CLEAR_REFERRER'
+
 // Creadores de acciones (se pueden usar desde los compoenentes)
 export const getMenu                  = (account_name, account_type) =>({ type: GET_ASYNC, payload: { account_name, account_type }});
 export const getMenuFail              = (error)                      =>({ type: GET_FAIL, payload: { error }});
 export const setMenu                  = ({ role, menu })             =>({ type: SET, payload: { role, menu }});
 export const cleanMenu                = ()                           =>({ type: CLEAN_MENU });
-export const collapseMenu             = (is_collapsed)               =>({ type: TRY_COLLAPSE, payload: { is_collapsed } });
+
+export const collapseMenu             = (is_collapsed)               =>({ type: TRY_COLLAPSE, payload: { is_collapsed:is_collapsed } });
+
 export const setLastRootMenuFullpath  = (fullpath)                   =>({ type: TRY_SET_MENU_FATHER, payload: { fullpath }});
 export const setIsMobile              = (is_mobile)                  =>({ type: TRY_MOBILE, payload: { is_mobile } });
+
+export const setReferrer              = (title, referrer, father, icon)  =>({ type: SET_REFERRER, payload: { title:title, referrer:referrer, father:father, icon:icon} });
+export const clearReferrer            = ()                           =>({ type: CLEAR_REFERRER });
 
 //Eventos que requieren del async
 function* getMenuSaga({ type, payload }) {
@@ -37,7 +45,7 @@ function* getMenuSaga({ type, payload }) {
       // yield put(setMenu({ role: data.role, menu: getRoutesByRole( data.role )}))
     // }
     
-    const {account_name, account_type } = payload;
+    const {account_type } = payload;
     // console.log(' --------------- getMENUSAGA > payload', payload)
     // console.log(' --------------- getMENUSAGA > account_name', account_name)
     // console.log(' --------------- getMENUSAGA > account_type', account_type)
@@ -53,7 +61,7 @@ function* tryCollapseMenuSaga({ type, payload }) {
 
   const { is_collapsed } = payload
   // console.log(' MENU REDUX >> tryCollapseMenuSaga >> payload: ', payload)
-  console.log(' MENU REDUX >> tryCollapseMenuSaga >> is_collapsed: ', is_collapsed)
+  console.log(' #################### MENU REDUX >> tryCollapseMenuSaga >> is_collapsed: ', is_collapsed)
   yield put({type: SET_COLLAPSE, payload: {is_collapsed:is_collapsed} })
 }
 
@@ -86,45 +94,78 @@ export const isCollapsed   = (state) => state.menu.is_collapsed
 export const lastRootMenu  = (state) => state.menu.last_root_menu_fullpath
 export const isMobile      = (state) => state.menu.is_mobile
 
+export const referrer      = (state) => { return { referrer:           state.menu.referrer
+                                                   , referrer_father:  state.menu.referrer_father 
+                                                   , referrer_title:   state.menu.referrer_title
+                                                   , referrer_icon:    state.menu.referrer_icon }; }
+
 // El reducer del modelo
-const defaultState = { items: [], loading: 0, is_collapsed:false, error: undefined, last_root_menu_fullpath : undefined , is_mobile: false};
+const defaultState = { 
+  items:                     [], 
+  loading:                   0, 
+  is_collapsed:              false, 
+  error:                     undefined, 
+  last_root_menu_fullpath:   undefined, 
+  is_mobile:                 false,
+
+  referrer:                  null,
+  referrer_father:           null,
+  referrer_title:            '',
+  referrer_icon:             ''
+};
+
 function reducer(state = defaultState, action = {}) {
   switch (action.type) {
     case SET:
       return {
         ...state,
-        items: action.payload.menu.items
+        items:                     action.payload.menu.items
       };
     case GET_ASYNC:
       return  {
         ...state,
-        loading: state.loading +1
+        loading:                   state.loading +1
       }
     case GET_FAIL:
         return {
           ...state,
-          error: action.payload.error
+          error:                   action.payload.error
         }
     case GET_ASYNC_END:
       return {
         ...state,
-        loading: state.loading - 1
+        loading:                   state.loading - 1
       }
     case SET_COLLAPSE:
-      // console.log(' menuREDUX::SET_COLLAPSE -> action.payload >> ', action.payload)
       return {
         ...state,
-        is_collapsed: action.payload.is_collapsed
+        is_collapsed:              action.payload.is_collapsed
       }
      case SET_MENU_FATHER:
        return{
         ...state, 
-        last_root_menu_fullpath: action.payload.fullpath
+        last_root_menu_fullpath:   action.payload.fullpath
       }
     case SET_MOBILE:
         return {
             ...state,
-            is_mobile: action.payload.is_mobile
+            is_mobile:             action.payload.is_mobile
+        }
+    case SET_REFERRER:
+        return {
+            ...state
+            , referrer:            action.payload.referrer
+            , referrer_father:     action.payload.father||null
+            , referrer_title:      action.payload.title
+            , referrer_icon:        action.payload.icon
+        }
+    case CLEAR_REFERRER:
+        return {
+            ...state
+            , referrer:           ''
+            , referrer_father:    ''
+            , referrer_title:     null
+            , referrer_icon:      null
         }
     case CLEAN_MENU:
       return defaultState

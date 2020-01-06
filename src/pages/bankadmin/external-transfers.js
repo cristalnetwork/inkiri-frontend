@@ -13,6 +13,7 @@ import * as api from '@app/services/inkiriApi';
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
+import * as columns_helper from '@app/components/TransactionTable/columns';
 
 import { Radio, Select, Card, PageHeader, Button, Row, Col } from 'antd';
 import { Form, Input} from 'antd';
@@ -22,10 +23,6 @@ import {DISPLAY_ALL_TXS, DISPLAY_PROVIDER, DISPLAY_EXCHANGES} from '@app/compone
 import TableStats, { buildItemMoneyPending, buildItemUp, buildItemDown, buildItemCompute, buildItemSimple, buildItemMoney, buildItemPending} from '@app/components/TransactionTable/stats';
 
 import * as utils from '@app/utils/utils';
-
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import * as columns_helper from '@app/components/TransactionTable/columns';
-// import * as request_helper from '@app/components/TransactionCard/helper';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -62,7 +59,7 @@ class ExternalTransfers extends Component {
   } 
 
   getColumns(){
-    return columns_helper.columnsForExternal(this.onProcessRequestClick);
+    return columns_helper.getColumnsForRequests(this.onProcessRequestClick);
   }
   //
   reloadTxs(){
@@ -321,6 +318,7 @@ class ExternalTransfers extends Component {
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
             scroll={{ x: 700 }}
+            expandedRowRender={columns_helper.expandedRequestRowRender}
             />
           </div>);
   }

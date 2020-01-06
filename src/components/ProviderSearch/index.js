@@ -1,14 +1,10 @@
 import React, {Component} from 'react'
-import { Spin, Icon, Autocomplete, Select } from 'antd';
+import { Select } from 'antd';
 
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux';
-
-import * as loginRedux from '@app/redux/models/login'
-import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 
 import debounce from 'lodash/debounce';
+import { injectIntl } from "react-intl";
 
 const { Option } = Select;
 
@@ -21,10 +17,12 @@ class ProviderSearch extends Component {
     super(props);
     const value = props.value || {};
     this.state = {
-      fetching:         false,
-      data:             [],
-      value:            undefined, // <- This shold receive value prop!
-      selected:         undefined
+      fetching:               false,
+      data:                   [],
+      value:                  undefined, // <- This shold receive value prop!
+      selected:               undefined,
+      selector_placeholder:  'Select provider by name or CNPJ',
+      no_data_text:          'No data'
     };
 
     this.lastFetchId   = 0;
@@ -32,7 +30,14 @@ class ProviderSearch extends Component {
     
   }
 
+  componentDidMount(){
+    const {formatMessage} = this.props.intl;
+    const selector_placeholder = formatMessage({id:'components.ProviderSearch.index.selector_placeholder'})
+    const no_data_text         = formatMessage({id:'global.no_data'})
 
+    this.setState({  selector_placeholder: selector_placeholder
+                     , no_data_text:       no_data_text});
+  }
   fetchProvider = value => {
     // const {value} = this.state;
     // console.log('fetching provider', value);
@@ -42,6 +47,9 @@ class ProviderSearch extends Component {
     
     this.setState({ data: [], fetching: true });
     
+    const {formatMessage} = this.props.intl;
+    const cnpj = formatMessage({id:'components.ProviderSearch.index.cnpj'})
+
     api.bank.listProviders(value, value)
       .then(providers => {
         if (fetchId !== this.lastFetchId) {
@@ -49,7 +57,7 @@ class ProviderSearch extends Component {
           return;
         }
         const data = providers.map(provider => ({
-          text: `${provider.name} - CNPJ: ${provider.cnpj}`,
+          text: formatMessage() `${provider.name} - ${cnpj}: ${provider.cnpj}`,
           value: provider.id,
         }));
         this.setState({ data:data, fetching: false });
@@ -65,7 +73,6 @@ class ProviderSearch extends Component {
     this.setState({
       selected:value,
       value:value,
-      data: [],
       fetching: false,
     });
 
@@ -86,7 +93,8 @@ class ProviderSearch extends Component {
 
 
   render() {
-    const { fetching, data, value } = this.state;
+    //  
+    const { fetching, data, value, selector_placeholder, no_data_text } = this.state;
     return (
       <Select
         mode="multiple"
@@ -95,9 +103,9 @@ class ProviderSearch extends Component {
         allowClear={true}
         autoFocus={true}
         maxTagCount={1}
-        value={value}
-        placeholder="Select provider by name or CNPJ"
-        notFoundContent='No data'
+        value={value}  
+        placeholder={selector_placeholder}
+        notFoundContent={no_data_text}
         defaultActiveFirstOption={false}
         showArrow={false}
         filterOption={false}
@@ -115,4 +123,4 @@ class ProviderSearch extends Component {
 
 }
 //
-export default (ProviderSearch)
+export default ( injectIntl(ProviderSearch))

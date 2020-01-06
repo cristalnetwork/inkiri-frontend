@@ -1,27 +1,28 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
+import * as apiRedux from '@app/redux/models/api';
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
-import PropTypes from "prop-types";
-
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
+import * as utils from '@app/utils/utils';
 
-
-import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Modal} from 'antd';
-import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { Select,PageHeader, Button, Spin, Modal, Form, Input } from 'antd';
 
 import TxResult from '@app/components/TxResult';
 import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import { injectIntl } from "react-intl";
+import InjectMessage from "@app/components/intl-messages";
 
 const DEFAULT_RESULT = {
   result:             undefined,
@@ -44,37 +45,60 @@ class DepositMoney extends Component {
     super(props);
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
-
       loading:             true,
-      pushingTx:           false,
-      
+      intl:                {},
       ...DEFAULT_STATE,
       ...DEFAULT_RESULT,
-
     };
 
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetResult                = this.resetResult.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.getNextEnvelopeId          = this.getNextEnvelopeId.bind(this);
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.symbolChange               = this.symbolChange.bind(this);
     this.onInputAmount              = this.onInputAmount.bind(this);
   }
 
-  static propTypes = {
-    // match: PropTypes.object.isRequired,
-    // location: PropTypes.object.isRequired,
-    // history: PropTypes.object.isRequired
-    match: PropTypes.object,
-    location: PropTypes.object,
-    history: PropTypes.object
-  };
-
   componentDidMount(){
-    
+    const {formatMessage} = this.props.intl;
+    const pushing_tx = formatMessage({id:'pages.common.deposit.pushing_tx'});
+    const loading = formatMessage({id:'pages.common.deposit.loading'});
+    const cant_fetch_next_envelope_id = formatMessage({id:'pages.common.deposit.cant_fetch_next_envelope_id'});
+    const internet_connection_error = formatMessage({id:'pages.common.deposit.internet_connection_error'});
+    const confirm_deposit_request = formatMessage({id:'pages.common.deposit.confirm_deposit_request'});
+    const valid_number_required_description = formatMessage({id:'pages.common.deposit.valid_number_required_description'});
+    const info_type_envelope_id = formatMessage({id:'pages.common.deposit.info_type_envelope_id'});
+    const currency_validator = formatMessage({id:'pages.common.deposit.currency_validator'});
+    const currency_label = formatMessage({id:'pages.common.deposit.currency_label'});
+    const amount_input_validator = formatMessage({id:'pages.common.deposit.amount_input_validator'});
+    const request_deposit_action = formatMessage({id:'pages.common.deposit.request_deposit_action'});
+    const title = formatMessage({id:'pages.common.deposit.title'});
+    const subtitle = formatMessage({id:'pages.common.deposit.subtitle'});
+    const amount_text = formatMessage({id:'global.amount'})
+
+    this.setState({intl:{amount_text, pushing_tx, loading, cant_fetch_next_envelope_id, internet_connection_error, confirm_deposit_request, valid_number_required_description, info_type_envelope_id, currency_validator, currency_label, amount_input_validator, request_deposit_action, title, subtitle}});
+
     this.getNextEnvelopeId();
+  }
+
+  componentDidUpdate(prevProps, prevState) 
+  {
+    let new_state = {};
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
+      const lastResult = this.props.getLastResult;
+      if(lastResult)
+      {
+        const that = this;
+        setTimeout(()=> that.resetPage() ,100);
+      }
+    }
+
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
   }
   
   getNextEnvelopeId(){
@@ -83,10 +107,9 @@ class DepositMoney extends Component {
         this.setState ({loading:false, envelope_id: res});
       },
       (err)=>{
-        // console.log(' ERROR FETCHING ENV ID ->', err);
         this.setState ({loading:false});
-        this.openNotificationWithIcon("error", "Cant fetch next envelope ID", "Please check if you are logged in bank service. " + JSON.stringify(err))      
-      },
+        components_helper.notif.errorNotification(this.state.intl.cant_fetch_next_envelope_id, `${this.state.intl.internet_connection_error}, -> ${JSON.stringify(err)}`);
+      }
     )
   }
   symbolChange = (e) =>{
@@ -95,22 +118,14 @@ class DepositMoney extends Component {
     this.setState({input_amount:input_amount})
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-
   backToDashboard = async () => {
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/extrato`
+      pathname: `/common/extrato`
     })
   }
 
   resetResult(){
     this.setState({...DEFAULT_RESULT});
-    
   }
 
   resetPage(){
@@ -168,36 +183,28 @@ class DepositMoney extends Component {
   handleSubmit = e => {
     e.preventDefault();
     const that = this;
+    const {formatMessage} = this.props.intl;
     this.props.form.validateFields((err, values) => {
       if(err){
-        that.openNotificationWithIcon("error", 'Form error ', 'Please verify on screen errors.');
-        // that.setState({pushingTx:false});
+        components_helper.notif.errorNotification( formatMessage({id:'errors.validation_title'}), formatMessage({id:'errors.verify_on_screen'}) )    
         return;
       }
       
       const {input_amount} = this.state;
       const sender         = that.props.actualAccountName;
+      const amount_string  = this.inputAmountToString();
+      const confirm_deposit_request_message = formatMessage({id:'pages.common.deposit.confirm_deposit_request_message'}, {amount:amount_string});
       Modal.confirm({
-        title: 'Confirm deposit request',
-        content: 'Please confirm deposit for '+this.inputAmountToString()+' to ' + sender,
+        title:   this.state.intl.confirm_deposit_request,
+        content: confirm_deposit_request_message,
         onOk() {
           const {input_amount} = that.state;
-          that.setState({pushingTx:true});
-          api.bank.createDeposit(sender, input_amount.value, input_amount.symbol)
-            .then((res)=>{
-              console.log(' >> doDeposit >> ', JSON.stringify(res));
-              that.setState({pushingTx:false, result:'ok'})
-              that.openNotificationWithIcon("success", 'Deposit requested successfully');
-
-            }, (err)=>{
-              that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
-              that.setState({result:'error', error:err, pushingTx:true});
-            })
+          const _function = 'bank.createDeposit';
+          that.props.callAPI(_function, [sender, input_amount.value, input_amount.symbol])
           
         },
         onCancel() {
           console.log('Cancel');
-          that.setState({pushingTx:false})
         },
       });
     });
@@ -208,7 +215,7 @@ class DepositMoney extends Component {
       callback();
       return;
     }
-    callback('Amount must greater than zero!');
+    callback(this.state.intl.valid_number_required_description);
   };
 
   renderContent() {
@@ -225,22 +232,27 @@ class DepositMoney extends Component {
     }
 
     const { getFieldDecorator }               = this.props.form;
-    const { input_amount, pushingTx, loading, envelope_id} = this.state;
+    const { input_amount, isFetching, loading, envelope_id} = this.state;
     const my_currencies                       = [globalCfg.currency.symbol, globalCfg.currency.fiat.symbol];
-    const loading_text                        = pushingTx?'Pushing transaction...':(loading?'Loading...':'');
+    const loading_text = isFetching
+      ?this.state.intl.pushing_tx
+      :(loading
+        ?this.state.intl.loading
+        :'');
+
     return (
-        <Spin spinning={pushingTx||loading} delay={500} tip={loading_text}>
+        <Spin spinning={isFetching||loading} delay={500} tip={loading_text}>
           <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">    
               
               <div className="money-transfer__row row-complementary money-transfer__select row-complementary-bottom flex_row" >
                   <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
                       <span className="picture">
-                        <FontAwesomeIcon icon="envelope" size="lg" color="gray"/>
+                        <FontAwesomeIcon icon="envelope" size="lg" color="black"/>
                       </span>
                   </div>
                   <div className="money-transfer__input money-transfer__select">
-                    <span>Type this ID onto the envelope:<br/>
+                    <span>{this.state.intl.info_type_envelope_id}<br/>
                       <strong style={{fontWeight:600, fontSize:24}}>{envelope_id}</strong>
                     </span>
                   </div>
@@ -249,17 +261,17 @@ class DepositMoney extends Component {
               <div className="money-transfer__row row-complementary money-transfer__select flex_row" >
                   <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
                       <span className="picture">
-                        <FontAwesomeIcon icon="dollar-sign" size="lg" color="gray"/>
+                        <FontAwesomeIcon icon="dollar-sign" size="lg" color="black"/>
                       </span>
                   </div>
                   <div className="money-transfer__input money-transfer__select">
                     <Form.Item>
                         {getFieldDecorator( 'input_amount.symbol', {
-                          rules: [{ required: true, message: 'Please select currency'}]
+                          rules: [{ required: true, message: this.state.intl.currency_validator}]
                           , initialValue: input_amount.symbol
                           , onChange: this.symbolChange
                         })(
-                          <Select placeholder={'Choose a currency'} optionLabelProp="label" className="NO_input-price__currency_NO select-price__currency">
+                          <Select placeholder={this.state.intl.currency_label} optionLabelProp="label" className="select-price__currency">
                           {my_currencies.map( opt => <Select.Option key={opt} value={opt} label={opt}>{ opt } </Select.Option> )}
                           </Select>
                         )}
@@ -267,11 +279,13 @@ class DepositMoney extends Component {
                   </div>
               </div>
 
-              <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+              <Form.Item label={this.state.intl.amount_text} className="money-transfer__row input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
-                      rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
+                      rules: [{ required: true
+                                , message: this.state.intl.amount_input_validator
+                                , whitespace: true
+                                , validator: this.checkPrice }],
                       initialValue: input_amount.value,
-
                     })( 
                       <>  
                         <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
@@ -295,7 +309,9 @@ class DepositMoney extends Component {
             </div>
 
             <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={pushingTx||loading} >REQUEST DEPOSIT</Button>
+              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={isFetching||loading} >
+                {this.state.intl.request_deposit_action}
+              </Button>
             </div>
 
           </Form>  
@@ -314,13 +330,13 @@ class DepositMoney extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Deposit money"
-          subTitle="Deposit paper money and receive Inkiri on your account"
+          title={this.state.intl.title}
+          subTitle={this.state.intl.subtitle}
           
         >
           
         </PageHeader>
-          <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+          <div style={{ margin: '0 0px', padding: 24}}>
             <div className="ly-main-content content-spacing cards">
               <section className="mp-box mp-box__shadow money-transfer__box">
                 {content}
@@ -337,9 +353,15 @@ export default Form.create() (withRouter(connect(
     (state)=> ({
         actualAccountName:  loginRedux.actualAccountName(state),
         actualRole:         loginRedux.actualRole(state),
-        isLoading:          loginRedux.isLoading(state)
+        isLoading:          loginRedux.isLoading(state),
+    
+        isFetching:         apiRedux.isFetching(state),
+        getResults:         apiRedux.getResults(state),
+        getLastResult:      apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
+        callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),
+        clearAll:    bindActionCreators(apiRedux.clearAll, dispatch),
         
     })
-)(DepositMoney) ));
+)(injectIntl(DepositMoney)) ));

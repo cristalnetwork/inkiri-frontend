@@ -9,13 +9,17 @@ import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
 
-import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
-import { notification, Empty, Button, Form, message, AutoComplete, Input, Icon } from 'antd';
+import * as components_helper from '@app/components/helper';
+
+import { notification, Empty, Button, Form, message, Input, Icon } from 'antd';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
+import AutocompleteAccount from '@app/components/AutocompleteAccount';
+
+import { injectIntl } from "react-intl";
 
 class AddRoleForm extends Component {
   constructor(props) {
@@ -28,7 +32,6 @@ class AddRoleForm extends Component {
     };
     
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.onSelect                   = this.onSelect.bind(this)
   }
 
@@ -41,13 +44,6 @@ class AddRoleForm extends Component {
             callback: this.props.callback,
           });
       }
-  }
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
 
   /*
@@ -71,17 +67,11 @@ class AddRoleForm extends Component {
     this.props.form.validateFields((err, values) => {
       
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+        components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'errors.validation_title'}), this.props.intl.formatMessage({id:'errors.verify_on_screen'}) )    
         console.log(' ERRORS!! >> ', err)
         return;
       }
       
-      const exists = this.props.accounts.filter( account => account.key==values.permissioned);
-      if(!exists || exists.length==0)
-      {
-        this.openNotificationWithIcon("error", 'Please select an account from the list.');
-        return;
-      }
       values['authority'] = this.state.authority;
       this.fireEvent(null, null, values);
       
@@ -89,8 +79,6 @@ class AddRoleForm extends Component {
   };
 
   resetForm(){
-    
-    // this.setState({...DEFAULT_STATE});
   }
 
   render() {
@@ -99,30 +87,20 @@ class AddRoleForm extends Component {
     return (
           
             <Form onSubmit={this.handleSubmit}>
-                
-              <Form.Item style={{minHeight:60, marginBottom:12}}>
-                {getFieldDecorator('permissioned', {
-                  rules: [{ required: true, message: 'Please input account name!' }],
-                  onChange: (e) => this.onSelect(e)
-                })(
-                  <AutoComplete
-                    autoFocus
-                    size="large"
-                    dataSource={this.props.accounts.filter(acc=>acc.key!=owner).map(acc=>acc.key)}
-                    style={{ width: '100%' }}
-                    placeholder="Input account name"
-                    filterOption={true}
-                    className="extra-large"
-                  >
-                    <Input suffix={<Icon type="user" style={{fontSize:20}} className="default-icon" />} />
-                  </AutoComplete>
-                   
-                )}
-              </Form.Item>
+              
+              <AutocompleteAccount 
+                autoFocus 
+                callback={this.onSelect} 
+                form={this.props.form} 
+                name="permissioned" 
+                exclude_list={[owner]} 
+                filter={globalCfg.bank.ACCOUNT_TYPE_PERSONAL}/>
 
               <div className="mp-box__actions mp-box__shore">
-                <Button size="large" key="requestButton" htmlType="submit" type="primary" htmlType="submit" >AUTHORIZE</Button>
-                <Button size="large" className="danger_color" type="link" onClick={()=>{this.fireEvent(null, true, null)}}>Cancel</Button>
+                <Button size="large" key="requestButton" htmlType="submit" type="primary" htmlType="submit" >{this.props.intl.formatMessage({id:'global.authorize'})}</Button>
+                <Button size="large" className="danger_color" type="link" onClick={()=>{this.fireEvent(null, true, null)}}>
+                  {this.props.intl.formatMessage({id:'global.cancel'})}
+                </Button>
               </div>
                 
               
@@ -131,7 +109,6 @@ class AddRoleForm extends Component {
         );
   }
 
-  
 }
 //
 export default Form.create() (withRouter(connect(
@@ -141,5 +118,5 @@ export default Form.create() (withRouter(connect(
     (dispatch)=>({
         
     })
-)(AddRoleForm) )
+)( injectIntl(AddRoleForm) ) )
 );

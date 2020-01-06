@@ -1,7 +1,7 @@
-export const checkPrice = (rule, value, callback) => {
+export const checkPrice = (rule, value, callback, message) => {
     if (value > 0) {
       callback();
       return;
     }
-    callback('Amount must greater than zero!');
+    callback(message || 'Amount must greater than zero!');
   };

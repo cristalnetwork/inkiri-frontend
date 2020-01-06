@@ -10,13 +10,18 @@ import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
 
-import PropTypes from "prop-types";
 import { withRouter } from "react-router-dom";
 
-import { notification, Select, Button , Form, Icon, InputNumber, Input, DatePicker } from 'antd';
+import * as components_helper from '@app/components/helper';
+
+import { Select, Button , Form, Icon, InputNumber, Input } from 'antd';
 import moment from 'moment';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import * as form_helper from '@app/components/Form/form_helper';
+
+import { injectIntl } from "react-intl";
 
 const DEFAULT_STATE = {
     _id:            null,
@@ -42,17 +47,16 @@ const DEFAULT_STATE = {
 class ProfileForm extends Component {
   constructor(props) {
     super(props);
+    const default_text = this.props.intl.formatMessage({id:'global.submit'});
     this.state = {
       mode            : props.mode || 'full',
       profile         : props.profile || DEFAULT_STATE,
       alone_component : props.alone_component || false,
-      button_text     : props.button_text || 'SUBMIT',
+      button_text     : props.button_text || default_text,
       callback        : props.callback ,
     };
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
-
   }
 
   componentDidUpdate(prevProps, prevState) 
@@ -62,17 +66,10 @@ class ProfileForm extends Component {
             mode            : this.props.mode || 'full',
             profile         : this.props.profile || DEFAULT_STATE,
             alone_component : this.props.alone_component || false,
-            button_text     : this.props.button_text || 'SUBMIT',
+            button_text     : this.props.button_text,
             callback        : this.props.callback 
           });
       }
-  }
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
 
   fireEvent = (error, cancel, data) => {
@@ -87,14 +84,14 @@ class ProfileForm extends Component {
     this.props.form.validateFields((err, values) => {
       
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+        components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'errors.validation_title'}), this.props.intl.formatMessage({id:'errors.verify_on_screen'}) )    
         console.log(' ERRORS!! >> ', err)
         return;
       }
       
       if(!this.state.profile)
       {
-        this.openNotificationWithIcon("error", 'You must choose a Profile!');
+        components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'components.forms.validators.forgot_profile'}))
         return;
       }
       
@@ -110,89 +107,94 @@ class ProfileForm extends Component {
 
   
   
-  getInputItem = (object, field, title, required_message, _type, readonly) => {
-    const { getFieldDecorator }    = this.props.form;
-    if(!_type) _type = 'string';
-    const _readonly=(readonly===true);
-    return (<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-              <Form.Item label={title}>
-                {getFieldDecorator(field, {
-                  rules: [{ type:_type, required: (required_message!==undefined?true:false), message: required_message, whitespace: true }],
-                  initialValue:object[field]||''
-                })(
-                  <Input className="money-transfer__input" placeholder={title} readOnly={_readonly}/>
-                )}
-              </Form.Item>
-            </div>);
-  }
-  getStringItem = (object, field, title, required_message, readonly) => {
-    return this.getInputItem(object, field, title, required_message, 'string', readonly);
-  }
-  getEmailItem = (object, field, title, required_message) => {
-    return this.getInputItem(object, field, title, required_message, 'email');
-  }
-  getDateItem = (object, field, title, required_message) => {
-    const { getFieldDecorator }    = this.props.form;
-    return (<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-              <Form.Item label={title}>
-                {getFieldDecorator(field, {
-                rules: [{ required: true, message: required_message }],
-                initialValue: moment(object[field])
-              })( <DatePicker style={{ width: '80%' }}/>)}
-              </Form.Item>
-            </div>);
-  }
-
   renderContent() {  
     const { mode, profile, button_text } = this.state;
     const business                       = (globalCfg.bank.isBusinessAccount(profile));
-    const { getFieldDecorator }          = this.props.form;
+    const { form }                       = this.props;
+
+    const { formatMessage }              = this.props.intl;
+
+    const account_name_desc              = formatMessage({id:'components.Forms.profile.account_name_desc'})
+    const account_name_message           = formatMessage({id:'components.Forms.profile.account_name_message'})
+    const last_name_desc                 = formatMessage({id:'components.Forms.profile.last_name_desc'})
+    const last_name_message              = formatMessage({id:'components.Forms.profile.last_name_message'})
+    const first_name_desc                = formatMessage({id:'components.Forms.profile.first_name_desc'})
+    const first_name_message             = formatMessage({id:'components.Forms.profile.first_name_message'})
+    const biz_name_desc                  = formatMessage({id:'components.Forms.profile.biz_name_desc'})
+    const biz_name_message               = formatMessage({id:'components.Forms.profile.biz_name_message'})
+    const alias_name_desc                = formatMessage({id:'components.Forms.profile.alias_name_desc'})
+    const alias_name_message             = formatMessage({id:'components.Forms.profile.alias_name_message'})
+    const email_desc                     = formatMessage({id:'components.Forms.profile.email_desc'})
+    const email_message                  = formatMessage({id:'components.Forms.profile.email_message'})
+    const cpf_desc                       = formatMessage({id:'components.Forms.profile.cpf_desc'})
+    const cpf_message                    = formatMessage({id:'components.Forms.profile.cpf_message'})
+    const birthday_desc                  = formatMessage({id:'components.Forms.profile.birthday_desc'})
+    const birthday_message               = formatMessage({id:'components.Forms.profile.birthday_message'})
+    const phone_desc                     = formatMessage({id:'components.Forms.profile.phone_desc'})
+    const phone_message                  = formatMessage({id:'components.Forms.profile.phone_message'})
+    const street_desc                    = formatMessage({id:'components.Forms.profile.street_desc'})
+    const city_desc                      = formatMessage({id:'components.Forms.profile.city_desc'})
+    const state_desc                     = formatMessage({id:'components.Forms.profile.state_desc'})
+    const zip_desc                       = formatMessage({id:'components.Forms.profile.zip_desc'})
+    const country_desc                   = formatMessage({id:'components.Forms.profile.country_desc'})
+
     if(mode=='full')
       return (
         <Form onSubmit={this.handleSubmit} className="with_labels">
             <div className="money-transfer">
-              {this.getStringItem(profile , 'account_name'  , 'Account name' , 'Please input a valid account name!', true)}
+
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'account_name'  , account_name_desc , account_name_message, true))}
 
               {!business? 
-                (<>{this.getStringItem(profile , 'last_name'     , 'Last name'    , 'Please input a valid last name!')}
-                {this.getStringItem(profile , 'first_name'    , 'First name'   , 'Please input a valid first name!')}</>)
+                (<>
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'last_name'     , last_name_desc    , first_name_desc ))}
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'first_name'    , first_name_desc   , first_name_message ))}
+                 </>)
                 :
-                (<>{this.getStringItem(profile , 'business_name'    , 'Business name' , 'Please input a valid business name!')}
-                {this.getStringItem(profile , 'alias'    , 'IUGU alias'   , 'Please input a valid alias!')}</>)
+                (<>
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'business_name'    , biz_name_desc, biz_name_message) )}
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'alias'            , alias_name_desc, alias_name_message))}
+                 </>)
 
               }
-              {this.getEmailItem( profile , 'email'         , 'Email'        , 'Please input a valid email!')}
-              {!business && this.getStringItem(profile , 'legal_id'      , 'CPF'          , 'Please input a valid CPF!')}
-              {!business && this.getDateItem(profile   , 'birthday'      , 'Birthday'     , 'Please input a valid Date!')}
-              {this.getStringItem(profile , 'phone'         , 'Phone number' , 'Please input a valid phone number!')}
+              {form_helper.simple(form_helper.getEmailItem(form,  profile , 'email'                 , email_desc        , email_message) )}
+              {!business && form_helper.simple(form_helper.getStringItem(form, profile , 'legal_id' , cpf_desc          , cpf_message)) }
+              {!business && form_helper.simple(form_helper.getDateItem(form, profile   , 'birthday' , birthday_desc     , birthday_message )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'phone'                 , phone_desc        , phone_message)) }
+              
               <br/><br/><div className="c-header-detail__head u-clearfix"><div className="c-header-detail__title">Address</div></div>
-              {this.getStringItem(profile , 'address.street'  , 'Street'     )}
-              {this.getStringItem(profile , 'address.city'    , 'City'       )}
-              {this.getStringItem(profile , 'address.state'   , 'State'      )}
-              {this.getStringItem(profile , 'address.zip'     , 'ZIP'        )}
-              {this.getStringItem(profile , 'address.country' , 'Country'    )}
+              
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.street'  , street_desc     )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.city'    , city_desc       )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.state'   , state_desc      )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.zip'     , zip_desc        )) }
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'address.country' , country_desc    )) }
             </div>
             
             <div className="mp-box__actions mp-box__shore">
                 <Button size="large" key="updateProfile" htmlType="submit" type="primary" >{button_text}</Button>
-                <Button size="large" key="cancelProfile" type="link" onClick={ () => this.fireEvent(null, true, null)}>CANCEL</Button>
+                <Button size="large" key="cancelProfile" type="link" onClick={ () => this.fireEvent(null, true, null)}>
+                  { formatMessage({id:'global.cancel'}) }
+                </Button>
             </div>
 
         </Form>
     );
     //
 
+    //MODE==alias
     return (<Form onSubmit={this.handleSubmit} className="with_labels">
             <div className="money-transfer">
-              {this.getStringItem(profile , 'account_name'  , 'Account name' , 'Please input a valid account name!', true)}
-
-              {this.getStringItem(profile , 'business_name'    , 'Business name' , 'Please input a valid business name!')}
-              {this.getStringItem(profile , 'alias'    , 'IUGU alias'   , 'Please input a valid alias!')}
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'account_name'       , account_name_desc  , account_name_message, true))}
+              {form_helper.simple(form_helper.getStringItem(form, profile , 'business_name'      , biz_name_desc  , biz_name_message))}
+              {business && form_helper.simple(form_helper.getStringItem(form, profile , 'alias'  , alias_name_desc  , alias_name_message))}
 
             </div>
             <div className="mp-box__actions mp-box__shore">
                 <Button size="large" key="updateProfile" htmlType="submit" type="primary" >{button_text}</Button>
-                <Button size="large" key="cancelProfile" type="link" onClick={ () => this.fireEvent(null, true, null)}>CANCEL</Button>
+                <Button size="large" key="cancelProfile" type="link" onClick={ () => this.fireEvent(null, true, null)}>
+                  { formatMessage({id:'global.cancel'}) }
+                </Button>
             </div>
         </Form>);
   }
@@ -232,5 +234,5 @@ export default Form.create() (withRouter(connect(
     (dispatch)=>({
         
     })
-)(ProfileForm) )
+)(injectIntl(ProfileForm)) )
 );

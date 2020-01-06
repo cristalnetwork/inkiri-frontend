@@ -1,28 +1,26 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
+import * as apiRedux from '@app/redux/models/api';
 
-import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
-
-import PropTypes from "prop-types";
 
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
+import * as utils from '@app/utils/utils';
 
-import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Modal} from 'antd';
-import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { PageHeader, Button, Spin, Modal, Form, Input } from 'antd';
 
 import TxResult from '@app/components/TxResult';
 import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { injectIntl } from "react-intl";
 
 const DEFAULT_RESULT = {
   result:             undefined,
@@ -42,46 +40,79 @@ class WithdrawMoney extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      pushingTx:    false,
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
+      isFetching:          false,
       ...DEFAULT_STATE,
       ...DEFAULT_RESULT,
-
+      intl:                {}
     };
 
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetResult                = this.resetResult.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.onInputAmount              = this.onInputAmount.bind(this);
   }
 
-  static propTypes = {
-    // match: PropTypes.object.isRequired,
-    // location: PropTypes.object.isRequired,
-    // history: PropTypes.object.isRequired
-    match: PropTypes.object,
-    location: PropTypes.object,
-    history: PropTypes.object
-  };
+  componentDidMount(){
+    const {formatMessage} = this.props.intl;
+    
+    const amount_text = formatMessage({id:'global.amount'})
+    const title = formatMessage({id:'pages.common.withdraw.title'});
+    const error_cant_form_validation = formatMessage({id:'pages.common.withdraw.error_cant_form_validation'});
+    const valid_number_required = formatMessage({id:'pages.common.withdraw.valid_number_required'});
+    const valid_number_required_description = formatMessage({id:'pages.common.withdraw.valid_number_required_description'});
+    const confirm_request = formatMessage({id:'pages.common.withdraw.confirm_request'});
+    const pick_up_money_message = formatMessage({id:'pages.common.withdraw.pick_up_money_message'});
+    const pushing_transaction = formatMessage({id:'pages.common.withdraw.pushing_transaction'});
+    const forgot_amount = formatMessage({id:'pages.common.withdraw.forgot_amount'});
+    const request_withdraw_action_text = formatMessage({id:'pages.common.withdraw.request_withdraw_action_text'});
+    this.setState({intl:{amount_text, title, error_cant_form_validation, valid_number_required, valid_number_required_description, confirm_request, pick_up_money_message, pushing_transaction, forgot_amount, request_withdraw_action_text}});
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
+  }
+
+  componentDidUpdate(prevProps, prevState) 
+  {
+    let new_state = {};
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+    if(!utils.arraysEqual(prevProps.getErrors, this.props.getErrors)){
+      // const ex = this.props.getLastError;
+      // new_state = {...new_state, 
+      //     getErrors:     this.props.getErrors, 
+      //     result:        ex?'error':undefined, 
+      //     error:         ex?JSON.stringify(ex):null}
+      // if(ex)
+      //   components_helper.notif.exceptionNotification("An error occurred!", ex);
+    }
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
+      const lastResult = this.props.getLastResult;
+      // new_state = {...new_state, 
+      //   getResults:      this.props.getResults, 
+      //   result:          lastResult?'ok':undefined, 
+      //   result_object:   lastResult};
+      if(lastResult)
+      {
+        const that = this;
+        setTimeout(()=> that.resetPage() ,100);
+        // components_helper.notif.successNotification('Operation completed successfully')
+      }
+    }
+
+
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
   }
 
   backToDashboard = async () => {
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/extrato`
+      pathname: `/common/extrato`
     })
   }
 
   resetResult(){
     this.setState({...DEFAULT_RESULT});
-    
   }
 
   resetPage(){
@@ -142,21 +173,22 @@ class WithdrawMoney extends Component {
     
     this.props.form.validateFields((err, values) => {
       if(err){
-        this.openNotificationWithIcon("error", 'Form error ', 'Please verify on screen errors.');
+        components_helper.notif.errorNotification( this.state.intl.error_cant_form_validation ) ;
         return;
       }
 
       const {input_amount} = this.state;
       if(isNaN(input_amount.value) || parseFloat(input_amount.value)<=0)
       {
-        that.openNotificationWithIcon("error", this.state.input_amount.value + " > valid number required","Please type a valid number greater than 0!")    
+        components_helper.notif.errorNotification(this.state.intl.valid_number_required, this.state.intl.valid_number_required_description)    
         return;
       }
       
       if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
       {
         const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-        that.openNotificationWithIcon("error", `Amount must be equal or less than your balance ${balance_txt}!`); //`
+        const amount_le_balance_message = this.props.intl.formatMessage( { id:'pages.common.withdraw.amount_le_balance_message'}, {balance:balance_txt});
+        components_helper.notif.errorNotification(amount_le_balance_message);
         return;
       }
 
@@ -165,54 +197,41 @@ class WithdrawMoney extends Component {
       const privateKey     = this.props.actualPrivateKey;
       const amount       = input_amount.value;
       
+      const confirm_request = this.props.intl.formatMessage({id:'pages.common.withdraw.confirm_request'});
+      const confirm_request_message = this.props.intl.formatMessage({id:'pages.common.withdraw.confirm_request_message'}, {amount: this.inputAmountToString()});
+      
+      
+
       Modal.confirm({
-        title: 'Confirm withdraw request',
-        content: 'Please confirm withdraw for '+this.inputAmountToString(),
+        title: confirm_request,
+        content: confirm_request_message,
         onOk() {
-          that.setState({pushingTx:true});
-          api.bank.createWithdraw(sender, amount)
-            .then((data)=>{
-              console.log(' >> doWithdraw >> ', JSON.stringify(data));
-              // that.setState({pushingTx:false, result:'ok'})
-              // that.openNotificationWithIcon("success", 'Withdraw requested successfully');
+          
+          const withdraw_account = globalCfg.bank.withdraw_account; 
+          const steps= [
+            {
+              _function:           'bank.createWithdraw'
+              , _params:           [sender, amount]
+            }, 
+            {
+              _function:           'requestWithdraw'
+              , _params:           [sender, privateKey, withdraw_account, amount] 
+              , last_result_param: [{field_name:'id', result_idx_diff:-1}]
+              , on_failure:        {
+                                      _function:           'bank.failedWithdraw'
+                                      , _params:           [sender] 
+                                      , last_result_param: [{field_name:'id', result_idx_diff:-1}]
+                                    }
+            },
+            {
+              _function:           'bank.updateWithdraw'
+              , _params:           [sender] 
+              , last_result_param: [{field_name:'id', result_idx_diff:-2}, {field_name:'transaction_id', result_idx_diff:-1}]
+            },
+          ]
 
-              if(!data || !data.id)
-              {
-                that.setState({result:'error',  pushingTx:false, error:'Cant create request.'});
-                return;
-              }
-
-              const request_id       = data.id;
-              const withdraw_account = globalCfg.bank.withdraw_account; 
-
-              api.requestWithdraw(sender, privateKey, withdraw_account, amount, request_id)
-                .then((data1) => {
-
-                  const send_tx             = data1;
-                  console.log(' withdrawMoney::send (then#2) >>  ', JSON.stringify(send_tx));
-                  
-                  api.bank.updateWithdraw(sender, request_id, undefined, send_tx.data.transaction_id)
-                    .then((data2) => {
-
-                        that.setState({ result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
-                        that.openNotificationWithIcon("success", 'Withdraw requested successfully');
-
-                      }, (ex2) => {
-                        console.log(' withdrawMoney::send (error#3) >>  ', JSON.stringify(ex2));
-                        that.setState({result:'error',  pushingTx:false, error:JSON.stringify(ex2)});
-                    });
-
-                }, (ex1) => {
-                  
-                  console.log(' withdrawMoney::send (error#2) >>  ', JSON.stringify(ex1));
-                  that.setState({result:'error',  pushingTx:false, error:JSON.stringify(ex1)});
-
-                });
-
-            }, (err)=>{
-              that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
-              that.setState({result:'error', error:err});
-            })
+          that.props.callAPIEx(steps);
+          
           
         },
         onCancel() {
@@ -228,7 +247,7 @@ class WithdrawMoney extends Component {
       callback();
       return;
     }
-    callback('Amount must greater than zero!');
+    callback(this.state.intl.valid_number_required_description);
   };
 
   renderContent() {
@@ -245,22 +264,24 @@ class WithdrawMoney extends Component {
     }
 
     const { getFieldDecorator }               = this.props.form;
-    const { input_amount, pushingTx}           = this.state;
+    const { input_amount, isFetching}         = this.state;
     return (
-        <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+        <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
           <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">    
               
-              <Form.Item label="Amount" className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
+              <Form.Item label={this.state.intl.amount_text} className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
-                      rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
+                      rules: [{ required:        true
+                                  , message:     this.state.intl.forgot_amount
+                                  , whitespace:  true
+                                  , validator:   this.checkPrice }],
                       initialValue: input_amount.value
                     })( 
                       <>  
                         <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
                           {globalCfg.currency.symbol}
                         </span>
-                        
                         <Input 
                           type="tel" 
                           step="0.01" 
@@ -277,7 +298,9 @@ class WithdrawMoney extends Component {
             </div>
 
             <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={pushingTx} >REQUEST WITHDRAW</Button>
+              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={isFetching} >
+                {this.state.intl.request_withdraw_action_text}
+              </Button>
             </div>
 
           </Form>  
@@ -297,12 +320,8 @@ class WithdrawMoney extends Component {
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Withdraw money"
-          subTitle="Withdraw paper money at the nearest PDA"
-          
-        >
-          
-        </PageHeader>
-          <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+          />
+          <div style={{ margin: '0 0px', padding: 24}}>
             <div className="ly-main-content content-spacing cards">
               <section className="mp-box mp-box__shadow money-transfer__box">
                 {content}
@@ -323,8 +342,17 @@ export default Form.create() (withRouter(connect(
         isLoading:          loginRedux.isLoading(state),
         personalAccount:    loginRedux.personalAccount(state),
         balance:            balanceRedux.userBalance(state),
+    
+        isFetching:         apiRedux.isFetching(state),
+        getErrors:          apiRedux.getErrors(state),
+        getLastError:       apiRedux.getLastError(state),
+        getResults:         apiRedux.getResults(state),
+        getLastResult:      apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
+        callAPIEx:          bindActionCreators(apiRedux.callAPIEx, dispatch),
+        clearAll:    bindActionCreators(apiRedux.clearAll, dispatch),
         
+        loadBalance:        bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
-)(WithdrawMoney) ));
+)(injectIntl(WithdrawMoney)) ));

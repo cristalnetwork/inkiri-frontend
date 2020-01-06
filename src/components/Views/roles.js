@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Skeleton, List, Card, Empty, Button, Icon, message } from 'antd';
+import { Modal, Skeleton, List, Card, Button, Icon } from 'antd';
 import { connect } from 'react-redux'
 import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import { injectIntl } from "react-intl";
+import InjectMessage from "@app/components/intl-messages";
 
 // import Skeleton from '@app/components/Views/skeleton';
 export const ENUM_EVENT_NEW_PERMISSION      = 'event_new_permission';
@@ -15,22 +15,47 @@ export const ENUM_AUTHORITY_CHANGE          = 'event_authority_change';
 
 const AccountRolesView = (props) => {
     
-    const [loading, setLoading]        = useState(false);
-    const [account, setAccount]        = useState(null);
-    const [eos_account, setEosAccount] = useState(null);
-    const [onEvent, setOnEvent]        = useState(null);
-    const [authority, setAuthority]    = useState();
+    const [loading, setLoading]        = useState(props.loading);
+    const [account, setAccount]        = useState(props.account);
+    const [eos_account, setEosAccount] = useState(props.eos_account);
+    const [authority, setAuthority]    = useState(props.authority||'owner');
     const [is_admin, setIsAdmin]       = useState(props.isAdmin);
-    
+    const [onEvent, setOnEvent]        = useState(props.onEvent);    
+
+    useEffect(() => {
+        setOnEvent(props.onEvent);
+    }, [props.onEvent]);
 
     useEffect(() => {
         setAccount(props.account);
+    }, [props.account]);
+
+    useEffect(() => {
         setEosAccount(props.eos_account);
-        setOnEvent(props.onEvent||null);
-        setLoading(props.loading||false);
-        setAuthority(props.authority||'owner');
+    }, [props.eos_account]);
+
+    useEffect(() => {
+        setLoading(props.loading);
+    }, [props.loading]);
+
+    useEffect(() => {
+        setAuthority(props.authority);
+    }, [props.authority]);
+
+    useEffect(() => {
         setIsAdmin(props.isAdmin);
-    });
+    }, [props.isAdmin]);
+
+    const [confirm_role_delete, setConfirm_role_delete]  = useState('');
+    const [delete_text, setDeleteText]  = useState('');
+    const [new_text, setNewText]  = useState('');
+    const [reload_text, setReloadText]  = useState('');
+    useEffect(() => {
+      setConfirm_role_delete( props.intl.formatMessage({id:'components.Views.roles.delete_role'}) );
+      setDeleteText( props.intl.formatMessage({id:'components.Views.roles.delete'}) );
+      setNewText( props.intl.formatMessage({id:'components.Views.roles.new'}) );
+      setReloadText( props.intl.formatMessage({id:'components.Views.roles.reload'}) );
+    }, []);
 
     const fireEvent = (eventType, object) => {
       if(typeof onEvent === 'function') {
@@ -38,16 +63,25 @@ const AccountRolesView = (props) => {
       }
     }
     const tabChange = (authority) => {
-      // console.log(tab_key);
-      // setAuthority(tab_key);
       fireEvent(ENUM_AUTHORITY_CHANGE, authority); 
     }
 
+    // content: (<p>You are about to remove <b>{permission_actor}@{permission_permission}</b> from <b>{account.key}</b> <i>{permission_name}</i> authority's list. Continue or cancel.</p>),
+        
     const onDeletePermission = (permission_name, permission_actor, permission_permission ) => {
       Modal.confirm({
-        title: 'Confirm account role deletion',
-        content: (<p>You are about to remove <b>{permission_actor}@{permission_permission}</b> from <b>{account.key}</b> <i>{permission_name}</i> authority's list. Continue or cancel.</p>),
-        onOk() {
+        title: confirm_role_delete
+        , content: (<InjectMessage 
+                      id="components.Views.roles.delete_role_message"
+                      values={ {
+                                permission_actor:         permission_actor
+                                , permission_permission:  permission_permission
+                                , account_key:            account.key
+                                , permission_name:        permission_name
+                                , bold: (str) => <b>{str}</b>
+                                , italic: (str) => <i>{str}</i>
+                        }} />)
+        , onOk() {
           fireEvent(ENUM_EVENT_DELETE_PERMISSION, 
           {
             permission: {
@@ -56,10 +90,8 @@ const AccountRolesView = (props) => {
               permission : permission_permission
             }
           });          
-        },
-        onCancel() {
-          
-        },
+        }
+        , onCancel() {},
       });
 
     }
@@ -78,7 +110,7 @@ const AccountRolesView = (props) => {
       console.log(' roles-view: cant show component. account:', account, '-------- eos_account:', eos_account)
       return (null);
     }
-    console.log(' roles-view: YES show component.')
+    // console.log(' roles-view: YES show component.')
     const {account_type}  = account;
     const my_permisssions = globalCfg.bank.getPermsForAccountType(account_type);
     
@@ -102,7 +134,7 @@ const AccountRolesView = (props) => {
                 <List.Item
                   actions={[<a  key={"delete-"+item.permission.actor+item.permission.permission} 
                                 onClick={() => onDeletePermission(authority, item.permission.actor, item.permission.permission )}
-                              disabled={item.permission.actor==globalCfg.bank.issuer}>DELETE</a>]}
+                              disabled={item.permission.actor==globalCfg.bank.issuer}>{delete_text}</a>]}
                 >
                   <Skeleton avatar title={false} loading={item.loading} active>
                     <List.Item.Meta
@@ -127,12 +159,12 @@ const AccountRolesView = (props) => {
               <Card 
                 key={'card_master'}
                 style = { { marginBottom: 24 } } 
-                extra = {[<Button key="_new_perm" size="small" icon="plus" onClick={() => onNewPermission()}> New</Button>,
-                          <Button key="_reload_perm" size="small" icon="reload" onClick={() => onReloadPermission()} style={{marginLeft:8}}> Reload</Button>]}
+                extra = {[<Button key="_new_perm" size="small" icon="plus" onClick={() => onNewPermission()}> {new_text}</Button>,
+                          <Button key="_reload_perm" size="small" icon="reload" onClick={() => onReloadPermission()} style={{marginLeft:8}}> {reload_text}</Button>]}
                 tabList={my_permisssions.map(perm=>{
                   return {key: perm
                           , tab: (
-                            <span>{utils.capitalize(perm)}</span>
+                            <span><InjectMessage id={`components.Views.roles.${perm}`} /></span>
                           )}
           
                 })}
@@ -153,5 +185,5 @@ export default connect(
     (state)=> ({
       isAdmin:           loginRedux.isAdmin(state),
     })
-)(AccountRolesView)
+)(injectIntl(AccountRolesView))
 

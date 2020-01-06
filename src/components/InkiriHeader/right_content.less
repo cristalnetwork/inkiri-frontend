@@ -1,18 +1,123 @@
 @import '~antd/es/style/themes/default.less';
+@global-header-prefix-cls: ~'@{ant-prefix}-pro-global-header';
 
-@pro-header-hover-bg: rgba(0, 0, 0, 0.025);
+@pro-header-bg: @component-background;
+@pro-header-hover-bg: @component-background;
+@pro-header-box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
 
-.logo {
+.filter_form.primary{
+  border: 1px solid @primary-color;
+}
+
+/* color source: https://colorhunt.co/palette/161920*/
+@admin-color:      #4B515D;
+@personal-color:   #413c69;
+@business-color:   #745c97;
+@foundation-color: #b21f66;
+
+/*
+rgb(100, 52, 32)
+rgb(255, 200, 40)
+rgb(108, 84, 163)
+rgb(0, 155, 100)
+rgb(0, 160, 221)
+rgb(241, 86, 47)
+rgb(238, 31, 56)
+rgb(112, 191, 86)
+rgb(0, 180, 147)
+rgb(237, 28, 36)
+*/
+
+.logo_extra{
   display: inline-block;
-  height: @layout-header-height;
-  padding: 0 0 0 24px;
-  font-size: 20px;
-  line-height: @layout-header-height;
+  /*height: @layout-header-height ;*/
+  min-height: 120px;
+  height: auto;
+  line-height: 20px;
+  padding: 0 0 0 0px;
+  font-size: 14px;
+  
   vertical-align: top;
   cursor: pointer;
   
   width:100%;
   border-bottom: 1px #f0f2f5 solid;
+
+  
+  &.bankadmin{
+    .menu_balance_wrapper{
+      background-color:@admin-color;
+    }
+  }
+  &.personal{
+    .menu_balance_wrapper{
+      background-color:@personal-color;
+    }
+  }
+  &.business{
+    .menu_balance_wrapper{
+      background-color:@business-color;
+    }
+  }
+  &.foundation{
+    .menu_balance_wrapper{
+      background-color:@foundation-color;
+    }
+  }
+  color:#fff;
+  button{
+    font-size: 18px;
+    padding: 0px 4px;
+    color:rgba(255, 255, 255, 0.9);
+    &:hover{
+    color:rgba(255, 255, 255, 1);
+    }
+  }
+  
+}
+
+.menu_account_selected.admin{
+  color:@admin-color;
+}
+.menu_account_selected.personal{
+  color:@personal-color;
+}
+.menu_account_selected.business{
+  color:@business-color;
+}
+.menu_account_selected.foundation{
+  color:@foundation-color;
+}
+
+.logo {
+  display: inline-block;
+  height: @layout-header-height;
+  line-height: @layout-header-height;
+  padding: 0 0 0 24px;
+  font-size: 20px;
+  
+  vertical-align: top;
+  cursor: pointer;
+  
+  width:100%;
+  border-bottom: 1px #f0f2f5 solid;
+
+  &.logo_mobile{
+    padding-top:10px;
+    height: 130px;
+    line-height: 130px;
+    display:flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column!important;
+    .accountSelector{
+      height: 50px;
+      line-height: 50px;
+    }
+    a{
+      height:60px;
+    }
+  }  
 
   a{
     color:inherit;
@@ -21,10 +126,14 @@
     justify-content: flex-start;
     flex-direction: row!important;
   
-    img {
-      
-      width:32px;
-      height:32px;
+    .img_container
+    {
+      flex:1;
+      img {
+          
+          width:32px;
+          height:32px;
+        }
     }
     span{
       text-align: left;
@@ -56,6 +165,7 @@
   }
 }
 
+/*
 .right {
   float: right;
   height: 100%;
@@ -93,6 +203,7 @@
     }
   }
 }
+*/
 
 .dark {
   height: @layout-header-height;

@@ -1,6 +1,6 @@
 import * as globalCfg from '@app/configs/global';
-import * as eosHelper from './eosHelper.js';
-import * as jwtHelper from './jwtHelper';
+import * as eosHelper from './eos-helper.js';
+import * as jwtHelper from './jwt-helper';
 
 export const isAuth = () => {
   return jwtHelper.getTokenIfNotExpired(jwtHelper.BANK_AUTH_TOKEN_KEY)!==null;
@@ -86,7 +86,7 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
 
 
       } , (error) => {
-        console.log('---- RES:', JSON.stringify(error));
+        console.log('---- ERROR:', JSON.stringify(error));
         rej({error:error})
       });
     }, (ex) => {
@@ -105,7 +105,7 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
 * Requests functions
 *
 */
-export const listMyRequests = (account_name, page, limit, request_type) =>   new Promise((res,rej)=> {
+export const listMyRequests = (account_name, page, limit, request_type, to) =>   new Promise((res,rej)=> {
   
   console.log(' BANKAPI::LIST MY REQUESTS>> account_name:', account_name
   , '| page: ', page, ' | limit:', limit, ' | request_type: ', request_type );
@@ -115,6 +115,8 @@ export const listMyRequests = (account_name, page, limit, request_type) =>   new
   query=query+'&limit='+(limit||10);
   if(account_name)
     query=query+'&from='+account_name;
+  if(to)
+    query=query+'&to='+to;
   if(request_type!== undefined)
     query=query+'&requested_type='+request_type;
 
@@ -176,7 +178,6 @@ export const getRequestByCounter = (counter) =>   new Promise((res,rej)=> {
       });
 });
 
-
 export const createDeposit = (account_name, amount, currency) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.endpoint + '/requests';
@@ -199,11 +200,39 @@ export const createDeposit = (account_name, amount, currency) =>   new Promise((
       });
 });
 
-export const setDepositOk = (sender, request_id, tx_id) =>  updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED , tx_id);
+export const setDepositOk   = (sender, request_id, tx_id)       => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED , tx_id   , undefined, false, REQUEST_ADMIN);
+export const rejectService  = (sender, c2c_player, request_id)  => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, true, c2c_player);
+export const cancelService  = (sender, c2c_player, request_id)  => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, true, c2c_player);
+export const acceptServiceRequest = (sender, request_id, c2c_player, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, tx_id, undefined, true, c2c_player);
+export const failedWithdraw = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, false);
+export const failedProviderPay = (sender, request_id)           => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, false);
 
-export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id) => new Promise((res,rej)=> {
-  
-  const path    = globalCfg.api.endpoint + `/requests/${request_id}`;
+export const updatePaymentRequest = (sender, request_id, c2c_player, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, tx_id, undefined, true, c2c_player);
+export const rejectPaymentRequest = (sender, request_id, c2c_player)        => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, true, c2c_player);
+
+export const REQUEST_SENDER   = 'request_sender';
+export const REQUEST_RECEIVER = 'request_receiver';
+export const REQUEST_ADMIN    = 'request_admin';
+
+export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id, is_C2C, c2c_player) => new Promise((res,rej)=> {
+ 
+  let module  = 'requests';
+  if(is_C2C && c2c_player)
+  {
+    // 'requests_c2c'
+    const endpoint_options = {
+        [REQUEST_SENDER]:     'requests_c2c_by_sender'
+        , [REQUEST_RECEIVER]: 'requests_c2c_by_receiver'
+        , [REQUEST_ADMIN]:    'requests_c2c_by_admin'};
+    module = endpoint_options[c2c_player]    
+  }
+  else{
+    if(!is_C2C && c2c_player==REQUEST_ADMIN){
+      module = 'requests_admin';    
+    }
+  }
+
+  const path    = globalCfg.api.endpoint + `/${module}/${request_id}`;
   const method  = 'PATCH';
   let post_params = {
     _id:      request_id,
@@ -341,24 +370,24 @@ export const getProfile = (account_name) =>   new Promise((res,rej)=> {
       });
 });
 
-export const createUser = (account_name, account_type) =>   new Promise((res,rej)=> {
+// export const createUser = (account_name, account_type) =>   new Promise((res,rej)=> {
   
-  const path    = globalCfg.api.endpoint + '/users';
-  const method  = 'POST';
-  const post_params = {
-          'account_name':  account_name
-          , 'account_type': account_type
-          , 'email':       `${account_name}@inkiri.com`
-        };
-  jwtHelper.apiCall(path, method, post_params)
-    .then((data) => {
-        // console.log(' inkiriApi::createUser >> RESPONSE', JSON.stringify(data))
-        res(data)
-      }, (ex) => {
-        // console.log(' inkiriApi::createUser >> ERROR ', JSON.stringify(ex))
-        rej(ex);
-      });
-});
+//   const path    = globalCfg.api.endpoint + '/users';
+//   const method  = 'POST';
+//   const post_params = {
+//           'account_name':  account_name
+//           , 'account_type': account_type
+//           , 'email':       `${account_name}@inkiri.com`
+//         };
+//   jwtHelper.apiCall(path, method, post_params)
+//     .then((data) => {
+//         // console.log(' inkiriApi::createUser >> RESPONSE', JSON.stringify(data))
+//         res(data)
+//       }, (ex) => {
+//         // console.log(' inkiriApi::createUser >> ERROR ', JSON.stringify(ex))
+//         rej(ex);
+//       });
+// });
 
 export const createOrUpdateUser = (id, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias, bank_accounts) =>   new Promise((res,rej)=> {  
 
@@ -416,15 +445,14 @@ export const updateUserBankAccounts = (id,  bank_accounts) =>   new Promise((res
 /*
 * Services section
 */
-export const getServices = (account_name, page, limit, filter) =>   new Promise((res,rej)=> {
+export const getServices = (page, limit, filter) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.endpoint + '/services';
   const method  = 'GET';
   
   let qs = {
       page         : (page||0)
-      , limit      : (limit||10),
-      account_name : account_name
+      , limit      : (limit||10)
     };
   if(filter)
     qs = { ...qs , ...filter};
@@ -516,23 +544,23 @@ export const getTeam = (account_name) =>   new Promise((res,rej)=> {
 
 });
 
-export const getJobPositions = () =>   new Promise((res,rej)=> {  
-  const path    = globalCfg.api.endpoint + '/teams_positions';
-  const method  = 'GET';
-  auth()
-    .then((token) => {
-      jwtHelper.apiCall(path, method)
-        .then((data) => {
-            console.log(' inkiriApi::getJobPositions >> RESPONSE', JSON.stringify(data))
-            res(data)
-          }, (ex) => {
-            console.log(' inkiriApi::getJobPositions >> ERROR ', JSON.stringify(ex))
-            rej(ex);
-          });
-    }, (ex) => {
-        rej(ex);
-    });
-});
+// export const getJobPositions = () =>   new Promise((res,rej)=> {  
+//   const path    = globalCfg.api.endpoint + '/teams_positions';
+//   const method  = 'GET';
+//   auth()
+//     .then((token) => {
+//       jwtHelper.apiCall(path, method)
+//         .then((data) => {
+//             console.log(' inkiriApi::getJobPositions >> RESPONSE', JSON.stringify(data))
+//             res(data)
+//           }, (ex) => {
+//             console.log(' inkiriApi::getJobPositions >> ERROR ', JSON.stringify(ex))
+//             rej(ex);
+//           });
+//     }, (ex) => {
+//         rej(ex);
+//     });
+// });
 
 export const createOrUpdateTeam = (teamId, account_name, members) =>   new Promise((res,rej)=> {  
 
@@ -648,9 +676,10 @@ export const listRequestsForProvider = (page, limit, provider_id) =>   new Promi
   });
 });
 
-export const refundWithdrawRequest      = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, tx_id);
-export const acceptWithdrawRequest      = (sender, request_id)               => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, undefined, undefined);
-export const updateWithdraw = (sender, request_id, state, tx_id)             => updateRequest(sender, request_id, state, tx_id);
+export const refundWithdrawRequest  = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, tx_id, false, REQUEST_ADMIN);
+export const acceptWithdrawRequest  = (sender, request_id)               => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, undefined, undefined, false, REQUEST_ADMIN);
+export const updateWithdraw         = (sender, request_id, tx_id)        => updateRequest(sender, request_id, undefined, tx_id);
+
 export const createWithdraw = (account_name, amount) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.endpoint + '/requests';
@@ -675,38 +704,19 @@ export const createWithdraw = (account_name, amount) =>   new Promise((res,rej)=
   });
   
 });
-// export const createProviderPayment = (account_name, amount, provider_id) =>   new Promise((res,rej)=> {  
-//   const path    = globalCfg.api.endpoint + '/requests';
-//   const method  = 'POST';
-//   const post_params = {
-//           'from':               account_name
-//           , 'requested_type':   globalCfg.api.TYPE_PROVIDER
-//           , 'amount':           Number(amount).toFixed(2)
-//           , 'provider':         provider_id
-//         };
-//   console.log(' inkiriApi::createProviderPayment >> ABOUT TO POST', JSON.stringify(post_params))
-//   jwtHelper.apiCall(path, method, post_params)
-//     .then((data) => {
-//         console.log(' inkiriApi::createProviderPayment >> RESPONSE', JSON.stringify(data))
-//         res(data)
-//       }, (ex) => {
-//         console.log(' inkiriApi::createProviderPayment >> ERROR ', JSON.stringify(ex))
-//         rej(ex);
-//       });
-// });
 
-export const createProviderPaymentEx = (account_name, amount, provider_id, values_array, attachments) =>   new Promise((res,rej)=> {
+export const createProviderPaymentEx = (account_name, amount, provider_id, provider_extra, attachments) =>   new Promise((res,rej)=> {
   
-  delete values_array['provider']; // Hack :(
+  // delete values_array['provider']; // Hack :(
   const path    = globalCfg.api.endpoint + '/requests_files';
   const method  = 'POST';
   const post_params = {
-          ...values_array
-          , 'from':             account_name
+          // ...values_array
+          'from':             account_name
           , 'requested_type':   globalCfg.api.TYPE_PROVIDER
           , 'amount':           Number(amount).toFixed(2)
           , 'provider':         provider_id
-          
+          , 'provider_extra':   provider_extra
         };
 
   let formData = new FormData();
@@ -756,16 +766,20 @@ export const createProviderPaymentEx = (account_name, amount, provider_id, value
     );
 });
 
-export const refundExternal             = (sender, request_id, state, tx_id)       => updateRequest(sender, request_id, state, undefined, tx_id);
-export const updateProviderPayment      = (sender, request_id, state, tx_id)       => updateRequest(sender, request_id, state, tx_id);
+export const refundExternal             = (sender, request_id, state, tx_id)       => updateRequest(sender, request_id, state, undefined, tx_id, false, REQUEST_ADMIN);
+export const updateProviderPayment      = (sender, request_id, tx_id)              => updateRequest(sender, request_id, undefined, tx_id);
 export const cancelExternal             = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined);
-export const processExternal            = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_PROCESSING, undefined);
-export const acceptExternal             = (sender, request_id, attachments)        => updateExternal(sender, request_id, globalCfg.api.STATE_ACCEPTED, attachments);
-export const updateExternalFiles        = (sender, request_id, state, attachments) => updateExternal(sender, request_id, state, attachments);
 
+export const processExternal            = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_PROCESSING, undefined, undefined, false, REQUEST_ADMIN);
+export const acceptExternal             = (sender, request_id, attachments)        => updateExternal(sender, request_id, globalCfg.api.STATE_ACCEPTED, attachments, true);
+
+export const updateExternalFiles        = (sender, request_id, state, attachments) => updateExternal(sender, request_id, state, attachments);
+export const updateExternalFilesAdmin   = (sender, request_id, state, attachments) => updateExternal(sender, request_id, state, attachments, true);
 //export const updateExternal             = (sender, request_id, request_type, state, attachments) =>   new Promise((res,rej)=> {
-export const updateExternal             = (sender, request_id, state, attachments) =>   new Promise((res,rej)=> {  
-  const path    = globalCfg.api.endpoint + `/requests_files/${request_id}`;
+export const updateExternal             = (sender, request_id, state, attachments, is_admin) =>   new Promise((res,rej)=> {  
+
+  const module  = (is_admin===true)?'requests_files_admin':'requests_files';
+  const path    = globalCfg.api.endpoint + `/${module}/${request_id}`;
   const method  = 'POST';
   let post_params = {
     state:            state,
@@ -773,6 +787,7 @@ export const updateExternal             = (sender, request_id, state, attachment
     sender:           sender
   };
 
+  console.log(' -- PROCESS EXTERNAL:', path)
   let formData = new FormData();
 
   formData.append('request', JSON.stringify(post_params));
@@ -847,8 +862,8 @@ export const createExchangeRequest      = (account_name, amount, bank_account, a
 
   const bearer_token = jwtHelper.getBearerTokenByKey();
       
-  fetch(globalCfg.api.endpoint + '/requests_files', { // Your POST endpoint
-      method: 'POST',
+  fetch(path, { // Your POST endpoint
+      method: method,
       headers: {
         Authorization: bearer_token
       },
@@ -891,8 +906,34 @@ export const createExchangeRequest      = (account_name, amount, bank_account, a
       */
 });
 
-export const updateExchangeRequest      = (sender, request_id, state, tx_id) => updateRequest(sender, request_id, state, tx_id);
+export const updateExchangeRequest      = (sender, request_id, tx_id) => updateRequest(sender, request_id, undefined, tx_id);
 
+export const createMoneyRequest = (sender, request_type, requested, amount, memo) =>   new Promise((res,rej)=> {
+    
+  const path    = globalCfg.api.endpoint + '/requests';
+  const method  = 'POST';
+  const post_params = {
+          'from':               sender
+          , 'requested_type':   request_type
+          , 'amount':           Number(amount).toFixed(2)
+          , 'description':      memo
+          , 'to':               requested
+          
+        };
+
+  auth()
+    .then((token) => {
+      jwtHelper.apiCall(path, method, post_params)
+        .then((data) => {
+            res(data)
+          }, (ex) => {
+            rej(ex);
+          });
+  }, (ex) => {
+      rej(ex);
+  });
+  
+});
 
 export const processIuguInvoiceById = (iugu_invoice_id) =>   new Promise((res,rej)=> {
   
@@ -944,3 +985,37 @@ export const listIuguInvoices = (page, limit, filter) =>   new Promise((res,rej)
         rej(ex);
       });
 });
+
+/* ***************************************************************** */
+/* SERVICES ******************************************************** */
+
+export const sendServiceRequest = (provider, customer_name, service, begins_at, expires_at) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.endpoint + '/requests';
+  const method  = 'POST';
+  const post_params = {
+          'requested_type':     globalCfg.api.TYPE_SERVICE
+          , 'from':             provider.account_name
+          // , 'requested_by':     provider._id
+          , 'to':               customer_name
+          , 'service_id':       service._id
+          , 'service_extra':   {
+                                  'begins_at':         begins_at
+                                  , 'expires_at':       expires_at
+                                }
+          // , 'to':               customer.account_name
+          // , 'requested_to':     customer._id
+          
+        };
+  console.log(' inkiriApi::sendServiceRequest >> ABOUT TO POST', JSON.stringify(post_params))
+  jwtHelper.apiCall(path, method, post_params)
+    .then((data) => {
+        console.log(' inkiriApi::sendServiceRequest >> RESPONSE', JSON.stringify(data))
+        res(data)
+      }, (ex) => {
+        console.log(' inkiriApi::sendServiceRequest >> ERROR ', JSON.stringify(ex))
+        rej(ex);
+      });
+});
+
+

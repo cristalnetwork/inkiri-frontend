@@ -1,22 +1,11 @@
 import React, {Component} from 'react'
-import { Alert, Upload, Tag, Spin, Icon, Autocomplete, Button, message } from 'antd';
+import { Alert } from 'antd';
 
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
-import * as api from '@app/services/inkiriApi';
 
-import debounce from 'lodash/debounce';
-
-// import './style.less'; 
-
-import * as utils from '@app/utils/utils';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-import * as request_helper from '@app/components/TransactionCard/helper';
 import TransactionHeader from '@app/components/TransactionCard/header';
 import TransactionTypeAndAmount from '@app/components/TransactionCard/type_and_amount';
 import TransactionPetitioner from '@app/components/TransactionCard/petitioner';
@@ -24,13 +13,13 @@ import TransactionProvider from '@app/components/TransactionCard/provider';
 import TransactionBlockchain from '@app/components/TransactionCard/blockchain';
 import TransactionAttachments from '@app/components/TransactionCard/attachments';
 import TransactionEnvelope from '@app/components/TransactionCard/envelope';
+import NameValueIcon from '@app/components/TransactionCard/name_value_icon';
 
 import TransactionBankAccount from '@app/components/TransactionCard/bank_account';
 
-const { Dragger } = Upload;
+import ServiceCard from '@app/components/TransactionCard/service_card';
 
-// const icon_color_default = '#1890ff';
-// const icon_color_green   = '#3db389';
+import { FormattedMessage, injectIntl } from "react-intl";
 
 /*
 * ToDo: We should re read https://github.com/ant-design/ant-design/blob/master/components/form/demo/customized-form-controls.md
@@ -66,22 +55,27 @@ class TransactionCard extends Component {
   }
   
   getAlert(request){
-    if(globalCfg.api.isProcessing(request) && globalCfg.api.isProviderPayment(request) && this.props.isAdmin)
-      return ( <Alert
-                  message="Bank transfer required!"
-                  description={(<>
-                      <span>Please complete the following tasks required for this operation:</span>
-                      <br/><span>1.- Log into your Commercial Bank online service and proceed to send the money by wire transfer.</span>
-                      <br/><span>2.- Attach a copy of the bank transfer voucher/receipt pdf file.</span>
-                      <br/><span>3.- Press 'Finish' button</span>
-                    </>)} 
+
+    if(!(globalCfg.api.isProcessing(request) 
+          && (globalCfg.api.isProviderPayment(request) || globalCfg.api.isExchange(request) )
+          && this.props.isAdmin))
+      return (null);
+
+    const {formatMessage, formatHTMLMessage} = this.props.intl;
+    return ( <Alert
+                  message={ formatMessage({id:'components.TransactionCard.index.bank_transfer_required'}) }
+                  description={ <>
+                      <FormattedMessage tagName="span" id="components.TransactionCard.index.bank_transfer_description_1"  />
+                      <br/><FormattedMessage tagName="span" id="components.TransactionCard.index.bank_transfer_description_2"  />
+                      <br/><FormattedMessage tagName="span" id="components.TransactionCard.index.bank_transfer_description_3"  />
+                   </> } 
                   type="warning"
                   style={{marginTop: '24px'}}
                   banner
                   closable
                   showIcon
               />)
-    return (null);
+    
   }
 
   render() {
@@ -90,7 +84,9 @@ class TransactionCard extends Component {
     if(!request)
       return(<></>);
     //
-    const alert = this.getAlert(request);
+    const { formatMessage }   = this.props.intl;
+    const alert               = this.getAlert(request);
+    const __blockchain_title  = globalCfg.api.isService(request)?formatMessage({id:'components.TransactionCard.index.response_transaction'}):null;
     return (
       <>
       {alert}
@@ -101,17 +97,32 @@ class TransactionCard extends Component {
           
           <TransactionTypeAndAmount request={request}/>
 
-          <TransactionPetitioner profile={request.requested_by}/>
+          <TransactionPetitioner profile={request.requested_by} title="Requested by" />
+
+          {
+            request.requested_to && 
+            <TransactionPetitioner title={formatMessage({id:'components.TransactionCard.index.requested_to'})} profile={request.requested_to}/>
+          }
           
+          {
+            request.description 
+            && <NameValueIcon name={formatMessage({id:'components.TransactionCard.index.message'})} value={request.description} icon="comment" />
+          }
           <TransactionEnvelope request={request} />
           
           {
-            (globalCfg.api.isExchange(request))?
-            (<TransactionBankAccount bank_account={bank_account} alone_component={false} />)
-            :(<TransactionProvider request={request}/>)
+            (globalCfg.api.isExchange(request))
+              ?(<TransactionBankAccount bank_account={bank_account} alone_component={false} />)
+              :(<TransactionProvider request={request}/>)
+          }
+
+          {
+            (globalCfg.api.isService(request))?
+            (<ServiceCard request={request} />)
+            :(null)
           }
           
-          <TransactionBlockchain request={request}/>
+          <TransactionBlockchain request={request} title={__blockchain_title}/>
           
           <TransactionAttachments request={request} uploader={uploader}/>
           
@@ -120,8 +131,6 @@ class TransactionCard extends Component {
   }
 
 }
-
-// export default (TransactionCard)
 
 export default (connect(
     (state)=> ({
@@ -133,7 +142,6 @@ export default (connect(
         isBusiness:         loginRedux.isBusiness(state)
     }),
     (dispatch)=>({
-        // isAdmin:    bindActionCreators(loginRedux.isAdmin, dispatch),
-        // isBusiness: bindActionCreators(loginRedux.isBusiness, dispatch)
+
     })
-)(TransactionCard) );
+)( injectIntl(TransactionCard) ) );

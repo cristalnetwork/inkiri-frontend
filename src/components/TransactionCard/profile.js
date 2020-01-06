@@ -1,18 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, Dropdown, Button, Icon, message } from 'antd';
+import React from 'react';
 import { connect } from 'react-redux'
-// import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import InjectMessage from "@app/components/intl-messages";
 
 const TransactionProfile = ({profile}) => {
     
     const printAddress = () => {
       if(profile.address)
         return Object.values(profile.address).join(', ')
-      return 'N/A'
+      return <InjectMessage id="global.no_data" />
     }
 
     const is_business = globalCfg.bank.isBusinessAccount(profile);
@@ -30,6 +27,7 @@ const TransactionProfile = ({profile}) => {
                     </div>
                     <div className="ui-row__col ui-row__col--content">
                           <div className="ui-info-row__content">
+                              <div className="ui-info-row__label"><InjectMessage id="components.Forms.profile.email_desc" /></div>
                               <div className="ui-info-row__title">{profile.email}</div>
                           </div>
                       </div>
@@ -48,6 +46,7 @@ const TransactionProfile = ({profile}) => {
                     </div>
                     <div className="ui-row__col ui-row__col--content">
                           <div className="ui-info-row__content">
+                              <div className="ui-info-row__label"><InjectMessage id="components.Forms.profile.cpf_desc" /></div>
                               <div className="ui-info-row__title">{profile.legal_id}</div>
                           </div>
                       </div>
@@ -63,6 +62,7 @@ const TransactionProfile = ({profile}) => {
                     </div>
                     <div className="ui-row__col ui-row__col--content">
                           <div className="ui-info-row__content">
+                              <div className="ui-info-row__label"><InjectMessage id="components.Forms.profile.phone_desc" /></div>
                               <div className="ui-info-row__title">{profile.phone}</div>
                           </div>
                       </div>
@@ -78,6 +78,7 @@ const TransactionProfile = ({profile}) => {
                     </div>
                     <div className="ui-row__col ui-row__col--content">
                           <div className="ui-info-row__content">
+                              <div className="ui-info-row__label"><InjectMessage id="components.Forms.profile.address_desc" /></div>
                               <div className="ui-info-row__title">{printAddress()}</div>
                           </div>
                       </div>

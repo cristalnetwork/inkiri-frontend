@@ -2,38 +2,50 @@ import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import * as balanceRedux from '@app/redux/models/balance'
 import { bindActionCreators } from 'redux';
-import { Spin } from 'antd';
-
+import { Spin, Button } from 'antd';
+import * as globalCfg from '@app/configs/global';
 
 class UserBalance extends Component  {
     
+    constructor(props) {
+        super(props);
+        this.state = {
+          balance         : props.balance,
+          showCurrency    : props.showCurrency||false     
+        }
+      }
+
     componentDidMount() {
-        const {userId, loadBalance} = this.props;
-        // console.log(' >> userBalance::componentDidMount userId: ', userId)
-        loadBalance(userId);
+        this.reloadBalance();
     }
 
     componentDidUpdate(prevProps, prevState) 
     {
-        const {userId, loadBalance} = this.props;
+        const {userId, balance, loadBalance} = this.props;
         if(prevProps.userId !== userId) {
             loadBalance(userId)
         }
+        if(prevProps.balance !== balance) {
+          this.setState({balance:balance})
+        }
     }
-    // componentWillReceiveProps(newProps) {
-    //     const {userId, loadBalance} = this.props;
-    //     if(newProps.userId !== userId) {
-    //         loadBalance(newProps.userId)
-    //     }
-    // }
+
+    reloadBalance = async() =>{
+      const {userId, loadBalance} = this.props;
+      loadBalance(userId);
+    }
     
     render() {
-        const {userId, balance, loading} = this.props;
-        // console.log(' >> userBalance::render userID: ', userId, ' | balance: ', balance)
+        const {loading}         = this.props;
+        const {balance, showCurrency}   = this.state;
+        const currency                  = showCurrency
+            ?(<span className="menu_balance_currency">{globalCfg.currency.symbol}&nbsp;</span>)
+            :(null);
+        //
         return (
         <>
             {
-                loading? <Spin size={'small'} />: <b>{balance}</b>
+                loading? <Spin size={'small'} />: <Button type="link" onClick={() => {this.reloadBalance()}}>{currency}<b>{balance}</b></Button>
             }
         </>
         )
@@ -42,7 +54,7 @@ class UserBalance extends Component  {
 
 export default connect(
     (state)=> ({
-        balance:   balanceRedux.userBalanceFormatted(state),
+        balance:   balanceRedux.userBalanceNoOftFormatted(state),
         loading:   balanceRedux.isLoading(state),
     }),
     (dispatch) => ({

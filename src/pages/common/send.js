@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -6,26 +6,27 @@ import { bindActionCreators } from 'redux';
 import * as accountsRedux from '@app/redux/models/accounts'
 import * as loginRedux from '@app/redux/models/login';
 import * as balanceRedux from '@app/redux/models/balance';
+import * as apiRedux from '@app/redux/models/api';
+import * as graphqlRedux from '@app/redux/models/graphql'
 
-import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
 import * as utils from '@app/utils/utils';
-
-import PropTypes from "prop-types";
 
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
+import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
-import { Select, PageHeader, Button, Spin, Modal} from 'antd';
-import { notification, Form, Icon, InputNumber, Input, AutoComplete } from 'antd';
+import { Select, PageHeader, Button, Spin, Modal, Form, Input } from 'antd';
 
 import TxResult from '@app/components/TxResult';
 import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import { injectIntl } from "react-intl";
 
 const DEFAULT_RESULT = {
   result:             undefined,
@@ -46,31 +47,66 @@ class SendMoney extends Component {
     super(props);
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
-      pushingTx:           false,
-      
+      isFetching:          props.isFetching,
+      transferReasons:     props.transferReasons,
       ...DEFAULT_STATE,
       ...DEFAULT_RESULT,
 
       receipt:             '',
-
+      intl:                {}
     };
 
     this.onSelect                   = this.onSelect.bind(this); 
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetResult                = this.resetResult.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.onInputAmount              = this.onInputAmount.bind(this);
     this.handleChange               = this.handleChange.bind(this);
     this.handleMessageChange        = this.handleMessageChange.bind(this);
   }
 
-  static propTypes = {
-    match: PropTypes.object,
-    location: PropTypes.object,
-    history: PropTypes.object
-  };
+  componentDidMount(){
+    const {formatMessage} = this.props.intl;
+    
+    const select_transfer_reason_text = formatMessage({id:'pages.common.send.business.select_transfer_reason_text'});
+    const select_transfer_reason_placeholder = formatMessage({id:'pages.common.send.business.select_transfer_reason_placeholder'});
+    const error_cant_form_validation = formatMessage({id:'pages.common.send.error_cant_form_validation'});
+    const valid_amount_required = formatMessage({id:'pages.common.send.valid_amount_required'});
+    const valid_amount_required_description = formatMessage({id:'pages.common.send.valid_amount_required_description'});
+    const select_transfer_reason_validation = formatMessage({id:'pages.common.send.business.select_transfer_reason_validation'});
+    const confirm_payment  = formatMessage({id:'pages.common.send.confirm_payment'});
+    const confirm_transfer = formatMessage({id:'pages.common.send.confirm_transfer'});
+    const valid_number_required_description = formatMessage({id:'pages.common.send.valid_number_required_description'})
+    const amount_text = formatMessage({id:'global.amount'})
+    const amount_validation = formatMessage({id:'pages.common.send.amount_validation'});
+    const memo = formatMessage({id:'global.memo'});
+    const memo_message = formatMessage({id:'global.memo_message'});
+    const action_send = formatMessage({id:'pages.common.send.action_send'});
+    const title = formatMessage({id:'pages.common.send.title'});
+    const subtitle = formatMessage({id:'pages.common.send.subtitle'});
+
+    this.setState({intl:{title, subtitle, action_send, memo, memo_message, amount_validation, amount_text, select_transfer_reason_text, select_transfer_reason_placeholder, error_cant_form_validation, select_transfer_reason_validation, valid_amount_required, valid_amount_required_description, confirm_payment, confirm_transfer, valid_number_required_description}});
+
+  }
+  componentDidUpdate(prevProps, prevState) 
+  {
+    let new_state = {};
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+    if(!utils.arraysEqual(prevProps.getErrors, this.props.getErrors)){
+    }
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
+      const that = this;
+      setTimeout(()=> that.resetPage() ,100);
+    }
+    if(!utils.objectsEqual(prevProps.transferReasons, this.props.transferReasons) ){  
+      new_state = {...new_state, transferReasons:this.props.transferReasons}
+    }
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
+  }
 
   onSelect(value) {
     console.log('onSelect', value);
@@ -89,26 +125,25 @@ class SendMoney extends Component {
     });
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-
   backToDashboard = async () => {
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/extrato`
+      pathname: `/common/extrato`
     })
   }
 
   resetResult(){
     this.setState({...DEFAULT_RESULT});
-    
   }
 
   resetPage(){
     this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
+    if(this.autocompleteWidget)
+    {
+      const that = this;
+      setTimeout(()=> that.autocompleteWidget.reset() ,100);
+    }
+    this.props.form.setFieldsValue({'transfer_extra.message':''})
+    
   }
 
   userResultEvent = (evt_type) => {
@@ -122,11 +157,15 @@ class SendMoney extends Component {
   }
 
   renderTransferReason(){
+    const {transferReasons} = this.state;
+    if(!transferReasons)
+      return null;
     const option_type  = globalCfg.api.TRANSFER_REASON;
-    const option_types = globalCfg.api.getTransferReasons();
-    
-    const my_options = option_types[option_type];
-    
+    const my_options   = transferReasons.sort(function(a,b){ 
+      if(a.key.endsWith('another')) return 1;
+      if(b.key.endsWith('another')) return -1;
+      return a.value>b.value?1:-1;
+    });
     if(!my_options)
       return (<></>);
     //
@@ -135,20 +174,27 @@ class SendMoney extends Component {
     return (
       <Form.Item className="money-transfer__row">
           {getFieldDecorator( 'transfer_extra.'+option_type, {
-            rules: [{ required: true, message: 'Please select a '+ my_options.title}]
+            rules: [{ required: true, message: this.state.intl.select_transfer_reason_text}]
             , onChange: (e) => this.handleChange(e, option_type)
           })(
-            <Select placeholder={'Choose ' + my_options.title} optionLabelProp="label">
-            {my_options.options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.label}>{ opt.label } </Select.Option> )}
+            <Select placeholder={this.state.intl.select_transfer_reason_placeholder} optionLabelProp="label">
+            {my_options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.value}>{ opt.value } </Select.Option> )}
             </Select>
           )}
       </Form.Item>
     )
   }
+  
   //
-  onInputAmount(event){
-    event.preventDefault();
-    const the_value = event.target.value;
+
+  onInputAmount(param){
+    let the_value = param;
+    if(typeof param !== 'number' && typeof param !== 'string')
+    {
+      param.preventDefault();
+      the_value = param.target.value;
+    }
+    
     const _input_amount = this.state.input_amount;
     this.props.form.setFieldsValue({'input_amount.value':the_value})
     this.setState({input_amount: {..._input_amount, value: the_value}}, 
@@ -170,7 +216,7 @@ class SendMoney extends Component {
           this.setState({
                   input_amount : {
                     ...input_amount
-                    , style :         {fontSize: size, width:(digitCount * (size*0.6))+(symbolCount * (size*0.2)) }
+                    , style :       {fontSize: size, width:(digitCount * (size*0.6))+(symbolCount * (size*0.2)) }
                     , symbol_style: {fontSize:  (size*0.6)}
                   }
                 });
@@ -184,6 +230,7 @@ class SendMoney extends Component {
   }
 
   onPay = () => {
+    
     this.props.form.validateFields((err, values) => {
       if (err) {
         //
@@ -196,7 +243,8 @@ class SendMoney extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (err) {
-        //
+        components_helper.notif.errorNotification( this.state.intl.error_cant_form_validation ) ;
+        
         return;
       }
       this.doPayOrSend(values, false);
@@ -209,31 +257,28 @@ class SendMoney extends Component {
     
     if(isNaN(input_amount.value))
     {
-      this.openNotificationWithIcon("error", "Valid number required for amount","Please type a validnumber greater than 0!")    
+      components_helper.notif.errorNotification(this.state.intl.valid_amount_required, this.state.intl.valid_amount_required_description);
       return;
     }
     if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
     {
       const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-      this.openNotificationWithIcon("error", `Amount must be equal or less than balance ${balance_txt}!`); //`
+      const amount_le_balance_message = this.props.intl.formatMessage( { id:'pages.common.send.amount_le_balance_message'}, {balance:balance_txt});
+      components_helper.notif.errorNotification(amount_le_balance_message);
       return;
     }
 
     if(this.props.isBusiness && !(transfer_extra || transfer_extra[globalCfg.api.TRANSFER_REASON]))
     {
-      this.openNotificationWithIcon("error", 'Please choose a transfer reason.');
+      components_helper.notif.errorNotification(this.state.intl.select_transfer_reason_validation);
       return;
     }
-
-    console.log('Received values of form: ', values);
 
     const privateKey       = this.props.actualPrivateKey;
     const receiver         = values.receipt;
     const sender           = this.props.actualAccountName;
     const amount           = input_amount.value;
     let memo               = '';
-    console.log('transfer_extra:', JSON.stringify(transfer_extra))
-    console.log('message:',transfer_extra.message, ' | reason:', transfer_extra[globalCfg.api.TRANSFER_REASON])
     
     if(this.props.isBusiness)
     {  
@@ -244,34 +289,19 @@ class SendMoney extends Component {
       if(transfer_extra)
         memo = utils.cleanMemo(transfer_extra.message);
 
-    console.log('* memo:', memo);
+    const that                   = this;
+    const confirm_pay_tx_message = this.props.intl.formatMessage({id:'pages.common.send.confirm_pay_tx_message'}, {amount: this.inputAmountToString(), receiver:receiver});
     
-    const that         = this;
-
     Modal.confirm({
-      title: _pay?'Confirm payment':'Confirm money transfer',
-      content: 'Please confirm transfer for '+this.inputAmountToString() + ' to ' + receiver,
+      title:   _pay ? this.state.intl.confirm_payment:this.state.intl.confirm_transfer,
+      content: confirm_pay_tx_message,
       onOk() {
 
-              that.setState({pushingTx:true});
-              
-              const promise = _pay?api.sendPayment(sender, privateKey, receiver, amount, memo):api.sendMoney(sender, privateKey, receiver, amount, memo);
-              
-              promise
-              .then((data) => {
-                console.log(' SendMoney::send (then#1) >>  ', JSON.stringify(data));
-                that.setState({result:'ok', pushingTx:false, result_object:data});
-                that.openNotificationWithIcon("success", 'Transfer completed successfully');
-              }, (ex) => {
-                console.log(' SendMoney::send (error#1) >>  ', JSON.stringify(ex));
-                that.openNotificationWithIcon("error", 'An error occurred!', JSON.stringify(ex));
-                that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
-              });
-
+              const _function = _pay?'sendPayment':'sendMoney';
+              that.props.callAPI(_function, [sender, privateKey, receiver, amount, memo])
       },
       onCancel() {
         console.log('Cancel');
-        that.setState({pushingTx:false})
       },
     });
   }
@@ -281,7 +311,7 @@ class SendMoney extends Component {
       callback();
       return;
     }
-    callback('Amount must greater than zero!');
+    callback(this.state.intl.valid_number_required_description);
   };
 
   renderContent() {
@@ -299,43 +329,20 @@ class SendMoney extends Component {
     const option = this.props.isBusiness?this.renderTransferReason():(null);
 
     const { getFieldDecorator }               = this.props.form;
-    const { input_amount, pushingTx}           = this.state;
+    const { input_amount, isFetching}           = this.state;
+
     return (
-        <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+        <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
+          
           <Form onSubmit={this.handleSubmit}>
+            
             <div className="money-transfer">    
                
-               <div className="money-transfer__row row-complementary row-complementary-bottom money-transfer__select flex_row" >
-                  <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
-                      <span className="picture">
-                        <FontAwesomeIcon icon="user" size="lg" color="gray"/>
-                      </span>
-                  </div>
-                  <div className="money-transfer__input">
-                    <Form.Item>
-                      {getFieldDecorator('receipt', {
-                        rules: [{ required: true, message: 'Please input receipt account name!' }]
-                      })(
-                        <AutoComplete
-                          size="large"
-                          dataSource={this.props.accounts.filter(acc=>acc.key!=this.props.actualAccountName).map(acc=>acc.key)}
-                          style={{ width: '100%' }}
-                          onSelect={this.onSelect}
-                          placeholder=""
-                          filterOption={true}
-                          className="extra-large"
-                        />
-                         
-                      )}
-                    </Form.Item>
-                  </div>
-              </div>
+              <AutocompleteAccount onRef={ref => (this.autocompleteWidget = ref)} callback={this.onSelect} form={this.props.form} name="receipt"  />
 
-               
-
-              <Form.Item label="Amount" className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
+              <Form.Item label={this.state.intl.amount_text} className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
-                      rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
+                      rules: [{ required: true, message: this.state.intl.amount_validation, whitespace: true, validator: this.checkPrice }],
                       initialValue: input_amount.value
                     })( 
                       <>  
@@ -361,14 +368,14 @@ class SendMoney extends Component {
               {option}
 
               <div className="money-transfer__row row-expandable row-complementary-bottom"  id="divNote">
-                <Form.Item label="Memo">
+                <Form.Item label={this.state.intl.memo}>
                   {getFieldDecorator('transfer_extra.message', {
                     onChange: (e) => this.handleMessageChange(e)
                   })(
                   <Input.TextArea 
                     maxLength="50"
                     className="money-transfer__input" 
-                    placeholder="Message, Memo or Note" autoSize={{ minRows: 3, maxRows: 6 }} 
+                    placeholder={this.state.intl.memo_message} autoSize={{ minRows: 3, maxRows: 6 }} 
                     style={{overflow: 'hidden', overflowWrap: 'break-word', height: 31}}
                     />
                   )}
@@ -378,8 +385,7 @@ class SendMoney extends Component {
             </div>
 
             <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="sendButton" htmlType="submit" type="primary" loading={pushingTx} ><FontAwesomeIcon icon="paper-plane" size="1x"/>&nbsp; SEND</Button>
-              <Button size="large" key="payButton" type="link" onClick={this.onPay} style={{marginLeft:8}}loading={pushingTx} ><FontAwesomeIcon icon="shopping-bag" size="1x"/>&nbsp;PAY</Button>
+              <Button size="large" key="sendButton" htmlType="submit" type="primary" loading={isFetching} ><FontAwesomeIcon icon="paper-plane" size="1x"/>&nbsp;{this.state.intl.action_send}</Button>
             </div>
 
           </Form>  
@@ -398,12 +404,9 @@ class SendMoney extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Send money"
-          subTitle="Send money instantly for free"
-          
-        >
-          
-        </PageHeader>
+          title={this.state.intl.title}
+          subTitle={this.state.intl.subtitle}
+        />
           <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
             <div className="ly-main-content content-spacing cards">
               <section className="mp-box mp-box__shadow money-transfer__box">
@@ -428,9 +431,22 @@ export default Form.create() (withRouter(connect(
 
         accounts:           accountsRedux.accounts(state),
 
-        isBusiness:         loginRedux.isBusiness(state)
+        isBusiness:         loginRedux.isBusiness(state),
+
+        isFetching:         apiRedux.isFetching(state),
+        getErrors:          apiRedux.getErrors(state),
+        getLastError:       apiRedux.getLastError(state),
+        getResults:         apiRedux.getResults(state),
+        getLastResult:      apiRedux.getLastResult(state),
+
+        transferReasons:    graphqlRedux.transferReasons(state),
+        getConfig:          graphqlRedux.getConfig(state),
     }),
     (dispatch)=>({
+        callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),
+        clearAll:    bindActionCreators(apiRedux.clearAll, dispatch),
+
+        loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch),
         
     })
-)(SendMoney) ));
+)(injectIntl(SendMoney)) ));

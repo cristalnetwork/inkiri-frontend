@@ -1,14 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Alert } from 'antd';
+import React from 'react';
 import { connect } from 'react-redux'
-// import * as loginRedux from '@app/redux/models/login'
-import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import InjectMessage from "@app/components/intl-messages";
 
 const IuguInvoice = ({invoice}) => {
-    //<Icon type="bank" theme="twoTone" style={{fontSize:30}} />
     const _i = invoice.original;
     return(
       <div className="ui-list">
@@ -26,12 +21,16 @@ const IuguInvoice = ({invoice}) => {
                           <div className="ui-info-row__content">
                               <div className="ui-info-row__title">{_i.items[0].description}</div>
                               <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Customer name</div> 
+                                 <div className="row_name">
+                                   <InjectMessage id="components.iugu_invoice.customer_name"/>
+                                 </div> 
                                  <div className="row_value">{_i.customer_name}</div> 
                               </div>
                               <div className="ui-info-row__details name_value_row">
-                                <div className="row_name">Customer email</div> 
-                                 <div className="row_value">{_i.email}</div> 
+                                <div className="row_name">
+                                  <InjectMessage id="components.iugu_invoice.customer_email"/>
+                                </div> 
+                                <div className="row_value">{_i.email}</div> 
                               </div>
                           </div>
                       </div>
@@ -45,9 +44,5 @@ const IuguInvoice = ({invoice}) => {
 //
 export default connect(
     (state)=> ({
-        // allAccounts:     loginRedux.allAccounts(state),
-        // actualAccountName:   loginRedux.actualAccountName(state),
-        // currentAccount:  loginRedux.currentAccount(state),
-        // isLoading:       loginRedux.isLoading(state)
     })
 )(IuguInvoice)

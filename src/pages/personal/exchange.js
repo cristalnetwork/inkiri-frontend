@@ -1,23 +1,21 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
 import * as accountsRedux from '@app/redux/models/accounts'
-import * as balanceRedux from '@app/redux/models/balance'
+import * as apiRedux from '@app/redux/models/api';
 
-import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
-import PropTypes from "prop-types";
+import * as utils from '@app/utils/utils';
 
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
-import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { PageHeader, Spin, Form } from 'antd';
 
 import ExchangeForm from '@app/components/Form/exchange';
 
@@ -25,9 +23,7 @@ import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 // import './requestPayment.css'; 
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-const { TextArea } = Input;
+import { injectIntl } from "react-intl";
 
 const DEFAULT_RESULT = {
   result:             undefined,
@@ -50,94 +46,117 @@ class Exchange extends Component {
       ...DEFAULT_RESULT,
       
       uploading:          false,
-      pushingTx:          false
-      
+      isFetching:         false,
+      intl:               {}
     };
 
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.resetResult                  = this.resetResult.bind(this); 
+    this.resetResult                = this.resetResult.bind(this); 
 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
+  componentDidUpdate(prevProps, prevState) 
+  {
+    let new_state = {};
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+    if(!utils.arraysEqual(prevProps.getErrors, this.props.getErrors)){
+      // const ex = this.props.getLastError;
+      // new_state = {...new_state, 
+      //     getErrors:     this.props.getErrors, 
+      //     result:        ex?'error':undefined, 
+      //     error:         ex?JSON.stringify(ex):null}
+      // if(ex)
+      //   components_helper.notif.exceptionNotification("An error occurred!", ex);
+    }
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
+      const lastResult = this.props.getLastResult;
+      if(lastResult)
+      {  
+        const that = this;
+        setTimeout(()=> that.resetPage() ,100);
+        // components_helper.notif.successNotification('Operation completed successfully')
+      }
+    }
+
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
+  }
+
+  componentDidMount =() =>{
+    const {formatMessage} = this.props.intl;
+    const pushing_transaction = formatMessage({id:'pages.personal.exchange.pushing_transaction'});
+    const request_exchange_action_text = formatMessage({id:'pages.personal.exchange.request_exchange_action_text'});
+    const title = formatMessage({id:'pages.personal.exchange.title'});
+
+    this.setState({intl:{pushing_transaction, request_exchange_action_text, title}})
   }
 
   handleSubmit = e => {
     // console.log(' Exchange for submitted ', JSON.stringify(e))
 
     const {amount, bank_account, bank_account_object, attachments_array} = e;
-    const privateKey   = this.props.actualPrivateKey;
-    const sender       = this.props.actualAccountName;
-    let that           = this;
+    const privateKey       = this.props.actualPrivateKey;
+    const sender           = this.props.actualAccountName;
+    const exchange_account = globalCfg.bank.exchange_account; 
+    let that               = this;
     
-    that.setState({pushingTx:true});
-      
-    api.bank.createExchangeRequest(sender, amount, bank_account_object, attachments_array)
-      .then((data) => {
-        console.log(' createExchangeRequest::send (then#1) >>  ', JSON.stringify(data));
-         
-         if(!data || !data.id)
-         {
-            that.setState({result:'error', uploading: false, pushingTx:false, error:'Cant create request nor upload files.'});
-            return;
-         }
+    const steps= [
+      {
+        _function:           'bank.createExchangeRequest'
+        , _params:           [sender, amount, bank_account_object, attachments_array]
+      }, 
+      {
+        _function:           'requestExchange'
+        , _params:           [sender, privateKey, exchange_account, amount, bank_account] 
+        , last_result_param: [{field_name:'id', result_idx_diff:-1}]
+        , on_failure:        {
+                                _function:           'bank.failedWithdraw'
+                                , _params:           [sender] 
+                                , last_result_param: [{field_name:'id', result_idx_diff:-1}]
+                              }
+      },
+      {
+        _function:           'bank.updateExchangeRequest'
+        , _params:           [sender] 
+        , last_result_param: [{field_name:'id', result_idx_diff:-2}, {field_name:'transaction_id', result_idx_diff:-1}]
+      },
+    ]
 
-         const request_id       = data.id;
-         const exchange_account = globalCfg.bank.exchange_account; 
-
-         api.requestExchange(sender, privateKey, exchange_account, amount, request_id, bank_account)
-          .then((data1) => {
-
-            const send_tx             = data1;
-            console.log(' createExchangeRequest::send (then#2) >>  ', JSON.stringify(send_tx));
-            
-            api.bank.updateExchangeRequest(sender, request_id, undefined, send_tx.data.transaction_id)
-              .then((data2) => {
-
-                  that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request_id} });
-                  this.openNotificationWithIcon("success", 'Exchange requested successfully');
-
-                }, (ex2) => {
-                  console.log(' createExchangeRequest::send (error#3) >>  ', JSON.stringify(ex2));
-                  that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
-              });
-
-          }, (ex1) => {
-            
-            console.log(' SendMoney::send (error#2) >>  ', JSON.stringify(ex1));
-            that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
-
-          });
-
-      }, (ex) => {
-        console.log(' createProviderPayment::send (error#1) >>  ', JSON.stringify(ex));
-        that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex)});
-      });
+    that.props.callAPIEx(steps);
     
-    
-
   };
 
   backToDashboard = async () => {
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/extrato`
+      pathname: `/common/extrato`
     })
   }
 
   resetResult(){
     this.setState({...DEFAULT_RESULT});
+    console.log(' resetResult >> resetChildForm ')
+    if(this.childForm)
+    {
+      const that = this;
+      setTimeout(()=> that.childForm.resetForm() ,50);
+    }
+    
   }
 
   resetPage(){
     
     this.setState({...DEFAULT_RESULT});
+    console.log(' resetPage >> resetChildForm ')
+    if(this.childForm)
+    {
+
+      const that = this;
+      setTimeout(()=> that.childForm.resetForm() ,50);
+    }
   }
 
   userResultEvent = (evt_type) => {
@@ -152,7 +171,7 @@ class Exchange extends Component {
   }
 
   renderContent() {
-    
+    const {isFetching} = this.state;
     if(this.state.result)
     {
       const result_type = this.state.result;
@@ -163,12 +182,10 @@ class Exchange extends Component {
       
       return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
     }
-
-    
     
     return (
-      <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
-        <ExchangeForm key="exchange_form" alone_component={false} button_text="REQUEST EXCHANGE" callback={this.handleSubmit} />    
+      <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
+        <ExchangeForm onRef={ref => (this.childForm = ref)}  key="exchange_form" alone_component={false} button_text={this.state.intl.request_exchange_action_text} callback={this.handleSubmit} />    
       </Spin>
     );
 
@@ -182,10 +199,9 @@ class Exchange extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Request a payment to a provider">
-        </PageHeader>
+          title={this.state.intl.title} />
 
-        <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+        <div style={{ margin: '0 0px', padding: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
               {content}
@@ -207,12 +223,17 @@ export default Form.create() (withRouter(connect(
         actualPrivateKey: loginRedux.actualPrivateKey(state),
         isLoading:        loginRedux.isLoading(state),
         personalAccount:  loginRedux.personalAccount(state),
-        balance:          balanceRedux.userBalance(state),
         
-        
+        isFetching:       apiRedux.isFetching(state),
+        getErrors:        apiRedux.getErrors(state),
+        getLastError:     apiRedux.getLastError(state),
+        getResults:       apiRedux.getResults(state),
+        getLastResult:    apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
-        
+        callAPIEx:        bindActionCreators(apiRedux.callAPIEx, dispatch),
+        clearAll:         bindActionCreators(apiRedux.clearAll, dispatch),
+
     })
-)(Exchange) )
+)(injectIntl(Exchange)) )
 );

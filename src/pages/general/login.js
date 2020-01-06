@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import { Form, Icon, Input, Button, Checkbox } from 'antd';
-import UserSelector from '@app/components/InkiriHeader/userSelector'
+import { Alert, Form, Icon, Input, Button, Checkbox } from 'antd';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login';
@@ -45,14 +44,34 @@ class Login extends Component {
     });
   };
 
+  componentDidUpdate(prevProps, prevState) {
+    if(prevProps.loginError!=this.props.loginError)
+    {
+      this.setState({loginError:this.props.loginError})
+    }
+  }
+
   render() {
     const { getFieldDecorator } = this.props.form;
+    const { loginError }        = this.state;
     return (
       <>
         <div className="login-header">
-          <h1 align="center"><img src="/favicons/favicon-32x32.png" alt="" /> Inkiri Bank</h1>
+          <h1 align="center" className="omnes_isologo"><img src="/favicons/favicon-32x32.png" alt="" /> Inkiri Bank</h1>
         </div> 
         <Form onSubmit={this.handleSubmit} className="login-form">
+
+            { !loginError  
+                ?(null)
+                :  <Alert
+                      message="login error"
+                      description={JSON.stringify(loginError)}
+                      type="error"
+                      showIcon
+                      closable
+                    />
+            }
+          
           <Form.Item>
             {getFieldDecorator('account_name', {
               rules: [{ required: true, message: 'Please input your account_name!' }],
@@ -84,7 +103,7 @@ class Login extends Component {
               valuePropName: 'checked',
               initialValue: true,
             })(<Checkbox>Remember me</Checkbox>)}
-            <a className="login-form-forgot" href="#" disabled>
+            <a className="login-form-forgot" href="#" disabled >
               Forgot password
             </a>
             <Button type="primary" htmlType="submit" className="login-form-button" loading={this.props.isLoading}>
@@ -103,11 +122,12 @@ class Login extends Component {
 // 
 export default Form.create() (withRouter(connect(
     (state)=> ({
-        isLoading: loginRedux.isLoading(state)
+        isLoading:     loginRedux.isLoading(state),
+        loginError:    loginRedux.loginError(state),
     }),
     (dispatch)=>({
-        tryLogin: bindActionCreators(loginRedux.tryLogin, dispatch),
-        clearSession: bindActionCreators(loginRedux.clearSession, dispatch)
+        tryLogin:      bindActionCreators(loginRedux.tryLogin, dispatch),
+        clearSession:  bindActionCreators(loginRedux.clearSession, dispatch)
     })
 )(Login)
 ));

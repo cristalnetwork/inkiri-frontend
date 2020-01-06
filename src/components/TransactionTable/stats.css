@@ -4,3 +4,6 @@
   display: block;
   position:relative;
 }
+.statsWidget.content_hidden{ 
+  background-color: #fafafa;
+}

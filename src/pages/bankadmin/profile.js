@@ -1,37 +1,28 @@
-import React, {useState, Component} from 'react';
+import React, { Component} from 'react';
 
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux';
-
 import * as loginRedux from '@app/redux/models/login'
 import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
 
 import * as api from '@app/services/inkiriApi';
-import * as globalCfg from '@app/configs/global';
-
-import PropTypes from "prop-types";
 
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
-import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
-import { Tabs } from 'antd';
+import { PageHeader, Spin, Form, Tabs } from 'antd';
 
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
-
-// import './configuration.css'; 
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import BankAccountForm from '@app/components/Form/bank_account';
 import ProfileForm from '@app/components/Form/profile';
 import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/components/Views/profile';
 import Skeleton from '@app/components/Views/skeleton';
 
+import { injectIntl } from "react-intl";
+import InjectMessage from "@app/components/intl-messages";
 
 const ACTIVE_TAB_PROFILE               = 'active_tab_profile';
 const ACTIVE_TAB_PROFILE_EDIT_PROFILE  = 'active_tab_profile_edit_profile';
@@ -55,7 +46,6 @@ class Profile extends Component {
 
     this.renderContent              = this.renderContent.bind(this); 
     this.resetResult                = this.resetResult.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.onConfigurationEvents      = this.onConfigurationEvents.bind(this); 
     this.onAddOrUpdateBankAccount   = this.onAddOrUpdateBankAccount.bind(this); 
@@ -63,13 +53,6 @@ class Profile extends Component {
     this.reload                     = this.reload.bind(this);
 
     this.onTabChange                = this.onTabChange.bind(this); 
-  }
- 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
 
   /*
@@ -88,7 +71,6 @@ class Profile extends Component {
 
     switch (event_type){
       case ENUM_EVENT_EDIT_PROFILE:
-        // this.openNotificationWithIcon("info", "We are developing this function!")    
         this.setState({active_tab_action:ACTIVE_TAB_PROFILE_EDIT_PROFILE, active_tab_object:null});
         break;
       case ENUM_EVENT_EDIT_BANK_ACCOUNT:
@@ -108,9 +90,9 @@ class Profile extends Component {
   }
 
   backToDashboard = async () => {
-    // this.props.history.push({
-    //   pathname: `/${this.props.actualRole}/extrato`
-    // })
+    this.props.history.push({
+      pathname: `/${this.props.actualRole}/dashboard`
+    })
   }
 
   resetResult(){
@@ -127,15 +109,16 @@ class Profile extends Component {
   }
 
   reload(){
-    const that      = this;
-    const {profile} = this.state;
+    const that            = this;
+    const {profile}       = this.state;
+    const {formatMessage} = this.props.intl;
     this.setState({pushingTx:true});
     api.bank.getProfile(profile.account_name)
         .then( (data) => {
             that.setState({pushingTx:false, profile:data})
           },
           (ex) => {
-            that.openNotificationWithIcon("error", 'An error occurred reloading profile', JSON.stringify(ex));
+            components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.profile.error_reloading_profile'}), ex);
             that.setState({pushingTx:false});
             console.log(' ** ERROR @ reload', JSON.stringify(ex))
           }  
@@ -166,23 +149,20 @@ class Profile extends Component {
     {
       return;
     }
-    const that = this;
-    const {profile} = this.state;
+    const that            = this;
+    const {profile}       = this.state;
+    const {formatMessage} = this.props.intl;
     this.setState({active_tab_object:values, pushingTx:true})
-    // console.log(' >> onAddOrUpdateBankAccount::values: ', JSON.stringify(values))
     let bank_accounts = [...profile.bank_accounts, values];
-    // console.log(' >> onAddOrUpdateBankAccount:: bank_accounts: ', JSON.stringify(bank_accounts))
     api.bank.updateUserBankAccounts(profile.id, bank_accounts)
       .then((res)=>{
         that.reload();
-        that.openNotificationWithIcon("success", "Bank account saved successfully")    
+        components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.profile.succcess.bank_account_saved'}));
         that.resetPage(ACTIVE_TAB_PROFILE);
-        // console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(res));
-        // that.setState({result:'ok'});
 
       }, (err)=>{
         console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(err));
-        that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
+        components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.profile.error.occurred_title'}), err);
         that.setState({pushingTx:false});
       })
   }
@@ -204,24 +184,19 @@ class Profile extends Component {
     const that                = this;
     const {id, account_name}  = this.state.profile;
     const new_profile         = values;
+    const {formatMessage}     = this.props.intl;
     const {account_type, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias} = new_profile;
     
     this.setState({active_tab_object:values, pushingTx:true})
-    // console.log(' >> profile::OLD values: ', JSON.stringify(profile))
-    // console.log(' >> profile::NEW values: ', JSON.stringify(new_profile))
     
     api.bank.createOrUpdateUser(id, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias)
       .then((res)=>{
-        that.openNotificationWithIcon("success", "Profile updated successfully")    
+        components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.profile.succcess.profile_updated'}));
         that.reload();
         that.resetPage(ACTIVE_TAB_PROFILE);
-        // console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(res));
-        // that.setState({result:'ok'});
-        // that.setState({pushingTx:false});
-
       }, (err)=>{
         console.log(' >> onUpdateProfile >> ', JSON.stringify(err));
-        that.openNotificationWithIcon("error", "An error occurred", JSON.stringify(err))    
+        components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.profile.error.occurred_title'}), err);
         that.setState({pushingTx:false});
       })
 
@@ -242,14 +217,20 @@ class Profile extends Component {
 
     const { active_tab, active_tab_action, active_tab_object, pushingTx } = this.state;
     
+    const {formatMessage} = this.props.intl;
+    const update_bank_account = formatMessage({id: 'pages.bankadmin.profile.update_bank_account'});
+    const add_bank_account    = formatMessage({id: 'pages.bankadmin.profile.add_bank_account'});
+    const pushing_transaction = formatMessage({id: 'pages.bankadmin.profile.pushing_transaction'});
+    const update_profile      = formatMessage({id: 'pages.bankadmin.profile.update_profile'});
+    
     if(active_tab==ACTIVE_TAB_PROFILE){
       if(active_tab_action==ACTIVE_TAB_PROFILE_BANK_ACCOUNT)
       {
-        const button_text = active_tab_object?'UPDATE BANK ACCOUNT':'ADD BANK ACCOUNT';
+        const button_text = active_tab_object?update_bank_account:add_bank_account;
         return (
           <Skeleton 
             content={
-              <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+              <Spin spinning={pushingTx} delay={500} tip={pushing_transaction}>
                 <BankAccountForm 
                   bank_account={active_tab_object} 
                   alone_component={false} 
@@ -260,15 +241,14 @@ class Profile extends Component {
       }
       if(active_tab_action==ACTIVE_TAB_PROFILE_EDIT_PROFILE)
       {
-        const button_text = active_tab_object?'UPDATE BANK ACCOUNT':'ADD BANK ACCOUNT';
         return (
           <Skeleton 
             content={
-              <Spin spinning={pushingTx} delay={500} tip="Pushing transaction...">
+              <Spin spinning={pushingTx} delay={500} tip={pushing_transaction}>
                 <ProfileForm 
                   profile={this.state.profile} 
                   alone_component={false} 
-                  button_text={'SAVE CHANGES'} 
+                  button_text={update_profile} 
                   callback={this.onUpdateProfile}/>
               </Spin>} 
             icon="user" />  );
@@ -285,17 +265,24 @@ class Profile extends Component {
   render() {
     let content     = this.renderContent();
     const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
+
+    
+    
+    
+    
+
+
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Customer Profile"
+          title=<InjectMessage id="pages.bankadmin.profile.title" />
           footer={
             <Tabs defaultActiveKey="1" onChange={this.onTabChange}>
-              <Tabs.TabPane tab="Profile"     key={ACTIVE_TAB_PROFILE} />
-              <Tabs.TabPane tab="Accounts"    key={ACTIVE_TAB_ACCOUNTS} disabled />
-              <Tabs.TabPane tab="Preferences" key={ACTIVE_TAB_PREFERENCES} disabled />
-              <Tabs.TabPane tab="Security"    key={ACTIVE_TAB_SECURITY} disabled />
+              <Tabs.TabPane tab={<InjectMessage id="pages.bankadmin.profile.tab.profile" />}     key={ACTIVE_TAB_PROFILE} />
+              <Tabs.TabPane tab={<InjectMessage id="pages.bankadmin.profile.tab.accounts" />}    key={ACTIVE_TAB_ACCOUNTS} disabled />
+              <Tabs.TabPane tab={<InjectMessage id="pages.bankadmin.profile.tab.preferences" />} key={ACTIVE_TAB_PREFERENCES} disabled />
+              <Tabs.TabPane tab={<InjectMessage id="pages.bankadmin.profile.tab.security" />}    key={ACTIVE_TAB_SECURITY} disabled />
             </Tabs>
           }>
         </PageHeader>
@@ -330,5 +317,5 @@ export default Form.create() (withRouter(connect(
         // loadProfile:          bindActionCreators(loginRedux.loadProfile, dispatch)
     })
 
-)(Profile) )
+)( injectIntl(Profile)) )
 );

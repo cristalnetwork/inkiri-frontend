@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Dropdown, Button, Icon, message } from 'antd';
+import { Icon } from 'antd';
 import { connect } from 'react-redux'
 // import * as loginRedux from '@app/redux/models/login'
-import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
-import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import TransactionBankAccount from '@app/components/TransactionCard/bank_account';
+
+import InjectMessage from "@app/components/intl-messages";
+import { injectIntl } from "react-intl";
 
 const TransactionProvider = (props) => {
     
@@ -15,14 +15,13 @@ const TransactionProvider = (props) => {
     const [bank_account, setBankAccount] = useState(null);
 
     useEffect(() => {
-        // console.log(' >> useEffect >> me llamaring');
         setRequest(props.request);
         // console.log(' >> useEffect >> props.request? : ', props.request);
         if(props.request && props.request.provider && props.request.provider.bank_accounts)
           setBankAccount(props.request.provider.bank_accounts[0]);
         else
           setBankAccount(null);
-    });
+    }, [props.request]);
 
     if(!request || !bank_account)
       return (null);
@@ -42,17 +41,21 @@ const TransactionProvider = (props) => {
                           <div className="ui-info-row__content">
                               <div className="ui-info-row__title">{request.provider.name} ({request.provider.cnpj})</div>
                               <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Category</div> 
+                                 <div className="row_name">
+                                   <InjectMessage id="components.TransactionCard.provider.category" />
+                                 </div> 
                                  <div className="row_value">{request.provider.category}</div> 
                               </div>
                               <div className="ui-info-row__details name_value_row">
-                                <div className="row_name">Products/services</div> 
+                                <div className="row_name">
+                                  <InjectMessage id="components.TransactionCard.provider.products_services" />
+                                </div> 
                                  <div className="row_value">{request.provider.products_services}</div> 
                               </div>
 
                               <div className="ui-info-row__details">
                                   <ul>
-                                      <li>Provider</li>
+                                      <li><InjectMessage id="global.provider" /></li>
                                   </ul>
                               </div>
                           </div>
@@ -73,11 +76,15 @@ const TransactionProvider = (props) => {
                           <div className="ui-info-row__content">
                               <div className="ui-info-row__title">{bank_account.bank_name}</div>
                               <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Agency</div> 
+                                 <div className="row_name">
+                                   <InjectMessage id="components.Forms.bank_account.bank_agency_placeholder" />
+                                 </div> 
                                  <div className="row_value">{bank_account.agency}</div> 
                               </div>
                               <div className="ui-info-row__details name_value_row">
-                                <div className="row_name">CC</div> 
+                                <div className="row_name">
+                                  <InjectMessage id="components.Forms.bank_account.bank_cc_placeholder" />
+                                </div> 
                                  <div className="row_value">{bank_account.cc}</div> 
                               </div>
                           </div>
@@ -93,13 +100,8 @@ const TransactionProvider = (props) => {
                       </div>
                       <div className="ui-row__col ui-row__col--content">
                           <div className="ui-action-row__content">
-                              <div className="ui-action-row__title u-truncate" title="Description">{request.description || 'Product/Service description Not Available'}</div>
-                              <div className="ui-action-row__description hidden">
-                                  <div className="ui-info-row__details">
-                                      <ul>
-                                          <li></li>
-                                      </ul>
-                                  </div>
+                              <div className="ui-action-row__title u-truncate" title={props.intl.formatMessage({id:'global.description'})}>
+                                {request.description || props.intl.formatMessage({id:'components.TransactionCard.provider.product_service_n_a'})}
                               </div>
                           </div>
                       </div>
@@ -115,59 +117,36 @@ const TransactionProvider = (props) => {
                       </div>
                       <div className="ui-row__col ui-row__col--content">
                           <div className="ui-info-row__content">
-                              <div className="ui-info-row__title">Payment details</div>
+                              <div className="ui-info-row__title">
+                                <InjectMessage id="components.TransactionCard.provider.payment_details" />
+                              </div>
                               <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Vehicle</div> 
+                                 <div className="row_name"><InjectMessage id="components.TransactionCard.provider.payment_vehicle" /></div> 
                                  <div className="row_value">{request.provider_extra.payment_vehicle}</div> 
                               </div>
                               <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Category</div> 
+                                 <div className="row_name">
+                                   <div className="row_name">
+                                     <InjectMessage id="components.TransactionCard.provider.payment_category" />
+                                   </div> 
+                                 </div> 
                                  <div className="row_value">{request.provider_extra.payment_category}</div> 
                               </div>
                               <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Type</div> 
+                                 <div className="row_name">
+                                   <InjectMessage id="components.TransactionCard.provider.payment_type" />
+                                 </div> 
                                  <div className="row_value">{request.provider_extra.payment_type}</div> 
                               </div>
                               <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Mode</div> 
+                                 <div className="row_name">
+                                   <InjectMessage id="components.TransactionCard.provider.payment_mode" />
+                                 </div> 
                                  <div className="row_value">{request.provider_extra.payment_mode}</div> 
                               </div>
                           </div>
                       </div>
                 </li>
-                
-                <div className="ui-accordion ui-accordion--close ui-accordion--gray hidden">
-                  <ul>
-                    <li className="ui-row ui-accordion__row" role="presentation">
-                      <div className="ui-row__col ui-row__col--content">
-                        <div className="ui-accordion__content">
-                          <div className="ui-accordion__title">Payment details</div>
-                        </div>
-                      </div>
-                      <div className="ui-row__col ui-row__col--content">
-                          <div className="ui-info-row__content">
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Vehicle</div> 
-                                 <div className="row_value">{request.provider_extra.payment_vehicle}</div> 
-                              </div>
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Category</div> 
-                                 <div className="row_value">{request.provider_extra.payment_category}</div> 
-                              </div>
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Type</div> 
-                                 <div className="row_value">{request.provider_extra.payment_type}</div> 
-                              </div>
-                              <div className="ui-info-row__details name_value_row">
-                                 <div className="row_name">Mode</div> 
-                                 <div className="row_value">{request.provider_extra.payment_mode}</div> 
-                              </div>
-                          </div>
-                      </div>
-
-                    </li>
-                  </ul>
-                </div>
             </ul>
           </div>
     )
@@ -181,4 +160,4 @@ export default connect(
         // currentAccount:  loginRedux.currentAccount(state),
         // isLoading:       loginRedux.isLoading(state)
     })
-)(TransactionProvider)
+)(injectIntl(TransactionProvider))

@@ -1,31 +1,25 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
-import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
+import * as accountsRedux from '@app/redux/models/accounts';
 
-import * as globalCfg from '@app/configs/global';
-import * as api from '@app/services/inkiriApi';
-
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import IntroduceRow from '@app/components/Dashboard/IntroduceRow';
-import ContasRow from '@app/components/Dashboard/ContasRow';
-import PendingRow from '@app/components/Dashboard/PendingRow';
-import MoneyRow from '@app/components/Dashboard/MoneyRow';
-
-import { Form, Select, Icon, Input, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col } from 'antd';
-
-import { notification, Table, Divider, Spin } from 'antd';
-
-import * as utils from '@app/utils/utils';
+// import IntroduceRow from '@app/components/Dashboard/introduce-row';
+import ContasRow from '@app/components/Dashboard/contas-row';
+import PendingRow from '@app/components/Dashboard/pending-row';
+import MoneyRow from '@app/components/Dashboard/money-row';
+import { PageHeader, Button } from 'antd';
 
 import moment from 'moment';
+
+import { injectIntl } from "react-intl";
 
 class Operations extends Component {
   constructor(props) {
@@ -33,12 +27,14 @@ class Operations extends Component {
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       loading:             false,
-      visitData:           this.loadData()
+      visitData:           this.loadData(),
+      accounts:            props.accounts,
+      currencyStats:       props.currencyStats
     };
-
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
   }
   
+  
+
   loadData = () => {
     // https://preview.pro.ant.design/dashboard/analysis
     let visitData = [];
@@ -54,47 +50,57 @@ class Operations extends Component {
     return visitData;
   }
   componentDidMount(){
-    // this.loadAllTransactions(true);  
   } 
 
-  
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-  
-  renderContent = () => {
-    const {visitData} = this.state;
-    // <h3>Dinheiro em Circulação</h3><IntroduceRow loading={false} visitData={visitData} />
-    return (<>
-        
-        <h3>Contas</h3><ContasRow loading={false} visitData={visitData} />
-        <h3>Operações Pendentes</h3><PendingRow loading={false} visitData={visitData} />
-        <h3>Dinheiro em Circulação</h3><MoneyRow loading={false} visitData={visitData} />
-        
-        </>);
-  }
+  componentDidUpdate(prevProps, prevState) 
+  {
+      if(prevProps.accounts !== this.props.accounts )
+      {
+        this.setState({accounts: this.props.accounts});
+      }
 
-  //
+      if(prevProps.currencyStats !== this.props.currencyStats )
+      {
+        this.setState({currencyStats: this.props.currencyStats});
+        // console.log('dashboard-didupdate-currencyStats:', this.props.currencyStats)
+      }
+  }
   
   render() {
-    const content               = this.renderContent();
+    const { visitData, accounts, currencyStats, operations } = this.state;
+    const { isLoadingAccounts, isLoadingCurrencyStats, isOperationsLoading }      =  this.props;
+    const { formatMessage } = this.props.intl;
+    const {routes}  = this.state;
     
-    const {routes, active_tab}  = this.state;
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Dashboard"
-          subTitle="Dummy data"
+          title={formatMessage({id:'menu.item.dashboard'})}
         >
         </PageHeader>
         
         <div className="styles standardList" style={{ marginTop: 24 }}>
-            
-            {content}
+          
+          <h3>{formatMessage({id:'pages.bankadmin.dashboard.account_widget.title'})} <Button 
+                        loading={isLoadingAccounts} 
+                        icon="redo"
+                        title={formatMessage({id:'pages.bankadmin.dashboard.account_widget.tooltip'})}
+                        onClick={this.props.loadAccounts}></Button> 
+          </h3>
+          <ContasRow loading={false} rawData={accounts} />
+          
+          <h3>{formatMessage({id:'pages.bankadmin.dashboard.pending_operations_widget.title'})} </h3>
+          <PendingRow loading={false} visitData={visitData} />
+          
+          <h3>{formatMessage({id:'pages.bankadmin.dashboard.money_issuance_widget.title'})} <Button 
+                          loading={isLoadingCurrencyStats} 
+                          icon="redo"
+                          title={formatMessage({id:'pages.bankadmin.dashboard.money_issuance_widget.tooltip'})}
+                          onClick={this.props.loadCurrencyStats}></Button> </h3>
+          <MoneyRow loading={isLoadingCurrencyStats} rawData={currencyStats} visitData={visitData} />
+        
+        
 
         </div>
       </>
@@ -102,15 +108,25 @@ class Operations extends Component {
   }
 }
 
+//
 
 export default  (withRouter(connect(
     (state)=> ({
-        actualAccountName:    loginRedux.actualAccountName(state),
-        actualRole:           loginRedux.actualRole(state),
-        actualRoleId:         loginRedux.actualRoleId(state),
-        balance:              balanceRedux.userBalanceFormatted(state),
+        accounts:               accountsRedux.accounts(state),
+        isLoadingAccounts:      accountsRedux.isLoading(state),
+
+        currencyStats:          balanceRedux.currencyStats(state),
+        isLoadingCurrencyStats: balanceRedux.isLoadingStats(state),
+        balance:                balanceRedux.userBalanceFormatted(state),
+
+        actualAccountName:      loginRedux.actualAccountName(state),
+        actualRole:             loginRedux.actualRole(state),
+        actualRoleId:           loginRedux.actualRoleId(state),
+        
+        
     }),
     (dispatch)=>({
-        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
+        loadAccounts:             bindActionCreators(accountsRedux.loadAccounts, dispatch),        
+        loadCurrencyStats:        bindActionCreators(balanceRedux.loadCurrencyStats, dispatch),
     })
-)(Operations)));
+)( injectIntl(Operations) )));

@@ -4,18 +4,25 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 
 import * as accountsRedux from '@app/redux/models/accounts';
+import * as loginRedux from '@app/redux/models/login'
+import * as graphqlRedux from '@app/redux/models/graphql'
 
-import * as api from '@app/services/inkiriApi';
+import * as utils from '@app/utils/utils';
 import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
 import * as request_helper from '@app/components/TransactionCard/helper';
+import * as components_helper from '@app/components/helper';
 
-import PropTypes from "prop-types";
+import AutocompleteAccount from '@app/components/AutocompleteAccount';
+import ProfileMini from '@app/components/TransactionCard/profile_mini';
+
 import { withRouter } from "react-router-dom";
 
 import { Select, notification, Empty, Button, Form, message, AutoComplete, Input, Icon } from 'antd';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import { injectIntl } from "react-intl";
 
 const DEFAULT_STATE = {
       input_amount: {  
@@ -31,36 +38,35 @@ class AddMemberForm extends Component {
     super(props);
 
     this.state = {
-      job_positions: props.job_positions,
-      member:        props.member,
-      callback:      props.callback,
+      job_positions:   props.jobPositions,
+      member:          props.member,
+      callback:        props.callback,
       // position:      props.position,
       // wage:          props.wage,
       ...DEFAULT_STATE
     };
     this.onInputAmount              = this.onInputAmount.bind(this);
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.onSelect                   = this.onSelect.bind(this)
     this.handleJobPositionChange    = this.handleJobPositionChange.bind(this); 
   }
 
   componentDidMount(){
-    this.setDefaultWage();
+    if(utils.arrayNullOrEmpty(this.state.job_positions))
+      this.props.loadConfig();
+    else
+      this.setDefaultWage();
   }
 
   componentDidUpdate(prevProps, prevState) 
   {
-      if(prevProps.job_positions !== this.props.job_positions) {
-        this.setState({
-            job_positions: this.props.job_positions,
-            member:        this.props.member,
-            // position:      this.props.position,
-            // wage:          this.props.wage,
-            callback:      this.props.callback
-          });
-        this.setDefaultWage();
-      }
+    if(!utils.objectsEqual(prevProps.jobPositions, this.props.jobPositions) ){  
+      this.setState({
+          job_positions: this.props.jobPositions,
+      }, () => {
+          this.setDefaultWage();
+      });
+    }
   }
 
   setDefaultWage = () =>{
@@ -68,18 +74,6 @@ class AddMemberForm extends Component {
     if(!member)
       return;
     this.onInputAmount(member.wage);
-    // this.setState(prevState => {
-    //   let input_amount = Object.assign({}, prevState.input_amount);
-    //   input_amount.value = member.wage;                     
-    //   return { input_amount };                                 
-    // })
-  }
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
 
   /*
@@ -96,7 +90,7 @@ class AddMemberForm extends Component {
   handleJobPositionChange = (value) => {
     
     const {job_positions} = this.state;
-    const wage = job_positions.filter(j=>j.key==value)[0].wage;
+    const wage = job_positions.filter(j=>j.key==value)[0].amount;
     this.onInputAmount(wage);
 
   }
@@ -109,9 +103,10 @@ class AddMemberForm extends Component {
     e.preventDefault();
     
     this.props.form.validateFields((err, values) => {
-      
+      const {formatMessage} = this.props.intl;
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+
+        components_helper.notif.errorNotification( formatMessage({id:'errors.validation_title'}), formatMessage({id:'errors.verify_on_screen'}) )    
         console.log(' ERRORS!! >> ', err)
         return;
       }
@@ -121,7 +116,7 @@ class AddMemberForm extends Component {
         const exists = this.props.accounts.filter( account => account.key==values.member);
         if(!exists || exists.length==0)
         {
-          this.openNotificationWithIcon("error", 'Please select an account from the list.');
+          components_helper.notif.errorNotification( formatMessage({id:'errors.select_account_from_list'}) )    
           return;
         }
       }
@@ -180,61 +175,39 @@ class AddMemberForm extends Component {
 
   renderMemberSelector(){
     const {member}              = this.state;
-    const { getFieldDecorator } = this.props.form;
+    const { form, intl }        = this.props;
+    // const { getFieldDecorator } = form;
     const my_accounts           = this.props.accounts.filter(acc=>acc.key!=this.props.actualAccountName && globalCfg.bank.isPersonalAccount(acc)).map(acc=>acc.key)
     let selector   = null;
     //
     if(member){
-      selector = (<div className="ui-row__col ui-row__col--content">
-                    <div className="ui-info-row__content">
-                        <div className="ui-info-row__title"><b>{request_helper.getProfileName(member.member)}</b></div>
-                          <div className="ui-info-row__details">
-                              <ul>
-                                  <li>@{member.member.account_name}</li>
-                              </ul>
-                          </div>
-                    </div>
-                </div>); 
+      selector = (<ProfileMini profile={member.member} title={ intl.formatMessage({id:'components.forms.add_member.member'}) } not_alone={false} gray_bg={true} />);
     }
     else{
-      selector = (<Form.Item>
-                        {getFieldDecorator('member', {
-                        rules: [{ required: true, message: 'Please input member account name!' }]
-                      })(
-                          <AutoComplete size="large" dataSource={my_accounts} style={{ width: '100%' }} onSelect={this.onSelect} placeholder="Choose account name" filterOption={true} className="extra-large" />
-                        )}
-                      </Form.Item>);
+      selector = <AutocompleteAccount callback={this.onSelect} form={form} name="member" filter={globalCfg.bank.ACCOUNT_TYPE_PERSONAL} exclude_list={[]}/>;
     }
-  //
-    return (<div className="money-transfer__row row-complementary row-complementary-bottom money-transfer__select" >
-              <div className="badge badge-extra-small badge-circle addresse-avatar ">
-                  <span className="picture">
-                    <FontAwesomeIcon icon="user" size="lg" color="gray"/>
-                  </span>
-              </div>
-              <div className="money-transfer__input money-transfer__select">
-                {selector}
-              </div>
-          </div>);
+    return selector;
   }
   //
   renderJobPosition(){
     const {job_positions, member} = this.state;
     if(!job_positions)
       return (null);
+
+    const { formatMessage }       = this.props.intl;
     const position                = (member)?member.position:undefined;
     const { getFieldDecorator }   = this.props.form;
     const selector = (<Form.Item>
           {getFieldDecorator( 'position', {
-            rules: [{ required: true, message: 'Please select a job position'}]
+            rules: [{ required: true, message: formatMessage({id:'components.forms.validators.forgot_job_position'}) }]
             , onChange: (e) => this.handleJobPositionChange(e)
             , initialValue: position
           })(
-            <Select placeholder="Choose a job position" >
+            <Select placeholder={ formatMessage({id:'components.forms.add_member.choose_job_position'}) } >
             {
               job_positions.map( position => 
                 {
-                  return (<Select.Option key={'position_'+position.key} value={position.key} label={position.title}>{ position.title } </Select.Option> )
+                  return (<Select.Option key={'position_'+position.key} value={position.key} label={position.value}>{ position.value } </Select.Option> )
                 }
               )
             }
@@ -247,7 +220,7 @@ class AddMemberForm extends Component {
     return (<div className="money-transfer__row row-complementary money-transfer__select" >
               <div className="badge badge-extra-small badge-circle addresse-avatar ">
                   <span className="picture">
-                    <FontAwesomeIcon icon={['fab', 'pagelines']} size="lg" color="gray"/>
+                    <FontAwesomeIcon icon={['fab', 'pagelines']} size="lg" color="black"/>
                   </span>
               </div>
               <div className="money-transfer__input money-transfer__select">
@@ -259,54 +232,53 @@ class AddMemberForm extends Component {
   //
 
   render() {
+    const { formatMessage }        = this.props.intl;
     const { getFieldDecorator }    = this.props.form;
     const { input_amount, member } = this.state;
     
     const job_options_item         = this.renderJobPosition();
     const member_selector          = this.renderMemberSelector();
-    const button_text              = member?'MODIFY MEMBER':'ADD MEMBER';
+    const button_text              = member?formatMessage({id:'components.forms.add_member.modify_member'}):formatMessage({id:'components.forms.add_member.add_member'});
+    const amount_title            = formatMessage( {id: 'global.amount' } );
+
     return (
-          
-            <Form onSubmit={this.handleSubmit}>
-              
-              <div className="money-transfer">    
-
-                  {member_selector}
-
-                  {job_options_item}
-
-                  <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
-                      {getFieldDecorator('input_amount.value', {
-                        rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: validators.checkPrice }],
-                      })( 
-                        <>  
-                          <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
-                            {globalCfg.currency.fiat.symbol}
-                          </span>
-                          
-                          <Input
-                            type="tel" 
-                            step="0.01" 
-                            className="money-transfer__input input-amount placeholder-big" 
-                            placeholder="0" 
-                            onChange={this.onInputAmount}  
-                            value={input_amount.value} 
-                            style={input_amount.style}  
-                          />
-                        </>
-                      )}
-                  </Form.Item>
-
-              </div>
-              <div className="mp-box__actions mp-box__shore">
-                <Button size="large" key="requestButton" htmlType="submit" type="primary" htmlType="submit" >{button_text}</Button>
-                <Button size="large" className="danger_color" type="link" onClick={()=>{this.fireEvent(null, true, null)}}>Cancel</Button>
-              </div>
-                
-              
-            </Form>
-          
-        );
+        <Form onSubmit={this.handleSubmit}>
+          <div className="money-transfer">    
+            {member_selector}
+            {job_options_item}
+            <Form.Item label={amount_title} className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+                  {getFieldDecorator('input_amount.value', {
+                    rules: [{ required: true, 
+                        message: formatMessage({id:'components.forms.validators.forgot_amount'}), 
+                        whitespace: true, 
+                        validator: validators.checkPrice }],
+                  })( 
+                    <>  
+                      <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
+                        {globalCfg.currency.fiat.symbol}
+                      </span>
+                      
+                    <Input
+                      type="tel" 
+                      step="0.01" 
+                      className="money-transfer__input input-amount placeholder-big" 
+                      placeholder="0" 
+                      onChange={this.onInputAmount}  
+                      value={input_amount.value} 
+                      style={input_amount.style}  
+                    />
+                  </>
+                )}
+          </Form.Item>
+        </div>
+        <div className="mp-box__actions mp-box__shore">
+          <Button size="large" key="requestButton" htmlType="submit" type="primary" htmlType="submit" >{button_text}</Button>
+          <Button size="large" className="danger_color" type="link" onClick={()=>{this.fireEvent(null, true, null)}}>
+            { formatMessage({id:'global.cancel'}) }
+          </Button>
+        </div>
+      </Form>
+    );
   }
 
   
@@ -314,10 +286,12 @@ class AddMemberForm extends Component {
 //
 export default Form.create() (withRouter(connect(
     (state)=> ({
-        accounts:         accountsRedux.accounts(state),
+        accounts:           accountsRedux.accounts(state),
+        actualAccountName:  loginRedux.actualAccountName(state),
+        jobPositions:       graphqlRedux.jobPositions(state),
     }),
     (dispatch)=>({
-        
+        loadConfig:         bindActionCreators(graphqlRedux.loadConfig, dispatch),
     })
-)(AddMemberForm) )
+)( injectIntl(AddMemberForm)) )
 );

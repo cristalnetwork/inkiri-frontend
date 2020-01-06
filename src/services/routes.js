@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import * as routes_config from '@app/configs/routes'
 
 const routes  = {
@@ -7,270 +6,342 @@ const routes  = {
             {
                 // key: routes_config.pathNames.personalDashboard,
                 key:  routes_config.pathNames.dashboard,
-                title: 'My money',
+                title: 'menu.item.my_money',
                 icon: 'wallet',
                 items: [
                     {
-                        key: routes_config.pathNames.personalExtracto,
-                        path: routes_config.pathNames.personalExtracto,
-                        title: 'Extrato',
+                        key: routes_config.pathNames.commonExtrato,
+                        path: routes_config.pathNames.commonExtrato,
+                        title: 'menu.item.extrato',
                     },
                     {
                         key: routes_config.pathNames.commonDeposit,
                         path: routes_config.pathNames.commonDeposit,
-                        title: 'Deposit',
+                        title: 'menu.item.deposit',
                     },
                     {
                         key: routes_config.pathNames.commonWithdraw,
                         path: routes_config.pathNames.commonWithdraw,
-                        title: 'Withdraw',
+                        title: 'menu.item.withdraw',
                     },
                     {
                         key: routes_config.pathNames.personalExchange,
                         path: routes_config.pathNames.personalExchange,
-                        title: 'Exchange',
+                        title: 'menu.item.exchange',
                     }
                 ]
             },
             {
                 key: 'personal_receive_money',
-                title: 'Receive',
+                title: 'menu.item.receive',
                 icon: 'plus-square',
                 items: [
                     {
                         key: routes_config.pathNames.commonRequestMoney,
-                        path: routes_config.pathNames.personalUnderConstruction,
-                        title: 'Request money',
+                        path: routes_config.pathNames.commonRequestMoney,
+                        title: 'menu.item.request_money',
                     }
                 ]
             },
             {
                 // key: routes_config.pathNames.personalSendMoney,
                 key: 'personal_send_money',
-                title: 'Pay',
+                title: 'menu.item.pay',
                 icon: 'minus-square',
                 items: [
                     {
                         key: routes_config.pathNames.commonSend,
                         path: routes_config.pathNames.commonSend,
-                        title: 'Send money',
+                        title: 'menu.item.send_money',
                     },
                     {
                         key: routes_config.pathNames.commonContractedServices,
-                        path: routes_config.pathNames.personalUnderConstruction,
-                        title: 'Payments and services',
-                        icon: 'shop',
+                        path: routes_config.pathNames.commonContractedServices,
+                        title: 'menu.item.contracted_services',
                     }
                 ]
             }
             ,
             {
                 key: routes_config.pathNames.commonConfiguration,
-                title: 'Configuration',
+                title: 'menu.item.configuration',
                 icon: 'setting',
                 path: routes_config.pathNames.commonConfiguration,
-                // items: [
-                //     {
-                //         key: routes_config.pathNames.personalConfiguration,
-                //         path: routes_config.pathNames.personalUnderConstruction,
-                //         title: 'Configuration'
-                //     }
-                // ]
+            }
+        ]
+    },
+    foundation: {
+        items: [
+            {
+                // key: routes_config.pathNames.personalDashboard,
+                key:  routes_config.pathNames.dashboard,
+                title: 'menu.item.my_money',
+                icon: 'wallet',
+                items: [
+                    {
+                        key: routes_config.pathNames.commonExtrato,
+                        path: routes_config.pathNames.commonExtrato,
+                        title: 'menu.item.extrato',
+                    },
+                    {
+                        key: routes_config.pathNames.commonDeposit,
+                        path: routes_config.pathNames.commonDeposit,
+                        title: 'menu.item.deposit',
+                    },
+                    {
+                        key: routes_config.pathNames.commonWithdraw,
+                        path: routes_config.pathNames.commonWithdraw,
+                        title: 'menu.item.withdraw',
+                    }
+                ]
+            },
+            {
+                key: 'personal_receive_money',
+                title: 'menu.item.receive',
+                icon: 'plus-square',
+                items: [
+                    {
+                        key: routes_config.pathNames.commonRequestMoney,
+                        path: routes_config.pathNames.commonRequestMoney,
+                        title: 'menu.item.request_money',
+                    }
+                ]
+            },
+            {
+                // key: routes_config.pathNames.personalSendMoney,
+                key: 'personal_send_money',
+                title: 'menu.item.pay',
+                icon: 'minus-square',
+                items: [
+                    {
+                        key: routes_config.pathNames.commonSend,
+                        path: routes_config.pathNames.commonSend,
+                        title: 'menu.item.send_money',
+                    },
+                    {
+                        key: routes_config.pathNames.commonContractedServices,
+                        path: routes_config.pathNames.commonContractedServices,
+                        title: 'menu.item.contracted_services',
+                    }
+                ]
+            }
+            ,
+            {
+                key: routes_config.pathNames.commonConfiguration,
+                title: 'menu.item.configuration',
+                icon: 'setting',
+                path: routes_config.pathNames.commonConfiguration,
             }
         ]
     },
     bankadmin: {
         items: [
             {
-                key:  routes_config.pathNames.bankadminDashboard,
-                title: 'Dashboard',
-                path: routes_config.pathNames.bankadminDashboard,
-                icon: 'dashboard'
+                key:          routes_config.pathNames.bankadminDashboard,
+                title:        'menu.item.dashboard',
+                path:         routes_config.pathNames.bankadminDashboard,
+                icon:         'dashboard',
+                permission:   'active'
             },
             {
-                key: routes_config.pathNames.bankadminTransactions,
-                title: 'Transactions',
-                icon: 'bank',
+                key:          routes_config.pathNames.bankadminTransactions,
+                title:        'menu.item.transactions',
+                icon:         'bank',
+                permission:   'active',
                 items: [
                     {
                         key: routes_config.pathNames.bankadminOperations,
                         path: routes_config.pathNames.bankadminOperations,
-                        title: 'Operations',
+                        title: 'menu.item.operations',
                         
                     },
-                    {
-                        key: routes_config.pathNames.bankadminExternalTransfers,
-                        path: routes_config.pathNames.bankadminExternalTransfers,
-                        title: 'External Transfers',
+                    // {
+                    //     key: routes_config.pathNames.bankadminExternalTransfers,
+                    //     path: routes_config.pathNames.bankadminExternalTransfers,
+                    //     title: 'menu.item.external Transfers',
 
-                    },
+                    // },
                     {
-                        key: routes_config.pathNames.commonServices,
-                        path: routes_config.pathNames.bankadminUnderConstruction,
-                        title: 'Services - PAP',
+                        key: routes_config.pathNames.bankadminServices,
+                        path: routes_config.pathNames.bankadminSoon,
+                        title: 'menu.item.services_pap',
                     },
                     {
                         key: routes_config.pathNames.bankadminIugu,
                         path: routes_config.pathNames.bankadminIugu,
-                        title: 'IUGU',
+                        title: 'menu.item.iugu',
                     }
 
                 ]
             },
             {
                 key: routes_config.pathNames.bankadminAdministration,
-                title: 'Administration',
+                title: 'menu.item.administration',
                 icon: 'table',
                 items: [
                     {
-                        key: routes_config.pathNames.bankadminAccounts,
-                        path: routes_config.pathNames.bankadminAccounts,
-                        title: 'Accounts',
+                        key:          routes_config.pathNames.bankadminAccounts,
+                        path:         routes_config.pathNames.bankadminAccounts,
+                        title:        'menu.item.accounts',
                     },
                     {
-                        key: routes_config.pathNames.bankadminProfiles,
-                        path: routes_config.pathNames.bankadminProfiles,
-                        title: 'Profiles',
+                        key:          routes_config.pathNames.bankadminProfiles,
+                        path:         routes_config.pathNames.bankadminProfiles,
+                        title:        'menu.item.profiles',
                     },
                     {
-                        key: routes_config.pathNames.commonProviders,
-                        path: routes_config.pathNames.commonProviders,
-                        title: 'Providers',
+                        key:          routes_config.pathNames.commonProviders,
+                        path:         routes_config.pathNames.commonProviders,
+                        title:        'menu.item.providers',
+                        permission:   'active'
                     },
                     {
-                        key: routes_config.pathNames.bankadminPDA,
-                        path: routes_config.pathNames.bankadminPDA,
-                        title: 'PDA',
+                        key:          routes_config.pathNames.bankadminPDA,
+                        path:         routes_config.pathNames.bankadminPDA,
+                        title:        'menu.item.pda',
                     },
                     {
-                        key: routes_config.pathNames.commonContractedServices,
-                        path: routes_config.pathNames.bankadminUnderConstruction,
-                        title: 'Contracted Services',
+                        key:          routes_config.pathNames.bankadminTeams,
+                        path:         routes_config.pathNames.bankadminSoon,
+                        title:        'menu.item.teams',
                     },
-
                 ]
             },
-            {
-                key: routes_config.pathNames.bankadminStaff,
-                title: 'Staff',
-                icon: 'profile',
-                items: [
-                    {
-                        key: routes_config.pathNames.commonSalaries,
-                        path: routes_config.pathNames.commonSalaries,
-                        title: 'Salaries',
-                    },
-                    {
-                        key: routes_config.pathNames.commonCrew,
-                        path: routes_config.pathNames.commonCrew,
-                        title: 'Crew',
-                    }
+            // {
+            //     key:                  routes_config.pathNames.bankadminStaff,
+            //     title:                'Teams',
+            //     icon:                 'usergroup-add',
+            //     permission:           'active',
+            //     items: [
+            //         {
+            //             key:          routes_config.pathNames.bankadminTeams,
+            //             path:         routes_config.pathNames.bankadminTeams,
+            //             title:        'menu.item.teams',
+            //         }
 
-                ]
-            },
+            //     ]
+            // },
             {
-                key: routes_config.pathNames.bankadminConfiguration,
-                path: routes_config.pathNames.bankadminConfiguration,
-                title: 'Configuration',
-                icon: 'setting',
+                key:                  routes_config.pathNames.bankadminConfiguration,
+                path:                 routes_config.pathNames.bankadminConfiguration,
+                title:                'menu.item.configuration',
+                icon:                 'setting',
+                permission:           'active'
             }
         ]
     },
     business: {
         items: [
             {
-                key:  'biz_wallet',
-                title: 'My money',
-                icon: 'wallet',
+                key:      'biz_wallet',
+                title:    'menu.item.my_money',
+                icon:     'wallet',
                 items: [
+                    // {
+                    //     key:         routes_config.pathNames.businessExtracto,
+                    //     path:        routes_config.pathNames.businessExtracto,
+                    //     title:       'Extrato',
+                    // },
                     {
-                        key: routes_config.pathNames.businessExtracto,
-                        path: routes_config.pathNames.businessExtracto,
-                        title: 'Extrato',
+                        key: routes_config.pathNames.commonExtrato,
+                        path: routes_config.pathNames.commonExtrato,
+                        title: 'menu.item.extrato',
                     },
                     {
-                        key: routes_config.pathNames.commonDeposit,
-                        path: routes_config.pathNames.commonDeposit,
-                        title: 'Deposit',
+                        key:         routes_config.pathNames.commonDeposit,
+                        path:        routes_config.pathNames.commonDeposit,
+                        title:       'menu.item.deposit',
+                        permission:  'owner,active,viewer'
                     },
                     {
-                        key: routes_config.pathNames.commonWithdraw,
-                        path: routes_config.pathNames.commonWithdraw,
-                        title: 'Withdraw',
+                        key:         routes_config.pathNames.commonWithdraw,
+                        path:        routes_config.pathNames.commonWithdraw,
+                        title:       'menu.item.withdraw',
+                        permission:  'owner,active,viewer'
                     }
                 ]
             },
             {
-                key:  'biz_receive',
-                title: 'Receive',
-                icon: 'plus-square',
+                key:      'biz_receive',
+                title:    'menu.item.receive',
+                icon:     'plus-square',
                 items: [
                     {
-                        key: routes_config.pathNames.businessPDV,
-                        path: routes_config.pathNames.businessPDV,
-                        title: 'Vendas - PDV',
+                        key:         routes_config.pathNames.businessPDV,
+                        path:        routes_config.pathNames.businessPDV,
+                        title:       'menu.item.vendas_pdv',
+                        permission:  'owner,active,pdv'
                     },
                     {
-                        key: routes_config.pathNames.commonServices,
-                        path: routes_config.pathNames.commonServices,
-                        title: 'Serviços oferecidos',
+                        key:         routes_config.pathNames.commonServices,
+                        path:        routes_config.pathNames.commonServices,
+                        title:       'menu.item.offered_services',
+                        permission:  'owner,active'
+                    },
+                    {
+                        key: routes_config.pathNames.commonRequestMoney,
+                        path: routes_config.pathNames.commonRequestMoney,
+                        title: 'menu.item.request_money',
                     }
                 ]
             },
             {
-                key:  'biz_pay',
-                title: 'Pay',
-                icon: 'minus-square',
+                key:         'biz_pay',
+                title:       'menu.item.pay',
+                icon:        'minus-square',
+                permission:  'owner,active',
                 items: [
                     {
-                        key: routes_config.pathNames.commonSend,
-                        path: routes_config.pathNames.commonSend,
-                        title: 'Send money',
+                        key:         routes_config.pathNames.commonSend,
+                        path:        routes_config.pathNames.commonSend,
+                        title:       'menu.item.send_money',
                     },
                     {
-                        key: routes_config.pathNames.businessPaymentsAndServices,
-                        path: routes_config.pathNames.businessUnderConstruction,
-                        title: 'Serviços Contratados',
+                        key:         routes_config.pathNames.commonContractedServices,
+                        path:        routes_config.pathNames.commonContractedServices,
+                        title:       'menu.item.contracted_services',
                     },
                     {
-                        key: routes_config.pathNames.businessProvidersPayments,
-                        path: routes_config.pathNames.businessProvidersPayments,
-                        title: 'Providers Payments',
+                        key:         routes_config.pathNames.businessProvidersPayments,
+                        path:        routes_config.pathNames.businessProvidersPayments,
+                        title:       'menu.item.providers_payments',
                     }
                 ]
             },
             {
-                key: 'biz_staff',
-                title: 'Staff',
-                icon: 'profile',
+                key:         'biz_staff',
+                title:       'menu.item.staff',
+                icon:        'team',
+                permission:  'owner,active',
                 items: [
                     {
-                        key: routes_config.pathNames.commonSalaries,
-                        path: routes_config.pathNames.commonSalaries,
-                        title: 'Salaries',
+                        key:         routes_config.pathNames.commonSalaries,
+                        path:        routes_config.pathNames.commonSalaries,
+                        title:       'menu.item.salaries',
                     },
                     {
-                        key: routes_config.pathNames.commonCrew,
-                        path: routes_config.pathNames.commonCrew,
-                        title: 'Crew',
+                        key:         routes_config.pathNames.commonCrew,
+                        path:        routes_config.pathNames.commonCrew,
+                        title:       'menu.item.crew',
                     }
 
                 ]
             },
             {
-                key: 'biz_config',
-                title: 'Settings',
-                icon: 'setting',
+                key:         'biz_config',
+                title:       'menu.item.settings',
+                icon:        'setting',
+                permission:  'owner,active',
                 items:[
                     {
                         key: routes_config.pathNames.commonConfiguration,
                         path: routes_config.pathNames.commonConfiguration,
-                        title: 'Configuration',
+                        title: 'menu.item.configuration',
                     },
                     {
                         key: routes_config.pathNames.commonProviders,
                         path: routes_config.pathNames.commonProviders,
-                        title: 'Providers',
+                        title: 'menu.item.providers',
                     }
                 ]
             }

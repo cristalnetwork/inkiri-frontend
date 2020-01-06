@@ -721,8 +721,12 @@ p.congrats-content {
  * Tables / Datagrid
  */
 @media screen and (min-width: 768px) {
+
   .money-transfer {
     padding: 0 126px; }
+  .money-transfer.simple_padding {
+    padding: 0 20px; }
+
   .input-price {
     background-color: transparent;
     height: 160px; }

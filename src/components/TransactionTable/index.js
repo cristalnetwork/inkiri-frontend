@@ -6,12 +6,16 @@ import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
-import * as api from '@app/services/inkiriApi';
+import * as gqlService from '@app/services/inkiriApi/graphql'
 
 import { Button} from 'antd';
-import { notification, Table } from 'antd';
+import { Table } from 'antd';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
+import * as ui_helper from '@app/components/helper';
+
+import InjectMessage from "@app/components/intl-messages";
+import { injectIntl } from "react-intl";
 
 export const  DISPLAY_ALL_TXS    = 'all_txs';
 export const  DISPLAY_REQUESTS   = 'type_all';
@@ -25,43 +29,75 @@ export const  DISPLAY_SERVICE    = globalCfg.api.TYPE_SERVICE;
 
 export const  DISPLAY_PDA        = globalCfg.api.TYPE_DEPOSIT+'|'+globalCfg.api.TYPE_WITHDRAW;
 export const  DISPLAY_EXTERNAL   = globalCfg.api.TYPE_EXCHANGE+'|'+globalCfg.api.TYPE_PROVIDER;
-//
 
+//
 class TransactionTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      txs:           [],
-      loading:       false,
-      page:          -1, 
-      limit:         globalCfg.api.default_page_size,
-      can_get_more:  true,
-      for_admin:     props.i_am_admin
+      txs:               [],
+      page:              -1, 
+      loading:           false,
+      limit:             globalCfg.api.default_page_size,
+      can_get_more:      true,
+      
+      for_admin:         props.i_am_admin,
+      filter:            props.filter,
+      requests_filter:   {}
     };
     // this.handleChange      = this.handleChange.bind(this);
     this.onNewData         = this.onNewData.bind(this);
     this.renderFooter      = this.renderFooter.bind(this); 
+    this.getColumnsForType = this.getColumnsForType.bind(this);
+    this.applyFilter       = this.applyFilter.bind(this);
   }
 
+  getColumnsForType =() =>{
+
+    const is_admin = globalCfg.bank.isAdminAccount(this.props.actualRoleId )
+    return columns_helper.getColumnsForRequests(this.props.callback, is_admin);
+  }
+  
+  
   componentDidMount(){
+    if(typeof this.props.onRef==='function')
+    {
+      this.props.onRef(this);
+    }
+
     this.loadTxs();
+  }
+  
+  componentWillUnmount() {
+    if(typeof this.props.onRef==='function')
+      this.props.onRef(undefined)
+  }
+
+  applyFilter = (filter) =>{
+    console.log(' -- table-widget::applyFilter:', filter)
+    this.setState({
+      requests_filter:filter
+    },() => {
+      this.refresh();
+    });
   }
 
   renderFooter(){
-    return (<><Button key={'load-more-data_'+this.props.request_type} disabled={!this.state.can_get_more} onClick={()=>this.loadTxs()}>More!!</Button> </>)
+    return (<><Button key={'load-more-data_'+this.props.request_type} disabled={!this.state.can_get_more} onClick={()=>this.loadTxs()}>
+                <InjectMessage id="components.TransactionTable.index.load_more_records" />
+              </Button> </>)
   }
 
   refresh(){
     const that = this;
-    
-      this.setState(
-        {txs:[]
-          , can_get_more:true
-          , page:-1}
-        , ()=>{
-          that.loadTxs();
-        })
-      return;
+    this.setState({
+      txs:[]
+      , can_get_more:true
+      , page:-1}
+    , ()=>{
+      that.loadTxs();
+    })
+    return;
   }
 
   componentDidUpdate(prevProps) {
@@ -72,19 +108,21 @@ class TransactionTable extends Component {
     if (this.props.i_am_admin !== prevProps.i_am_admin) {
       this.setState({for_admin: this.props.i_am_admin});
     }
-    
+    if (this.props.filter !== prevProps.filter) {
+      this.setState({filter: this.props.filter});
+    } 
   }
-  loadTxs(){
 
-    const can_get_more   = this.state.can_get_more;
+  loadTxs = async () =>{
+
+    const {can_get_more, requests_filter, for_admin, filter}   = this.state;
     if(!can_get_more)
     {
       this.setState({loading:false});
       return;
     }
 
-    const account_name = this.props.actualAccountName;
-    
+    const account_name = for_admin?'':this.props.actualAccountName;
     
     this.setState({loading:true});
 
@@ -92,28 +130,31 @@ class TransactionTable extends Component {
     const limit          = this.state.limit;
     const that           = this;
     
-    if(this.state.for_admin)
+    const requested_type = this.props.request_type==DISPLAY_REQUESTS?'':this.props.request_type;
+    if(!for_admin && (requests_filter.to||requests_filter.from))
     {
-      const req_type = this.props.request_type;
-      api.bank.listRequests(page, limit, req_type)
-        .then( (res) => {
-            that.onNewData(res);
-          } ,(ex) => {
-            // console.log('---- ERROR:', JSON.stringify(ex));
-            that.setState({loading:false});  
-          } 
-        )
+      if(requests_filter.to)
+      {  
+        requests_filter.from=account_name;
+      }
+      else
+        if(requests_filter.from)
+        {
+          requests_filter.to=account_name;
+        }
+    }
+    const filter_obj = {limit, account_name, page, requested_type, ...requests_filter, ...(filter||{})};
+    console.log(' TABLE filter_obj:', filter_obj);
+    try{
+      const data = await gqlService.requests(filter_obj);
+      that.onNewData(data);
+    }
+    catch(e)
+    {
+      this.setState({loading:false});
+      ui_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
       return;
     }
-
-    api.bank.listMyRequests(account_name, page, limit, this.props.request_type)
-    .then( (res) => {
-        that.onNewData(res);
-      } ,(ex) => {
-        // console.log('---- ERROR:', JSON.stringify(ex));
-        that.setState({loading:false});  
-      } 
-    );
     
   }
 
@@ -127,11 +168,24 @@ class TransactionTable extends Component {
 
     const has_received_new_data = (txs && txs.length>0);
 
-    this.setState({pagination:pagination, txs:_txs, can_get_more:(has_received_new_data && txs.length==this.state.limit), loading:false})
+    const {page}   = this.state;
+    const the_page = has_received_new_data?(page+1):page;
+    this.setState({
+      page:           the_page,
+      pagination:     pagination, 
+      txs:            _txs, 
+      can_get_more:   (has_received_new_data && txs.length==this.state.limit), 
+      loading:        false
+    });
 
     if(!has_received_new_data)
     {
-      this.openNotificationWithIcon("info", "End of transactions","You have reached the end of transaction list!")
+      const end_of_list           = this.props.intl.formatMessage({id:'components.TransactionTable.index.end_of_list'})
+      const no_records_for_filter = this.props.intl.formatMessage({id:'components.TransactionTable.index.no_records_for_filter'})
+      const msg = (page>0)
+        ?end_of_list
+        :no_records_for_filter;
+      ui_helper.notif.infoNotification(msg)
     }
     else
       if(typeof this.props.onChange === 'function') {
@@ -139,25 +193,22 @@ class TransactionTable extends Component {
       }
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
-
-
   render(){
     return (
       <Table 
         key={'tx_table__'+this.props.request_type}
-        rowKey={record => record.id} 
+        rowKey={record => record._id} 
         loading={this.state.loading} 
-        columns={columns_helper.getDefaultColumns(this.props.actualRoleId, this.props.callback)} 
+        columns={this.getColumnsForType()} 
         dataSource={this.state.txs} 
         footer={() => this.renderFooter()}
         pagination={this.state.pagination}
-        scroll={{ x: 700 }}
+        scroll={{ x: 950 }}
+        expandedRowRender={columns_helper.expandedRequestRowRender}
+        onRow={(record, rowIndex) => {
+              return { onDoubleClick: event => { this.props.callback(record) }
+              };
+            }}
       />
     
     )
@@ -174,4 +225,4 @@ export default connect(
         tryLogin: bindActionCreators(loginRedux.tryLogin, dispatch),
         logout: bindActionCreators(loginRedux.logout, dispatch)
     })
-)(TransactionTable)
+)( injectIntl(TransactionTable))

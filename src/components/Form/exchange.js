@@ -5,17 +5,20 @@ import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
+import * as menuRedux from '@app/redux/models/menu';
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
-
-import PropTypes from "prop-types";
+import * as components_helper from '@app/components/helper';
+import {ACTIVE_TAB_PROFILE, ACTIVE_TAB_PROFILE_BANK_ACCOUNT} from '@app/pages/common/configuration';
 import { withRouter } from "react-router-dom";
 
 import { Upload, notification, Select, Button , Form, Icon, InputNumber, Input } from 'antd';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import { injectIntl } from "react-intl";
 
 const DEFAULT_STATE = {
       input_amount      :
@@ -34,10 +37,11 @@ const DEFAULT_STATE = {
 class ExchangeForm extends Component {
   constructor(props) {
     super(props);
+    const default_text = this.props.intl.formatMessage({id:'global.submit'});
     this.state = {
       profile         : props.profile || this.props.actualAccountProfile,
       alone_component : props.alone_component || false,
-      button_text     : props.button_text || 'SUBMIT',
+      button_text     : props.button_text || default_text,
       callback        : props.callback ,
       ...DEFAULT_STATE
     };
@@ -45,7 +49,6 @@ class ExchangeForm extends Component {
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.handleBankAccountChange    = this.handleBankAccountChange.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.onInputAmount              = this.onInputAmount.bind(this);
   }
 
@@ -58,7 +61,6 @@ class ExchangeForm extends Component {
 
   getPropsForUploader(name){
     const filelist = this.state.attachments[name] || [];
-    // console.log(' FILELIST OF '+name, JSON.stringify(filelist) )
     return {
       onRemove: file => {
         this.setState(state => {
@@ -73,7 +75,8 @@ class ExchangeForm extends Component {
       beforeUpload: file => {
         if(this.state.attachments[name] && this.state.attachments[name].length>0)
         {
-          this.openNotificationWithIcon("info", "Only 1 file allowed")    
+          const default_text = this.props.intl.formatMessage({id:'infos.only_one_file'});
+          components_helper.notif.infoNotification(default_text);
           return false;
         }
 
@@ -85,26 +88,34 @@ class ExchangeForm extends Component {
         return false;
       },
       fileList: filelist,
+      className: filelist.length>0?'icon_color_green':'icon_color_default'
     };
   }
 
   componentDidUpdate(prevProps, prevState) 
   {
-      if(prevProps.profile !== this.props.profile) {
-          this.setState({
-            profile         : this.props.profile || this.props.actualAccountProfile,
-            alone_component : this.props.alone_component || false,
-            button_text     : this.props.button_text || 'SUBMIT',
-            callback        : this.props.callback 
-          });
-      }
+    let new_state = {};
+    if(prevProps.profile !== this.props.profile) {
+      new_state = {...new_state, 
+          profile         : this.props.profile || this.props.actualAccountProfile,
+          alone_component : this.props.alone_component || false,
+          button_text     : this.props.button_text,
+          callback        : this.props.callback 
+        };
+    }
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
+  componentDidMount() {
+    if(typeof this.props.onRef==='function')
+    {
+      this.props.onRef(this)
+    }
+  }
+  componentWillUnmount() {
+    if(typeof this.props.onRef==='function')
+      this.props.onRef(undefined)
   }
 
   getBankAccountById(id){
@@ -129,44 +140,50 @@ class ExchangeForm extends Component {
     this.props.form.validateFields((err, values) => {
 
       if (err) {
-        this.openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
+        components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'errors.validation_title'}), this.props.intl.formatMessage({id:'errors.verify_on_screen'}) )    
         console.log(' ERRORS!! >> ', err)
         return;
       }
       const {input_amount, bank_account} = this.state;
       if(isNaN(input_amount.value))
       {
-        this.openNotificationWithIcon("error", input_amount.value + " > valid number required","Please type a valid number greater than 0!")    
+        const title = this.props.intl.formatMessage({id: 'components.forms.validators.valid_number_required'})
+        const desc  = this.props.intl.formatMessage({id: 'components.forms.validators.valid_number_required_description'})
+        components_helper.notif.errorNotification( title, desc);    
         return;
       }
       if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
       {
-        const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-        this.openNotificationWithIcon("error", `Amount must be equal or less than balance ${balance_txt}!`); //`
+        const balance_txt     = globalCfg.currency.toCurrencyString(this.props.balance);
+        const amount_message  = this.props.intl.formatMessage({id: 'components.forms.validators.minimum_amount_required'}, {balance:balance_txt})
+        components_helper.notif.errorNotification(amount_message);
+        // components_helper.notif.errorNotification(`Amount must be equal or less than balance ${balance_txt}!`);
         return;
       }
 
       if(!bank_account)
       {
-        this.openNotificationWithIcon("error", 'You must choose a Bank Account!');
+        const bank_account_message  = this.props.intl.formatMessage({id: 'components.Forms.bank_account.forgot_choose_bank_account'})
+        components_helper.notif.errorNotification(bank_account_message);
         return;
       }
-      
+
       const attachments         = this.state.attachments;
-      const my_NOTA_FISCAL      = (attachments[globalCfg.api.NOTA_FISCAL] && attachments[globalCfg.api.NOTA_FISCAL].length>0) ? attachments[globalCfg.api.NOTA_FISCAL][0] : undefined;
+      const my_NOTA_FISCAL      = (attachments[globalCfg.api.NOTA_FISCAL] && attachments[globalCfg.api.NOTA_FISCAL].length>0) 
+                                    ? attachments[globalCfg.api.NOTA_FISCAL][0] 
+                                    : undefined;
       
-      if(!my_NOTA_FISCAL)
-      {
-        this.openNotificationWithIcon("error", 'Nota Fiscal attachment is required', 'Please attach a Nota Fiscal PDF file.');
-        return;
-      }
+      let attachments_array = {};
+      if(my_NOTA_FISCAL) 
+        attachments_array[globalCfg.api.NOTA_FISCAL] = my_NOTA_FISCAL;
 
       const exchange_request = {
         amount              : input_amount.value,
         bank_account        : bank_account,
         bank_account_object : this.getBankAccountById(bank_account),
-        attachments_array   : { [globalCfg.api.NOTA_FISCAL] : my_NOTA_FISCAL}
+        attachments_array   : attachments_array
       }
+
       const {callback} = this.state;
       if(typeof  callback === 'function') {
           callback(exchange_request)
@@ -175,9 +192,12 @@ class ExchangeForm extends Component {
     });
   };
 
+  reset = () => this.resetForm();
+
   resetForm(){
-    
+    console.log('exchangeForm->ResetForm')
     this.setState({...DEFAULT_STATE});
+    this.props.form.setFieldsValue({'bank_account':''})
   }
 
   onInputAmount(event){
@@ -212,19 +232,39 @@ class ExchangeForm extends Component {
       });
   }
 
+  onNewBankAccount =() =>{
+    const back_text = this.props.intl.formatMessage({id: 'components.Forms.exchange.back_to_ref_after_create'})
+    this.props.setReferrer(  back_text
+                             , this.props.location.pathname
+                             , this.state.referrer
+                             , 'university')
+
+    this.props.history.push({
+      pathname: `/common/configuration`
+      , state: { 
+          active_tab: ACTIVE_TAB_PROFILE
+          , active_tab_action:  ACTIVE_TAB_PROFILE_BANK_ACCOUNT
+        }
+    })
+  }
+
   renderBankOptionsItem(){
     const {profile} = this.state;
     if(!profile || !profile.bank_accounts)
       return (null);
 
     const { getFieldDecorator } = this.props.form;
+    
+    
+    const bank_account_forgot_message = this.props.intl.formatMessage({id: 'components.Forms.bank_account.forgot_choose_bank_account'})
+    const bank_account_placeholder     = this.props.intl.formatMessage({id: 'components.Forms.exchange.choose_bank_account'})
     return (
-      <Form.Item className="money-transfer__row row-complementary money-transfer__select ">
+      <Form.Item className="money-transfer__row row-complementary money-transfer__select ">          
           {getFieldDecorator( 'bank_account', {
-            rules: [{ required: true, message: 'Please select a Bank Account'}]
+            rules: [{ required: true, message: bank_account_forgot_message}]
             , onChange: (e) => this.handleBankAccountChange(e)
           })(
-            <Select placeholder={'Choose a Bank Account'}>
+            <Select placeholder={bank_account_placeholder }>
             {
               profile.bank_accounts.map( b_account => 
                 {
@@ -245,6 +285,10 @@ class ExchangeForm extends Component {
     const { getFieldDecorator }                  = this.props.form;
     const bank_options_item                      = this.renderBankOptionsItem();
     const notaUploaderProps                      = this.getPropsForUploader(globalCfg.api.NOTA_FISCAL);
+
+    const { formatMessage }       = this.props.intl;
+    const amount_title            = formatMessage( {id: 'global.amount' } );
+
     return (
         <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">
@@ -252,18 +296,25 @@ class ExchangeForm extends Component {
               <div className="money-transfer__row row-complementary" >
                   <div className="badge badge-extra-small badge-circle addresse-avatar">
                       <span className="picture">
-                        <FontAwesomeIcon icon="university" size="lg" color="gray"/>
+                        <FontAwesomeIcon icon="university" size="lg" color="black"/>
                       </span>
                   </div>
                   <div className="money-transfer__input money-transfer__select">
+                    <Button type="default" icon="plus" size="small" 
+                      onClick={() => this.onNewBankAccount()} 
+                      title={ this.props.intl.formatMessage({id:'components.Forms.exchange.add_bank_account_title'}) } 
+                      style={{position:'absolute', right:8, top:8}}/>
                     {bank_options_item}
                   </div>
               </div>
 
                 
-              <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+              <Form.Item label={amount_title} className="money-transfer__row input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
-                      rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: validators.checkPrice }],
+                      rules: [{ required:  true
+                          , message:       this.props.intl.formatMessage({id:'components.forms.validators.forgot_amount'})
+                          , whitespace:    true
+                          , validator:     validators.checkPrice }],
                       initialValue: input_amount.value
                     })( 
                       <>  
@@ -288,9 +339,9 @@ class ExchangeForm extends Component {
                 <Form.Item>
                     <Upload.Dragger {...notaUploaderProps} multiple={false}>
                       <p className="ant-upload-drag-icon">
-                        <FontAwesomeIcon icon="receipt" size="3x" color="#3db389"/>
+                        <FontAwesomeIcon icon="receipt" size="3x"/>
                       </p>
-                      <p className="ant-upload-text">Nota Fiscal</p>
+                      <p className="ant-upload-text">{ this.props.intl.formatMessage({id:'global.invoice'}) }</p>
                     </Upload.Dragger>,
                 </Form.Item>
               </div>
@@ -336,7 +387,7 @@ export default Form.create() (withRouter(connect(
         balance:              balanceRedux.userBalance(state),
     }),
     (dispatch)=>({
-        
+        setReferrer:          bindActionCreators(menuRedux.setReferrer, dispatch),
     })
-)(ExchangeForm) )
+)( injectIntl(ExchangeForm)) )
 );
