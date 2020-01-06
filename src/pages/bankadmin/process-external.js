@@ -82,7 +82,7 @@ class processExternal extends Component {
     if(prevProps.isFetching!=this.props.isFetching){
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
-    if(prevProps.getErrors!=this.props.getErrors){
+    if(!utils.arraysEqual(prevProps.getErrors, this.props.getErrors)){
       // const ex = this.props.getLastError;
       // new_state = {...new_state, 
       //     getErrors:     this.props.getErrors, 
@@ -91,7 +91,7 @@ class processExternal extends Component {
       // if(ex)
       //   components_helper.notif.exceptionNotification("An error occurred!", ex);
     }
-    if(prevProps.getResults!=this.props.getResults){
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       const lastResult = this.props.getLastResult;
       // new_state = {...new_state, 
       //   getResults:      this.props.getResults, 

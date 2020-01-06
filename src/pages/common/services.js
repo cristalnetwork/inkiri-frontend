@@ -8,6 +8,7 @@ import * as loginRedux from '@app/redux/models/login'
 import * as apiRedux from '@app/redux/models/api';
 
 import * as globalCfg from '@app/configs/global';
+import * as utils from '@app/utils/utils';
 
 import * as api from '@app/services/inkiriApi';
 import { withRouter } from "react-router-dom";
@@ -135,7 +136,7 @@ class Services extends Component {
       this.setState({ provider:provider || this.props.actualAccountProfile});
     }
 
-    if(prevProps.getResults!=this.props.getResults){
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       const that          = this;
       const {active_view} = this.state;
       

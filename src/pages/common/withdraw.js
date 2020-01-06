@@ -14,6 +14,7 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
+import * as utils from '@app/utils/utils';
 
 import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Modal} from 'antd';
 import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
@@ -61,8 +62,16 @@ class WithdrawMoney extends Component {
     const {formatMessage} = this.props.intl;
     
     const amount_text = formatMessage({id:'global.amount'})
-
-    this.setState({intl:{amount_text}});
+    const title = formatMessage({id:'pages.common.withdraw.title'});
+    const error_cant_form_validation = formatMessage({id:'pages.common.withdraw.error_cant_form_validation'});
+    const valid_number_required = formatMessage({id:'pages.common.withdraw.valid_number_required'});
+    const valid_number_required_description = formatMessage({id:'pages.common.withdraw.valid_number_required_description'});
+    const confirm_request = formatMessage({id:'pages.common.withdraw.confirm_request'});
+    const pick_up_money_message = formatMessage({id:'pages.common.withdraw.pick_up_money_message'});
+    const pushing_transaction = formatMessage({id:'pages.common.withdraw.pushing_transaction'});
+    const forgot_amount = formatMessage({id:'pages.common.withdraw.forgot_amount'});
+    const request_withdraw_action_text = formatMessage({id:'pages.common.withdraw.request_withdraw_action_text'});
+    this.setState({intl:{amount_text, title, error_cant_form_validation, valid_number_required, valid_number_required_description, confirm_request, pick_up_money_message, pushing_transaction, forgot_amount, request_withdraw_action_text}});
 
   }
 
@@ -72,7 +81,7 @@ class WithdrawMoney extends Component {
     if(prevProps.isFetching!=this.props.isFetching){
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
-    if(prevProps.getErrors!=this.props.getErrors){
+    if(!utils.arraysEqual(prevProps.getErrors, this.props.getErrors)){
       // const ex = this.props.getLastError;
       // new_state = {...new_state, 
       //     getErrors:     this.props.getErrors, 
@@ -81,7 +90,7 @@ class WithdrawMoney extends Component {
       // if(ex)
       //   components_helper.notif.exceptionNotification("An error occurred!", ex);
     }
-    if(prevProps.getResults!=this.props.getResults){
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       const lastResult = this.props.getLastResult;
       // new_state = {...new_state, 
       //   getResults:      this.props.getResults, 
@@ -168,21 +177,22 @@ class WithdrawMoney extends Component {
     
     this.props.form.validateFields((err, values) => {
       if(err){
-        components_helper.notif.errorNotification('Form error', 'Please verify on screen errors.');
+        components_helper.notif.errorNotification( this.state.intl.error_cant_form_validation ) ;
         return;
       }
 
       const {input_amount} = this.state;
       if(isNaN(input_amount.value) || parseFloat(input_amount.value)<=0)
       {
-        components_helper.notif.errorNotification("Input a valid number","Please type a valid number greater than 0.00 !")    
+        components_helper.notif.errorNotification(this.state.intl.valid_number_required, this.state.intl.valid_number_required_description)    
         return;
       }
       
       if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
       {
         const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-        components_helper.notif.errorNotification(`Amount must be equal or less than your balance ${balance_txt}!`); 
+        const amount_le_balance_message = this.props.intl.formatMessage( { id:'pages.common.withdraw.amount_le_balance_message'}, {balance:balance_txt});
+        components_helper.notif.errorNotification(amount_le_balance_message);
         return;
       }
 
@@ -191,9 +201,14 @@ class WithdrawMoney extends Component {
       const privateKey     = this.props.actualPrivateKey;
       const amount       = input_amount.value;
       
+      const confirm_request = this.props.intl.formatMessage({id:'pages.common.withdraw.confirm_request'});
+      const confirm_request_message = this.props.intl.formatMessage({id:'pages.common.withdraw.confirm_request_message'}, {amount: this.inputAmountToString()});
+      
+      
+
       Modal.confirm({
-        title: 'Confirm withdraw request',
-        content: 'Please confirm withdraw for '+this.inputAmountToString(),
+        title: confirm_request,
+        content: confirm_request_message,
         onOk() {
           
           const withdraw_account = globalCfg.bank.withdraw_account; 
@@ -236,7 +251,7 @@ class WithdrawMoney extends Component {
       callback();
       return;
     }
-    callback('Amount must greater than zero!');
+    callback(this.state.intl.valid_number_required_description);
   };
 
   renderContent() {
@@ -255,20 +270,22 @@ class WithdrawMoney extends Component {
     const { getFieldDecorator }               = this.props.form;
     const { input_amount, isFetching}         = this.state;
     return (
-        <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
+        <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
           <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">    
               
               <Form.Item label={this.state.intl.amount_text} className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
-                      rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
+                      rules: [{ required:        true
+                                  , message:     this.state.intl.forgot_amount
+                                  , whitespace:  true
+                                  , validator:   this.checkPrice }],
                       initialValue: input_amount.value
                     })( 
                       <>  
                         <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
                           {globalCfg.currency.symbol}
                         </span>
-                        
                         <Input 
                           type="tel" 
                           step="0.01" 
@@ -285,7 +302,9 @@ class WithdrawMoney extends Component {
             </div>
 
             <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={isFetching} >REQUEST WITHDRAW</Button>
+              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={isFetching} >
+                {this.state.intl.request_withdraw_action_text}
+              </Button>
             </div>
 
           </Form>  
@@ -305,11 +324,7 @@ class WithdrawMoney extends Component {
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title="Withdraw money"
-          subTitle="Withdraw paper money at the nearest PDA"
-          
-        >
-          
-        </PageHeader>
+          />
           <div style={{ margin: '0 0px', padding: 24}}>
             <div className="ly-main-content content-spacing cards">
               <section className="mp-box mp-box__shadow money-transfer__box">

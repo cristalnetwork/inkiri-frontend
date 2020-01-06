@@ -835,7 +835,7 @@
   "pages.common.send.business.select_transfer_reason_text"              : "Please select a transfer reason",
   "pages.common.send.business.select_transfer_reason_placeholder"       : "Choose a transfer reason",
   "pages.common.send.business.select_transfer_reason_validation"        : "Please choose a transfer reason.",
-  "pages.common.send.error_cant_form_validation"                        : "Oops... Please verify fields mesasges on screen.",
+  "pages.common.send.error_cant_form_validation"                        : "Oops... Please verify fields messages on screen.",
   "pages.common.send.valid_amount_required"                             : "Valid amount required",
   "pages.common.send.valid_amount_required_description"                 : "Please type a valid amount greater than 0.00 !",
   "pages.common.send.amount_le_balance_message"                         : "Amount must be equal or less than balance {balance}",
@@ -892,6 +892,18 @@
   "pages.common.services.pushing_transaction"                           : "Pushing transaction...",
   "pages.common.services.load_more_services"                            : "Load more services",
   "pages.common.services.confirm_send_request_message"                  : "You will invite <bold>{customer}</bold> to accept <bold>{service}</bold> service, at a <bold>{amount}</bold> monthly price bases, for <bold>{periods}</bold> periods/months, begining at <bold>{begins_at}</bold>",
+
+  "pages.common.withdraw.title"                                         : "Withdraw money",  
+  "pages.common.withdraw.error_cant_form_validation"                    : "Oops... Please verify fields messages on screen.",
+  "pages.common.withdraw.valid_number_required"                         : "Valid number required",
+  "pages.common.withdraw.valid_number_required_description"             : "Please type a valid number greater than 0.00 !",
+  "pages.common.withdraw.confirm_request"                               : "Confirm withdraw",
+  "pages.common.withdraw.pick_up_money_message"                         : "Please pick up the paper money at the closest PDA.",
+  "pages.common.withdraw.pushing_transaction"                           : "Pushing transaction...",
+  "pages.common.withdraw.forgot_amount"                                 : "Please input an amount!",
+  "pages.common.withdraw.request_withdraw_action_text"                  : "Request withdraw",
+  "pages.common.withdraw.confirm_request_message"                       : "Please confirm withdraw for {amount}",
+  "pages.common.withdraw.amount_le_balance_message"                     : "Amount must be equal or less than balance {balance}",
 
   "dummy" : "dummy"
  

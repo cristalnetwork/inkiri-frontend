@@ -132,7 +132,7 @@ class RequestDetails extends Component {
       //   components_helper.notif.exceptionNotification("An error occurred!", ex);
     
     }
-    if(prevProps.getResults!=this.props.getResults){
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       
       const lastResult = this.props.getLastResult;
       // new_state = {...new_state, 

@@ -7,7 +7,7 @@ import { bindActionCreators } from 'redux';
 import * as apiRedux from '@app/redux/models/api';
 import * as menuRedux from '@app/redux/models/menu'
 import * as loginRedux from '@app/redux/models/login'
-
+import * as utils from '@app/utils/utils';
 import './right_content.less';
 
 import ReferrerWidget  from '@app/components/InkiriHeader/referrer_widget';
@@ -45,7 +45,7 @@ class InkiriHeader extends Component {
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
 
-    if(prevProps.getErrors!=this.props.getErrors){
+    if(!utils.arraysEqual(prevProps.getErrors, this.props.getErrors)){
       const ex = this.props.getLastError;
       new_state = {...new_state, 
           getErrors:     this.props.getErrors, 
@@ -55,7 +55,7 @@ class InkiriHeader extends Component {
         components_helper.notif.exceptionNotification(  this.props.intl.formatMessage({id:'errors.occurred_title'}), ex, this.props.clearAll)
     }
 
-    if(prevProps.getResults!=this.props.getResults){
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       const lastResult = this.props.getLastResult;
       new_state = {...new_state, 
         getResults:      this.props.getResults, 

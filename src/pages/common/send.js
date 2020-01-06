@@ -95,9 +95,9 @@ class SendMoney extends Component {
     if(prevProps.isFetching!=this.props.isFetching){
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
-    if(prevProps.getErrors!=this.props.getErrors){
+    if(!utils.arraysEqual(prevProps.getErrors, this.props.getErrors)){
     }
-    if(prevProps.getResults!=this.props.getResults){
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       const that = this;
       setTimeout(()=> that.resetPage() ,100);
     }

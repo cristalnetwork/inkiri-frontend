@@ -12,6 +12,7 @@ import * as globalCfg from '@app/configs/global';
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
+import * as utils from '@app/utils/utils';
 
 import { Select,PageHeader, Button, Spin, Modal, Form, Input } from 'antd';
 
@@ -87,7 +88,7 @@ class DepositMoney extends Component {
     if(prevProps.isFetching!=this.props.isFetching){
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
-    if(prevProps.getResults!=this.props.getResults){
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       const lastResult = this.props.getLastResult;
       if(lastResult)
       {

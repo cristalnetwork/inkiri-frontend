@@ -10,6 +10,8 @@ import * as apiRedux from '@app/redux/models/api';
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
+import * as utils from '@app/utils/utils';
+
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
@@ -65,7 +67,7 @@ class Exchange extends Component {
     if(prevProps.isFetching!=this.props.isFetching){
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
-    if(prevProps.getErrors!=this.props.getErrors){
+    if(!utils.arraysEqual(prevProps.getErrors, this.props.getErrors)){
       // const ex = this.props.getLastError;
       // new_state = {...new_state, 
       //     getErrors:     this.props.getErrors, 
@@ -74,7 +76,7 @@ class Exchange extends Component {
       // if(ex)
       //   components_helper.notif.exceptionNotification("An error occurred!", ex);
     }
-    if(prevProps.getResults!=this.props.getResults){
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       const lastResult = this.props.getLastResult;
       if(lastResult)
       {  
