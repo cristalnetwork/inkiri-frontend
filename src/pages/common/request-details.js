@@ -366,7 +366,7 @@ class RequestDetails extends Component {
 
     if(amount!=service.amount)
     {
-      const error_service_price_mismatch_message = formatMessage( { id:'pages.common.request-details.error_service_price_mismatch_message'}, {amount:amount, service_amount:service.amount});
+      const error_service_price_mismatch_message = this.props.intl.formatMessage( { id:'pages.common.request-details.error_service_price_mismatch_message'}, {amount:amount, service_amount:service.amount});
       components_helper.notif.warningNotification(this.state.intl.error_service_price_mismatch, error_service_price_mismatch_message);
       return;
     } 

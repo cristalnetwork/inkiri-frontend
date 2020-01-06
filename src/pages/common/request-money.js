@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -8,7 +8,6 @@ import * as loginRedux from '@app/redux/models/login';
 import * as balanceRedux from '@app/redux/models/balance';
 import * as apiRedux from '@app/redux/models/api';
 
-import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
 import * as utils from '@app/utils/utils';
@@ -19,8 +18,10 @@ import * as components_helper from '@app/components/helper';
 
 import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
-import { Select, PageHeader, Button, Spin, Modal} from 'antd';
-import { notification, Form, Icon, InputNumber, Input } from 'antd';
+import { PageHeader, Button, Spin, Modal} from 'antd';
+import { Form, Input } from 'antd';
+
+import { injectIntl } from "react-intl";
 
 import TxResult from '@app/components/TxResult';
 import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
@@ -77,9 +78,6 @@ class RequestMoney extends Component {
 
     if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       const that = this;
-      // console.log(' ** why clearing page???');
-      // console.log(prevProps.getResults)
-      // console.log(this.props.getResults)
       setTimeout(()=> that.resetPage() ,100);
     }
 
@@ -209,7 +207,7 @@ class RequestMoney extends Component {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (err) {
-        components_helper.notif.errorNotification("Errors!",JSON.stringify(err));
+        components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'errors.validation_title'}), this.props.intl.formatMessage({id:'errors.verify_on_screen'}) );
         return;
       }
       this.doRequestMoney(values);
@@ -219,10 +217,11 @@ class RequestMoney extends Component {
   doRequestMoney = (values) => {
     const { input_amount }   = this.state; 
     const { transfer_extra } = values;
-    
+    const { formatMessage }  = this.props.intl; 
+
     if(isNaN(input_amount.value))
     {
-      components_helper.notif.errorNotification("Valid number required for amount","Please type a validnumber greater than 0!");
+      components_helper.notif.errorNotification(formatMessage({id:'pages.common.request-money.valid_number_required_description'}));
       return;
     }
 
@@ -238,8 +237,6 @@ class RequestMoney extends Component {
     //   components_helper.notif.errorNotification('Please choose a transfer reason.');
     //   return;
     // }
-
-    console.log('Received values of form: ', values);
 
     const privateKey       = this.props.actualPrivateKey;
     const requested        = values.requested;
@@ -262,10 +259,12 @@ class RequestMoney extends Component {
     console.log('* memo:', memo);
     
     const that         = this;
-
+    const confirm_payment_request        = formatMessage({id:'pages.common.request-money.confirm_payment_request'});
+    const confirm_transfer_request       = formatMessage({id:'pages.common.request-money.confirm_transfer_request'});
+    const confirm_pay_tx_request_message = formatMessage({id:'pages.common.request-money.confirm_pay_tx_request_message'}, {amount:this.inputAmountToString(), requested:requested});
     Modal.confirm({
-      title: this.props.isBusiness?'Confirm payment request':'Confirm money transfer request',
-      content: 'Please confirm money request for '+this.inputAmountToString() + ' to ' + requested,
+      title: this.props.isBusiness?confirm_payment_request:confirm_transfer_request,
+      content: confirm_pay_tx_request_message,
       onOk() {
 
               const _function     = 'bank.createMoneyRequest';
@@ -285,7 +284,7 @@ class RequestMoney extends Component {
       callback();
       return;
     }
-    callback('Amount must greater than zero!');
+    callback(this.props.intl.formatMessage({id:'pages.common.request-money.valid_number_required_description'}));
   };
 
   renderContent() {
@@ -301,13 +300,20 @@ class RequestMoney extends Component {
       return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
     }
     
-    const { getFieldDecorator }               = this.props.form;
-    const { input_amount, isFetching}           = this.state;
+    const { getFieldDecorator }       = this.props.form;
+    const { input_amount, isFetching} = this.state;
+    const {formatMessage}             = this.props.intl;
 
     // <Button size="large" key="payButton" type="link" onClick={this.onPay} style={{marginLeft:8}}loading={isFetching} ><FontAwesomeIcon icon="shopping-bag" size="1x"/>&nbsp;PAY</Button>
 
+    const memo                     = formatMessage({id:'global.memo'});
+    const memo_message             = formatMessage({id:'global.memo_message'});
+    const request_money_action     = formatMessage({id:'pages.common.request-money.request_action_text'});
+    const pushing_transaction      = formatMessage({id:'pages.common.request-money.pushing_transaction'});
+    const valid_number_required_description = formatMessage({id:'pages.common.request-money.valid_number_required_description'});
+
     return (
-        <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
+        <Spin spinning={isFetching} delay={500} tip={pushing_transaction}>
           
           <Form onSubmit={this.handleSubmit}>
             
@@ -317,7 +323,10 @@ class RequestMoney extends Component {
 
               <Form.Item label="Amount" className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
-                      rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
+                      rules: [{ required: true
+                                , message: valid_number_required_description
+                                , whitespace: true
+                                , validator: this.checkPrice }],
                       initialValue: input_amount.value
                     })( 
                       <>  
@@ -341,14 +350,14 @@ class RequestMoney extends Component {
               
 
               <div className="money-transfer__row row-expandable row-complementary-bottom"  id="divNote">
-                <Form.Item label="Memo">
+                <Form.Item label={memo}>
                   {getFieldDecorator('transfer_extra.message', {
                     onChange: (e) => this.handleMessageChange(e)
                   })(
                   <Input.TextArea 
                     maxLength="50"
                     className="money-transfer__input" 
-                    placeholder="Message, Memo or Note" autoSize={{ minRows: 3, maxRows: 6 }} 
+                    placeholder={memo_message} autoSize={{ minRows: 3, maxRows: 6 }} 
                     style={{overflow: 'hidden', overflowWrap: 'break-word', height: 31}}
                     />
                   )}
@@ -358,7 +367,7 @@ class RequestMoney extends Component {
             </div>
 
             <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="sendButton" htmlType="submit" type="primary" loading={isFetching} ><FontAwesomeIcon flip="both" icon="paper-plane" size="1x"/>&nbsp; REQUEST MONEY</Button>
+              <Button size="large" key="sendButton" htmlType="submit" type="primary" loading={isFetching} ><FontAwesomeIcon flip="both" icon="paper-plane" size="1x"/>&nbsp;{request_money_action}</Button>
             </div>
 
           </Form>  
@@ -377,7 +386,7 @@ class RequestMoney extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Request money"
+          title={this.props.intl.formatMessage({id:'pages.common.request-money.title'})}
         >
           
         </PageHeader>
@@ -420,4 +429,4 @@ export default Form.create() (withRouter(connect(
         loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch),
         
     })
-)(RequestMoney) ));
+)(injectIntl(RequestMoney)) ));
