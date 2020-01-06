@@ -270,5 +270,5 @@ export default Form.create() (withRouter(connect(
     (dispatch)=>({
         
     })
-)(ServiceForm) )
+)(injectIntl(ServiceForm)) )
 );

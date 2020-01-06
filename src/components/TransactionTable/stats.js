@@ -59,14 +59,13 @@ export const buildItemMoney        = (title, value, color) => { return buildItem
 export const buildItemPending      = (title, value) => { return buildItem(title, value, STAT_DATA_PENDING) }
 export const buildItemMoneyPending = (title, value) => { return buildItem(title, value, STAT_DATA_MONEY_PENDING) }
 
-const TableStats = ({stats_array, title, visible}) => {
+const TableStats = ({stats_array, title, visible, can_close=true}) => {
     
 
     // const [my_visible, setVisible]          = useState((visible===false)||true);
     const [my_visible, setVisible]          = useState((visible===undefined)?false:visible);
 
     useEffect(() => {
-
       // if(visible===undefined)
       //   visible = true;
       // setVisible(visible);
@@ -107,13 +106,13 @@ const TableStats = ({stats_array, title, visible}) => {
     */
     return (
       <div className={"styles standardList statsWidget "+(my_visible?'':'content_hidden')}>
-        <Switch 
+        { can_close && <Switch 
           defaultChecked={my_visible} 
           onChange={onChange} 
           style={{zIndex:10, position:'absolute', top:6, right:6}} 
           checkedChildren={<Icon type="eye" />}
           unCheckedChildren={<>Stats&nbsp;<Icon type="eye-invisible" /></>}
-          />
+          /> }
 
         <Card key="the_card_key" bordered={false} style={{background: '#F5F5F5'}} className={(my_visible?'':'hidden')} >
           <Row>

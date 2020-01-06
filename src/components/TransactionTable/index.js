@@ -40,7 +40,9 @@ class TransactionTable extends Component {
       loading:           false,
       limit:             globalCfg.api.default_page_size,
       can_get_more:      true,
+      
       for_admin:         props.i_am_admin,
+      filter:            props.filter,
       requests_filter:   {}
     };
     // this.handleChange      = this.handleChange.bind(this);
@@ -106,12 +108,14 @@ class TransactionTable extends Component {
     if (this.props.i_am_admin !== prevProps.i_am_admin) {
       this.setState({for_admin: this.props.i_am_admin});
     }
-    
+    if (this.props.filter !== prevProps.filter) {
+      this.setState({filter: this.props.filter});
+    } 
   }
 
   loadTxs = async () =>{
 
-    const {can_get_more, requests_filter, for_admin}   = this.state;
+    const {can_get_more, requests_filter, for_admin, filter}   = this.state;
     if(!can_get_more)
     {
       this.setState({loading:false});
@@ -139,7 +143,7 @@ class TransactionTable extends Component {
           requests_filter.to=account_name;
         }
     }
-    const filter_obj = {limit, account_name, page, requested_type, ...requests_filter};
+    const filter_obj = {limit, account_name, page, requested_type, ...requests_filter, ...(filter||{})};
     console.log(' TABLE filter_obj:', filter_obj);
     try{
       const data = await gqlService.requests(filter_obj);

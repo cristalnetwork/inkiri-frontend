@@ -23,6 +23,8 @@ import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
+import { injectIntl } from "react-intl";
+
 const DEFAULT_RESULT = {
   result:             undefined,
   result_object:      undefined,
@@ -45,7 +47,7 @@ class WithdrawMoney extends Component {
       isFetching:          false,
       ...DEFAULT_STATE,
       ...DEFAULT_RESULT,
-
+      intl:                {}
     };
 
     this.renderContent              = this.renderContent.bind(this); 
@@ -53,6 +55,15 @@ class WithdrawMoney extends Component {
     this.resetResult                = this.resetResult.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.onInputAmount              = this.onInputAmount.bind(this);
+  }
+
+  componentDidMount(){
+    const {formatMessage} = this.props.intl;
+    
+    const amount_text = formatMessage({id:'global.amount'})
+
+    this.setState({intl:{amount_text}});
+
   }
 
   componentDidUpdate(prevProps, prevState) 
@@ -248,7 +259,7 @@ class WithdrawMoney extends Component {
           <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">    
               
-              <Form.Item label="Amount" className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
+              <Form.Item label={this.state.intl.amount_text} className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
                       rules: [{ required: true, message: 'Please input an amount!', whitespace: true, validator: this.checkPrice }],
                       initialValue: input_amount.value
@@ -333,4 +344,4 @@ export default Form.create() (withRouter(connect(
         
         loadBalance:        bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
-)(WithdrawMoney) ));
+)(injectIntl(WithdrawMoney)) ));

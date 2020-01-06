@@ -435,6 +435,7 @@ class RequestPayment extends Component {
     const memo                     = formatMessage({id:'global.memo'});
     const memo_message             = formatMessage({id:'global.memo_message'});
     const request_payment_text     = formatMessage({id:'pages.business.providers-payments-request.request_payment'});
+    const amount_text              = formatMessage({id:'global.amount'})
     return (
       <Spin spinning={isFetching} delay={500} tip={pushing_transaction_intl} >
         <Form onSubmit={this.handleSubmit}>
@@ -459,7 +460,7 @@ class RequestPayment extends Component {
               </div>
 
                 
-              <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+              <Form.Item label={amount_text} className="money-transfer__row input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
                       rules: [{ required: true
                                 , message: validate_amount_text

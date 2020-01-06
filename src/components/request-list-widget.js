@@ -18,6 +18,7 @@ const RequestListWidget = (props) => {
 
   // const [stored, setStored]             = useState(props.page_key_values);
   const [key, setKey]                            = useState(props.the_key);
+  const [filter, setFilter]                      = useState(props.filter);
   const [request_type, setRequestType]           = useState(props.request_type);
   const [filter_hidden_fields, setHiddenFields]  = useState(props.search_hidden_fields || []);
 
@@ -27,6 +28,9 @@ const RequestListWidget = (props) => {
   useEffect(() => {
       setHiddenFields(props.filter_hidden_fields || []);
     }, [props.filter_hidden_fields]);
+  useEffect(() => {
+      setFilter(props.filter);
+    }, [props.filter]);
 
   var t_id2 = null;
   const requestFilterCallback = (error, cancel, values) => {
@@ -44,7 +48,7 @@ const RequestListWidget = (props) => {
     {
       clearTimeout(t_id2);
       t_id2 = setTimeout(()=> {
-        table_ref.applyFilter(values)
+        table_ref.applyFilter({...values, ...(filter||{})})
       } ,100);
     }
   }
@@ -105,6 +109,7 @@ const RequestListWidget = (props) => {
         callback={onRequestClick}
         onRef={ref => (setTableRef(ref))}
         i_am_admin={props.isAdmin}
+        filter={filter}
         />
       </>
     )

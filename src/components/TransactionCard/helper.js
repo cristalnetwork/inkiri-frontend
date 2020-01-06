@@ -15,11 +15,20 @@ export const getRequestId = (request) => {
 }
 
 export const getRequestDate = (request) => {
-  return formatDate(request.created_at);
+  if(isNaN(request.created_at))
+    return formatDate(request.created_at);
+  return formatUnix(request.created_at);
 }
 
 export const formatDate = (date) => {
   return moment(date).format('LLLL');
+}
+
+export const formatUnix = (date) => {
+  let my_value = date;
+  if(date.toString().length=='1570910442875'.length)
+    my_value = date/1000;
+  return moment.unix(my_value).format("LLLL");
 }
 
 export const getExternalRequestDesc = (request) => {

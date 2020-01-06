@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -9,17 +9,15 @@ import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import * as form_helper from '@app/components/Form/form_helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 import TableStats from '@app/components/TransactionTable/stats'; 
 import * as stats_helper from '@app/components/TransactionTable/stats';
 
-import { Card, PageHeader, Tag, Tabs, Button, Form, Input, Icon} from 'antd';
-import { Modal, notification, Table, Divider, Spin } from 'antd';
+import { Card, PageHeader, Button, Table } from 'antd';
 
 
 import ServiceContractChargeForm from '@app/components/Form/service_contract_charge';
@@ -30,12 +28,14 @@ import _ from 'lodash';
 
 import * as eos_table_getter from '@app/services/inkiriApi/eostable-getters';
 
+import { injectIntl } from "react-intl";
+
 const STATE_LIST_CONTRACTS_PAYMENTS = 'state_list_contracts_payments';
 const STATE_NEW_CHARGE              = 'state_new_charge';
 
 const titles = {
-  [STATE_LIST_CONTRACTS_PAYMENTS]   : 'Cobranzas'
-  , [STATE_NEW_CHARGE]              : 'Cobrar servicio'
+  [STATE_LIST_CONTRACTS_PAYMENTS]   : 'collections'
+  , [STATE_NEW_CHARGE]              : 'charge_for_service'
 }
 
 class ServiceContractsPaymments extends Component {
@@ -56,14 +56,13 @@ class ServiceContractsPaymments extends Component {
       can_get_more:       true,
       cursor:             null,
 
+      intl:               {},
+
       active_view:        STATE_LIST_CONTRACTS_PAYMENTS,
-      active_view_object: null,
-
-
+      active_view_object: null
     };
 
     this.loadServiceContractsPayments  = this.loadServiceContractsPayments.bind(this);  
-    this.openNotificationWithIcon       = this.openNotificationWithIcon.bind(this); 
     this.onPaymentCallback              = this.onPaymentCallback.bind(this);
     this.getColumns                     = this.getColumns.bind(this);
     this.renderFooter                   = this.renderFooter.bind(this); 
@@ -81,6 +80,25 @@ class ServiceContractsPaymments extends Component {
   
 
   componentDidMount = async () => {
+    
+    const {formatMessage} = this.props.intl;
+    
+    // const pushing_tx = formatMessage({id:'pages.common.deposit.pushing_tx'});
+    // const loading = formatMessage({id:'pages.common.deposit.loading'});
+    // const subtitle = formatMessage({id:'pages.common.deposit.subtitle'});
+    
+    const collections = formatMessage({id:'pages.common.service_contract_payments.collections'});
+    const charge_for_service = formatMessage({id:'pages.common.service_contract_payments.charge_for_service'});
+    const end_if_list = formatMessage({id:'pages.common.service_contract_payments.end_if_list'});
+    const error_loading_contracts = formatMessage({id:'pages.common.service_contract_payments.error_loading_contracts'});
+    const end_if_list_reached = formatMessage({id:'pages.common.service_contract_payments.end_if_list_reached'});
+    const stat_title_service = formatMessage({id:'pages.common.service_contract_payments.stat_title_service'});
+    const stat_title_desc = formatMessage({id:'pages.common.service_contract_payments.stat_title_desc'});
+    const stat_title_price = formatMessage({id:'pages.common.service_contract_payments.stat_title_price'});
+    const stat_title_provider = formatMessage({id:'pages.common.service_contract_payments.stat_title_provider'});
+    const load_more_payments = formatMessage({id:'pages.common.service_contract_payments.load_more_payments'});
+
+    this.setState({intl:{load_more_payments, stat_title_service, stat_title_desc, stat_title_price, stat_title_provider, collections, charge_for_service, end_if_list, error_loading_contracts, end_if_list_reached}});
 
     const { location } = this.props;
     if(location && location.state)
@@ -110,22 +128,17 @@ class ServiceContractsPaymments extends Component {
     //     service          : this.props.service
     //   });
     // }
-
   }
 
-  
-  
   onPaymentCallback(contract, event){
     const {events} = columns_helper;
     switch(event){
       case events.VIEW:
-        // this.openNotificationWithIcon("warning", "Not implemented yet");    
         break;
     }
     return;
 
   }
-
   
   resetPage(active_view){
     let my_active_view = active_view?active_view:this.state.active_view;
@@ -155,7 +168,7 @@ class ServiceContractsPaymments extends Component {
 
     if(!can_get_more)
     {
-      this.openNotificationWithIcon("info", "Nope!");
+      components_helper.notif.infoNotification( this.state.intl.end_if_list ) ;
       this.setState({loading:false});
       return;
     }
@@ -173,8 +186,7 @@ class ServiceContractsPaymments extends Component {
     try{
       payments = await api.dfuse.listPAPPayments(me, provider_account, customer_account, service.serviceCounterId, cursor);
     }catch(e){
-      this.openNotificationWithIcon('error', 'An error occurred while fetching contracts.', JSON.stringify(e))
-      
+      components_helper.notif.exceptionNotification( this.state.intl.error_loading_contracts , e );
       this.setState({loading:false});  
       return;
     }
@@ -200,33 +212,22 @@ class ServiceContractsPaymments extends Component {
                   cursor:        payments.cursor, 
                   loading:       false})
 
-    if(!has_received_new_data && _payments && _payments.length>0)
+    if(!has_received_new_data)
     {
-      this.openNotificationWithIcon("info", "End of services list")
+      components_helper.notif.infoNotification( this.state.intl.end_if_list_reached)
     }
-    // else
-    //   this.computeStats();
   }
 
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
   // Component Events
   
   render() {
-    const content                         = this.renderContent();
-    const contract_info                   = this.renderContractInfo();
-    const {loading, active_view} = this.state;
-    const title                          = titles[active_view] || titles[STATE_LIST_CONTRACTS_PAYMENTS];
-    const buttons = (active_view==STATE_LIST_CONTRACTS_PAYMENTS)
+    const content                 = this.renderContent();
+    const contract_info           = this.renderContractInfo();
+    const {loading, active_view}  = this.state;
+    const title                   = this.state.intl[titles[active_view]]; //titles[active_view] || titles[STATE_LIST_CONTRACTS_PAYMENTS];
+    const buttons                 = (active_view==STATE_LIST_CONTRACTS_PAYMENTS)
       ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServiceContractsPayments()} ></Button>]
         :[];
-    //
-
     // const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     // const routes    = routesService.breadcrumbForPaths([this.props.location.pathname]);
     // breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
@@ -248,21 +249,22 @@ class ServiceContractsPaymments extends Component {
   }
   //
   renderContractInfo(){
-    const {service} = this.state;  
+    const {service, intl} = this.state;  
     const {title, description, amount, state} = service;  
+
     let provider = null;
     if(service.created_by.account_name!=this.props.actualAccountName){
-      provider = stats_helper.buildItemSimple('PROVIDER', service.created_by.account_name)
+      provider = stats_helper.buildItemSimple(intl.stat_title_provider, service.created_by.account_name)
     }
+
     const items = [
         provider 
-        , stats_helper.buildItemSimple('SERVICE', title)
-        , stats_helper.buildItemSimple('DESC.', description)
-        , stats_helper.buildItemMoney('PRICE', amount)
-        // , stats_helper.buildItemSimple('STATE', state)
+        , stats_helper.buildItemSimple(intl.stat_title_service, title)
+        , stats_helper.buildItemSimple(intl.stat_title_desc, description)
+        , stats_helper.buildItemMoney( intl.stat_title_price, amount)
       ]
     return (<div style={{ background: '#fff', padding: 24, marginTop: 24}}>
-        <TableStats stats_array={items}/>
+        <TableStats stats_array={items}  visible={true} can_close={false}/>
       </div>)
   }
   
@@ -299,7 +301,9 @@ class ServiceContractsPaymments extends Component {
   }
   //
   renderFooter = () => {
-    return (<><Button key="load-more-data" disabled={this.state.cursor==''} onClick={()=>this.loadServiceContractsPayments(false)}>More!!</Button> </>)
+    return (<Button key="load-more-data" disabled={this.state.cursor==''} onClick={()=>this.loadServiceContractsPayments(false)}>
+              {this.state.intl.load_more_payments}
+            </Button>)
   }
   
 
@@ -316,5 +320,5 @@ export default  (withRouter(connect(
     (dispatch)=>({
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(ServiceContractsPaymments))
+)( injectIntl (ServiceContractsPaymments)))
 );

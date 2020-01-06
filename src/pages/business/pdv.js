@@ -121,7 +121,7 @@ class PDV extends Component {
       callback();
       return;
     }
-    callback('Amount must greater than zero!');
+    callback( this.props.intl.formatMessage({id: 'pages.business.pdv.validators.valid_number_required_description'}) );
   };
 
   handleSubmit = e => {

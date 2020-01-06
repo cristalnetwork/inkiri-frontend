@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -10,26 +10,22 @@ import * as apiRedux from '@app/redux/models/api';
 import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
 import * as form_helper from '@app/components/Form/form_helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
-import TableStats from '@app/components/TransactionTable/stats'; 
-import * as stats_helper from '@app/components/TransactionTable/stats';
 
-import { Card, PageHeader, Tag, Tabs, Button, Form, Input, Icon} from 'antd';
-import { Modal, notification, Table, Divider, Spin } from 'antd';
+import { Card, PageHeader, Button} from 'antd';
+import { Modal, Table, Spin } from 'antd';
 
 import ServiceForm from '@app/components/Form/service';
 import ServiceContractForm from '@app/components/Form/service_contract';
 
-import * as utils from '@app/utils/utils';
-
-import _ from 'lodash';
-
 import * as eos_table_getter from '@app/services/inkiriApi/eostable-getters';
+
+import { injectIntl } from "react-intl";
 
 const STATE_LIST_SERVICES          = 'state_list_services';
 const STATE_NEW_SERVICE            = 'state_new_service';
@@ -37,14 +33,16 @@ const STATE_EDIT_SERVICE           = 'state_edit_service';
 const STATE_NEW_SERVICE_CONTRACT   = 'state_new_service_contract';
 const STATE_EDIT_SERVICE_CONTRACT  = 'state_edit_service_contract';
 const STATE_LIST_SERVICE_CONTRACTS = 'state_list_service_contracts';
+const STATE_LIST_SERVICE_REQUESTS  = 'state_list_service_requests';
 
 const titles = {
-  [STATE_LIST_SERVICES]            : 'Serviços oferecidos'
-  , [STATE_NEW_SERVICE]            : 'Criar servicio'
-  , [STATE_EDIT_SERVICE]           : 'Modificar servicio'
-  , [STATE_NEW_SERVICE_CONTRACT]   : 'Send service provisioning request'
-  , [STATE_EDIT_SERVICE_CONTRACT]  : 'Modify contract'
-  , [STATE_LIST_SERVICE_CONTRACTS] : 'List customers'
+  [STATE_LIST_SERVICES]            : 'title_list_services' //'pages.common.services.title_list_services'
+  , [STATE_NEW_SERVICE]            : 'title_new_service' //'pages.common.services.title_new_service'
+  , [STATE_EDIT_SERVICE]           : 'title_edit_service' //'pages.common.services.title_edit_service'
+  , [STATE_NEW_SERVICE_CONTRACT]   : 'title_new_service_contract' //'pages.common.services.title_new_service_contract'
+  , [STATE_EDIT_SERVICE_CONTRACT]  : 'title_edit_service_contract' //'pages.common.services.title_edit_service_contract'
+  , [STATE_LIST_SERVICE_CONTRACTS] : 'title_list_service_contracts' //'pages.common.services.title_list_service_contracts'
+  , [STATE_LIST_SERVICE_REQUESTS]  : 'title_list_service_requests' //'pages.common.services.title_list_service_contracts'
 }
 class Services extends Component {
   constructor(props) {
@@ -66,6 +64,7 @@ class Services extends Component {
       active_view:        STATE_LIST_SERVICES,
       active_view_object: null,
 
+      intl:               {}
 
     };
 
@@ -87,6 +86,29 @@ class Services extends Component {
   
   componentDidMount = async () => {
 
+    const {formatMessage} = this.props.intl;
+    
+    const title_list_services = formatMessage({id:'pages.common.services.title_list_services'});
+    const title_new_service = formatMessage({id:'pages.common.services.title_new_service'});
+    const title_edit_service = formatMessage({id:'pages.common.services.title_edit_service'});
+    const title_new_service_contract = formatMessage({id:'pages.common.services.title_new_service_contract'});
+    const title_edit_service_contract = formatMessage({id:'pages.common.services.title_edit_service_contract'});
+    const title_list_service_contracts = formatMessage({id:'pages.common.services.title_list_service_contracts'});
+    const title_list_service_requests = formatMessage({id:'pages.common.services.title_list_service_requests'});
+    const error_duplicated = formatMessage({id:'pages.common.services.error_duplicated'});
+    const error_duplicated_message = formatMessage({id:'pages.common.services.error_duplicated_message'});
+    const confirm_send_request = formatMessage({id:'pages.common.services.confirm_send_request'});
+    const error_retrieving_state = formatMessage({id:'pages.common.services.error_retrieving_state'});
+    const end_of_services_list = formatMessage({id:'pages.common.services.end_of_services_list'});
+    const error_retrieving_services = formatMessage({id:'pages.common.services.error_retrieving_services'});
+    const new_service_action_text = formatMessage({id:'pages.common.services.new_service_action_text'});
+    const pushing_transaction = formatMessage({id:'pages.common.services.pushing_transaction'});
+    const load_more_services = formatMessage({id:'pages.common.services.load_more_services'});
+
+    this.setState({intl:{title_list_service_requests, title_list_services, title_new_service, title_edit_service, title_new_service_contract, title_edit_service_contract, title_list_service_contracts, error_duplicated, error_duplicated_message, confirm_send_request, error_retrieving_state, end_of_services_list, error_retrieving_services, new_service_action_text, pushing_transaction, load_more_services}});
+
+
+
     const { location } = this.props;
     if(location && location.state)
     {
@@ -102,6 +124,8 @@ class Services extends Component {
       const x_dummy = await this.loadServicesStates();
       const y_dummy = await this.loadServices();  
     }
+
+    
   } 
 
   componentDidUpdate(prevProps, prevState) 
@@ -166,7 +190,6 @@ class Services extends Component {
     const {events} = columns_helper;
     switch(event){
       case events.VIEW:
-        components_helper.notif.infoNotification("Not implemented yet");
         break;
       case events.REMOVE:
         break;
@@ -175,11 +198,20 @@ class Services extends Component {
         this.setState({active_view: STATE_EDIT_SERVICE, active_view_object:service})
         break;
       case events.DISABLE:
-        components_helper.notif.infoNotification("Not implemented yet");
         this.onDisableService(service);
         break;
+      case events.REQUESTS:
+        this.props.setLastRootMenuFullpath(this.props.location.pathname);
+        this.props.history.push({
+          pathname: `/common/service-requests`
+          , state: { 
+              referrer: this.props.location.pathname
+              , provider: service.created_by
+              , service:  service            
+            }
+        });
+        break;
       case events.CHILDREN:
-        // this.setState({active_view: STATE_LIST_SERVICE_CONTRACTS, active_view_object:service})
         this.props.setLastRootMenuFullpath(this.props.location.pathname);
         this.props.history.push({
           pathname: `/common/service-contracts`
@@ -223,32 +255,26 @@ class Services extends Component {
     
     if(byCustServ && byCustServ.rows.length>0)
     {
-      components_helper.notif.errorNotification('Duplicated customer service provisioning', 'Customer account is already hiring selected service.');
+      components_helper.notif.errorNotification(this.state.intl.error_duplicated, this.state.intl.error_duplicated_message);
       return;
     }
-    Modal.confirm({
-      title: 'Confirm service provisioning request',
-      content: (<p>You will invite <b>{customer}</b> to accept <b>{service.title}</b> service, 
-                  at a <b>{globalCfg.currency.toCurrencyString(service.amount)}</b> monthly price bases, 
-                  for <b>{periods}</b> periods/months, begining at <b>{begins_at.format(form_helper.MONTH_FORMAT)}</b></p>),
-      onOk() {
 
+    const confirm_send_request_message = this.props.intl.formatMessage({id:'pages.common.services.confirm_send_request_message'}
+        , {  customer     : customer
+              , service   : service.title
+              , amount    : globalCfg.currency.toCurrencyString(service.amount)
+              , periods   : periods
+              , begins_at : begins_at.format(form_helper.MONTH_FORMAT)
+              , bold: (str) => <b>{str}</b>});
+    //
+    Modal.confirm({
+      title: this.state.intl.confirm_send_request,
+      content: (<p>{confirm_send_request_message}</p>),
+      onOk() {
+        //
         const _function = 'bank.sendServiceRequest';
         that.props.callAPI(_function, [provider, customer, service, begins_at, expires_at])
 
-        // that.setState({pushingTx:true});
-        // api.bank.sendServiceRequest(provider, customer, service, begins_at, expires_at)
-        //   .then((res)=>{
-        //     console.log(' >> sendServiceRequest >> ', JSON.stringify(res));
-        //     that.setState({pushingTx:false, result:'ok'})
-            
-        //     components_helper.notif.successNotification('Service provisioning requested successfully');
-        //     setTimeout(()=>that.setState({active_view:STATE_LIST_SERVICES}),1000);
-        //   }, (err)=>{
-        //     components_helper.notif.exceptionNotification('An error occurred', err);
-        //     that.setState({result:'error', error:err, pushingTx:false});
-        //   })
-        
       },
       onCancel() {
         console.log('Cancel');
@@ -279,19 +305,6 @@ class Services extends Component {
     
     const _function = 'bank.createOrUpdateService';
     that.props.callAPI(_function, [(values._id || undefined), account_name, values.title, values.description, values.input_amount.value])
-
-    // api.bank.createOrUpdateService((values._id || undefined), account_name, values.title, values.description, values.input_amount.value, undefined)
-    //   .then((res)=>{
-    //     components_helper.notif.successNotification("Service saved successfully!");
-    //     that.reloadServices();
-    //     that.resetPage(STATE_LIST_SERVICES);
-    //   }, (err)=>{
-    //     console.log(' >> createOrUpdateService >> ', JSON.stringify(err));
-    //     components_helper.notif.exceptionNotification("An error occurred", err);
-    //     that.setState({pushingTx:false});
-    //   })
- 
-
   }
 
   resetPage(active_view){
@@ -310,7 +323,7 @@ class Services extends Component {
     try {
       data = await api.bank.getServicesStates();
     } catch (e) {
-      components_helper.notif.exceptionNotification("Error retrieveing Services States", e);
+      components_helper.notif.exceptionNotification(this.state.intl.error_retrieving_state, e);
       this.setState({ loading:false})
       return;
     }
@@ -318,15 +331,6 @@ class Services extends Component {
   }
 
   reloadServices = async () => {
-
-    
-    // const provider_account_name = 'organicvegan';
-    // const service_id_num        = 2; 
-    // const customer_account_name = 'tutinopablo1';
-    // console.log(' --------------------- ')
-    // console.log('papByProvServSimple:')
-    // const papByProvServSimple = await eos_table_getter.papByUInt128(provider_account_name, service_id_num, eos_table_getter.INDEX_POSITION_PAP_BY_PROVIDER_SERVICE, 1);
-    // console.log(' >> res:', papByProvServSimple)
 
     this.setState({
         page:        -1, 
@@ -343,7 +347,7 @@ class Services extends Component {
 
     if(!can_get_more && page>=0)
     {
-      components_helper.notif.infoNotification("End of list");
+      components_helper.notif.infoNotification(this.state.intl.end_of_services_list);
       this.setState({loading:false});
       return;
     }
@@ -360,7 +364,7 @@ class Services extends Component {
       services = await api.bank.getServices(request_page, limit, {account_name:provider.account_name});
     } catch (e) {
 
-      components_helper.notif.exceptionNotification("Error retrieveing Services", e);
+      components_helper.notif.exceptionNotification(this.state.intl.error_retrieving_services, e);
       this.setState({ loading:false})
       return;
     } 
@@ -385,7 +389,7 @@ class Services extends Component {
 
     if(!has_received_new_data && _services && _services.length>0)
     {
-      components_helper.notif.infoNotification('End of services list');
+      components_helper.notif.infoNotification(this.state.intl.end_of_services_list);
     }
     // else
     //   this.computeStats();
@@ -397,7 +401,8 @@ class Services extends Component {
   render() {
     const content                        = this.renderContent();
     const {routes, loading, active_view} = this.state;
-    const title                          = titles[active_view] || titles[STATE_LIST_SERVICES];
+    const title                          = this.state.intl[titles[active_view]]; //titles[active_view] || titles[STATE_LIST_SERVICES];
+
     const buttons = (active_view==STATE_LIST_SERVICES)
       ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServices()} ></Button>, 
         <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewService()}}> Service</Button>]
@@ -428,7 +433,7 @@ class Services extends Component {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
-              <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+              <Spin spinning={this.state.pushingTx} delay={500} tip={this.state.intl.pushing_transaction}>
                 <ServiceContractForm key="edit_service_form" 
                   callback={this.serviceContractFormCallback} 
                   services_states={services_states} 
@@ -446,7 +451,7 @@ class Services extends Component {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
-              <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+              <Spin spinning={this.state.pushingTx} delay={500} tip={this.state.intl.pushing_transaction}>
                 <ServiceForm 
                   key="edit_service_form" 
                   callback={this.serviceFormCallback} 
@@ -464,7 +469,7 @@ class Services extends Component {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
-              <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+              <Spin spinning={this.state.pushingTx} delay={500} tip={this.state.intl.pushing_transaction}>
                 <ServiceForm key="add_service_form" callback={this.serviceFormCallback} services_states={services_states}/>    
               </Spin>
             </section>
@@ -500,7 +505,9 @@ class Services extends Component {
   }
   //
   renderFooter = () => {
-    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadServices()}>More!!</Button> </>)
+    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadServices()}>
+        {this.state.intl.load_more_services}
+      </Button> </>)
   }
   
 
@@ -525,5 +532,5 @@ export default  (withRouter(connect(
 
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(Services))
+)(injectIntl(Services)))
 );

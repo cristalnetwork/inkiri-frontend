@@ -311,6 +311,7 @@ class RequestMoney extends Component {
     const request_money_action     = formatMessage({id:'pages.common.request-money.request_action_text'});
     const pushing_transaction      = formatMessage({id:'pages.common.request-money.pushing_transaction'});
     const valid_number_required_description = formatMessage({id:'pages.common.request-money.valid_number_required_description'});
+    const amount_text              = formatMessage({id:'global.amount'})
 
     return (
         <Spin spinning={isFetching} delay={500} tip={pushing_transaction}>
@@ -321,7 +322,7 @@ class RequestMoney extends Component {
                
               <AutocompleteAccount onRef={ref => (this.autocompleteWidget = ref)} callback={this.onSelect} form={this.props.form} name="requested"  />
 
-              <Form.Item label="Amount" className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
+              <Form.Item label={amount_text} className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
                       rules: [{ required: true
                                 , message: valid_number_required_description

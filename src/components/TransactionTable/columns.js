@@ -16,7 +16,8 @@ export const events = {
     DISABLE :     'event_disable',
     CHILDREN :    'event_children',
     NEW_CHILD :   'event_new_child',
-    CHARGE :      'event_charge'
+    CHARGE :      'event_charge',
+    REQUESTS :    'event_requests',
 }
 
 //
@@ -177,6 +178,20 @@ export const expandedRequestRowRender = (record) => {
           <br/><span key={'deposit_currency_'+record.id}><InjectMessage id="global.currency" />: <b>{record.deposit_currency}</b></span>
           <br/>{default_info}
         </>;
+    //
+    case globalCfg.api.TYPE_SERVICE:
+      const service = record.service || {};
+      const service_extra  = record.service_extra || {};
+      return (
+            <><span key={'service_'+record.id}>
+                <InjectMessage id="global.service" />:&nbsp;<b>{service.title}, ({service.description})</b>
+                <br/><InjectMessage id="global.price" />:&nbsp;<b>{globalCfg.currency.toCurrencyString(service.amount)}</b>
+                <br/><Icon type="calendar" />&nbsp;<InjectMessage id="global.begins_at" />:&nbsp;<strong>{request_helper.formatUnix(service_extra.begins_at)}</strong>
+                <br/><InjectMessage id="global.expires_at" />:&nbsp;<strong>{request_helper.formatUnix(service_extra.expires_at)}</strong>
+              </span>
+            <br/>{default_info}
+            </>
+            );
     //
     default:
       return default_info;
@@ -767,12 +782,13 @@ export const columnsForServices = (callback, services_states) => {
         align: 'right',
         render: (text, record) => {
           const style     = {marginTop:6};
-          const edit      = (<Button key={'edit_'+record._id}        onClick={()=>{ callback(record, events.EDIT) }}      icon="edit" size="small"><InjectMessage id="components.TransactionTable.columns.edit" /></Button>);
-          const children  = (<Button style={style} key={'children_'+record._id}    onClick={()=>{ callback(record, events.CHILDREN) }}  icon="usergroup-delete" size="small"><InjectMessage id="components.TransactionTable.columns.customers" /></Button>);
-          const new_child = (<Button style={style} key={'new_child_'+record._id}   onClick={()=>{ callback(record, events.NEW_CHILD) }} icon="user-add" size="small"><InjectMessage id="components.TransactionTable.columns.new_customer" /></Button>);
+          const edit      = (<Button key={'edit_'+record._id}        onClick={()=>{ callback(record, events.EDIT) }}      icon="edit" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.edit" /></Button>);
+          const children  = (<Button style={style} key={'children_'+record._id}   onClick={()=>{ callback(record, events.CHILDREN) }}  icon="usergroup-delete" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.customers" /></Button>);
+          const requests  = (<Button style={style} key={'requests'+record._id}    onClick={()=>{ callback(record, events.REQUESTS) }}  icon="form" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.service_requests" /></Button>);
+          const new_child = (<Button style={style} key={'new_child_'+record._id}  onClick={()=>{ callback(record, events.NEW_CHILD) }} icon="user-add" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.new_customer" /></Button>);
           
-          return (<>{edit}<br/>{children}<br/>{new_child}</>);
-          // const _disable = (<Button key={'details_'+record._id} type="link"     onClick={()=>{ callback(record, events.DISABLE) }} icon="pause-circle" size="small"><InjectMessage id="components.TransactionTable.columns.disable" /></Button>);
+          return (<>{edit}<br/>{children}<br/>{requests}<br/>{new_child}</>);
+          // const _disable = (<Button key={'details_'+record._id} type="link"     onClick={()=>{ callback(record, events.DISABLE) }} icon="pause-circle" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.disable" /></Button>);
           // return (<>{edit}&nbsp;{_disable}</>)
         }
       }
@@ -845,9 +861,9 @@ export const columnsForServiceContract = (callback) => {
         align: 'right',
         render: (text, record) => {
           const style     = {marginTop:6};
-          const charge   = (<Button               key={'charge_'+record.id}   onClick={()=>{ callback(record, events.CHARGE) }}    icon="calendar" size="small" disabled={!record.enabled}><InjectMessage id="components.TransactionTable.columns.charge" /></Button>);
-          const children = (<Button style={style} key={'children_'+record.id} onClick={()=>{ callback(record, events.CHILDREN) }}  icon="download" size="small" ><InjectMessage id="components.TransactionTable.columns.received_payments" /></Button>);
-          const _remove  = (<Button style={style} key={'remove_'+record.id}   onClick={()=>{ callback(record, events.REMOVE) }}    icon="delete"   size="small" type="link" disabled><InjectMessage id="components.TransactionTable.columns.sease_and_remove" /></Button>);
+          const charge   = (<Button               key={'charge_'+record.id}   onClick={()=>{ callback(record, events.CHARGE) }}    icon="calendar" size="small" disabled={!record.enabled}>&nbsp;<InjectMessage id="components.TransactionTable.columns.charge" /></Button>);
+          const children = (<Button style={style} key={'children_'+record.id} onClick={()=>{ callback(record, events.CHILDREN) }}  icon="download" size="small" >&nbsp;<InjectMessage id="components.TransactionTable.columns.received_payments" /></Button>);
+          const _remove  = (<Button style={style} key={'remove_'+record.id}   onClick={()=>{ callback(record, events.REMOVE) }}    icon="delete"   size="small" type="link" disabled>&nbsp;<InjectMessage id="components.TransactionTable.columns.sease_and_remove" /></Button>);
           return (<>{charge}<br/>{children}<br/>{_remove}</>);
         }
       }

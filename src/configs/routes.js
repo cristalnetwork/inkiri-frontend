@@ -45,6 +45,7 @@ export const pathNames = utils.arrToObj([
     'commonServices',
     'commonServiceContracts',
     'commonServiceContractPayment',
+    'commonServiceRequests',
     'commonContractedServices',
     'commonRequestMoney',
     'commonProviders',
@@ -345,6 +346,15 @@ const common = [
      fileName:       'service-contract-payments',
      area:           'common',
      path:           'service-contract-payments',
+     container:      'dashboard',
+     role:           '*'
+   },
+   {
+     key:            pathNames.commonServiceRequests,
+     father_key :    '*',
+     fileName:       'service-requests',
+     area:           'common',
+     path:           'service-requests',
      container:      'dashboard',
      role:           '*'
    },

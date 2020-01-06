@@ -74,7 +74,9 @@ class DepositMoney extends Component {
     const request_deposit_action = formatMessage({id:'pages.common.deposit.request_deposit_action'});
     const title = formatMessage({id:'pages.common.deposit.title'});
     const subtitle = formatMessage({id:'pages.common.deposit.subtitle'});
-    this.setState({intl:{pushing_tx, loading, cant_fetch_next_envelope_id, internet_connection_error, confirm_deposit_request, valid_number_required_description, info_type_envelope_id, currency_validator, currency_label, amount_input_validator, request_deposit_action, title, subtitle}});
+    const amount_text = formatMessage({id:'global.amount'})
+
+    this.setState({intl:{amount_text, pushing_tx, loading, cant_fetch_next_envelope_id, internet_connection_error, confirm_deposit_request, valid_number_required_description, info_type_envelope_id, currency_validator, currency_label, amount_input_validator, request_deposit_action, title, subtitle}});
 
     this.getNextEnvelopeId();
   }
@@ -276,7 +278,7 @@ class DepositMoney extends Component {
                   </div>
               </div>
 
-              <Form.Item label="Amount" className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+              <Form.Item label={this.state.intl.amount_text} className="money-transfer__row input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
                       rules: [{ required: true
                                 , message: this.state.intl.amount_input_validator

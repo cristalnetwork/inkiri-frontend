@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -10,33 +10,28 @@ import * as balanceRedux from '@app/redux/models/balance'
 import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import * as form_helper from '@app/components/Form/form_helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 import TableStats from '@app/components/TransactionTable/stats'; 
 import * as stats_helper from '@app/components/TransactionTable/stats';
 
-import { Card, PageHeader, Tag, Tabs, Button, Form, Input, Icon} from 'antd';
-import { Modal, notification, Table, Divider, Spin } from 'antd';
-
+import { Card, PageHeader, Tabs, Button,  Modal, Table, Spin } from 'antd';
 
 import ServiceContractChargeForm from '@app/components/Form/service_contract_charge';
 
-import * as utils from '@app/utils/utils';
-
-import _ from 'lodash';
-
 import * as eos_table_getter from '@app/services/inkiriApi/eostable-getters';
+
+import { injectIntl } from "react-intl";
 
 const STATE_LIST_CONTRACTS         = 'state_list_contracts';
 const STATE_NEW_CHARGE             = 'state_new_charge';
 
 const titles = {
-  [STATE_LIST_CONTRACTS]           : 'Service contracts'
-  , [STATE_NEW_CHARGE]             : 'Cobrar servicio'
+  [STATE_LIST_CONTRACTS]           : 'title_service_contracts'
+  , [STATE_NEW_CHARGE]             : 'title_charge'
 }
 
 class ServiceContracts extends Component {
@@ -62,11 +57,10 @@ class ServiceContracts extends Component {
       active_view:        STATE_LIST_CONTRACTS,
       active_view_object: null,
 
-
+      intl:               {}
     };
 
     this.loadServiceContracts         = this.loadServiceContracts.bind(this);  
-    this.openNotificationWithIcon     = this.openNotificationWithIcon.bind(this); 
     this.onContractListCallback       = this.onContractListCallback.bind(this);
     this.getColumns                   = this.getColumns.bind(this);
     this.onNewContract                = this.onNewContract.bind(this); 
@@ -84,6 +78,25 @@ class ServiceContracts extends Component {
   }
   
   componentDidMount = async () => {
+
+    const {formatMessage} = this.props.intl;
+    const end_if_list_reached = formatMessage({id:'pages.common.service_contracts.end_if_list_reached'});
+    const title_service_contracts = formatMessage({id:'pages.common.service_contracts.title_service_contracts'});
+    const title_charge = formatMessage({id:'pages.common.service_contracts.title_charge'});
+    const error_customer_has_no_balance = formatMessage({id:'pages.common.service_contracts.error_customer_has_no_balance'});
+    const error_customer_not_enough_balance = formatMessage({id:'pages.common.service_contracts.error_customer_not_enough_balance'});
+    const success_charged_successfully = formatMessage({id:'pages.common.service_contracts.success_charged_successfully'});
+    const error_unexpected_occurred = formatMessage({id:'pages.common.service_contracts.error_unexpected_occurred'});
+    const error_occurred_fetching_contracts = formatMessage({id:'pages.common.service_contracts.error_occurred_fetching_contracts'});
+    const info_end_of_service_list = formatMessage({id:'pages.common.service_contracts.info_end_of_service_list'});
+    const pushing_transaction = formatMessage({id:'pages.common.service_contracts.pushing_transaction'});
+    const load_more_contracts = formatMessage({id:'pages.common.service_contracts.load_more_contracts'});
+    const stat_title_service = formatMessage({id:'pages.common.service_contracts.stat_title_service'});
+    const stat_title_desc = formatMessage({id:'pages.common.service_contracts.stat_title_desc'});
+    const stat_title_price = formatMessage({id:'pages.common.service_contracts.stat_title_price'});
+    const stat_title_state = formatMessage({id:'pages.common.service_contracts.stat_title_state'});
+
+    this.setState({intl:{load_more_contracts, stat_title_service, stat_title_desc, stat_title_price, stat_title_state, end_if_list_reached, title_service_contracts, title_charge, error_customer_has_no_balance, error_customer_not_enough_balance, success_charged_successfully, error_unexpected_occurred, error_occurred_fetching_contracts, info_end_of_service_list, pushing_transaction}})
 
     const { location } = this.props;
     if(location && location.state)
@@ -119,7 +132,6 @@ class ServiceContracts extends Component {
 
   onNewContract = () => {
     
-    this.openNotificationWithIcon("warning", "Not implemented yet");    
     // this.setState({active_view:STATE_NEW_SERVICE})
   }
 
@@ -128,18 +140,13 @@ class ServiceContracts extends Component {
     const {events} = columns_helper;
     switch(event){
       case events.VIEW:
-        // this.openNotificationWithIcon("warning", "Not implemented yet");    
+        
         break;
       case events.REMOVE:
-        this.openNotificationWithIcon("warning", "Not implemented yet");    
         break;
       case events.EDIT:
-        // console.log(event)
-        // this.setState({active_view: STATE_EDIT_SERVICE, active_view_object:service})
         break;
       case events.DISABLE:
-        // this.openNotificationWithIcon("warning", "Not implemented yet");    
-        // this.onDisableService(service);
         break;
       case events.CHILDREN:
         // this.props.setLastRootMenuFullpath(this.props.location.pathname);
@@ -155,11 +162,9 @@ class ServiceContracts extends Component {
         break;
       case events.NEW_CHILD:
         // this.setState({active_view: STATE_NEW_SERVICE_CONTRACT, active_view_object:service})
-        // this.openNotificationWithIcon("warning", "Not implemented yet");    
         break;
       case events.CHARGE:
         this.setState({active_view: STATE_NEW_CHARGE, active_view_object:contract})
-        // this.openNotificationWithIcon("warning", "Not implemented yet");    
         break;
     }
     return;
@@ -192,7 +197,7 @@ class ServiceContracts extends Component {
     try{
       customer_balance = await api.getAccountBalance(account);
     }catch(e){
-      that.openNotificationWithIcon("error", 'It seems the customer has no balance!');
+      components_helper.notif.errorNotification(this.state.intl.error_customer_has_no_balance);
       that.setState({pushingTx:false});
       return;
     }
@@ -200,7 +205,7 @@ class ServiceContracts extends Component {
     if(globalCfg.currency.toNumber(customer_balance.data.balance)<=globalCfg.currency.toNumber(contract.price))
     {
         that.setState({pushingTx:false});
-        that.openNotificationWithIcon("error", 'It seems the customer you are trying to charge has not enough balance to pay the bill.');
+        components_helper.notif.errorNotification(this.state.intl.error_customer_not_enough_balance);
         console.log(customer_balance);
         return;
     }
@@ -210,22 +215,21 @@ class ServiceContracts extends Component {
     api.chargeService(sender, private_key, account, provider, service_id, contract.price, period_to_charge)
       .then((res)=>{
         console.log(' >> doCharge >> ', JSON.stringify(res));
-        that.setState({pushingTx:false, result:'ok'})
-        that.openNotificationWithIcon("success", 'Service charged successfully');
+        that.setState({pushingTx:false})
+        components_helper.notif.successNotification(this.state.intl.success_charged_successfully);
+        setTimeout(()=> {
+          that.setState({active_view:STATE_LIST_CONTRACTS});
+          that.props.loadBalance(that.props.actualAccountName);
+        },250);
         
-        setTimeout(()=> that.setState({active_view:STATE_LIST_CONTRACTS}),1000);
-        setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
 
       }, (err)=>{
-        that.openNotificationWithIcon("error", 'An error occurred', JSON.stringify(err));
+        components_helper.notif.exceptionNotification(this.state.intl.error_unexpected_occurred, err);
         console.log(JSON.stringify(err));
-        that.setState({result:'error', error:err, pushingTx:false});
+        that.setState({pushingTx:false});
       })
-        
-    
   }
 
-  
   resetPage(active_view){
     let my_active_view = active_view?active_view:this.state.active_view;
     this.setState({ 
@@ -252,7 +256,6 @@ class ServiceContracts extends Component {
 
     // if(!can_get_more)
     // {
-    //   this.openNotificationWithIcon("info", "Nope!");
     //   this.setState({loading:false});
     //   return;
     // }
@@ -261,14 +264,10 @@ class ServiceContracts extends Component {
 
     let contracts = null;
 
-    console.log(provider.account_name, service.serviceCounterId);
-    
     try{
-      // contracts = await eos_table_getter.papByProviderService(provider.account_name, service.serviceCounterId, (is_first===true?undefined:cursor) );
       contracts = await eos_table_getter.papByProviderService(provider.account_name, parseInt(service.serviceCounterId), 0);
     }catch(e){
-      this.openNotificationWithIcon('error', 'An error occurred while fetching contracts.', JSON.stringify(e))
-      
+      components_helper.notif.exceptionNotification(this.state.intl.error_occurred_fetching_contracts, e);
       this.setState({loading:false});  
       return;
     }
@@ -295,26 +294,21 @@ class ServiceContracts extends Component {
 
     if(!has_received_new_data && _contracts && _contracts.length>0)
     {
-      this.openNotificationWithIcon("info", "End of services list")
+      components_helper.notif.infoNotification(this.state.intl.info_end_of_service_list);
+      return;
     }
     // else
     //   this.computeStats();
   }
 
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
   // Component Events
   
   render() {
-    const content                        = this.renderContent();
-    const service_info                   = this.renderServiceInfo();
-    const {loading, active_view} = this.state;
-    const title                          = titles[active_view] || titles[STATE_LIST_CONTRACTS];
+    const content                 = this.renderContent();
+    const service_info            = this.renderServiceInfo();
+    const {loading, active_view, intl}  = this.state;
+    const title                   = intl[titles[active_view]]; //titles[active_view] || titles[STATE_LIST_CONTRACTS];
     const buttons = (active_view==STATE_LIST_CONTRACTS)
       ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServiceContracts()} ></Button>]
         :[];
@@ -342,14 +336,16 @@ class ServiceContracts extends Component {
   //
   renderServiceInfo(){
     const {title, description, amount, state} = this.state.service;  
+    const {intl} = this.state;
+  
     const items = [
-        stats_helper.buildItemSimple('SERVICE', title)
-        , stats_helper.buildItemSimple('DESC.', description)
-        , stats_helper.buildItemMoney('PRICE', amount)
-        , stats_helper.buildItemSimple('STATE', state)
+        stats_helper.buildItemSimple(intl.stat_title_service, title)
+        , stats_helper.buildItemSimple(intl.stat_title_desc, description)
+        , stats_helper.buildItemMoney(intl.stat_title_price, amount)
+        , stats_helper.buildItemSimple(intl.stat_title_state, state)
       ]
     return (<div style={{ background: '#fff', padding: 24, marginTop: 24}}>
-        <TableStats stats_array={items}/>
+        <TableStats stats_array={items} visible={true} can_close={false}/>
       </div>)
   }
   //
@@ -361,7 +357,7 @@ class ServiceContracts extends Component {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
-              <Spin spinning={this.state.pushingTx} delay={500} tip="Pushing transaction...">
+              <Spin spinning={this.state.pushingTx} delay={500} tip={this.state.intl.pushing_transaction}>
                 <ServiceContractChargeForm key="charge_next_form" 
                   callback={this.ServiceContractChargeCallback} 
                   contract={active_view_object} 
@@ -401,7 +397,9 @@ class ServiceContracts extends Component {
   }
   //
   renderFooter = () => {
-    return (<><Button key="load-more-data" disabled={!this.state.cursor} onClick={()=>this.loadServiceContracts(false)}>More!!</Button> </>)
+    return (<Button key="load-more-data" disabled={!this.state.cursor} onClick={()=>this.loadServiceContracts(false)}>
+              {this.state.intl.load_more_contracts}
+            </Button>)
   }
   
 
@@ -419,5 +417,5 @@ export default  (withRouter(connect(
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch),
         loadBalance:             bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
-)(ServiceContracts))
+)(injectIntl(ServiceContracts)))
 );
