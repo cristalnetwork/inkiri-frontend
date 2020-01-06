@@ -22,7 +22,7 @@ const TransactionBankAccount = (props) => {
 
     useEffect(() => {
       setBankName(props.intl.formatMessage({id:'components.Forms.bank_account.bank_name_placeholder'}));
-      setBankAgency(props.intl.formatMessage({id:'components.Forms.bank_account.bank_agency_plaveholder'}));
+      setBankAgency(props.intl.formatMessage({id:'components.Forms.bank_account.bank_agency_placeholder'}));
       setBankCC(props.intl.formatMessage({id:'components.Forms.bank_account.bank_cc_placeholder'}));
     }, []);
 

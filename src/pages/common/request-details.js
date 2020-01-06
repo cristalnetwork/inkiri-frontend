@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -17,8 +17,8 @@ import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 import { withRouter } from "react-router-dom";
 
-import { Modal, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
-import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { Modal, Card, PageHeader, Button, Spin } from 'antd';
+import { Form, } from 'antd';
 
 import TransactionCard from '@app/components/TransactionCard';
 
@@ -27,7 +27,9 @@ import '../bankadmin/request.less';
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
-const { Paragraph, Text } = Typography;
+import { injectIntl } from "react-intl";
+import * as gqlService from '@app/services/inkiriApi/graphql'
+
 const { confirm } = Modal;
 
 
@@ -37,7 +39,7 @@ const DEFAULT_RESULT = {
   error:              {},
 }
 
-class requestDetails extends Component {
+class RequestDetails extends Component {
   constructor(props) {
     super(props);
     const {location} = props;
@@ -52,6 +54,7 @@ class requestDetails extends Component {
       request:      request,
       referrer:     referrer,
 
+      intl:         {},
       attachments:       {
         [globalCfg.api.NOTA_FISCAL]       : undefined,
         [globalCfg.api.BOLETO_PAGAMENTO]  : undefined,
@@ -75,6 +78,38 @@ class requestDetails extends Component {
           , referrer : location.state.referrer
         })
     }
+    const {formatMessage} = this.props.intl;
+    const title = formatMessage( { id:'pages.common.request-details.title'});
+    const cant_fetch_request = formatMessage( { id:'pages.common.request-details.cant_fetch_request'});
+    const only_one_file = formatMessage( { id:'pages.common.request-details.only_one_file'});
+    const pushing_transaction = formatMessage( { id:'pages.common.request-details.pushing_transaction'});
+    const loading_request = formatMessage( { id:'pages.common.request-details.loading_request'});
+    const valid_number_required_description = formatMessage( { id:'pages.common.request-details.valid_number_required_description'});
+    const confirm_payment = formatMessage( { id:'pages.common.request-details.confirm_payment'});
+    const error_service_price_mismatch = formatMessage( { id:'pages.common.request-details.error_service_price_mismatch'});
+    const confirm_accept_service = formatMessage( { id:'pages.common.request-details.confirm_accept_service'});
+    const confirm_accept_service_message = formatMessage( { id:'pages.common.request-details.confirm_accept_service_message'});
+    const receipt_attach_required = formatMessage( { id:'pages.common.request-details.receipt_attach_required'});
+    const receipt_attach_required_message = formatMessage( { id:'pages.common.request-details.receipt_attach_required_message'});
+    const cancel_service = formatMessage( { id:'pages.common.request-details.cancel_service'});
+    const cancel_service_message = formatMessage( { id:'pages.common.request-details.cancel_service_message'});
+    const cancel_request = formatMessage( { id:'pages.common.request-details.cancel_request'});
+    const cancel_request_message = formatMessage( { id:'pages.common.request-details.cancel_request_message'});
+    const cancel_request_and_refund_message = formatMessage( { id:'pages.common.request-details.cancel_request_and_refund_message'});
+    const reject_service_request = formatMessage( { id:'pages.common.request-details.reject_service_request'});
+    const reject_service_request_message = formatMessage( { id:'pages.common.request-details.reject_service_request_message'});
+    const reject_payment_request = formatMessage( { id:'pages.common.request-details.reject_payment_request'});
+    const reject_payment_request_message = formatMessage( { id:'pages.common.request-details.reject_payment_request_message'});
+    const action_process_request = formatMessage( { id:'pages.common.request-details.action.process_request'});
+    const action_accept = formatMessage( { id:'pages.common.request-details.action.accept'});
+    const action_accept_and_send = formatMessage( { id:'pages.common.request-details.action.accept_and_send'});
+    const action_cancel = formatMessage( { id:'pages.common.request-details.action.cancel'});
+    const action_reject = formatMessage( { id:'pages.common.request-details.action.reject'});
+    const action_revert_and_refund = formatMessage( { id:'pages.common.request-details.action.revert_and_refund'});
+    const action_upload_nota = formatMessage( { id:'pages.common.request-details.action.upload_nota'});
+    const action_attach_files = formatMessage( { id:'pages.common.request-details.action.attach_files'});
+    const action_refund = formatMessage( { id:'pages.common.request-details.action.refund'});
+    this.setState({intl:{title, cant_fetch_request, only_one_file, pushing_transaction, loading_request, valid_number_required_description, confirm_payment, error_service_price_mismatch, confirm_accept_service, confirm_accept_service_message, receipt_attach_required, receipt_attach_required_message, cancel_service, cancel_service_message, cancel_request, cancel_request_message, cancel_request_and_refund_message, reject_service_request, reject_service_request_message, reject_payment_request, reject_payment_request_message, action_process_request, action_accept, action_accept_and_send, action_accept, action_cancel, action_reject, action_cancel, action_cancel, action_reject, action_revert_and_refund, action_upload_nota, action_attach_files, action_refund}});
   }
   
   componentDidUpdate(prevProps, prevState) 
@@ -117,25 +152,27 @@ class requestDetails extends Component {
         this.setState(new_state);
   }
 
-  reload(id){
+  reload = async () => {
     const that      = this;
     this.setState({loading:true});
-    const key = id?id:this.state.request.id;
-    api.bank.getRequestById(key)
-        .then( (data) => {
-            // console.log(' ** fetched request object', JSON.stringify(data))
-            that.setState({loading:false, request:data})
-          },
-          (ex) => {
-            this.setState({loading:false});
-            components_helper.notif.exceptionNotification("Cant fetch request!", ex);
-          }  
-        );
+    const key = this.state.request.id;
+
+    try{
+      const data = await gqlService.request({id:key, account_name:this.props.actualAccountName});
+      console.log(data)
+      this.setState({provider:data})
+    }
+    catch(e)
+    {
+      this.setState({loading:false});
+      components_helper.notif.exceptionNotification(this.state.intl.cant_fetch_request, e);
+    }
+    this.setState({loading:false});
+    
   }
 
   getPropsForUploader(name){
     const filelist = this.state.attachments[name] || [];
-    // console.log(' FILELIST OF '+name, JSON.stringify(filelist) )
     return {
       onRemove: file => {
         this.setState(state => {
@@ -150,7 +187,7 @@ class requestDetails extends Component {
       beforeUpload: file => {
         if(this.state.attachments[name] && this.state.attachments[name].length>0)
         {
-          components_helper.notif.infoNotification("Only 1 file allowed");
+          components_helper.notif.infoNotification(this.state.intl.only_one_file);
           return false;
         }
 
@@ -174,9 +211,6 @@ class requestDetails extends Component {
   }
 
   backToReferrer = async () => {
-    // this.props.history.push({
-    //   pathname: `/${this.props.actualRole}/providers-payments`
-    // })
     this.props.history.push({
       pathname: this.props.location.state.referrer
     })
@@ -184,8 +218,6 @@ class requestDetails extends Component {
 
   resetPage(){
     this.setState({...DEFAULT_RESULT});
-    // this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
-    // reset Errors and results
     this.props.clearAll();
   }
 
@@ -238,7 +270,7 @@ class requestDetails extends Component {
                   ,[globalCfg.api.COMPROBANTE] :comprobanteUploaderProps };
                   
     return(
-      <Spin spinning={isFetching||loading} delay={500} tip={loading?'Loading...':'Pushing transaction...'}>
+      <Spin spinning={isFetching||loading} delay={500} tip={loading?this.state.intl.loading_request:this.state.intl.pushing_transaction}>
         <TransactionCard 
               request={request} 
               admin={this.props.isAdmin}
@@ -276,25 +308,28 @@ class requestDetails extends Component {
     
     if(isNaN(amount))
     {
-      components_helper.notif.errorNotification("Valid amount required","The amount requested is not a valid number greater than 0!");
+      components_helper.notif.errorNotification(this.state.intl.valid_number_required_description);
       return;
     }
     if(parseFloat(amount)>parseFloat(this.props.balance))
     {
       const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-      components_helper.notif.errorNotification(`Amount must be equal or less than your balance ${balance_txt}!`);
+      const minimum_amount_required = this.props.intl.formatMessage( { id:'pages.common.request-details.minimum_amount_required'}, {balance:balance_txt});
+      components_helper.notif.errorNotification(minimum_amount_required);
       return;
     } 
     //`
     const that = this;
-    
+    const confirm_payment_message = this.props.intl.formatMessage( { id:'pages.common.request-details.confirm_payment_message'}
+          , {  amount:     globalCfg.currency.toCurrencyString(amount)
+              , receiver:  receiver
+              , bold:      (str) => <b>{str}</b>});
+    //
     Modal.confirm({
-      title:   'Confirm payment',
-      content: `Please confirm sending ${globalCfg.currency.toCurrencyString(amount)} to ${receiver}`,
+      title:   this.state.intl.confirm_payment,
+      content: confirm_payment_message,
       onOk() {
         
-        // const _function = _pay?'sendPayment':'sendMoney';
-        // that.props.callAPI(_function, [sender, privateKey, receiver, amount, memo])
         const _function = globalCfg.api.isPayment(request)?'sendPayment':'sendMoney';   
         //ToDo
         const steps= [
@@ -331,15 +366,16 @@ class requestDetails extends Component {
 
     if(amount!=service.amount)
     {
-      components_helper.notif.warningNotification('The service price requested by provider is different than the service price.', `Requested price: ${amount}. Service listing price:${service.amount}.`);
+      const error_service_price_mismatch_message = formatMessage( { id:'pages.common.request-details.error_service_price_mismatch_message'}, {amount:amount, service_amount:service.amount});
+      components_helper.notif.warningNotification(this.state.intl.error_service_price_mismatch, error_service_price_mismatch_message);
       return;
     } 
     
     const that = this;
     
     Modal.confirm({
-      title: 'You will accept the service provisioning request',
-      content: 'Please confirm service provisioning acceptance. This contract cant be cancelled by you.',
+      title:   this.state.intl.confirm_accept_service, 
+      content: this.state.intl.confirm_accept_service_message,
       onOk() {
           
         //ToDo
@@ -371,7 +407,7 @@ class requestDetails extends Component {
     const my_NOTA_FISCAL   = this.getAttach(globalCfg.api.NOTA_FISCAL);
     if(!my_NOTA_FISCAL)
     {
-      components_helper.notif.errorNotification('Nota Fiscal attachment is required', 'Please attach a Nota Fiscal PDF file.');
+      components_helper.notif.errorNotification(this.state.intl.receipt_attach_required, this.state.intl.receipt_attach_required_message);
       return;
     }   
     const that      = this;  
@@ -389,8 +425,8 @@ class requestDetails extends Component {
   cancelService(){
     let that = this;  
     confirm({
-      title: 'Cancel service provisioneinig request',
-      content: `You will cancel the request. Confirm to proceed.`,
+      title:   this.state.intl.cancel_service,
+      content: this.state.intl.cancel_service_message,
       onOk() {
 
         const {request} = that.state;
@@ -403,8 +439,7 @@ class requestDetails extends Component {
         
       },
       onCancel() {
-        // that.setState({pushingTx:false})
-        // console.log('Cancel');
+        
       },
     });
   }
@@ -414,25 +449,21 @@ class requestDetails extends Component {
 
   cancelRequest(refund_message){
     let that = this;  
+    
     confirm({
-      title: 'Cancel request',
-      content: `You will cancel the request. ${refund_message ? 'The money will be available at your balance in 24/48hs.':''}`,
+      title:   this.state.intl.cancel_request,
+      content: refund_message?this.state.intl.cancel_request_and_refund_message :this.state.intl.cancel_request_message,
       onOk() {
         // that.setState({pushingTx:true});
         const {request} = that.state;
-        
         //ToDo
         const step ={
             _function:   'bank.cancelExternal'
             , _params:   [that.props.actualAccountName, request.id]
           }
-        
         that.props.callAPI(step._function, step._params)
-        
       },
       onCancel() {
-        // that.setState({pushingTx:false})
-        // console.log('Cancel');
       },
     });
   }
@@ -443,8 +474,8 @@ class requestDetails extends Component {
     const that       = this;
     
     Modal.confirm({
-      title: 'You will REJECT the request',
-      content: 'Please confirm to proceed.',
+      title:   this.state.intl.reject_service_request,
+      content: this.state.intl.reject_service_request_message,
       onOk() {
         const {request}  = that.state;
         const sender     = that.props.actualAccountName;
@@ -463,12 +494,12 @@ class requestDetails extends Component {
     
   }
 
-  rejectRequest(){
+  rejectPaymentRequest(){
     const that       = this;
     
     Modal.confirm({
-      title: 'You will REJECT the request',
-      content: 'Please confirm to proceed.',
+      title:   this.state.intl.reject_payment_request,
+      content: this.state.intl.reject_payment_request_message,
       onOk() {
         const {request}  = that.state;
         const sender     = that.props.actualAccountName;
@@ -492,34 +523,47 @@ class requestDetails extends Component {
   attachFiles(){}
 
   getActions(){
-    const {request, isFetching}    = this.state;
+    const {request, isFetching, intl}    = this.state;
     if(!request)
       return [];
-    const processButton       = (<Button loading={isFetching} size="large" onClick={() => this.processRequest()} key="processButton" type="primary" title="" >PROCESS REQUEST</Button>);
+    const processButton       = (<Button loading={isFetching} size="large" onClick={() => this.processRequest()} key="processButton" type="primary" title="" >
+      {intl.action_process_request}</Button>);
     //
-    const acceptButton        = (<Button loading={isFetching} size="large" onClick={() => this.acceptRequest()} key="acceptButton" type="primary" title="" >ACCEPT</Button>);
+    const acceptButton        = (<Button loading={isFetching} size="large" onClick={() => this.acceptRequest()} key="acceptButton" type="primary" title="" >
+      {intl.action_accept}</Button>);
     //
-    const acceptAndSendButton = (<Button loading={isFetching} size="large" onClick={() => this.acceptandSendRequest()} key="acceptSendButton" type="primary" title="" >ACCEPT & SEND</Button>);
+    const acceptAndSendButton = (<Button loading={isFetching} size="large" onClick={() => this.acceptandSendRequest()} key="acceptSendButton" type="primary" title="" >
+      {intl.action_accept_and_send}</Button>);
     //
-    const acceptServiceButton = (<Button loading={isFetching} size="large" onClick={() => this.acceptServiceRequest()} key="acceptServiceButton" type="primary" title="" >ACCEPT</Button>);
+    const acceptServiceButton = (<Button loading={isFetching} size="large" onClick={() => this.acceptServiceRequest()} key="acceptServiceButton" type="primary" title="" >
+      {intl.action_accept}</Button>);
     //
-    const cancelServiceButton = (<Button loading={isFetching} size="large" onClick={() => this.cancelService(false)} key="cancelServiceButton" className="danger_color" style={{marginLeft:16}} type="link" >CANCEL</Button>);
+    const cancelServiceButton = (<Button loading={isFetching} size="large" onClick={() => this.cancelService(false)} key="cancelServiceButton" className="danger_color" style={{marginLeft:16}} type="link" >
+      {intl.action_cancel}</Button>);
     //
-    const rejectServiceButton = (<Button loading={isFetching} size="large" onClick={() => this.rejectServiceRequest()} key="rejectServiceButton" className="danger_color" style={{marginLeft:16}} type="link" >REJECT</Button>);
+    const rejectServiceButton = (<Button loading={isFetching} size="large" onClick={() => this.rejectServiceRequest()} key="rejectServiceButton" className="danger_color" style={{marginLeft:16}} type="link" >
+      {intl.action_reject}</Button>);
     //
-    const cancelRefundButton  = (<Button loading={isFetching} size="large" onClick={() => this.cancelRequestAndRefund()} key="cancelRefundButton" className="danger_color" style={{marginLeft:16}} type="link" >CANCEL</Button>);
+    const cancelRefundButton  = (<Button loading={isFetching} size="large" onClick={() => this.cancelRequestAndRefund()} key="cancelRefundButton" className="danger_color" style={{marginLeft:16}} type="link" >
+      {intl.action_cancel}</Button>);
     //
-    const cancelButton        = (<Button loading={isFetching} size="large" onClick={() => this.cancelRequestOnly()} key="cancelButton" className="danger_color" style={{marginLeft:16}} type="link" >CANCEL</Button>);    
+    const cancelButton        = (<Button loading={isFetching} size="large" onClick={() => this.cancelRequestOnly()} key="cancelButton" className="danger_color" style={{marginLeft:16}} type="link" >
+      {intl.action_cancel}</Button>);    
     //
-    const rejectButton        = (<Button loading={isFetching} size="large" onClick={() => this.rejectRequest()} key="rejectButton" className="danger_color" style={{marginLeft:16}} type="link" >REJECT</Button>);
+    const rejectButton        = (<Button loading={isFetching} size="large" onClick={() => this.rejectPaymentRequest()} key="rejectButton" className="danger_color" style={{marginLeft:16}} type="link" >
+      {intl.action_reject}</Button>);
     //
-    const revertButton        = (<Button loading={isFetching} size="large" onClick={() => this.revertRequest()} key="revertButton" className="danger_color" style={{marginLeft:16}} type="link" >REVERT AND REFUND</Button>);
+    const revertButton        = (<Button loading={isFetching} size="large" onClick={() => this.revertRequest()} key="revertButton" className="danger_color" style={{marginLeft:16}} type="link" >
+      {intl.action_revert_and_refund}</Button>);
     //
-    const attachNotaButton    = (<Button loading={isFetching} size="large" onClick={() => this.attachNota()} key="updateButton" type="primary" style={{marginLeft:16}} type="primary" >UPLOAD NOTA</Button>);
+    const attachNotaButton    = (<Button loading={isFetching} size="large" onClick={() => this.attachNota()} key="updateButton" type="primary" style={{marginLeft:16}} type="primary" >
+      {intl.action_upload_nota}</Button>);
     //
-    const attachFiles         = (<Button loading={isFetching} size="large" onClick={() => this.attachFiles()} key="attachButton" type="primary" style={{marginLeft:16}} type="primary" >ATTACH FILES</Button>);
+    const attachFiles         = (<Button loading={isFetching} size="large" onClick={() => this.attachFiles()} key="attachButton" type="primary" style={{marginLeft:16}} type="primary" >
+      {intl.action_attach_files}</Button>);
     //
-    const refundButton        = (<Button loading={isFetching} size="large" onClick={() => this.refundRequest()} key="refundButton" type="primary" style={{marginLeft:16}} type="primary" >REFUND</Button>);
+    const refundButton        = (<Button loading={isFetching} size="large" onClick={() => this.refundRequest()} key="refundButton" type="primary" style={{marginLeft:16}} type="primary" >
+      {intl.action_refund}</Button>);
     
     //
     const requires_attachment = globalCfg.api.requiresAttach(request);
@@ -619,7 +663,7 @@ class requestDetails extends Component {
   //
   render() {
 
-    const {request, referrer} = this.state;
+    const {request, referrer, loading, intl} = this.state;
     if(!request)
       return (<Spin loading="true" />)
     let content      = this.renderContent();
@@ -628,13 +672,13 @@ class requestDetails extends Component {
     {
       routes         = routesService.breadcrumbForPaths([referrer, this.props.location.pathname]);
     }
-    const title         = 'Request details';
+    
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title={title}>
-        </PageHeader>
+          extra={[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reload()} ></Button>]}
+          title={intl.title} />
         
         {content}
         
@@ -670,5 +714,5 @@ export default Form.create() (withRouter(connect(
         clearAll:         bindActionCreators(apiRedux.clearAll, dispatch),
 
     })
-)(requestDetails) )
+)(injectIntl(RequestDetails)) )
 );

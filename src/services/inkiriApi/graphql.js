@@ -435,6 +435,179 @@ export const requests = async ({page, requested_type='', account_name='', from='
 }
 
 
+const GET_REQUEST  = gql`
+  query xxx($id:String, $requestCounterId:String){
+    request(id:$id, requestCounterId:$requestCounterId){
+      _id
+      id                        
+      created_by{
+        _id
+        account_name
+        alias
+        first_name
+        last_name
+        email
+        legal_id
+        birthday
+        phone
+        bank_accounts{
+          _id
+          bank_name
+          agency
+          cc
+        }
+        account_type
+        business_name
+        created_at
+        userCounterId
+      }
+      requested_by{
+        _id
+        account_name
+        alias
+        first_name
+        last_name
+        email
+        legal_id
+        birthday
+        phone
+        bank_accounts{
+          _id
+          bank_name
+          agency
+          cc
+        }
+        account_type
+        business_name
+        created_at
+        userCounterId
+      }
+      from
+      requested_type
+      amount
+      requested_to{
+        _id
+        account_name
+        alias
+        first_name
+        last_name
+        email
+        legal_id
+        birthday
+        phone
+        bank_accounts{
+          _id
+          bank_name
+          agency
+          cc
+        }
+        account_type
+        business_name
+        created_at
+        userCounterId
+      }
+      to
+      state
+      tx_id
+      refund_tx_id
+      requestCounterId
+      description
+      attach_nota_fiscal_id
+      attach_boleto_pagamento_id
+      attach_comprobante_id
+      deposit_currency
+      bank_account{
+        bank_name
+        agency
+        cc
+      }
+      provider{
+        _id
+        name
+        cnpj
+        email
+        phone
+        address{
+          street
+          city
+          state
+          zip
+          country
+        }
+        category
+        products_services
+        state
+        bank_accounts{
+          _id
+          bank_name
+          agency
+          cc
+        }
+        providerCounterId
+      }
+      provider_extra{
+        payment_vehicle
+        payment_category
+        payment_type
+        payment_mode
+      }
+      service{
+        _id
+        created_by{
+          _id
+          account_name
+          alias
+          first_name
+          last_name
+          email
+          legal_id
+          birthday
+          phone
+          account_type
+          business_name
+          created_at
+          updated_at
+          userCounterId
+        }
+        account_name
+        serviceCounterId
+        title
+        description
+        amount
+        state
+      }
+      service_extra{
+        begins_at
+        expires_at
+      }
+      created_at
+      updated_at
+
+      header
+      sub_header
+      sub_header_ex
+      sub_header_admin
+      key
+      block_time
+      quantity
+      quantity_txt
+      tx_type
+      i_sent
+      flag{
+        ok
+        message
+        tag
+      }
+    }
+  }
+`;
+export const request = async ({id='', requestCounterId=''}={}) =>{
+  const a        = {id:id, requestCounterId:requestCounterId};
+  console.log(JSON.stringify(a));
+  // console.log(GET_REQUESTS);
+  return runQuery(GET_REQUEST, a, 'request');
+}
+
 
 export const loadProvider = async (provider_id) => runQuery(GET_PROVIDER_DATA, {id:provider_id}, 'provider');
 const GET_PROVIDER_DATA  = gql`

@@ -148,7 +148,7 @@ class Provider extends Component {
     catch(e)
     {
       this.setState({loading:false});
-      components_helper.notif.exceptinoNotification(this.props.intl.formatMessage({id:'pages.common.provider-profile.error_reloading_profile'}), e);
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'pages.common.provider-profile.error_reloading_profile'}), e);
     }
 
     this.setState({loading:false});

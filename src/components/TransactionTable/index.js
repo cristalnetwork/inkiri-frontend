@@ -148,7 +148,7 @@ class TransactionTable extends Component {
     catch(e)
     {
       this.setState({loading:false});
-      ui_helper.notif.exceptinoNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
+      ui_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
       return;
     }
     
