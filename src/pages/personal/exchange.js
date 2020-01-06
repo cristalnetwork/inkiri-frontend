@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -7,7 +7,6 @@ import * as loginRedux from '@app/redux/models/login'
 import * as accountsRedux from '@app/redux/models/accounts'
 import * as apiRedux from '@app/redux/models/api';
 
-import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
 import * as utils from '@app/utils/utils';
@@ -16,8 +15,7 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin } from 'antd';
-import { Upload, notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { PageHeader, Spin, Form } from 'antd';
 
 import ExchangeForm from '@app/components/Form/exchange';
 
@@ -25,9 +23,7 @@ import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 // import './requestPayment.css'; 
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-
-const { TextArea } = Input;
+import { injectIntl } from "react-intl";
 
 const DEFAULT_RESULT = {
   result:             undefined,
@@ -50,8 +46,8 @@ class Exchange extends Component {
       ...DEFAULT_RESULT,
       
       uploading:          false,
-      isFetching:         false
-      
+      isFetching:         false,
+      intl:               {}
     };
 
     this.renderContent              = this.renderContent.bind(this); 
@@ -86,12 +82,18 @@ class Exchange extends Component {
       }
     }
 
-
     if(Object.keys(new_state).length>0)      
         this.setState(new_state);
   }
 
-  
+  componentDidMount =() =>{
+    const {formatMessage} = this.props.intl;
+    const pushing_transaction = formatMessage({id:'pages.personal.exchange.pushing_transaction'});
+    const request_exchange_action_text = formatMessage({id:'pages.personal.exchange.request_exchange_action_text'});
+    const title = formatMessage({id:'pages.personal.exchange.title'});
+
+    this.setState({intl:{pushing_transaction, request_exchange_action_text, title}})
+  }
 
   handleSubmit = e => {
     // console.log(' Exchange for submitted ', JSON.stringify(e))
@@ -180,12 +182,10 @@ class Exchange extends Component {
       
       return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
     }
-
-    
     
     return (
-      <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
-        <ExchangeForm onRef={ref => (this.childForm = ref)}  key="exchange_form" alone_component={false} button_text="REQUEST EXCHANGE" callback={this.handleSubmit} />    
+      <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
+        <ExchangeForm onRef={ref => (this.childForm = ref)}  key="exchange_form" alone_component={false} button_text={this.state.intl.request_exchange_action_text} callback={this.handleSubmit} />    
       </Spin>
     );
 
@@ -199,8 +199,7 @@ class Exchange extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Request an exchange">
-        </PageHeader>
+          title={this.state.intl.title} />
 
         <div style={{ margin: '0 0px', padding: 24}}>
           <div className="ly-main-content content-spacing cards">
@@ -236,5 +235,5 @@ export default Form.create() (withRouter(connect(
         clearAll:         bindActionCreators(apiRedux.clearAll, dispatch),
 
     })
-)(Exchange) )
+)(injectIntl(Exchange)) )
 );

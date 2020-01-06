@@ -893,6 +893,10 @@
   "pages.common.services.load_more_services"                            : "Load more services",
   "pages.common.services.confirm_send_request_message"                  : "You will invite <bold>{customer}</bold> to accept <bold>{service}</bold> service, at a <bold>{amount}</bold> monthly price bases, for <bold>{periods}</bold> periods/months, begining at <bold>{begins_at}</bold>",
 
+  "pages.common.transaction-details.title"                              : "Transaction details",
+  "pages.common.transaction-details.error_while_fetching_request"       : "Oops ... an error occurred while fetching request",
+  "pages.common.transaction-details.loading_request"                    : "Loading request...",
+
   "pages.common.withdraw.title"                                         : "Withdraw money",  
   "pages.common.withdraw.error_cant_form_validation"                    : "Oops... Please verify fields messages on screen.",
   "pages.common.withdraw.valid_number_required"                         : "Valid number required",
@@ -904,6 +908,10 @@
   "pages.common.withdraw.request_withdraw_action_text"                  : "Request withdraw",
   "pages.common.withdraw.confirm_request_message"                       : "Please confirm withdraw for {amount}",
   "pages.common.withdraw.amount_le_balance_message"                     : "Amount must be equal or less than balance {balance}",
+
+  "pages.personal.exchange.pushing_transaction"                         : "Pushing transaction...",
+  "pages.personal.exchange.request_exchange_action_text"                : "Request exchange",
+  "pages.personal.exchange.title"                                       : "Request an exchange",
 
   "dummy" : "dummy"
  

@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -7,7 +7,6 @@ import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
 import * as apiRedux from '@app/redux/models/api';
 
-import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
 
 import { withRouter } from "react-router-dom";
@@ -16,13 +15,10 @@ import * as components_helper from '@app/components/helper';
 
 import * as utils from '@app/utils/utils';
 
-import { Select, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Modal} from 'antd';
-import { notification, Form, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { PageHeader, Button, Spin, Modal, Form, Input } from 'antd';
 
 import TxResult from '@app/components/TxResult';
 import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { injectIntl } from "react-intl";
 

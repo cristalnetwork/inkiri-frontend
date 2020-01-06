@@ -1,7 +1,6 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux';
 
 import * as menuRedux from '@app/redux/models/menu'
 import * as loginRedux from '@app/redux/models/login'
@@ -9,25 +8,21 @@ import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
 
 import * as api from '@app/services/inkiriApi';
-import * as globalCfg from '@app/configs/global';
-import * as utils from '@app/utils/utils';
 
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
 import { withRouter } from "react-router-dom";
 
-import { Modal, Result, Card, PageHeader, Tag, Button, Statistic, Row, Col, Spin, Descriptions } from 'antd';
-import { notification, Icon, InputNumber, Input, AutoComplete, Typography } from 'antd';
+import { PageHeader, Spin } from 'antd';
 
 import Tx from '@app/components/TransactionCard/tx';
 
 import '../bankadmin/request.less';
 
-const { Paragraph, Text } = Typography;
-const { confirm } = Modal;
+import { injectIntl } from "react-intl";
 
-class transactionDetails extends Component {
+class TransactionDetails extends Component {
   constructor(props) {
     super(props);
     const {location}  = props;
@@ -40,14 +35,21 @@ class transactionDetails extends Component {
       request:      null,
       transaction:  transaction,
       referrer:     referrer,
+      intl:         {}
     };
 
     this.renderContent              = this.renderContent.bind(this); 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.onViewRequest              = this.onViewRequest.bind(this); 
   }
 
   componentDidMount(){
+    
+    const {formatMessage} = this.props.intl;
+    const title = formatMessage({id:'pages.common.transaction-details.title'});
+    const error_while_fetching_request = formatMessage({id:'pages.common.transaction-details.error_while_fetching_request'});
+    const loading_request = formatMessage({id:'pages.common.transaction-details.loading_request'});
+
+    this.setState({intl:{title, error_while_fetching_request, loading_request}})
     const { match, location, history, lastRootMenu } = this.props;
 
     console.log(' ~~~location: ', location)
@@ -82,8 +84,7 @@ class transactionDetails extends Component {
           },
           (ex) => {
             that.setState({loading:false});
-            that.openNotificationWithIcon("error", "Cant fetch request", JSON.stringify(ex))    
-            // console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
+            components_helper.notif.exceptionNotification( this.state.intl.error_while_fetching_request ) ;
           }  
         );
     }
@@ -97,18 +98,11 @@ class transactionDetails extends Component {
           },
           (ex) => {
             that.setState({loading:false});
-            that.openNotificationWithIcon("error", "Cant fetch request", JSON.stringify(ex))    
+            components_helper.notif.exceptionNotification( this.state.intl.error_while_fetching_request ) ;
             // console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
           }  
         );
     }
-  }
-
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
   }
 
   backToDashboard = async () => {
@@ -143,7 +137,7 @@ class transactionDetails extends Component {
     const {transaction, request, loading}      = this.state;
                   
     return(
-      <Spin spinning={loading} delay={500} tip={'Loading request...'}>
+      <Spin spinning={loading} delay={500} tip={this.state.intl.loading_request }>
         <Tx 
               transaction={transaction} 
               request={request} 
@@ -166,7 +160,7 @@ class transactionDetails extends Component {
       // routes         = routesService.breadcrumbForFile(xpath[xpath.length-1]);
       routes         = routesService.breadcrumbForPaths([referrer, this.props.location.pathname]);
     }
-    const title         = 'Transaction details';
+    const title         = this.state.intl.title;
     
     return (
       <>
@@ -200,5 +194,5 @@ export default (withRouter(connect(
         // isAdmin:    bindActionCreators(loginRedux.isAdmin, dispatch),
         // isBusiness: bindActionCreators(loginRedux.isBusiness, dispatch)
     })
-)(transactionDetails) )
+)(injectIntl(TransactionDetails)) )
 );
