@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -10,27 +10,20 @@ import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
 
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Radio, Select, Card, PageHeader, Tag, Tabs, Button, Statistic, Row, Col, List } from 'antd';
-import { Form, Input, Icon} from 'antd';
-import { notification, Table, Divider, Spin } from 'antd';
+import { Card, PageHeader, Button, Table } from 'antd';
 
 import {DISPLAY_ALL_TXS} from '@app/components/TransactionTable';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
 import * as utils from '@app/utils/utils';
 
-import _ from 'lodash';
+import { injectIntl } from "react-intl";
+import * as gqlService from '@app/services/inkiriApi/graphql'
 
-const { TabPane } = Tabs;
-const FormItem = Form.Item;
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
-const { Option } = Select;
-const { Search, TextArea } = Input;
 
 class Providers extends Component {
   constructor(props) {
@@ -39,27 +32,18 @@ class Providers extends Component {
       routes :        routesService.breadcrumbForPaths(props.location.pathname),
       loading:        false,
       providers:      [],
-      
       page:           -1, 
       limit:          globalCfg.api.default_page_size,
       can_get_more:   true,
       cursor:         '',
-      stats:          undefined,
-      // active_tab:     DISPLAY_ALL_TXS
     };
 
     this.loadProviders               = this.loadProviders.bind(this);  
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.renderFooter               = this.renderFooter.bind(this); 
     this.onNewData                  = this.onNewData.bind(this);
-    // this.onTabChange                = this.onTabChange.bind(this);
-    // this.onTableChange              = this.onTableChange.bind(this);
     this.onButtonClick              = this.onButtonClick.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
     this.onNewProvider               = this.onNewProvider.bind(this); 
-    this.renderAccountTypeFilter    = this.renderAccountTypeFilter.bind(this);
-    this.renderAccountStateFilter   = this.renderAccountStateFilter.bind(this);
-    this.renderFilterContent        = this.renderFilterContent.bind(this);
   }
 
   getColumns(){
@@ -90,14 +74,14 @@ class Providers extends Component {
           provider: provider
           , referrer: this.props.location.pathname
         }
-    })
-
+    });
   }
 
   reloadProviders(){
     this.setState({
         page:        -1, 
         providers:    [],
+        can_get_more: true,
       }, () => {
         this.loadProviders();
       });  
@@ -108,32 +92,30 @@ class Providers extends Component {
     let can_get_more   = this.state.can_get_more;
     if(!can_get_more && this.state.page>=0)
     {
+      components_helper.notif.infoNotification(this.props.intl.formatMessage({id:'pages.common.providers.cant_get_more_end_of_list'}));
       this.setState({loading:false});
       return;
     }
 
     this.setState({loading:true});
 
-    
-    // let page           = (this.state.page<0)?0:(this.state.page+1);
-    // const limit          = this.state.limit;
     let that           = this;
-    
-    api.bank.listProviders()
-    .then( (res) => {
+    let page           = (this.state.page<0)?0:(this.state.page+1); 
+    try{
+      const data = await gqlService.providers({page:page});
+      console.log(' ==== providers::gqlService:', data)
+      that.onNewData(data);
+    }
+    catch(e)
+    {
+      this.setState({loading:false});
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'pages.common.providers.error_loading_providers'}), e);
+    }
 
-        // console.log(' >> api.bank.listProviders >>', JSON.stringify(res))
-        that.onNewData(res, first);
-        
-      } ,(ex) => {
-        // console.log(' api.bank.listProviders ERROR#1', JSON.stringify(ex) )
-        that.setState({loading:false});  
-      } 
-    );
-    
+    this.setState({loading:false});
   }
 
-  onNewData(providers, first){
+  onNewData(providers){
     
     if(!providers)
       providers=[];
@@ -143,96 +125,41 @@ class Providers extends Component {
     pagination.total      = _providers.length;
 
     const has_received_new_data = (providers && providers.length>0);
+    const {page} = this.state.page;
 
-    this.setState({pagination:pagination, providers:_providers, can_get_more:(has_received_new_data && providers.length==this.state.limit), loading:false})
+    this.setState({pagination:pagination
+                    , providers:_providers
+                    // , can_get_more:(has_received_new_data && providers.length==this.state.limit)
+                    , can_get_more:has_received_new_data 
+                    , page:has_received_new_data?(page+1):page
+                    , loading:false})
 
-    if(!has_received_new_data && !first)
+    if(!has_received_new_data)
     {
-      this.openNotificationWithIcon("info", "End of list","You have reached the end of list!")
+      const end_of_list           = this.props.intl.formatMessage({id:'pages.common.providers.end_of_list'})
+      const no_records_for_filter = this.props.intl.formatMessage({id:'pages.common.providers.no_records_for_filter'})
+      const msg = (page>0)
+        ?end_of_list
+        :no_records_for_filter;
+      components_helper.notif.infoNotification(msg)
     }
     
   }
 
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
   // Component Events
   
 
   
   renderFooter(){
-    return (<Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadProviders()}>More!!</Button>)
+    return (<Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadProviders()}>
+        { this.props.intl.formatMessage({id:'pages.common.providers.load_more_records'}) }
+      </Button>)
   }
 
   //
   
-  renderFilterContent(){
-    const optTypes  = this.renderAccountTypeFilter();
-    const optStates = this.renderAccountStateFilter();
-    return(
-      <div className="filter_wrap">
-        <Row>
-          <Col span={24}>
-            <Form layout="inline" className="filter_form" onSubmit={this.handleSubmit}>
-              <Form.Item label="Account Type">
-                {optTypes}
-              </Form.Item>
-              <Form.Item label="Account State">
-                {optStates}
-              </Form.Item>
-              <Form.Item  label="Search">
-                  <Search className="styles extraContentSearch" placeholder="Search" onSearch={() => ({})} />
-              </Form.Item>
-              <Form.Item>
-                <Button htmlType="submit" disabled>
-                  Filter
-                </Button>
-              </Form.Item>
-            </Form>
-          </Col>
-        </Row>
-      </div>
-    );
-  }
-
-  // 
-  renderAccountStateFilter(){
-    console.log(' ** renderAccountStateFilter')
-    return (
-      <Select placeholder="Account status"
-                    mode="multiple"
-                    style={{ minWidth: '250px' }}
-                    defaultValue={['ALL']}
-                    optionLabelProp="label">
-        {globalCfg.bank.listAccountStates()
-          .map( account_state => <Option key={'option'+account_state} value={account_state} label={utils.firsts(account_state)}>{ utils.capitalize(account_state) } </Option> )}
-    </Select>
-    )
-  }
-  //
-  renderAccountTypeFilter(){
-    console.log(' ** renderAccountTypeFilter')
-    return (<Select placeholder="Account type"
-                    mode="multiple"
-                    style={{ minWidth: '250px' }}
-                    defaultValue={['ALL']}
-                    optionLabelProp="label">
-
-      {globalCfg.bank.listAccountTypes()
-        .map( account_type => 
-          <Option key={'option_'+account_type} value={account_type} label={account_type}>{ account_type } </Option> 
-        )}
-      </Select>);
-  }
   
   render() {
-    //
-    const filters             = (<></>); //this.renderFilterContent();
-    const content             = this.renderUMIContent();
-    const _href               = globalCfg.bank.customers;
     const {routes, loading}   = this.state;
     return (
       <>
@@ -240,49 +167,36 @@ class Providers extends Component {
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={[
             <Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadProviders()} ></Button>,
-            <Button key="_new_provider" size="small" type="primary" icon="plus" onClick={()=>{this.onNewProvider()}}> Provider</Button>,
-            
+            <Button key="_new_provider" size="small" type="primary" icon="plus" onClick={()=>{this.onNewProvider()}}> 
+              { this.props.intl.formatMessage({id:'pages.common.providers.new_provider_button_text'}) }
+            </Button>,
           ]}
-          title="Providers"
-          subTitle="Providers Administration"
-        >
+          title={ this.props.intl.formatMessage({id:'pages.common.providers.title'}) }
+        />
           
-        </PageHeader>
-        {filters}
-        {content}
+        <div className="styles standardList" style={{ marginTop: 24 }}>
+          <Card
+            className="styles listCard"
+            bordered={false}
+            title={ this.props.intl.formatMessage({id:'pages.common.providers.table_title'}) }
+            style={{ marginTop: 24 }}
+          >
+            <Table
+              key="table_all_txs" 
+              rowKey={record => record._id} 
+              loading={this.state.loading} 
+              columns={this.getColumns()} 
+              dataSource={this.state.providers} 
+              footer={() => this.renderFooter()}
+              pagination={this.state.pagination}
+              scroll={{ x: 700 }}
+              />
 
+          </Card>
+        </div>
       </>
     );
   }
-//
-
-  renderUMIContent(){
-    
-    return  (<>
-      <div className="styles standardList" style={{ marginTop: 24 }}>
-        <Card
-          className="styles listCard"
-          bordered={false}
-          title="List of Providers"
-          style={{ marginTop: 24 }}
-        >
-          
-          <Table
-            key="table_all_txs" 
-            rowKey={record => record.id} 
-            loading={this.state.loading} 
-            columns={this.getColumns()} 
-            dataSource={this.state.providers} 
-            footer={() => this.renderFooter()}
-            pagination={this.state.pagination}
-            scroll={{ x: 700 }}
-            />
-
-        </Card>
-      </div>
-    </>)
-  }
-
 }
 //
 export default  (withRouter(connect(
@@ -294,5 +208,5 @@ export default  (withRouter(connect(
     (dispatch)=>({
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(Providers))
+)(injectIntl(Providers)))
 );

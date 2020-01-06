@@ -31,6 +31,8 @@ const client = new ApolloClient({
   cache: new InMemoryCache()
 });
 
+
+
 const GET_CONFIG = gql`
   {
     configuration{
@@ -218,8 +220,9 @@ const GET_CONFIG = gql`
     }
   }
 `;
-
 export const loadConfig = async () => runQuery(GET_CONFIG);
+
+
 
 
 const GET_BUSINESS_DATA  = gql`
@@ -251,6 +254,8 @@ const GET_BUSINESS_DATA  = gql`
   }
 `;
 export const loadBizData = async (account_name) => runQuery(GET_BUSINESS_DATA, {account_name:account_name});
+
+
 
 const GET_REQUESTS  = gql`
   query xxx($account_name:String, $page:String, $requested_type:String, $from:String, $to:String, $provider_id:String, $state:String, $id:String, $requestCounterId:String, $tx_id:String, $refund_tx_id:String, $attach_nota_fiscal_id:String, $attach_boleto_pagamento_id:String, $attach_comprobante_id:String, $deposit_currency:String, $date_from:String, $date_to:String){
@@ -418,7 +423,6 @@ const GET_REQUESTS  = gql`
     }
   }
 `;
-// export const requests = async (page, limit, requested_type, account_name) => runQuery(GET_BUSINESS_DATA, {account_name:account_name});
 export const requests = async ({page, requested_type='', account_name='', from='', to='', provider_id='', state='', id='', requestCounterId='', tx_id='', refund_tx_id='', attach_nota_fiscal_id='', attach_boleto_pagamento_id='', attach_comprobante_id='', deposit_currency='', date_from='', date_to=''}={}) =>{
   if(account_name && !to && !from && account_name!=globalCfg.currency.issuer)
   {
@@ -432,11 +436,75 @@ export const requests = async ({page, requested_type='', account_name='', from='
 
 
 
-
 export const loadProvider = async (provider_id) => runQuery(GET_PROVIDER_DATA, {id:provider_id}, 'provider');
 const GET_PROVIDER_DATA  = gql`
   query getProvider($id: String!) {
     provider(id:$id){
+      _id
+      name
+      cnpj
+      email
+      phone
+      address{
+        street
+        city
+        state
+        zip
+        country
+      }
+      category
+      products_services
+      created_by{
+        _id
+        account_name
+        alias
+        first_name
+        last_name
+        email
+        legal_id
+        birthday
+        phone
+        account_type
+        business_name
+        created_at
+        userCounterId
+      }
+      updated_by{
+        _id
+        account_name
+        alias
+        first_name
+        last_name
+        email
+        legal_id
+        birthday
+        phone
+        account_type
+        business_name
+        created_at
+        userCounterId
+      }
+      state
+      bank_accounts{
+        _id
+        bank_name
+        agency
+        cc
+      }
+      providerCounterId
+    }
+  }
+`;
+
+export const providers = async ({page, limit='', id='', name='', cnpj='', email='', category='', products_services='', state='', providerCounterId='', bank_name='', bank_agency='', bank_cc=''}={}) =>{
+  const a        = {page:page.toString(), limit:limit, id:id, name:name, cnpj:cnpj, email:email, category:category, products_services:products_services, state:state, providerCounterId:providerCounterId, bank_name:bank_name, bank_agency:bank_agency, bank_cc:bank_cc};
+  console.log(JSON.stringify(a));
+  return runQuery(GET_PROVIDERS, a, 'providers');
+}
+
+const GET_PROVIDERS = gql`
+  query getProviders($page:String!, $limit:String!, $id:String, $name:String, $cnpj:String, $email:String, $category:String, $products_services:String, $state:String, $providerCounterId:String, $bank_name:String, $bank_agency:String, $bank_cc:String ) {
+    providers(page:$page, limit:$limit, id:$id, name:$name, cnpj:$cnpj, email:$email, category:$category, products_services:$products_services, state:$state, providerCounterId:$providerCounterId, bank_name:$bank_name, bank_agency:$bank_agency, bank_cc:$bank_cc){
       _id
       name
       cnpj
@@ -513,7 +581,7 @@ const runQuery = async (query, variables, _return_field) => {
   }
   catch(e)
   {
-    console.log('graphql exception', e)
+    console.log('graphql exception for ', _return_field,  e)
   }
   return null;
 }

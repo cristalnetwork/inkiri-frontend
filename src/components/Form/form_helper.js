@@ -122,8 +122,6 @@ export const getMonthItem = (_form, object, field, title, required_message, read
 
 //
 const getRanges = (intl) =>{
-  console.log(' ========================================= tripa')
-  console.log(' >> ', intl.formatMessage({id:'global.dates.today'}));
   return {
            [intl.formatMessage({id:'global.dates.today'})]:           [moment(), moment()],
            [intl.formatMessage({id:'global.dates.since_yesterday'})]: [moment().subtract(1, 'days'), moment()],
