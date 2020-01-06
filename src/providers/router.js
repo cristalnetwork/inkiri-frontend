@@ -56,8 +56,8 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
             // history.push(`/common/extrato`);
             // history.push(`/common/deposit`);
             // history.push(`/common/providers`);
-            history.push(`/common/request-money`);
-            // history.push(`/common/salaries`);
+            // history.push(`/common/request-money`);
+            history.push(`/common/salaries`);
             // history.push(`/common/send`);
             // history.push(`/${actualRole}/providers-payments`);
             // history.push(`/${actualRole}/providers-payments-request`);

@@ -1,4 +1,4 @@
-import React, {useState, Component} from 'react'
+import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
@@ -7,20 +7,18 @@ import * as apiRedux from '@app/redux/models/api';
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance';
+import * as graphqlRedux from '@app/redux/models/graphql'
 
 import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
-import { Route, Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
-import TableStats from '@app/components/TransactionTable/stats'; 
-import * as stats_helper from '@app/components/TransactionTable/stats';
 
-import { Card, PageHeader, Tag, Tabs, Button, Form, Input, Icon} from 'antd';
-import { Modal, notification, Table, Divider, Spin } from 'antd';
+import { Card, PageHeader, Button, Table, Spin } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import SalaryForm from '@app/components/Form/salary';
@@ -31,9 +29,9 @@ import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
 import * as utils from '@app/utils/utils';
 
-import _ from 'lodash';
-
 import EditableCell , {EditableFormRow } from '@app/components/TransactionTable/EditableTableRow';
+
+import { injectIntl } from "react-intl";
 
 const STATE_LIST_MEMBERS = 'state_list_members';
 const STATE_NEW_PAYMENT  = 'state_new_payment';
@@ -50,12 +48,15 @@ class Salaries extends Component {
     this.state = {
       routes :            routesService.breadcrumbForPaths(props.location.pathname),
       loading:            false,
-      isFetching:          false,
-      team:               null,
-      
-      job_positions:      null,
+      isFetching:         false,
+     
       dataSource:         [],
       removed:            [],
+
+      // team:               null,
+      // job_positions:      null,
+      team:               props.team,
+      job_positions:      props.jobPositions,
 
       ...DEFAULT_RESULT,
 
@@ -63,7 +64,6 @@ class Salaries extends Component {
     };
 
     this.loadTeam                   = this.loadTeam.bind(this);  
-    this.loadJobPositions           = this.loadJobPositions.bind(this);  
     this.getColumns                 = this.getColumns.bind(this);
     this.onRestoreList              = this.onRestoreList.bind(this); 
     this.removeCallback             = this.removeCallback.bind(this); 
@@ -80,9 +80,19 @@ class Salaries extends Component {
   }
   
   componentDidMount = async () => {
-    const x_dummy = await this.loadJobPositions();
-    const y_dummy = await this.loadTeam();  
-    this.rebuildDataSourceAndSet();
+    const {team, job_positions} = this.state;
+    if(!team)    
+    {
+      this.loadTeam();
+    }
+
+    if(utils.objectNullOrEmpty(job_positions))
+    {
+      this.props.loadConfig();
+    }
+
+    if(team && !utils.objectNullOrEmpty(job_positions))
+      this.rebuildDataSourceAndSet();
   } 
 
   componentDidUpdate(prevProps, prevState) 
@@ -91,29 +101,37 @@ class Salaries extends Component {
     if(prevProps.isFetching!=this.props.isFetching){
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
-    if(prevProps.getErrors!=this.props.getErrors){
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       const ex = this.props.getLastError;
       new_state = {...new_state, 
           getErrors:     this.props.getErrors, 
           result:        ex?'error':undefined, 
           error:         ex?JSON.stringify(ex):null}
       if(ex)
-        components_helper.notif.exceptionNotification("An error occurred!", ex);
+        components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'errors.occurred_title'}), ex);
     }
-    if(prevProps.getResults!=this.props.getResults){
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       const lastResult = this.props.getLastResult;
       new_state = {...new_state, 
         getResults:      this.props.getResults, 
         result:          lastResult?'ok':undefined, 
         result_object:   lastResult};
       if(lastResult)
-        components_helper.notif.successNotification('Operation completed successfully')
+        components_helper.notif.successNotification(this.props.intl.formatMessage({id:'success.oper_completed_succ'}))
     }
 
-
+    if(!utils.objectsEqual(prevProps.team, this.props.team) ){
+      new_state = {...new_state, team:this.props.team};
+    }
+    if(!utils.objectsEqual(prevProps.jobPositions, this.props.jobPositions) ){
+      new_state = {...new_state, job_positions:this.props.jobPositions};
+    }
+    
 
     if(Object.keys(new_state).length>0)      
-        this.setState(new_state);
+        this.setState(new_state, () => {
+            this.rebuildDataSourceAndSet();
+        });
   }
 
   onRestoreList = () => {
@@ -130,8 +148,6 @@ class Salaries extends Component {
   };
 
   salaryFormCallback = async (error, cancel, values) => {
-    // console.log(` ## memberFormCallback(error:${error}, cancel:${cancel}, values:${values})`)
-    // console.log(' memberFormCallback:', JSON.stringify(values))
     
     if(cancel)
     {
@@ -147,9 +163,9 @@ class Salaries extends Component {
     const total        = dataSource.reduce((acc, member) => acc + Number(member.current_wage), 0);
     if(parseFloat(total)>parseFloat(this.props.balance))
     {
-      console.log(total, ' > ' ,this.props.balance);
       const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
-      components_helper.notif.errorNotification(`Total must be equal or less than balance ${balance_txt}!`);
+      const err_msg     = this.props.intl.formatMessage({id:'pages.common.salaries.total_payment_exceeds_balance'}, {balance:balance_txt})
+      components_helper.notif.errorNotification(err_msg);
       return;
     }
 
@@ -165,18 +181,6 @@ class Salaries extends Component {
     // console.log(JSON.stringify(to_amount_array));
 
     that.props.callAPI('paySalaries', [sender_account, sender_priv, to_amount_array, description, worked_month.format(form_helper.MONTH_FORMAT)])
-
-    // api.paySalaries(sender_account, sender_priv, to_amount_array, description, worked_month.format(form_helper.MONTH_FORMAT))
-    //   .then((data) => {
-    //     console.log(' paySalaries => (then#1) >>  ', JSON.stringify(data));
-    //     that.setState({result:'ok', pushingTx:false, result_object:data});
-    //     components_helper.notif.successNotification('Payments sent successfully');
-    //     setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
-    //   }, (ex) => {
-    //     console.log(' paySalaries => (error#1) >>  ', JSON.stringify(ex));
-    //     components_helper.notif.exceptionNotification('An error occurred!', ex);
-    //     that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
-    //   });
 
   }
 
@@ -216,42 +220,13 @@ class Salaries extends Component {
     this.props.clearAll();  
   }
 
-  loadTeam = async () => {
-
-    this.setState({loading:true});
-
-    let team = null;
-
-    try {
-      team = await api.bank.getTeam(this.props.actualAccountName);
-    } catch (e) {
-      // components_helper.notif.exceptionNotification("Error retrieveing Team", e);
-      components_helper.notif.infoNotification("Error retrieveing Team... or there is no team!", e);
-      this.setState({ loading:false})
-      return;
-    } 
-    // console.log(JSON.stringify(team));
-    // const dataSource = this.rebuildDataSource();
-    
-    this.setState({ 
-        team:        team, 
-        loading:     false})
-        
-  }
-
-  loadJobPositions = async () => {
-    this.setState({loading:true});
-
-    let data = null;
-
-    try {
-      data = await api.bank.getJobPositions();
-    } catch (e) {
-      components_helper.notif.exceptionNotification("Error retrieveing Default Job positions", e);
-      this.setState({ loading:false})
+  loadTeam =() =>{
+    if(!this.props.actualAccountName || !this.props.actualRoleId)
+    {
+      components_helper.notif.warningNotification(this.state.intl.verify_credentials);
       return;
     }
-    this.setState({ job_positions: data.job_positions, loading:false})
+    this.props.loadData(this.props.actualAccountName, this.props.actualRoleId)
   }
 
   rebuildDataSourceAndSet = () =>{
@@ -265,7 +240,10 @@ class Salaries extends Component {
     if(team && team.members)
     {
       dataSource = team.members.map(member=> { 
-        const _position = job_positions?`Bolsa ${job_positions.filter(pos=>pos.key==member.position)[0].title}`:member.position;  
+        const _position = 
+          job_positions
+          ? this.props.intl.formatMessage({id:'pages.common.salaries.member_salary_description'},{position: job_positions.filter(pos=>pos.key==member.position)[0].value }) 
+          : member.position;  
         return {...member
             , current_wage:   member.wage
             , current_reason: _position }
@@ -318,7 +296,8 @@ class Salaries extends Component {
                 </div>      
               </div>);
     }
-  
+    //
+    const pushing_transaction   = this.props.intl.formatMessage({id:'pages.common.salaries.pushing_transaction'});
     //
     if(active_view==STATE_NEW_PAYMENT)
     {
@@ -326,7 +305,7 @@ class Salaries extends Component {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
           <div className="ly-main-content content-spacing cards">
             <section className="mp-box mp-box__shadow money-transfer__box">
-              <Spin spinning={isFetching} delay={500} tip="Pushing transaction...">
+              <Spin spinning={isFetching} delay={500} tip={pushing_transaction}>
                 <SalaryForm key="salary_payment_form" callback={this.salaryFormCallback} job_positions={job_positions} members={dataSource}/>    
               </Spin>
             </section>
@@ -362,16 +341,19 @@ class Salaries extends Component {
       };
     });
 
+    const pay_salaries               = this.props.intl.formatMessage({id:'pages.common.salaries.confirmation_action_title'});
+    const new_salaries_payment_text  = this.props.intl.formatMessage({id:'pages.common.salaries.new_salaries_payment_text'});
+
     return (
       <Card
-          title="Pay salaries"  
+          title={pay_salaries}
           key="card_table_all_requests"
           className="styles listCard"
           bordered={false}
           style={{ marginTop: 24 }}
           // headStyle={{display:'none'}}
           actions={[
-            <Button onClick={this.handleNewPayment} disabled={loading||(!dataSource||dataSource.length==0)} type="primary"> <FontAwesomeIcon icon="money-check-alt" size="lg" color="white"/>&nbsp;&nbsp;NEW SALARIES PAYMENT </Button> 
+            <Button onClick={this.handleNewPayment} disabled={loading||(!dataSource||dataSource.length==0)} type="primary"> <FontAwesomeIcon icon="money-check-alt" size="lg" color="white"/>&nbsp;&nbsp;{new_salaries_payment_text} </Button> 
           ]}
         >
           <div style={{ background: '#fff'}}>
@@ -392,10 +374,12 @@ class Salaries extends Component {
   //
 
   render() {
-    const content               = this.renderContent(); 
     const {routes, active_view, removed}  = this.state;
-    const button = (active_view == STATE_LIST_MEMBERS)?
-      (<Button size="small" type="primary" key="_redo" icon="redo" onClick={()=>{this.onRestoreList()}}> RESTORE MEMBERS</Button>)
+    const content               = this.renderContent(); 
+    const restore_members_text = this.props.intl.formatMessage({id:'pages.common.salaries.action.restore_members_text'});
+    const page_title           = this.props.intl.formatMessage({id:'pages.common.salaries.title'});
+    const button               = (active_view == STATE_LIST_MEMBERS)?
+      (<Button size="small" type="primary" key="_redo" icon="redo" onClick={()=>{this.onRestoreList()}}> {restore_members_text}</Button>)
       :(null);
     //
     return (
@@ -405,7 +389,7 @@ class Salaries extends Component {
           extra={[
             button,
           ]}
-          title="Salaries"
+          title={page_title}
         >
           
         </PageHeader>
@@ -426,20 +410,24 @@ export default  (withRouter(connect(
         actualRoleId:         loginRedux.actualRoleId(state),
         actualRole:           loginRedux.actualRole(state),
         balance:              balanceRedux.userBalance(state),
-  
-        isFetching:         apiRedux.isFetching(state),
-        getErrors:          apiRedux.getErrors(state),
-        getLastError:       apiRedux.getLastError(state),
-        getResults:         apiRedux.getResults(state),
-        getLastResult:      apiRedux.getLastResult(state)
+        jobPositions:         graphqlRedux.jobPositions(state),
+        team:                 graphqlRedux.team(state),
+
+        isFetching:           apiRedux.isFetching(state),
+        getErrors:            apiRedux.getErrors(state),
+        getLastError:         apiRedux.getLastError(state),
+        getResults:           apiRedux.getResults(state),
+        getLastResult:        apiRedux.getLastResult(state)
     }),
     (dispatch)=>({
         callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),
         clearAll:    bindActionCreators(apiRedux.clearAll, dispatch),
 
+        loadConfig:  bindActionCreators(graphqlRedux.loadConfig, dispatch),
+        loadData:    bindActionCreators(graphqlRedux.loadData, dispatch),
 
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch),
         loadBalance:             bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
-)(Salaries))
+)(injectIntl(Salaries)))
 );
