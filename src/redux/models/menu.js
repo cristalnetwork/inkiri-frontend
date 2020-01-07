@@ -6,7 +6,6 @@ import { store } from '@app/redux/configureStore'
 import * as storage from '@app/services/localStorage'
 
 import {getLocale} from '@app/lang/helper';
-import { updateIntl } from 'react-intl-redux'
 
 import history from '@app/history.js';
 
@@ -96,10 +95,6 @@ function* tryLanguageSaga({ type, payload }) {
   const { language } = payload
   storage.setLanguage(language);
   const locale = getLocale();
-  store.dispatch(updateIntl({
-    locale: locale.locale,
-    messages: locale.messages,
-  }))
   yield put({type: SET_LANGUAGE, payload: {language:language} })
   history.replace('/');
 }

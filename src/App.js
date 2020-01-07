@@ -14,7 +14,6 @@ import { fab } from '@fortawesome/free-brands-svg-icons';
 import {getLocale} from '@app/lang/helper';
 // import { ConfigProvider } from "antd";
 import { IntlProvider } from "react-intl";
-// import { IntlProvider } from 'react-intl-redux'
 const currentAppLocale = getLocale();
 
 const App = () =>{
