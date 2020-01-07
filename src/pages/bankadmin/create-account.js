@@ -154,7 +154,7 @@ class CreateAccount extends Component {
       that.setState({ generated_keys:         default_keys
                       , account_name_status:  account_name_status})
       
-    }, 150);
+    }, 250);
     
   }
   
@@ -275,7 +275,6 @@ class CreateAccount extends Component {
                                           , _overdraft: _overdraft
                                           , bold: (str) => <b key={Math.random()}>{str}</b> 
                                         });
-    // return (<span>Please confirm creation of a <b>{type_desc} Account</b>. <br/>Account name: <b>{account_name}</b>.<br/> Name: <b>{complete_name}</b>.<br/> Fee: {_fee}<br/> Overdraft: {_overdraft}</span>);
     return (<span>{message}</span>);
   }
   //
@@ -764,7 +763,7 @@ class CreateAccount extends Component {
       
       //help={!getFieldError('account_name') && account_name_status}
     const help =(getFieldError('account_name'))
-      ? [account_name_status,(<br/>)]
+      ? (<><span key='xxxx'>{account_name_status}</span><br/></>)
       : (null);
     return (
         <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>

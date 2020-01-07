@@ -13,7 +13,6 @@ export const translate = (request, intl) => {
 // export const requests = async () => {
 export async function requests () {  
   const _requests = await gqlService.requests(arguments[0]);
-  console.log(' ================================ ', _requests)
   return _requests.map(request => translate(request, arguments[1]))
 }
 
