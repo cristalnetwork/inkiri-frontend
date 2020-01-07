@@ -50,7 +50,8 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
       key: 'tx_type',
       width: '400px',
       render: (tx_type, record) => {
-        
+
+        const memo = record.data && record.data.memo && (record.data.memo.split('|').slice(-1)[0]!='undefined') && record.data.memo.split('|').slice(-1)[0] ;
         return (<span className="name_value_row ">
               <div className="row_name centered flex_fixed_width_5em" >
                 <div className="ui-row__col ui-row__col--heading">
@@ -68,8 +69,8 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
                       <ul>
                           <li>{is_admin?record.sub_header_admin_ex:record.sub_header}</li>
                       </ul>
-                      <ul>
-                          <li><Icon type="message" theme="filled"/> {record.data && record.data.memo && record.data.memo.split('|').slice(-1)[0]}</li>
+                      <ul className={!memo?'hidden':''}>
+                          <li><Icon type="message" theme="filled"/> {memo}</li>
                       </ul>
                   </div>
                 </div>

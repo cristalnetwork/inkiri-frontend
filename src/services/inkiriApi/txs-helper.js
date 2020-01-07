@@ -1,5 +1,6 @@
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
+import {i18n} from '@app/lang/provider'; 
 /*
 * Explode raw event/search result transaction to a human readable format.
 *  
@@ -291,140 +292,167 @@ function buildHeaders(account_name, tx, i_sent, tx_type){
 }
 
 function buildHeadersImpl(account_name, tx, i_sent, tx_type, multi){
-  const memo_parts = getTxMemoSplitted(tx);
+  const memo_parts  = getTxMemoSplitted(tx);
+  const _suffix_key = i_sent?'_sent':'_received';
   switch(tx_type) {
     case KEY_ISSUE_DEP:
       return { 
-              header:                 'Deposit Issue'
-              , sub_header:           'Deposit'
-              , sub_header_admin:     'Deposit issue'
-              , sub_header_admin_ex:  `Money issued to @${tx.data.to} - Deposit `
+              header:                 i18n({id:'transactions.issue_dep.header'})
+              , sub_header:           i18n({id:'transactions.issue_dep.sub_header'})
+              , sub_header_admin:     i18n({id:'transactions.issue_dep.sub_header_admin'})
+              , sub_header_admin_ex:  i18n({id:'transactions.issue_dep.sub_header_admin_ex'}, {to:tx.data.to})
             };
       break;
     case KEY_ISSUE_IUG:
-      return { header:                'IUGU Payment issue'
-              , sub_header:           'IUGU Payment received'
-              , sub_header_admin:     'IUGU Payment issue'
-              , sub_header_admin_ex:  `Money issued to @${tx.data.to} - IUGU Payment `
+      return { header:                i18n({id:'transactions.issue_iug.header'}) 
+              , sub_header:           i18n({id:'transactions.issue_iug.sub_header'})
+              , sub_header_admin:     i18n({id:'transactions.issue_iug.sub_header_admin'})
+              , sub_header_admin_ex:  i18n({id:'transactions.issue_iug.sub_header_admin_ex'}, {to:tx.data.to})
             };
       break;
     case KEY_ISSUE_OFT:
-      return { header:                 'Overdraft Issue'
-              , sub_header:            'Account Overdraft Issue'
-              , sub_header_admin:      'Account Overdraft Issue'
-              , sub_header_admin_ex:   `Money issued to @${tx.data.to} - Account overdraft `
+      return { header:                 i18n({id:'transactions.issue_oft.header'})
+              , sub_header:            i18n({id:'transactions.issue_oft.sub_header'}) 
+              , sub_header_admin:      i18n({id:'transactions.issue_oft.sub_header_admin'})
+              , sub_header_admin_ex:   i18n({id:'transactions.issue_oft.sub_header_admin_ex'}, {to:tx.data.to})
             };
       break;
     case KEY_TRANSFER_BCK:
-      return { header:                 'Refund'
-              , sub_header:            'Refund'
-              , sub_header_admin:      'Refund'
-              , sub_header_admin_ex:   `Refund to @${tx.data.from} - Cancelled/invalid operation`
+      return { header:                 i18n({id:'transactions.transfer_bck.header'})
+              , sub_header:            i18n({id:'transactions.transfer_bck.sub_header'})
+              , sub_header_admin:      i18n({id:'transactions.transfer_bck.sub_header_admin'})
+              , sub_header_admin_ex:   i18n({id:'transactions.transfer_bck.sub_header_admin_ex'}, {from:tx.data.from}) 
               , to: tx.data.to };
       break;
     case KEY_TRANSFER_WTH:
-      return { header:                 'Withdraw'
-              , sub_header:            'Withdraw'
-              , sub_header_admin:      'Withdraw'
-              , sub_header_admin_ex:   `@${tx.data.from} transferred for a Withdraw`
+      return { header:                 i18n({id:'transactions.transfer_wth.header'}) 
+              , sub_header:            i18n({id:'transactions.transfer_wth.sub_header'}) 
+              , sub_header_admin:      i18n({id:'transactions.transfer_wth.sub_header_admin'}) 
+              , sub_header_admin_ex:   i18n({id:'transactions.transfer_wth.sub_header_admin_ex'}, {from:tx.data.from})  
               , from: tx.data.from};
       break;
     case KEY_TRANSFER_XCH:
-      return { header:                 'Exchange'
-              , sub_header:            'Exchange'
-              , sub_header_admin:      'Exchange'
-              , sub_header_admin_ex:   `@${tx.data.from} transfered for an Exchange`
+      return { header:                 i18n({id:'transactions.transfer_xch.header'}) 
+              , sub_header:            i18n({id:'transactions.transfer_xch.sub_header'}) 
+              , sub_header_admin:      i18n({id:'transactions.transfer_xch.sub_header_admin'}) 
+              , sub_header_admin_ex:   i18n({id:'transactions.transfer_xch.sub_header_admin_ex'}, {from:tx.data.from})  
               , from: tx.data.from};
       break;
     case KEY_TRANSFER_PRV:
-      return { header:                 'Provider payment'
-              , sub_header:            'Provider payment'
-              , sub_header_admin:      'Provider payment'
-              , sub_header_admin_ex:   `@${tx.data.from} transfered for a Provider payment`
+      return { header:                 i18n({id:'transactions.transfer_prv.header'}) 
+              , sub_header:            i18n({id:'transactions.transfer_prv.sub_header'}) 
+              , sub_header_admin:      i18n({id:'transactions.transfer_prv.sub_header_admin'}) 
+              , sub_header_admin_ex:   i18n({id:'transactions.transfer_prv.sub_header_admin_ex'}, {from:tx.data.from})  
               , from: tx.data.from};
       break;
     case KEY_TRANSFER_PAY:
-      // return i_sent?'Realizaste un pago':'Te realizaron un pago'
       return { 
-              header:                 'Payment'
-              , sub_header:            i_sent?`You paid @${tx.data.to}`:`@${tx.data.from} paid you`
-              , sub_header_admin:     'Payment'
-              , sub_header_admin_ex:  `@${tx.data.from} sent a payment to @${tx.data.to}`
+              header:                 i18n({id:'transactions.transfer_pay.header'})
+              , sub_header:           i18n({id:`transactions.transfer_pay.sub_header${_suffix_key}`}, {account:(i_sent?tx.data.to:tx.data.from)})   
+              , sub_header_admin:     i18n({id:'transactions.transfer_pay.sub_header_admin'})
+              , sub_header_admin_ex:  i18n({id:'transactions.transfer_pay.sub_header_admin_ex'}, {from:tx.data.from, to:tx.data.to})   
               , from: tx.data.from
               , to:   tx.data.to};
       break;
     case KEY_TRANSFER_PAP:
-      return { header:                 'Pre Authorized Debit'
-              , sub_header:            'Pre Authorized Debit'
-              , sub_header_admin:      'Pre Authorized Debit'
-              , sub_header_admin_ex:   `Pre Authorized Debit @${tx.data.from} paid @${tx.data.to}`
+      return { header:                 i18n({id:'transactions.transfer_pap.header'})
+              , sub_header:            i18n({id:'transactions.transfer_pap.sub_header'})
+              , sub_header_admin:      i18n({id:'transactions.transfer_pap.sub_header_admin'})
+              , sub_header_admin_ex:   i18n({id:'transactions.transfer_pap.sub_header_admin_ex'}, {from:tx.data.from, to:tx.data.to})
               , from: tx.data.from
               , to:   tx.data.to};
       break;
     case KEY_TRANSFER_SLR:
+      const salary_period          = (i_sent&&memo_parts&&memo_parts.length>0) 
+          ?` - ${memo_parts[1]}`
+          :'';
+        
       if(multi)
-        return { header:                'Salary Payment'
-                , sub_header:           i_sent?`You sent a Salary Payment. - ${memo_parts[1]}`:'Salary Payment'
-                , sub_header_admin:     'Salary Payment'
-                , sub_header_admin_ex:  `@${tx.data.from} paid salary. - ${memo_parts[1]}`
-                , from: tx.data.from
-                , to:   tx.data.to};  
-      return { header:                 'Salary Payment'
-              , sub_header:            i_sent?`You paid salary to @${tx.data.to}. - ${memo_parts[1]}`:`@${tx.data.from} paid you a salary. - ${memo_parts[1]}`
-              , sub_header_admin:      'You paid salary to'
-              , sub_header_admin_ex:   `@${tx.data.from} paid salary to @${tx.data.to}. - ${memo_parts[1]}`
+      {
+        return { 
+              header:                 i18n({id:'transactions.transfer_slr_multi.header'})
+              , sub_header:           i18n({id:`transactions.transfer_slr_multi.sub_header${_suffix_key}`}, {period:salary_period})   
+              , sub_header_admin:     i18n({id:'transactions.transfer_slr_multi.sub_header_admin'})
+              , sub_header_admin_ex:  i18n({id:'transactions.transfer_slr_multi.sub_header_admin_ex'}, {from:tx.data.from, period:salary_period})   
               , from: tx.data.from
               , to:   tx.data.to};
+        // return { header:                'Salary Payment'
+        //         , sub_header:           i_sent?`You sent a Salary Payment. - ${memo_parts[1]}`:'Salary Payment'
+        //         , sub_header_admin:     'Salary Payment'
+        //         , sub_header_admin_ex:  `@${tx.data.from} paid salary. - ${memo_parts[1]}`
+        //         , from: tx.data.from
+        //         , to:   tx.data.to};  
+      }
+      return { 
+            header:                 i18n({id:'transactions.transfer_slr_single.header'})
+            , sub_header:           i18n({id:`transactions.transfer_slr_single.sub_header${_suffix_key}`}, {period:salary_period, account:i_sent?tx.data.to:tx.data.from})   
+            , sub_header_admin:     i18n({id:'transactions.transfer_slr_single.sub_header_admin'})
+            , sub_header_admin_ex:  i18n({id:'transactions.transfer_slr_single.sub_header_admin_ex'}, {from:tx.data.from, to:tx.data.to, period:salary_period})   
+            , from: tx.data.from
+            , to:   tx.data.to
+          };
+      // return { header:                 'Salary Payment'
+      //         , sub_header:            i_sent?`You paid salary to @${tx.data.to}. - ${memo_parts[1]}`:`@${tx.data.from} paid you a salary. - ${memo_parts[1]}`
+      //         , sub_header_admin:      'You paid salary to'
+      //         , sub_header_admin_ex:   `@${tx.data.from} paid salary to @${tx.data.to}. - ${memo_parts[1]}`
+      //         , from: tx.data.from
+      //         , to:   tx.data.to};
       break;
     case KEY_TRANSFER_SND:
       return { 
-              header:                 'Money transfer'
-              , sub_header:           i_sent?`You sent money to @${tx.data.to}`:`@${tx.data.from} sent you money`
-              , sub_header_admin:     'Money transfer'
-              , sub_header_admin_ex:  `@${tx.data.from} sent money to @${tx.data.to}.`
+              header:                 i18n({id:'transactions.transfer_snd.header'})
+              , sub_header:           i18n({id:`transactions.transfer_snd.sub_header${_suffix_key}`}, {account:i_sent?tx.data.to:tx.data.from})
+              , sub_header_admin:     i18n({id:'transactions.transfer_snd.sub_header_admin'}) 
+              , sub_header_admin_ex:  i18n({id:'transactions.transfer_snd.sub_header_admin_ex'}, {from:tx.data.from, to:tx.data.to})
               , from: tx.data.from
               , to:   tx.data.to
             };
       break;
     case KEY_NEW_ACCOUNT:
-      return { header:                 'Account creation/edition'
-              , sub_header:            `Account creation/edition: @${tx.data.name}`
-              , sub_header_admin:      `Account creation/edition: @${tx.data.name}`
-              , sub_header_admin_ex:   `Account creation/edition: @${tx.data.name}` };
+      return { header:                 i18n({id:'transactions.new_account.header'})
+              , sub_header:            i18n({id:'transactions.new_account.sub_header'}, {name:tx.data.name})
+              , sub_header_admin:      i18n({id:'transactions.new_account.sub_header_admin'}, {name:tx.data.name})
+              , sub_header_admin_ex:   i18n({id:'transactions.new_account.sub_header_admin_ex'}, {name:tx.data.name})
+            };
       break;
     
     case KEY_UPSERT_PAP:
-      return { header:                 'Pre Authorized Payment Agreement'
-              , sub_header:            `Pre Authorized Payment. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}`
-              , sub_header_admin:      `Pre Authorized Payment. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}`
-              , sub_header_admin_ex:   `Pre Authorized Payment. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}` };
+      return { header:                 i18n({id:'transactions.upsert_pap.header'})
+              , sub_header:            i18n({id:'transactions.upsert_pap.sub_header'}, {from:tx.data.from||tx.data.account, to:tx.data.to||tx.data.provider})
+              , sub_header_admin:      i18n({id:'transactions.upsert_pap.sub_header_admin'}, {from:tx.data.from||tx.data.account, to:tx.data.to||tx.data.provider})
+              , sub_header_admin_ex:   i18n({id:'transactions.upsert_pap.sub_header_admin_ex'}, {from:tx.data.from||tx.data.account, to:tx.data.to||tx.data.provider})
+            };
       break;
     case KEY_ERASE_CUST:
-      return { header:                 'Customer account removed'
-              , sub_header:            `Customer account removed. Customer @${tx.data.to||tx.data.provider}`
-              , sub_header_admin:      `Customer account removed. Customer @${tx.data.to||tx.data.provider}`
-              , sub_header_admin_ex:   `Customer account removed. Customer @${tx.data.to||tx.data.provider}` };
+      return { header:                 i18n({id:'transactions.erase_cust.header'})
+              , sub_header:            i18n({id:'transactions.erase_cust.sub_header'}, {to:tx.data.to||tx.data.provider})
+              , sub_header_admin:      i18n({id:'transactions.erase_cust.sub_header_admin'}, {to:tx.data.to||tx.data.provider})
+              , sub_header_admin_ex:   i18n({id:'transactions.erase_cust.sub_header_admin_ex'}, {to:tx.data.to||tx.data.provider})
+            };
       break;
     case KEY_CHARGE_PAP:
       // pap|pay|2
-      const desc = (memo_parts&&memo_parts.length>=3)?` - Period ${memo_parts[2]} paid`:'';
-      return { header:                 'Charge Pre Authorized Payment$'
-              , sub_header:            `Charge Pre Authorized Payment${desc}. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}#${tx.data.service_id}`
-              , sub_header_admin:      `Charge Pre Authorized Payment${desc}. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}#${tx.data.service_id}`
-              , sub_header_admin_ex:   `Charge Pre Authorized Payment${desc}. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}#${tx.data.service_id}` };
+      const charged_period = (memo_parts&&memo_parts.length>=3)?` - Period ${memo_parts[2]} paid`:'';
+      return { header:                 i18n({id:'transactions.charge_pap.header'})
+              , sub_header:            i18n({id:'transactions.charge_pap.sub_header'}, {period:charged_period , customer: tx.data.from||tx.data.account, provider: tx.data.to||tx.data.provider, service_id:tx.data.service_id})
+              , sub_header_admin:      i18n({id:'transactions.charge_pap.sub_header_admin'}, {period:charged_period , customer: tx.data.from||tx.data.account, provider: tx.data.to||tx.data.provider, service_id:tx.data.service_id})
+              , sub_header_admin_ex:   i18n({id:'transactions.charge_pap.sub_header_admin_ex'}, {period:charged_period , customer: tx.data.from||tx.data.account, provider: tx.data.to||tx.data.provider, service_id:tx.data.service_id})
+            };
       break;
     
     case KEY_UPSERT_CUST:
-      return { header:                 'Customer creation/edition'
-              , sub_header:            `Customer creation/edition: @${tx.data.account||tx.data.to}. Type: ${globalCfg.bank.getAccountType(tx.data.account_type)}`
-              , sub_header_admin:      `Customer creation/edition: @${tx.data.account||tx.data.to}. Type: ${globalCfg.bank.getAccountType(tx.data.account_type)}`
-              , sub_header_admin_ex:   `Customer creation/edition: @${tx.data.account||tx.data.to}. Type: ${globalCfg.bank.getAccountType(tx.data.account_type)}` };
+      return { header:                 i18n({id:'transactions.upsert_cust.header'})
+              , sub_header:            i18n({id:'transactions.upsert_cust.sub_header'}, {customer:tx.data.account||tx.data.to, account_type: globalCfg.bank.getAccountType(tx.data.account_type)})
+              , sub_header_admin:      i18n({id:'transactions.upsert_cust.sub_header_admin'}, {customer:tx.data.account||tx.data.to, account_type: globalCfg.bank.getAccountType(tx.data.account_type)})
+              , sub_header_admin_ex:   i18n({id:'transactions.upsert_cust.sub_header_admin_ex'}, {customer:tx.data.account||tx.data.to, account_type: globalCfg.bank.getAccountType(tx.data.account_type)})
+            };
       break;      
     case KEY_ERASE_PAP:
-      return { header:                 'Erase Pre Authorized Payment'
-              , sub_header:            `Erase Pre Authorized Payment. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}#${tx.data.service_id}`
-              , sub_header_admin:      `Erase Pre Authorized Payment. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}#${tx.data.service_id}`
-              , sub_header_admin_ex:   `Erase Pre Authorized Payment. Customer @${tx.data.from||tx.data.account} <-> Provider @${tx.data.to||tx.data.provider}#${tx.data.service_id}` };
+      return { header:                 i18n({id:'transactions.erase_pap.header'})
+              , sub_header:            i18n({id:'transactions.erase_pap.sub_header'}, {customer:tx.data.from||tx.data.account, provider:tx.data.to||tx.data.provider, service_id:tx.data.service_id})
+              , sub_header_admin:      i18n({id:'transactions.erase_pap.sub_header_admin'}    , {customer:tx.data.from||tx.data.account, provider:tx.data.to||tx.data.provider, service_id:tx.data.service_id})
+              , sub_header_admin_ex:   i18n({id:'transactions.erase_pap.sub_header_admin_ex'} , {customer:tx.data.from||tx.data.account, provider:tx.data.to||tx.data.provider, service_id:tx.data.service_id})
+            };
       break;
     default:
       return { header:                 `${tx.name} - ${tx_type}`
