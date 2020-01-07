@@ -29,6 +29,7 @@ import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
 import { injectIntl } from "react-intl";
 import * as gqlService from '@app/services/inkiriApi/graphql'
+import * as gqlRequestI18nService from '@app/services/inkiriApi/requests-i18n-graphql-helper'
 
 const { confirm } = Modal;
 
@@ -158,7 +159,8 @@ class RequestDetails extends Component {
     const key = this.state.request.id;
 
     try{
-      const data = await gqlService.request({id:key, account_name:this.props.actualAccountName});
+      // const data = await gqlService.request({id:key, account_name:this.props.actualAccountName});
+      const data = await gqlRequestI18nService.request({id:key, account_name:this.props.actualAccountName}, this.props.intl);
       console.log(data)
       this.setState({provider:data})
     }

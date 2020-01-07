@@ -7,6 +7,7 @@ import * as loginRedux from '@app/redux/models/login'
 
 import * as globalCfg from '@app/configs/global';
 import * as gqlService from '@app/services/inkiriApi/graphql'
+import * as gqlRequestI18nService from '@app/services/inkiriApi/requests-i18n-graphql-helper'
 
 import { Button} from 'antd';
 import { Table } from 'antd';
@@ -146,7 +147,8 @@ class TransactionTable extends Component {
     const filter_obj = {limit, account_name, page, requested_type, ...requests_filter, ...(filter||{})};
     console.log(' TABLE filter_obj:', filter_obj);
     try{
-      const data = await gqlService.requests(filter_obj);
+      // const data = await gqlService.requests(filter_obj);
+      const data = await gqlRequestI18nService.requests(filter_obj, this.props.intl);
       that.onNewData(data);
     }
     catch(e)

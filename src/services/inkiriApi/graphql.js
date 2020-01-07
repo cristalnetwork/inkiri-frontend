@@ -424,6 +424,7 @@ const GET_REQUESTS  = gql`
   }
 `;
 export const requests = async ({page, requested_type='', account_name='', from='', to='', provider_id='', state='', id='', requestCounterId='', tx_id='', refund_tx_id='', attach_nota_fiscal_id='', attach_boleto_pagamento_id='', attach_comprobante_id='', deposit_currency='', date_from='', date_to='', service_id=''}={}) =>{
+  console.log('============================ requests::page:',page);
   if(account_name && !to && !from && account_name!=globalCfg.currency.issuer)
   {
     from=to=account_name;

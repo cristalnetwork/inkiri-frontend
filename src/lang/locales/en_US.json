@@ -979,7 +979,6 @@
   "transactions.erase_cust.sub_header"                              : "Customer account removed. Customer @{to}",
   "transactions.erase_cust.sub_header_admin"                        : "Customer account removed. Customer @{to}",
   "transactions.erase_cust.sub_header_admin_ex"                     : "Customer account removed. Customer @{to}",
-  "XXtransactions.charge_pap.a_tener_en_cuenta"                       : " pap|pay|2 => const desc = (memo_parts&&memo_parts.length>=3)?` - Period {memo_parts[2]} paid",
   "transactions.charge_pap.header"                                  : "Charge Pre Authorized Payment$",
   "transactions.charge_pap.sub_header"                              : "Charge Pre Authorized Payment - Period {period} paid. Customer @{customer} <-> Provider @{provider}#{service_id}",
   "transactions.charge_pap.sub_header_admin"                        : "Charge Pre Authorized Payment - Period {period} paid. Customer @{customer} <-> Provider @{provider}#{service_id}",
@@ -992,7 +991,29 @@
   "transactions.erase_pap.sub_header"                               : "Erase Pre Authorized Payment. Customer @{customer} <-> Provider @{provider}#{service_id}",
   "transactions.erase_pap.sub_header_admin"                         : "Erase Pre Authorized Payment. Customer @{customer} <-> Provider @{provider}#{service_id}",
   "transactions.erase_pap.sub_header_admin_ex"                      : "Erase Pre Authorized Payment. Customer @{customer} <-> Provider @{provider}#{service_id}",
- 
+  
+  "requests.header"                                                 : "{requested_type}",
+  "requests.sub_header"                                             : "You have requested a {requested_type}",
+  "requests.sub_header_ex"                                          : "{requested_type} request",
+  "requests.sub_header_admin"                                       : "{account_name} has requested a {requested_type} ",
+
+  "requests.types.type_deposit"                                     : "Deposit",
+  "requests.types.type_exchange"                                    : "Exchange",
+  "requests.types.type_payment"                                     : "Payment",
+  "requests.types.type_provider"                                    : "Provider payment",
+  "requests.types.type_send"                                        : "Money transfer/payment",
+  "requests.types.type_withdraw"                                    : "Withdraw",
+  "requests.types.type_service"                                     : "Service provisioning agreement",
+
+  "requests.states.state_requested"                                 : "Requested",
+  "requests.states.state_processing"                                : "Processing",
+  "requests.states.state_rejected"                                  : "Rejected",
+  "requests.states.state_accepted"                                  : "Accepted",
+  "requests.states.state_error"                                     : "Error",
+  "requests.states.state_canceled"                                  : "Canceled",
+  "requests.states.state_refunded"                                  : "Refunded",
+  "requests.states.state_reverted"                                  : "Reverted",
+
   "dummy" : "dummy"
  
 }
