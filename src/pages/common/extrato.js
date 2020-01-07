@@ -39,6 +39,10 @@ const tabs = {
   [globalCfg.bank.ACCOUNT_TYPE_FOUNDATION]: {
     [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
     [DISPLAY_REQUESTS] :  'requests', 
+  },
+  [globalCfg.bank.ACCOUNT_TYPE_BANKADMIN]: {
+    [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+    [DISPLAY_REQUESTS] :  'requests', 
   }
   
   // [DISPLAY_REQUESTS] : 'Requests',

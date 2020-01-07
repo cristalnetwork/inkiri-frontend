@@ -93,16 +93,19 @@ const bank = {
   newAccountTypesOptions : () =>{
     return [
         {  
-          title : 'Personal Account',
-          key: bank.ACCOUNT_TYPE_PERSONAL
+          title :       'Personal Account',
+          title_i18n :  'global.personal_account',
+          key:          bank.ACCOUNT_TYPE_PERSONAL
         },
         {
-          title : 'Business Account',
-          key: bank.ACCOUNT_TYPE_BUSINESS
+          title :       'Business Account',
+          title_i18n :  'global.business_account',
+          key:          bank.ACCOUNT_TYPE_BUSINESS
         },
         {
-          title : 'Foundation Account',
-          key: bank.ACCOUNT_TYPE_FOUNDATION
+          title :       'Foundation Account',
+          title_i18n :  'global.foundation_account',
+          key:          bank.ACCOUNT_TYPE_FOUNDATION
         }
       ];
   },
@@ -188,7 +191,6 @@ const api = {
   , TYPE_REFUND               : 'type_refund'
   , TYPE_RECEIVE              : 'type_receive'
   , TYPE_UNKNOWN              : 'type_unknown'
-
   , TYPE_NEW_ACCOUNT          : 'type_new_account'
   , TYPE_UPSERT_CUST          : 'type_upsert_cust'
   , TYPE_ERASE_CUST           : 'type_erase_cust'

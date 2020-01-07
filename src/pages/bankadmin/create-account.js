@@ -112,6 +112,7 @@ class CreateAccount extends Component {
       delete_permission:undefined,
       adding_new_perm:  false,
       
+      intl:             {}
     };
 
     this.handleAddPermissionSubmit = this.handleAddPermissionSubmit.bind(this);
@@ -128,6 +129,7 @@ class CreateAccount extends Component {
     this.onDeletePermission            = this.onDeletePermission.bind(this);
     this.handleAcountNameChange        = this.handleAcountNameChange.bind(this);
     this.userResultEvent               = this.userResultEvent.bind(this); 
+    this.validateAccountName           = this.validateAccountName.bind(this); 
     
     this.timeout_id = null;
   }
@@ -136,26 +138,22 @@ class CreateAccount extends Component {
     
     clearTimeout(this.timeout_id);
 
-    const {form} = this.props
-    let that     = this;
+    const {form}            = this.props
+    let that                = this;
+    const { formatMessage } = this.props.intl;
 
     this.timeout_id = setTimeout( () => {
 
       const account_name        = form.getFieldValue('account_name')
       const account_name_length = (account_name||'').length;
       const account_name_status = (account_name_length==12)
-      ?'Thats ok! 12 characters length'
-      :`You typed ${account_name_length} characters. 12 are required!`
+        ?formatMessage({id:'pages.bankadmin.create_account.account_name_validation_ok'})
+        :formatMessage({id:'pages.bankadmin.create_account.account_name_validation_error'}, {account_name_length:account_name_length});
 
-      // that.generateKeys(undefined);
       const {default_keys} = that.state;
       that.setState({ generated_keys:         default_keys
                       , account_name_status:  account_name_status})
-      // if(account_name_length==0){
-      // }
-      // else{
-      // }
-
+      
     }, 150);
     
   }
@@ -166,16 +164,16 @@ class CreateAccount extends Component {
     const my_options          = globalCfg.bank.newAccountTypesOptions();
     const { getFieldDecorator } = this.props.form;
     const {account_type}        = this.state;
-    
+    const {formatMessage} = this.props.intl;
     return (
-      <Form.Item label="Account Type" className="money-transfer__rowX">
+      <Form.Item label={ formatMessage({id:'global.account_type'}) } className="money-transfer__rowX">
           {getFieldDecorator( 'account_type', {
-            rules: [{ required: true, message: 'Please select an account type!'}]
+            rules: [{ required: true, message: formatMessage({id:'pages.bankadmin.create_account.account_type_validation'})}]
             , initialValue: account_type
             , onChange: (e) => this.handleAccountTypeChange(e)
           })(
             <Select placeholder={'Choose an account type'} >
-            {my_options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.title}>{ opt.title } </Select.Option> )}
+            {my_options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.title}> <InjectMessage id={opt.title_i18n} /> </Select.Option> )}
             </Select>
           )}
       </Form.Item>
@@ -184,17 +182,14 @@ class CreateAccount extends Component {
   //
   validateStep = () => new Promise((res, rej) => {
     
-    console.log(' createAccount::validateStep() ENTER');
+    // console.log(' createAccount::validateStep() ENTER');
     const {current_step, account_name, default_keys, generated_keys} = this.state;
-    console.log(` createAccount::validateStep() current_step: ${current_step} | account_name:${account_name}`);
+    // console.log(` createAccount::validateStep() current_step: ${current_step} | account_name:${account_name}`);
     
     try{
       this.props.form.validateFields((err, values) => {
-        // console.log('hola')
-        // console.log(` createAccount::validateStep() err: ${err} | values:${values}`);
         if (err)
         {  
-          // console.log(' >> INVALID STEP >> ERR >>: ', JSON.stringify(err) )
           components_helper.notif.exceptionNotification( this.props.intl.formatMessage({id:'errors.unknown'}), err);
           rej(JSON.stringify(err));
           return;
@@ -333,7 +328,7 @@ class CreateAccount extends Component {
                         , account_overdraft
                         , permissions)
       .then((res)=>{
-        console.log(' doCreateAccount() BLOCKCHAIN OK ',JSON.stringify(res))
+        // console.log(' doCreateAccount() BLOCKCHAIN OK ',JSON.stringify(res))
         /*
         * Step #2: create account on private servers 
         */
@@ -355,7 +350,50 @@ class CreateAccount extends Component {
 
   // Events
   componentDidMount(){
+    const {formatMessage} = this.props.intl;
+    const account_name_desc = formatMessage({id:'components.Forms.profile.account_name_desc'});
+    const account_name_message = formatMessage({id:'components.Forms.profile.account_name_message'});
+    const last_name_desc = formatMessage({id:'components.Forms.profile.last_name_desc'});
+    const last_name_message = formatMessage({id:'components.Forms.profile.last_name_message'});
+    const first_name_desc = formatMessage({id:'components.Forms.profile.first_name_desc'});
+    const first_name_message = formatMessage({id:'components.Forms.profile.first_name_message'});
+    const biz_name_desc = formatMessage({id:'components.Forms.profile.biz_name_desc'});
+    const biz_name_message = formatMessage({id:'components.Forms.profile.biz_name_message'});
+    const fund_name_desc = formatMessage({id:'components.Forms.profile.fund_name_desc'});
+    const fund_name_message = formatMessage({id:'components.Forms.profile.fund_name_message'});
+    const alias_name_desc = formatMessage({id:'components.Forms.profile.alias_name_desc'});
+    const alias_name_message = formatMessage({id:'components.Forms.profile.alias_name_message'});
+    const email_desc = formatMessage({id:'components.Forms.profile.email_desc'});
+    const email_message = formatMessage({id:'components.Forms.profile.email_message'});
+    const email_regex = formatMessage({id:'components.Forms.profile.email_regex'});
+    const cpf_desc = formatMessage({id:'components.Forms.profile.cpf_desc'});
+    const cpf_message = formatMessage({id:'components.Forms.profile.cpf_message'});
+    const birthday_desc = formatMessage({id:'components.Forms.profile.birthday_desc'});
+    const birthday_message = formatMessage({id:'components.Forms.profile.birthday_message'});
+    const phone_desc = formatMessage({id:'components.Forms.profile.phone_desc'});
+    const phone_message = formatMessage({id:'components.Forms.profile.phone_message'});
+    const address_desc = formatMessage({id:'components.Forms.profile.address_desc'});
+    const street_desc = formatMessage({id:'components.Forms.profile.street_desc'});
+    const street_hint = formatMessage({id:'components.Forms.profile.street_hint'});
+    const city_desc = formatMessage({id:'components.Forms.profile.city_desc'});
+    const state_desc = formatMessage({id:'components.Forms.profile.state_desc'});
+    const zip_desc = formatMessage({id:'components.Forms.profile.zip_desc'});
+    const country_desc = formatMessage({id:'components.Forms.profile.country_desc'});
+    const authorize_account = formatMessage({id:'pages.bankadmin.create_account.authorize_account'});
+    const delete_permission = formatMessage({id:'pages.bankadmin.create_account.delete_permission'});
+    const invalid_step = formatMessage({id:'pages.bankadmin.create_account.invalid_step'});
+    const one_permission_required = formatMessage({id:'pages.bankadmin.create_account.one_permission_required'});
+    const add_account_permission_error = formatMessage({id:'pages.bankadmin.create_account.add_account_permission_error'});
+    const add_account_permission_ok = formatMessage({id:'pages.bankadmin.create_account.add_account_permission_ok'});
+    const account_unique_validation = formatMessage({id:'pages.bankadmin.create_account.account_unique_validation'});
+    const passwords_are_not_equal = formatMessage({id:'pages.bankadmin.create_account.passwords_are_not_equal'});
+    const both_passwords_must_be_equal = formatMessage({id:'pages.bankadmin.create_account.both_passwords_must_be_equal'});
+    const type_a_valid_number = formatMessage({id:'pages.bankadmin.create_account.type_a_valid_number'});
+    const type_a_number_gte_zero = formatMessage({id:'pages.bankadmin.create_account.type_a_number_gte_zero'});
+    const account_name_regex = formatMessage({id:'pages.bankadmin.create_account.account_name_regex'});
+    const profile_section = formatMessage({id:'pages.bankadmin.create_account.profile_section'});
 
+    this.setState({intl:{authorize_account, delete_permission, invalid_step, one_permission_required, add_account_permission_error, add_account_permission_ok, account_unique_validation, passwords_are_not_equal, both_passwords_must_be_equal, type_a_valid_number, type_a_number_gte_zero, account_name_regex, profile_section, account_name_desc, account_name_message, last_name_desc, last_name_message, first_name_desc, first_name_message, biz_name_desc, biz_name_message, fund_name_desc, fund_name_message, alias_name_desc, alias_name_message, email_desc, email_message, email_regex, cpf_desc, cpf_message, birthday_desc, birthday_message, phone_desc, phone_message, address_desc, street_desc, street_hint, city_desc, state_desc, zip_desc, country_desc}})
     this.props.loadAccounts();
   }
 
@@ -368,6 +406,7 @@ class CreateAccount extends Component {
         return;
       }
       const {new_perm_name} = this.state;
+      const {formatMessage} = this.props.intl;
       console.log(' >> addPermission ?? >>', JSON.stringify(values), ' | new_perm_name >> ', new_perm_name)
       let my_permissions = this.state.permissions;
       if(!my_permissions)
@@ -376,12 +415,12 @@ class CreateAccount extends Component {
         my_permissions[new_perm_name]=[];
       if(my_permissions[new_perm_name].indexOf(values.permissioned)>-1)
       {
-        components_helper.notif.errorNotification("Account already added to authorized list")  
+        components_helper.notif.errorNotification(formatMessage({id:'pages.bankadmin.create_account.add_account_permission_error'}))  
         return;
       }
       my_permissions[new_perm_name].push(values.permissioned)
       this.setState({permissions:my_permissions, adding_new_perm:false})
-      components_helper.notif.successNotification("Account added to authorized list")
+      components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.create_account.add_account_permission_ok'}))
     });
     
   };
@@ -445,7 +484,7 @@ class CreateAccount extends Component {
     api.getKeyAccounts(keys.pub_key)
       .then(()=>{
         if(callback)
-          callback('Name already exists. Please visit provided links and check name by yourself!');
+          callback(that.state.intl.account_unique_validation);
       },(err)=>{
         that.setState({generated_keys:keys})
         if(callback)
@@ -458,7 +497,7 @@ class CreateAccount extends Component {
     const { form } = this.props;
     if (value && value !== form.getFieldValue('password')) {
       this.generateKeys(undefined)
-      callback('Passwords are not equal!');
+      callback(this.state.intl.passwords_are_not_equal);
     } else {
       this.generateKeys(value)
       callback();
@@ -474,7 +513,7 @@ class CreateAccount extends Component {
     }
     if (value && form.getFieldValue('confirm_password') && value !== form.getFieldValue('confirm_password')) {
       this.generateKeys(undefined)
-      callback('Both passwords are not equal!');
+      callback(this.state.intl.both_passwords_must_be_equal);
       return;
     }
     callback();
@@ -483,11 +522,11 @@ class CreateAccount extends Component {
   validateNumberGToEZ  = (rule, value, callback) => {
     console.log(` -- validateNumberGToEZ -- ${value}`)
     if (Number.isNaN(value)) {
-      callback('Please type a valid number!');
+      callback(this.state.intl.type_a_valid_number);
       return;
     }
     if(parseFloat(value)<0) {
-      callback('Please type a number greater than or equal zero!');
+      callback(this.state.intl.type_a_number_gte_zero);
       return;
     }
     callback();
@@ -496,7 +535,7 @@ class CreateAccount extends Component {
   validateNumber  = (rule, value, callback) => {
     const amount = parseInt(value || 0, 10);
     if (Number.isNaN(amount)) {
-      callback('Plese innput a valid number!');
+      callback(this.state.intl.type_a_valid_number);
       return;
     }
     callback();
@@ -510,13 +549,13 @@ class CreateAccount extends Component {
     {
       api.getAccount(value)
       .then(()=>{
-        callback('Name already exists. Please visit provided links and check name by yourself!');
+        callback(this.state.intl.account_unique_validation);
       },(err)=>{
         callback()
       })
     }
     else {
-      callback('12 characters, a-z, 1-5');
+      callback(this.state.intl.account_name_regex);
     } 
   };
 
@@ -550,84 +589,77 @@ class CreateAccount extends Component {
       const {account_fee, account_overdraft, first_name, last_name, email, legal_id, birthday, phone, address} = this.state;  
       return(
         <>
-          <h3 className="fileds_header">PROFILE SECTION</h3>
-          <Form.Item
-            label="Nome">
+          <h3 className="fileds_header">{this.state.intl.profile_section}</h3>
+          <Form.Item label={this.state.intl.first_name_desc}>
               {getFieldDecorator('first_name', {
-                rules: [{ required: true, message: 'Please input first name!', whitespace: true }],
+                rules: [{ required: true, message: this.state.intl.first_name_message, whitespace: true }],
                 initialValue: first_name
               })(<Input />)}
             </Form.Item>
 
-            <Form.Item
-              label="Sobrenome">
+            <Form.Item label={this.state.intl.last_name_desc}>
               {getFieldDecorator('last_name', {
-                rules: [{ required: true, message: 'Please input last name!', whitespace: true }],
+                rules: [{ required: true, message: this.state.intl.last_name_message, whitespace: true }],
                 initialValue: last_name
               })(<Input />)}
             </Form.Item>
-            <Form.Item label="E-mail">
+            <Form.Item label={this.state.intl.email_desc}>
               {getFieldDecorator('email', {
                 rules: [
                   {
                     type: 'email',
-                    message: 'The input is not valid E-mail!',
+                    message: this.state.intl.email_regex,
                   },
                   {
                     required: true,
-                    message: 'Please input E-mail!',
+                    message: this.state.intl.email_message,
                   },
                 ],
                 initialValue: email
               })(<Input />)}
             </Form.Item>
-            <Form.Item label="CPF">
+            <Form.Item label={this.state.intl.cpf_desc}>
               {getFieldDecorator('legal_id', {
-                rules: [{ required: true, message: 'Please input CPF!' }],
+                rules: [{ required: true, message: this.state.intl.cpf_message }],
                 initialValue: legal_id
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
-            <Form.Item label="Phone Number">
+            <Form.Item label={this.state.intl.phone_desc}>
               {getFieldDecorator('phone', {
-                rules: [{ required: true, message: 'Please input phone number!' }],
+                rules: [{ required: true, message: this.state.intl.phone_message }],
                 initialValue: phone
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
-            <Form.Item label="Birthday">
+            <Form.Item label={this.state.intl.birthday_desc}>
               {getFieldDecorator('birthday', {
-                rules: [{ required: false, message: 'Please input birthday!' }],
+                rules: [{ required: false, message: this.state.intl.birthday_message }],
                 initialValue: moment(birthday, dateFormat)
               })( <DatePicker format={dateFormat} style={{ width: '100%' }} />)}
             </Form.Item>
             
-            <h3 className="fileds_header">ADDRESS</h3>
-            <Form.Item label="Street" extra="Street and Number, Apt, Suite, Unit, Building">
+            <h3 className="fileds_header">{this.state.intl.address_desc}</h3>
+            <Form.Item label={this.state.intl.street_desc} extra={this.state.intl.street_hint}>
               {getFieldDecorator('address.street', {
-                rules: [{ required: false, message: 'Please input Street!' }],
                 initialValue: address.street
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
-            <Form.Item label="City">
+            <Form.Item label={this.state.intl.city_desc}>
               {getFieldDecorator('address.city', {
-                rules: [{ required: false, message: 'Please input City!' }],
                 initialValue: address.city
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
-            <Form.Item label="State/Province">
+            <Form.Item label={this.state.intl.state_desc}>
               {getFieldDecorator('address.state', {
-                rules: [{ required: false, message: 'Please input State/Province!' }],
                 initialValue: address.state
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
-            <Form.Item label="Zip / Postal Code">
+            <Form.Item label={this.state.intl.zip_desc}>
               {getFieldDecorator('address.zip', {
-                rules: [{ required: false, message: 'Please input Zip/Postal code!' }],
                 initialValue: address.zip
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
-            <Form.Item label="Country">
+            <Form.Item label={this.state.intl.country_desc}>
               {getFieldDecorator('address.country', {
-                rules: [{ required: false, message: 'Please input State/Province!' }],
                 initialValue: address.country
               })(<Input style={{ width: '100%' }} />)}
             </Form.Item>
@@ -639,20 +671,18 @@ class CreateAccount extends Component {
     {
       const {business_name, alias} = this.state;
       return (<>
-          <h3 className="fileds_header">PROFILE SECTION</h3>
-          <Form.Item
-            label="Nome do Negócio"
-            >
+          <h3 className="fileds_header">{this.state.intl.profile_section}</h3>
+          <Form.Item label={this.state.intl.biz_name_desc} >
               {getFieldDecorator('business_name', {
-                rules: [{ required: true, message: 'Please input a valid business name!', whitespace: true }],
+                rules: [{ required: true, message: this.state.intl.biz_name_message, whitespace: true }],
                 initialValue: business_name
               })(<Input />)}
             </Form.Item>
           <Form.Item
-            label="IUGU alias"
+            label={this.state.intl.alias_name_desc}
             >
               {getFieldDecorator('alias', {
-                rules: [{ required: true, message: 'Please input a valid IUGU alias!', whitespace: true }],
+                rules: [{ required: true, message: this.state.intl.alias_name_message, whitespace: true }],
                 initialValue: alias
               })(<Input />)}
             </Form.Item>
@@ -663,12 +693,11 @@ class CreateAccount extends Component {
     {
       const {business_name} = this.state;
       return (<>
-          <h3 className="fileds_header">PROFILE SECTION</h3>
-          <Form.Item
-            label="Nome do Fundo"
+          <h3 className="fileds_header">{this.state.intl.profile_section}</h3>
+          <Form.Item label={this.state.intl.fund_name_desc}
             >
               {getFieldDecorator('business_name', {
-                rules: [{ required: true, message: 'Please input a valid name!', whitespace: true }],
+                rules: [{ required: true, message: this.state.intl.fund_name_message, whitespace: true }],
                 initialValue: business_name
               })(<Input />)}
             </Form.Item>
@@ -730,9 +759,13 @@ class CreateAccount extends Component {
   //`
   renderStep1 = () => {
     const {formatMessage}       = this.props.intl;
-    const { getFieldDecorator } = this.props.form;
+    const { getFieldDecorator, getFieldError } = this.props.form;
     const {account_name, account_name_status, password, confirm_password, default_keys, generated_keys} = this.state;  
       
+      //help={!getFieldError('account_name') && account_name_status}
+    const help =(getFieldError('account_name'))
+      ? [account_name_status,(<br/>)]
+      : (null);
     return (
         <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>
           <Spin spinning={this.state.pushingTx} delay={500} tip={formatMessage({id:'pages.bankadmin.create_account.pushing_transaction'})}>
@@ -740,9 +773,9 @@ class CreateAccount extends Component {
               
               <h3 className="fileds_header">{ formatMessage({id:'pages.bankadmin.create_account.eos_account_name_section'}) }</h3>
               <Form.Item
-                extra={<>{this.renderAccountHint()}</>}
+                extra={<>{help}{account_name_status}{this.renderAccountHint()}</>}
                 label={formatMessage({id:'pages.bankadmin.create_account.account_name'})}
-                help={account_name_status} >
+                >
                 {getFieldDecorator('account_name', {
                   rules: [
                     { required: true, message: formatMessage({id:'pages.bankadmin.create_account.account_name_validation'}), whitespace: true }
@@ -988,7 +1021,7 @@ class CreateAccount extends Component {
     return (
       <Card 
         key={'card_'+perm_name}
-        title = { formatMessage({id:'pages.bankadmin.create_account.authority_permissions', authority}) }  
+        title = { formatMessage({id:'pages.bankadmin.create_account.authority_permissions'}, {authority:authority}) }  
         style = { { marginBottom: 24 } } 
         extra = {<a key={'new_'+perm_name} href="#">+ New</a>}
         >

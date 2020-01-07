@@ -84,6 +84,11 @@
   margin-right: 8px;
 
 }
+
+.ant-form-item{
+  margin-bottom: 0px!important;
+}
+
 .filter_form .ant-form-item-label{
   text-align: left!important;
   height:20px!important;

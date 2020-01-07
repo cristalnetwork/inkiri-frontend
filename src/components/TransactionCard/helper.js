@@ -72,7 +72,8 @@ export const getGoogleDocLinkOrNothing = (google_doc_id, with_icon, name, size) 
 export const getStateTag = (request) => {
   const my_state   = request.flag.ok? request.state : globalCfg.bank.STATE_VIRTUAL_PENDING; 
   const extra_text = request.flag.ok? ''            : `-${request.flag.tag}`  
-  const text       = `${globalCfg.api.stateToText(request.state).toUpperCase()}${extra_text}`;
+  // const text       = `${globalCfg.api.stateToText(request.state).toUpperCase()}${extra_text}`;
+  const text       = `${request.state_string.toUpperCase()}${extra_text}`;
   return (<Tag color={globalCfg.api.stateToColor(my_state)} key={'state_'+request.id} title={text}>{text}</Tag>)
 }
 //
@@ -80,23 +81,26 @@ export const errorStateTag = (text) =>
 {
   return (<Tag color='red' key={Math.random()}>{text}</Tag>);
 }
-//
-export const getStateLabel = (request, with_waiting_icon) => {
-  const color = globalCfg.api.stateToColor(request.state);
-  let icon = null;
-  if(with_waiting_icon)
-  {
-    const fa_icon  = globalCfg.api.isFinished(request)?'flag-checkered':'user-clock';
-    const alt_text = globalCfg.api.isFinished(request)?'Done!':'Operation pending/required!';
-    icon = (<FontAwesomeIcon icon={fa_icon} size="xs" color="gray" title={alt_text}/>);
-  }
-  return (<span style={{color:color}} key={'state_'+request.id}>{utils.capitalize(globalCfg.api.stateToText(request.state))}&nbsp;{icon}</span>);
-}
+// //
+// export const getStateLabel = (request, with_waiting_icon) => {
+//   const color = globalCfg.api.stateToColor(request.state);
+//   let icon = null;
+//   if(with_waiting_icon)
+//   {
+//     const fa_icon  = globalCfg.api.isFinished(request)?'flag-checkered':'user-clock';
+//     const alt_text = globalCfg.api.isFinished(request)?'Done!':'Operation pending/required!';
+//     icon = (<FontAwesomeIcon icon={fa_icon} size="xs" color="gray" title={alt_text}/>);
+//   }
+//   // const text = utils.capitalize(globalCfg.api.stateToText(request.state));
+//   const text = `${request.state_string.toUpperCase()}${extra_text}`;
+//   return (<span style={{color:color}} key={'state_'+request.id}>{}&nbsp;{icon}</span>);
+// }
 
 //
 export const getTypeTag = (request) => {
-  // const icon = with_icon?(<FontAwesomeIcon icon={['fab', 'google-drive']} />):null;
-  return (<Tag key={'type_'+request.id}>{utils.capitalize(globalCfg.api.typeToText(request.requested_type))}</Tag>)
+  // const text = utils.capitalize(globalCfg.api.typeToText(request.requested_type));
+  const text = request.state_string.toUpperCase();
+  return (<Tag key={'type_'+request.id}>{text}</Tag>)
 }
 //
 // generator   => https://paletton.com/#uid=51E0u0kvc++jb+qpd+XPj+VZCGN
@@ -170,9 +174,11 @@ export const getAccountTypeIcon = (account_type) => {
 export const getAccountStateTag = (account, include_br) => {
   if(globalCfg.bank.isEnabledAccount(account.state))
     return (null);
+  
+  const state_text = globalCfg.bank.getAccountState(account.state).toUpperCase();
   return (<><br/>
       <Tag key={account.key+account.state}>
-        { globalCfg.bank.getAccountState(account.state).toUpperCase() }
+        { state_text }
         </Tag>
       </>)
 }
