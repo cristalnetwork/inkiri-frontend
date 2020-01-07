@@ -9,5 +9,6 @@ const BrLang = {
   antd: antdBr,
   locale: "pt-BR",
   // data: appLocaleData
+  title: 'Português'
 };
 export default BrLang;

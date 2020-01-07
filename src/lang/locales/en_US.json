@@ -32,6 +32,7 @@
   "menu.item.crew"                  : "Crew",
   "menu.item.settings"              : "Settings",
 
+  "global.navbar.lang_selector"     : "Languages",
   "global.amount"                   : "Amount",
   "global.price"                    : "Price",
   "global.service"                  : "Service",

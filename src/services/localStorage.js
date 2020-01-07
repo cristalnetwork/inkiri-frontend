@@ -1,5 +1,13 @@
 import { encrypt, decrypt } from "../utils/encrypt";
 
+const language_key = 'lang';
+export const getLanguage = (_default='en-US') =>{
+    // console.log('localStorage.getItem(language_key) || _default ======>', localStorage.getItem(language_key) || _default)
+    return localStorage.getItem(language_key) || _default;
+}
+export const setLanguage = (lang) =>{
+    return localStorage.setItem(language_key, lang);
+}
 /**
  *
  * @param {String} area

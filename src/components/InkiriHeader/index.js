@@ -10,6 +10,7 @@ import * as loginRedux from '@app/redux/models/login'
 import * as utils from '@app/utils/utils';
 import './right_content.less';
 
+import SelectLanguage from '@app/components/InkiriHeader/SelectLang';
 import ReferrerWidget  from '@app/components/InkiriHeader/referrer_widget';
 import * as components_helper from '@app/components/helper';
 
@@ -130,6 +131,7 @@ class InkiriHeader extends Component {
            <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">
              {this.props.intl.formatMessage({id:'global.logout'})}
            </Button>
+           <SelectLanguage />
           </div>
         </div>
       );

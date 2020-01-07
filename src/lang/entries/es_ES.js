@@ -9,5 +9,6 @@ const EsLang = {
   antd: antdEs,
   locale: "es",
   // data: appLocaleData
+  title: 'Castellano'
 };
 export default EsLang;

@@ -3,6 +3,13 @@ import { getRoutesByRole } from '@app/services/routes'
 import { takeEvery, put } from '@redux-saga/core/effects';
 import { store } from '@app/redux/configureStore'
 
+import * as storage from '@app/services/localStorage'
+
+import {getLocale} from '@app/lang/helper';
+import { updateIntl } from 'react-intl-redux'
+
+import history from '@app/history.js';
+
 // ConstantesT
 const GET_ASYNC              = 'menu/GET_ASYNC';
 const GET_ASYNC_END          = 'menu/GET_ASYNC_END';
@@ -19,6 +26,9 @@ const SET_MENU_FATHER        = 'menu/SET_MENU_FATHER'
 const TRY_MOBILE             = 'menu/TRY_MOBILE'
 const SET_MOBILE             = 'menu/SET_MOBILE'
 
+const TRY_LANGUAGE           = 'menu/TRY_LANGUAGE'
+const SET_LANGUAGE           = 'menu/SET_LANGUAGE'
+
 const SET_REFERRER           = 'menu/SET_REFERRER'
 const CLEAR_REFERRER         = 'menu/CLEAR_REFERRER'
 
@@ -32,6 +42,8 @@ export const collapseMenu             = (is_collapsed)               =>({ type: 
 
 export const setLastRootMenuFullpath  = (fullpath)                   =>({ type: TRY_SET_MENU_FATHER, payload: { fullpath }});
 export const setIsMobile              = (is_mobile)                  =>({ type: TRY_MOBILE, payload: { is_mobile } });
+
+export const setLanguage              = (language)                   =>({ type: TRY_LANGUAGE, payload: { language } });
 
 export const setReferrer              = (title, referrer, father, icon)  =>({ type: SET_REFERRER, payload: { title:title, referrer:referrer, father:father, icon:icon} });
 export const clearReferrer            = ()                           =>({ type: CLEAR_REFERRER });
@@ -79,12 +91,26 @@ function* tryMobileSaga({ type, payload }) {
   yield put({type: SET_MOBILE, payload: {is_mobile:is_mobile} })
 }
 
+function* tryLanguageSaga({ type, payload }) {
+
+  const { language } = payload
+  storage.setLanguage(language);
+  const locale = getLocale();
+  store.dispatch(updateIntl({
+    locale: locale.locale,
+    messages: locale.messages,
+  }))
+  yield put({type: SET_LANGUAGE, payload: {language:language} })
+  history.replace('/');
+}
+
 //Se envan las sagas a redux estableciendo que y cuantas veces dispara la funcion
 store.injectSaga('menu', [
   takeEvery(GET_ASYNC, getMenuSaga),
   takeEvery(TRY_COLLAPSE, tryCollapseMenuSaga),
   takeEvery(TRY_SET_MENU_FATHER, trySetMenuFatherSaga),
   takeEvery(TRY_MOBILE, tryMobileSaga),
+  takeEvery(TRY_LANGUAGE, tryLanguageSaga),
 ])
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
@@ -93,6 +119,7 @@ export const getMenuItems  = (state) => state.menu.items
 export const isCollapsed   = (state) => state.menu.is_collapsed
 export const lastRootMenu  = (state) => state.menu.last_root_menu_fullpath
 export const isMobile      = (state) => state.menu.is_mobile
+export const language      = (state) => state.menu.language
 
 export const referrer      = (state) => { return { referrer:           state.menu.referrer
                                                    , referrer_father:  state.menu.referrer_father 
@@ -107,7 +134,7 @@ const defaultState = {
   error:                     undefined, 
   last_root_menu_fullpath:   undefined, 
   is_mobile:                 false,
-
+  language:                  getLocale().locale,
   referrer:                  null,
   referrer_father:           null,
   referrer_title:            '',
@@ -150,6 +177,11 @@ function reducer(state = defaultState, action = {}) {
         return {
             ...state,
             is_mobile:             action.payload.is_mobile
+        }
+    case SET_LANGUAGE:
+        return {
+            ...state,
+            language:             action.payload.language
         }
     case SET_REFERRER:
         return {
