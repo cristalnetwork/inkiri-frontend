@@ -164,15 +164,14 @@ class CreateAccount extends Component {
     const my_options          = globalCfg.bank.newAccountTypesOptions();
     const { getFieldDecorator } = this.props.form;
     const {account_type}        = this.state;
-    const {formatMessage} = this.props.intl;
     return (
-      <Form.Item label={ formatMessage({id:'global.account_type'}) } className="money-transfer__rowX">
+      <Form.Item label={ this.state.intl.global_account_type } className="money-transfer__rowX">
           {getFieldDecorator( 'account_type', {
-            rules: [{ required: true, message: formatMessage({id:'pages.bankadmin.create_account.account_type_validation'})}]
+            rules: [{ required: true, message: this.state.intl.account_type_validation }]
             , initialValue: account_type
             , onChange: (e) => this.handleAccountTypeChange(e)
           })(
-            <Select placeholder={'Choose an account type'} >
+            <Select placeholder={this.state.intl.account_type_desc} >
             {my_options.map( opt => <Select.Option key={opt.key} value={opt.key} label={opt.title}> <InjectMessage id={opt.title_i18n} /> </Select.Option> )}
             </Select>
           )}
@@ -182,15 +181,13 @@ class CreateAccount extends Component {
   //
   validateStep = () => new Promise((res, rej) => {
     
-    // console.log(' createAccount::validateStep() ENTER');
     const {current_step, account_name, default_keys, generated_keys} = this.state;
-    // console.log(` createAccount::validateStep() current_step: ${current_step} | account_name:${account_name}`);
     
     try{
       this.props.form.validateFields((err, values) => {
         if (err)
         {  
-          components_helper.notif.exceptionNotification( this.props.intl.formatMessage({id:'errors.unknown'}), err);
+          components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'errors.unknown'}));
           rej(JSON.stringify(err));
           return;
         }
@@ -227,6 +224,7 @@ class CreateAccount extends Component {
     }catch(e){
       // console.log(` createAccount::validateStep() ex: ${e}`);
       components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'errors.unknown'}), e);
+      // components_helper.notif.exceptionNotification('GUAT??#1', e);
       rej(e)
     } 
     
@@ -241,8 +239,8 @@ class CreateAccount extends Component {
     }
     catch(e)
     {
-
-      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'errors.unknown'}), e);
+      // components_helper.notif.exceptionNotification('GUAT??#2', e);
+      // components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'errors.unknown'}), e);
       return;
     } 
     
@@ -350,6 +348,9 @@ class CreateAccount extends Component {
   // Events
   componentDidMount(){
     const {formatMessage} = this.props.intl;
+    const global_account_type = formatMessage({id:'global.account_type'});
+    const account_type_desc = formatMessage({id:'pages.bankadmin.create_account.account_type_desc'});
+    const account_type_validation = formatMessage({id:'pages.bankadmin.create_account.account_type_validation'});
     const account_name_desc = formatMessage({id:'components.Forms.profile.account_name_desc'});
     const account_name_message = formatMessage({id:'components.Forms.profile.account_name_message'});
     const last_name_desc = formatMessage({id:'components.Forms.profile.last_name_desc'});
@@ -392,7 +393,7 @@ class CreateAccount extends Component {
     const account_name_regex = formatMessage({id:'pages.bankadmin.create_account.account_name_regex'});
     const profile_section = formatMessage({id:'pages.bankadmin.create_account.profile_section'});
 
-    this.setState({intl:{authorize_account, delete_permission, invalid_step, one_permission_required, add_account_permission_error, add_account_permission_ok, account_unique_validation, passwords_are_not_equal, both_passwords_must_be_equal, type_a_valid_number, type_a_number_gte_zero, account_name_regex, profile_section, account_name_desc, account_name_message, last_name_desc, last_name_message, first_name_desc, first_name_message, biz_name_desc, biz_name_message, fund_name_desc, fund_name_message, alias_name_desc, alias_name_message, email_desc, email_message, email_regex, cpf_desc, cpf_message, birthday_desc, birthday_message, phone_desc, phone_message, address_desc, street_desc, street_hint, city_desc, state_desc, zip_desc, country_desc}})
+    this.setState({intl:{global_account_type, account_type_desc, account_type_validation, authorize_account, delete_permission, invalid_step, one_permission_required, add_account_permission_error, add_account_permission_ok, account_unique_validation, passwords_are_not_equal, both_passwords_must_be_equal, type_a_valid_number, type_a_number_gte_zero, account_name_regex, profile_section, account_name_desc, account_name_message, last_name_desc, last_name_message, first_name_desc, first_name_message, biz_name_desc, biz_name_message, fund_name_desc, fund_name_message, alias_name_desc, alias_name_message, email_desc, email_message, email_regex, cpf_desc, cpf_message, birthday_desc, birthday_message, phone_desc, phone_message, address_desc, street_desc, street_hint, city_desc, state_desc, zip_desc, country_desc}})
     this.props.loadAccounts();
   }
 
@@ -765,6 +766,7 @@ class CreateAccount extends Component {
     const help =(getFieldError('account_name'))
       ? (<><span key='xxxx'>{account_name_status}</span><br/></>)
       : (null);
+    //
     return (
         <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>
           <Spin spinning={this.state.pushingTx} delay={500} tip={formatMessage({id:'pages.bankadmin.create_account.pushing_transaction'})}>
