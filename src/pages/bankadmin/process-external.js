@@ -496,6 +496,7 @@ class processExternal extends Component {
     const sender          = globalCfg.currency.issuer; //this.props.actualAccountName;
     const admin_name      = this.props.actualAccountName;
     const fiat            = globalCfg.api.fiatSymbolToMemo(deposit_currency)
+    // Very important memo structure!!!!!!!!!!!1
     const memo            = `dep|${fiat}|${requestCounterId.toString()}`;
     const that            = this;
     const {formatMessage} = this.props.intl;    

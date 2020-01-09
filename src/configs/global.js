@@ -40,7 +40,6 @@ const bank = {
   table_customers:         "customer", 
   table_customers_action:  "upsertcust",
   table_customers_delete:  "erasecust", 
-
   table_paps:              'pap',
   table_paps_action:       'upsertpap',
   table_paps_delete:       'erasepap', 
@@ -184,7 +183,6 @@ const api = {
   , TYPE_SEND                 : 'type_send'
   , TYPE_WITHDRAW             : 'type_withdraw' 
   , TYPE_SERVICE              : 'type_service'
-
   , TYPE_SALARY               : 'type_salary'
   , TYPE_ISSUE                : 'type_issue'
   , TYPE_IUGU                 : 'type_iugu'
