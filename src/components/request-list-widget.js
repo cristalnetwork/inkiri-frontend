@@ -31,9 +31,10 @@ const RequestListWidget = (props) => {
   useEffect(() => {
       setFilter(props.filter);
     }, [props.filter]);
-
+  
+  
   var t_id2 = null;
-  const requestFilterCallback = (error, cancel, values) => {
+  const requestFilterCallback = (error, cancel, values, refresh) => {
     
     if(cancel)
     {
@@ -44,6 +45,18 @@ const RequestListWidget = (props) => {
       return;
     }
 
+    if(refresh)
+    {
+      if(table_ref)
+      {
+        clearTimeout(t_id2);
+        t_id2 = setTimeout(()=> {
+          table_ref.refresh()
+        } ,100);
+      }
+      return;
+    }
+    
     if(table_ref && values!==undefined)
     {
       clearTimeout(t_id2);

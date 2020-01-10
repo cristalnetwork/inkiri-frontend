@@ -51,6 +51,7 @@ class TransactionTable extends Component {
     this.renderFooter      = this.renderFooter.bind(this); 
     this.getColumnsForType = this.getColumnsForType.bind(this);
     this.applyFilter       = this.applyFilter.bind(this);
+    this.refresh           = this.refresh.bind(this);
   }
 
   getColumnsForType =() =>{

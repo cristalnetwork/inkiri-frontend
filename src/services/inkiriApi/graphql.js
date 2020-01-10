@@ -258,7 +258,7 @@ export const loadBizData = async (account_name) => runQuery(GET_BUSINESS_DATA, {
 
 
 const GET_REQUESTS  = gql`
-  query xxx($account_name:String, $page:String, $requested_type:String, $from:String, $to:String, $provider_id:String, $state:String, $id:String, $requestCounterId:String, $tx_id:String, $refund_tx_id:String, $attach_nota_fiscal_id:String, $attach_boleto_pagamento_id:String, $attach_comprobante_id:String, $deposit_currency:String, $date_from:String, $date_to:String, $service_id:String){
+  query xxx($account_name:String, $page:String, $requested_type:String, $from:String, $to:String, $provider_id:String, $state:String, $id:String, $requestCounterId:Int, $tx_id:String, $refund_tx_id:String, $attach_nota_fiscal_id:String, $attach_boleto_pagamento_id:String, $attach_comprobante_id:String, $deposit_currency:String, $date_from:String, $date_to:String, $service_id:String){
     requests(account_name:$account_name, page:$page, requested_type:$requested_type, from:$from, to:$to, provider_id:$provider_id, state:$state, id:$id, requestCounterId:$requestCounterId, tx_id:$tx_id, refund_tx_id:$refund_tx_id, attach_nota_fiscal_id:$attach_nota_fiscal_id, attach_boleto_pagamento_id:$attach_boleto_pagamento_id, attach_comprobante_id:$attach_comprobante_id, deposit_currency:$deposit_currency, date_from:$date_from, date_to:$date_to, service_id:$service_id){
       _id
       id                        
@@ -423,7 +423,7 @@ const GET_REQUESTS  = gql`
     }
   }
 `;
-export const requests = async ({page, requested_type='', account_name='', from='', to='', provider_id='', state='', id='', requestCounterId='', tx_id='', refund_tx_id='', attach_nota_fiscal_id='', attach_boleto_pagamento_id='', attach_comprobante_id='', deposit_currency='', date_from='', date_to='', service_id=''}={}) =>{
+export const requests = async ({page, requested_type='', account_name='', from='', to='', provider_id='', state='', id='', requestCounterId=null, tx_id='', refund_tx_id='', attach_nota_fiscal_id='', attach_boleto_pagamento_id='', attach_comprobante_id='', deposit_currency='', date_from='', date_to='', service_id=''}={}) =>{
   console.log('============================ requests::page:',page);
   if(account_name && !to && !from && account_name!=globalCfg.currency.issuer)
   {
@@ -437,7 +437,7 @@ export const requests = async ({page, requested_type='', account_name='', from='
 
 
 const GET_REQUEST  = gql`
-  query xxx($id:String, $requestCounterId:String){
+  query xxx($id:String, $requestCounterId:Int){
     request(id:$id, requestCounterId:$requestCounterId){
       _id
       id                        
@@ -602,7 +602,7 @@ const GET_REQUEST  = gql`
     }
   }
 `;
-export const request = async ({id='', requestCounterId=''}={}) =>{
+export const request = async ({id='', requestCounterId=null}={}) =>{
   const a        = {id:id, requestCounterId:requestCounterId};
   console.log(JSON.stringify(a));
   // console.log(GET_REQUESTS);

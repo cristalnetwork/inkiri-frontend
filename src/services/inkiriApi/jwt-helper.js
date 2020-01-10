@@ -61,7 +61,7 @@ export const getTokenIfNotExpired = (key) => {
   return isTimestampExpired(json_token.expires_at)?null:json_token.token;
 }
 
-export const apiCall = (path, method, data) => new Promise((res,rej)=> {
+export const apiCall = (path, method, data, timeout) => new Promise((res,rej)=> {
   let bearer_token;
   let _key = DFUSE_AUTH_TOKEN_KEY;
   if(!path.startsWith(globalCfg.dfuse.base_url) )
@@ -95,6 +95,15 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
   do_log && console.log( ' ###### jwtHelper::apiCall >> fetchOptions.body', JSON.stringify(fetchOptions.body))
   do_log && console.log( ' ###### jwtHelper::apiCall >> fetchOptions.headers', bearer_token)
 
+  let timer = null;
+  if (timeout && !isNaN(timeout) && timeout>1000)
+    timer = setTimeout(
+        () => rej( new Error('Request timed out') ),
+        timeout
+    );
+
+  
+
   fetch(path, fetchOptions)
       .then((resp) => resp.json()
           , (ex) => { 
@@ -102,6 +111,7 @@ export const apiCall = (path, method, data) => new Promise((res,rej)=> {
             do_log && console.log(ex);
             rej(ex) 
         })
+      .finally( () => (timer!=null) && clearTimeout(timer) )
       .then((data) => {
         do_log && console.log( ' ###### jwtHelper::apiCall >> result:', JSON.stringify(data));
         

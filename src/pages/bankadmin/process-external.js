@@ -26,6 +26,7 @@ import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
 import { injectIntl } from "react-intl";
 import InjectMessage from "@app/components/intl-messages";
+import * as gqlRequestI18nService from '@app/services/inkiriApi/requests-i18n-graphql-helper'
 
 const DEFAULT_RESULT = {
   result:             undefined,
@@ -110,20 +111,31 @@ class processExternal extends Component {
         this.setState(new_state);
   }
 
-  reload(){
+  reload = async () => {
     const that      = this;
     const {request} = this.state;
     this.setState({loading:true});
-    api.bank.getRequestById(request.id)
-        .then( (data) => {
-            that.setState({loading:false, request:data, ...DEFAULT_ATTACHS})
-          },
-          (ex) => {
-            components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'pages.bankadmin.process-external.error_reloading'}), ex);
-            that.setState({loading:false, ...DEFAULT_ATTACHS});
-            console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
-          }  
-        );
+
+    try{
+      const data = await gqlRequestI18nService.request({id:request._id, account_name:this.props.actualAccountName}, this.props.intl);
+      this.setState({request:data, loading:false, ...DEFAULT_ATTACHS})
+    }
+    catch(e)
+    {
+      this.setState({loading:false, ...DEFAULT_ATTACHS});
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'pages.bankadmin.process-external.error_reloading'}), e);
+    }
+    
+    // api.bank.getRequestById(request.id)
+    //     .then( (data) => {
+    //         that.setState({loading:false, request:data, ...DEFAULT_ATTACHS})
+    //       },
+    //       (ex) => {
+    //         components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'pages.bankadmin.process-external.error_reloading'}), ex);
+    //         that.setState({loading:false, ...DEFAULT_ATTACHS});
+    //         console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
+    //       }  
+    //     );
   }
 
   getPropsForUploader(name){
@@ -510,26 +522,27 @@ class processExternal extends Component {
           that.setState({pushingTx:true});
           api.issueMoney(sender, privateKey, receiver, amount, memo)
             .then(data => {
-              if(data && data.data && data.data.transaction_id)
-              {
-                // updeteo la tx
-                api.bank.setDepositOk(admin_name, id, data.data.transaction_id)
-                .then( (update_res) => {
-                    that.reload();
-                    that.setState({result:'ok', pushingTx:false, result_object:data});
-                    components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.deposit'}));
-                  }, (err) => {
-                    that.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
-                    components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.occurred_title'}), err);
-                  }
-                )
-              }
-              else{
-                that.setState({result:'error', pushingTx:false, error:'UNKNOWN!'});
-                components_helper.notif.errorNotification(formatMessage({id:'pages.bankadmin.process-external.error.occurred_title'}), JSON.stringify(data));
-
-              }
-              
+              that.reload();
+              that.setState({result:'ok', pushingTx:false, result_object:data});
+              components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.deposit'}));
+            //   if(data && data.data && data.data.transaction_id)
+            //   {
+            //     // updeteo la tx
+            //     api.bank.setDepositOk(admin_name, id, data.data.transaction_id)
+            //     .then( (update_res) => {
+            //         that.reload();
+            //         that.setState({result:'ok', pushingTx:false, result_object:data});
+            //         components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.deposit'}));
+            //       }, (err) => {
+            //         that.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
+            //         components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.occurred_title'}), err);
+            //       }
+            //     )
+            //   }
+            //   else{
+            //     that.setState({result:'error', pushingTx:false, error:'UNKNOWN!'});
+            //     components_helper.notif.errorNotification(formatMessage({id:'pages.bankadmin.process-external.error.occurred_title'}), JSON.stringify(data));
+            //   }
             }, (ex)=>{
               console.log(' processRequest::issue (error#1) >>  ', JSON.stringify(ex));
               that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});

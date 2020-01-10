@@ -90,18 +90,20 @@ const RequestsFilter = (props) => {
           return result;
         }, {});
 
-        fireEvent(null, null, filtered_nn)
+        fireEvent(null, null, filtered_nn, null)
       });
     }
 
-
-    const fireEvent = (error, cancel, data) => {
+    const fireEvent = (error, cancel, data, refresh) => {
       setButtonType('default')
       if(typeof props.callback === 'function') {
-          props.callback(error, cancel, data)
+          props.callback(error, cancel, data, refresh)
       }
     }
     
+    const reload = () =>{
+      fireEvent(null, null, null, true)
+    }    
     
     const renderSelectTxTypeOptions = () => {
       let allowed_tx_types = globalCfg.api.getTypes(); 
@@ -270,6 +272,7 @@ const RequestsFilter = (props) => {
           <Button type="link" disabled={is_loading} onClick={(event) => resetFilter(event)}>
             { formatMessage({id:'components.filters.requests.reset'}) }
           </Button>
+          <Button size="small" key="requests_refresh" icon="redo" disabled={is_loading} onClick={()=>reload()} ></Button>,
         </Form.Item>
       </Form>
       

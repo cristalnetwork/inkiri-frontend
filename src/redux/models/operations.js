@@ -2,6 +2,7 @@ import { takeEvery, put, call } from '@redux-saga/core/effects';
 import { store } from '../configureStore'
 import * as api from '@app/services/inkiriApi'
 import * as core from './core';
+import * as api_errors from './api';
 import _ from 'lodash';
 import * as utils from '@app/utils/utils';
 import moment from 'moment';
@@ -103,6 +104,7 @@ function* loadNewBlockchainOperationsSaga() {
   const { last_block }     = store.getState().operations;
   if(!last_block || !permissioner)
   {    
+    yield put({ type: api_errors.SET_ERROR, payload: {error: 'LOAD NEW BLOCKCHAINS OPERS - No last_block nor permissioner :('}})
     yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
     return;
   }
@@ -119,6 +121,7 @@ function* loadNewBlockchainOperationsSaga() {
   {
     console.log(' loadNewBlockchainOperationsSaga#ERROR#3:', JSON.stringify(e))
     //HACK Mandar error a GLOBAL_ERROR_HANDLER
+    yield put({ type: api_errors.SET_ERROR, payload: {error: `Error occurred while loading NEW BLOCKCHAINS OPERS: ${JSON.stringify(e)}`}})
     yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
     return;
   }

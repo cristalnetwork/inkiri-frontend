@@ -162,7 +162,7 @@ class RequestDetails extends Component {
       // const data = await gqlService.request({id:key, account_name:this.props.actualAccountName});
       const data = await gqlRequestI18nService.request({id:key, account_name:this.props.actualAccountName}, this.props.intl);
       console.log(data)
-      this.setState({provider:data})
+      this.setState({request:data})
     }
     catch(e)
     {

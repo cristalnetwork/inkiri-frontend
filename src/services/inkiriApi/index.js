@@ -715,6 +715,7 @@ const getPermissionedAccountsForAccount = (account_name) => new Promise((res, re
 
 export const login = async (account_name, private_key) => {
   
+  const do_log = true;
   // 1.- Obtengo la publica de la privada.
   const pubkey  = ecc.privateToPublic(private_key); 
   
@@ -732,16 +733,17 @@ export const login = async (account_name, private_key) => {
   try{
     // customer_info = (await dfuse.searchOneBankAccount(account_name)).data.account;
     customer_info = await getBankAccount(account_name);
-    console.log('inkiriApi::login customer_info >> ', JSON.stringify(customer_info))
+    do_log && console.log('inkiriApi::login customer_info >> ', JSON.stringify(customer_info))
   }
   catch(ex){
-    console.log('inkiriApi::login ERROR >> Account is not a Bank customer!') 
+    do_log && console.log('inkiriApi::login ERROR >> Account is not a Bank customer!') 
     throw new Error('Account is not a Bank customer!') 
   }
 
   // || !globalCfg.bank.isPersonalAccount(customer_info.account_type)   
   if( !globalCfg.bank.isEnabledAccount(customer_info.state))
   {
+    do_log && console.log('inkiriApi::login ERROR >> about to fire error #1') 
     throw new Error('Your account should be an enabled and a Personal type account!')
     return; 
   }
@@ -765,14 +767,19 @@ export const login = async (account_name, private_key) => {
         }
   };
 
+  do_log && console.log('inkiriApi::login::about to retrieve permissions #1') 
+
   let persmissionedAccounts = [];
   try{
     persmissionedAccounts = await getPermissionedAccountsForAccount(account_name);
   } 
   catch(ex)
   {
+    do_log && console.log('inkiriApi::login::permissions error #2', ex) 
     persmissionedAccounts = [];
   } 
+
+  do_log && console.log('inkiriApi::login::permissions retrieved ok!') 
 
   let corporateAccounts     = persmissionedAccounts.filter(perm => globalCfg.bank.isBusinessAccount(perm.permissioner.account_type))
   let adminAccount          = persmissionedAccounts.filter(perm => globalCfg.bank.isAdminAccount(perm.permissioner.account_type))
@@ -784,6 +791,8 @@ export const login = async (account_name, private_key) => {
   //   adminAccount = { ...personalAccount}
   // }
 
+  do_log && console.log('inkiriApi::login::about to try to login the bank and get token !') 
+
   /*
   * 6.- me logeo al banko
   */
@@ -793,9 +802,9 @@ export const login = async (account_name, private_key) => {
     bank_auth = await bank.auth(account_name, private_key);
   }
   catch(ex){
-    if(ex && ex.error && parseInt(ex.error)==404){
-      need_creation = true;
-    }
+    // if(ex && ex.error && parseInt(ex.error)==404){
+    //   need_creation = true;
+    // }
     bank_auth = undefined;
     console.log('inkiriApi::login ERROR >> Account is not on private servers!', JSON.stringify(ex)) 
     // throw new Error('Account is not on private servers!'); 
@@ -804,6 +813,7 @@ export const login = async (account_name, private_key) => {
 
   if(!bank_auth)
   {
+    do_log && console.log('inkiriApi::login::about to fire error #3 > Account is not a bank customer!',) 
     throw new Error('Account is not a bank customer!'); 
     return;
   }
@@ -820,7 +830,7 @@ export const login = async (account_name, private_key) => {
   //   }
   // }
    
-  
+  do_log && console.log('inkiriApi::login::about to getprofile',) 
   let profile = null;
   try{
     profile = await bank.getProfile(account_name);
@@ -840,8 +850,7 @@ export const login = async (account_name, private_key) => {
     otherPersonalAccounts : personalAccounts
   };
 
-  console.log(' **************** '
-      , ' +-+-+-+-+-+-+- inkiriApi::login >> result: '
+  console.log(' ============================================== inkiriApi::login >> result: '
       , JSON.stringify(ret));
 
   return ret;

@@ -13,7 +13,7 @@ const CLEAR_RESULTS              = 'api/CLEAR_RESULTS'
 const SET_RESULT                 = 'api/SET_RESULT'
 
 const CLEAR_ERRORS               = 'api/CLEAR_ERRORS'
-const SET_ERROR                  = 'api/SET_ERROR'
+export const SET_ERROR            = 'api/SET_ERROR'
 
 const CLEAR_ERRORS_AND_RESULTS   = 'api/CLEAR_ERRORS_AND_RESULTS'
 
@@ -21,7 +21,7 @@ const CLEAR_ERRORS_AND_RESULTS   = 'api/CLEAR_ERRORS_AND_RESULTS'
 export const callAPIEx             = ( _steps)             =>({ type: CALL_API_EX_FUNCTION, payload: { _steps } });
 export const callAPI               = ( _function, _params) =>({ type: CALL_API_FUNCTION, payload: { _function, _params } });
 export const clearErrors           = ()                    =>({ type: CLEAR_ERRORS });
-export const setError              = (error)               =>({ type: SET_ERROR,  payload: {error:error}});
+export const setError              = (error)               =>({ type: SET_ERROR,  payload: {error:error} });
 export const clearResults          = ()                    =>({ type: CLEAR_RESULTS });
 export const setResult             = (result)              =>({ type: SET_RESULT,  payload: {result:result}});
 export const clearAll              = ()                    =>({ type: CLEAR_ERRORS_AND_RESULTS });

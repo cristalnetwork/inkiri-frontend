@@ -21,6 +21,7 @@ import Tx from '@app/components/TransactionCard/tx';
 import '../bankadmin/request.less';
 
 import { injectIntl } from "react-intl";
+import * as gqlRequestI18nService from '@app/services/inkiriApi/requests-i18n-graphql-helper'
 
 class TransactionDetails extends Component {
   constructor(props) {
@@ -70,38 +71,23 @@ class TransactionDetails extends Component {
   }
   
 
-  loadRequest(id_or_counter){
+  loadRequest = async (id_or_counter) => {
+    this.setState({loading:true});
     const that      = this;
     
-    this.setState({loading:true});
-    if(isNaN(id_or_counter))
+    let filter = {id:id_or_counter};
+    if(!isNaN(id_or_counter))
     {
-      console.log(' GET REQUEST BY ..... getRequestById => ', id_or_counter)
-      api.bank.getRequestById(id_or_counter)
-        .then( (data) => {
-            // console.log(' ** fetched request object', JSON.stringify(data))
-            that.setState({loading:false, request:data})
-          },
-          (ex) => {
-            that.setState({loading:false});
-            components_helper.notif.exceptionNotification( this.state.intl.error_while_fetching_request ) ;
-          }  
-        );
+      filter = {requestCounterId:parseInt(id_or_counter)};
     }
-    else
+    try{
+      const data = await gqlRequestI18nService.request({...filter, account_name:this.props.actualAccountName}, this.props.intl);
+      that.setState({loading:false, request:data})
+    }
+    catch(e)
     {
-      console.log(' GET REQUEST BY ..... getRequestByCounter => ', id_or_counter)
-      api.bank.getRequestByCounter(id_or_counter)
-        .then( (data) => {
-            // console.log(' ** fetched request object', JSON.stringify(data))
-            that.setState({loading:false, request:data})
-          },
-          (ex) => {
-            that.setState({loading:false});
-            components_helper.notif.exceptionNotification( this.state.intl.error_while_fetching_request ) ;
-            // console.log(' ** ERROR @ processRequest', JSON.stringify(ex))
-          }  
-        );
+      this.setState({loading:false});
+      components_helper.notif.exceptionNotification( this.state.intl.error_while_fetching_request ) ;
     }
   }
 

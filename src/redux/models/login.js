@@ -63,8 +63,10 @@ function* tryLoginSaga({ type, payload }) {
     // console.log(' LOGIN REDUX >> tryLoginSaga >> ', account_name, password, remember)
     try {
         // LLAMO A inkiriAPI.login
+        console.log(' login-redux::tryloginsaga::apip.login', account_name, password)
         const accounts = yield api.login(account_name, password);
         // console.log('login.redux -> api.login -> :', accounts)
+        console.log(' login-redux::tryloginsaga::result', accounts)
         if (payload.remember) {
             let master_account = account_name;
             const profile = accounts.profile;

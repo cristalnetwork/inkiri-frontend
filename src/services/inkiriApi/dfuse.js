@@ -156,23 +156,19 @@ export const getAccountBalance = (account) => new Promise((res,rej)=> {
  */
 export const searchPermissioningAccounts = (account_name) => new Promise( (res, rej) => {
 
-  /*
-  {
-    "query" : "{searchTransactionsForward(query: \"data.auth.accounts.permission.actor:inkpersonal3\") {cursor results { undo trace { id matchingActions { json }}}}}"
-  }
-  */
   // ToDo: Improve GraphQL query! Filter duplicates and find latest.
   auth()
     .then((token) => {
       
       const path   = globalCfg.dfuse.base_url + '/graphql';
       const method = 'POST';
-      const data   = {"query" : '{searchTransactionsForward(query: "data.auth.accounts.permission.actor:'+account_name+'") {cursor results { undo trace { id matchingActions { json }}}}}'};
+      // const data   = {"query" : '{searchTransactionsForward(query: "data.auth.accounts.permission.actor:'+account_name+'") {cursor results { undo trace { id matchingActions { json }}}}}'};
+      const data   = {"query" : '{searchTransactionsBackward(query: "data.auth.accounts.permission.actor:'+account_name+'") {cursor results { trace { id matchingActions { json }}}}}'};
       
-      jwtHelper.apiCall(path, method, data)
+      jwtHelper.apiCall(path, method, data, 10000)
         .then((data) => {
             // Filter transactions to get unique permissioners account names.
-            const accounts = data.data.searchTransactionsForward.results
+            const accounts = data.data.searchTransactionsBackward.results
               .map(txs => txs.trace.matchingActions[0].json.account)
               .filter(account=>account!=account_name);
             const _res = [...new Set(accounts)];
@@ -191,7 +187,7 @@ export const searchPermissioningAccounts = (account_name) => new Promise( (res, 
             rej(ex);
           });
     }, (ex) => {
-      // console.log( ' >> dfuse::getKeyAccounts ERROR >>', ex)
+      console.log( ' >> dfuse::getKeyAccounts ERROR >>', ex)
       rej(ex);
     });
   
@@ -216,7 +212,7 @@ const transformTransactionsImpl = (txs, account_name) => {
       }
       catch(e)
       {
-        console.log(' TRANSFOMR TX ERROR#1 => ', JSON.stringify(transaction), JSON.stringify(e))
+        console.log(' TRANSFORM TX ERROR#1 => ', JSON.stringify(transaction), JSON.stringify(e))
         return null;
       }
 
@@ -224,35 +220,6 @@ const transformTransactionsImpl = (txs, account_name) => {
   
   return my_txs.filter(tx=> tx!=null);
 }
-
-// export const listPAPPaymentsOLD = async (account_name, provider, customer, cursor) => new Promise(async(res,rej)=> {
-  
-//   const query = `action:${globalCfg.bank.table_paps_charge}  account:${globalCfg.currency.token} data.from:${customer} data.to:${provider}`;
-  
-//   console.log('listPAPPayments:', query);
-//   let options = { 
-//     limit: globalCfg.dfuse.default_page_size 
-//     , sort: 'desc'
-//     , irreversibleOnly: false};
-
-//   if(cursor)
-//     options['cursor'] = cursor;
-//   let client = createClient();
-//   client.searchTransactions(
-//       query,
-//       options
-//     )
-//     .then( (data) => {
-//       const txs = transformTransactionsImpl(data.transactions, account_name);
-//       res ({data:{txs:txs, cursor:data.cursor}})
-//       client.release();
-//     }, (ex) => {
-//       console.log('dfuse::listTransactions >> ERROR#1 ', JSON.stringify(ex));
-//       rej(ex);
-//       client.release();
-//     });
-  
-// })  
 
 export const listPAPPayments = async (account_name, provider, customer, service_id, cursor) => new Promise(async(res,rej)=> {
   console.log(' listPAPPayments => ', account_name)
@@ -262,11 +229,11 @@ export const listPAPPayments = async (account_name, provider, customer, service_
   // const query = `action:chargepap  account: data.from:tutinopablo1 data.to:organicvegan`;
 
   const searchTransactions = `query ($limit: Int64, $irreversibleOnly:Boolean, $cursor:String){
-    searchTransactionsForward(query: "${query}", limit: $limit, irreversibleOnly: $irreversibleOnly, cursor:$cursor) {
+    searchTransactionsBackward(query: "${query}", limit: $limit, irreversibleOnly: $irreversibleOnly, cursor:$cursor) {
       cursor 
       results { 
         block { num id timestamp}
-        undo trace { 
+        trace { 
           id 
           topLevelActions {
             account
@@ -292,7 +259,7 @@ export const listPAPPayments = async (account_name, provider, customer, service_
     })
 
     console.log(response)
-    const results = response.data.searchTransactionsForward.results || []
+    const results = response.data.searchTransactionsBackward.results || []
     if (results.length <= 0) {
       res ({data:{txs:[], cursor:''}})
       console.log("Oups nothing found")
@@ -304,7 +271,7 @@ export const listPAPPayments = async (account_name, provider, customer, service_
     const txs = transformTransactionsImpl(results, account_name);
     // console.log(' DFUSE transformo las txs!!!!!!', txs.length)
     console.log(' FILTERING service_id >>', service_id);
-    res ({data:{txs:txs.reverse().filter(tx=>parseInt(tx.data.service_id)==parseInt(service_id)), cursor:response.data.searchTransactionsForward.cursor}})
+    res ({data:{txs:txs.filter(tx=>parseInt(tx.data.service_id)==parseInt(service_id)), cursor:response.data.searchTransactionsBackward.cursor}})
     
   } catch (error) {
     rej(error);
@@ -314,37 +281,6 @@ export const listPAPPayments = async (account_name, provider, customer, service_
   client.release()
 
 });
-
-/*
-
-https://jungle.eos.dfuse.io/graphiql/?query=cXVlcnl7IAoKCXNlYXJjaFRyYW5zYWN0aW9uc0ZvcndhcmQoCgkJcXVlcnk6ICJhY2NvdW50OmNyaXN0YWx0b2tlbiIKICAgICwgbG93QmxvY2tOdW06IDYyNDIxNTUxKSB7CiAgCSAJY3Vyc29yIAogICAgCXJlc3VsdHMgeyAKICAgICAgICBibG9jayB7IG51bSBpZCB9CiAgICAgICAgdW5kbyB0cmFjZSB7IAogICAgICAgICAgaWQgCiAgICAgICAgICB0b3BMZXZlbEFjdGlvbnMgewogICAgICAgICAgICBhY2NvdW50CiAgICAgICAgICAgIG5hbWUKICAgICAgICAgICAgYXV0aG9yaXphdGlvbiB7CiAgICAgICAgICAgICAgICBhY3RvcgogICAgICAgICAgICAgICAgcGVybWlzc2lvbgogICAgICAgICAgICB9CiAgICAgICAgICAgIGRhdGEKICAgICAgICB9CiAgICAgICAgfSAKICAgICAgfSAKICB9Cn0K
-
-query{ 
-  searchTransactionsForward(
-    query: "account:cristaltoken"
-    , lowBlockNum: 62421551) {
-       cursor 
-      results { 
-        block { num id timestamp }
-        undo trace { 
-          id 
-          topLevelActions {
-            account
-            name
-            authorization {
-                actor
-                permission
-            }
-            data
-        }
-        } 
-      } 
-  }
-}
-
-*/
-
-//
 
 /*
 * @param account => {account_name, account_type}
@@ -368,11 +304,11 @@ export const queryTransactions = async (account, cursor, last_block) => new Prom
   };
 
   const searchTransactions = `query ($limit: Int64, $irreversibleOnly:Boolean, $lowBlockNum:Int64, $cursor:String){
-    searchTransactionsForward(query: "${query[account_type]}", limit: $limit, irreversibleOnly: $irreversibleOnly, lowBlockNum: $lowBlockNum, cursor:$cursor) {
+    searchTransactionsBackward(query: "${query[account_type]}", limit: $limit, irreversibleOnly: $irreversibleOnly, lowBlockNum: $lowBlockNum, cursor:$cursor) {
       cursor 
       results { 
         block { num id timestamp}
-        undo trace { 
+        trace { 
           id 
           topLevelActions {
             account
@@ -399,7 +335,7 @@ export const queryTransactions = async (account, cursor, last_block) => new Prom
     })
 
     // console.log(response)
-    const results = response.data.searchTransactionsForward.results || []
+    const results = response.data.searchTransactionsBackward.results || []
     if (results.length <= 0) {
       res ({data:{txs:[], cursor:''}})
       console.log("Oups nothing found")
@@ -409,9 +345,8 @@ export const queryTransactions = async (account, cursor, last_block) => new Prom
     // console.log(' dfuse::queryTransactions >> RAW data >>', JSON.stringify(response));
 
     const txs = transformTransactionsImpl(results, account_name);
-    // console.log(' DFUSE transformo las txs!!!!!!', txs.length)
-    // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
-    res ({data:{txs:txs.reverse(), cursor:response.data.searchTransactionsForward.cursor}})
+    // res ({data:{txs:txs.reverse(), cursor:response.data.searchTransactionsBackward.cursor}})
+    res ({data:{txs:txs, cursor:response.data.searchTransactionsBackward.cursor}})
     
   } catch (error) {
     rej(error);

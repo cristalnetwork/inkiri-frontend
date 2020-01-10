@@ -9,7 +9,7 @@ export const toReadable = (account_name, transaction) => {
   
   const is_ws_event      = (typeof transaction.data !== 'undefined');
   const is_search        = (typeof transaction.lifecycle !== 'undefined');
-  const is_graphql       = (typeof transaction.undo !== 'undefined');
+  const is_graphql       = (!is_ws_event&&!is_search)//(typeof transaction.undo !== 'undefined');
 
   if(is_graphql)
   {
