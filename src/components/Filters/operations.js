@@ -56,7 +56,6 @@ const OperationsFilter = (props) => {
       props.form.validateFields((err, values) => {
         
         if (err) {
-          // openNotificationWithIcon("error", "Validation errors","Please verifiy errors on screen!")    
           fireEvent(err, null, null);
           console.log(' ERRORS!! >> ', err)
           return;

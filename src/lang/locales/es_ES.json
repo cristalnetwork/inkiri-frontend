@@ -1,7 +1,7 @@
 {
   "global.navbar.lang_selector": "Idiomas",
-  "inkiri.bank.uppercase": "INKIRI BANK ES",
-  "menu.item.my_money": "My money",
+  "inkiri.bank.title": "Banco Inkiri",
+  "menu.item.my_money": "Mi Dinero",
   "menu.item.extrato": "Extrato",
   "menu.item.deposit": "Deposit",
   "menu.item.withdraw": "Withdraw",
@@ -910,7 +910,7 @@
   "transactions.erase_cust.sub_header": "Customer account removed. Customer @{to}",
   "transactions.erase_cust.sub_header_admin": "Customer account removed. Customer @{to}",
   "transactions.erase_cust.sub_header_admin_ex": "Customer account removed. Customer @{to}",
-  "transactions.charge_pap.header": "Charge Pre Authorized Payment$",
+  "transactions.charge_pap.header": "Charge Pre Authorized Payment",
   "transactions.charge_pap.sub_header": "Charge Pre Authorized Payment - Period {period} paid. Customer @{customer} <-> Provider @{provider}#{service_id}",
   "transactions.charge_pap.sub_header_admin": "Charge Pre Authorized Payment - Period {period} paid. Customer @{customer} <-> Provider @{provider}#{service_id}",
   "transactions.charge_pap.sub_header_admin_ex": "Charge Pre Authorized Payment - Period {period} paid. Customer @{customer} <-> Provider @{provider}#{service_id}",

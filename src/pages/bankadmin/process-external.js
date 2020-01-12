@@ -75,6 +75,8 @@ class processExternal extends Component {
                       , pathname : utils.getFirstPart(this.props.location)
                       , ...DEFAULT_ATTACHS})
     }
+
+    console.log(this.state.request)
   }
 
   componentDidUpdate(prevProps, prevState) 
@@ -381,7 +383,13 @@ class processExternal extends Component {
     const sender      = this.props.actualAccountName;
     const amount      = request.amount;
     const privateKey  = this.props.actualPrivateKey;
-    api.refund(sender, privateKey, request.from, amount, request.id, '')
+    
+    // api.refund(sender, privateKey, request.from, amount, request.requestCounterId, new_state)
+    //   .then((data) => {
+    //   }, (ex1) => {
+    // });
+    
+    api.refund(sender, privateKey, request.from, amount, request.requestCounterId, new_state)
       .then((data) => {
         const send_tx             = data;
         console.log(' processExternal::refund (then#1) >>  ', JSON.stringify(send_tx));
@@ -396,13 +404,10 @@ class processExternal extends Component {
               components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.refund.1'}), ex2);              
               that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
           });
-
       }, (ex1) => {
-        
         console.log(' processExternal::refund (error#1) >>  ', JSON.stringify(ex1));
         components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.refund.2'}), ex1);              
         that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
-
       });
   }
 
@@ -477,7 +482,8 @@ class processExternal extends Component {
     const sender      = this.props.actualAccountName;
     const amount      = request.amount;
     const privateKey  = this.props.actualPrivateKey;
-    api.refund(sender, privateKey, request.from, amount, request.id, '')
+    
+    api.refund(sender, privateKey, request.from, amount, request.requestCounterId, globalCfg.api.STATE_REJECTED)
       .then((data) => {
         const send_tx             = data;
         api.bank.refundWithdrawRequest(sender, request.id, send_tx.data.transaction_id)

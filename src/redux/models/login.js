@@ -202,6 +202,8 @@ store.injectSaga('login', [
 
 // Selectores - Conocen el stado y retornan la info que es necesaria
 export const isLoading             = (state) => state.login.loading > 0;
+export const isAuth                = (state) => state.login.current_account!=null
+export const account               = (state) => state.login.current_account
 export const actualAccountName     = (state) => (state.login.current_account) ? state.login.current_account.permissioner.account_name : undefined
 export const actualAccountProfile  = (state) => state.login.profile;
 export const actualPrivateKey      = (state) => state.login.private_key;
@@ -226,7 +228,7 @@ export const loginError            = (state) => state.login.error;
 const defaultState = {
     loading:            0,
     userId:             undefined,
-    current_account:    undefined,
+    current_account:    null,
     accounts:           {},
     private_key:        undefined,
     error:              null

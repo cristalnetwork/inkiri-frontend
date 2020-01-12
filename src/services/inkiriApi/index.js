@@ -415,7 +415,8 @@ export const chargeService = async (auth_account, auth_priv, account_name, provi
 }
 
 
-export const refund                 = (sender_account, sender_priv, receiver_account, amount, request_id, tx_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('bck|' + request_id + '|' + tx_id));
+// export const refund                 = (sender_account, sender_priv, receiver_account, amount, request_id, tx_id) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('bck|' + request_id + '|' + tx_id));
+export const refund                 = (sender_account, sender_priv, receiver_account, amount, request_counter, new_state) => transferMoney(sender_account, sender_priv, receiver_account, amount, ('bck|' + request_counter + '|' + new_state));
 export const sendMoney              = (sender_account, sender_priv, receiver_account, amount, memo)              => transferMoney(sender_account, sender_priv, receiver_account, amount, ('snd|'+memo)); 
 export const sendPayment            = (sender_account, sender_priv, receiver_account, amount, memo, request_id)  => transferMoney(sender_account, sender_priv, receiver_account, amount, ('pay|' + request_id + '|' + memo)); 
 export const requestProviderPayment = (sender_account, sender_priv, receiver_account, amount, request_id)        => transferMoney(sender_account, sender_priv, receiver_account, amount, ('prv|' + request_id)); 

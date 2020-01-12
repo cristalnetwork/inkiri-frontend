@@ -7,16 +7,24 @@ import { withRouter } from "react-router-dom";
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 
+import * as components_helper from '@app/components/helper';
+import * as utils from '@app/utils/utils';
+
 import './login.css'
+
+import Loading from '@app/pages/general/loading'
+
+import { injectIntl } from "react-intl";
+import InjectMessage from "@app/components/intl-messages";
 
 class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      save: false,
-      
+      loading : true
     };
     
+    this.timeout_id = null;
   }
 
   handleSubmit = e => {
@@ -32,7 +40,8 @@ class Login extends Component {
           try{
             seed  = globalCfg.eos.generateSeed(values.account_name, password);
           }catch(e){
-            this.openNotificationWithIcon('error', 'An error occurred', JSON.stringify(e))
+            const _text = this.props.intl.formatMessage({id:'errors.occurred_title'});
+            components_helper.notif.exceptionNotification(_text, e)
             return;
           }
           // const seed = globalCfg.eos.generateSeed(password);
@@ -44,27 +53,52 @@ class Login extends Component {
     });
   };
 
+  componentDidMount(){
+    clearTimeout(this.timeout_id);
+    this.timeout_id = setTimeout( () => {
+      this.setState({loading:false})
+    }, 250);
+  }
+  
+  componentWillUnmount(){
+    clearTimeout(this.timeout_id);
+  }
   componentDidUpdate(prevProps, prevState) {
     if(prevProps.loginError!=this.props.loginError)
     {
       this.setState({loginError:this.props.loginError})
     }
+    if(!utils.objectsEqual(prevProps.account, this.props.account) )
+    {
+      this.timeout_id = setTimeout( () => {
+        this.setState({loading:false})
+      }, 250);       
+    }
+
+
   }
 
   render() {
-    const { getFieldDecorator } = this.props.form;
-    const { loginError }        = this.state;
+    const { getFieldDecorator }   = this.props.form;
+    const { loading, loginError } = this.state;
+    const { formatMessage }       = this.props.intl;
+    
+    if(loading)
+      return(<Loading />);
+    
     return (
       <>
         <div className="login-header">
-          <h1 align="center" className="omnes_isologo"><img src="/favicons/favicon-32x32.png" alt="" /> Inkiri Bank</h1>
+          <h1 align="center" className="omnes_isologo"><img src="/favicons/favicon-32x32.png" alt="" /> 
+            &nbsp;{formatMessage({id:'inkiri.bank.title'})}
+          </h1>
         </div> 
         <Form onSubmit={this.handleSubmit} className="login-form">
 
             { !loginError  
                 ?(null)
                 :  <Alert
-                      message="login error"
+                      message={this.props.intl.formatMessage({id:'pages.general.login.login_error'})}
                       description={JSON.stringify(loginError)}
                       type="error"
                       showIcon
@@ -74,12 +108,12 @@ class Login extends Component {
           
           <Form.Item>
             {getFieldDecorator('account_name', {
-              rules: [{ required: true, message: 'Please input your account_name!' }],
+              rules: [{ required: true, message: formatMessage({id:'pages.general.login.input_account_message'}) }],
               // initialValue: 'inkpersonal3',
             })(
               <Input
                 prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
-                placeholder="Account name"
+                placeholder={formatMessage({id:'global.account_name'})}
                 autoFocus
                 autoCapitalize="off"
               />,
@@ -87,13 +121,12 @@ class Login extends Component {
           </Form.Item>
           <Form.Item>
             {getFieldDecorator('password', {
-              rules: [{ required: true, message: 'Please input your Password!' }],
-              // initialValue: '5J6SLtH69Rf8HgSFDiYZ2B7CpRnDQisupKqkmjQpyxHFLgtX8CS',
+              rules: [{ required: true, message: formatMessage({id:'pages.general.login.input_password_message'}) }],
             })(
               <Input
                 prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
                 type="password"
-                placeholder="Private key or Password"
+                placeholder={formatMessage({id:'pages.general.login.input_password_placeholder'})}
                 
               />,
             )}
@@ -102,16 +135,16 @@ class Login extends Component {
             {getFieldDecorator('remember', {
               valuePropName: 'checked',
               initialValue: true,
-            })(<Checkbox>Remember me</Checkbox>)}
+            })(<Checkbox>{formatMessage({id:'pages.general.login.texts_remember_me'})}</Checkbox>)}
             <a className="login-form-forgot" href="#" disabled >
-              Forgot password
+              {formatMessage({id:'pages.general.login.texts_forgot_password'})}
             </a>
             <Button type="primary" htmlType="submit" className="login-form-button" loading={this.props.isLoading}>
-              Log in
+              {formatMessage({id:'pages.general.login.texts_log_in'})}
             </Button>
-            Or <a href="#" disabled >register now!</a>
+            <a href="#" disabled >{formatMessage({id:'pages.general.login.texts_register_now'})}</a>
             <Button type="link" className="login-form-forgot" onClick={ () => this.props.clearSession() }>
-              Reset session
+              {formatMessage({id:'pages.general.login.texts_reset_session'})}
             </Button>
           </Form.Item>
         </Form>
@@ -124,10 +157,12 @@ export default Form.create() (withRouter(connect(
     (state)=> ({
         isLoading:     loginRedux.isLoading(state),
         loginError:    loginRedux.loginError(state),
+        isAuth:        loginRedux.isAuth(state),
+        account:       loginRedux.account(state),
     }),
     (dispatch)=>({
         tryLogin:      bindActionCreators(loginRedux.tryLogin, dispatch),
         clearSession:  bindActionCreators(loginRedux.clearSession, dispatch)
     })
-)(Login)
+)(injectIntl(Login))
 ));

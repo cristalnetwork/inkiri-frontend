@@ -100,9 +100,9 @@ function* loadOldBlockchainOperationsSaga() {
 }
 
 function* loadNewBlockchainOperationsSaga() {
-  const { permissioner }   = store.getState().login;
+  const { current_account }   = store.getState().login;
   const { last_block }     = store.getState().operations;
-  if(!last_block || !permissioner)
+  if(!last_block || !current_account)
   {    
     yield put({ type: api_errors.SET_ERROR, payload: {error: 'LOAD NEW BLOCKCHAINS OPERS - No last_block nor permissioner :('}})
     yield put({ type: END_LOAD_BLOCKCHAIN_OPERATIONS })
@@ -110,7 +110,7 @@ function* loadNewBlockchainOperationsSaga() {
   }
   
   try{
-    const {data} = yield api.dfuse.queryTransactionsNew(permissioner.current_account, last_block);
+    const {data} = yield api.dfuse.queryTransactionsNew(current_account.permissioner, last_block);
     if(data) {
       yield put(prependBlockchainOperations(data))
       yield put({ type: TRY_FILTER_OPERATIONS })

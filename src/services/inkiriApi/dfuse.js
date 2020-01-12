@@ -9,6 +9,8 @@ import * as jwtHelper from './jwt-helper';
 //   "expires_at": 1550692172 // An UNIX timestamp (UTC) indicating when the JWT will expire.
 // }  							
 
+const IMPORT_TXS_INITIAL_BLOCK = 69606693;
+
 export const isAuth = () => {
   return jwtHelper.getTokenIfNotExpired(jwtHelper.DFUSE_AUTH_TOKEN_KEY)!==null;
 }
@@ -329,7 +331,7 @@ export const queryTransactions = async (account, cursor, last_block) => new Prom
     const response = await client.graphql(searchTransactions, {
       variables: { limit:             100 
                   , irreversibleOnly: false
-                  , lowBlockNum:      last_block||null
+                  , lowBlockNum:      last_block||IMPORT_TXS_INITIAL_BLOCK
                   , cursor:           cursor||null
         }
     })
@@ -398,9 +400,9 @@ export const listTransactions = (account_name, cursor, received, start_block) =>
   };
   if(cursor!==undefined)
     options['cursor'] = cursor;
-  if(start_block!==undefined)
-    options['lowBlockNum'] = start_block;
-
+  // if(start_block!==undefined)
+    // options['lowBlockNum'] = start_block;
+  options['lowBlockNum'] = start_block||IMPORT_TXS_INITIAL_BLOCK;
   console.log(' DFUSE TRANSACTION OPTIONS:', JSON.stringify(options))
   let client = createClient();
 	

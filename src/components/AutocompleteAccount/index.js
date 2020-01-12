@@ -12,6 +12,8 @@ import * as validators from '@app/components/Form/validators';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as form_helper from '@app/components/Form/form_helper';
 
+import * as components_helper from '@app/components/helper';
+
 import { withRouter } from "react-router-dom";
 
 import { Spin, Select, notification, Empty, Button, Form, message, AutoComplete, Input, Icon } from 'antd';
@@ -44,7 +46,6 @@ class AutocompleteAccount extends Component {
       not_required:        props.not_required
     };
 
-    this.openNotificationWithIcon   = this.openNotificationWithIcon.bind(this); 
     this.handleSelect               = this.handleSelect.bind(this)
     this.setAccounts                = this.setAccounts.bind(this)
     this.loadAccounts               = this.loadAccounts.bind(this)
@@ -131,12 +132,6 @@ class AutocompleteAccount extends Component {
     this.props.loadAccounts();
   }
   
-  openNotificationWithIcon(type, title, message) {
-    notification[type]({
-      message: title,
-      description:message,
-    });
-  }
   handleChange = (value) => {
     console.log(' ::handleChange', value)
   }
@@ -154,13 +149,10 @@ class AutocompleteAccount extends Component {
     const exists = this.props.accounts.filter( account => account.key==value);
     if(!exists || exists.length==0)
     {
-      this.openNotificationWithIcon("error", 'Please select an account from the list.');
+      components_helper.notif.errorNotification(this.props.intl.formatMessage({id:'errors.select_account_from_list'}))
       this.triggerChange(null);
       return;
     }
-
-    // const the_value = (value&&value.length>0)?value[0]:undefined;
-    // this.triggerChange(the_value);
     this.triggerChange(value);
 
   };
@@ -181,10 +173,11 @@ class AutocompleteAccount extends Component {
   }
   renderAccount = (item) => {
     //<AutoComplete.Option key={item.key} text={item.key}>
+    const {formatMessage} = this.props.intl;
     return (
       <AutoComplete.Option key={item.key} value={item.key}>
         {item.key}
-        <span className="certain-search-item-count">@{globalCfg.bank.getAccountType(item.account_type)}</span>
+        <span className="certain-search-item-count">@{ formatMessage({id:`pages.bankadmin.accounts.${globalCfg.bank.getAccountType(item.account_type)}`}) }</span>
       </AutoComplete.Option>
     );
   };
@@ -222,7 +215,7 @@ class AutocompleteAccount extends Component {
       */
       selector = (<Form.Item label={label}>
                         {getFieldDecorator(name, {
-                        rules: [{ required: !not_required, message: (!not_required)?'Please choose an account!':undefined , validator: validation_rule}]
+                        rules: [{ required: !not_required, message: (!not_required)?formatMessage({id:'components.AutocompleteAcount.index.choose_account_message'}):undefined , validator: validation_rule}]
                       })(
                           <AutoComplete 
                             size={size||'large'} 

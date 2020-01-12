@@ -74,7 +74,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
                 <div className="img_container">
                   <img alt="Logo" src="/favicons/favicon-32x32.png" />
                 </div>
-                {!menu_is_collapsed && (<span className="omnes_isologo"><InjectMessage id="inkiri.bank.uppercase" /></span>)}
+                {!menu_is_collapsed && (<span className="omnes_isologo"><InjectMessage id="inkiri.bank.title" /></span>)}
               </a>
               
             </div>
