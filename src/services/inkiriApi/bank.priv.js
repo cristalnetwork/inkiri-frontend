@@ -125,7 +125,7 @@ export const createDeposit = (account_name, amount, currency) =>   new Promise((
       });
 });
 
-export const setDepositOk   = (sender, request_id, tx_id)       => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED , tx_id   , undefined, false, REQUEST_ADMIN);
+export const setDepositOk   = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_PROCESSING, undefined , undefined, false, REQUEST_ADMIN);
 export const rejectService  = (sender, c2c_player, request_id)  => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, true, c2c_player);
 export const cancelService  = (sender, c2c_player, request_id)  => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, true, c2c_player);
 export const acceptServiceRequest = (sender, request_id, c2c_player, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, tx_id, undefined, true, c2c_player);
@@ -621,7 +621,7 @@ export const createProviderPaymentEx = (account_name, amount, provider_id, provi
     );
 });
 
-export const rejectExternal             = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined);
+export const rejectExternal             = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, false, REQUEST_ADMIN);
 export const refundExternal             = (sender, request_id, state, tx_id)       => updateRequest(sender, request_id, state, undefined, tx_id, false, REQUEST_ADMIN);
 export const updateProviderPayment      = (sender, request_id, tx_id)              => updateRequest(sender, request_id, undefined, tx_id);
 export const cancelExternal             = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined);

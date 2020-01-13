@@ -6,6 +6,8 @@ import * as api from '@app/services/inkiriApi';
 import debounce from 'lodash/debounce';
 import { injectIntl } from "react-intl";
 
+import * as gqlService from '@app/services/inkiriApi/graphql'
+
 const { Option } = Select;
 
 /*
@@ -50,6 +52,8 @@ class ProviderSearch extends Component {
     const {formatMessage} = this.props.intl;
     const cnpj = formatMessage({id:'components.ProviderSearch.index.cnpj'})
 
+    // const query = {page:0, name:value, email:value, cnpj:value}
+    // gqlService.providers(query)    
     api.bank.listProviders(value, value)
       .then(providers => {
         if (fetchId !== this.lastFetchId) {
@@ -57,11 +61,24 @@ class ProviderSearch extends Component {
           return;
         }
         const data = providers.map(provider => ({
-          text: formatMessage() `${provider.name} - ${cnpj}: ${provider.cnpj}`,
+          text: `${provider.name} - ${cnpj}: ${provider.cnpj}`,
           value: provider.id,
         }));
         this.setState({ data:data, fetching: false });
       });
+
+    // api.bank.listProviders(value, value)
+    //   .then(providers => {
+    //     if (fetchId !== this.lastFetchId) {
+    //       // for fetch callback order
+    //       return;
+    //     }
+    //     const data = providers.map(provider => ({
+    //       text: formatMessage() `${provider.name} - ${cnpj}: ${provider.cnpj}`,
+    //       value: provider.id,
+    //     }));
+    //     this.setState({ data:data, fetching: false });
+    //   });
   };
 
   // handleKeyPress = ev => {
@@ -84,7 +101,9 @@ class ProviderSearch extends Component {
   triggerChange = changedValue => {
     // Should provide an event to pass value to Form.
     const { onProviderSelected } = this.props;
-    if (onProviderSelected) {
+    //if (onProviderSelected) {
+      console.log(changedValue)
+    if(typeof onProviderSelected === 'function'){
       onProviderSelected(
         changedValue
       );
@@ -93,7 +112,7 @@ class ProviderSearch extends Component {
 
 
   render() {
-    //  
+    //  value={value}  
     const { fetching, data, value, selector_placeholder, no_data_text } = this.state;
     return (
       <Select
@@ -103,7 +122,6 @@ class ProviderSearch extends Component {
         allowClear={true}
         autoFocus={true}
         maxTagCount={1}
-        value={value}  
         placeholder={selector_placeholder}
         notFoundContent={no_data_text}
         defaultActiveFirstOption={false}
@@ -118,6 +136,7 @@ class ProviderSearch extends Component {
           <Option key={d.value}>{d.text}</Option>
         ))}
       </Select>
+
     );
   }
 

@@ -108,13 +108,13 @@ class DepositMoney extends Component {
     try{
       const data = await gqlService.maxRequestId({});
       console.log(data)
-      const envelope_id = parseInt(data.maxRequestId) + 1;
+      const envelope_id = parseInt(data) + 1;
       this.setState ({loading:false, envelope_id: envelope_id});
     }
     catch(e)
     {
       this.setState({loading:false});
-      components_helper.notif.errorNotification(this.state.intl.cant_fetch_next_envelope_id, `${this.state.intl.internet_connection_error}, -> ${JSON.stringify(err)}`);
+      components_helper.notif.exceptionNotification(this.state.intl.cant_fetch_next_envelope_id, e);
     }
     
   }

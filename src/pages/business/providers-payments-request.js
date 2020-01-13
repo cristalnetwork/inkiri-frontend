@@ -134,7 +134,7 @@ class RequestPayment extends Component {
   }
 
   handleProviderChange(provider){
-    // console.log(' #evt() handleProviderChange: ', provider);
+    console.log(' #evt() handleProviderChange: ', provider);
     this.setState({provider: provider })
   }
 
@@ -224,18 +224,18 @@ class RequestPayment extends Component {
         {
           _function:           'requestProviderPayment'
           , _params:           [sender, privateKey, provider_account, amount] 
-          , last_result_param: [{field_name:'id', result_idx_diff:-1}]
+          , last_result_param: [{field_name:'requestCounterId', result_idx_diff:-1}]
           , on_failure:        {
                                   _function:           'bank.failedProviderPay'
                                   , _params:           [sender] 
                                   , last_result_param: [{field_name:'id', result_idx_diff:-1}]
                                 }
-        },
-        {
-          _function:           'bank.updateProviderPayment'
-          , _params:           [sender] 
-          , last_result_param: [{field_name:'id', result_idx_diff:-2}, {field_name:'transaction_id', result_idx_diff:-1}]
-        },
+        }
+        // ,{
+        //   _function:           'bank.updateProviderPayment'
+        //   , _params:           [sender] 
+        //   , last_result_param: [{field_name:'id', result_idx_diff:-2}, {field_name:'transaction_id', result_idx_diff:-1}]
+        // },
       ]
 
       that.props.callAPIEx(steps);
@@ -436,6 +436,14 @@ class RequestPayment extends Component {
     const memo_message             = formatMessage({id:'global.memo_message'});
     const request_payment_text     = formatMessage({id:'pages.business.providers-payments-request.request_payment'});
     const amount_text              = formatMessage({id:'global.amount'})
+
+    /*
+      {getFieldDecorator('provider', {
+                        rules: [{ validator: this.validateProvider }],
+                      })(
+
+                      )}
+      */
     return (
       <Spin spinning={isFetching} delay={500} tip={pushing_transaction_intl} >
         <Form onSubmit={this.handleSubmit}>
@@ -450,11 +458,11 @@ class RequestPayment extends Component {
                   <div className="money-transfer__input money-transfer__select">
                     <Button type="default" icon="plus" size="small" onClick={() => this.onNewProvider()} title={add_new_provider} style={{position:'absolute', right:8, top:8}}/>
                     <Form.Item>
-                      {getFieldDecorator('provider', {
-                        rules: [{ validator: this.validateProvider }],
-                      })(
-                        <ProviderSearch onProviderSelected={this.handleProviderChange} style={{ width: '100%' }} autoFocus />
-                      )}
+                      <ProviderSearch 
+                          onProviderSelected={this.handleProviderChange} 
+                          style={{ width: '100%' }} 
+                          name="provider"
+                          />
                     </Form.Item>
                   </div>
               </div>

@@ -86,8 +86,9 @@ class Operations extends Component {
   onRequestClick(request){
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
+    //pathname: `/${this.props.actualRole}/external-transfers-process-request`
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/external-transfers-process-request`
+      pathname: `/${this.props.actualRole}/process-request`
       , state: { 
           request: request 
           , referrer: this.props.location.pathname

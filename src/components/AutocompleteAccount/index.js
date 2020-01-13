@@ -39,7 +39,6 @@ class AutocompleteAccount extends Component {
       form:                props.form,
       exclude_list:        props.exclude_list,
       readOnly:            props.readOnly||false, 
-      callback:            props.callback,
       filter:              props.filter||null,
       without_icon:        props.without_icon,
       label:               props.label,
@@ -74,7 +73,6 @@ class AutocompleteAccount extends Component {
         // console.log(' --------- per que?')
         // console.log(this.props.not_required, this.props.size, this.props.without_icon)
         this.setState({
-            callback:              this.props.callback,
             filter:                this.props.filter||false,
             form:                  this.props.form,
             readOnly:              this.props.readOnly||false, 
@@ -119,7 +117,6 @@ class AutocompleteAccount extends Component {
     );
     
     this.setState({
-            callback:              this.props.callback,
             filter:   this.props.filter,
             form:                  this.props.form,
             data:                  my_accounts

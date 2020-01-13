@@ -208,31 +208,31 @@ class WithdrawMoney extends Component {
         onOk() {
           
           const withdraw_account = globalCfg.bank.withdraw_account; 
-          // const steps= [
-          //   {
-          //     _function:           'bank.createWithdraw'
-          //     , _params:           [sender, amount]
-          //   }, 
-          //   {
-          //     _function:           'requestWithdraw'
-          //     , _params:           [sender, privateKey, withdraw_account, amount] 
-          //     , last_result_param: [{field_name:'id', result_idx_diff:-1}]
-          //     , on_failure:        {
-          //                             _function:           'bank.failedWithdraw'
-          //                             , _params:           [sender] 
-          //                             , last_result_param: [{field_name:'id', result_idx_diff:-1}]
-          //                           }
-          //   },
-          //   {
-          //     _function:           'bank.updateWithdraw'
-          //     , _params:           [sender] 
-          //     , last_result_param: [{field_name:'id', result_idx_diff:-2}, {field_name:'transaction_id', result_idx_diff:-1}]
-          //   },
-          // ]
-          // that.props.callAPIEx(steps);
+          const steps= [
+            {
+              _function:           'bank.createWithdraw'
+              , _params:           [sender, amount]
+            }, 
+            {
+              _function:           'requestWithdraw'
+              , _params:           [sender, privateKey, withdraw_account, amount] 
+              , last_result_param: [{field_name:'requestCounterId', result_idx_diff:-1}]
+              , on_failure:        {
+                                      _function:           'bank.failedWithdraw'
+                                      , _params:           [sender] 
+                                      , last_result_param: [{field_name:'id', result_idx_diff:-1}]
+                                    }
+            }
+            // , {
+            //   _function:           'bank.updateWithdraw'
+            //   , _params:           [sender] 
+            //   , last_result_param: [{field_name:'id', result_idx_diff:-2}, {field_name:'transaction_id', result_idx_diff:-1}]
+            // },
+          ]
+          that.props.callAPIEx(steps);
           
-          const _function = 'requestWithdraw';
-          that.props.callAPI(_function, [sender, privateKey, withdraw_account, amount, 0])
+          // const _function = 'requestWithdraw';
+          // that.props.callAPI(_function, [sender, privateKey, withdraw_account, amount, 0])
           
         },
         onCancel() {

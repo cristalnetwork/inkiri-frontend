@@ -10,7 +10,7 @@ import { injectIntl } from "react-intl";
 const TransactionAttachments = (props) => {
     
     const [request, setRequest]              = useState(props.request);    
-    const [uploader, setUploader]            = useState(props.uploader);    
+    // const [uploader, setUploader]            = useState(props.uploader);    
 
     const [nota_text, setNotaText]           = useState('');    
     const [boleto_text, setBoletoText]       = useState('');    
@@ -18,16 +18,16 @@ const TransactionAttachments = (props) => {
 
     useEffect(() => {
       setRequest(props.request);
-      setUploader(props.uploader)
+      // setUploader(props.uploader)
     }, [props.request]);
 
     useEffect(() => {
       setNotaText(props.intl.formatMessage({id:'global.invoice'}));
-      setBoletoText(props.intl.formatMessage({id:'global.receipt'}));
-      setComproText(props.intl.formatMessage({id:'global.payment_slip'}));
+      setBoletoText(props.intl.formatMessage({id:'global.payment_slip'}));
+      setComproText(props.intl.formatMessage({id:'global.receipt'}));
     }, []);
 
-    if(!request || !uploader)
+    if(!request || !props.uploader)
       return (null);
     
     if(!globalCfg.api.canAddAttachment(request))
@@ -41,7 +41,7 @@ const TransactionAttachments = (props) => {
             request.attach_nota_fiscal_id?
               request_helper.getFileLink(request.attach_nota_fiscal_id, nota_text, "icon_color_green")
               :    
-              request_helper.getFileUploader(nota_text, uploader[globalCfg.api.NOTA_FISCAL])
+              request_helper.getFileUploader(nota_text, props.uploader[globalCfg.api.NOTA_FISCAL])
           }
 
           {  
@@ -49,7 +49,7 @@ const TransactionAttachments = (props) => {
               request_helper.getFileLink(request.attach_boleto_pagamento_id, boleto_text, "icon_color_green")
             :
             (request.provider_extra && request.provider_extra.payment_mode==globalCfg.api.PAYMENT_MODE_BOLETO)?
-              request_helper.getFileUploader(boleto_text, uploader[globalCfg.api.BOLETO_PAGAMENTO]):(null)
+              request_helper.getFileUploader(boleto_text, props.uploader[globalCfg.api.BOLETO_PAGAMENTO]):(null)
           }
 
           {  
@@ -57,7 +57,7 @@ const TransactionAttachments = (props) => {
               request_helper.getFileLink(request.attach_comprobante_id, comprobante_text, "icon_color_green")
             :
             (globalCfg.api.isProcessing(request)&&props.isAdmin)?
-              request_helper.getFileUploader(comprobante_text, uploader[globalCfg.api.COMPROBANTE]):(null)
+              request_helper.getFileUploader(comprobante_text, props.uploader[globalCfg.api.COMPROBANTE]):(null)
           }
       </>)  
 }

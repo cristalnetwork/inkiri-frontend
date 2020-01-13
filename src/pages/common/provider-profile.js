@@ -12,11 +12,13 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Card, PageHeader, Button, Spin, Descriptions, Table, Form, Icon, Input } from 'antd';
+import { Card, PageHeader, Button, Spin, Descriptions, Form, Icon, Input } from 'antd';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
 import {DISPLAY_PROVIDER } from '@app/components/TransactionTable';
+import RequestListWidget from '@app/components/request-list-widget';
+
 
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
@@ -55,16 +57,14 @@ class Provider extends Component {
       
     };
 
-    this.renderFooter               = this.renderFooter.bind(this); 
-    this.onNewData                  = this.onNewData.bind(this);
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
     this.resetPage                  = this.resetPage.bind(this); 
     this.renderProviderInfo         = this.renderProviderInfo.bind(this);
     this.onUpdateProvider           = this.onUpdateProvider.bind(this);
-    this.onPaymentClick             = this.onPaymentClick.bind(this);
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.reloadProvider             = this.reloadProvider.bind(this); 
+    this.onRequestClick             = this.onRequestClick.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState) 
@@ -81,11 +81,7 @@ class Provider extends Component {
     const { match, location, history } = this.props;
     if(location && location.state && location.state.provider)
     {  
-      this.setState(
-          {provider : this.props.location.state.provider}
-      , () => {
-          this.loadProviderTxs(true);
-      });
+      this.setState({provider : this.props.location.state.provider});
     }
 
     const {formatMessage} = this.props.intl;
@@ -136,6 +132,18 @@ class Provider extends Component {
     this.setState({intl: {zip_code, modify_provider_action, form_cancel_text, end_of_requests, end_of_requests_message, check_fields, invalid_form, loading, pushing, form_name, form_name_validator, form_legal_id, form_legal_id_validator, form_category, form_category_validator, form_products_services, form_products_services_validator, form_email, form_email_format_validator, form_email_validator, form_phone, form_phone_validator, form_address, form_street, form_street_hint, form_city, form_state, form_zip, form_country, form_bank_account, form_bank_name, form_bank_name_validator, form_bank_agency, form_bank_agency_validator, form_bank_cc, form_bank_cc_validator, form_create_provider_submit_text, form_provider_data_title, title, confirm_update_title, confirm_update_button, requests_load_more, form_contact_info, title, subtitle} });
     
   }
+
+  onRequestClick(request){
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
+    this.props.history.push({
+      pathname: '/common/request-details'
+      , state: { 
+          request: request 
+          , referrer: this.props.location.pathname
+        }
+    })
+  }
   
   reloadProvider = async () => { 
     this.setState({loading:true});
@@ -153,61 +161,7 @@ class Provider extends Component {
 
     this.setState({loading:false});
   }
-  loadProviderTxs = async (first_call) => {
-    let can_get_more   = this.state.can_get_more;
-    if(!can_get_more)
-    {
-      this.setState({loading:false});
-      return;
-    }
-
-    
-    this.setState({loading:true});
-
-    let page                = (this.state.page<0)?0:(this.state.page+1);
-    const {limit, provider} = this.state;
-    let that                = this;
-    
-    // const req_type = DISPLAY_PROVIDER;
-    
-    
-    api.bank.listRequestsForProvider(page, limit, provider.id)
-    .then( (res) => {
-        that.onNewData(res, first_call);
-      } ,(ex) => {
-        // console.log('---- ERROR:', JSON.stringify(ex));
-        that.setState({loading:false});  
-      } 
-    );
-  }
-
-  onNewData(txs, first_call){
-    
-    const _txs            = [...this.state.txs, ...txs];
-    const pagination      = {...this.state.pagination};
-    pagination.pageSize   = _txs.length;
-    pagination.total      = _txs.length;
-
-    const has_received_new_data = (txs && txs.length>0);
-
-    this.setState({pagination:pagination, txs:_txs, can_get_more:(has_received_new_data && txs.length==this.state.limit), loading:false})
-
-    if(!has_received_new_data && !first_call)
-    {
-      components_helper.notif.infoNotification(this.state.intl.end_of_requests, this.state.intl.end_of_requests_message);
-    }
-    // else
-    //   this.computeStats();
-  }
-
-  /* ****************
-   * EVENTS
-  */
-
-  onPaymentClick = (record) => {
-
-  }
-
+  
   onUpdateProvider(){
     this.reloadProvider();
     const {updating, provider}=this.state;
@@ -308,11 +262,6 @@ class Provider extends Component {
   //             <Button key="cancel" onClick={() => {this.resetPage()} }>Cancel</Button>]}/>)
   // }
 
-  renderFooter(){
-    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadProviderTxs()}>
-        {this.state.intl.requests_load_more}
-      </Button> </>)
-  }
   renderContent() {
   
     // if(this.state.result=='should-confirm'){
@@ -344,16 +293,18 @@ class Provider extends Component {
     if(updating)
       return this.renderForm();
 
-    return (<Table
-            key="table_all_requests" 
-            rowKey={record => record.id} 
-            loading={this.state.loading} 
-            columns={columns_helper.getColumnsForRequests(this.props.actualRole, this.onPaymentClick)} 
-            dataSource={this.state.txs} 
-            footer={() => this.renderFooter()}
-            pagination={this.state.pagination}
-            scroll={{ x: 700 }}
-            />);
+    const request_filter = {account_name:this.props.actualAccountName
+        , from:this.props.actualAccountName
+        , provider_id: this.state.provider._id
+      }
+    return (<RequestListWidget 
+        the_key="providers_payments_widget_key"
+        callback={this.onRequestClick} 
+        onRef={ref => (this.table_widget = ref)}
+        filter_hidden_fields={['from', 'to', 'requested_type']}
+        filter={request_filter}
+        request_type={DISPLAY_PROVIDER} 
+        />);
   }
   
   // ** hack for sublime renderer ** //

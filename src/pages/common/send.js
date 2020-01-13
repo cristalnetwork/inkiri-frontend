@@ -229,16 +229,16 @@ class SendMoney extends Component {
     return globalCfg.currency.symbol + parseFloat(input_amount.value||0).toFixed(2);
   }
 
-  onPay = () => {
+  // onPay = () => {
     
-    this.props.form.validateFields((err, values) => {
-      if (err) {
-        //
-        return;
-      }
-      this.doPayOrSend(values, true);
-    });
-  }
+  //   this.props.form.validateFields((err, values) => {
+  //     if (err) {
+  //       //
+  //       return;
+  //     }
+  //     this.doPayOrSend(values, true);
+  //   });
+  // }
   handleSubmit = e => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {

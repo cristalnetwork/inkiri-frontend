@@ -39,24 +39,23 @@ const TransactionProvider = (props) => {
                     </div>
                     <div className="ui-row__col ui-row__col--content">
                           <div className="ui-info-row__content">
-                              <div className="ui-info-row__title">{request.provider.name} ({request.provider.cnpj})</div>
+                              <div className="ui-info-row__title"><b>{request.provider.name} ({request.provider.cnpj})</b></div>
+                              <div className="ui-info-row__details">
+                                  <ul>
+                                      <li><InjectMessage id="global.provider" /></li>
+                                  </ul>
+                              </div>
                               <div className="ui-info-row__details name_value_row">
                                  <div className="row_name">
                                    <InjectMessage id="components.TransactionCard.provider.category" />
                                  </div> 
-                                 <div className="row_value">{request.provider.category}</div> 
+                                 <div className="row_value"><b>{request.provider.category}</b></div> 
                               </div>
                               <div className="ui-info-row__details name_value_row">
                                 <div className="row_name">
                                   <InjectMessage id="components.TransactionCard.provider.products_services" />
                                 </div> 
-                                 <div className="row_value">{request.provider.products_services}</div> 
-                              </div>
-
-                              <div className="ui-info-row__details">
-                                  <ul>
-                                      <li><InjectMessage id="global.provider" /></li>
-                                  </ul>
+                                 <div className="row_value"><b>{request.provider.products_services}</b></div> 
                               </div>
                           </div>
                       </div>
@@ -74,18 +73,18 @@ const TransactionProvider = (props) => {
                       </div>
                       <div className="ui-row__col ui-row__col--content">
                           <div className="ui-info-row__content">
-                              <div className="ui-info-row__title">{bank_account.bank_name}</div>
+                              <div className="ui-info-row__title"><b>{bank_account.bank_name}</b></div>
                               <div className="ui-info-row__details name_value_row">
                                  <div className="row_name">
                                    <InjectMessage id="components.Forms.bank_account.bank_agency_placeholder" />
                                  </div> 
-                                 <div className="row_value">{bank_account.agency}</div> 
+                                 <div className="row_value"><b>{bank_account.agency}</b></div> 
                               </div>
                               <div className="ui-info-row__details name_value_row">
                                 <div className="row_name">
                                   <InjectMessage id="components.Forms.bank_account.bank_cc_placeholder" />
                                 </div> 
-                                 <div className="row_value">{bank_account.cc}</div> 
+                                 <div className="row_value"><b>{bank_account.cc}</b></div> 
                               </div>
                           </div>
                       </div>
@@ -101,7 +100,7 @@ const TransactionProvider = (props) => {
                       <div className="ui-row__col ui-row__col--content">
                           <div className="ui-action-row__content">
                               <div className="ui-action-row__title u-truncate" title={props.intl.formatMessage({id:'global.description'})}>
-                                {request.description || props.intl.formatMessage({id:'components.TransactionCard.provider.product_service_n_a'})}
+                                <b>{request.description || props.intl.formatMessage({id:'components.TransactionCard.provider.product_service_n_a'})}</b>
                               </div>
                           </div>
                       </div>
@@ -122,7 +121,7 @@ const TransactionProvider = (props) => {
                               </div>
                               <div className="ui-info-row__details name_value_row">
                                  <div className="row_name"><InjectMessage id="components.TransactionCard.provider.payment_vehicle" /></div> 
-                                 <div className="row_value">{request.provider_extra.payment_vehicle}</div> 
+                                 <div className="row_value"><b>{request.provider_extra.payment_vehicle}</b></div> 
                               </div>
                               <div className="ui-info-row__details name_value_row">
                                  <div className="row_name">
@@ -130,19 +129,19 @@ const TransactionProvider = (props) => {
                                      <InjectMessage id="components.TransactionCard.provider.payment_category" />
                                    </div> 
                                  </div> 
-                                 <div className="row_value">{request.provider_extra.payment_category}</div> 
+                                 <div className="row_value"><b>{request.provider_extra.payment_category}</b></div> 
                               </div>
                               <div className="ui-info-row__details name_value_row">
                                  <div className="row_name">
                                    <InjectMessage id="components.TransactionCard.provider.payment_type" />
                                  </div> 
-                                 <div className="row_value">{request.provider_extra.payment_type}</div> 
+                                 <div className="row_value"><b>{request.provider_extra.payment_type}</b></div> 
                               </div>
                               <div className="ui-info-row__details name_value_row">
                                  <div className="row_name">
                                    <InjectMessage id="components.TransactionCard.provider.payment_mode" />
                                  </div> 
-                                 <div className="row_value">{request.provider_extra.payment_mode}</div> 
+                                 <div className="row_value"><b>{request.provider_extra.payment_mode}</b></div> 
                               </div>
                           </div>
                       </div>

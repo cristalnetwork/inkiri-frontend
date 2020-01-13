@@ -96,7 +96,7 @@ export const getColumnsBlockchainTXs = (callback, is_admin) => {
       key: 'action',
       width: '80px',
       render: (text, record) => {
-        const process     = request_helper.getButtonIcon('', callback, record, 'Details')
+        const process     = request_helper.getButtonIcon('', callback, record, <InjectMessage id="components.TransactionTable.columns.details" />)
         const blockchain  = request_helper.getBlockchainLink(record.transaction_id, false, null, <InjectMessage id="components.TransactionTable.columns.blockchain_link_text" />);
         return (<>{process}&nbsp;{blockchain}</>)
       },
@@ -145,8 +145,13 @@ export const expandedRequestRowRender = (record) => {
       const blockchain  = record.tx_id?request_helper.getBlockchainLink(record.tx_id, true, null, <InjectMessage id="components.TransactionTable.columns.blockchain_link_text" />):(null);
       return (
             <>
-              <span key={'tags'+record.id}><InjectMessage id="global.provider" />:&nbsp;<b>{ request_helper.getRequestProviderDesc(record)}</b></span>
-              {Object.keys(record.provider_extra).map(key => <><br/>{key} = <b>{record.provider_extra[key]}</b></>)}
+              <span key={'tags'+record.id}>&nbsp;<InjectMessage id="global.provider" />:&nbsp;<b>{ request_helper.getRequestProviderDesc(record)}</b></span>
+              {Object.keys(record.provider_extra).map(key => 
+                 
+                  (key!='__typename')
+                    ?(<><br/>{key}: <b key={Math.random()}>{record.provider_extra[key]}</b></>)
+                    :null
+                )}
               <br/> {blockchain}
               <br/>{default_info}
             </>
@@ -156,7 +161,7 @@ export const expandedRequestRowRender = (record) => {
       const bank_account = record.bank_account || {};
       const blockchain_xch  = record.tx_id?request_helper.getBlockchainLink(record.tx_id, true, null, <InjectMessage id="components.TransactionTable.columns.blockchain_link_text" />):(null);
       return (
-            <><span key={'tags'+record.id}><InjectMessage id="global.bank_account" />&nbsp;<Icon type="bank" />: <b>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</b></span>
+            <><span key={'tags'+record.id}>&nbsp;<InjectMessage id="global.bank_account" />&nbsp;<Icon type="bank" />: <b>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</b></span>
             <br/>{blockchain_xch}
             <br/>{default_info}
             </>
@@ -175,8 +180,8 @@ export const expandedRequestRowRender = (record) => {
     case globalCfg.api.TYPE_DEPOSIT:
       const envelope_id = request_helper.envelopeIdFromRequest(record);
       return <>
-          <span key={'envelope_'+record.id}><InjectMessage id="global.envelope_id" />: <b>{envelope_id}</b></span>
-          <br/><span key={'deposit_currency_'+record.id}><InjectMessage id="global.currency" />: <b>{record.deposit_currency}</b></span>
+          <span key={'envelope_'+record.id}>&nbsp;<InjectMessage id="global.envelope_id" />: <b>{envelope_id}</b></span>
+          <br/><span key={'deposit_currency_'+record.id}>&nbsp;<InjectMessage id="global.currency" />: <b>{record.deposit_currency}</b></span>
           <br/>{default_info}
         </>;
     //
@@ -186,9 +191,9 @@ export const expandedRequestRowRender = (record) => {
       return (
             <><span key={'service_'+record.id}>
                 <InjectMessage id="global.service" />:&nbsp;<b>{service.title}, ({service.description})</b>
-                <br/><InjectMessage id="global.price" />:&nbsp;<b>{globalCfg.currency.toCurrencyString(service.amount)}</b>
+                <br/>&nbsp;<InjectMessage id="global.price" />:&nbsp;<b>{globalCfg.currency.toCurrencyString(service.amount)}</b>
                 <br/><Icon type="calendar" />&nbsp;<InjectMessage id="global.begins_at" />:&nbsp;<strong>{request_helper.formatUnix(service_extra.begins_at)}</strong>
-                <br/><InjectMessage id="global.expires_at" />:&nbsp;<strong>{request_helper.formatUnix(service_extra.expires_at)}</strong>
+                <br/>&nbsp;<InjectMessage id="global.expires_at" />:&nbsp;<strong>{request_helper.formatUnix(service_extra.expires_at)}</strong>
               </span>
             <br/>{default_info}
             </>
@@ -286,7 +291,9 @@ export const getColumnsForRequests = (callback, is_admin) => {
       width: '80px',
       render: (text, record) => {
         const isFinished = globalCfg.api.isFinished(record);
-        const title      = isFinished ? 'Details' : 'Process';
+        const title      = isFinished 
+        ? <InjectMessage id="components.TransactionTable.columns.details" /> 
+        : <InjectMessage id="components.TransactionTable.columns.process" />;
         return request_helper.getProcessButton(record, callback, title, !isFinished);
       },
     },
@@ -370,7 +377,7 @@ export const columnsForAccounts = (callback) => {
         key: 'action',        
         render: (text, record) => {
           // return (<Button key={'details_'+request.id} size="small" onClick={()=>{ buttonClick(callback, request) }}>{title}</Button>);
-          return <Button key={'details_'+record.key} onClick={()=>{ callback(record) }} icon="profile" size="small">Details</Button>
+          return <Button key={'details_'+record.key} onClick={()=>{ callback(record) }} icon="profile" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.details" /></Button>
         }
       },
 
@@ -459,7 +466,7 @@ export const columnsForProviders = (callback) => {
       key: 'action',
       render: (record) => 
           (<>
-           <Button key={'process_'+record.id} onClick={()=>{ callback(record) }} icon="profile" size="small">Profile</Button>
+           <Button key={'process_'+record.id} onClick={()=>{ callback(record) }} icon="profile" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.profile" /></Button>
            </>)
         ,
     },
@@ -505,7 +512,7 @@ export const columnsForProfiles = (callback) => {
         dataIndex: 'userCounterId',
         key: 'userCounterId',
         render: (userCounterId, record) => (
-          <span><InjectMessage id="components.TransactionTable.columns.not_available" /></span>
+          <span>&nbsp;<InjectMessage id="components.TransactionTable.columns.not_available" /></span>
           )
       },
       {
@@ -513,7 +520,7 @@ export const columnsForProfiles = (callback) => {
         key: 'action',        
         align: 'right',
         render: (text, record) => {
-          return <Button key={'details_'+record.key} onClick={()=>{ callback(record) }} icon="profile" size="small"><InjectMessage id="components.TransactionTable.columns.details" /></Button>
+          return <Button key={'details_'+record.key} onClick={()=>{ callback(record) }} icon="profile" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.details" /></Button>
         }
       }
     ];
@@ -549,7 +556,7 @@ export const columnsForIUGU = (callback) => {
         dataIndex: 'tx_type',
         render: (tx_type, record) => {
           const error  = (request_helper.iugu.inError(record))?(<Alert message={record.error} type="error" />):(null);
-          const issued = (record.issued_at)?(<p><InjectMessage id="components.TransactionTable.columns.issued_at" />: {request_helper.iugu.getDate(record.issued_at)} </p>):(null);
+          const issued = (record.issued_at)?(<p>&nbsp;<InjectMessage id="components.TransactionTable.columns.issued_at" />: {request_helper.iugu.getDate(record.issued_at)} </p>):(null);
           return (
             <span key={'tags'+record.id}>
                {error}
@@ -564,7 +571,7 @@ export const columnsForIUGU = (callback) => {
         width: 100,
         render: (text, record) => {
           const iugu        = request_helper.iugu.iuguLink(record);
-          const process     = request_helper.getProcessButton(record, callback, 'Details');
+          const process     = request_helper.getProcessButton(record, callback, <InjectMessage id="components.TransactionTable.columns.details" />);
           const blockchain  = record.issued_tx_id?request_helper.getBlockchainLink(record.issued_tx_id, true, null, <InjectMessage id="components.TransactionTable.columns.blockchain_link_text" />):(null);
           return (<>{process}&nbsp;{iugu}&nbsp;{blockchain}</>)
         }
@@ -635,9 +642,9 @@ export const columnsForCrew = (callback, job_positions) => {
         key: 'action',        
         align: 'right',
         render: (text, record) => {                    
-          const profile = (<Button key={'profile_'+record.member._id} disabled={true} onClick={()=>{ callback(record, events.VIEW) }} icon="profile" size="small"><InjectMessage id="components.TransactionTable.columns.profile" /></Button>);
-          const edit    = (<Button key={'edit_'+record.member._id}                    onClick={()=>{ callback(record, events.EDIT) }} icon="edit" size="small"><InjectMessage id="components.TransactionTable.columns.edit" /></Button>);
-          const remove  = (<Button key={'details_'+record.member._id} type="link"     onClick={()=>{ callback(record, events.REMOVE) }} icon="delete" size="small"><InjectMessage id="components.TransactionTable.columns.remove" /></Button>);
+          const profile = (<Button key={'profile_'+record.member._id} disabled={true} onClick={()=>{ callback(record, events.VIEW) }} icon="profile" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.profile" /></Button>);
+          const edit    = (<Button key={'edit_'+record.member._id}                    onClick={()=>{ callback(record, events.EDIT) }} icon="edit" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.edit" /></Button>);
+          const remove  = (<Button key={'details_'+record.member._id} type="link"     onClick={()=>{ callback(record, events.REMOVE) }} icon="delete" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.remove" /></Button>);
           return (<>{profile}&nbsp;{edit}&nbsp;{remove}</>)
         }
       }
@@ -709,7 +716,7 @@ export const columnsForSalaries = (callback, remove_callback, job_positions) => 
         render: (text, record) =>
           (
             <Popconfirm title="Sure to remove from this month payment list?" onConfirm={() => remove_callback(record)}>
-              <a><InjectMessage id="components.TransactionTable.columns.remove" /></a>
+              <a>&nbsp;<InjectMessage id="components.TransactionTable.columns.remove" /></a>
             </Popconfirm>
           )
       },
@@ -849,8 +856,8 @@ export const columnsForServiceContract = (callback) => {
           const _state                        = (enabled)?<InjectMessage id="components.TransactionTable.columns.active" />:<InjectMessage id="components.TransactionTable.columns.inactive" />;
           return (
             <>
-              <span><InjectMessage id="components.TransactionTable.columns.last_period_charged" />: {last_charged}</span>
-              <br/><span><InjectMessage id="components.TransactionTable.columns.total_periods_charged" />: {total_charged}</span>
+              <span>&nbsp;<InjectMessage id="components.TransactionTable.columns.last_period_charged" />: {last_charged}</span>
+              <br/><span>&nbsp;<InjectMessage id="components.TransactionTable.columns.total_periods_charged" />: {total_charged}</span>
               <br/><span>{_state}</span>
             </>);
          }   
@@ -907,9 +914,9 @@ export const columnsForContractedServices = (callback, services_states) => {
                <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
                  {service.description}
                  <br/>
-                 <br/><InjectMessage id="components.TransactionTable.columns.provider" />: @{provider.account_name}
-                 <br/><InjectMessage id="components.TransactionTable.columns.status" />: {_service_state}
-                 <br/><InjectMessage id="components.TransactionTable.columns.service_id" />: {_service_id} 
+                 <br/>&nbsp;<InjectMessage id="components.TransactionTable.columns.provider" />: @{provider.account_name}
+                 <br/>&nbsp;<InjectMessage id="components.TransactionTable.columns.status" />: {_service_state}
+                 <br/>&nbsp;<InjectMessage id="components.TransactionTable.columns.service_id" />: {_service_id} 
                </div>
             </div>   
           </span>)
@@ -934,9 +941,9 @@ export const columnsForContractedServices = (callback, services_states) => {
               <br/><span> 
                 To: <b>{moment(begins_at).add(record.periods, 'months').format(form_helper.MONTH_FORMAT_HUMANIZED)}</b>
               </span> 
-              <br/><span><InjectMessage id="components.TransactionTable.columns.last_period_charged" />: <b>{last_charged}</b></span>
-              <br/><span><InjectMessage id="components.TransactionTable.columns.total_periods_charged" />: <b>{total_charged}</b></span>
-              <br/><span><InjectMessage id="components.TransactionTable.columns.status" />: <b>{_state}</b></span>
+              <br/><span>&nbsp;<InjectMessage id="components.TransactionTable.columns.last_period_charged" />: <b>{last_charged}</b></span>
+              <br/><span>&nbsp;<InjectMessage id="components.TransactionTable.columns.total_periods_charged" />: <b>{total_charged}</b></span>
+              <br/><span>&nbsp;<InjectMessage id="components.TransactionTable.columns.status" />: <b>{_state}</b></span>
             </> 
           )}
       },
@@ -990,7 +997,7 @@ export const columnsForServiceContractPayment = (callback) => {
               <span className="row_tx_title">{record.sub_header}</span> 
                <div className="hidden" style={{maxWidth:400, overflowWrap:'normal'}}>
                  <ul>
-                   <li><Tag key={'warning_'+Math.random()}><InjectMessage id="components.TransactionTable.columns.open_details" /></Tag></li>
+                   <li><Tag key={'warning_'+Math.random()}>&nbsp;<InjectMessage id="components.TransactionTable.columns.open_details" /></Tag></li>
                  </ul>
                </div>
             </div>   

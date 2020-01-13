@@ -105,7 +105,7 @@ class ProvidersPayments extends Component {
         the_key={'external_transfert_widget_key'} 
         callback={this.onProcessRequestClick} 
         onRef={ref => (this.table_widget = ref)}
-        filter_hidden_fields={['from']}
+        filter_hidden_fields={['from', 'to', 'requested_type']}
         filter={request_filter}
         request_type={`${DISPLAY_PROVIDER}`} 
         />);

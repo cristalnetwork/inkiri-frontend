@@ -426,7 +426,7 @@ class RequestDetails extends Component {
     });
   }
 
-  cancelRequest(refund_message){
+  cancelRequest(){
     let that = this;  
     
     confirm({

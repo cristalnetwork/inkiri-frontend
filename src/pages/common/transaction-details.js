@@ -108,7 +108,7 @@ class TransactionDetails extends Component {
 
   onViewRequest = (request) => {
     
-    const pathname = (this.props.isAdmin ? `/${this.props.actualRole}/external-transfers-process-request` : '/common/request-details')
+    const pathname = (this.props.isAdmin ? `/${this.props.actualRole}/process-request` : '/common/request-details')
     this.props.history.push({
       pathname: pathname
       , state: { 

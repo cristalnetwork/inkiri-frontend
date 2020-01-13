@@ -220,7 +220,7 @@ const api = {
   , isPayment          : (request) => { return (request.tx_type==api.TYPE_PAYMENT||request.requested_type==api.TYPE_PAYMENT)}
   , isSendOrPayment    : (request) => { return api.isPayment(request)||api.isSend(request)}
   , requiresAttach     : (request) => { 
-      return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER].includes(request.state);
+      return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER].includes(request.requested_type);
   }
   , requiresReception     : (request) => { 
       return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER, api.TYPE_WITHDRAW].includes(request.requested_type);
@@ -288,7 +288,7 @@ const api = {
       return request.tx_id || request.transaction_id;
     }
   , isFinished         : (request) => {
-      return [api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR, api.STATE_CANCELED].includes(request.state);
+      return [api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR, api.STATE_CANCELED].includes(request.state) && request.flag.ok;
     }
   , isProcessing       : (request) => {
       return [api.STATE_PROCESSING].indexOf(request.state)>=0;

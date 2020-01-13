@@ -116,7 +116,7 @@ class Profile extends Component {
     console.log(` EVENT onRoleEvents(${event_type}, `, object, ')')
     switch(event_type){
       case ENUM_EVENT_NEW_PERMISSION:
-        this.setState({active_tab_action:ACTIVE_TAB_ROLES_NEW, active_tab_object:{authority:object}});
+        this.setState({active_tab_action:ACTIVE_TAB_ROLES_NEW, active_tab_object:object});
         break;
       case ENUM_EVENT_DELETE_PERMISSION:
         const {permission} = object;

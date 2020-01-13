@@ -32,35 +32,31 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
         {
           if(actualRole=='bankadmin') 
           {
-            history.push(`/${actualRole}/dashboard`);
+            // history.push(`/${actualRole}/dashboard`);
+            history.push(`/${actualRole}/operations`);
             // history.push(`/common/salaries`);
             // history.push(`/common/crew`);
             // history.push(`/${actualRole}/configuration`);
             // history.push(`/${actualRole}/iugu`);
             // history.push(`/${actualRole}/profiles`);
-            // history.push(`/${actualRole}/operations`);
             // history.push(`/${actualRole}/provider-profile`);
             // history.push(`/${actualRole}/providers`);
             // history.push(`/${actualRole}/external-transfers`);
             // history.push(`/${actualRole}/pda`);
             // history.push(`/${actualRole}/accounts`);
             // history.push(`/${actualRole}/create-account`);
-            // history.push({
-            //   pathname: `/${actualRole}/external-transfers-process-request`
-            //   , state: { request: request }
-            // })
           } 
           
           if(actualRole=='business') 
           { 
-            history.push(`/common/extrato`);
+            // history.push(`/common/extrato`);
             // history.push(`/common/deposit`);
             // history.push(`/common/providers`);
             // history.push(`/common/request-money`);
             // history.push(`/common/salaries`);
             // history.push(`/common/send`);
             // history.push(`/${actualRole}/providers-payments`);
-            // history.push(`/${actualRole}/providers-payments-request`);
+            history.push(`/${actualRole}/providers-payments-request`);
             // history.push(`/${actualRole}/provider-payment-request-details`);
             // history.push(`/common/deposit`);
             // history.push(`/common/withdraw`);
