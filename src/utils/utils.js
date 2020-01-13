@@ -104,6 +104,11 @@ export const firsts = (s, n, uppercase) => {
   return (uppercase===false)?text:text.toUpperCase();
 }
 
+export const pad = (num, size=5) => {
+    var s = "0000000000" + num;
+    return s.slice(-size)
+  }
+
 export const leadingZeros = (s, n) => {
   if (typeof s !== 'string') 
     s=s.toString();

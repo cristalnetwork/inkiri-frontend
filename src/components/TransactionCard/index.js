@@ -97,6 +97,11 @@ class TransactionCard extends Component {
           
           <TransactionTypeAndAmount request={request}/>
 
+          {
+            request.flag && !request.flag.ok &&
+              <NameValueIcon name={''} value={formatMessage({id:`requests.flags.${request.flag.message}`})} icon="exclamation-triangle" is_alarm={true} />
+          }
+
           <TransactionPetitioner profile={request.requested_by} title="Requested by" />
 
           {

@@ -8,7 +8,7 @@ import moment from 'moment';
 import IuguIconImage from '@app/components/TransactionCard/iugu_icon';
 
 export const envelopeIdFromRequest = (request) =>{
-  return api.bank.envelopeIdFromRequest(request);
+  return utils.pad(request.requestCounterId);
 }
 export const getRequestId = (request) => {
   return utils.leadingZeros(request.requestCounterId, 5);

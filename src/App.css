@@ -497,6 +497,9 @@ select .anticon {
 .temp_alert_action{
   background-color: rgb(108, 84, 163);
 }
+.temp_alert_action:hover{
+  border: 1px solid rgb(108, 84, 163);
+}
 .temp_alert_action .fa_icon{
   color: white;
 }

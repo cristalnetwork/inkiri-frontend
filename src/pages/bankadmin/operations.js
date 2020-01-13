@@ -34,8 +34,9 @@ const { TabPane } = Tabs;
 
 
 const tabs = {
-  [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
   [DISPLAY_REQUESTS] :  'requests', 
+  [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+  
   // [DISPLAY_PDA] :       'Deposits & Withdraws requests', 
   // [DISPLAY_EXTERNAL] :  'External transfers requests',   
 }
@@ -59,7 +60,7 @@ class Operations extends Component {
       need_refresh:        {},  
 
       page_key_values:     props.page_key_values,
-      active_tab:          utils .twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_tab', DISPLAY_ALL_TXS)
+      active_tab:          utils .twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_tab', DISPLAY_REQUESTS)
       // active_tab:           DISPLAY_ALL_TXS
     };
 

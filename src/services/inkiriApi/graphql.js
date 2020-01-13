@@ -735,6 +735,15 @@ const GET_PROVIDERS = gql`
   }
 `;
 
+
+export const maxRequestId = async () => runQuery(GET_MAX_REQUEST_ID, {}, 'maxRequestId');
+
+const GET_MAX_REQUEST_ID = gql`
+  query{
+    maxRequestId
+  }
+`;
+
 const runQuery = async (query, variables, _return_field) => {
   // const client = useApolloClient();
 

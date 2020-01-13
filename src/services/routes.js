@@ -155,12 +155,11 @@ const routes  = {
                         title: 'menu.item.operations',
                         
                     },
-                    // {
-                    //     key: routes_config.pathNames.bankadminExternalTransfers,
-                    //     path: routes_config.pathNames.bankadminExternalTransfers,
-                    //     title: 'menu.item.external Transfers',
-
-                    // },
+                    {
+                        key: routes_config.pathNames.bankadminExternalTransfers,
+                        path: routes_config.pathNames.bankadminExternalTransfers,
+                        title: 'menu.item.external_transfers',
+                    },
                     {
                         key: routes_config.pathNames.bankadminServices,
                         path: routes_config.pathNames.bankadminSoon,

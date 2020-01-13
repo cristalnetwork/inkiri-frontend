@@ -105,12 +105,13 @@ class RequestDetails extends Component {
     const action_accept = formatMessage( { id:'pages.common.request-details.action.accept'});
     const action_accept_and_send = formatMessage( { id:'pages.common.request-details.action.accept_and_send'});
     const action_cancel = formatMessage( { id:'pages.common.request-details.action.cancel'});
+    const action_cancel_get_refunded = formatMessage( { id:'pages.common.request-details.action.cancel_get_refunded'});
     const action_reject = formatMessage( { id:'pages.common.request-details.action.reject'});
     const action_revert_and_refund = formatMessage( { id:'pages.common.request-details.action.revert_and_refund'});
     const action_upload_nota = formatMessage( { id:'pages.common.request-details.action.upload_nota'});
     const action_attach_files = formatMessage( { id:'pages.common.request-details.action.attach_files'});
     const action_refund = formatMessage( { id:'pages.common.request-details.action.refund'});
-    this.setState({intl:{title, cant_fetch_request, only_one_file, pushing_transaction, loading_request, valid_number_required_description, confirm_payment, error_service_price_mismatch, confirm_accept_service, confirm_accept_service_message, receipt_attach_required, receipt_attach_required_message, cancel_service, cancel_service_message, cancel_request, cancel_request_message, cancel_request_and_refund_message, reject_service_request, reject_service_request_message, reject_payment_request, reject_payment_request_message, action_process_request, action_accept, action_accept_and_send, action_accept, action_cancel, action_reject, action_cancel, action_cancel, action_reject, action_revert_and_refund, action_upload_nota, action_attach_files, action_refund}});
+    this.setState({intl:{action_cancel_get_refunded, title, cant_fetch_request, only_one_file, pushing_transaction, loading_request, valid_number_required_description, confirm_payment, error_service_price_mismatch, confirm_accept_service, confirm_accept_service_message, receipt_attach_required, receipt_attach_required_message, cancel_service, cancel_service_message, cancel_request, cancel_request_message, cancel_request_and_refund_message, reject_service_request, reject_service_request_message, reject_payment_request, reject_payment_request_message, action_process_request, action_accept, action_accept_and_send, action_accept, action_cancel, action_reject, action_cancel, action_cancel, action_reject, action_revert_and_refund, action_upload_nota, action_attach_files, action_refund}});
   }
   
   componentDidUpdate(prevProps, prevState) 
@@ -123,28 +124,14 @@ class RequestDetails extends Component {
     if(errors_changed ){
       const that = this;
       setTimeout(()=> that.reload() ,100);
-
-      // const ex = this.props.getLastError;
-      // new_state = {...new_state, 
-      //     getErrors:     this.props.getErrors, 
-      //     result:        ex?'error':undefined, 
-      //     error:         ex?JSON.stringify(ex):null}
-      // if(ex)
-      //   components_helper.notif.exceptionNotification("An error occurred!", ex);
-    
     }
     if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       
       const lastResult = this.props.getLastResult;
-      // new_state = {...new_state, 
-      //   getResults:      this.props.getResults, 
-      //   result:          lastResult?'ok':undefined, 
-      //   result_object:   lastResult};
       if(lastResult)
       {
         const that = this;
         setTimeout(()=> that.reload() ,100);
-        // components_helper.notif.successNotification('Operation completed successfully')
       }
     }
 
@@ -159,7 +146,6 @@ class RequestDetails extends Component {
     const key = this.state.request.id;
 
     try{
-      // const data = await gqlService.request({id:key, account_name:this.props.actualAccountName});
       const data = await gqlRequestI18nService.request({id:key, account_name:this.props.actualAccountName}, this.props.intl);
       console.log(data)
       this.setState({request:data})
@@ -287,19 +273,13 @@ class RequestDetails extends Component {
   }
   //
   
-  processRequest(){
-  }
-
   getAttach(attach_name){
     const attachments      = this.state.attachments;
     return (attachments[attach_name] && attachments[attach_name].length>0) ? attachments[attach_name][0] : undefined; 
   }
 
-  acceptRequest(){
-    
-  }
-
-  acceptandSendRequest(){
+  // Accepts money request and send the money .
+  acceptAndSendRequest(){
     const {request}      = this.state;
     const {_id, amount, requested_by, requested_to, requestCounterId, description} = request;
     const privateKey     = this.props.actualPrivateKey;
@@ -446,17 +426,13 @@ class RequestDetails extends Component {
     });
   }
 
-  cancelRequestAndRefund = () => this.cancelRequest(true);
-  cancelRequestOnly      = () => this.cancelRequest(false);
-
   cancelRequest(refund_message){
     let that = this;  
     
     confirm({
       title:   this.state.intl.cancel_request,
-      content: refund_message?this.state.intl.cancel_request_and_refund_message :this.state.intl.cancel_request_message,
+      content: this.state.intl.cancel_request_message,
       onOk() {
-        // that.setState({pushingTx:true});
         const {request} = that.state;
         //ToDo
         const step ={
@@ -470,7 +446,25 @@ class RequestDetails extends Component {
     });
   }
   
-  refundRequest(){}
+  getRefund(){
+    let that = this;  
+    
+    confirm({
+      title:   this.state.intl.cancel_request,
+      content: this.state.intl.cancel_request_and_refund_message,
+      onOk() {
+        const {request} = that.state;
+        //ToDo
+        const step ={
+            _function:   'bank.getRefundExternal'
+            , _params:   [that.props.actualAccountName, request.id]
+          }
+        that.props.callAPI(step._function, step._params)
+      },
+      onCancel() {
+      },
+    });
+  }
 
   rejectServiceRequest(){
     const that       = this;
@@ -520,21 +514,12 @@ class RequestDetails extends Component {
     
   }
   
-  revertRequest(){}
-
-  attachFiles(){}
-
   getActions(){
     const {request, isFetching, intl}    = this.state;
     if(!request)
       return [];
-    const processButton       = (<Button loading={isFetching} size="large" onClick={() => this.processRequest()} key="processButton" type="primary" title="" >
-      {intl.action_process_request}</Button>);
-    //
-    const acceptButton        = (<Button loading={isFetching} size="large" onClick={() => this.acceptRequest()} key="acceptButton" type="primary" title="" >
-      {intl.action_accept}</Button>);
-    //
-    const acceptAndSendButton = (<Button loading={isFetching} size="large" onClick={() => this.acceptandSendRequest()} key="acceptSendButton" type="primary" title="" >
+    
+    const acceptAndSendButton = (<Button loading={isFetching} size="large" onClick={() => this.acceptAndSendRequest()} key="acceptSendButton" type="primary" title="" >
       {intl.action_accept_and_send}</Button>);
     //
     const acceptServiceButton = (<Button loading={isFetching} size="large" onClick={() => this.acceptServiceRequest()} key="acceptServiceButton" type="primary" title="" >
@@ -546,31 +531,30 @@ class RequestDetails extends Component {
     const rejectServiceButton = (<Button loading={isFetching} size="large" onClick={() => this.rejectServiceRequest()} key="rejectServiceButton" className="danger_color" style={{marginLeft:16}} type="link" >
       {intl.action_reject}</Button>);
     //
-    const cancelRefundButton  = (<Button loading={isFetching} size="large" onClick={() => this.cancelRequestAndRefund()} key="cancelRefundButton" className="danger_color" style={{marginLeft:16}} type="link" >
-      {intl.action_cancel}</Button>);
+    const getRefundButton  = (<Button loading={isFetching} size="large" onClick={() => this.getRefund()} key="getRefundButton" className="danger_color" style={{marginLeft:16}} type="link" >
+      {intl.action_cancel_get_refunded}</Button>);
     //
-    const cancelButton        = (<Button loading={isFetching} size="large" onClick={() => this.cancelRequestOnly()} key="cancelButton" className="danger_color" style={{marginLeft:16}} type="link" >
+    const cancelButton        = (<Button loading={isFetching} size="large" onClick={() => this.cancelRequest()} key="cancelButton" className="danger_color" style={{marginLeft:16}} type="link" >
       {intl.action_cancel}</Button>);    
     //
     const rejectButton        = (<Button loading={isFetching} size="large" onClick={() => this.rejectPaymentRequest()} key="rejectButton" className="danger_color" style={{marginLeft:16}} type="link" >
       {intl.action_reject}</Button>);
     //
-    const revertButton        = (<Button loading={isFetching} size="large" onClick={() => this.revertRequest()} key="revertButton" className="danger_color" style={{marginLeft:16}} type="link" >
-      {intl.action_revert_and_refund}</Button>);
+    // const revertButton        = (<Button loading={isFetching} size="large" onClick={() => this.revertRequest()} key="revertButton" className="danger_color" style={{marginLeft:16}} type="link" >
+    //   {intl.action_revert_and_refund}</Button>);
     //
     const attachNotaButton    = (<Button loading={isFetching} size="large" onClick={() => this.attachNota()} key="updateButton" type="primary" style={{marginLeft:16}} type="primary" >
       {intl.action_upload_nota}</Button>);
     //
-    const attachFiles         = (<Button loading={isFetching} size="large" onClick={() => this.attachFiles()} key="attachButton" type="primary" style={{marginLeft:16}} type="primary" >
-      {intl.action_attach_files}</Button>);
+    // const attachFiles         = (<Button loading={isFetching} size="large" onClick={() => this.attachFiles()} key="attachButton" type="primary" style={{marginLeft:16}} type="primary" >
+    //   {intl.action_attach_files}</Button>);
     //
-    const refundButton        = (<Button loading={isFetching} size="large" onClick={() => this.refundRequest()} key="refundButton" type="primary" style={{marginLeft:16}} type="primary" >
-      {intl.action_refund}</Button>);
+    // const refundButton        = (<Button loading={isFetching} size="large" onClick={() => this.refundRequest()} key="refundButton" type="primary" style={{marginLeft:16}} type="primary" >
+    //   {intl.action_refund}</Button>);
     
     //
     const requires_attachment = globalCfg.api.requiresAttach(request);
-    const can_refund          = globalCfg.api.canRefund(request);
-
+    
     switch (request.state){
       case globalCfg.api.STATE_REQUESTED:
 
@@ -598,33 +582,24 @@ class RequestDetails extends Component {
           return [acceptAndSendButton, rejectButton];
         }
 
+        return [cancelButton];
+        break;
+      
+      case globalCfg.api.STATE_RECEIVED:
+        const can_refund = globalCfg.api.canRefund(request);
         if(!request.attach_nota_fiscal_id)
-          return [(requires_attachment&&attachNotaButton), (can_refund&&cancelRefundButton), (!can_refund&&cancelButton)];
-        return [(can_refund&&cancelRefundButton), (!can_refund&&cancelButton)];
-
-        // if(this.props.isBusiness || this.props.isPersonal)
-        // {
-        //   if(!request.attach_nota_fiscal_id)
-        //     return [(requires_attachment&&attachNotaButton), (can_refund&&cancelRefundButton), (!can_refund&&cancelButton)];
-        //   return [(can_refund&&cancelRefundButton), (!can_refund&&cancelButton)];
-        // }
-        // if(!request.attach_nota_fiscal_id )
-        //   return [processButton, (requires_attachment&&attachNotaButton), rejectButton];
-        // return [processButton, rejectButton];
-      break;
+          return [(requires_attachment&&attachNotaButton), (can_refund&&getRefundButton)];
+        
+        return [(can_refund&&getRefundButton)];
+        break;
+      
       case globalCfg.api.STATE_PROCESSING:
-        // Special case for Service request.
-        if(this.props.isPersonal && globalCfg.api.isService(request))
-        {
-          return []; 
-        }
-
+        
         if(this.props.isBusiness || this.props.isPersonal)
-          if(!request.attach_nota_fiscal_id)
-            return [(requires_attachment&&attachNotaButton)];
-          else
-            return [];
-        return [acceptButton, revertButton];
+          if(!request.attach_nota_fiscal_id && requires_attachment)
+            return [attachNotaButton];
+          
+        return [];
       break;
       case globalCfg.api.STATE_REJECTED:
         return [];
@@ -638,27 +613,16 @@ class RequestDetails extends Component {
       break;
       case globalCfg.api.STATE_ACCEPTED:
         // Special case for Service request.
-        if(this.props.isPersonal && globalCfg.api.isService(request))
-        {
-          return []; 
-        }
-
-        if(this.props.isBusiness && globalCfg.api.isService(request))
-        {
-          return []; 
-        }
-
-        if(!request.attach_nota_fiscal_id)
-          return [(requires_attachment&&attachNotaButton)];
+        
+        if(!request.attach_nota_fiscal_id && requires_attachment)
+          return [attachNotaButton];
         return [];
       break;
       case globalCfg.api.STATE_ERROR:
         return [];
       break;
       case globalCfg.api.STATE_CANCELED:
-        if(this.props.isBusiness || this.props.isPersonal)
-          return [];
-        return [refundButton];
+        return [];
       break;
     }
   }

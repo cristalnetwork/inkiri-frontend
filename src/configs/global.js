@@ -222,12 +222,16 @@ const api = {
   , requiresAttach     : (request) => { 
       return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER].includes(request.state);
   }
+  , requiresReception     : (request) => { 
+      return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER, api.TYPE_WITHDRAW].includes(request.requested_type);
+  }
   , canRefund          : (request) => { 
-      return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER, api.TYPE_WITHDRAW].includes(request.state);
+      return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER, api.TYPE_WITHDRAW].includes(request.requested_type);
   }
   , getTypes           : () => { return [ api.TYPE_DEPOSIT, api.TYPE_EXCHANGE, api.TYPE_PAYMENT, api.TYPE_PROVIDER, api.TYPE_SEND, api.TYPE_WITHDRAW, api.TYPE_SERVICE];}
 
   , STATE_REQUESTED             : 'state_requested'
+  , STATE_RECEIVED              : 'state_received'
   , STATE_PROCESSING            : 'state_processing'
   , STATE_REJECTED              : 'state_rejected'
   , STATE_ACCEPTED              : 'state_accepted'
@@ -241,6 +245,7 @@ const api = {
   , stateToText : (request_state) => {
       const states = {
         [api.STATE_REQUESTED]      : 'requested', 
+        [api.STATE_RECEIVED]       : 'received', 
         [api.STATE_PROCESSING]     : 'processing', 
         
         [api.STATE_ACCEPTED]       : 'accepted', 
@@ -259,6 +264,7 @@ const api = {
       // source: https://mdbootstrap.com/live/_doc/all-colors.html
       const states = {
         [api.STATE_REQUESTED]        : 'rgba(43, 187, 173, 0.5)'  , // '#2BBBAD'
+        [api.STATE_RECEIVED]         : 'rgba(43, 187, 173, 0.75)'  , // '#2BBBAD'
         [api.STATE_PROCESSING]       : 'rgba(0, 105, 92, 0.5)'    , // '#00695c', 
         [api.STATE_ACCEPTED]         : 'rgba(0, 200, 81, 0.5)'    , // '#00C851', 
         
@@ -274,7 +280,7 @@ const api = {
       } 
       return states[request_state] ||  'rgba(80,80,80,0.5)' ;//'gray';
     }
-  , getStates           : () => { return [api.STATE_REQUESTED, api.STATE_PROCESSING, api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_ERROR, api.STATE_REFUNDED, api.STATE_REVERTED, api.STATE_CANCELED];}
+  , getStates           : () => { return [api.STATE_REQUESTED, api.STATE_RECEIVED, api.STATE_PROCESSING, api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_ERROR, api.STATE_REFUNDED, api.STATE_REVERTED, api.STATE_CANCELED];}
   , isOnBlockchain      : (request) => {
       return api.getTXId(request);
     }
@@ -291,13 +297,13 @@ const api = {
       return [api.STATE_ACCEPTED].includes(request.state);
     }
   , canCancel          : (request) => {
-      return [api.STATE_REQUESTED].indexOf(request.state)>=0;
+      return [api.STATE_REQUESTED, api.STATE_RECEIVED].indexOf(request.state)>=0;
     }
   , canAddAttachment  : (request) => {
       return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER].includes(request.tx_type);
     }
   , isProcessPending   : (request) => {
-      return [api.STATE_REQUESTED].indexOf(request.state)>=0;
+      return [api.STATE_REQUESTED, api.STATE_RECEIVED].indexOf(request.state)>=0;
     }
   , onOkPath   : (request) => {
       return ![api.STATE_REJECTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR, api.STATE_CANCELED].includes(request.state);

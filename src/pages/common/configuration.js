@@ -199,7 +199,7 @@ class Configuration extends Component {
     const {id, account_name}  = this.state.profile;
     const new_profile         = values;
     const {account_type, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias} = new_profile;
-    const {formatMessage}     = this.ptops.intl;
+    const {formatMessage}     = this.props.intl;
     this.setState({active_tab_object:values, pushingTx:true})
     
     api.bank.createOrUpdateUser(id, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias)
@@ -231,7 +231,7 @@ class Configuration extends Component {
     }
     const that              = this;
     const {profile}         = this.state;
-    const {formatMessage}   = this.ptops.intl;
+    const {formatMessage}   = this.props.intl;
 
     this.setState({active_tab_object:values, pushingTx:true})
     let bank_accounts = [...profile.bank_accounts, values];

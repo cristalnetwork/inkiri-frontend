@@ -7,10 +7,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import InjectMessage from "@app/components/intl-messages";
 
 const TransactionEnvelope = ({request}) => {
-    const envelope_id = request_helper.envelopeIdFromRequest(request);
     
+    if(!request)
+        return (null);
     if(!globalCfg.api.isDeposit(request))
         return (null);
+
+    const envelope_id = request_helper.envelopeIdFromRequest(request);
 
     return(
       <div className="ui-list">

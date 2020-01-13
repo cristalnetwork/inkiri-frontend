@@ -173,7 +173,7 @@ export const expandedRequestRowRender = (record) => {
       
     //
     case globalCfg.api.TYPE_DEPOSIT:
-      const envelope_id     = api.bank.envelopeIdFromRequest(record);
+      const envelope_id = request_helper.envelopeIdFromRequest(record);
       return <>
           <span key={'envelope_'+record.id}><InjectMessage id="global.envelope_id" />: <b>{envelope_id}</b></span>
           <br/><span key={'deposit_currency_'+record.id}><InjectMessage id="global.currency" />: <b>{record.deposit_currency}</b></span>

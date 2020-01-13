@@ -112,22 +112,23 @@ class Exchange extends Component {
       {
         _function:           'requestExchange'
         , _params:           [sender, privateKey, exchange_account, amount, bank_account] 
-        , last_result_param: [{field_name:'id', result_idx_diff:-1}]
+        , last_result_param: [{field_name:'requestCounterId', result_idx_diff:-1}]
         , on_failure:        {
                                 _function:           'bank.failedWithdraw'
                                 , _params:           [sender] 
                                 , last_result_param: [{field_name:'id', result_idx_diff:-1}]
                               }
-      },
-      {
-        _function:           'bank.updateExchangeRequest'
-        , _params:           [sender] 
-        , last_result_param: [{field_name:'id', result_idx_diff:-2}, {field_name:'transaction_id', result_idx_diff:-1}]
-      },
+      }
+      // ,{
+      //   _function:           'bank.updateExchangeRequest'
+      //   , _params:           [sender] 
+      //   , last_result_param: [{field_name:'id', result_idx_diff:-2}, {field_name:'transaction_id', result_idx_diff:-1}]
+      // },
     ]
-
     that.props.callAPIEx(steps);
     
+    // const _function = 'requestExchange';
+    // that.props.callAPI(_function, [sender, privateKey, exchange_account, amount, bank_account, 0])
   };
 
   backToDashboard = async () => {
@@ -231,6 +232,7 @@ export default Form.create() (withRouter(connect(
         getLastResult:    apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
+        callAPi:          bindActionCreators(apiRedux.callAPI, dispatch),
         callAPIEx:        bindActionCreators(apiRedux.callAPIEx, dispatch),
         clearAll:         bindActionCreators(apiRedux.clearAll, dispatch),
 

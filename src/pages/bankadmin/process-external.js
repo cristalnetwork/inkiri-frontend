@@ -301,9 +301,6 @@ class processExternal extends Component {
     if(my_NOTA)
       attachs[globalCfg.api.NOTA_FISCAL]=my_NOTA;
     // console.log(attachs)
-    
-    
-
     that.setState({pushingTx:true});
     
     Modal.confirm({
@@ -345,7 +342,19 @@ class processExternal extends Component {
       title:   formatMessage({id:'pages.bankadmin.process-external.confirm_reject_step'}),
       content: formatMessage({id:'pages.bankadmin.process-external.confirm_reject_step_message'}),
       onOk() {
-        that.doRefund(globalCfg.api.STATE_REJECTED);
+        const {request} = that.state;
+        api.bank.rejectExternal(that.props.actualAccountName, request.id)
+        .then( (data) => {
+            that.setState({pushingTx:false})
+            components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.reject'}));
+            that.reload();
+          },
+          (ex) => {
+            console.log(' ** ERROR @ acceptWithComprobanteRequest', JSON.stringify(ex));
+            that.setState({pushingTx:false})
+            components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.occurred_title'}), ex);
+          }  
+        );
       },
       onCancel() {
         that.setState({pushingTx:false})
@@ -355,7 +364,7 @@ class processExternal extends Component {
     
   }
   
-  revertRequest(){
+  refundRevertRequest(){
     const that            = this;
     const {formatMessage} = this.props.intl;
     Modal.confirm({
@@ -473,36 +482,35 @@ class processExternal extends Component {
     });  
   }
 
-  doRejectAndRefundWithdraw(){
+  // doRejectAndRefund(){
     
-    const that            = this;
-    const {request}       = that.state;
-    const {formatMessage} = this.props.intl;
-    that.setState({pushingTx:true});
-    const sender      = this.props.actualAccountName;
-    const amount      = request.amount;
-    const privateKey  = this.props.actualPrivateKey;
+  //   const that            = this;
+  //   const {request}       = that.state;
+  //   const {formatMessage} = this.props.intl;
+  //   that.setState({pushingTx:true});
+  //   const sender      = this.props.actualAccountName;
+  //   const amount      = request.amount;
+  //   const privateKey  = this.props.actualPrivateKey;
     
-    api.refund(sender, privateKey, request.from, amount, request.requestCounterId, globalCfg.api.STATE_REJECTED)
-      .then((data) => {
-        const send_tx             = data;
-        api.bank.refundWithdrawRequest(sender, request.id, send_tx.data.transaction_id)
-          .then((data2) => {
-              that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request.id} });
-              that.reload();
-              components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.refund'}));
-
-            }, (ex2) => {
-              console.log(' processExternal::refund (error#2) >>  ', JSON.stringify(ex2));
-              components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.refund.1'}), ex2);
-              that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
-          });
-      }, (ex1) => {
-        console.log(' processExternal::refund (error#1) >>  ', JSON.stringify(ex1));
-        components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.refund.2'}), ex1);
-        that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
-      });
-  }
+  //   api.refund(sender, privateKey, request.from, amount, request.requestCounterId, globalCfg.api.STATE_REVERTED)
+  //     .then((data) => {
+  //       const send_tx             = data;
+  //       api.bank.refundRequest(sender, request.id, send_tx.data.transaction_id)
+  //         .then((data2) => {
+  //             that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request.id} });
+  //             that.reload();
+  //             components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.refund'}));
+  //           }, (ex2) => {
+  //             console.log(' processExternal::refund (error#2) >>  ', JSON.stringify(ex2));
+  //             components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.refund.1'}), ex2);
+  //             that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex2)});
+  //         });
+  //     }, (ex1) => {
+  //       console.log(' processExternal::refund (error#1) >>  ', JSON.stringify(ex1));
+  //       components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.refund.2'}), ex1);
+  //       that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
+  //     });
+  // }
 
   /*
   * DEPOSIT
@@ -566,71 +574,108 @@ class processExternal extends Component {
   getActionsForRequest(){
     const {request, pushingTx}    = this.state;
 
-    const processButton = (<Button loading={pushingTx} size="large" onClick={() => this.processRequest()} key="processButton" type="primary" title="" ><InjectMessage id="pages.bankadmin.process-external.action.process_request" /></Button>);
+    const processButton = (<Button loading={pushingTx} size="large" onClick={() => this.processRequest()} key="processButton" type="primary" title="" >
+          <InjectMessage id="pages.bankadmin.process-external.action.process_request" />
+        </Button>);
     //
-    const acceptWithComprobanteButton = (<Button loading={pushingTx} size="large" onClick={() => this.acceptWithComprobanteRequest()} key="acceptWithComprobanteButton" type="primary" title="" ><InjectMessage id="pages.bankadmin.process-external.action.accept" /></Button>);
+    const acceptWithComprobanteButton = (<Button loading={pushingTx} size="large" onClick={() => this.acceptWithComprobanteRequest()} key="acceptWithComprobanteButton" type="primary" title="" >
+          <InjectMessage id="pages.bankadmin.process-external.action.accept" />
+        </Button>);
     //
-    const cancelButton                = (<Button loading={pushingTx} size="large" onClick={() => this.cancelRequest()} key="cancelButton" className="danger_color" style={{marginLeft:16}} type="link" ><InjectMessage id="pages.bankadmin.process-external.action.cancel" /></Button>);
+    const cancelButton                = (<Button loading={pushingTx} size="large" onClick={() => this.cancelRequest()} key="cancelButton" className="danger_color" style={{marginLeft:16}} type="link" >
+          <InjectMessage id="pages.bankadmin.process-external.action.cancel" />
+        </Button>);
     //
-    const rejectButton                = (<Button loading={pushingTx} size="large" onClick={() => this.rejectRequest()} key="rejectButton" className="danger_color" style={{marginLeft:16}} type="link" ><InjectMessage id="pages.bankadmin.process-external.action.reject" /></Button>);
+    // const rejectButton                = (<Button loading={pushingTx} size="large" onClick={() => this.rejectRequest()} key="rejectButton" className="danger_color" style={{marginLeft:16}} type="link" >
+    //       <InjectMessage id="pages.bankadmin.process-external.action.reject_and_refund" />
+    //     </Button>);
+    const rejectButton                = (<Button loading={pushingTx} size="large" onClick={() => this.rejectRequest()} key="rejectButton" className="danger_color" style={{marginLeft:16}} type="link" >
+          <InjectMessage id="pages.bankadmin.process-external.action.reject" />
+        </Button>);
     //
-    const revertButton                = (<Button loading={pushingTx} size="large" onClick={() => this.revertRequest()} key="revertButton" className="danger_color" style={{marginLeft:16}} type="link" ><InjectMessage id="pages.bankadmin.process-external.action.revert_and_refund" /></Button>);
+    const refundRevertButton                = (<Button loading={pushingTx} size="large" onClick={() => this.refundRevertRequest()} key="revertButton" className="danger_color" style={{marginLeft:16}} type="link" >
+          <InjectMessage id="pages.bankadmin.process-external.action.revert_and_refund" />
+        </Button>);
     //
-    const attachNotaButton            = (<Button loading={pushingTx} size="large" onClick={() => this.attachNota()} key="updateButton" type="primary" style={{marginLeft:16}} type="primary" ><InjectMessage id="pages.bankadmin.process-external.action.upload_nota" /></Button>);
+    const attachNotaButton            = (<Button loading={pushingTx} size="large" onClick={() => this.attachNota()} key="updateButton" type="primary" style={{marginLeft:16}} type="primary" >
+          <InjectMessage id="pages.bankadmin.process-external.action.upload_nota" />
+        </Button>);
     //
-    const attachFiles                 = (<Button loading={pushingTx} size="large" onClick={() => this.attachFiles()} key="attachButton" type="primary" style={{marginLeft:16}} type="primary" ><InjectMessage id="pages.bankadmin.process-external.action.attach_files" /></Button>);
+    const attachFiles                 = (<Button loading={pushingTx} size="large" onClick={() => this.attachFiles()} key="attachButton" type="primary" style={{marginLeft:16}} type="primary" >
+          <InjectMessage id="pages.bankadmin.process-external.action.attach_files" />
+        </Button>);
     //
-    const refundButton                = (<Button loading={pushingTx} size="large" onClick={() => this.refundRequest()} key="refundButton" type="primary" style={{marginLeft:16}} type="primary" ><InjectMessage id="pages.bankadmin.process-external.action.refund" /></Button>);
+    const refundButton                = (<Button loading={pushingTx} size="large" onClick={() => this.refundRequest()} key="refundButton" type="primary" style={{marginLeft:16}} type="primary" >
+          <InjectMessage id="pages.bankadmin.process-external.action.refund" />
+        </Button>);
     //
-    const acceptAndIssueButton        = (<Button loading={pushingTx} size="large" onClick={() => this.acceptDepositAndIssue()} key="acceptAndIssueButton" type="primary" style={{marginLeft:16}} type="primary" ><InjectMessage id="pages.bankadmin.process-external.action.accept_and_issue" /></Button>);
+    const acceptAndIssueButton        = (<Button loading={pushingTx} size="large" onClick={() => this.acceptDepositAndIssue()} key="acceptAndIssueButton" type="primary" style={{marginLeft:16}} type="primary" >
+          <InjectMessage id="pages.bankadmin.process-external.action.accept_and_issue" />
+        </Button>);
     //
-    const acceptButton                = (<Button loading={pushingTx} size="large" onClick={() => this.acceptRequest()} key="acceptButton" style={{marginLeft:16}} type="primary" ><InjectMessage id="pages.bankadmin.process-external.action.accept" /></Button>);
+    const acceptButton                = (<Button loading={pushingTx} size="large" onClick={() => this.acceptRequest()} key="acceptButton" style={{marginLeft:16}} type="primary" >
+          <InjectMessage id="pages.bankadmin.process-external.action.accept" />
+        </Button>);
     //
-    const rejectWithdrawButton        = (<Button loading={pushingTx} size="large" onClick={() => this.doRejectAndRefundWithdraw()} key="rejectWithdrawButton" className="danger_color" style={{marginLeft:16}} type="link" ><InjectMessage id="pages.bankadmin.process-external.action.reject_and_refund" /></Button>);
+    // const rejectRefundButton        = (<Button loading={pushingTx} size="large" onClick={() => this.doRejectAndRefun(d)} key="rejectRefundButton" className="danger_color" style={{marginLeft:16}} type="link" >
+    //       <InjectMessage id="pages.bankadmin.process-external.action.reject_and_refund" />
+    //     </Button>);
     //
+    let buttons = []
     switch (request.state){
       case globalCfg.api.STATE_REQUESTED:
+        buttons.push(rejectButton);
         if(globalCfg.api.isDeposit(request))
         {
-          return [acceptAndIssueButton, rejectButton];
-        }
-        if(globalCfg.api.isWithdraw(request))
-        {
-          return [acceptButton, rejectWithdrawButton];
+          return [acceptAndIssueButton, ...buttons];
         }
 
-        if(!request.attach_nota_fiscal_id)
-          return [processButton, attachNotaButton, rejectButton];
-        return [processButton, rejectButton];
-      break;
+        if(globalCfg.api.requiresReception(request))
+        {
+          if(!request.attach_nota_fiscal_id)
+            buttons.push(attachNotaButton);
+          return buttons;
+        }
+
+        // fucking error!
+        return buttons;
+        
+        break;
+
+      case globalCfg.api.STATE_RECEIVED:
+        if(globalCfg.api.requiresAttach(request))
+        {
+          buttons.push(attachNotaButton);
+        };
+
+        return [process, ...buttons,refundRevertButton];
+        break;
       case globalCfg.api.STATE_PROCESSING:
-        if(!request.attach_nota_fiscal_id)
-          return [acceptWithComprobanteButton, attachNotaButton, revertButton];
-        return [acceptWithComprobanteButton, revertButton];
+        if(globalCfg.api.requiresAttach(request) && !request.attach_nota_fiscal_id)
+          return [acceptWithComprobanteButton, attachNotaButton, refundRevertButton];
+        return [acceptWithComprobanteButton, refundRevertButton];
       break;
+
       case globalCfg.api.STATE_REJECTED:
         return [];
       break;
       case globalCfg.api.STATE_REVERTED:
         return [];
         break;
-      case globalCfg.api.STATE_REFUNDED:
-        return [];
-      break;
       case globalCfg.api.STATE_ACCEPTED:
-        if(globalCfg.api.isWithdraw(request) || globalCfg.api.isDeposit(request))
-          return [];
-        if(!request.attach_nota_fiscal_id)
+        if(globalCfg.api.requiresAttach(request) && !request.attach_nota_fiscal_id)
           return [attachNotaButton];
         return [];
       break;
       case globalCfg.api.STATE_ERROR:
         return [];
       break;
+      case globalCfg.api.STATE_REFUNDED:
+        if(!request.refund_tx_id)
+          return [refundButton];
+      break;
       case globalCfg.api.STATE_CANCELED:
-        if(this.props.isBusiness)
-          return [];
-        return [refundButton];
+        return [];
       break;
     }
   }

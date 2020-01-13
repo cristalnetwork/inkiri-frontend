@@ -112,7 +112,7 @@ class Configuration extends Component {
     this.props.form.validateFields((err, values) => {
       
       if (err) {
-        const {formatMessage} = this.ptops.intl;
+        const {formatMessage} = this.props.intl;
         components_helper.notif.errorNotification( formatMessage({id:'errors.validation_title'}), formatMessage({id:'errors.verify_on_screen'}) )    
         console.log(' ERRORS!! >> ', err)
         return;

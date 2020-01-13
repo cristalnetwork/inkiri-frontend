@@ -24,6 +24,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { injectIntl } from "react-intl";
 import InjectMessage from "@app/components/intl-messages";
 
+import * as gqlService from '@app/services/inkiriApi/graphql'
+
 const DEFAULT_RESULT = {
   result:             undefined,
   result_object:      undefined,
@@ -101,16 +103,20 @@ class DepositMoney extends Component {
         this.setState(new_state);
   }
   
-  getNextEnvelopeId(){
-    api.bank.nextEnvelopeId (this.props.actualAccountName).then(  
-      (res)=>{
-        this.setState ({loading:false, envelope_id: res});
-      },
-      (err)=>{
-        this.setState ({loading:false});
-        components_helper.notif.errorNotification(this.state.intl.cant_fetch_next_envelope_id, `${this.state.intl.internet_connection_error}, -> ${JSON.stringify(err)}`);
-      }
-    )
+  getNextEnvelopeId = async () => {
+
+    try{
+      const data = await gqlService.maxRequestId({});
+      console.log(data)
+      const envelope_id = parseInt(data.maxRequestId) + 1;
+      this.setState ({loading:false, envelope_id: envelope_id});
+    }
+    catch(e)
+    {
+      this.setState({loading:false});
+      components_helper.notif.errorNotification(this.state.intl.cant_fetch_next_envelope_id, `${this.state.intl.internet_connection_error}, -> ${JSON.stringify(err)}`);
+    }
+    
   }
   symbolChange = (e) =>{
     let input_amount = this.state.input_amount;
@@ -253,7 +259,7 @@ class DepositMoney extends Component {
                   </div>
                   <div className="money-transfer__input money-transfer__select">
                     <span>{this.state.intl.info_type_envelope_id}<br/>
-                      <strong style={{fontWeight:600, fontSize:24}}>{envelope_id}</strong>
+                      <strong style={{fontWeight:600, fontSize:24}}>{utils.pad(envelope_id)}</strong>
                     </span>
                   </div>
               </div>
