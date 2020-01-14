@@ -74,8 +74,8 @@ class SalaryForm extends Component {
       }
       const that = this;
       Modal.confirm({
-        title: 'components.Forms.salary.confirm_title',
-        content: (<p>{ formatMessage({id: 'components.Forms.salary.confirm_content', total: total, bold: str => <b>{str}</b> }) }</p>),
+        title: formatMessage({id:'components.Forms.salary.confirm_title'}),
+        content: (<p>{ formatMessage({id: 'components.Forms.salary.confirm_content'}, {total: total, bold: str => <b>{str}</b> }) }</p>),
         onOk() {
           that.fireEvent(null, null, values);
         },

@@ -102,8 +102,6 @@ export const apiCall = (path, method, data, timeout) => new Promise((res,rej)=> 
         timeout
     );
 
-  
-
   fetch(path, fetchOptions)
       .then((resp) => resp.json()
           , (ex) => { 

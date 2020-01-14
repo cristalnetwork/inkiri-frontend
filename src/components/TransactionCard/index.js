@@ -110,7 +110,7 @@ class TransactionCard extends Component {
           }
           
           {
-            request.description 
+            request.description && (request.description.trim()!='') 
             && <NameValueIcon name={formatMessage({id:'components.TransactionCard.index.message'})} value={request.description} icon="comment" />
           }
           <TransactionEnvelope request={request} />

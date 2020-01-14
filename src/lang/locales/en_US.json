@@ -941,6 +941,7 @@
   "requests.types.type_withdraw": "Withdraw",
   "requests.types.type_service": "Service provisioning agreement",
   "requests.types.type_salary": "Salary",
+  "requests.types.type_pad": "Pre Authorized Debit",
   "requests.types.type_issue": "Issue",
   "requests.types.type_iugu": "Iugu",
   "requests.types.type_refund": "Refund",

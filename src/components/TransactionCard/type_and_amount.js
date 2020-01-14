@@ -16,10 +16,10 @@ const TransactionTypeAndAmount = ({request, transaction, custom}) => {
     }
     //
     if(request){
-      description = (<>{globalCfg.api.typeToText(request.requested_type).toUpperCase()} <small><InjectMessage id="global.request" /></small></>);
+      description = (<><span className="uppercase" key={Math.random()}><InjectMessage id={ `requests.types.${request.requested_type}`} /></span>&nbsp;<small><InjectMessage id="global.request" /></small></>);
       amount      = (<ItemAmount amount={request.amount} />);
     }
-    
+    //`
     if(transaction){
       description = transaction.name.toUpperCase();
       if(transaction.request && transaction.request.requested_type)

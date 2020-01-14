@@ -98,7 +98,6 @@ export const errorStateTag = (text) =>
 
 //
 export const getTypeTag = (request) => {
-  // const text = utils.capitalize(globalCfg.api.typeToText(request.requested_type));
   const text = request.state_string.toUpperCase();
   return (<Tag key={'type_'+request.id}>{text}</Tag>)
 }

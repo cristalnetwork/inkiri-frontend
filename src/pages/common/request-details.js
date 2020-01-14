@@ -317,7 +317,7 @@ class RequestDetails extends Component {
         const steps= [
           {
             _function:           _function
-            , _params:           [sender, privateKey, receiver, amount, memo, _id]
+            , _params:           [sender, privateKey, receiver, amount, memo, requestCounterId]
           }, 
           {
             _function:           'bank.updatePaymentRequest'

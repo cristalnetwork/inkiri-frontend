@@ -132,7 +132,7 @@ export const acceptServiceRequest = (sender, request_id, c2c_player, tx_id) => u
 export const failedWithdraw = (sender, request_id)              => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, false);
 export const failedProviderPay = (sender, request_id)           => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined, undefined, false);
 
-export const updatePaymentRequest = (sender, request_id, c2c_player, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, tx_id, undefined, true, c2c_player);
+export const updatePaymentRequest = (sender, request_id, c2c_player, tx_id) => updateRequest(sender, request_id, globalCfg.api.STATE_ACCEPTED, undefined, undefined, true, c2c_player);
 export const rejectPaymentRequest = (sender, request_id, c2c_player)        => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, true, c2c_player);
 
 export const REQUEST_SENDER   = 'request_sender';
@@ -777,13 +777,15 @@ export const createMoneyRequest = (sender, request_type, requested, amount, memo
           , 'to':               requested
           
         };
-
+  // console.log(' ============================== createMoneyRequest', post_params)
   auth()
     .then((token) => {
       jwtHelper.apiCall(path, method, post_params)
         .then((data) => {
+            // console.log(' ============================== OK:', data)
             res(data)
           }, (ex) => {
+            // console.log(' ============================== ERROR:', ex)
             rej(ex);
           });
   }, (ex) => {
