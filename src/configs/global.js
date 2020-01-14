@@ -186,6 +186,8 @@ const api = {
   , TYPE_SALARY               : 'type_salary'
   , TYPE_ISSUE                : 'type_issue'
   , TYPE_IUGU                 : 'type_iugu'
+  , TYPE_PAD                  : 'type_pad'
+
   , TYPE_REFUND               : 'type_refund'
   , TYPE_RECEIVE              : 'type_receive'
   , TYPE_UNKNOWN              : 'type_unknown'
@@ -196,19 +198,6 @@ const api = {
   , TYPE_ERASE_PAP            : 'type_erase_pap'
   , TYPE_CHARGE_PAP           : 'type_charge_pap'
 
-  , typeToText : (request_type) => {
-      const types = {
-        [api.TYPE_DEPOSIT]     : 'deposit', 
-        [api.TYPE_EXCHANGE]    : 'exchange', 
-        [api.TYPE_PAYMENT]     : 'payment', 
-        [api.TYPE_PROVIDER]    : 'provider payment', 
-        [api.TYPE_SEND]        : 'send', 
-        [api.TYPE_WITHDRAW]    : 'withdraw', 
-        [api.TYPE_SERVICE]     : 'service provisioning'
-      } 
-      const ret = types[request_type];
-      return ret?ret:request_type;
-    }
   , isDeposit          : (request) => { return (request.tx_type==api.TYPE_DEPOSIT||request.requested_type==api.TYPE_DEPOSIT)}
   , isIKDeposit        : (request) => { return (api.isDeposit(request) && request.deposit_currency==api.FIAT_CURR_IK)}
   , isBRLDeposit       : (request) => { return (api.isDeposit(request) && request.deposit_currency==api.FIAT_CURR_BRL)}
@@ -218,6 +207,7 @@ const api = {
   , isService          : (request) => { return (request.tx_type==api.TYPE_SERVICE||request.requested_type==api.TYPE_SERVICE)}
   , isSend             : (request) => { return (request.tx_type==api.TYPE_SEND||request.requested_type==api.TYPE_SEND)}
   , isPayment          : (request) => { return (request.tx_type==api.TYPE_PAYMENT||request.requested_type==api.TYPE_PAYMENT)}
+  , isSalary           : (request) => { return (request.tx_type==api.TYPE_SALARY||request.requested_type==api.TYPE_SALARY)}
   , isSendOrPayment    : (request) => { return api.isPayment(request)||api.isSend(request)}
   , requiresAttach     : (request) => { 
       return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER].includes(request.requested_type);

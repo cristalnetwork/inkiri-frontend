@@ -1,11 +1,12 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
 import ItemAmount from '@app/components/TransactionCard/item_amount';
-
+import * as request_helper from '@app/components/TransactionCard/helper';
 import InjectMessage from "@app/components/intl-messages";
 
-const TransactionTypeAndAmount = ({request, transaction, custom}) => {
+const TransactionTypeAndAmount = ({request, transaction, custom, isPersonal, actualAccountName}) => {
     
     let description = (null);
     let amount      = (null);
@@ -16,8 +17,11 @@ const TransactionTypeAndAmount = ({request, transaction, custom}) => {
     }
     //
     if(request){
+      let quantity = request.amount;
+      if(globalCfg.api.isSalary(request) && isPersonal)
+          quantity = request_helper.computeWageForAccount(request, actualAccountName);
       description = (<><span className="uppercase" key={Math.random()}><InjectMessage id={ `requests.types.${request.requested_type}`} /></span>&nbsp;<small><InjectMessage id="global.request" /></small></>);
-      amount      = (<ItemAmount amount={request.amount} />);
+      amount      = (<ItemAmount amount={quantity} />);
     }
     //`
     if(transaction){
@@ -96,8 +100,8 @@ const TransactionTypeAndAmount = ({request, transaction, custom}) => {
 
 export default connect(
     (state)=> ({
-        // allAccounts:     loginRedux.allAccounts(state),
-        // actualAccountName:   loginRedux.actualAccountName(state),
+        isPersonal:         loginRedux.allAccounts(state),
+        actualAccountName:  loginRedux.actualAccountName(state),
         // currentAccount:  loginRedux.currentAccount(state),
         // isLoading:       loginRedux.isLoading(state)
     })

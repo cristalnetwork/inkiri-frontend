@@ -57,7 +57,9 @@ class TransactionTable extends Component {
   getColumnsForType =() =>{
 
     const is_admin = globalCfg.bank.isAdminAccount(this.props.actualRoleId )
-    return columns_helper.getColumnsForRequests(this.props.callback, is_admin);
+    // this.props.isBusiness ||  this.props.isAdmin
+    const processWages = this.props.isPersonal;
+    return columns_helper.getColumnsForRequests(this.props.callback, is_admin, {process_wages:processWages, account_name:this.props.actualAccountName});
   }
   
   
@@ -222,7 +224,10 @@ class TransactionTable extends Component {
 export default connect(
     (state)=> ({
       actualAccountName: loginRedux.actualAccountName(state),
-      actualRoleId:    loginRedux.actualRoleId(state),
+      actualRoleId:      loginRedux.actualRoleId(state),
+      isPersonal:        loginRedux.isPersonal(state),
+      isBusiness:        loginRedux.isBusiness(state),
+      isAdmin:           loginRedux.isAdmin(state),
     }),
     (dispatch)=>({
         tryLogin: bindActionCreators(loginRedux.tryLogin, dispatch),

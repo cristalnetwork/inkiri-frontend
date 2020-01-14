@@ -182,7 +182,15 @@ export const getAccountStateTag = (account, include_br) => {
       </>)
 }
 //
+export const computeWageForAccount = (request, account_name) => {
+  if(globalCfg.api.isSalary(request) && request.wages && account_name)
+    return request.wages.filter(wage => wage.account_name==account_name)[0].wage;
+  return request.amount;
+}
+//
 export const getProfileName = (profile) => {
+  if(!profile)
+    return 'N/A';
   if(globalCfg.bank.isBusinessAccount(profile.account_type))
     return profile.business_name;
   if(globalCfg.bank.isFoundationAccount(profile.account_type))
@@ -226,14 +234,21 @@ export const getButtonIcon = (icon, callback, param, title) => {
 //
 export const getStyledAmount = (request, negative) => {
 
-  const style = {color:((!globalCfg.api.onOkPath(request))?'gray':(negative?'red':'inherit')), fontSize:16};
-
+  // const style = {color:((!globalCfg.api.onOkPath(request))?'gray':(negative?'red':'inherit')), fontSize:16};
+  const color = ((!globalCfg.api.onOkPath(request))?'gray':'inherit');
+  const style = {color:color, fontSize:16};
   const currency_parts = globalCfg.currency.toCurrencyString(request.amount).split(' ');
   const symbol = currency_parts[0]
   const amount = currency_parts[1]
-  const negative_symbol = (negative?'-':'');
+  // const negative_symbol = (negative?'-':'');
+  const negative_symbol = '';
   return (<span style={style} key={'amount_'+request.id}> {negative_symbol}&nbsp;<span style={{fontSize:'0.75em'}}>{symbol}</span>&nbsp;{amount} </span>)
 }
+
+export const getStyledAmountEx = (amount) => {
+  return getStyledAmount({amount:amount, state:globalCfg.api.STATE_REQUESTED}, false);
+}
+
 //
 export const getStyledDate = (request) => {
   const my_date = formatBlockTime(request);

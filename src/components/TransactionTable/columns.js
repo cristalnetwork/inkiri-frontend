@@ -206,7 +206,7 @@ export const expandedRequestRowRender = (record) => {
   
 }
 //
-export const getColumnsForRequests = (callback, is_admin) => {
+export const getColumnsForRequests = (callback, is_admin, process_wages) => {
   return [
     {
       title: <InjectMessage id="components.TransactionTable.columns.date" />,
@@ -305,11 +305,14 @@ export const getColumnsForRequests = (callback, is_admin) => {
       key:         'amount',
       // fixed:       'right',
       className:   'amount_col',
-      render: (amount, record) => {
+      render: (value, record) => {
         const negative = request_helper.blockchain.isNegativeTransaction(record)
+        let amount = record.amount;
+        if(globalCfg.api.isSalary(record) && process_wages && process_wages.process_wages==true)
+          amount = request_helper.computeWageForAccount(record, process_wages.account_name);
         return (
             <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
-              {request_helper.getStyledAmount(record, negative)}
+              {request_helper.getStyledAmountEx(amount, negative)}
             </div>
             )
         }

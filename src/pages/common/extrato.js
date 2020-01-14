@@ -138,9 +138,12 @@ class Extrato extends Component {
 
     const {routes, active_tab, isMobile, page_key_operations, page_key_requests} = this.state;
     const my_tabs = tabs[this.props.actualRoleId];
+    const wage_filter = this.props.isPersonal
+      ?{wage_filter:this.props.actualAccountName}
+      :{};
     const content = (active_tab==DISPLAY_ALL_TXS)
       ? (<TxListWidget the_key={page_key_operations} callback={this.onTransactionClick} />)
-      : (<RequestListWidget request_type={DISPLAY_REQUESTS} the_key={page_key_requests} callback={this.onRequestClick} onRef={ref => (this.table_widget = ref)}/>);
+      : (<RequestListWidget filter={wage_filter} request_type={DISPLAY_REQUESTS} the_key={page_key_requests} callback={this.onRequestClick} onRef={ref => (this.table_widget = ref)}/>);
     return (
       <>
         <PageHeader
@@ -174,6 +177,7 @@ export default  (withRouter(connect(
         actualAccountName:    loginRedux.actualAccountName(state),
         actualRole:           loginRedux.actualRole(state),
         actualRoleId:         loginRedux.actualRoleId(state),
+        isPersonal:           loginRedux.isPersonal(state),
         isMobile :            menuRedux.isMobile(state),
 
         page_key_values:      pageRedux.pageKeyValues(state),

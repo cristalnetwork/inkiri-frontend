@@ -83,12 +83,12 @@ class Salaries extends Component {
     const {team, job_positions} = this.state;
     if(!team)    
     {
-      this.loadTeam();
+      await this.loadTeam();
     }
 
     if(utils.objectNullOrEmpty(job_positions))
     {
-      this.props.loadConfig();
+      await this.props.loadConfig();
     }
 
     if(team && !utils.objectNullOrEmpty(job_positions))
@@ -98,6 +98,7 @@ class Salaries extends Component {
   componentDidUpdate(prevProps, prevState) 
   {
     let new_state = {};
+    let ok = false;
     if(prevProps.isFetching!=this.props.isFetching){
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
@@ -110,6 +111,7 @@ class Salaries extends Component {
       if(ex)
         components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'errors.occurred_title'}), ex);
     }
+    
     if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
       const lastResult = this.props.getLastResult;
       new_state = {...new_state, 
@@ -117,7 +119,10 @@ class Salaries extends Component {
         result:          lastResult?'ok':undefined, 
         result_object:   lastResult};
       if(lastResult)
+      {
+        ok = true;
         components_helper.notif.successNotification(this.props.intl.formatMessage({id:'success.oper_completed_succ'}))
+      }
     }
 
     if(!utils.objectsEqual(prevProps.team, this.props.team) ){
@@ -127,10 +132,11 @@ class Salaries extends Component {
       new_state = {...new_state, job_positions:this.props.jobPositions};
     }
     
-
-    if(Object.keys(new_state).length>0)      
+    const keys = Object.keys(new_state);
+    if(keys.length>0)      
         this.setState(new_state, () => {
-            this.rebuildDataSourceAndSet();
+            if(ok || keys.includes('team') || keys.includes('job_positions') )
+              this.rebuildDataSourceAndSet();
         });
   }
 
@@ -165,7 +171,7 @@ class Salaries extends Component {
     {
       const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);
       const err_msg     = this.props.intl.formatMessage({id:'pages.common.salaries.total_payment_exceeds_balance'}, {balance:balance_txt})
-      components_helper.notif.errorNotification(err_msg);
+      components_helper.notif.errorNotification(err_msg, total.toString());
       return;
     }
 
@@ -220,7 +226,7 @@ class Salaries extends Component {
     this.props.clearAll();  
   }
 
-  loadTeam =() =>{
+  loadTeam = async () =>{
     if(!this.props.actualAccountName || !this.props.actualRoleId)
     {
       components_helper.notif.warningNotification(this.state.intl.verify_credentials);

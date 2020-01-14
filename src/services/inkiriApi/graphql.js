@@ -256,11 +256,7 @@ const GET_BUSINESS_DATA  = gql`
 export const loadBizData = async (account_name) => runQuery(GET_BUSINESS_DATA, {account_name:account_name});
 
 
-
-const GET_REQUESTS  = gql`
-  query xxx($account_name:String, $page:String, $requested_type:String, $from:String, $to:String, $provider_id:String, $state:String, $id:String, $requestCounterId:Int, $tx_id:String, $refund_tx_id:String, $attach_nota_fiscal_id:String, $attach_boleto_pagamento_id:String, $attach_comprobante_id:String, $deposit_currency:String, $date_from:String, $date_to:String, $service_id:String){
-    requests(account_name:$account_name, page:$page, requested_type:$requested_type, from:$from, to:$to, provider_id:$provider_id, state:$state, id:$id, requestCounterId:$requestCounterId, tx_id:$tx_id, refund_tx_id:$refund_tx_id, attach_nota_fiscal_id:$attach_nota_fiscal_id, attach_boleto_pagamento_id:$attach_boleto_pagamento_id, attach_comprobante_id:$attach_comprobante_id, deposit_currency:$deposit_currency, date_from:$date_from, date_to:$date_to, service_id:$service_id){
-      _id
+const request_fields = `_id
       id                        
       created_by{
         _id
@@ -402,6 +398,34 @@ const GET_REQUESTS  = gql`
         begins_at
         expires_at
       }
+      wages{
+        account_name
+        member{
+          _id
+          account_name
+          alias
+          first_name
+          last_name
+          email
+          legal_id
+          birthday
+          phone
+          account_type
+          business_name
+          created_at
+          userCounterId
+        }
+        position
+        wage
+        description
+        period
+      }
+      pad{
+        period
+      }
+      iugu{
+        _id
+      }
       created_at
       updated_at
 
@@ -419,17 +443,22 @@ const GET_REQUESTS  = gql`
         ok
         message
         tag
-      }
+      }`;
+
+const GET_REQUESTS  = gql`
+  query xxx($account_name:String, $page:String, $requested_type:String, $from:String, $to:String, $provider_id:String, $state:String, $id:String, $requestCounterId:Int, $tx_id:String, $refund_tx_id:String, $attach_nota_fiscal_id:String, $attach_boleto_pagamento_id:String, $attach_comprobante_id:String, $deposit_currency:String, $date_from:String, $date_to:String, $service_id:String, $wage_filter:String){
+    requests(account_name:$account_name, page:$page, requested_type:$requested_type, from:$from, to:$to, provider_id:$provider_id, state:$state, id:$id, requestCounterId:$requestCounterId, tx_id:$tx_id, refund_tx_id:$refund_tx_id, attach_nota_fiscal_id:$attach_nota_fiscal_id, attach_boleto_pagamento_id:$attach_boleto_pagamento_id, attach_comprobante_id:$attach_comprobante_id, deposit_currency:$deposit_currency, date_from:$date_from, date_to:$date_to, service_id:$service_id, wage_filter:$wage_filter){
+      ${request_fields}
     }
   }
 `;
-export const requests = async ({page, requested_type='', account_name='', from='', to='', provider_id='', state='', id='', requestCounterId=null, tx_id='', refund_tx_id='', attach_nota_fiscal_id='', attach_boleto_pagamento_id='', attach_comprobante_id='', deposit_currency='', date_from='', date_to='', service_id=''}={}) =>{
+export const requests = async ({page, requested_type='', account_name='', from='', to='', provider_id='', state='', id='', requestCounterId=null, tx_id='', refund_tx_id='', attach_nota_fiscal_id='', attach_boleto_pagamento_id='', attach_comprobante_id='', deposit_currency='', date_from='', date_to='', service_id='', wage_filter=''}={}) =>{
   console.log('============================ requests::page:',page);
   if(account_name && !to && !from && account_name!=globalCfg.currency.issuer)
   {
     from=to=account_name;
   }
-  const a        = {account_name:account_name, page:page.toString(), requested_type:requested_type, from:from, to:to, provider_id:provider_id, state:state, id:id, requestCounterId:requestCounterId, tx_id:tx_id, refund_tx_id:refund_tx_id, attach_nota_fiscal_id:attach_nota_fiscal_id, attach_boleto_pagamento_id:attach_boleto_pagamento_id, attach_comprobante_id:attach_comprobante_id, deposit_currency:deposit_currency, date_from:date_from, date_to:date_to, service_id:service_id};
+  const a        = {account_name:account_name, page:page.toString(), requested_type:requested_type, from:from, to:to, provider_id:provider_id, state:state, id:id, requestCounterId:requestCounterId, tx_id:tx_id, refund_tx_id:refund_tx_id, attach_nota_fiscal_id:attach_nota_fiscal_id, attach_boleto_pagamento_id:attach_boleto_pagamento_id, attach_comprobante_id:attach_comprobante_id, deposit_currency:deposit_currency, date_from:date_from, date_to:date_to, service_id:service_id, wage_filter:wage_filter};
   console.log(JSON.stringify(a));
   // console.log(GET_REQUESTS);
   return runQuery(GET_REQUESTS, a, 'requests');
@@ -439,166 +468,7 @@ export const requests = async ({page, requested_type='', account_name='', from='
 const GET_REQUEST  = gql`
   query xxx($id:String, $requestCounterId:Int){
     request(id:$id, requestCounterId:$requestCounterId){
-      _id
-      id                        
-      created_by{
-        _id
-        account_name
-        alias
-        first_name
-        last_name
-        email
-        legal_id
-        birthday
-        phone
-        bank_accounts{
-          _id
-          bank_name
-          agency
-          cc
-        }
-        account_type
-        business_name
-        created_at
-        userCounterId
-      }
-      requested_by{
-        _id
-        account_name
-        alias
-        first_name
-        last_name
-        email
-        legal_id
-        birthday
-        phone
-        bank_accounts{
-          _id
-          bank_name
-          agency
-          cc
-        }
-        account_type
-        business_name
-        created_at
-        userCounterId
-      }
-      from
-      requested_type
-      amount
-      requested_to{
-        _id
-        account_name
-        alias
-        first_name
-        last_name
-        email
-        legal_id
-        birthday
-        phone
-        bank_accounts{
-          _id
-          bank_name
-          agency
-          cc
-        }
-        account_type
-        business_name
-        created_at
-        userCounterId
-      }
-      to
-      state
-      tx_id
-      refund_tx_id
-      requestCounterId
-      description
-      attach_nota_fiscal_id
-      attach_boleto_pagamento_id
-      attach_comprobante_id
-      deposit_currency
-      bank_account{
-        bank_name
-        agency
-        cc
-      }
-      provider{
-        _id
-        name
-        cnpj
-        email
-        phone
-        address{
-          street
-          city
-          state
-          zip
-          country
-        }
-        category
-        products_services
-        state
-        bank_accounts{
-          _id
-          bank_name
-          agency
-          cc
-        }
-        providerCounterId
-      }
-      provider_extra{
-        payment_vehicle
-        payment_category
-        payment_type
-        payment_mode
-      }
-      service{
-        _id
-        created_by{
-          _id
-          account_name
-          alias
-          first_name
-          last_name
-          email
-          legal_id
-          birthday
-          phone
-          account_type
-          business_name
-          created_at
-          updated_at
-          userCounterId
-        }
-        account_name
-        serviceCounterId
-        title
-        description
-        amount
-        state
-      }
-      service_extra{
-        begins_at
-        expires_at
-      }
-      created_at
-      updated_at
-
-      header
-      sub_header
-      sub_header_ex
-      sub_header_admin
-      key
-      block_time
-      quantity
-      quantity_txt
-      tx_type
-      i_sent
-      flag{
-        ok
-        message
-        tag
-      }
+      ${request_fields}
     }
   }
 `;

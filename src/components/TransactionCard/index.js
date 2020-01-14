@@ -13,6 +13,8 @@ import TransactionProvider from '@app/components/TransactionCard/provider';
 import TransactionBlockchain from '@app/components/TransactionCard/blockchain';
 import TransactionAttachments from '@app/components/TransactionCard/attachments';
 import TransactionEnvelope from '@app/components/TransactionCard/envelope';
+import TransactionTitle from '@app/components/TransactionCard/title';
+import Wage from '@app/components/TransactionCard/wage';
 import NameValueIcon from '@app/components/TransactionCard/name_value_icon';
 
 import TransactionBankAccount from '@app/components/TransactionCard/bank_account';
@@ -80,11 +82,24 @@ class TransactionCard extends Component {
 
   render() {
     const { request, bank_account, uploader }   = this.state;
-    
+      
     if(!request)
       return(<></>);
     //
     const { formatMessage }   = this.props.intl;
+
+    let wages = (null);
+    if(globalCfg.api.isSalary(request) && request.wages && request.wages.length>0)
+    {
+      const source = (this.props.isAdmin || this.props.isBusiness)
+        ?request.wages
+        :request.wages.filter(wage => wage.account_name==this.props.actualAccountName)
+      wages =(<>
+                <TransactionTitle title={ formatMessage({id:'global.wages'}) } />
+                {source.map(wage => <Wage key={Math.random()} wage={wage} />)}</>);
+    }
+    
+    //
     const alert               = this.getAlert(request);
     const __blockchain_title  = globalCfg.api.isService(request)?formatMessage({id:'components.TransactionCard.index.response_transaction'}):null;
     return (
@@ -127,6 +142,8 @@ class TransactionCard extends Component {
             :(null)
           }
           
+          {wages}
+
           <TransactionBlockchain request={request} title={__blockchain_title}/>
           
           <TransactionAttachments request={request} uploader={uploader}/>
