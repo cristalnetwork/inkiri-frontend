@@ -8,19 +8,38 @@
     margin-top: calc(100px);
     padding: 20px;
 }
+.login-wrapper{
+  position:relative;
+}
+/*.login-wrapper .language_selector{
+  position:absolute;
+  right:0px;
+  top:30px;
+  color:#1890ff;
+  margin-right:-11px;
+}*/
 .login-form {
-    max-width: 500px;
-    /*margin-left: calc(50% - 250px);*/
-    margin: 0 auto;
-    /*margin-top: calc(100px);*/
-    padding: 20px;
-    border: 2px solid #f3f3f3;
-    border-radius: 4px;
-  }
-   .login-form-forgot {
-    float: right;
-  }
-  .login-user-selector, .login-form-button {
-    width: 100%;
-  }
+  max-width: 500px;
+  /*margin-left: calc(50% - 250px);*/
+  margin: 0 auto;
+  /*margin-top: calc(100px);*/
+  padding: 35px 20px 20px 20px;
+  border: 2px solid #f3f3f3;
+  border-radius: 4px;
+  position: relative;
+
+}
+ .login-form-forgot {
+  float: right;
+}
+.login-user-selector, .login-form-button {
+  width: 100%;
+}
+
+.login .language_selector{
+  position:absolute;
+  right:10px;
+  top:10px;
+  color:#1890ff;
   
+}

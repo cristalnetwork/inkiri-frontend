@@ -28,7 +28,7 @@ const SelectLanguage = props => {
   );
   return (
     <HeaderDropdown overlay={langMenu} placement="bottomRight" >
-      <span className={classNames(styles.dropDown, className)} style={{marginRight:12}}>
+      <span className={classNames(styles.dropDown, className, 'language_selector')} style={{marginRight:12}}>
         <Icon type="global" title={props.intl.formatMessage({ id: 'global.navbar.lang_selector' })} />
       </span>
     </HeaderDropdown>

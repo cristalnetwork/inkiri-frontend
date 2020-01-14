@@ -489,7 +489,9 @@ select .anticon {
 
 .omnes_isologo{
   font-family: Omnes;
-  font-size:   14px!important;
+  font-size:   20px!important;
+  line-height:   20px!important;
+  color: rgb(108, 84, 163);
 }
 
 

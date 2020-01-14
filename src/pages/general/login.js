@@ -6,7 +6,7 @@ import * as loginRedux from '@app/redux/models/login';
 import { withRouter } from "react-router-dom";
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
-
+import SelectLanguage from '@app/components/InkiriHeader/SelectLang';
 import * as components_helper from '@app/components/helper';
 import * as utils from '@app/utils/utils';
 
@@ -87,14 +87,16 @@ class Login extends Component {
       return(<Loading />);
     
     return (
-      <>
+      <div className="login">
         <div className="login-header">
-          <h1 align="center" className="omnes_isologo"><img src="/favicons/favicon-32x32.png" alt="" /> 
-            &nbsp;{formatMessage({id:'inkiri.bank.title'})}
-          </h1>
+          <div className="login-wrapper">
+            <h1 align="center">
+            <img src="/favicons/favicon-32x32.png" alt="" />&nbsp;<span className="omnes_isologo">{formatMessage({id:'inkiri.bank.title'})}</span>
+            </h1>
+          </div>     
         </div> 
         <Form onSubmit={this.handleSubmit} className="login-form">
-
+            <SelectLanguage />
             { !loginError  
                 ?(null)
                 :  <Alert
@@ -148,7 +150,7 @@ class Login extends Component {
             </Button>
           </Form.Item>
         </Form>
-      </>
+      </div>
     );
   }
 }

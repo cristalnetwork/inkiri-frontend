@@ -30,19 +30,19 @@ const { TabPane } = Tabs;
 const tabs = {
   [globalCfg.bank.ACCOUNT_TYPE_BUSINESS]: {
     [DISPLAY_REQUESTS] :  'requests', 
-    [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+    // [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
   },
   [globalCfg.bank.ACCOUNT_TYPE_PERSONAL]: {
     [DISPLAY_REQUESTS] :  'requests', 
-    [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+    // [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
   },
   [globalCfg.bank.ACCOUNT_TYPE_FOUNDATION]: {
     [DISPLAY_REQUESTS] :  'requests', 
-    [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+    // [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
   },
   [globalCfg.bank.ACCOUNT_TYPE_BANKADMIN]: {
     [DISPLAY_REQUESTS] :  'requests', 
-    [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+    // [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
   }
   
   // [DISPLAY_REQUESTS] : 'Requests',
