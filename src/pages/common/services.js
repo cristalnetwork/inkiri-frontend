@@ -266,7 +266,7 @@ class Services extends Component {
               , amount    : globalCfg.currency.toCurrencyString(service.amount)
               , periods   : periods
               , begins_at : begins_at.format(form_helper.MONTH_FORMAT)
-              , bold: (str) => <b>{str}</b>});
+              , bold: (str) => <b key={Math.random()}>{str}</b>});
     //
     Modal.confirm({
       title: this.state.intl.confirm_send_request,

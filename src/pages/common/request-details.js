@@ -305,7 +305,7 @@ class RequestDetails extends Component {
     const confirm_payment_message = this.props.intl.formatMessage( { id:'pages.common.request-details.confirm_payment_message'}
           , {  amount:     globalCfg.currency.toCurrencyString(amount)
               , receiver:  receiver
-              , bold:      (str) => <b>{str}</b>});
+              , bold:      (str) => <b key={Math.random()}>{str}</b>});
     //
     Modal.confirm({
       title:   this.state.intl.confirm_payment,

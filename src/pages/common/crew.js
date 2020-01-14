@@ -139,7 +139,7 @@ class Crew extends Component {
 
   onRemoveMember = (member) => {
     const that           = this;
-    const confirm_delete_message = this.props.intl.formatMessage({id:'pages.common.crew.confirm_delete_message'}, {member_account_name:member.member.account_name, bold: str => <b>{str}</b>});
+    const confirm_delete_message = this.props.intl.formatMessage({id:'pages.common.crew.confirm_delete_message'}, {member_account_name:member.member.account_name, bold: str => <b key={Math.random()}>{str}</b>});
     Modal.confirm({
       title: this.state.intl.confirm_delete ,
       content: (<p>{confirm_delete_message}}</p>),

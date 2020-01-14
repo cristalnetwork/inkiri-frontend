@@ -78,8 +78,8 @@ const AccountRolesView = (props) => {
                                 , permission_permission:  permission_permission
                                 , account_key:            account.key
                                 , permission_name:        permission_name
-                                , bold: (str) => <b>{str}</b>
-                                , italic: (str) => <i>{str}</i>
+                                , bold: (str) => <b key={Math.random()}>{str}</b>
+                                , italic: (str) => <i key={Math.random()}>{str}</i>
                         }} />)
         , onOk() {
           fireEvent(ENUM_EVENT_DELETE_PERMISSION, 

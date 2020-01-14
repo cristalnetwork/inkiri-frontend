@@ -8,6 +8,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as moment from 'moment';
 import * as api from '@app/services/inkiriApi';
 
+import { injectIntl } from "react-intl";
+
 const ServiceCardPeriods = (props) => {
     
     const [service_extra, setServiceExtra]     = useState(null);
@@ -25,11 +27,11 @@ const ServiceCardPeriods = (props) => {
 
     if(!service_extra)
       return (null);
-
-    const begins_at       = moment(service_extra.begins_at);
+    console.log('service_extra:', service_extra)
+    const begins_at       = api.pap_helper.getMoment(service_extra.begins_at);
     const begins_at_text  = begins_at.format(form_helper.MONTH_FORMAT_HUMANIZED);
 
-    const expires_at      = moment(service_extra.expires_at);
+    const expires_at      = api.pap_helper.getMoment(service_extra.expires_at);
     const expires_at_text = expires_at.format(form_helper.MONTH_FORMAT_HUMANIZED);
 
     const periods         = api.pap_helper.getServicePeriods(service_extra);
@@ -85,4 +87,4 @@ export default connect(
         // currentAccount:  loginRedux.currentAccount(state),
         // isLoading:       loginRedux.isLoading(state)
     })
-)(ServiceCardPeriods)
+)( injectIntl(ServiceCardPeriods))

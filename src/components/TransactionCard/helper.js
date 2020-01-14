@@ -119,7 +119,8 @@ export const getTypeConf = () => {
       [globalCfg.api.TYPE_ISSUE]       : {icon:'credit-card',          rotation: 0,  color:{primary: '#067748' /*verde dark*/    , secondary:'#c5fce5'}, style: {}},
       [globalCfg.api.TYPE_IUGU]        : {icon:'credit-card',          rotation: 0,  color:{primary: '#A115FF' /*violeta*/       , secondary:'#e2c3f7'}, style: {}},
       [globalCfg.api.TYPE_REFUND]      : {icon:'credit-card',          rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/       , secondary:'#b1ecfa'}, style: {}},
-      
+      [globalCfg.api.TYPE_PAD]         : {icon:'shopping-bag',         rotation: 0,  color:{primary: '#FF06A3' /*fuccia*/        , secondary:'#facae8'}, style: {}},
+
       [globalCfg.api.TYPE_NEW_ACCOUNT] : {icon:'user-plus',            rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
       [globalCfg.api.TYPE_ERASE_CUST]  : {icon:'user-minus',           rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
       [globalCfg.api.TYPE_UPSERT_PAP]  : {icon:'file-signature',       rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},

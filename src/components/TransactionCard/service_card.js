@@ -16,7 +16,6 @@ const ServiceCard = (props) => {
     const [smallStyle, setSmallStyle]   = useState(false);
     const [request, setRequest]         = useState(null);
 
-
     useEffect(() => {
         setProvider(props.provider);
         setService(props.service);

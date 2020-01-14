@@ -23,8 +23,6 @@ export const getChargeInfo = (pap) =>{
   return ret;
 }
 
-
-
 export const getServicePeriods = (dict) =>{
   return getServicePeriodsEx(dict.begins_at, dict.expires_at);
 }
@@ -44,10 +42,19 @@ export const getServiceBeginTimestamp = (begins_at) =>{
   return getServiceBegin(begins_at).unix();
 }
 
-const getMoment = (value) => {
+export const getMoment = (value) => {
   let moment_value = value;
-  if(typeof value === 'number' || typeof value === 'string')
-    moment_value = moment(value);
+  // if(typeof value === 'number')
+  if(isNaN(value)==false)
+  {
+    let my_value = value;
+    if(value.toString().length=='1570910442875'.length)
+      my_value = value/1000;
+    moment_value = moment.unix(my_value)
+  }
+  else
+    if(typeof value === 'string')
+      moment_value = moment(value);
   return moment_value;
 }
 

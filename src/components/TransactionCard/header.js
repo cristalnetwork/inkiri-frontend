@@ -12,7 +12,7 @@ const TransactionHeader = ({request, transaction}) => {
               id={id}
               values={ {request_id:     request_id
                   , request_date: request_date
-                  , bold: (str) => <b>{str}</b>
+                  , bold: (str) => <b key={Math.random()}>{str}</b>
                 }} />
     }
     

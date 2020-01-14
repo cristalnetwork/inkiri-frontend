@@ -15,7 +15,7 @@ const IuguHeader = ({invoice}) => {
                 id="components.TransactionCard.header.tx_date_header"
                 values={ {request_id:     utils.trimCenter(invoice.iugu_id.id)
                           , request_date: request_helper.formatDate(invoice.original.created_at_iso)
-                          , bold: (str) => <b>{str}</b>
+                          , bold: (str) => <b key={Math.random()}>{str}</b>
                         }} />
       // header = (<>TX #<b>{utils.trimCenter(invoice.iugu_id.id)}</b> • Created on <b>{request_helper.formatDate(invoice.original.created_at_iso)}</b></>);
       tag    = request_helper.iugu.stateTag(invoice);
