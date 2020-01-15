@@ -177,11 +177,6 @@ const GET_CONFIG = gql`
       key
       value
       amount
-      bank_account{
-        bank_name
-        agency
-        cc
-      }
       account{
         account_type
         fee
@@ -217,6 +212,13 @@ const GET_CONFIG = gql`
       }
       created_at
       updated_at
+    }
+    configurationsBanks{
+      _id
+      configurationCounterId
+      father
+      key
+      value      
     }
   }
 `;

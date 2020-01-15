@@ -116,6 +116,7 @@ export const payModes             = (state) => getConfig(state)['configurationsP
 export const externalTxFees       = (state) => getConfig(state)['configurationsExternalTxFee']
 export const accountConfigs       = (state) => getConfig(state)['configurationsAccountConfig']
 export const transferReasons      = (state) => getConfig(state)['configurationsTransfersReasons']
+export const banks                = (state) => getConfig(state)['configurationsBanks']
 export const flatConfig           = (state) => getConfig(state)['configuration']
 
 export const team                 = (state) => state.graphql.data[globalCfg.bank.ACCOUNT_TYPE_BUSINESS]

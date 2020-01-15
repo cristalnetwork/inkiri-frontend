@@ -36,7 +36,6 @@ class AutocompleteAccount extends Component {
       data:                [],
       validation_rule:     props.validation_rule,
       selected:            undefined,
-      form:                props.form,
       exclude_list:        props.exclude_list,
       readOnly:            props.readOnly||false, 
       filter:              props.filter||null,
@@ -68,13 +67,11 @@ class AutocompleteAccount extends Component {
 
   componentDidUpdate(prevProps, prevState) 
   {
-      if(prevProps.filter !== this.props.filter 
-          || prevProps.form !== this.props.form ) {
+      if(prevProps.filter !== this.props.filter ) {
         // console.log(' --------- per que?')
         // console.log(this.props.not_required, this.props.size, this.props.without_icon)
         this.setState({
             filter:                this.props.filter||false,
-            form:                  this.props.form,
             readOnly:              this.props.readOnly||false, 
             without_icon:          this.props.without_icon,
             label:                 this.props.label,
@@ -118,8 +115,7 @@ class AutocompleteAccount extends Component {
     
     this.setState({
             filter:   this.props.filter,
-            form:                  this.props.form,
-            data:                  my_accounts
+            data:     my_accounts
           });
   }
 
@@ -181,7 +177,7 @@ class AutocompleteAccount extends Component {
 
   render = () => {
     const { formatMessage }  = this.props.intl;
-    const { form }           = this.state;
+    const { form }           = this.props;
     if(!form)
       return (null);
     //
@@ -212,14 +208,14 @@ class AutocompleteAccount extends Component {
       */
       selector = (<Form.Item label={label}>
                         {getFieldDecorator(name, {
-                        rules: [{ required: !not_required, message: (!not_required)?formatMessage({id:'components.AutocompleteAcount.index.choose_account_message'}):undefined , validator: validation_rule}]
+                        rules: [{ required: !not_required, message: (!not_required)?formatMessage({id:'components.AutocompleteAccount.index.choose_account_message'}):undefined , validator: validation_rule}]
                       })(
                           <AutoComplete 
                             size={size||'large'} 
                             dataSource={data.map(this.renderAccount)} 
                             style={{ width: '100%' }} 
                             onSelect={this.handleSelect} 
-                            placeholder={ formatMessage({id:"components.AutocompleteAcount.index.placeholder"}) }
+                            placeholder={ formatMessage({id:"components.AutocompleteAccount.index.placeholder"}) }
                             filterOption={(inputValue, option) =>
                               {
                                 // console.log('>>filterOption >> ',inputValue, option);
@@ -227,7 +223,7 @@ class AutocompleteAccount extends Component {
                               }
                             } 
                             optionLabelProp="value" >
-                               <Input suffix={<Button loading={isLoading} type="link" icon="redo" className="redoButton"  title={ formatMessage({id:"components.AutocompleteAcount.index.title"})}  onClick={this.loadAccounts}></Button>} />
+                               <Input suffix={<Button loading={isLoading} type="link" icon="redo" className="redoButton"  title={ formatMessage({id:"components.AutocompleteAccount.index.title"})}  onClick={this.loadAccounts}></Button>} />
                             </AutoComplete>
                         )}
                       </Form.Item>);
@@ -236,13 +232,13 @@ class AutocompleteAccount extends Component {
     if(without_icon===true)
       return (selector);
     
-    return (<div className="money-transfer__row row-complementary row-complementary-bottom money-transfer__select" >
-              <div className="badge badge-extra-small badge-circle addresse-avatar ">
+    return (<div className="col_icon_widget money-transfer__row row-complementary row-complementary-bottom money-transfer__select" >
+              <div className="col_icon badge badge-extra-small badge-circle addresse-avatar ">
                   <span className="picture">
                     <FontAwesomeIcon icon="user" size="lg" color="black"/>
                   </span>
               </div>
-              <div className="money-transfer__input money-transfer__select">
+              <div className="col_widget money-transfer__input money-transfer__select">
                 {selector}
               </div>
           </div>);

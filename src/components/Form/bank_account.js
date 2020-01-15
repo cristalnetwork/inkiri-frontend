@@ -7,6 +7,8 @@ import * as balanceRedux from '@app/redux/models/balance'
 
 import * as components_helper from '@app/components/helper';
 
+import AutocompleteBank from '@app/components/AutocompleteBank';
+
 import { withRouter } from "react-router-dom";
 
 import { Button , Form, Input } from 'antd';
@@ -92,6 +94,26 @@ class BankAccountForm extends Component {
     // this.setState({...DEFAULT_STATE});
   }
 
+  getBankAccountField = (getFieldDecorator, bank_name_message, bank_account) => {
+  
+    return    (<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
+                    <AutocompleteBank callback={null} form={this.props.form} name="bank_account.bank_name" value={bank_account.bank_name||''} />
+                  </div>);
+    //
+    // return(<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
+    //             <Form.Item label="Bank Name">
+    //               {getFieldDecorator('bank_account.bank_name', {
+    //                 rules: [{ required:   true, 
+    //                           message:    bank_name_message, 
+    //                           whitespace: true }],
+    //                 initialValue:bank_account.bank_name||''
+    //               })(
+    //                 <Input autoFocus className="money-transfer__input" placeholder={bank_name_placeholder} />
+    //               )}
+    //             </Form.Item>
+    //           </div>);
+
+  }
   renderContent() {  
     const { bank_account, button_text } = this.state;
     const { getFieldDecorator }         = this.props.form;
@@ -107,18 +129,8 @@ class BankAccountForm extends Component {
       <Form onSubmit={this.handleSubmit}>
             <div className="money-transfer">
               
-              <div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-                <Form.Item label="Bank Name">
-                  {getFieldDecorator('bank_account.bank_name', {
-                    rules: [{ required:   true, 
-                              message:    bank_name_message, 
-                              whitespace: true }],
-                    initialValue:bank_account.bank_name||''
-                  })(
-                    <Input autoFocus className="money-transfer__input" placeholder={bank_name_placeholder} />
-                  )}
-                </Form.Item>
-              </div>
+              { this.getBankAccountField(getFieldDecorator, bank_name_message, bank_account) }
+
 
               <div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
                 <Form.Item label="Agency">
