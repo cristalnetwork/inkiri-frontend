@@ -201,7 +201,7 @@ const routes  = {
                     },
                     {
                         key:          routes_config.pathNames.bankadminTeams,
-                        path:         routes_config.pathNames.bankadminSoon,
+                        path:         routes_config.pathNames.bankadminTeams,
                         title:        'menu.item.teams',
                     },
                 ]

@@ -636,6 +636,61 @@ export const columnsForProfiles = (callback) => {
       }
     ];
 }
+//
+
+//
+export const columnsForTeams = (callback) => {
+    
+    return [
+      {
+        title: <InjectMessage id="global.team" />,
+        dataIndex: 'team',
+        key: 'team',
+        render: (team, record) => {
+          return(
+            <span className="name_value_row">
+              <div className="row_name centered" >
+                <Icon type="shop" />
+              </div>
+              <div className="row_value wider">
+                <span className="row_tx_title">{request_helper.getProfileName(record.created_by)}</span> 
+                <br/>@{record.account_name} 
+              </div>   
+            </span>)
+        }
+      },
+      {
+        title: <InjectMessage id="global.members" />,
+        key: 'members',
+        dataIndex: 'members',
+        align: 'right',
+        render: (members, record) => {
+          const members_count = (record.members && Array.isArray(record.members))?record.members.length:0;
+          return (<span>{members_count}</span>);
+        }
+      },
+      {
+        title: <InjectMessage id="pages.bankadmin.teams.total_wages" />,
+        dataIndex: 'teamCounterId',
+        key: 'userCounterId',
+        align: 'right',
+        render: (teamCounterId, record) => {
+          const total_wage = (record.members && Array.isArray(record.members))
+            ? globalCfg.currency.toCurrencyString( record.members.reduce((acc, member) => acc + Number(member.wage), 0))
+            : globalCfg.currency.toCurrencyString(0);
+          return (<span>{total_wage}</span>);
+        }
+      },
+      {
+        title: <InjectMessage id="components.TransactionTable.columns.action" />,
+        key: 'action',        
+        align: 'right',
+        render: (text, record) => {
+          return <Button key={'details_'+record.key} onClick={()=>{ callback(record) }} icon="team" size="small">&nbsp;<InjectMessage id="global.members" /></Button>
+        }
+      }
+    ];
+}
 
 //
 

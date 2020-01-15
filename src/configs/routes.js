@@ -212,7 +212,7 @@ const bankadmin = [
     },
     {
        key:       pathNames.bankadminTeams,
-       fileName:  'teamsX',
+       fileName:  'teams',
        area:      'bankadmin',
        path:      'teams',
        container: 'dashboard',

@@ -258,6 +258,40 @@ const GET_BUSINESS_DATA  = gql`
 export const loadBizData = async (account_name) => runQuery(GET_BUSINESS_DATA, {account_name:account_name});
 
 
+const GET_TEAMS  = gql`
+  query yyy($page:String!, $limit:String!, $account_name:String) {
+    teams(page:$page, limit:$limit, account_name:$account_name){
+      _id
+      created_by{
+        _id
+        account_name
+        account_type
+        business_name
+      }
+      account_name
+      teamCounterId
+      members{
+        _id
+        member{
+          _id
+          account_name
+          account_type
+          first_name
+          last_name
+          legal_id
+          email
+        }
+        position
+        wage
+      }
+    }
+  }
+`;
+export const loadTeams = async ({page, limit='100', account_name=''}={}) =>{
+  const a        = {account_name:account_name, page:page.toString(), limit:limit};
+  return runQuery(GET_TEAMS, a, 'teams');
+}
+
 const request_fields = `_id
       id                        
       created_by{
