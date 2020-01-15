@@ -248,6 +248,7 @@
   "components.TransactionCard.provider.category": "Category",
   "components.TransactionCard.provider.products_services": "Products/services",
   "components.TransactionCard.provider.product_service_n_a": "Product/Service description Not Available",
+  "components.TransactionCard.provider.not_available": "Not available",
   "components.TransactionCard.provider.payment_details": "Payment details",
   "components.TransactionCard.provider.payment_vehicle": "Payment vehicle",
   "components.TransactionCard.provider.payment_category": "Payment Category",

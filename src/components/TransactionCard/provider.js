@@ -100,9 +100,18 @@ const TransactionProvider = (props) => {
                       <div className="ui-row__col ui-row__col--content">
                           <div className="ui-action-row__content">
                               <div className="ui-action-row__title u-truncate" title={props.intl.formatMessage({id:'global.description'})}>
-                                <b>{request.description || props.intl.formatMessage({id:'components.TransactionCard.provider.product_service_n_a'})}</b>
+                                <b>{request.description || props.intl.formatMessage({id:'components.TransactionCard.provider.not_available'})}</b>
+                              </div>
+                              <div className="ui-info-row__details">
+                                <ul>
+                                    <li><InjectMessage id="components.TransactionCard.provider.products_services" /></li>
+                                </ul>
                               </div>
                           </div>
+
+
+                            
+
                       </div>
                 </li>
 
