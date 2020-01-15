@@ -69,6 +69,7 @@
   "global.wages": "Wages",
   "global.view_request": "View request",
   "global.bank_account": "Bank Account",
+  "global.destination": "Destination",
   "global.envelope_id": "Envelope Id",
   "global.currency": "Currency",
   "global.pushing_transaction": "Pushing transaction...",
@@ -987,5 +988,9 @@
   "pages.general.login.texts_reset_session": "Reset session",
   "pages.bankadmin.external-transfers.title": "External Transfers",
   "pages.bankadmin.external-transfers.title_hint": "List of Provider Payments and Exchanges requests",
+  "pages.bankadmin.external-transfers.create_rem_file_text": "Create REM file",
+  "pages.bankadmin.external-transfers.create_rem_file_empresa": "REM Empresa",
+  "pages.bankadmin.external-transfers.create_rem_file_instituto_projeto": "REM Intituto Projeto",
+  "pages.bankadmin.external-transfers.create_rem_file_instituto_ppa": "REM instituto PPA",
   "dummy": "dummy"
 }

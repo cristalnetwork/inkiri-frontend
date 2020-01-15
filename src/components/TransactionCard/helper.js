@@ -44,7 +44,17 @@ export const getExternalRequestDesc = (request) => {
        </Tag></>)
 }
 
+export const bankAccountForRequest = (request) => {
+  if(globalCfg.api.isProviderPayment(request) && request.provider && request.provider.bank_accounts && Array.isArray(request.provider.bank_accounts))
+    return getBankAccountDesc(request.provider.bank_accounts[0])
+  if(globalCfg.api.isExchange(request))
+    return getBankAccountDesc(request.bank_account)
+  return 'N/A';
+}
+
 export const getBankAccountDesc = (bank_account) => {
+  if(!bank_account)
+    return 'N/A';
   return [bank_account.bank_name, bank_account.agency, bank_account.cc].join(', ')
 }
 

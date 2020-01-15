@@ -320,6 +320,114 @@ export const getColumnsForRequests = (callback, is_admin, process_wages) => {
   ]
 };
 
+//
+export const getColumnsForExternalTransfers = (callback) => {
+  return [
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.date" />,
+      dataIndex: 'block_time',
+      key: 'block_time',
+      sortDirections: ['descend'],
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.block_time_number - b.block_time_number,
+      align: 'left',
+      width: '150px',
+      render: (block_time, record) => {
+        return (
+            <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
+              {request_helper.formatBlockTime(record)}
+            </div>
+            )
+        }
+    },
+    //
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.type" />,
+      dataIndex: 'tx_type',
+      key: 'tx_type',
+      width: '400px',
+      render: (tx_type, record) => {
+        
+        return (<span className="name_value_row ">
+              <div className="row_name centered flex_fixed_width_5em" >
+                <div className="ui-row__col ui-row__col--heading">
+                    <div className="ui-avatar">
+                      {request_helper.getCircledTypeIcon(record)} 
+                    </div>
+                </div>
+              </div>
+              <div className="row_value wider">
+                <div className="ui-info-row__content">
+                  <div className="ui-info-row__title">
+                    {record.header}
+                  </div>
+                  <div className="ui-info-row__details">
+                      <ul>
+                          <li>{record.sub_header_admin}</li>
+                          <li>{record.sub_header_ex}</li>
+                          
+                      </ul>
+                  </div>
+                </div>
+              </div>
+            </span>)
+
+      }
+    },
+    //
+    {
+      title: <InjectMessage id="global.bank_account" />,
+      key: 'destination',
+      width: '80px',
+      render: (text, record) => {
+        return request_helper.bankAccountForRequest(record);
+      },
+    },
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.status" />,
+      dataIndex: 'state',
+      key: 'state',
+      width: '145px',
+      render: (state, record) => request_helper.getStateTag(record)
+    }
+    ,
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.from" />,
+      dataIndex: 'from',
+      key: 'from',
+      width: '110px',
+    },
+    {
+      title: '#',
+      key: 'action',
+      width: '80px',
+      render: (text, record) => {
+        const isFinished = globalCfg.api.isFinished(record);
+        const title      = isFinished 
+        ? <InjectMessage id="components.TransactionTable.columns.details" /> 
+        : <InjectMessage id="components.TransactionTable.columns.process" />;
+        return request_helper.getProcessButton(record, callback, title, !isFinished);
+      },
+    },
+    //
+    {
+      title:       '$',
+      align:       'right',
+      dataIndex:   'amount',
+      key:         'amount',
+      // fixed:       'right',
+      className:   'amount_col',
+      render: (value, record) => {
+        let amount = record.amount;
+        return (
+            <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
+              {request_helper.getStyledAmountEx(amount)}
+            </div>
+            )
+        }
+    }
+  ]
+};
 
 //
 export const columnsForAccounts = (callback) => {

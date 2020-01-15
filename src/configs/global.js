@@ -1,4 +1,4 @@
-const env        = "dev";
+const env        = "prod";
 
 const language   = "english";
 
@@ -170,6 +170,7 @@ const api_version = '/api/v1';
 const api = {
   endpoint                    : base_url + api_version
   , graphql_endpoint          : base_url + api_version + '/graphql'
+  , rem_generator_endpoint    : base_url + api_version + '/requests_rem_generator'
   , default_page_size         : 25
   , FIAT_CURR_BRL             : 'BRL'
   , FIAT_CURR_IK              : 'IK$'

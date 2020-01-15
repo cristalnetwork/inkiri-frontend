@@ -41,10 +41,11 @@ class TransactionTable extends Component {
       loading:           false,
       limit:             globalCfg.api.default_page_size,
       can_get_more:      true,
-      
+      mode:              props.mode,
       for_admin:         props.i_am_admin,
       filter:            props.filter,
-      requests_filter:   {}
+      requests_filter:   {},
+      selectedRows:      []
     };
     // this.handleChange      = this.handleChange.bind(this);
     this.onNewData         = this.onNewData.bind(this);
@@ -56,6 +57,10 @@ class TransactionTable extends Component {
 
   getColumnsForType =() =>{
 
+    if(this.state.mode=='external-transfers')
+    {
+      return columns_helper.getColumnsForExternalTransfers(this.props.callback);  
+    }
     const is_admin = globalCfg.bank.isAdminAccount(this.props.actualRoleId )
     // this.props.isBusiness ||  this.props.isAdmin
     const processWages = this.props.isPersonal;
@@ -112,6 +117,10 @@ class TransactionTable extends Component {
     if (this.props.i_am_admin !== prevProps.i_am_admin) {
       this.setState({for_admin: this.props.i_am_admin});
     }
+    if (this.props.mode !== prevProps.mode) {
+      this.setState({mode: this.props.mode});
+    }
+    
     if (this.props.filter !== prevProps.filter) {
       this.setState({filter: this.props.filter});
     } 
@@ -198,9 +207,64 @@ class TransactionTable extends Component {
       }
   }
 
+  rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      console.log(`::onChange:: selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+      this.setState({selectedRows:selectedRows});
+
+    },
+    // onSelect: (record, selected, selectedRows) => {
+    //   console.log('::onSelect::', record, selected, selectedRows);
+    // },
+    // onSelectAll: (selected, selectedRows, changeRows) => {
+    //   console.log('::onSelectAll::', selected, selectedRows, changeRows);
+    // },
+  };
+
+  /*
+  "PAGAMENTO_EMPRESA"                            : 0
+  "PAGAMENTO_INSTITUTO_PROJETO"                  : 1
+  "PAGAMENTO_INSTITUTO_PPA"                      : 2
+  */
+
+  remButtons  = () => {
+    const buttons = [ 
+            {
+              title:     'pages.bankadmin.external-transfers.create_rem_file_empresa'
+              , value:   0 
+            }
+            ,{
+              title:     'pages.bankadmin.external-transfers.create_rem_file_instituto_projeto'
+              , value:   1 
+            }
+            ,{
+              title:     'pages.bankadmin.external-transfers.create_rem_file_instituto_ppa'
+              , value:   2 
+            }
+    ];
+    const {selectedRows} = this.state;
+    const _enabled      = (selectedRows && Array.isArray(selectedRows) && selectedRows.length>0);
+    return (<>{
+        buttons.map( btn => 
+            <Button style={{marginRight:8}} key={`rem_button_${btn.value}`} disabled={!_enabled} type="primary" href={this.remFileLink(btn.value)} target="_blank" icon="bank" size="small" >&nbsp;<InjectMessage id={btn.title} /></Button>
+          )
+      }</>)
+    //
+  }
+  remFileLink = (conta_pagamento) => {
+    const {selectedRows} = this.state;
+    const ids = selectedRows.map(row=>row._id).join(',');
+    return `${globalCfg.api.rem_generator_endpoint}/${ids}/${conta_pagamento}`
+  }
+
   render(){
+    const is_external = (this.state.mode=='external-transfers');
+    const header = (is_external)
+      ?this.remButtons()
+      :(null);
     return (
       <Table 
+        title={() => header}
         key={'tx_table__'+this.props.request_type}
         rowKey={record => record._id} 
         loading={this.state.loading} 
@@ -210,12 +274,14 @@ class TransactionTable extends Component {
         pagination={this.state.pagination}
         scroll={{ x: 950 }}
         expandedRowRender={columns_helper.expandedRequestRowRender}
-        onRow={(record, rowIndex) => {
-              return { onDoubleClick: event => { this.props.callback(record) }
-              };
+        rowSelection={is_external && this.rowSelection}
+        onRow={ (record, rowIndex) => {
+                  return { 
+                    onDoubleClick: event => { this.props.callback(record) }
+                  };
             }}
       />
-    
+      
     )
   }
 

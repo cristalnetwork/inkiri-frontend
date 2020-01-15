@@ -86,8 +86,9 @@ class ExternalTransfers extends Component {
         callback={this.onProcessRequestClick} 
         onRef={ref => (this.table_widget = ref)}
         filter_hidden_fields={['to']}
+        mode="external-transfers"
         request_type={`${DISPLAY_EXCHANGES},${DISPLAY_PROVIDER}`} 
-        />);
+      />);
     //`
     
   }

@@ -21,6 +21,7 @@ const RequestListWidget = (props) => {
   const [filter, setFilter]                      = useState(props.filter);
   const [request_type, setRequestType]           = useState(props.request_type);
   const [filter_hidden_fields, setHiddenFields]  = useState(props.search_hidden_fields || []);
+  const [mode, setMode]                          = useState(props.mode);
 
   const [table_ref, setTableRef]        = useState(null);
   const [stats, setStats]               = useState([]);
@@ -31,7 +32,9 @@ const RequestListWidget = (props) => {
   useEffect(() => {
       setFilter(props.filter);
     }, [props.filter]);
-  
+  useEffect(() => {
+      setMode(props.mode);
+    }, [props.mode]);
   
   var t_id2 = null;
   const requestFilterCallback = (error, cancel, values, refresh) => {
@@ -123,6 +126,7 @@ const RequestListWidget = (props) => {
         onRef={ref => (setTableRef(ref))}
         i_am_admin={props.isAdmin}
         filter={filter}
+        mode={mode}
         />
       </>
     )

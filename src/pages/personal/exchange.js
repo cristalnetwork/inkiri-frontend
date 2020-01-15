@@ -96,8 +96,8 @@ class Exchange extends Component {
   }
 
   handleSubmit = e => {
-    // console.log(' Exchange for submitted ', JSON.stringify(e))
-
+    // console.log(' Exchange for submitted ', e)
+    
     const {amount, bank_account, bank_account_object, attachments_array} = e;
     const privateKey       = this.props.actualPrivateKey;
     const sender           = this.props.actualAccountName;
