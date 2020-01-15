@@ -345,7 +345,7 @@ export const getColumnsForExternalTransfers = (callback) => {
       title: <InjectMessage id="components.TransactionTable.columns.type" />,
       dataIndex: 'tx_type',
       key: 'tx_type',
-      width: '400px',
+      width: '250px',
       render: (tx_type, record) => {
         
         return (<span className="name_value_row ">
@@ -377,8 +377,8 @@ export const getColumnsForExternalTransfers = (callback) => {
     //
     {
       title: <InjectMessage id="global.bank_account" />,
-      key: 'destination',
-      width: '80px',
+      key: 'bank_account',
+      width: '230px',
       render: (text, record) => {
         return request_helper.bankAccountForRequest(record);
       },

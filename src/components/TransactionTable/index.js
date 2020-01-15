@@ -13,7 +13,7 @@ import { Button} from 'antd';
 import { Table } from 'antd';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
-import * as ui_helper from '@app/components/helper';
+import * as components_helper from '@app/components/helper';
 
 import InjectMessage from "@app/components/intl-messages";
 import { injectIntl } from "react-intl";
@@ -166,7 +166,7 @@ class TransactionTable extends Component {
     catch(e)
     {
       this.setState({loading:false});
-      ui_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
       return;
     }
     
@@ -199,7 +199,7 @@ class TransactionTable extends Component {
       const msg = (page>0)
         ?end_of_list
         :no_records_for_filter;
-      ui_helper.notif.infoNotification(msg)
+      components_helper.notif.infoNotification(msg)
     }
     else
       if(typeof this.props.onChange === 'function') {
@@ -210,9 +210,10 @@ class TransactionTable extends Component {
   rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       console.log(`::onChange:: selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-      this.setState({selectedRows:selectedRows});
-
+      this.setState({selectedRows:selectedRows}
+        , () => {this.validateState()});
     },
+    
     // onSelect: (record, selected, selectedRows) => {
     //   console.log('::onSelect::', record, selected, selectedRows);
     // },
@@ -243,14 +244,26 @@ class TransactionTable extends Component {
             }
     ];
     const {selectedRows} = this.state;
-    const _enabled      = (selectedRows && Array.isArray(selectedRows) && selectedRows.length>0);
+    const _enabled       = (selectedRows && Array.isArray(selectedRows) && selectedRows.length>0);
     return (<>{
         buttons.map( btn => 
             <Button style={{marginRight:8}} key={`rem_button_${btn.value}`} disabled={!_enabled} type="primary" href={this.remFileLink(btn.value)} target="_blank" icon="bank" size="small" >&nbsp;<InjectMessage id={btn.title} /></Button>
           )
       }</>)
-    //
+    // `
   }
+  
+  validateState = () => {
+    const {selectedRows} = this.state;
+    const wrong_state_requests = selectedRows.filter(row=>row.state!==globalCfg.api.STATE_RECEIVED).length;
+    if(wrong_state_requests>0)
+    {
+      const title = this.props.intl.formatMessage({id:'errors.notification'})
+      const msg = this.props.intl.formatMessage({id:'pages.bankadmin.external-transfers.some_requests_has_wrong_states'})
+      components_helper.notif.infoNotification(title, msg)
+    }
+  }
+
   remFileLink = (conta_pagamento) => {
     const {selectedRows} = this.state;
     const ids = selectedRows.map(row=>row._id).join(',');

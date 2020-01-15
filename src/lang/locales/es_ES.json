@@ -81,6 +81,8 @@
   "global.dates.last_30_days": "Last 30 Days",
   "global.dates.this_month": "This Month",
   "global.dates.last_month": "Last Month",
+  "errors.alert": "Alert",
+  "errors.notification": "Notification!",
   "errors.occurred_title": "An error occurred",
   "errors.validation_title": "Validation errors",
   "errors.verify_on_screen": "Please verifiy errors on screen!",
@@ -992,5 +994,6 @@
   "pages.bankadmin.external-transfers.create_rem_file_empresa": "REM Empresa",
   "pages.bankadmin.external-transfers.create_rem_file_instituto_projeto": "REM Intituto Projeto",
   "pages.bankadmin.external-transfers.create_rem_file_instituto_ppa": "REM instituto PPA",
+  "pages.bankadmin.external-transfers.some_requests_has_wrong_states": "Some selected requests has wrong state. Please chek in screen!",
   "dummy": "dummy"
 }
