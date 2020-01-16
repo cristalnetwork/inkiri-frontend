@@ -145,11 +145,11 @@ export const expandedRequestRowRender = (record) => {
       const blockchain  = record.tx_id?request_helper.getBlockchainLink(record.tx_id, true, null, <InjectMessage id="components.TransactionTable.columns.blockchain_link_text" />):(null);
       return (
             <>
-              <span key={'tags'+record.id}>&nbsp;<InjectMessage id="global.provider" />:&nbsp;<b>{ request_helper.getRequestProviderDesc(record)}</b></span>
+              <span key={'tags'+record.id}>&nbsp;<InjectMessage id="global.provider" />:&nbsp;<b key={Math.random()}>{ request_helper.getRequestProviderDesc(record)}</b></span>
               {Object.keys(record.provider_extra).map(key => 
                  
                   (key!='__typename')
-                    ?(<><br/>{key}: <b key={Math.random()}>{record.provider_extra[key]}</b></>)
+                    ?(<span key={Math.random()}><br/>{key}: <span className="uppercase bold" key={Math.random()}>{record.provider_extra[key]}</span></span>)
                     :null
                 )}
               <br/> {blockchain}

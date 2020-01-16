@@ -36,7 +36,6 @@ class AutocompleteBank extends Component {
       selected:            undefined,
       filter:              props.filter||null,
       without_icon:        props.without_icon,
-      label:               props.label,
       not_required:        props.not_required,
     };
 
@@ -148,11 +147,11 @@ class AutocompleteBank extends Component {
     //
     const { getFieldDecorator }             = form;
     const {without_icon, value, size,
-        data, fetching, label, not_required,
+        data, fetching, not_required,
         validation_rule}                    = this.state;
-    const {isLoading, name}                 = this.props;
+    const {isLoading, name, the_label}      = this.props;
     
-    const  selector = (<Form.Item label={label}>
+    const  selector = (<Form.Item label={the_label}>
                         {getFieldDecorator(name, {
                         rules: [{ required: !not_required
                                     , message: (!not_required)?formatMessage({id:'components.AutocompleteBank.index.choose_bank_message'}):undefined 

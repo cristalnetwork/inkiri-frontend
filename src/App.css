@@ -520,6 +520,7 @@ select .anticon {
 }
 
 span.uppercase {text-transform: uppercase;}
+span.bold {font-weight: bold;}
 
 div.headerList tr{
   display:flex;

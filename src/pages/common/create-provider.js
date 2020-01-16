@@ -17,6 +17,8 @@ import {formItemLayout,tailFormItemLayout } from '@app/utils/utils';
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
+import AutocompleteBank from '@app/components/AutocompleteBank';
+
 import { injectIntl } from "react-intl";
 import InjectMessage from "@app/components/intl-messages";
 
@@ -126,8 +128,10 @@ class CreateProvider extends Component {
         return;
       }
       // this.setState({provider:values, result:'should-confirm'});
-      this.setState({provider:values});
-      this.doCreateProvider();
+      this.setState({provider:values},
+         () => {
+           this.doCreateProvider();
+         });
     });
   };
 
@@ -236,8 +240,8 @@ class CreateProvider extends Component {
                   })(<Input />)}
                 </Form.Item>
 
-                <Form.Item label="Category">
-                  {getFieldDecorator(label_category, {
+                <Form.Item label={label_category}>
+                  {getFieldDecorator('category', {
                     rules: [{ required: true, message: label_category_validator }],
                     initialValue: category
                   })(<Input style={{ width: '100%' }} />)}
@@ -301,12 +305,16 @@ class CreateProvider extends Component {
                 </Form.Item>
 
                 <h3 className="fileds_header">{label_bank_account}</h3>
-                <Form.Item label={label_bank_name}>
-                  {getFieldDecorator('bank_account.bank_name', {
-                    rules: [{ required: true, message: label_bank_name_validator }],
-                    initialValue: bank_account.bank_name
-                  })(<Input style={{ width: '100%' }} />)}
-                </Form.Item>
+                <AutocompleteBank 
+                  callback={null} 
+                  form={this.props.form} 
+                  name="bank_account.bank_name" 
+                  value={bank_account.bank_name||''} 
+                  without_icon={true}
+                  the_label={label_bank_name}
+                  size='default'
+                  />
+                
                 <Form.Item label={label_bank_agency}>
                   {getFieldDecorator('bank_account.agency', {
                     rules: [{ required: true, message: label_bank_agency_validator }],
@@ -331,7 +339,14 @@ class CreateProvider extends Component {
         </div>
     );
   }
-  
+  /*
+  <Form.Item label={label_bank_name}>
+                  {getFieldDecorator('bank_account.bank_name', {
+                    rules: [{ required: true, message: label_bank_name_validator }],
+                    initialValue: bank_account.bank_name
+                  })(<Input style={{ width: '100%' }} />)}
+                </Form.Item>
+                */
   // ** hack for sublime renderer ** //
 
   render() {
