@@ -998,5 +998,13 @@
   "pages.general.login.texts_register_now": "Register now!",
   "pages.general.login.texts_reset_session": "Reset session",
   "pages.bankadmin.external-transfers.title": "External Transfers",
-  "pages.bankadmin.external-transfers.title_hint": "List of Provider Payments and Exchanges requests"
+  "pages.bankadmin.external-transfers.title_hint": "List of Provider Payments and Exchanges requests",
+  "pages.bankadmin.external-transfers.create_rem_file_text": "Create REM file",
+  "pages.bankadmin.external-transfers.create_rem_file_empresa": "REM Empresa",
+  "pages.bankadmin.external-transfers.create_rem_file_instituto_projeto": "REM Intituto Projeto",
+  "pages.bankadmin.external-transfers.create_rem_file_instituto_ppa": "REM instituto PPA",
+  "pages.bankadmin.external-transfers.some_requests_has_wrong_states": "Some selected requests has wrong state. Please chek in screen!",
+  "pages.bankadmin.teams.total_wages": "Masa salarial",
+  "pages.bankadmin.teams.title": "Equipos",
+  "dummy": "dummy"
 }

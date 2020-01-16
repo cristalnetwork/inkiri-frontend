@@ -998,5 +998,13 @@
   "pages.general.login.texts_register_now": "Crie Sua Conta",
   "pages.general.login.texts_reset_session": "Reiuniciar Sessão",
   "pages.bankadmin.external-transfers.title": "Transferências Externas",
-  "pages.bankadmin.external-transfers.title_hint": "Lista de pagamentos a fornecedores e pedidos de câmbios"
+  "pages.bankadmin.external-transfers.title_hint": "Lista de pagamentos a fornecedores e pedidos de câmbios",
+  "pages.bankadmin.external-transfers.create_rem_file_text": "Criar arquivo REM",
+  "pages.bankadmin.external-transfers.create_rem_file_empresa": "REM para pagamentos da empresa",
+  "pages.bankadmin.external-transfers.create_rem_file_instituto_projeto": "REM para pagamentos de projetos do instituto",
+  "pages.bankadmin.external-transfers.create_rem_file_instituto_ppa": "REM para pagamentos de PPA do instituto",
+  "pages.bankadmin.external-transfers.some_requests_has_wrong_states": "Alguns pedidos selecionados estão com o estado incorreto. Por favor, verifique na tela!",
+  "pages.bankadmin.teams.total_wages": "Folha total de pagamentos",
+  "pages.bankadmin.teams.title": "Equipes",
+  "dummy": "dummy"
 }
