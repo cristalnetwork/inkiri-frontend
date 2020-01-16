@@ -7,6 +7,7 @@ import { createHttpLink } from 'apollo-link-http';
 import { setContext } from 'apollo-link-context';
 import * as jwtHelper from './jwt-helper';
 
+const do_log = false;
 /*
 * Apollo configuration
 */
@@ -16,7 +17,7 @@ const httpLink = createHttpLink({
 const authLink = setContext((_, { headers }) => {
   // get the authentication token from local storage if it exists
   const bearer_token = jwtHelper.getBearerTokenByKey(jwtHelper.BANK_AUTH_TOKEN_KEY);
-  console.log(bearer_token);
+  do_log && console.log(bearer_token);
   // return the headers to the context so httpLink can read them
   return {
     headers: {
@@ -493,10 +494,13 @@ export const requests = async ({page, requested_type='', account_name='', from='
   if(account_name && !to && !from && account_name!=globalCfg.currency.issuer)
   {
     from=to=account_name;
+    console.log(` ######## GQLService::requests -> SI from=to=account_name; from=${from}; to=${to}; account_name=${account_name}` )
+  }
+  else{
+    console.log(` ######## GQLService::requests -> NO from=to=account_name; from=${from}; to=${to}; account_name=${account_name}` )
   }
   const a        = {account_name:account_name, page:page.toString(), requested_type:requested_type, from:from, to:to, provider_id:provider_id, state:state, id:id, requestCounterId:requestCounterId, tx_id:tx_id, refund_tx_id:refund_tx_id, attach_nota_fiscal_id:attach_nota_fiscal_id, attach_boleto_pagamento_id:attach_boleto_pagamento_id, attach_comprobante_id:attach_comprobante_id, deposit_currency:deposit_currency, date_from:date_from, date_to:date_to, service_id:service_id, wage_filter:wage_filter};
-  console.log(JSON.stringify(a));
-  // console.log(GET_REQUESTS);
+  console.log(' ######## GQLService::requests ', JSON.stringify(a));
   return runQuery(GET_REQUESTS, a, 'requests');
 }
 
@@ -510,8 +514,6 @@ const GET_REQUEST  = gql`
 `;
 export const request = async ({id='', requestCounterId=null}={}) =>{
   const a        = {id:id, requestCounterId:requestCounterId};
-  console.log(JSON.stringify(a));
-  // console.log(GET_REQUESTS);
   return runQuery(GET_REQUEST, a, 'request');
 }
 
@@ -578,7 +580,6 @@ const GET_PROVIDER_DATA  = gql`
 
 export const providers = async ({page, limit='', id='', name='', cnpj='', email='', category='', products_services='', state='', providerCounterId='', bank_name='', bank_agency='', bank_cc=''}={}) =>{
   const a        = {page:page.toString(), limit:limit, id:id, name:name, cnpj:cnpj, email:email, category:category, products_services:products_services, state:state, providerCounterId:providerCounterId, bank_name:bank_name, bank_agency:bank_agency, bank_cc:bank_cc};
-  console.log(JSON.stringify(a));
   return runQuery(GET_PROVIDERS, a, 'providers');
 }
 
@@ -660,17 +661,17 @@ const runQuery = async (query, variables, _return_field) => {
       return null;
     if (error) 
     {
-      console.log(error);  
+      do_log && console.log(error);  
       return null;
     }
-    // console.log(data);
+    do_log && console.log(data);
     if(_return_field)
       return data[_return_field]
     return data;
   }
   catch(e)
   {
-    console.log('graphql exception for ', _return_field,  e)
+    do_log && console.log('graphql exception for ', _return_field,  e)
   }
   return null;
 }

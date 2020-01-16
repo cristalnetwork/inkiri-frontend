@@ -42,7 +42,6 @@ class TransactionTable extends Component {
       limit:             globalCfg.api.default_page_size,
       can_get_more:      true,
       mode:              props.mode,
-      for_admin:         props.i_am_admin,
       filter:            props.filter,
       requests_filter:   {},
       selectedRows:      []
@@ -114,9 +113,6 @@ class TransactionTable extends Component {
     if (this.props.need_refresh !== prevProps.need_refresh && this.props.need_refresh) {
       this.refresh();
     }
-    if (this.props.i_am_admin !== prevProps.i_am_admin) {
-      this.setState({for_admin: this.props.i_am_admin});
-    }
     if (this.props.mode !== prevProps.mode) {
       this.setState({mode: this.props.mode});
     }
@@ -128,15 +124,16 @@ class TransactionTable extends Component {
 
   loadTxs = async () =>{
 
-    const {can_get_more, requests_filter, for_admin, filter}   = this.state;
+    const {can_get_more, requests_filter, filter}   = this.state;
     if(!can_get_more)
     {
       this.setState({loading:false});
       return;
     }
 
-    const account_name = for_admin?'':this.props.actualAccountName;
-    
+    const account_name = this.props.isAdmin?'':this.props.actualAccountName;
+    const account_name_filter = !this.props.isAdmin? {account_name:this.props.actualAccountName}:{};
+
     this.setState({loading:true});
 
     const page           = (this.state.page<0)?0:(this.state.page+1);
@@ -144,7 +141,7 @@ class TransactionTable extends Component {
     const that           = this;
     
     const requested_type = this.props.request_type==DISPLAY_REQUESTS?'':this.props.request_type;
-    if(!for_admin && (requests_filter.to||requests_filter.from))
+    if(!this.props.isAdmin && (requests_filter.to||requests_filter.from))
     {
       if(requests_filter.to)
       {  
@@ -156,8 +153,9 @@ class TransactionTable extends Component {
           requests_filter.to=account_name;
         }
     }
-    const filter_obj = {limit, account_name, page, requested_type, ...requests_filter, ...(filter||{})};
-    console.log(' TABLE filter_obj:', filter_obj);
+    const filter_obj = {limit, account_name, page, requested_type, ...requests_filter, ...(filter||{}), ...(account_name_filter||{})};
+    console.log(' ---- TransactionTable filter_obj:', filter_obj);
+    console.log(' ---- TransactionTable default filter:', filter)
     try{
       // const data = await gqlService.requests(filter_obj);
       const data = await gqlRequestI18nService.requests(filter_obj, this.props.intl);
@@ -287,7 +285,7 @@ class TransactionTable extends Component {
         pagination={this.state.pagination}
         scroll={{ x: 950 }}
         expandedRowRender={columns_helper.expandedRequestRowRender}
-        rowSelection={is_external && this.rowSelection}
+        rowSelection={is_external ? this.rowSelection : null}
         onRow={ (record, rowIndex) => {
                   return { 
                     onDoubleClick: event => { this.props.callback(record) }

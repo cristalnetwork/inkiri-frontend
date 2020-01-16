@@ -1,4 +1,4 @@
-const env        = "prod";
+const env        = "dev";
 
 const language   = "english";
 
@@ -219,7 +219,9 @@ const api = {
   , canRefund          : (request) => { 
       return [api.TYPE_EXCHANGE, api.TYPE_PROVIDER, api.TYPE_WITHDRAW].includes(request.requested_type);
   }
-  , getTypes           : () => { return [ api.TYPE_DEPOSIT, api.TYPE_EXCHANGE, api.TYPE_PAYMENT, api.TYPE_PROVIDER, api.TYPE_SEND, api.TYPE_WITHDRAW, api.TYPE_SERVICE];}
+  , getTypes           : () => { 
+    return [ api.TYPE_DEPOSIT, api.TYPE_EXCHANGE, api.TYPE_PAYMENT, api.TYPE_PROVIDER, api.TYPE_SEND, api.TYPE_WITHDRAW, api.TYPE_SERVICE, api.TYPE_PAD, api.TYPE_SALARY, api.TYPE_IUGU];
+  }
 
   , STATE_REQUESTED             : 'state_requested'
   , STATE_RECEIVED              : 'state_received'

@@ -24,13 +24,15 @@ var __formValuesChanged = null;
 const RequestsFilter = (props) => {
     
     // const [is_admin, setIsAdmin]       = useState(props.isAdmin);
-    const [callback, setCallback]           = useState(props.callback);
+    // const [callback, setCallback]           = useState(props.callback);
     const [buttonType, setButtonType]       = useState('default');
     const [key, setKey]                     = useState(props.the_key);
     const [show_search, setShowSearch]      = useState(props.show_search||false);
     const [is_loading, setIsLoading]        = useState(props.isOperationsLoading||false);
     const [request_type, setRequest_type]   = useState(props.request_type);
     const [hidden_fields, setHiddenFields]  = useState([]);
+
+    const [intl, setIntl]                   = useState({});
 
     const default_filter               = { 
         operation_type:   undefined     
@@ -46,9 +48,34 @@ const RequestsFilter = (props) => {
 
     const {formatMessage} = props.intl;
 
+    // useEffect(() => {
+    //   setCallback(props.callback);
+    // }, [props.callback]);
+
     useEffect(() => {
-      setCallback(props.callback);
-    }, [props.callback]);
+      const myIntl = {}; 
+      myIntl.type_deposit = formatMessage({id:'requests.types.type_deposit'});
+      myIntl.type_exchange = formatMessage({id:'requests.types.type_exchange'});
+      myIntl.type_payment = formatMessage({id:'requests.types.type_payment'});
+      myIntl.type_provider = formatMessage({id:'requests.types.type_provider'});
+      myIntl.type_send = formatMessage({id:'requests.types.type_send'});
+      myIntl.type_withdraw = formatMessage({id:'requests.types.type_withdraw'});
+      myIntl.type_service = formatMessage({id:'requests.types.type_service'});
+      myIntl.type_salary = formatMessage({id:'requests.types.type_salary'});
+      myIntl.type_pad = formatMessage({id:'requests.types.type_pad'});
+      myIntl.type_issue = formatMessage({id:'requests.types.type_issue'});
+      myIntl.type_iugu = formatMessage({id:'requests.types.type_iugu'});
+      myIntl.type_refund = formatMessage({id:'requests.types.type_refund'});
+      myIntl.type_receive = formatMessage({id:'requests.types.type_receive'});
+      myIntl.type_unknown = formatMessage({id:'requests.types.type_unknown'});
+      myIntl.type_new_account = formatMessage({id:'requests.types.type_new_account'});
+      myIntl.type_upsert_cust = formatMessage({id:'requests.types.type_upsert_cust'});
+      myIntl.type_erase_cust = formatMessage({id:'requests.types.type_erase_cust'});
+      myIntl.type_upsert_pap = formatMessage({id:'requests.types.type_upsert_pap'});
+      myIntl.type_erase_pap = formatMessage({id:'requests.types.type_erase_pap'});
+      myIntl.type_charge_pap = formatMessage({id:'requests.types.type_charge_pap'});
+      setIntl(myIntl);
+    }, []);
 
     useEffect(() => {
       if(!Array.isArray(props.hidden_fields))
@@ -113,8 +140,8 @@ const RequestsFilter = (props) => {
       }
       
       return (
-        globalCfg.api.getTypes().map( tx_type => {return allowed_tx_types.includes(tx_type) && (<Option key={'option'+tx_type} value={tx_type} label={utils.firsts(tx_type.split('_')[1])}>{ utils.capitalize(tx_type.split('_')[1]) } </Option>)})
-          )
+        globalCfg.api.getTypes().map( tx_type => {return allowed_tx_types.includes(tx_type) && (<Option key={'option'+tx_type} value={tx_type} title={intl[tx_type]} label={intl[tx_type]}>{intl[tx_type]} </Option>)})
+      )
     }
     // 
     const renderSelectInOutOptions = () => {

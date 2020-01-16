@@ -22,9 +22,8 @@ const RequestListWidget = (props) => {
   const [request_type, setRequestType]           = useState(props.request_type);
   const [filter_hidden_fields, setHiddenFields]  = useState(props.search_hidden_fields || []);
   const [mode, setMode]                          = useState(props.mode);
-
-  const [table_ref, setTableRef]        = useState(null);
-  const [stats, setStats]               = useState([]);
+  const [table_ref, setTableRef]                 = useState(null);
+  const [stats, setStats]                        = useState([]);
   
   useEffect(() => {
       setHiddenFields(props.filter_hidden_fields || []);
@@ -116,7 +115,7 @@ const RequestListWidget = (props) => {
       <RequestsFilter 
         callback={requestFilterCallback} 
         request_type={request_type}
-        hidden_fields={filter_hidden_fields}/>
+        hidden_fields={filter_hidden_fields} />
       <TableStats stats_array={stats}/>
       <TransactionTable 
         onChange={onTableChange}
@@ -124,7 +123,6 @@ const RequestListWidget = (props) => {
         request_type={request_type} 
         callback={onRequestClick}
         onRef={ref => (setTableRef(ref))}
-        i_am_admin={props.isAdmin}
         filter={filter}
         mode={mode}
         />

@@ -11,6 +11,8 @@ import * as jwtHelper from './jwt-helper';
 
 const IMPORT_TXS_INITIAL_BLOCK = 69606693;
 
+const do_log = false;
+
 export const isAuth = () => {
   return jwtHelper.getTokenIfNotExpired(jwtHelper.DFUSE_AUTH_TOKEN_KEY)!==null;
 }
@@ -20,11 +22,11 @@ export const auth = () =>   new Promise((res,rej)=> {
 	// Check if already have a valid token at localstorage
 	const token = jwtHelper.getTokenIfNotExpired(jwtHelper.DFUSE_AUTH_TOKEN_KEY);
 
-  // console.log(' >> dfuse::auth >> is TOKEN at local storage? >> ')  
-  console.log(' >> dfuse::auth >> TOKEN? >> ', token);  
+  // do_log && console.log(' >> dfuse::auth >> is TOKEN at local storage? >> ')  
+  do_log && console.log(' >> dfuse::auth >> TOKEN? >> ', token);  
   if(!token)
 	{
-		// console.log('dfuse::auth >> NO >>', 'About to post dfuse auth api')	
+		// do_log && console.log('dfuse::auth >> NO >>', 'About to post dfuse auth api')	
 		// Retrieve dfuse token
 		const opts = {"api_key":globalCfg.dfuse.api_key}
 		fetch(globalCfg.dfuse.auth_url, {
@@ -32,7 +34,7 @@ export const auth = () =>   new Promise((res,rej)=> {
 	    body: JSON.stringify(opts)
 		  }).then((response) => response.json(), (err) => {rej(err);})
       .then((data) => {
-		  	// console.log('dfuse::auth >> ', 'About to set local storage', JSON.stringify(data))	
+		  	// do_log && console.log('dfuse::auth >> ', 'About to set local storage', JSON.stringify(data))	
 		  	// localStorage.setItem(jwtHelper.DFUSE_AUTH_TOKEN_KEY, JSON.stringify(data))
         jwtHelper.setTokenToStorage(jwtHelper.DFUSE_AUTH_TOKEN_KEY, JSON.stringify(data));
 				res(jwtHelper.buildResponse(data.token));
@@ -44,7 +46,7 @@ export const auth = () =>   new Promise((res,rej)=> {
 	  return;
 	}
   else{
-    // console.log('dfuse::auth >> YES >>', 'About to retrieve from local storage', token)  
+    // do_log && console.log('dfuse::auth >> YES >>', 'About to retrieve from local storage', token)  
     // res({data:JSON.parse(dfuse_auth)})
     res(jwtHelper.buildResponse(token));
   }
@@ -59,14 +61,14 @@ export const auth = () =>   new Promise((res,rej)=> {
 export const getKeyAccounts = (public_key) => new Promise((res,rej)=> {
   auth()
     .then((token) => {
-      // console.log( ' >>>>>> dfuse::getKeyAccounts >> token ->' , token)
+      // do_log && console.log( ' >>>>>> dfuse::getKeyAccounts >> token ->' , token)
       const path = globalCfg.dfuse.base_url + '/v0/state/key_accounts';
       const method = 'GET';
       const query = '?public_key='+public_key;
       
       jwtHelper.apiCall(path+query, method)
         .then((data) => {
-            // console.log( ' >> dfuse::getKeyAccounts OK >>', data)
+            // do_log && console.log( ' >> dfuse::getKeyAccounts OK >>', data)
             if(!data.account_names){
               rej('No name for given public key');
               return;
@@ -74,12 +76,12 @@ export const getKeyAccounts = (public_key) => new Promise((res,rej)=> {
             res(data.account_names);
             return;
           }, (ex) => {
-            console.log( ' >> dfuse::getKeyAccounts ERROR#2 >>', ex)
+            do_log && console.log( ' >> dfuse::getKeyAccounts ERROR#2 >>', ex)
             rej(ex);
             return;
           });
     }, (ex) => {
-      console.log( ' >> dfuse::getKeyAccounts ERROR#1 >>', ex)
+      do_log && console.log( ' >> dfuse::getKeyAccounts ERROR#1 >>', ex)
       rej(ex);
     });
 })
@@ -97,7 +99,7 @@ export function createClient(){
 export const getAccountsBalances = (account_names_array) => new Promise((res,rej)=> {
   auth()
     .then((token) => {
-      // console.log( ' >>>>>> dfuse::getKeyAccounts >> token ->' , token)
+      // do_log && console.log( ' >>>>>> dfuse::getKeyAccounts >> token ->' , token)
       const path           = globalCfg.dfuse.base_url + '/v0/state/tables/scopes';
       const method         = 'GET';
       const currency_token = globalCfg.currency.token;
@@ -113,7 +115,7 @@ export const getAccountsBalances = (account_names_array) => new Promise((res,rej
             rej(ex);
           });
     }, (ex) => {
-      // console.log( ' >> dfuse::getKeyAccounts ERROR >>', ex)
+      // do_log && console.log( ' >> dfuse::getKeyAccounts ERROR >>', ex)
       rej(ex);
     });
 })
@@ -121,7 +123,7 @@ export const getAccountsBalances = (account_names_array) => new Promise((res,rej
 
 export const getAccountBalance = (account) => new Promise((res,rej)=> {
 	
-	// console.log('dfuse::getAccountBalance >> ', 'About to retrieve balance for account:', account)	
+	// do_log && console.log('dfuse::getAccountBalance >> ', 'About to retrieve balance for account:', account)	
 	
 	let client = createClient();
 	client.stateTable(
@@ -131,18 +133,18 @@ export const getAccountBalance = (account) => new Promise((res,rej)=> {
       { blockNum: undefined }
     )
     .then((data) => {
-      // console.log(' dfuse::getAccountBalance >> receive balance for account:', account, JSON.stringify(data));
+      // do_log && console.log(' dfuse::getAccountBalance >> receive balance for account:', account, JSON.stringify(data));
       const _res = {
           data:{
             balance:       data.rows.length? globalCfg.currency.toNumber(data.rows[0].json.balance):0,
             balanceText:   data.rows.length?data.rows[0].json.balance:0
           }
         };
-      // console.log(' dfuse::getAccountBalance >> about to dispatch balance for account:', account, JSON.stringify(_res));
+      // do_log && console.log(' dfuse::getAccountBalance >> about to dispatch balance for account:', account, JSON.stringify(_res));
       res (_res);
       client.release();
     }, (ex)=>{
-      // console.log('dfuse::getAccountBalance >> ERROR ', JSON.stringify(ex));
+      // do_log && console.log('dfuse::getAccountBalance >> ERROR ', JSON.stringify(ex));
       rej(ex);
       client.release();
     });
@@ -174,7 +176,7 @@ export const searchPermissioningAccounts = (account_name) => new Promise( (res, 
               .map(txs => txs.trace.matchingActions[0].json.account)
               .filter(account=>account!=account_name);
             const _res = [...new Set(accounts)];
-            console.log(' dfuse::searchPermissioningAccounts() account_name:', account_name, ' | result: ', JSON.stringify(_res))
+            do_log && console.log(' dfuse::searchPermissioningAccounts() account_name:', account_name, ' | result: ', JSON.stringify(_res))
             res(_res);
 
             // const ret = data.data.searchTransactionsForward.results
@@ -189,7 +191,7 @@ export const searchPermissioningAccounts = (account_name) => new Promise( (res, 
             rej(ex);
           });
     }, (ex) => {
-      console.log( ' >> dfuse::getKeyAccounts ERROR >>', ex)
+      do_log && console.log( ' >> dfuse::getKeyAccounts ERROR >>', ex)
       rej(ex);
     });
   
@@ -199,7 +201,7 @@ export const transformTransactions = (txs, account_name) => transformTransaction
 const transformTransactionsImpl = (txs, account_name) => {
   
   if (!txs || txs.length <= 0) {
-    console.log(' TRANSFOMR TX txs is empty :( ');
+    do_log && console.log(' TRANSFOMR TX txs is empty :( ');
     return [];
   }
   if(!Array.isArray(txs)) 
@@ -214,7 +216,7 @@ const transformTransactionsImpl = (txs, account_name) => {
       }
       catch(e)
       {
-        console.log(' TRANSFORM TX ERROR#1 => ', JSON.stringify(transaction), JSON.stringify(e))
+        do_log && console.log(' TRANSFORM TX ERROR#1 => ', JSON.stringify(transaction), JSON.stringify(e))
         return null;
       }
 
@@ -224,7 +226,7 @@ const transformTransactionsImpl = (txs, account_name) => {
 }
 
 export const listPAPPayments = async (account_name, provider, customer, service_id, cursor) => new Promise(async(res,rej)=> {
-  console.log(' listPAPPayments => ', account_name)
+  do_log && console.log(' listPAPPayments => ', account_name)
   
   const query = `action:${globalCfg.bank.table_paps_charge}  account:${globalCfg.currency.token} data.from:${customer} data.to:${provider}`;
   
@@ -260,24 +262,24 @@ export const listPAPPayments = async (account_name, provider, customer, service_
         }
     })
 
-    console.log(response)
+    do_log && console.log(response)
     const results = response.data.searchTransactionsBackward.results || []
     if (results.length <= 0) {
       res ({data:{txs:[], cursor:''}})
-      console.log("Oups nothing found")
+      do_log && console.log("Oups nothing found")
       return;
     }
 
-    // console.log(' dfuse::queryTransactions >> RAW data >>', JSON.stringify(response));
+    // do_log && console.log(' dfuse::queryTransactions >> RAW data >>', JSON.stringify(response));
 
     const txs = transformTransactionsImpl(results, account_name);
-    // console.log(' DFUSE transformo las txs!!!!!!', txs.length)
-    console.log(' FILTERING service_id >>', service_id);
+    // do_log && console.log(' DFUSE transformo las txs!!!!!!', txs.length)
+    do_log && console.log(' FILTERING service_id >>', service_id);
     res ({data:{txs:txs.filter(tx=>parseInt(tx.data.service_id)==parseInt(service_id)), cursor:response.data.searchTransactionsBackward.cursor}})
     
   } catch (error) {
     rej(error);
-    console.log("An error occurred", error)
+    do_log && console.log("An error occurred", error)
   }
 
   client.release()
@@ -291,7 +293,7 @@ export const queryTransactionsNew = (account, last_block) => queryTransactions(a
 export const queryTransactionsCursor = (account, cursor)  => queryTransactions(account, cursor, null);
 export const queryTransactions = async (account, cursor, last_block) => new Promise(async(res,rej)=> {
   
-  console.log(' queryTransactions::account => ', account)
+  do_log && console.log(' queryTransactions::account => ', account)
   
   if(!account)
     account = {  acount_name:     globalCfg.currency.issuer
@@ -336,15 +338,15 @@ export const queryTransactions = async (account, cursor, last_block) => new Prom
         }
     })
 
-    // console.log(response)
+    // do_log && console.log(response)
     const results = response.data.searchTransactionsBackward.results || []
     if (results.length <= 0) {
       res ({data:{txs:[], cursor:''}})
-      console.log("Oups nothing found")
+      do_log && console.log("Oups nothing found")
       return;
     }
 
-    // console.log(' dfuse::queryTransactions >> RAW data >>', JSON.stringify(response));
+    // do_log && console.log(' dfuse::queryTransactions >> RAW data >>', JSON.stringify(response));
 
     const txs = transformTransactionsImpl(results, account_name);
     // res ({data:{txs:txs.reverse(), cursor:response.data.searchTransactionsBackward.cursor}})
@@ -352,7 +354,7 @@ export const queryTransactions = async (account, cursor, last_block) => new Prom
     
   } catch (error) {
     rej(error);
-    console.log("An error occurred", error)
+    do_log && console.log("An error occurred", error)
   }
 
   client.release()
@@ -390,7 +392,7 @@ export const listTransactions = (account_name, cursor, received, start_block) =>
       )
     :`account: ${globalCfg.currency.token} `;
 
-	// console.log('dfuse::listTransactions >> ', 'About to retrieve listTransactions >>', query);	
+	// do_log && console.log('dfuse::listTransactions >> ', 'About to retrieve listTransactions >>', query);	
 
   let options = { 
       limit: globalCfg.dfuse.default_page_size 
@@ -403,7 +405,7 @@ export const listTransactions = (account_name, cursor, received, start_block) =>
   // if(start_block!==undefined)
     // options['lowBlockNum'] = start_block;
   options['lowBlockNum'] = start_block||IMPORT_TXS_INITIAL_BLOCK;
-  console.log(' DFUSE TRANSACTION OPTIONS:', JSON.stringify(options))
+  do_log && console.log(' DFUSE TRANSACTION OPTIONS:', JSON.stringify(options))
   let client = createClient();
 	
   client.searchTransactions(
@@ -412,11 +414,11 @@ export const listTransactions = (account_name, cursor, received, start_block) =>
     )
     .then( (data) => {
     	const txs = transformTransactionsImpl(data.transactions, account_name);
-      // console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
+      // do_log && console.log(' dfuse::listTransactions >> RAW data >>', JSON.stringify(data));
       res ({data:{txs:txs, cursor:data.cursor}})
       client.release();
     }, (ex) => {
-      console.log('dfuse::listTransactions >> ERROR#1 ', JSON.stringify(ex));
+      do_log && console.log('dfuse::listTransactions >> ERROR#1 ', JSON.stringify(ex));
       rej(ex);
       client.release();
     });
