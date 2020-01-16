@@ -1049,6 +1049,8 @@ export const columnsForServiceContract = (callback) => {
 export const columnsForContractedServices = (callback, services_states) => {
     
     const getStateDesc = (state) => {
+      if(!state)
+        return <InjectMessage id="components.TransactionTable.columns.error_state_not_available" />
       if(!services_states)
         return state;
       const the_state = services_states.find(st => st.key==state);
@@ -1064,9 +1066,16 @@ export const columnsForContractedServices = (callback, services_states) => {
         width:       '350px',
         render: (title, record) => {
             const service  = record.service||{};
-            const provider = service.created_by||{};
+            const provider = service.created_by
+              ? `@${service.created_by.account_name}`
+              : <InjectMessage id="components.TransactionTable.columns.error_provider_not_available" />;
+            
             const _service_state = getStateDesc(service.state);
-            const _service_id    = `#${service.serviceCounterId}`;
+            
+            const _service_id    = service.serviceCounterId
+              ? `#${service.serviceCounterId}`
+              : <InjectMessage id="components.TransactionTable.columns.error_service_id_not_available" />;
+
             return (<span className="name_value_row">
             <div className="row_name centered flex_fixed_width_5em" >
               <div className="ui-row__col ui-row__col--heading">
@@ -1080,7 +1089,7 @@ export const columnsForContractedServices = (callback, services_states) => {
                <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
                  {service.description}
                  <br/>
-                 <br/>&nbsp;<InjectMessage id="components.TransactionTable.columns.provider" />: @{provider.account_name}
+                 <br/>&nbsp;<InjectMessage id="components.TransactionTable.columns.provider" />: {provider}
                  <br/>&nbsp;<InjectMessage id="components.TransactionTable.columns.status" />: {_service_state}
                  <br/>&nbsp;<InjectMessage id="components.TransactionTable.columns.service_id" />: {_service_id} 
                </div>

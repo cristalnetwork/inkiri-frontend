@@ -290,8 +290,9 @@ class SendMoney extends Component {
         memo = utils.cleanMemo(transfer_extra.message);
 
     const that                   = this;
-    const confirm_pay_tx_message = this.props.intl.formatMessage({id:'pages.common.send.confirm_pay_tx_message'}, {amount: this.inputAmountToString(), receiver:receiver});
-    
+    const amount_string          = this.inputAmountToString();
+    const confirm_pay_tx_message = this.props.intl.formatMessage({id:'pages.common.send.confirm_pay_tx_message'}, {amount: amount_string, receiver:receiver});
+
     Modal.confirm({
       title:   _pay ? this.state.intl.confirm_payment:this.state.intl.confirm_transfer,
       content: confirm_pay_tx_message,

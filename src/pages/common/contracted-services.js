@@ -113,15 +113,7 @@ class Services extends Component {
       case events.DISABLE:
         break;
       case events.CHILDREN:
-        this.props.setLastRootMenuFullpath(this.props.location.pathname);
-        this.props.history.push({
-          pathname: `/common/service-contract-payments`
-          , state: { 
-              referrer: this.props.location.pathname
-              , contract: contract
-              , service:  contract.service            
-            }
-        });
+        this.onViewServiceContractPayments(contract)
         break;
       case events.NEW_CHILD:
         break;
@@ -130,7 +122,24 @@ class Services extends Component {
 
   }
 
-
+  onViewServiceContractPayments = (contract) =>{
+    if(!contract.service)
+    {
+      const title   = this.props.intl.formatMessage({id:'pages.common.contracted-services.error_service_not_exists'})
+      const message = this.props.intl.formatMessage({id:'pages.common.contracted-services.error_service_not_exists_message'})
+      components_helper.notif.errorNotification(title, message);    
+      return;
+    }
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+    this.props.history.push({
+      pathname: `/common/service-contract-payments`
+      , state: { 
+          referrer: this.props.location.pathname
+          , contract: contract
+          , service:  contract.service            
+        }
+    });
+  }
   loadServicesStates = async () => {
     this.setState({loading:true});
 
