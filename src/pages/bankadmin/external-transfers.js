@@ -74,8 +74,6 @@ class ExternalTransfers extends Component {
         >
           {content}
         </Card>
-        
-
       </>
     );
   }

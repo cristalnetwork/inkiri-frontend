@@ -59,7 +59,7 @@ export const getBankAccountDesc = (bank_account) => {
 }
 
 export const getRequestProviderDesc = (request) => {
-  return request.provider.name + ' - [CNPJ:'+ request.provider.cnpj+']';
+  return request.provider.name + ' - [CNPJ/CPF:'+ request.provider.cnpj+']';
 }
 
 export const getGoogleDocUrl = (google_doc_id) => {
