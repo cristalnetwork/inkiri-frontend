@@ -41,7 +41,7 @@ class Teams extends Component {
       intl:               {}
     };
 
-    // this.onTeamCallback             = this.onTeamCallback.bind(this);
+    this.onTeamCallback             = this.onTeamCallback.bind(this);
     // this.onTeamMemberCallback       = this.onTeamMemberCallback.bind(this);
   }
   
@@ -55,6 +55,9 @@ class Teams extends Component {
   
   } 
 
+  onTeamCallback =(team) =>{
+
+  }
 
   render() {
     const content                                = this.renderContent();
@@ -111,7 +114,9 @@ class Teams extends Component {
           style={{ marginTop: 24 }}
           headStyle={{display:'none'}}
         >
-        <TeamsTable mode={MODE_TEAMS} />
+        <TeamsTable 
+          callback={this.onTeamCallback}
+          mode={MODE_TEAMS} />
       </Card>
       );
   }

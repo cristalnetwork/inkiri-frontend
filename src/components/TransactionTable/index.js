@@ -9,8 +9,7 @@ import * as globalCfg from '@app/configs/global';
 import * as gqlService from '@app/services/inkiriApi/graphql'
 import * as gqlRequestI18nService from '@app/services/inkiriApi/requests-i18n-graphql-helper'
 
-import { Button} from 'antd';
-import { Table } from 'antd';
+import { Button, Table, DatePicker } from 'antd';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
 import * as components_helper from '@app/components/helper';
@@ -44,7 +43,9 @@ class TransactionTable extends Component {
       mode:              props.mode,
       filter:            props.filter,
       requests_filter:   {},
-      selectedRows:      []
+
+      selectedRows:      [],
+      payment_date:      null
     };
     // this.handleChange      = this.handleChange.bind(this);
     this.onNewData         = this.onNewData.bind(this);
@@ -210,8 +211,7 @@ class TransactionTable extends Component {
       console.log(`::onChange:: selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
       this.setState({selectedRows:selectedRows}
         , () => {this.validateState()});
-    },
-    
+    },  
     // onSelect: (record, selected, selectedRows) => {
     //   console.log('::onSelect::', record, selected, selectedRows);
     // },
@@ -220,11 +220,10 @@ class TransactionTable extends Component {
     // },
   };
 
-  /*
-  "PAGAMENTO_EMPRESA"                            : 0
-  "PAGAMENTO_INSTITUTO_PROJETO"                  : 1
-  "PAGAMENTO_INSTITUTO_PPA"                      : 2
-  */
+  onChange = (date, dateString) => {
+    console.log(date, dateString);
+    this.setState({payment_date:date})
+  }
 
   remButtons  = () => {
     const buttons = [ 
@@ -241,11 +240,14 @@ class TransactionTable extends Component {
               , value:   2 
             }
     ];
-    const {selectedRows} = this.state;
-    const _enabled       = (selectedRows && Array.isArray(selectedRows) && selectedRows.length>0);
-    return (<>{
+    const payment_date_placeholder = this.props.intl.formatMessage({id:'pages.bankadmin.external-transfers.payment_date_placeholder'})
+    const {selectedRows, payment_date} = this.state;
+    const _enabled       = (selectedRows && Array.isArray(selectedRows) && selectedRows.length>0) && payment_date!=null;
+    return (<>
+      <DatePicker placeholder={payment_date_placeholder} name="payment_date" onChange={this.onChange} format={'YYYY/MM/DD'}/>
+      {
         buttons.map( btn => 
-            <Button style={{marginRight:8}} key={`rem_button_${btn.value}`} disabled={!_enabled} type="primary" href={this.remFileLink(btn.value)} target="_blank" icon="bank" size="small" >&nbsp;<InjectMessage id={btn.title} /></Button>
+            <Button style={{marginLeft:8}} key={`rem_button_${btn.value}`} disabled={!_enabled} type="primary" href={this.remFileLink(btn.value)} target="_blank" icon="bank" size="small" >&nbsp;<InjectMessage id={btn.title} /></Button>
           )
       }</>)
     // `
@@ -263,9 +265,9 @@ class TransactionTable extends Component {
   }
 
   remFileLink = (conta_pagamento) => {
-    const {selectedRows} = this.state;
+    const {selectedRows, payment_date} = this.state;
     const ids = selectedRows.map(row=>row._id).join(',');
-    return `${globalCfg.api.rem_generator_endpoint}/${ids}/${conta_pagamento}`
+    return `${globalCfg.api.rem_generator_endpoint}/${ids}/${conta_pagamento}/${payment_date}`
   }
 
   render(){

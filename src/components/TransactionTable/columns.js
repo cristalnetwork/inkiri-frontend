@@ -143,9 +143,13 @@ export const expandedRequestRowRender = (record) => {
   switch (record.requested_type){
     case globalCfg.api.TYPE_PROVIDER:
       const blockchain  = record.tx_id?request_helper.getBlockchainLink(record.tx_id, true, null, <InjectMessage id="components.TransactionTable.columns.blockchain_link_text" />):(null);
+      const prov_bank_account = (record && record.provider && record.provider.bank_accounts)
+        ? record.provider.bank_accounts[0]
+        : {};
       return (
             <>
-              <span key={'tags'+record.id}>&nbsp;<InjectMessage id="global.provider" />:&nbsp;<b key={Math.random()}>{ request_helper.getRequestProviderDesc(record)}</b></span>
+              <span key={'info'+record.id}><InjectMessage id="global.provider" />&nbsp;<b key={Math.random()}>{ request_helper.getRequestProviderDesc(record)}</b><br/></span>
+              <span key={'bank_account'+record.id}><InjectMessage id="global.bank_account" />&nbsp;<Icon type="bank" />: <b>{prov_bank_account.bank_name} ({prov_bank_account.bank_keycode}), {prov_bank_account.agency}, {prov_bank_account.cc}</b></span>
               {Object.keys(record.provider_extra).map(key => 
                  
                   (key!='__typename')
@@ -161,7 +165,7 @@ export const expandedRequestRowRender = (record) => {
       const bank_account = record.bank_account || {};
       const blockchain_xch  = record.tx_id?request_helper.getBlockchainLink(record.tx_id, true, null, <InjectMessage id="components.TransactionTable.columns.blockchain_link_text" />):(null);
       return (
-            <><span key={'tags'+record.id}>&nbsp;<InjectMessage id="global.bank_account" />&nbsp;<Icon type="bank" />: <b>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</b></span>
+            <><span key={'tags'+record.id}><InjectMessage id="global.bank_account" />&nbsp;<Icon type="bank" />: <b>{bank_account.bank_name}, ({bank_account.bank_keycode}), {bank_account.agency}, {bank_account.cc}</b></span>
             <br/>{blockchain_xch}
             <br/>{default_info}
             </>

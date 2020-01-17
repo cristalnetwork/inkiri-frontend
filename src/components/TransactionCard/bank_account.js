@@ -19,11 +19,13 @@ const TransactionBankAccount = (props) => {
     const [bank_name_text, setBankName]           = useState('');    
     const [bank_agency_text, setBankAgency]       = useState('');    
     const [bank_cc_text, setBankCC]               = useState('');    
+    const [bank_keycode_text, setBankKeyCode]               = useState('');    
 
     useEffect(() => {
       setBankName(props.intl.formatMessage({id:'components.Forms.bank_account.bank_name_placeholder'}));
       setBankAgency(props.intl.formatMessage({id:'components.Forms.bank_account.bank_agency_placeholder'}));
       setBankCC(props.intl.formatMessage({id:'components.Forms.bank_account.bank_cc_placeholder'}));
+      setBankKeyCode(props.intl.formatMessage({id:'components.Forms.bank_account.bank_keycode'}));
     }, []);
 
     if(!bank_account)
@@ -41,6 +43,10 @@ const TransactionBankAccount = (props) => {
                       <div className="ui-row__col ui-row__col--content">
                           <div className="ui-info-row__content">
                               <div className="ui-info-row__title">{bank_account.bank_name}</div>
+                              <div className="ui-info-row__details name_value_row">
+                                 <div className="row_name">{bank_keycode_text}</div> 
+                                 <div className="row_value">{bank_account.bank_keycode}</div> 
+                              </div>
                               <div className="ui-info-row__details name_value_row">
                                  <div className="row_name">{bank_agency_text}</div> 
                                  <div className="row_value">{bank_account.agency}</div> 

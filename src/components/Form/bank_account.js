@@ -30,14 +30,15 @@ class BankAccountForm extends Component {
     const default_text = this.props.intl.formatMessage({id:'global.submit'});
 
     this.state = {
-      bank_account    : props.bank_account || {...DEFAULT_STATE},
-      alone_component : props.alone_component || false,
-      button_text     : props.button_text || default_text,
-      callback        : props.callback ,
+      bank_account      : props.bank_account || {...DEFAULT_STATE},
+      alone_component   : props.alone_component || false,
+      button_text       : props.button_text || default_text,
+      callback          : props.callback ,
+      bank_account_bank : null,
     };
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
-    this.handleBankAccountChange    = this.handleBankAccountChange.bind(this);     
+    this.handleBankChange           = this.handleBankChange.bind(this);     
 
   }
 
@@ -56,9 +57,12 @@ class BankAccountForm extends Component {
   /*
   * Components' Events.
   */
-  handleBankAccountChange = (value) => {
-
-    
+  handleBankChange = (value) => {
+    this.setState({'bank_account_bank' : value},
+      () => {
+        if(value)
+          this.props.form.setFieldsValue({'bank_account.bank_keycode':value.bank_keycode})
+      })
   }
 
   fireEvent = (error, cancel, data) => {
@@ -78,13 +82,20 @@ class BankAccountForm extends Component {
         return;
       }
       
-      if(!this.state.bank_account)
-      {
-        components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'components.Forms.bank_account.forgot_choose_bank_account'}) )    
-        return;
-      }
+      // if(!this.state.bank_account)
+      // {
+      //   components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'components.Forms.bank_account.forgot_choose_bank_account'}) )    
+      //   return;
+      // }
       
-      this.fireEvent(null, null, values.bank_account);
+      const {bank_account_bank} = this.state;
+      if(!bank_account_bank){
+        components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'components.Forms.bank_account.forgot_choose_bank_account'}) ) 
+        return; 
+      }
+      const _values = {...values.bank_account, ...bank_account_bank};
+
+      this.fireEvent(null, null, _values);
       
     });
   };
@@ -93,27 +104,7 @@ class BankAccountForm extends Component {
     
     // this.setState({...DEFAULT_STATE});
   }
-
-  getBankAccountField = (getFieldDecorator, bank_name_message, bank_account) => {
   
-    return    (<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-                    <AutocompleteBank callback={null} form={this.props.form} name="bank_account.bank_name" value={bank_account.bank_name||''} />
-                  </div>);
-    //
-    // return(<div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-    //             <Form.Item label="Bank Name">
-    //               {getFieldDecorator('bank_account.bank_name', {
-    //                 rules: [{ required:   true, 
-    //                           message:    bank_name_message, 
-    //                           whitespace: true }],
-    //                 initialValue:bank_account.bank_name||''
-    //               })(
-    //                 <Input autoFocus className="money-transfer__input" placeholder={bank_name_placeholder} />
-    //               )}
-    //             </Form.Item>
-    //           </div>);
-
-  }
   renderContent() {  
     const { bank_account, button_text } = this.state;
     const { getFieldDecorator }         = this.props.form;
@@ -125,15 +116,30 @@ class BankAccountForm extends Component {
     const bank_name_placeholder     = formatMessage({id:'components.Forms.bank_account.bank_name_placeholder'})
     const bank_agency_placeholder   = formatMessage({id:'components.Forms.bank_account.bank_agency_placeholder'})
     const bank_cc_placeholder       = formatMessage({id:'components.Forms.bank_account.bank_cc_placeholder'})
+    const bank_keycode_text         = formatMessage({id:'components.Forms.bank_account.bank_keycode'})
     return (
-      <Form onSubmit={this.handleSubmit}>
+      <Form onSubmit={this.handleSubmit} className="with_labels">
             <div className="money-transfer">
               
-              { this.getBankAccountField(getFieldDecorator, bank_name_message, bank_account) }
-
+              <div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
+                <AutocompleteBank callback={this.handleBankChange}  form={this.props.form} name="bank_account.bank_name" value={bank_account.bank_name||''} />
+              </div>
 
               <div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-                <Form.Item label="Agency">
+                <Form.Item label={bank_keycode_text}>
+                  {getFieldDecorator('bank_account.bank_keycode', {
+                    rules: [{ required:   true, 
+                              message:    bank_keycode_text , 
+                              whitespace: true }],
+                    initialValue:bank_account.bank_keycode||''
+                  })(
+                    <Input className="money-transfer__input"  placeholder={bank_keycode_text} />
+                  )}
+                </Form.Item>
+              </div>
+
+              <div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
+                <Form.Item label={bank_agency_placeholder}>
                   {getFieldDecorator('bank_account.agency', {
                     rules: [{ required:   true, 
                               message:    bank_agency_message , 
@@ -146,7 +152,7 @@ class BankAccountForm extends Component {
               </div>
 
               <div className="money-transfer__row row-expandable row-complementary row-complementary-bottom" >
-                <Form.Item label="CC">
+                <Form.Item label={bank_cc_placeholder}>
                   {getFieldDecorator('bank_account.cc', {
                     rules: [{ required:      true
                               , message:     bank_cc_message

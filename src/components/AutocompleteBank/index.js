@@ -91,25 +91,31 @@ class AutocompleteBank extends Component {
   handleChange = (value) => {
     console.log(' ::handleChange', value)
   }
+
   handleSearch = (value) => {
     console.log(' ::handleSearch', value)
   }
+  
   handleSelect = (value, option) => {
     // console.log(' *** handleSelect >> ', value, option)
+    const _value = {
+        bank_name:value,
+        bank_keycode: this.splitBankKey(option.key)
+      }
     this.setState({
-      selected:value,
-      value:value,
-      fetching: false,
+      selected:   value ,
+      value:      value ,
+      fetching:   false,
     });
 
-    // const exists = this.props.banks.filter( bank => bank.value==value);
-    // if(!exists || exists.length==0)
-    // {
-    //   components_helper.notif.errorNotification(this.props.intl.formatMessage({id:'components.AutocompleteBank.index.choose_bank_message'}))
-    //   this.triggerChange(null);
-    //   return;
-    // }
-    this.triggerChange(value);
+    const exists = this.props.banks.filter( bank => bank.key==option.key);
+    if(!exists || exists.length==0)
+    {
+      components_helper.notif.errorNotification(this.props.intl.formatMessage({id:'components.AutocompleteBank.index.choose_bank_message'}))
+      this.triggerChange(null);
+      return;
+    }
+    this.triggerChange(_value );
 
   };
 
@@ -128,13 +134,22 @@ class AutocompleteBank extends Component {
 
   }
 
+  splitBankKey = (_key) => {
+    if(!_key) return _key;
+    const splitted = _key.split('_');
+    if(splitted.length==1) return _key;
+    return splitted[1];
+  }
+
   renderBank = (item) => {
+    // return { key: item.key, value: item.key, text: item.value };
+
     //<AutoComplete.Option key={item.key} text={item.key}>
     const {formatMessage} = this.props.intl;
     return (
       <AutoComplete.Option title={item.value} key={item.key} value={item.value}>
         {item.value}
-        <span className="certain-search-item-count">@{item.key}</span>
+        <span className="certain-search-item-count">@{this.splitBankKey(item.key)}</span>
       </AutoComplete.Option>
     );
   };
@@ -199,7 +214,8 @@ export default (connect(
         isLoading:          graphqlRedux.isLoading(state),
     }),
     (dispatch)=>({
-        loadBanks:         bindActionCreators(graphqlRedux.loadConfig, dispatch),
+        loadBanks:          bindActionCreators(graphqlRedux.loadConfig, dispatch),
+        loadConfig:         bindActionCreators(graphqlRedux.loadConfig, dispatch),
     })
 ) (injectIntl(AutocompleteBank)) )
 ;

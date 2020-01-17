@@ -74,12 +74,21 @@ const TransactionProvider = (props) => {
                       <div className="ui-row__col ui-row__col--content">
                           <div className="ui-info-row__content">
                               <div className="ui-info-row__title"><b>{bank_account.bank_name}</b></div>
+                              
+                              <div className="ui-info-row__details name_value_row">
+                                 <div className="row_name">
+                                   <InjectMessage id="components.Forms.bank_account.bank_keycode" />
+                                 </div> 
+                                 <div className="row_value"><b>{bank_account.bank_keycpde}</b></div> 
+                              </div>
+
                               <div className="ui-info-row__details name_value_row">
                                  <div className="row_name">
                                    <InjectMessage id="components.Forms.bank_account.bank_agency_placeholder" />
                                  </div> 
                                  <div className="row_value"><b>{bank_account.agency}</b></div> 
                               </div>
+                              
                               <div className="ui-info-row__details name_value_row">
                                 <div className="row_name">
                                   <InjectMessage id="components.Forms.bank_account.bank_cc_placeholder" />

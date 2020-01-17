@@ -1,9 +1,12 @@
 import React, {Component} from 'react'
 
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux';
+
 import * as loginRedux from '@app/redux/models/login'
 import * as accountsRedux from '@app/redux/models/accounts'
 import * as balanceRedux from '@app/redux/models/balance'
+import * as menuRedux from '@app/redux/models/menu';
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
@@ -19,6 +22,7 @@ import * as columns_helper from '@app/components/TransactionTable/columns';
 import {DISPLAY_PROVIDER } from '@app/components/TransactionTable';
 import RequestListWidget from '@app/components/request-list-widget';
 
+import AutocompleteBank from '@app/components/AutocompleteBank';
 
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
@@ -129,7 +133,8 @@ class Provider extends Component {
     const title = formatMessage({id:'pages.common.provider-profile.title'});
     const subtitle = formatMessage({id:'pages.common.provider-profile.subtitle'});
     const zip_code = formatMessage({id:'pages.common.provider-profile.zip_code'});
-    this.setState({intl: {zip_code, modify_provider_action, form_cancel_text, end_of_requests, end_of_requests_message, check_fields, invalid_form, loading, pushing, form_name, form_name_validator, form_legal_id, form_legal_id_validator, form_category, form_category_validator, form_products_services, form_products_services_validator, form_email, form_email_format_validator, form_email_validator, form_phone, form_phone_validator, form_address, form_street, form_street_hint, form_city, form_state, form_zip, form_country, form_bank_account, form_bank_name, form_bank_name_validator, form_bank_agency, form_bank_agency_validator, form_bank_cc, form_bank_cc_validator, form_create_provider_submit_text, form_provider_data_title, title, confirm_update_title, confirm_update_button, requests_load_more, form_contact_info, title, subtitle} });
+    const bank_keycode_text = formatMessage({id:'components.Forms.bank_account.bank_keycode'})
+    this.setState({intl: {bank_keycode_text, zip_code, modify_provider_action, form_cancel_text, end_of_requests, end_of_requests_message, check_fields, invalid_form, loading, pushing, form_name, form_name_validator, form_legal_id, form_legal_id_validator, form_category, form_category_validator, form_products_services, form_products_services_validator, form_email, form_email_format_validator, form_email_validator, form_phone, form_phone_validator, form_address, form_street, form_street_hint, form_city, form_state, form_zip, form_country, form_bank_account, form_bank_name, form_bank_name_validator, form_bank_agency, form_bank_agency_validator, form_bank_cc, form_bank_cc_validator, form_create_provider_submit_text, form_provider_data_title, title, confirm_update_title, confirm_update_button, requests_load_more, form_contact_info, title, subtitle} });
     
   }
 
@@ -174,6 +179,13 @@ class Provider extends Component {
     this.setState({updating:false});
   }
 
+  handleBankChange = (value) => {
+    this.setState({'bank_account_bank' : value},
+      () => {
+        if(value)
+          this.props.form.setFieldsValue({'bank_accounts[0].bank_keycode':value.bank_keycode})
+      })
+  }
   //
   handleSubmit = e => {
     e.preventDefault();
@@ -182,7 +194,16 @@ class Provider extends Component {
         components_helper.notif.warningNotification(this.state.intl.invalid_form);
         return;
       }
-      this.setState( {provider_update:values}
+      const {bank_account_bank} = this.state;
+      if(!bank_account_bank){
+        components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'components.AutocompleteBank.index.choose_bank_message'}) );
+        return; 
+      }
+      const bank_accounts = [{...values.bank_accounts[0], ...bank_account_bank}]
+      values.bank_accounts = bank_accounts;
+      console.log('-------------------------------------------', values)
+      const _provider = {...values};
+      this.setState( {provider_update:_provider}
                     , () => { this.doUpdateProvider(); });
       
     });
@@ -193,7 +214,8 @@ class Provider extends Component {
     const account_name = this.props.actualAccountName;
     const {name, cnpj, email, phone, address, category, products_services, bank_accounts} = this.state.provider_update;
     // guarda
-    api.bank.createOrUpdateProvider(provider.id||provider._id, name, cnpj, email, phone, address, category, products_services, provider.bank_accounts, account_name)
+
+    api.bank.createOrUpdateProvider(provider.id||provider._id, name, cnpj, email, phone, address, category, products_services, bank_accounts, account_name)
     .then((res)=>{
       console.log(' >> doUpdateProvider >> ', JSON.stringify(res));
       this.setState({result:'ok'});
@@ -244,35 +266,8 @@ class Provider extends Component {
   /* ****************
    * Render Functions
   */
-  // renderConfirmUpdate(){
-  //   const {name, cnpj, email, phone, category, products_services, bank_accounts}      = this.state.provider_update;
-  //   const bank_account = bank_accounts[0];
-
-  //   return (<Result
-  //     icon={<Icon type="question-circle" theme="twoTone" />}
-  //     title={`Please confirm provider update`} 
-  //     subTitle={(<span> Name: {name}<br/> 
-  //                 CNPJ: {cnpj}<br/>
-  //                 Email: {email}<br/>
-  //                 Phone: {phone}<br/> 
-  //                 Category: {category}<br/>
-  //                 Products/Services: {products_services}<br/>
-  //                 Bank Account: {bank_account.bank_name}, {bank_account.agency}, {bank_account.cc} </span>)}
-  //     extra={[<Button key="do_update_provider" type="primary" onClick={() => {this.doUpdateProvider()} }>Confirm Update Provider</Button>,
-  //             <Button key="cancel" onClick={() => {this.resetPage()} }>Cancel</Button>]}/>)
-  // }
-
+ 
   renderContent() {
-  
-    // if(this.state.result=='should-confirm'){
-    //   const confirm = this.renderConfirmUpdate();
-    //   return(
-    //     <div style={{ margin: '0 0px', padding: 24, background: '#fff', marginTop: 24  }}>
-    //       {confirm}
-    //     </div>);
-    // }
-    //
-    
     const { updating, result, result_object } = this.state;
     
     if(this.state.result)
@@ -293,9 +288,10 @@ class Provider extends Component {
     if(updating)
       return this.renderForm();
 
-    const request_filter = {account_name:this.props.actualAccountName
-        , from:this.props.actualAccountName
-        , provider_id: this.state.provider._id
+    const request_filter = { 
+        account_name:     this.props.isAdmin?undefined:this.props.actualAccountName
+        , from:           this.props.isAdmin?undefined:this.props.actualAccountName
+        , provider_id:    this.state.provider._id
       }
     return (<RequestListWidget 
         the_key="providers_payments_widget_key"
@@ -434,12 +430,28 @@ class Provider extends Component {
                 </Form.Item>
 
                 <h3 className="fileds_header">{this.state.intl.form_bank_account}</h3>
-                <Form.Item label={this.state.intl.form_bank_name}>
-                  {getFieldDecorator('bank_accounts[0].bank_name', {
-                    rules: [{ required: true, message: this.state.intl.form_bank_name_validator }],
-                    initialValue: bank_accounts[0].bank_name
-                  })(<Input style={{ width: '100%' }} />)}
+                
+                <AutocompleteBank 
+                  callback={this.handleBankChange} 
+                  form={this.props.form} 
+                  name="bank_accounts[0].bank_name" 
+                  value={bank_accounts[0].bank_name||''} 
+                  without_icon={true}
+                  the_label={this.state.intl.form_bank_name}
+                  size='default'
+                  />
+                
+                <Form.Item label={this.state.intl.bank_keycode_text}>
+                  {getFieldDecorator('bank_accounts[0].bank_keycode', {
+                    rules: [{ required:   true, 
+                              message:    this.state.intl.bank_keycode_text , 
+                              whitespace: true }],
+                    initialValue:bank_accounts[0].bank_keycode||''
+                  })(
+                    <Input className="money-transfer__input"  placeholder={this.state.intl.bank_keycode_text} />
+                  )}
                 </Form.Item>
+
                 <Form.Item label={this.state.intl.form_bank_agency}>
                   {getFieldDecorator('bank_accounts[0].agency', {
                     rules: [{ required: true, message: this.state.intl.form_bank_agency_validator }],
@@ -529,7 +541,7 @@ export default Form.create() (withRouter(connect(
         balance:            balanceRedux.userBalanceFormatted(state),
     }),
     (dispatch)=>({
-        
+        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)        
     })
 )(injectIntl(Provider)) )
 );

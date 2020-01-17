@@ -38,6 +38,7 @@ const DEFAULT_PROVIDER = {
   products_services:    '',
   bank_account:     {  
                       bank_name:    '',
+                      bank_keycode: '',
                       agency:    '',
                       cc:    ''
                     }
@@ -60,7 +61,7 @@ class CreateProvider extends Component {
       ...DEFAULT_RESULT,
       provider:{
         ...DEFAULT_PROVIDER
-      }
+      },
     };
     this.renderContent              = this.renderContent.bind(this); 
     this.handleSubmit               = this.handleSubmit.bind(this);
@@ -127,13 +128,31 @@ class CreateProvider extends Component {
         components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'pages.common.create-provider.invalid_form'}) );
         return;
       }
-      // this.setState({provider:values, result:'should-confirm'});
-      this.setState({provider:values},
+      // const {bank_account_bank} = this.state;
+      // if(!bank_account_bank){
+      //   components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'components.AutocompleteBank.index.choose_bank_message'}) );
+      //   return; 
+      // }
+      // const _provider = {...values, ...{bank_account:bank_account_bank}};
+      const _provider = {...values};
+      this.setState({provider:_provider},
          () => {
            this.doCreateProvider();
          });
     });
   };
+
+  handleBankChange = (value) => {
+    let {provider} = this.state;
+    const _value = value?value:{};
+    provider.bank_account.bank_keycode = value.bank_keycode
+    provider.bank_account.bank_name    = value.bank_name
+    this.setState({provider:provider},
+      () => {
+        this.props.form.setFieldsValue({'bank_account.bank_keycode':_value.bank_keycode});
+      })
+  }
+  
 
   resetResult(){
     this.setState({result: undefined, result_object: undefined, error: {}});
@@ -143,12 +162,12 @@ class CreateProvider extends Component {
   doCreateProvider(){
     const {name, cnpj, email, phone, address, category, products_services, bank_account} = this.state.provider;
     const account_name = this.props.actualAccountName;
+    // console.log(this.state.provider);
     api.bank.createOrUpdateProvider(undefined, name, cnpj, email, phone, address, category, products_services, [bank_account], account_name)
     .then((res)=>{
       console.log('doCreateProvider() OK:',res)
       this.setState({result:'ok'});
     }, (err)=>{
-      // this.setState({result:'error', error:err});
       components_helper.notif.exceptionNotification(  this.props.intl.formatMessage({id:'pages.common.create-provider.error.check_fields'}), err)
       console.log('doCreateProvider() Err:', err)
     })
@@ -221,6 +240,7 @@ class CreateProvider extends Component {
     const label_bank_cc                      = formatMessage({id:'pages.common.create-provider.form.bank_cc'});
     const label_bank_cc_validator            = formatMessage({id:'pages.common.create-provider.form.bank_cc_validator'});
     const label_create_provider_submit_text  = formatMessage({id:'pages.common.create-provider.form.create_provider_submit_text'});
+    const bank_keycode_text                  = formatMessage({id:'components.Forms.bank_account.bank_keycode'})
     return (
         <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>
           <Spin spinning={this.state.pushingTx} delay={500} tip={loading_text}>
@@ -306,7 +326,7 @@ class CreateProvider extends Component {
 
                 <h3 className="fileds_header">{label_bank_account}</h3>
                 <AutocompleteBank 
-                  callback={null} 
+                  callback={this.handleBankChange} 
                   form={this.props.form} 
                   name="bank_account.bank_name" 
                   value={bank_account.bank_name||''} 
@@ -315,6 +335,17 @@ class CreateProvider extends Component {
                   size='default'
                   />
                 
+                <Form.Item label={bank_keycode_text}>
+                  {getFieldDecorator('bank_account.bank_keycode', {
+                    rules: [{ required:   true, 
+                              message:    bank_keycode_text , 
+                              whitespace: true }],
+                    initialValue:bank_account.bank_keycode||''
+                  })(
+                    <Input className="money-transfer__input"  placeholder={bank_keycode_text} />
+                  )}
+                </Form.Item>
+
                 <Form.Item label={label_bank_agency}>
                   {getFieldDecorator('bank_account.agency', {
                     rules: [{ required: true, message: label_bank_agency_validator }],

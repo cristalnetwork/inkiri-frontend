@@ -88,6 +88,7 @@ const GET_CONFIG = gql`
       value
       bank_account{
         bank_name
+        bank_keycode
         agency
         cc
       }
@@ -203,6 +204,7 @@ const GET_CONFIG = gql`
       amount
       bank_account{
         bank_name
+        bank_keycode
         agency
         cc
       }
@@ -308,6 +310,7 @@ const request_fields = `_id
         bank_accounts{
           _id
           bank_name
+          bank_keycode
           agency
           cc
         }
@@ -329,6 +332,7 @@ const request_fields = `_id
         bank_accounts{
           _id
           bank_name
+          bank_keycode
           agency
           cc
         }
@@ -353,6 +357,7 @@ const request_fields = `_id
         bank_accounts{
           _id
           bank_name
+          bank_keycode
           agency
           cc
         }
@@ -373,6 +378,7 @@ const request_fields = `_id
       deposit_currency
       bank_account{
         bank_name
+        bank_keycode
         agency
         cc
       }
@@ -395,6 +401,7 @@ const request_fields = `_id
         bank_accounts{
           _id
           bank_name
+          bank_keycode
           agency
           cc
         }
@@ -570,6 +577,7 @@ const GET_PROVIDER_DATA  = gql`
       bank_accounts{
         _id
         bank_name
+        bank_keycode
         agency
         cc
       }
@@ -634,6 +642,7 @@ const GET_PROVIDERS = gql`
       bank_accounts{
         _id
         bank_name
+        bank_keycode
         agency
         cc
       }
