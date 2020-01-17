@@ -320,7 +320,7 @@ class WithdrawMoney extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title="Withdraw money"
+          title={this.state.intl.title}
           />
           <div style={{ margin: '0 0px', padding: 24}}>
             <div className="ly-main-content content-spacing cards">

@@ -93,6 +93,12 @@ class BankAccountForm extends Component {
         components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'components.Forms.bank_account.forgot_choose_bank_account'}) ) 
         return; 
       }
+      if(!bank_account_bank.bank_keycode)
+      {
+        const bank_keycode_message  = this.props.intl.formatMessage({id: 'components.Forms.bank_account.choose_bank_account_with_keycode'})
+        components_helper.notif.errorNotification(bank_keycode_message);
+        return;
+      }
       const _values = {...values.bank_account, ...bank_account_bank};
 
       this.fireEvent(null, null, _values);

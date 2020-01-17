@@ -152,12 +152,12 @@ class ExchangeForm extends Component {
         components_helper.notif.errorNotification( title, desc);    
         return;
       }
+      
       if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
       {
         const balance_txt     = globalCfg.currency.toCurrencyString(this.props.balance);
         const amount_message  = this.props.intl.formatMessage({id: 'components.forms.validators.minimum_amount_required'}, {balance:balance_txt})
         components_helper.notif.errorNotification(amount_message);
-        // components_helper.notif.errorNotification(`Amount must be equal or less than balance ${balance_txt}!`);
         return;
       }
 
@@ -165,6 +165,14 @@ class ExchangeForm extends Component {
       {
         const bank_account_message  = this.props.intl.formatMessage({id: 'components.Forms.bank_account.forgot_choose_bank_account'})
         components_helper.notif.errorNotification(bank_account_message);
+        return;
+      }
+
+      const bank_account_object = this.getBankAccountById(bank_account);
+      if(!bank_account_object.bank_keycode)
+      {
+        const bank_keycode_message  = this.props.intl.formatMessage({id: 'components.Forms.bank_account.choose_bank_account_with_keycode'})
+        components_helper.notif.errorNotification(bank_keycode_message);
         return;
       }
 
@@ -180,7 +188,7 @@ class ExchangeForm extends Component {
       const exchange_request = {
         amount              : input_amount.value,
         bank_account        : bank_account,
-        bank_account_object : this.getBankAccountById(bank_account),
+        bank_account_object : bank_account_object,
         attachments_array   : attachments_array
       }
 
@@ -268,7 +276,7 @@ class ExchangeForm extends Component {
             {
               profile.bank_accounts.map( b_account => 
                 {
-                  const label = [b_account.bank_name, b_account.agency, b_account.cc].join(', ');
+                  const label = [`${b_account.bank_name} (key=${b_account.bank_keycode||'-'})`, b_account.agency, b_account.cc].join(', ');
                   return (<Select.Option key={'bank_account_option_'+b_account._id} value={b_account._id} label={label}>{ label } </Select.Option> )
                 }
               )
@@ -290,7 +298,7 @@ class ExchangeForm extends Component {
     const amount_title            = formatMessage( {id: 'global.amount' } );
 
     return (
-        <Form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit} >
             <div className="money-transfer">
               
               <div className="money-transfer__row row-complementary" >
@@ -308,7 +316,6 @@ class ExchangeForm extends Component {
                   </div>
               </div>
 
-                
               <Form.Item label={amount_title} className="money-transfer__row input-price" style={{textAlign: 'center'}}>
                     {getFieldDecorator('input_amount.value', {
                       rules: [{ required:  true

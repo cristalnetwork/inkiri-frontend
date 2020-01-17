@@ -53,7 +53,7 @@ class InkiriHeader extends Component {
           result:        ex?'error':undefined, 
           error:         ex?JSON.stringify(ex):null}
       if(ex)
-        components_helper.notif.exceptionNotification(  this.props.intl.formatMessage({id:'errors.occurred_title'}), ex, this.props.clearAll)
+        components_helper.notif.exceptionNotification(  this.props.intl.formatMessage({id:'errors.occurred_title'}), ex, this.props.clearAll, this.props.intl)
     }
 
     if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){

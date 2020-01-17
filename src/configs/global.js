@@ -1,4 +1,4 @@
-const env        = "prod";
+const env        = "dev";
 
 const language   = "english";
 
@@ -340,14 +340,23 @@ const dfuse = {
   /*
   * I should take a look at: https://api.monitor.jungletestnet.io/#apiendpoints
   */
-  const eos = {
+const eos = {
   // endpoint       : env=='dev' ? 'http://127.0.0.1:8888' : 'https://jungle2.cryptolions.io:443',
   /* HACK */
-  endpoint       : 'https://jungle2.cryptolions.io:443',
-  node           : 'https://proxy.eosnode.tools/',
-  create_account : 'https://api.monitor.jungletestnet.io/#account',
-  // create_account: 'https://eos-account-creator.com/choose/'
-  security_prefix: '1nK1r1_K3y_Pr3F1x_',
+  endpoint                  : 'https://jungle2.cryptolions.io:443',
+  node                      : 'https://proxy.eosnode.tools/',
+  push: {
+    retries                 : 1,
+    use_options             : true,
+    options:  {
+      blocksBehind          : 3,
+      expireSeconds         : 60
+    },
+    breakable_error_codes   : [3081001]
+  },
+  create_account            : 'https://api.monitor.jungletestnet.io/#account',
+  // create_account           : 'https://eos-account-creator.com/choose/'
+  security_prefix           : '1nK1r1_K3y_Pr3F1x_',
   generateSeed : (account_name, seed) => {
     if(!account_name || account_name.trim()=='')
       throw new Error('Account name can not be empty');

@@ -146,10 +146,11 @@ class AutocompleteBank extends Component {
 
     //<AutoComplete.Option key={item.key} text={item.key}>
     const {formatMessage} = this.props.intl;
+    const splitted_key = this.splitBankKey(item.key)
     return (
-      <AutoComplete.Option title={item.value} key={item.key} value={item.value}>
+      <AutoComplete.Option title={item.value + ' - ' + splitted_key} key={item.key} value={item.value}>
         {item.value}
-        <span className="certain-search-item-count">@{this.splitBankKey(item.key)}</span>
+        <span className="certain-search-item-count">@{splitted_key}</span>
       </AutoComplete.Option>
     );
   };

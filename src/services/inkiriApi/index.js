@@ -181,22 +181,60 @@ const pushTX = async (tx, privatekey) => {
   
   console.log(' -- inkiriApi::pushTX::tx = ', my_actions, JSON.stringify(my_actions));
 
-  try {
-	  const result = await api.transact(
-	    { actions: my_actions },
-	    {
-	      blocksBehind: 3,
-	      expireSeconds: 60
-	    }
-	  );
-	  console.log(' InkiriApi::pushTX (then#1) >> ', JSON.stringify(result));
-    return {data:result};
+  const actions    = { actions: my_actions };
+  const tx_options = globalCfg.eos.push.use_options 
+    ?  globalCfg.eos.push.options
+    : {};
+
+  const retries = globalCfg.eos.push.retries;
+
+  const isBreakException = (e) => {
+    const error_code = e.json && e.json.error && e.json.error.error_code;
+    /*
+      Exception Source: https://github.com/EOSIO/eos/blob/e19afc8072219282a7c3fc20e47aa80cb70299e4/libraries/chain/include/eosio/chain/exceptions.hpp
+      3081001 -> leeway_deadline_exception
+    */
+    return globalCfg.eos.push.breakable_error_codes.includes(error_code);
+
+  }
+
+  const push_retry = async (actions, options, retries) => {
+
+    try {
+      const result = await api.transact(
+        actions,
+        options 
+      );
+      console.log(' InkiriApi::pushTX (then#1) >> ', JSON.stringify(result));
+      return {data:result};
+      
+    } catch (e) {
+      console.log(' InkiriApi::pushTX (error#1) >>  ', JSON.stringify(e));
+      // throw e.json.error.details[0].message;
+      if (retries <= 1 || isBreakException(e)) 
+        throw e;
+      const res = await push_retry(actions, options, retries - 1);
+      return res;
+    }
+  }
+
+  const response = await push_retry(actions, tx_options, retries);
+  return response;
+
+ //  try {
 	  
-	} catch (e) {
-	  console.log(' InkiriApi::pushTX (error#1) >>  ', JSON.stringify(e));
-    // throw e.json.error.details[0].message;
-    throw e;
-	}
+ //    const result = await api.transact(
+	//     { actions: my_actions },
+	//     options 
+	//   );
+ //    console.log(' InkiriApi::pushTX (then#1) >> ', JSON.stringify(result));
+ //    return {data:result};
+	  
+	// } catch (e) {
+	//   console.log(' InkiriApi::pushTX (error#1) >>  ', JSON.stringify(e));
+ //    // throw e.json.error.details[0].message;
+ //    throw e;
+	// }
 }
 
 export const createAccount = async (creator_priv, new_account_name, new_account_public_key, account_type, fee, overdraft, permissions) => { 

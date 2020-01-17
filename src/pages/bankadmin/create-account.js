@@ -339,6 +339,7 @@ class CreateAccount extends Component {
           })
       }, (err)=>{
         that.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
+        components_helper.notif.exceptionNotification(  this.props.intl.formatMessage({id:'errors.occurred_title'}), err, null, this.props.intl)
         console.log(' doCreateAccount() BLOCKCHAIN ERROR', JSON.stringify(err))
       })
 

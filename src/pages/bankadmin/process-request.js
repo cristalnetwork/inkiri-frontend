@@ -414,7 +414,7 @@ class processExternal extends Component {
           });
       }, (ex1) => {
         console.log(' processExternal::refund (error#1) >>  ', JSON.stringify(ex1));
-        components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.refund.2'}), ex1);              
+        components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.process-external.error.refund.2'}), ex1, null, that.props.intl);
         that.setState({result:'error', uploading: false, pushingTx:false, error:JSON.stringify(ex1)});
       });
   }
@@ -582,7 +582,7 @@ class processExternal extends Component {
                 }, (ex)=>{
                   console.log(' processRequest::issue (error#1) >>  ', JSON.stringify(ex));
                   that.setState({result:'error', pushingTx:false, error:JSON.stringify(ex)});
-                  components_helper.notif.exceptionNotification(formatMessage({id:'errors.occurred_title'}), ex);
+                  components_helper.notif.exceptionNotification(formatMessage({id:'errors.occurred_title'}), ex, null, that.props.intl);
                   that.reload();
                 });
             

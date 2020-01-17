@@ -199,6 +199,12 @@ class Provider extends Component {
         components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'components.AutocompleteBank.index.choose_bank_message'}) );
         return; 
       }
+      // if(!bank_account_bank.bank_keycode)
+      // {
+      //   const bank_keycode_message  = this.props.intl.formatMessage({id: 'components.Forms.bank_account.choose_bank_account_with_keycode'})
+      //   components_helper.notif.errorNotification(bank_keycode_message);
+      //   return;
+      // }
       const bank_accounts = [{...values.bank_accounts[0], ...bank_account_bank}]
       values.bank_accounts = bank_accounts;
       console.log('-------------------------------------------', values)
