@@ -544,3 +544,36 @@ div.headerList td .ant-descriptions-item-content{flex:3; align-self: flex-start;
 }
 .col_icon{flex: 0 0 49px;}
 .col_widget{flex:1;}
+
+
+
+
+
+
+/* ******************************************************* */
+/* SIDE MENU items */
+.ant-layout-sider-children ul.ant-menu li.ant-menu-item {
+  height: auto;
+  min-height: 40px;
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  /*line-height: 40px;*/
+}
+
+
+.ant-layout-sider-children ul.ant-menu li.ant-menu-item a{
+  overflow: hidden;
+  overflow-wrap: normal;
+  height: auto;
+  max-height: 40px;
+  line-height: 14px;
+}
+
+.ant-layout-sider-children ul.ant-menu li.ant-menu-item a span{
+  /*overflow-wrap: normal;*/
+  width:100%;
+  white-space:normal; 
+  line-height: 14px;
+}
+/* ******************************************************* */
