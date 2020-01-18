@@ -325,6 +325,31 @@ export const getColumnsForRequests = (callback, is_admin, process_wages) => {
 };
 
 //
+/*
+Fecha
+
+action.copiar
+
+Anexo
+BB
+CA-BB
+TR
+
+status X
+from X
+to X
+Monto X
+
+Conta (BB-PPA, EMPRESA, INSTITUTO)
+
+Bano (si es boleto, link al boleto)
+AG
+CC
+TIPO (CPF, CNPJ)
+
+
+*/
+//
 export const getColumnsForExternalTransfers = (callback) => {
   return [
     {
@@ -346,61 +371,82 @@ export const getColumnsForExternalTransfers = (callback) => {
     },
     //
     {
-      title: <InjectMessage id="components.TransactionTable.columns.type" />,
-      dataIndex: 'tx_type',
-      key: 'tx_type',
-      width: '250px',
-      render: (tx_type, record) => {
-        
-        return (<span className="name_value_row ">
-              <div className="row_name centered flex_fixed_width_5em" >
-                <div className="ui-row__col ui-row__col--heading">
-                    <div className="ui-avatar">
-                      {request_helper.getCircledTypeIcon(record)} 
-                    </div>
-                </div>
-              </div>
-              <div className="row_value wider">
-                <div className="ui-info-row__content">
-                  <div className="ui-info-row__title">
-                    {record.header}
-                  </div>
-                  <div className="ui-info-row__details">
-                      <ul>
-                          <li>{record.sub_header_admin}</li>
-                          <li>{record.sub_header_ex}</li>
-                          
-                      </ul>
-                  </div>
-                </div>
-              </div>
-            </span>)
-
-      }
-    },
-    //
-    {
-      title: <InjectMessage id="global.bank_account" />,
-      key: 'bank_account',
-      width: '230px',
-      render: (text, record) => {
-        return request_helper.bankAccountForRequest(record);
-      },
-    },
-    {
       title: <InjectMessage id="components.TransactionTable.columns.status" />,
       dataIndex: 'state',
       key: 'state',
       width: '145px',
       render: (state, record) => request_helper.getStateTag(record)
-    }
-    ,
+    },
     {
       title: <InjectMessage id="components.TransactionTable.columns.from" />,
       dataIndex: 'from',
       key: 'from',
       width: '110px',
     },
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.to" />,
+      dataIndex: 'to',
+      key: 'to',
+      width: '110px',
+      render: (to, record) => {
+        let text = '';
+        if(globalCfg.api.isProviderPayment(record))
+        text = (record.provider)
+          ?record.provider.name
+          :<InjectMessage id="components.TransactionTable.columns.not_available" />;
+        return (<span>{text}</span>)
+      }
+    },
+    //
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.bank_name" />,
+      key: 'bank',
+      width: '100px',
+      render: (text, record) => {
+        const bank_account = request_helper.bankForRequest(record);
+        // TODO: si es boleto, poner bolet  y link al archivo!
+        return (<span>{`${bank_account.bank_keycode} ${bank_account.bank_name}`}</span>)
+      }
+    },
+    //`
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.bank_agency" />,
+      key: 'bank_agency',
+      width: '100px',
+      render: (text, record) => {
+        const bank_account = request_helper.bankForRequest(record);
+        return (<span>{bank_account.agency}</span>)
+      }
+    },
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.bank_cc" />,
+      key: 'bank_cc',
+      width: '100px',
+      render: (text, record) => {
+        const bank_account = request_helper.bankForRequest(record);
+        return (<span>{bank_account.cc}</span>)
+      }
+    },
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.legal_id_type" />,
+      key: 'legal_id_type',
+      width: '75px',
+      render: (text, record) => {
+        const id_type = request_helper.isCNPJ(record)
+          ? <InjectMessage id="components.TransactionTable.columns.legal_id_type_cnpj" /> 
+          : <InjectMessage id="components.TransactionTable.columns.legal_id_type_cpf" />;
+        return (<span>{id_type}</span>)
+      }
+    },
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.legal_id" />,
+      key: 'legal_id',
+      width: '110px',
+      render: (text, record) => {
+        return (<span>{request_helper.legalId(record)}</span>)
+      }
+    },
+    //
     {
       title: '#',
       key: 'action',

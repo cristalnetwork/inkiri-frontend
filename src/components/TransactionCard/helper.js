@@ -44,13 +44,38 @@ export const getExternalRequestDesc = (request) => {
        </Tag></>)
 }
 
-export const bankAccountForRequest = (request) => {
+export const bankForRequest = (request) => {
   if(globalCfg.api.isProviderPayment(request) && request.provider && request.provider.bank_accounts && Array.isArray(request.provider.bank_accounts))
-    return getBankAccountDesc(request.provider.bank_accounts[0])
+    return request.provider.bank_accounts[0] || {};
   if(globalCfg.api.isExchange(request))
-    return getBankAccountDesc(request.bank_account)
-  return 'N/A';
+    return request.bank_account || {};
+  return {};
 }
+
+export const isCNPJ= (request) => {
+  let legal_id = '';
+  if(globalCfg.api.isProviderPayment(request) && request.provider)
+    legal_id = request.provider.cnpj;
+  if(globalCfg.api.isExchange(request))
+    legal_id = request.requested_by.legal_id;
+  return utils.is_cnpj(legal_id);
+}
+
+export const legalId= (request) => {
+  if(globalCfg.api.isProviderPayment(request) && request.provider)
+    return request.provider.cnpj;
+  if(globalCfg.api.isExchange(request))
+    return request.requested_by.legal_id;
+  return '?';
+}
+
+// export const bankAccountForRequest = (request) => {
+//   if(globalCfg.api.isProviderPayment(request) && request.provider && request.provider.bank_accounts && Array.isArray(request.provider.bank_accounts))
+//     return getBankAccountDesc(request.provider.bank_accounts[0])
+//   if(globalCfg.api.isExchange(request))
+//     return getBankAccountDesc(request.bank_account)
+//   return 'N/A';
+// }
 
 export const getBankAccountDesc = (bank_account) => {
   if(!bank_account)

@@ -100,7 +100,7 @@ const TransactionTypeAndAmount = ({request, transaction, custom, isPersonal, act
 
 export default connect(
     (state)=> ({
-        isPersonal:         loginRedux.allAccounts(state),
+        isPersonal:         loginRedux.isPersonal(state),
         actualAccountName:  loginRedux.actualAccountName(state),
         // currentAccount:  loginRedux.currentAccount(state),
         // isLoading:       loginRedux.isLoading(state)

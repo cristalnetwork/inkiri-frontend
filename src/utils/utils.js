@@ -1,5 +1,17 @@
 import _ from 'lodash';
 
+
+export const is_cnpj = (legal_id) =>{
+  const clean_legal_id = legal_id.split('').filter(  char => isdigit(char) ).join('');
+  return clean_legal_id.length > 11 
+}
+const isdigit = (character) =>{
+  return '0123456789,.'.indexOf(character) >= 0 ;
+}
+export const only_digits = (str) => {
+  return str.split('').filter(  char => isdigit(char) ).join('');
+}
+
 export const getFirstPart = (path, _default='') => {
   if(!path)
     return _default;
