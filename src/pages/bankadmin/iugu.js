@@ -101,7 +101,12 @@ class Iugu extends Component {
 
     const has_received_new_data = (txs && txs.length>0);
 
-    this.setState({pagination:pagination, txs:_txs, can_get_more:(has_received_new_data && txs.length==this.state.limit), loading:false})
+    const page           = (this.state.page<0)?0:(this.state.page+1);
+    this.setState({pagination:    pagination
+                , txs:             _txs
+                , can_get_more:   (has_received_new_data && txs.length==this.state.limit)
+                , loading:        false
+                , page:           page})
 
     if(!has_received_new_data)
     {

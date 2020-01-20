@@ -340,6 +340,18 @@ h3.fileds_header{
   background-color: #f0f0f0!important;
 }
 
+.c-detail .ui-list.shorter .ui-row{
+  height:40px;
+  margin-top:4px;
+  margin-bottom:4px;
+}
+.c-detail .ui-list.shorter .ui-row a
+, .c-detail .ui-list.shorter .ui-row a:link
+, .c-detail .ui-list.shorter .ui-row a:visited
+, .c-detail .ui-list.shorter .ui-row a:active{
+  text-decoration: none;
+}
+
 .money-transfer__select .ant-select-search--inline .ant-select-search__field{
   line-height: inherit!important;
 }

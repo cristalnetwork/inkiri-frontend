@@ -69,10 +69,13 @@ export const exceptionNotification = (title, ex, onClose, intl) => {
         ? intl.formatMessage({id:`eos.errors.title.wait_for_response_intro`})
         : 'Please read the message and then go to Operations List and wait for results refreshing page manually!';
       _message = [(<span key="notification_message">{_message}</span>), (<span key="notification_message2"><br/>{err_title}<br/></span>), (copy_btn)];
-    } 
-    //
-    _message = [(<span key="notification_message">{_message}<br/></span>), (copy_btn)]; 
       //
+    } 
+    else
+    {  
+      _message = [(<span key="notification_message">{_message}<br/></span>), (copy_btn)]; 
+    }
+    //
     openNotificationWithIcon('error', _title, _message, onClose, 0)
     return;  
   }

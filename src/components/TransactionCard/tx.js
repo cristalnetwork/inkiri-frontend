@@ -75,7 +75,7 @@ class Tx extends Component {
 
           {request?
           (<ItemLink 
-              link={<Button type="link" size="large" onClick={() => this.onEvent()} >{ formatMessage({id:'global.view_request'}) }</Button>}
+              link={<Button type="link" size="lg" onClick={() => this.onEvent()} >{ formatMessage({id:'global.view_request'}) }</Button>}
               icon="file-invoice" 
               is_external={false}
                     />) : (null)}

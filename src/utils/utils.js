@@ -2,6 +2,8 @@ import _ from 'lodash';
 
 
 export const is_cnpj = (legal_id) =>{
+  if(!legal_id || legal_id=='')
+    return undefined;
   const clean_legal_id = legal_id.split('').filter(  char => isdigit(char) ).join('');
   return clean_legal_id.length > 11 
 }

@@ -238,9 +238,15 @@ export const getBlockchainLink = (tx_id, withIcon, size, text) => {
   if(!tx_id)
     return (null);
   const _text = text; //(typeof text === 'undefined')?'Blockchain':text;
-  const _href = api.dfuse.getBlockExplorerTxLink(tx_id);
+  const _href = getBlockchainUrl(tx_id);
   const icon = (typeof withIcon==='undefined' || withIcon)?(<FontAwesomeIcon icon="external-link-alt" />):(null);
   return (<Button title="View transaction on blockchain explorer" type="link" href={_href} size={size||'default'} target="_blank" key={'view-on-blockchain_'+tx_id} style={{color:'inherit', paddingLeft:0}}>{_text}&nbsp;{icon}</Button>)
+}
+//
+export const getBlockchainUrl = (tx_id) => {
+  if(!tx_id)
+    return '#';
+  return api.dfuse.getBlockExplorerTxLink(tx_id);
 }
 //
 export const getProcessButton = (request, callback, text, is_primary) => {
@@ -412,7 +418,8 @@ export const iugu = {
   , inError       : (invoice) => { return iugu.inState(invoice, iugu.STATE_ERROR);} 
   , isIssued      : (invoice) => { return iugu.inState(invoice, iugu.STATE_ISSUED);} 
   , stateIcon     : (invoice) => { return (IuguIconImage); }
-  , header        : (invoice) => { return `${globalCfg.currency.toCurrencyString(invoice.amount)} paid to ${invoice.receipt_alias}`}
+  // , header        : (invoice) => { return `${globalCfg.currency.toCurrencyString(invoice.amount)} paid to ${invoice.receipt_alias}`}
+  , header        : (invoice) => { return `${invoice.receipt_alias}`}
   , stateTag      : (invoice) => {
       const my_state = iugu.getStates()[invoice.state];                    
       // const icon     = (<FontAwesomeIcon icon={my_state.icon} size="xs" color={my_state.color} />);
@@ -429,7 +436,7 @@ export const iugu = {
       const icon = (with_icon===undefined || with_icon)?(<FontAwesomeIcon icon="external-link-alt" />):(null);
       const href = invoice.original.secure_url;
       const key = 'key_iugu_link_'+Math.random(); 
-      return (<Button type="link" href={href} target="_blank" key={key} size={'default'} style={{color:'inherit', paddingLeft:0}}>IUGU invoice &nbsp; {icon}</Button>)
+      return (<Button type="link" href={href} target="_blank" key={key} size={'default'} style={{color:'inherit', paddingLeft:0}}>IUGU original &nbsp; {icon}</Button>)
     }
  //
   , styledAmount : (invoice, negative, show_negative) => {

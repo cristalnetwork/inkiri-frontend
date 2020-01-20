@@ -408,6 +408,16 @@ export const getColumnsForExternalTransfers = (callback) => {
         return (<span>{`${bank_account.bank_keycode} ${bank_account.bank_name}`}</span>)
       }
     },
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.bank_name" />,
+      key: 'bank',
+      width: '100px',
+      render: (text, record) => {
+        const bank_account = request_helper.bankForRequest(record);
+        // TODO: si es boleto, poner bolet  y link al archivo!
+        return (<span>{`${bank_account.bank_keycode} ${bank_account.bank_name}`}</span>)
+      }
+    },
     //`
     {
       title: <InjectMessage id="components.TransactionTable.columns.bank_agency" />,
@@ -432,10 +442,13 @@ export const getColumnsForExternalTransfers = (callback) => {
       key: 'legal_id_type',
       width: '75px',
       render: (text, record) => {
-        const id_type = request_helper.isCNPJ(record)
-          ? <InjectMessage id="components.TransactionTable.columns.legal_id_type_cnpj" /> 
-          : <InjectMessage id="components.TransactionTable.columns.legal_id_type_cpf" />;
-        return (<span>{id_type}</span>)
+        const id_type = request_helper.isCNPJ(record);
+        let id_type_is_cnpj = <InjectMessage id="components.TransactionTable.columns.legal_id_type_cpf_cnpj_unknown" /> 
+        if(id_type==true)
+          id_type_is_cnpj = <InjectMessage id="components.TransactionTable.columns.legal_id_type_cnpj" /> ;
+        if(id_type==false)
+          id_type_is_cnpj = <InjectMessage id="components.TransactionTable.columns.legal_id_type_cpf" />;
+        return (<span>{id_type_is_cnpj}</span>)
       }
     },
     {
@@ -751,6 +764,7 @@ export const columnsForIUGU = (callback) => {
         title: <InjectMessage id="components.TransactionTable.columns.description" />,
         dataIndex: 'sub_header',
         key: 'sub_header',
+        width: '250px',
         render: (value, record) => {
           return(
             <span className="name_value_row">
@@ -761,7 +775,7 @@ export const columnsForIUGU = (callback) => {
                 <span className="row_tx_title">
                   {request_helper.iugu.header(record)}
                 </span> 
-                <br/>{request_helper.iugu.stateLabel(record)}
+                <br/># {record.iuguCounterId}
               </div>   
             </span>)
         }
@@ -770,13 +784,15 @@ export const columnsForIUGU = (callback) => {
         title: <InjectMessage id="components.TransactionTable.columns.tags" />,
         key: 'tx_type',
         dataIndex: 'tx_type',
+        width: '250px',
         render: (tx_type, record) => {
-          const error  = (request_helper.iugu.inError(record))?(<Alert message={record.error} type="error" />):(null);
+          const error  = (request_helper.iugu.inError(record) && record.error)?(<Alert message={record.error} type="error" />):(null);
           const issued = (record.issued_at)?(<p>&nbsp;<InjectMessage id="components.TransactionTable.columns.issued_at" />: {request_helper.iugu.getDate(record.issued_at)} </p>):(null);
           return (
             <span key={'tags'+record.id}>
                {error}
-               {issued}
+               {(<br/>) && issued }
+               {(<br/>) && request_helper.iugu.stateLabel(record)}
             </span>
             )}
       },
@@ -784,7 +800,7 @@ export const columnsForIUGU = (callback) => {
       {
         title: <InjectMessage id="components.TransactionTable.columns.action" />,
         key: 'action',
-        width: 100,
+        width: '250px',
         render: (text, record) => {
           const iugu        = request_helper.iugu.iuguLink(record);
           const process     = request_helper.getProcessButton(record, callback, <InjectMessage id="components.TransactionTable.columns.details" />);

@@ -14,7 +14,7 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Modal, Card, PageHeader, Button, Spin, Form } from 'antd';
+import { Drawer, Modal, Card, PageHeader, Button, Spin, Form } from 'antd';
 
 import TransactionTitleAndAmount from '@app/components/TransactionCard/title_amount';
 import IuguAlias from '@app/components/TransactionCard/iugu_alias';
@@ -26,6 +26,8 @@ import ErrorItem from '@app/components/TransactionCard/item_error';
 import TransactionTitle from '@app/components/TransactionCard/title';
 
 import TransactionPetitioner from '@app/components/TransactionCard/petitioner';
+
+import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
@@ -69,6 +71,8 @@ class iuguDetails extends Component {
     this.renderContent              = this.renderContent.bind(this); 
     this.resetPage                  = this.resetPage.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
+    this.setAlias                   = this.setAlias.bind(this); 
+    this.handleChooseAliasAccount   = this.handleChooseAliasAccount.bind(this); 
   }
 
   componentDidMount(){
@@ -134,6 +138,102 @@ class iuguDetails extends Component {
     
   }
 
+  onAccountAliasSelect =(account) =>{
+    this.setState({account_alias:account})
+  }
+
+  setAlias(){
+    this.setState({show_set_alias:true})
+  }
+  
+  onCloseSetAlias = () => {
+    this.setState({
+      show_set_alias: false,
+    });
+  };
+
+  handleChooseAliasAccount = (e) => {
+    e.preventDefault();
+    let that = this;
+    this.props.form.validateFields((err, values) => {
+      
+      if (err) {
+        components_helper.notif.errorNotification( this.props.intl.formatMessage({id:'errors.validation_title'}), this.props.intl.formatMessage({id:'errors.verify_on_screen'}) )    
+        console.log(' ERRORS!! >> ', err)
+        return;
+      }
+
+      // console.log('--values::', values)
+      that.setState({pushingTx:true})
+      api.bank.updateIuguAlias(that.state.invoice._id, values.business)
+        .then( (data) => {
+            that.setState({pushingTx:false})
+            components_helper.notif.successNotification( 
+              that.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.success.alias_update'}),
+            );
+            that.reload();
+            setTimeout(()=> {
+              that.setState({show_set_alias:false})
+            } ,500);
+          },
+          (ex) => {
+            that.setState({pushingTx:false})
+            components_helper.notif.exceptionNotification( 
+              that.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.error.occurred_title'}),
+              ex
+            );
+            console.log(' ** ERROR @ processInvoice', JSON.stringify(ex))
+          }  
+        );
+    
+    });
+  };
+
+
+
+  showSetAlias = () =>{
+    const {show_set_alias} = this.state;
+    if(!show_set_alias)
+      return null;
+
+    let that = this;   
+
+    return(
+
+      <Drawer
+          title={ <div style={{ textAlign:'center', margin: '0 auto', width:700}}>{this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.upsert_alias_title'})}</div> }
+          placement="top"
+          closable={true}
+          visible={this.state.show_set_alias}
+          getContainer={false}
+          style={{ position: 'absolute' }}
+          bodyStyle={{margin: '0 auto', }}
+          keyboard={true}
+          height="600px"
+          onClose={this.onCloseSetAlias}
+        >
+          <Card 
+              key="choose_alias_account"
+              loading={this.state.pushingTx}
+              style={{width:700, margin: '0 auto'}}
+              headStyle={{display:'none'}}
+              >
+            <Form onSubmit={this.handleChooseAliasAccount}>
+              <AutocompleteAccount  callback={this.onAccountAliasSelect} form={this.props.form} name="business" 
+                          filter={globalCfg.bank.ACCOUNT_TYPE_BUSINESS} 
+                          exclude_list={[]} />
+              <div className="mp-box__actions mp-box__shore">
+                <Button size="large" key="requestButton" htmlType="submit" type="primary" htmlType="submit" >{this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.choose_account_action'})}</Button>
+                <Button size="large" className="danger_color" type="link" onClick={this.onCloseSetAlias}>
+                  {this.props.intl.formatMessage({id:'global.cancel'})}
+                </Button>
+              </div>
+            </Form>
+          </Card>
+       </Drawer>
+     );
+  }
+  //
   renderContent() {
     
     if(this.state.result)
@@ -170,21 +270,35 @@ class iuguDetails extends Component {
           <IuguInvoice invoice={invoice} />
           
 
-          <ItemLink link={request_helper.iugu.iuguLink(invoice, false)} icon="file-invoice" is_external={true} />
+          <ItemLink 
+            link={null} 
+            href={invoice.original.secure_url} 
+            text={this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.original_iugu_invoice'})} 
+            icon="file-invoice" 
+            icon_size="lg" 
+            is_external={true} />
 
-          <TransactionTitle title={ this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.paid_to'}) } button={(null)} />
+          <TransactionTitle 
+            title={ this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.paid_to'}) } 
+            button={<Button type="primary" onClick={this.setAlias} icon="edit" >{this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.upsert_alias'})}</Button>} />
+
           <div className="ui-list">
             <ul className="ui-list__content">
               <IuguAlias profile={{alias:invoice.receipt_alias}} alone_component={false} />          
               {(invoice.receipt)?(
                 <TransactionPetitioner profile={invoice.receipt} title={ this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.destination_account'}) } />
-                ):( <ErrorItem title={invoice.error} message={ this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.cant_fetch_alias'}) } />)}
+                ):( <ErrorItem 
+                      title={invoice.error} 
+                      message={ this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.cant_fetch_alias'}) } 
+                      />)}
             </ul>
           </div>
           
           {(invoice.issued_tx_id)?(
               <ItemBlockchainLink tx_id={invoice.issued_tx_id} title={ this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.issue_tx'}) } />
               ):(null)}
+
+          <TransactionTitle title={ `ID #${invoice._id}` } />
 
         </div>
         <div className="c-detail bottom">
@@ -204,7 +318,7 @@ class iuguDetails extends Component {
       content: this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.about_to_issue'}),
       onOk() {
         that.setState({pushingTx:true});
-        api.bank.processIuguInvoiceById(that.state.invoice.id)
+        api.bank.processIuguInvoiceById(that.state.invoice._id)
         .then( (data) => {
             that.setState({pushingTx:false})
             components_helper.notif.successNotification( 
@@ -249,16 +363,19 @@ class iuguDetails extends Component {
 
   //
   render() {
-    let content     = this.renderContent();
-    const title     = this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.title'});
-    const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
+    let content          = this.renderContent();
+    const title          = this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.title'});
+    const routes         = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
+    const show_set_alias = this.showSetAlias();
+
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={title}>
         </PageHeader>
-
+        
+        {show_set_alias}
         {content}
 
       </>

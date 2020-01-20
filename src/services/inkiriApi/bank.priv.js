@@ -807,6 +807,19 @@ export const processIuguInvoiceById = (iugu_invoice_id) =>   new Promise((res,re
       });
 });
 
+export const updateIuguAlias = (iugu_invoice_id, account_name) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.endpoint + `/iugu_alias/${iugu_invoice_id}/${account_name}`;
+  const method  = 'POST';
+  
+  jwtHelper.apiCall(path, method)
+    .then((data) => {
+        res(data)
+      }, (ex) => {
+        rej(ex);
+      });
+});
+
 export const getIuguInvoiceById = (iugu_invoice_id) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.endpoint + `/iugu/${iugu_invoice_id}`;
