@@ -1,4 +1,4 @@
-const env        = "dev";
+const env        = "prod";
 
 const language   = "english";
 
@@ -51,6 +51,12 @@ const bank = {
   
   customers:               'https://jungle.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
   
+  // HACK from server's config
+  PAYMENT_VEHICLE_INKIRI :    'payment_vehicle_inkiri', //empresa
+  PAYMENT_VEHICLE_INSTITUTE:  'payment_vehicle_institute',
+  PAYMENT_MODE_TRANSFER:      'payment_mode_transfer',
+  PAYMENT_MODE_BOLETO:        'payment_mode_boleto',
+
   ACCOUNT_TYPE_PERSONAL:   1,
   ACCOUNT_TYPE_BUSINESS:   2,
   ACCOUNT_TYPE_FOUNDATION: 3,

@@ -399,23 +399,46 @@ export const getColumnsForExternalTransfers = (callback) => {
     },
     //
     {
-      title: <InjectMessage id="components.TransactionTable.columns.bank_name" />,
-      key: 'bank',
+      title: <InjectMessage id="components.TransactionTable.columns.origin_account" />,
+      key: 'origin_account',
       width: '100px',
       render: (text, record) => {
-        const bank_account = request_helper.bankForRequest(record);
-        // TODO: si es boleto, poner bolet  y link al archivo!
-        return (<span>{`${bank_account.bank_keycode} ${bank_account.bank_name}`}</span>)
+        let origin_account = '';
+        if(globalCfg.api.isExchange(record))
+          origin_account = <InjectMessage id="pages.bankadmin.external-transfers.institute_account_ppa" />;
+        else{
+          if(record.provider_extra && record.provider_extra.payment_vehicle == globalCfg.bank.PAYMENT_VEHICLE_INKIRI)
+            origin_account = <InjectMessage id="pages.bankadmin.external-transfers.corporate_account" />;
+          else
+            if(record.provider_extra && record.provider_extra.payment_vehicle == globalCfg.bank.PAYMENT_VEHICLE_INSTITUTE)
+              origin_account = <InjectMessage id="pages.bankadmin.external-transfers.institute_account" />;
+        }
+
+        return (<span>{origin_account}</span>)
       }
     },
+    //
     {
       title: <InjectMessage id="components.TransactionTable.columns.bank_name" />,
       key: 'bank',
       width: '100px',
       render: (text, record) => {
-        const bank_account = request_helper.bankForRequest(record);
+        let to_render = ''
+        if(globalCfg.api.isProviderPayment(record) && record.provider_extra&& record.provider_extra.payment_mode==globalCfg.bank.PAYMENT_MODE_BOLETO)
+        {
+          to_render = request_helper.getGoogleDocLinkOrNothing(record.attach_boleto_pagamento_id, true, <InjectMessage id="global.payment_slip" />)
+        }
+        else
+        {
+          const bank_account = request_helper.bankForRequest(record);
+          const key_code     = bank_account.bank_keycode
+            ? bank_account.bank_keycode
+            : <InjectMessage id="components.TransactionTable.columns.bank_keycode_missing" />
+          to_render          = [<i key={Math.random()}>{key_code}&nbsp;</i>, <b key={Math.random()}>{bank_account.bank_name}</b>];
+        }
         // TODO: si es boleto, poner bolet  y link al archivo!
-        return (<span>{`${bank_account.bank_keycode} ${bank_account.bank_name}`}</span>)
+
+        return (<span>{to_render}</span>)
       }
     },
     //`
