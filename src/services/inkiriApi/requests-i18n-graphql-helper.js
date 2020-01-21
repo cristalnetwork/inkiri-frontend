@@ -10,13 +10,16 @@ export const translate = (request, intl) => {
   return request;
 }
 
-// export const requests = async () => {
 export async function requests () {  
   const _requests = await gqlService.requests(arguments[0]);
   return _requests.map(request => translate(request, arguments[1]))
 }
 
-// export const request = async () => {
+export async function extrato () {  
+  const _requests = await gqlService.extrato(arguments[0]);
+  return _requests.map(request => translate(request, arguments[1]))
+}
+
 export async function request () {  
   const _request = await gqlService.request(arguments[0]);
   return translate(_request, arguments[1]);

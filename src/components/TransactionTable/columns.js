@@ -441,12 +441,17 @@ export const getColumnsForExternalTransfers = (callback) => {
         return (<span>{to_render}</span>)
       }
     },
-    //`
+    //
     {
       title: <InjectMessage id="components.TransactionTable.columns.bank_agency" />,
       key: 'bank_agency',
       width: '100px',
       render: (text, record) => {
+        if(globalCfg.api.isProviderPayment(record) && record.provider_extra&& record.provider_extra.payment_mode==globalCfg.bank.PAYMENT_MODE_BOLETO)
+        {
+          return (<span></span>);
+          //
+        }
         const bank_account = request_helper.bankForRequest(record);
         return (<span>{bank_account.agency}</span>)
       }
@@ -456,6 +461,11 @@ export const getColumnsForExternalTransfers = (callback) => {
       key: 'bank_cc',
       width: '100px',
       render: (text, record) => {
+        if(globalCfg.api.isProviderPayment(record) && record.provider_extra&& record.provider_extra.payment_mode==globalCfg.bank.PAYMENT_MODE_BOLETO)
+        {
+          return (<span></span>);
+          //
+        }
         const bank_account = request_helper.bankForRequest(record);
         return (<span>{bank_account.cc}</span>)
       }

@@ -17,7 +17,7 @@ import { Card, PageHeader, Button } from 'antd';
 import { DISPLAY_EXCHANGES, DISPLAY_PROVIDER} from '@app/components/TransactionTable';
 // import TableStats, { buildItemMoneyPending, buildItemUp, buildItemDown, buildItemCompute, buildItemSimple, buildItemMoney, buildItemPending} from '@app/components/TransactionTable/stats';
 
-import RequestListWidget from '@app/components/request-list-widget';
+import RequestListWidget, {REQUEST_MODE_BANK_TRANSFERS} from '@app/components/request-list-widget';
 
 import { injectIntl } from "react-intl";
 
@@ -84,7 +84,7 @@ class ExternalTransfers extends Component {
         callback={this.onProcessRequestClick} 
         onRef={ref => (this.table_widget = ref)}
         filter_hidden_fields={['to']}
-        mode="external-transfers"
+        mode={REQUEST_MODE_BANK_TRANSFERS}
         request_type={`${DISPLAY_EXCHANGES},${DISPLAY_PROVIDER}`} 
       />);
     //`

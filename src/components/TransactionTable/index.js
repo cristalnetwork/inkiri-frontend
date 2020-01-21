@@ -30,6 +30,10 @@ export const  DISPLAY_SERVICE    = globalCfg.api.TYPE_SERVICE;
 export const  DISPLAY_PDA        = globalCfg.api.TYPE_DEPOSIT+'|'+globalCfg.api.TYPE_WITHDRAW;
 export const  DISPLAY_EXTERNAL   = globalCfg.api.TYPE_EXCHANGE+'|'+globalCfg.api.TYPE_PROVIDER;
 
+export const REQUEST_MODE_BANK_TRANSFERS = 'request_mode_bank_trasnfers';
+export const REQUEST_MODE_EXTRATO        = 'request_mode_extrato'
+export const REQUEST_MODE_ALL            = 'request_mode_all'
+
 //
 class TransactionTable extends Component {
   constructor(props) {
@@ -57,7 +61,7 @@ class TransactionTable extends Component {
 
   getColumnsForType =() =>{
 
-    if(this.state.mode=='external-transfers')
+    if(this.state.mode==REQUEST_MODE_BANK_TRANSFERS)
     {
       return columns_helper.getColumnsForExternalTransfers(this.props.callback);  
     }
@@ -141,6 +145,24 @@ class TransactionTable extends Component {
     const limit          = this.state.limit;
     const that           = this;
     
+    if(this.state.mode==REQUEST_MODE_EXTRATO)
+    {
+      const filter_obj = {limit, page, ...(filter||{})};
+      console.log(' ---- TransactionTable filter_obj:', filter_obj);
+      try{
+        // const data = await gqlService.requests(filter_obj);
+        const data = await gqlRequestI18nService.extrato(filter_obj, this.props.intl);
+        that.onNewData(data);
+      }
+      catch(e)
+      {
+        this.setState({loading:false});
+        components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
+        return;
+      }
+      return;
+    }
+
     const requested_type = this.props.request_type==DISPLAY_REQUESTS?'':this.props.request_type;
     if(!this.props.isAdmin && (requests_filter.to||requests_filter.from))
     {
@@ -271,7 +293,7 @@ class TransactionTable extends Component {
   }
 
   render(){
-    const is_external = (this.state.mode=='external-transfers');
+    const is_external = (this.state.mode==REQUEST_MODE_BANK_TRANSFERS);
     const header = (is_external)
       ?this.remButtons()
       :(null);

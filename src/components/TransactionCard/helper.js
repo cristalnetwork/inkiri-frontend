@@ -273,9 +273,9 @@ export const getButtonIcon = (icon, callback, param, title) => {
   }
   return (<Button key={Math.random()} size="small" onClick={()=>{ buttonClick(callback, param) }} icon={icon}>{title}</Button>);
 }
+
 //
 export const getStyledAmount = (request, negative) => {
-
   // const style = {color:((!globalCfg.api.onOkPath(request))?'gray':(negative?'red':'inherit')), fontSize:16};
   const color = ((!globalCfg.api.onOkPath(request))?'gray':'inherit');
   const style = {color:color, fontSize:16};

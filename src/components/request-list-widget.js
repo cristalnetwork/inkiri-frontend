@@ -10,9 +10,11 @@ import RequestsFilter from '@app/components/Filters/requests';
 import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimple} from '@app/components/TransactionTable/stats';
 
 import TransactionTable, { DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
+import {REQUEST_MODE_BANK_TRANSFERS, REQUEST_MODE_EXTRATO, REQUEST_MODE_ALL } from '@app/components/TransactionTable';
 import * as request_helper from '@app/components/TransactionCard/helper';
-
 import { injectIntl } from "react-intl";
+
+export {REQUEST_MODE_BANK_TRANSFERS, REQUEST_MODE_EXTRATO, REQUEST_MODE_ALL };
 
 const RequestListWidget = (props) => {
 
@@ -21,7 +23,7 @@ const RequestListWidget = (props) => {
   const [filter, setFilter]                      = useState(props.filter);
   const [request_type, setRequestType]           = useState(props.request_type);
   const [filter_hidden_fields, setHiddenFields]  = useState(props.search_hidden_fields || []);
-  const [mode, setMode]                          = useState(props.mode);
+  const [mode, setMode]                          = useState(props.mode || REQUEST_MODE_ALL);
   const [table_ref, setTableRef]                 = useState(null);
   const [stats, setStats]                        = useState([]);
   

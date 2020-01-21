@@ -204,7 +204,7 @@ const bankadmin = [
     {
        key:         pathNames.bankadminPDA_ProcessRequest,
        father_key : '*',
-       fileName:    'process-external',
+       fileName:    'process-request',
        area:        'bankadmin',
        path:        'pda-process-request',
        container:   'dashboard',

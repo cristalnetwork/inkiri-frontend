@@ -525,6 +525,21 @@ export const request = async ({id='', requestCounterId=null}={}) =>{
 }
 
 
+const GET_EXTRATO  = gql`
+  query xxx($page:String, $limit:String, $account_name:String, $requested_type:String, $from:String, $to:String, $provider_id:String, $state:String, $date_from:String, $date_to:String){
+    extrato(page:$page, limit:$limit, account_name:$account_name, requested_type:$requested_type, from:$from, to:$to, provider_id:$provider_id, state:$state, date_from:$date_from, date_to:$date_to){
+      ${request_fields}
+    }
+  }
+`;
+
+export const extrato = async ({page='', limit='', account_name='', requested_type='', from='', to='', provider_id='', state='', date_from='', date_to=''}={}) =>{
+  const a        = {page:page.toString(), limit:limit.toString(), account_name:account_name.toString(), requested_type:requested_type.toString(), from:from.toString(), to:to.toString(), provider_id:provider_id.toString(), state:state.toString(), date_from:date_from.toString(), date_to:date_to.toString()};
+  do_log && console.log(' ######## GQLService::requests ', JSON.stringify(a));
+  return runQuery(GET_EXTRATO, a, 'extrato');
+}
+
+
 export const loadProvider = async (provider_id) => runQuery(GET_PROVIDER_DATA, {id:provider_id}, 'provider');
 const GET_PROVIDER_DATA  = gql`
   query getProvider($id: String!) {
