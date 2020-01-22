@@ -364,7 +364,7 @@ class RequestDetails extends Component {
         const steps= [
           {
             _function:           'acceptService'
-            , _params:           [auth_account, private_key, customer, provider, service.serviceCounterId, service.amount, begins_at, periods]
+            , _params:           [auth_account, private_key, customer, provider, service.serviceCounterId, service.amount, begins_at, periods, request.requestCounterId]
           }, 
           {
             _function:           'bank.acceptServiceRequest'
