@@ -26,6 +26,9 @@ import _ from 'lodash';
 
 import * as eos_table_getter from '@app/services/inkiriApi/eostable-getters';
 
+import * as gqlService from '@app/services/inkiriApi/graphql'
+import * as gqlRequestI18nService from '@app/services/inkiriApi/requests-i18n-graphql-helper'
+
 import { injectIntl } from "react-intl";
 import InjectMessage from "@app/components/intl-messages";
 
@@ -185,7 +188,21 @@ class Services extends Component {
     let that           = this;
     const account_name = this.props.actualAccountName;
     let contracts = []
-    
+
+    // const filter_obj = {limit, page, ...(filter||{})};
+    // console.log(' ---- TransactionTable filter_obj:', filter_obj);
+    // try{
+    //   // const data = await gqlService.requests(filter_obj);
+    //   const data = await gqlRequestI18nService.extrato(filter_obj, this.props.intl);
+    //   that.onNewData(data);
+    // }
+    // catch(e)
+    // {
+    //   this.setState({loading:false});
+    //   components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
+    //   return;
+    // }
+
     try{
       contracts = await eos_table_getter.listPapByCustomer(account_name, undefined, cursor)
     }catch(e){

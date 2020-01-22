@@ -417,31 +417,7 @@ export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAc
     }
   ]
 };
-//
-/*
-Fecha
 
-action.copiar
-
-Anexo
-BB
-CA-BB
-TR
-
-status X
-from X
-to X
-Monto X
-
-Conta (BB-PPA, EMPRESA, INSTITUTO)
-
-Bano (si es boleto, link al boleto)
-AG
-CC
-TIPO (CPF, CNPJ)
-
-
-*/
 //
 export const getColumnsForExternalTransfers = (callback) => {
   return [
@@ -1183,6 +1159,109 @@ export const columnsForServices = (callback, services_states) => {
 
 //
 
+export const columnsForServiceRequest = (callback, is_admin, actualAccountName) => {
+  return [
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.date" />,
+      dataIndex: 'block_time',
+      key: 'block_time',
+      sortDirections: ['descend'],
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.block_time_number - b.block_time_number,
+      align: 'left',
+      width: '150px',
+      render: (block_time, record) => {
+        return (
+            <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
+              {request_helper.formatBlockTime(record)}
+            </div>
+            )
+        }
+    },
+    //
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.type" />,
+      dataIndex: 'tx_type',
+      key: 'tx_type',
+      width: '400px',
+      render: (tx_type, record) => {
+        
+        return (<span className="name_value_row ">
+              <div className="row_name centered flex_fixed_width_5em" >
+                <div className="ui-row__col ui-row__col--heading">
+                    <div className="ui-avatar">
+                      {request_helper.getCircledTypeIcon(record)} 
+                    </div>
+                </div>
+              </div>
+              <div className="row_value wider">
+                <div className="ui-info-row__content">
+                  <div className="ui-info-row__title">
+                    {record.header}
+                  </div>
+                  <div className="ui-info-row__details">
+                      <ul>
+                          <li>{is_admin?record.sub_header_admin:record.sub_header_ex}</li>
+                          
+                      </ul>
+                  </div>
+                </div>
+              </div>
+            </span>)
+
+      }
+    },
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.status" />,
+      dataIndex: 'state',
+      key: 'state',
+      width: '145px',
+      render: (state, record) => request_helper.getSimpleStateTag(record)
+      
+    },
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.from" />,
+      dataIndex: 'from',
+      key: 'from',
+      width: '110px',
+    },
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.to" />,
+      dataIndex: 'to',
+      key: 'to',
+      width: '110px',
+    },
+    {
+      title: '#',
+      key: 'action',
+      width: '80px',
+      render: (text, record) => {
+        const isFinished = globalCfg.api.isFinished(record);
+        const title      = isFinished 
+        ? <InjectMessage id="components.TransactionTable.columns.details" /> 
+        : <InjectMessage id="components.TransactionTable.columns.process" />;
+        return request_helper.getProcessButton(record, callback, title, !isFinished);
+      },
+    },
+    //
+    {
+      title:       '$',
+      align:       'right',
+      dataIndex:   'amount',
+      key:         'amount',
+      // fixed:       'right',
+      className:   'amount_col',
+      render: (value, record) => {
+        return (
+            <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
+              {request_helper.styleAmount(record, actualAccountName)}
+            </div>
+            )
+        }
+    }
+  ]
+};
+//
 export const columnsForServiceContract = (callback) => {
     
     return [
