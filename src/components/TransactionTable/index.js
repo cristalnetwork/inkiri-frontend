@@ -49,6 +49,7 @@ class TransactionTable extends Component {
       requests_filter:   {},
 
       selectedRows:      [],
+      selectedRowKeys:   [],
       payment_date:      null
     };
     // this.handleChange      = this.handleChange.bind(this);
@@ -228,18 +229,36 @@ class TransactionTable extends Component {
       }
   }
 
-  rowSelection = {
-    onChange: (selectedRowKeys, selectedRows) => {
-      console.log(`::onChange:: selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-      this.setState({selectedRows:selectedRows}
-        , () => {this.validateState()});
-    },  
-    // onSelect: (record, selected, selectedRows) => {
-    //   console.log('::onSelect::', record, selected, selectedRows);
-    // },
-    // onSelectAll: (selected, selectedRows, changeRows) => {
-    //   console.log('::onSelectAll::', selected, selectedRows, changeRows);
-    // },
+//   const { selectedRowsArray } = this.state;
+// const rowSelection = {
+//       selectedRowKeys: selectedRowsArray,
+//       onChange: (selectedRowKeys, rows) => {
+//         this.setState({
+//           selectedRowsArray: [...rows]
+//         });
+//       },
+//     };
+  
+
+  getRowSelection = () => {
+    const {selectedRowKeys} = this.state;
+    return{
+      selectedRowKeys: selectedRowKeys,
+        onChange: (selectedRowKeys, selectedRows) => {
+          console.log(`::onChange:: selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+          const __selectedRows = selectedRows.filter(row=>row.state===globalCfg.api.STATE_RECEIVED);
+          this.setState({selectedRows:__selectedRows, selectedRowKeys:__selectedRows.map(row=>row._id)}
+            , () => {
+              // this.validateState()
+            });
+        },  
+        // onSelect: (record, selected, selectedRows) => {
+        //   console.log('::onSelect::', record, selected, selectedRows);
+        // },
+        // onSelectAll: (selected, selectedRows, changeRows) => {
+        //   console.log('::onSelectAll::', selected, selectedRows, changeRows);
+        // },
+      };
   };
 
   onChange = (date, dateString) => {
@@ -309,7 +328,7 @@ class TransactionTable extends Component {
         pagination={this.state.pagination}
         scroll={{ x: 950 }}
         expandedRowRender={columns_helper.expandedRequestRowRender}
-        rowSelection={is_external ? this.rowSelection : null}
+        rowSelection={is_external ? this.getRowSelection() : null}
         onRow={ (record, rowIndex) => {
                   return { 
                     onDoubleClick: event => { this.props.callback(record) }

@@ -40,11 +40,11 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
             // history.push(`/common/crew`);
             // history.push(`/common/providers`);
             // history.push(`/${actualRole}/configuration`);
-            history.push(`/${actualRole}/iugu`);
+            // history.push(`/${actualRole}/iugu`);
             // history.push(`/${actualRole}/profiles`);
             // history.push(`/${actualRole}/provider-profile`);
             // history.push(`/common/providers`);
-            // history.push(`/${actualRole}/external-transfers`);
+            history.push(`/${actualRole}/external-transfers`);
             // history.push(`/${actualRole}/pda`);
             // history.push(`/${actualRole}/accounts`);
             // history.push(`/${actualRole}/create-account`);
