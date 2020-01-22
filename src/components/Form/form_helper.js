@@ -123,7 +123,7 @@ export const getMonthItem = (_form, object, field, title, required_message, read
 //
 const getRanges = (intl) =>{
   return {
-           [intl.formatMessage({id:'global.dates.today'})]:           [moment(), moment()],
+           [intl.formatMessage({id:'global.dates.today'})]:           [moment().startOf('day'), moment()],
            [intl.formatMessage({id:'global.dates.since_yesterday'})]: [moment().subtract(1, 'days'), moment()],
            [intl.formatMessage({id:'global.dates.last_7_days'})]:     [moment().subtract(6, 'days'), moment()],
            [intl.formatMessage({id:'global.dates.last_30_days'})]:    [moment().subtract(29, 'days'), moment()],

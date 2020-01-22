@@ -24,11 +24,11 @@ export const formatDate = (date) => {
   return moment(date).format('LLLL');
 }
 
-export const formatUnix = (date) => {
+export const formatUnix = (date, _format='LLLL') => {
   let my_value = date;
   if(date.toString().length=='1570910442875'.length)
     my_value = date/1000;
-  return moment.unix(my_value).format("LLLL");
+  return moment.unix(my_value).format(_format);
 }
 
 export const getExternalRequestDesc = (request) => {
@@ -445,7 +445,9 @@ export const iugu = {
   }
 //
   , getDate : (date) =>{
-    return date.replace('T',' ').split('.')[0];
+    if(isNaN(date))
+      return date.replace('T',' ').split('.')[0];
+    return formatUnix(date, 'YYYY-MM-DD HH:mm:ss');   
   }
   , styledDate : (invoice, title) => {
     const my_date = iugu.getDate(invoice.paid_at) ;

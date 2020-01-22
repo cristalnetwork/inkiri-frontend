@@ -17,7 +17,8 @@ import { Card, PageHeader, Tabs} from 'antd';
 
 import { DISPLAY_ALL_TXS, DISPLAY_REQUESTS} from '@app/components/TransactionTable';
 
-import RequestListWidget, {REQUEST_MODE_EXTRATO} from '@app/components/request-list-widget';
+import RequestListWidget from '@app/components/request-list-widget';
+import TxListWidget from '@app/components/tx-list-widget';
 
 import * as utils from '@app/utils/utils';
 
@@ -26,7 +27,29 @@ import InjectMessage from "@app/components/intl-messages";
 
 const { TabPane } = Tabs;
 
-class Extrato extends Component {
+const tabs = {
+  [globalCfg.bank.ACCOUNT_TYPE_BUSINESS]: {
+    [DISPLAY_REQUESTS] :  'requests', 
+    // [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+  },
+  [globalCfg.bank.ACCOUNT_TYPE_PERSONAL]: {
+    [DISPLAY_REQUESTS] :  'requests', 
+    // [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+  },
+  [globalCfg.bank.ACCOUNT_TYPE_FOUNDATION]: {
+    [DISPLAY_REQUESTS] :  'requests', 
+    // [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+  },
+  [globalCfg.bank.ACCOUNT_TYPE_BANKADMIN]: {
+    [DISPLAY_REQUESTS] :  'requests', 
+    // [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
+  }
+  
+  // [DISPLAY_REQUESTS] : 'Requests',
+}
+
+
+class Requests extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -114,29 +137,34 @@ class Extrato extends Component {
   render() {
 
     const {routes, active_tab, isMobile, page_key_operations, page_key_requests} = this.state;
+    const my_tabs = tabs[this.props.actualRoleId];
     const wage_filter = this.props.isPersonal
       ?{wage_filter:this.props.actualAccountName}
       :{};
+    const content = (active_tab==DISPLAY_ALL_TXS)
+      ? (<TxListWidget the_key={page_key_operations} callback={this.onTransactionClick} />)
+      : (<RequestListWidget filter={wage_filter} request_type={DISPLAY_REQUESTS} the_key={page_key_requests} callback={this.onRequestClick} onRef={ref => (this.table_widget = ref)}/>);
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={this.props.intl.formatMessage({id:'pages.common.extrato.title'})}
-          subTitle={this.props.intl.formatMessage({id:'pages.common.extrato.list_title.requests'}) }
-        />
+          subTitle={this.props.intl.formatMessage({id:`pages.common.extrato.list_title.${my_tabs[active_tab]}`}) }
+        >
+        </PageHeader>
 
-        <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
-          
-          <RequestListWidget
-              filter={wage_filter}
-              request_type={DISPLAY_REQUESTS}
-              the_key={page_key_requests}
-              callback={this.onRequestClick}
-              onRef={ref => (this.table_widget = ref)}
-              filter_hidden_fields={[]}
-              mode={REQUEST_MODE_EXTRATO}
-          />
+        <div className="styles standardList" style={{ marginTop: 24 }}>
+          <Card key={'card_master'}  
+            tabList={ Object.keys(my_tabs).map(key_tab => { return {key: key_tab, tab: 
+              this.props.intl.formatMessage({id:`pages.common.extrato.tab.${my_tabs[key_tab]}`})
+            } } ) }
+            activeTabKey={active_tab}
+            onTabChange={ (key) => this.onTabChange(key)}
+            >
 
+            {content}
+    
+          </Card>
         </div>
       </>
     );
@@ -159,4 +187,4 @@ export default  (withRouter(connect(
 
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
-)(injectIntl(Extrato))));
+)(injectIntl(Requests))));

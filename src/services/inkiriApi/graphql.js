@@ -675,6 +675,45 @@ const GET_MAX_REQUEST_ID = gql`
   }
 `;
 
+
+export const iugus = async ({page='', limit='', id='', iugu_id='', paid_at_from='', paid_at_to='', business_name='', alias='', account_name='', iuguCounterId='', issued_at_from='', issued_at_to='', issued_tx_id='', state=''}={}) =>{
+  const a = {page:page, limit:limit, id:id, iugu_id:iugu_id, paid_at_from:paid_at_from, paid_at_to:paid_at_to, business_name:business_name, alias:alias, account_name:account_name, iuguCounterId:iuguCounterId, issued_at_from:issued_at_from, issued_at_to:issued_at_to, issued_tx_id:issued_tx_id, state:state};
+  return runQuery(GET_IUGUS, a, 'iugus');
+}
+
+const GET_IUGUS = gql`
+  query xxx($page:String, $limit:String, $id:String, $iugu_id:String, $paid_at_from:String, $paid_at_to:String, $business_name:String, $alias:String, $account_name:String, $iuguCounterId:String, $issued_at_from:String, $issued_at_to:String, $issued_tx_id:String, $state:String) {
+    iugus(page:$page, limit:$limit, id:$id, iugu_id:$iugu_id, paid_at_from:$paid_at_from, paid_at_to:$paid_at_to, business_name:$business_name, alias:$alias, account_name:$account_name, iuguCounterId:$iuguCounterId, issued_at_from:$issued_at_from, issued_at_to:$issued_at_to, issued_tx_id:$issued_tx_id, state:$state){
+      _id
+      amount
+      iugu_id
+      paid_at
+      receipt{
+        _id
+        account_name
+        alias
+        email
+        legal_id
+        phone
+        account_type
+        business_name
+        created_at
+        userCounterId
+      }
+      receipt_alias
+      receipt_accountname
+      original
+      iuguCounterId
+      issued_at
+      issued_tx_id
+      error
+      state
+      created_at
+      updated_at
+    }
+  }
+`;
+
 const runQuery = async (query, variables, _return_field) => {
   // const client = useApolloClient();
 

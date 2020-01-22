@@ -20,6 +20,9 @@ import {DISPLAY_ALL_TXS, DISPLAY_PROVIDER, DISPLAY_EXCHANGES} from '@app/compone
 import TableStats, { buildItemMoneyPending, buildItemUp, buildItemDown, buildItemCompute, buildItemSimple, buildItemMoney, buildItemPending} from '@app/components/TransactionTable/stats';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
+import * as gqlService from '@app/services/inkiriApi/graphql'
+import IuguFilter from '@app/components/Filters/iugu';
+
 import * as request_helper from '@app/components/TransactionCard/helper';
 
 import { injectIntl } from "react-intl";
@@ -36,14 +39,22 @@ class Iugu extends Component {
       limit:           globalCfg.api.default_page_size,
       can_get_more:    true,
 
-      stats:          {},
-      active_tab:     DISPLAY_ALL_TXS
+      filter:         {},
+      stats:          {
+                        processed: 0 
+                        , waiting:0 
+                        , error:0 
+                        , total:0
+                        , count:0
+                      },
+      
     };
 
     this.loadExternalTxs            = this.loadExternalTxs.bind(this);  
     this.renderFooter               = this.renderFooter.bind(this); 
     this.onNewData                  = this.onNewData.bind(this);
     this.onInvoiceClick             = this.onInvoiceClick.bind(this);
+    this.iuguFilterCallback         = this.iuguFilterCallback.bind(this);
   }
   
   componentDidMount(){
@@ -63,7 +74,7 @@ class Iugu extends Component {
       });  
   }
   //
-  loadExternalTxs(){
+  loadExternalTxs = async () => {
 
     let can_get_more   = this.state.can_get_more;
     if(!can_get_more && this.state.page>=0)
@@ -74,21 +85,28 @@ class Iugu extends Component {
 
     this.setState({loading:true});
 
-    let page           = (this.state.page<0)?0:(this.state.page+1);
-    const limit          = this.state.limit;
-    let that           = this;
+    const page    = (this.state.page<0)?0:(this.state.page+1);
+    const limit   = this.state.limit;
+    let that      = this;
+    const {filter} = this.state;
     
-    const req_type = DISPLAY_EXCHANGES + '|' + DISPLAY_PROVIDER;
-    const account_name = undefined;
-    
-    api.bank.listIuguInvoices(page, limit)
-    .then( (res) => {
-        that.onNewData(res);
-      } ,(ex) => {
-        // console.log('---- ERROR:', JSON.stringify(ex));
-        that.setState({loading:false});  
-      } 
-    );
+    try{
+      const data = await gqlService.iugus({limit:limit.toString(), page:page.toString(), ...filter});
+      console.log(data)
+      that.onNewData(data);
+    }
+    catch(ex){
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'pages.bankadmin.iugu.error_loading'}), ex);
+      that.setState({loading:false});  
+    }
+    // api.bank.listIuguInvoices(page, limit)
+    // .then( (res) => {
+    //     that.onNewData(res);
+    //   } ,(ex) => {
+    //     // console.log('---- ERROR:', JSON.stringify(ex));
+    //     that.setState({loading:false});  
+    //   } 
+    // );
     
   }
 
@@ -121,7 +139,7 @@ class Iugu extends Component {
 
   
   computeStats(txs){
-    let stats = this.currentStats();
+    let stats = this.state.stats;
     if(txs===undefined)
       txs = this.state.txs;
     const processed = txs.filter( tx => request_helper.iugu.isIssued(tx))
@@ -137,7 +155,7 @@ class Iugu extends Component {
     
     const total     = error+waiting+processed;
     
-    stats[this.state.active_tab] = {
+    stats = {
         processed : processed
         , waiting : waiting
         , error : error
@@ -146,16 +164,8 @@ class Iugu extends Component {
        };
 
     this.setState({stats:stats})
-  }
 
-  currentStats(){
-    const x = this.state.stats[this.state.active_tab];
-    const _default = {processed: 0 
-                  , waiting:0 
-                  , error:0 
-                  , total:0
-                  , count:0};
-    return x?x:_default;
+    this.timeout_id = null;
   }
 
   // Component Events
@@ -181,7 +191,41 @@ class Iugu extends Component {
       </Button> </>)
   }
 
-  
+  iuguFilterCallback = (error, cancel, values, refresh) => {
+    
+    if(cancel)
+    {
+      return;
+    }
+    if(error)
+    {
+      return;
+    }
+
+    if(refresh)
+    {
+      clearTimeout(this.timeout_id);
+      this.timeout_id = setTimeout(()=> {
+        this.reloadTxs();
+      } ,100);
+      return;
+    }
+    
+    console.log(' iuguFilter: ', JSON.stringify(values));
+    /*
+      {"state":"state_error","to":"centroinkiri","date_from":"2020-01-02T00:13:52.742Z","date_to":"2020-01-25T00:13:52.742Z"}
+    */
+
+    
+    clearTimeout(this.timeout_id);
+    this.timeout_id = setTimeout(()=> {
+      this.setState({filter:(values||{})}, ()=>{
+        this.reloadTxs();
+      })
+    } ,100);
+    
+  }
+
   render() {
     //
     const content               = this.renderContent();
@@ -202,6 +246,8 @@ class Iugu extends Component {
           style={{ marginTop: 24 }}
           headStyle={{display:'none'}}
         >
+          <IuguFilter 
+            callback={this.iuguFilterCallback} />
           {stats}
           {content}
         </Card>
@@ -211,7 +257,7 @@ class Iugu extends Component {
 //
 
   renderTableViewStats(){
-    const {processed, waiting, error, total, count} = this.currentStats();  
+    const {processed, waiting, error, total, count} = this.state.stats;  
     const {formatMessage} = this.props.intl;
     const items = [
         buildItemMoney(formatMessage({id:'pages.bankadmin.iugu.stats.issued'}), processed)
@@ -228,7 +274,7 @@ class Iugu extends Component {
     return (<div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
           <Table
             key="table_all_requests" 
-            rowKey={record => record.id} 
+            rowKey={record => record._id} 
             loading={this.state.loading} 
             columns={this.getColumns()} 
             dataSource={this.state.txs} 

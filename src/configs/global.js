@@ -321,6 +321,15 @@ const api = {
     }
   }
   
+  , IUGU_STATE_NOT_PROCESSED      : 'state_not_processed'
+  , IUGU_STATE_PROCESSING         : 'state_processing'
+  , IUGU_STATE_ISSUED             : 'state_issued'
+  , IUGU_STATE_ERROR              : 'state_error'
+  , IUGU_STATE_ISSUE_ERROR        : 'state_issue_error'
+  , getIuguStates : () => {
+    return [api.IUGU_STATE_NOT_PROCESSED, api.IUGU_STATE_PROCESSING, api.IUGU_STATE_ISSUED, api.IUGU_STATE_ERROR, api.IUGU_STATE_ISSUE_ERROR];
+  }
+
   , NOTA_FISCAL                   : 'attach_nota_fiscal'
   , BOLETO_PAGAMENTO              : 'attach_boleto_pagamento'
   , COMPROBANTE                   : 'attach_comprobante'
