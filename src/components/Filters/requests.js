@@ -292,15 +292,16 @@ const RequestsFilter = (props) => {
             , props.intl) }
         
         
-        <Form.Item style={{alignSelf:'flex-end', alignItems:'flex-end', flex:1}}>
-          <Button htmlType="submit" disabled={is_loading} type={buttonType}>
-            { formatMessage({id:'components.filters.requests.filter'}) }
-          </Button>
-          <Button type="link" disabled={is_loading} onClick={(event) => resetFilter(event)}>
-            { formatMessage({id:'components.filters.requests.reset'}) }
-          </Button>
-          <Button size="small" key="requests_refresh" icon="redo" disabled={is_loading} onClick={()=>reload()} ></Button>,
-        </Form.Item>
+          <div style={{alignSelf:'flex-end', justifyContent:'flex-end', alignItems:'flex-end', flex:1, display: 'flex'}}>
+            <Button type="link" disabled={is_loading} onClick={(event) => resetFilter(event)} style={{alignSelf:'flex-end'}}>
+              { formatMessage({id:'components.filters.requests.reset'}) }
+            </Button>
+            <Button htmlType="submit" disabled={is_loading} type={buttonType} style={{alignSelf:'flex-end'}}>
+              { formatMessage({id:'components.filters.requests.filter'}) }
+            </Button>
+            <Button className="hidden" size="small" key="requests_refresh" icon="redo" disabled={is_loading} onClick={()=>reload()} ></Button>,
+          </div>
+        
       </Form>
       
     );

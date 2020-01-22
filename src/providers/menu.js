@@ -31,7 +31,6 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
             }
         })
 
-
         let selected = routes_config.getItemByAreaNFilename(area, fileName, itemPath)
         
         if(((!selected || selected.father_key==='*') || area==='common') && lastRootMenu)
@@ -43,7 +42,7 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
         }
         
         const aa = selected?[selected.key]:['dashboard'];
-
+        console.log(' ************** MENU SELECTED: ', aa);
         const bb = menuIsCollapsed?[]:getRootKeys(actualRole); 
 
         const renderItem = (item) => {
@@ -51,11 +50,12 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
               return (null);
 
           if(item.items) {
-              return (
+            return (
               <SubMenu title={<span>{ item.icon? <Icon type={item.icon} />: false }<span><InjectMessage id={item.title} defaultMessage={item.title} /></span></span>} key={item.key}>
                   { item.items.map(renderItem) }
               </SubMenu>
               );
+              //
           } else {
               return  (
               <Menu.Item key={item.key} disabled={item.path!=item.key} className={ item.icon?'is_root_menu':''}>

@@ -14,7 +14,7 @@ import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 import * as utils from '@app/utils/utils';
 
-import { Select,PageHeader, Button, Spin, Modal, Form, Input } from 'antd';
+import { Tabs, Select,PageHeader, Button, Spin, Modal, Form, Input } from 'antd';
 
 import TxResult from '@app/components/TxResult';
 import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
@@ -338,10 +338,13 @@ class DepositMoney extends Component {
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={this.state.intl.title}
           subTitle={this.state.intl.subtitle}
-          
-        >
-          
-        </PageHeader>
+          footer={
+            <Tabs defaultActiveKey="1">
+              <Tabs.TabPane tab="Solicitar" key="1" />
+              <Tabs.TabPane tab="Listado" key="2" />
+            </Tabs>
+          }
+          />
           <div style={{ margin: '0 0px', padding: 24}}>
             <div className="ly-main-content content-spacing cards">
               <section className="mp-box mp-box__shadow money-transfer__box">
