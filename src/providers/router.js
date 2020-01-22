@@ -76,9 +76,9 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
               // history.push(`/common/configuration`);
               // history.push(`/common/contracted-services`);
               // history.push(`/common/send`);
-              history.push(`/common/deposit`);
+              // history.push(`/common/deposit`);
               // history.push(`/common/withdraw`);
-              // history.push(`/${actualRole}/exchange`);
+              history.push(`/${actualRole}/exchange`);
               //history.push(`/${actualRole}/account-settings`);
               //history.push(`/${actualRole}/dashboard`);
           }

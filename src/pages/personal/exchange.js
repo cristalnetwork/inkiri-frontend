@@ -15,8 +15,8 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { PageHeader, Spin, Form } from 'antd';
-
+import { Switch, PageHeader, Spin, Form } from 'antd';
+import RequestListWidget, {REQUEST_MODE_INNER_PAGE} from '@app/components/request-list-widget';
 import ExchangeForm from '@app/components/Form/exchange';
 
 import TxResult from '@app/components/TxResult';
@@ -47,7 +47,8 @@ class Exchange extends Component {
       
       uploading:          false,
       isFetching:         false,
-      intl:               {}
+      intl:               {},
+      view_requests:      false
     };
 
     this.renderContent              = this.renderContent.bind(this); 
@@ -91,8 +92,9 @@ class Exchange extends Component {
     const pushing_transaction = formatMessage({id:'pages.personal.exchange.pushing_transaction'});
     const request_exchange_action_text = formatMessage({id:'pages.personal.exchange.request_exchange_action_text'});
     const title = formatMessage({id:'pages.personal.exchange.title'});
+    const view_requests = formatMessage({id:'global.view_requests'})
 
-    this.setState({intl:{pushing_transaction, request_exchange_action_text, title}})
+    this.setState({intl:{view_requests, pushing_transaction, request_exchange_action_text, title}})
   }
 
   handleSubmit = e => {
@@ -181,13 +183,34 @@ class Exchange extends Component {
       const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error
       
-      return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
+      return(<div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
+               <TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />
+             </div>)
     }
     
+    if(this.state.view_requests==true)
+    {
+      return   <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
+                  <RequestListWidget
+                      hide_stats={true}
+                      request_type={globalCfg.api.TYPE_EXCHANGE}
+                      the_key={'exchanges'}
+                      filter_hidden_fields={['requested_type', 'to', 'from']}
+                      mode={REQUEST_MODE_INNER_PAGE}
+                  />
+                </div>;
+    }
+    //
     return (
-      <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
-        <ExchangeForm onRef={ref => (this.childForm = ref)}  key="exchange_form" alone_component={false} button_text={this.state.intl.request_exchange_action_text} callback={this.handleSubmit} />    
-      </Spin>
+      <div style={{ margin: '0 0px', padding: 24}}>
+        <div className="ly-main-content content-spacing cards">
+          <section className="mp-box mp-box__shadow money-transfer__box">
+            <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
+              <ExchangeForm onRef={ref => (this.childForm = ref)}  key="exchange_form" alone_component={false} button_text={this.state.intl.request_exchange_action_text} callback={this.handleSubmit} />    
+            </Spin>
+          </section>
+        </div>      
+      </div>
     );
 
   }
@@ -200,15 +223,14 @@ class Exchange extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title={this.state.intl.title} />
-
-        <div style={{ margin: '0 0px', padding: 24}}>
-          <div className="ly-main-content content-spacing cards">
-            <section className="mp-box mp-box__shadow money-transfer__box">
-              {content}
-            </section>
-          </div>      
-        </div>
+          title={this.state.intl.title} 
+          extra={[
+             <span className="view_requests" key="view_requests_switch"> {this.state.intl.view_requests}&nbsp;<Switch key='view_requests' onChange={ (checked) => this.setState({view_requests:checked})} /></span>
+          ]}
+        />
+  
+        {content}
+        
       </>
     );
   }

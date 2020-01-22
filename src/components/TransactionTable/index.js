@@ -79,6 +79,10 @@ class TransactionTable extends Component {
     if(is_admin)
       return columns_helper.getColumnsForRequests(this.props.callback, is_admin, {process_wages:processWages, account_name:this.props.actualAccountName});
     
+    if(this.state.mode==REQUEST_MODE_INNER_PAGE)
+    {
+      // ??
+    }
     return columns_helper.getColumnsForExtrato(this.props.callback
               , is_admin, {process_wages:processWages
               , account_name:this.props.actualAccountName}

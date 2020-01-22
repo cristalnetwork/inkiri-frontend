@@ -363,7 +363,7 @@ class DepositMoney extends Component {
           title={this.state.intl.title}
           subTitle={this.state.intl.subtitle}
            extra={[
-             <span className="view_requests"> {intl.view_requests}&nbsp;<Switch key='view_requests' onChange={ (checked) => this.setState({view_requests:checked})} loading={loading} /></span>
+             <span className="view_requests" key="view_requests_switch"> {intl.view_requests}&nbsp;<Switch key='view_requests' onChange={ (checked) => this.setState({view_requests:checked})} loading={loading} /></span>
           ]}
           />
           
