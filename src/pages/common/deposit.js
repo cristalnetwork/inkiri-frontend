@@ -359,12 +359,12 @@ class DepositMoney extends Component {
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title={this.state.intl.title}
-          subTitle={this.state.intl.subtitle}
-           extra={[
-             <span className="view_requests" key="view_requests_switch"> {intl.view_requests}&nbsp;<Switch key='view_requests' onChange={ (checked) => this.setState({view_requests:checked})} loading={loading} /></span>
-          ]}
+            breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
+            title={this.state.intl.title}
+            subTitle={this.state.intl.subtitle}
+            extra={[
+               <span className="view_requests" key="view_requests_switch"> {intl.view_requests}&nbsp;<Switch key='view_requests' onChange={ (checked) => this.setState({view_requests:checked})} loading={loading} /></span>
+            ]}
           />
           
           {content}

@@ -15,11 +15,11 @@ import * as components_helper from '@app/components/helper';
 
 import * as utils from '@app/utils/utils';
 
-import { PageHeader, Button, Spin, Modal, Form, Input } from 'antd';
+import { Switch, PageHeader, Button, Spin, Modal, Form, Input } from 'antd';
 
 import TxResult from '@app/components/TxResult';
 import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
-
+import RequestListWidget, {REQUEST_MODE_INNER_PAGE} from '@app/components/request-list-widget';
 import { injectIntl } from "react-intl";
 
 const DEFAULT_RESULT = {
@@ -44,7 +44,8 @@ class WithdrawMoney extends Component {
       isFetching:          false,
       ...DEFAULT_STATE,
       ...DEFAULT_RESULT,
-      intl:                {}
+      intl:                {},
+      view_requests:       false
     };
 
     this.renderContent              = this.renderContent.bind(this); 
@@ -67,7 +68,8 @@ class WithdrawMoney extends Component {
     const pushing_transaction = formatMessage({id:'pages.common.withdraw.pushing_transaction'});
     const forgot_amount = formatMessage({id:'pages.common.withdraw.forgot_amount'});
     const request_withdraw_action_text = formatMessage({id:'pages.common.withdraw.request_withdraw_action_text'});
-    this.setState({intl:{amount_text, title, error_cant_form_validation, valid_number_required, valid_number_required_description, confirm_request, pick_up_money_message, pushing_transaction, forgot_amount, request_withdraw_action_text}});
+    const view_requests = formatMessage({id:'global.view_requests'})
+    this.setState({intl:{view_requests, amount_text, title, error_cant_form_validation, valid_number_required, valid_number_required_description, confirm_request, pick_up_money_message, pushing_transaction, forgot_amount, request_withdraw_action_text}});
 
   }
 
@@ -261,52 +263,72 @@ class WithdrawMoney extends Component {
       const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error
       
-      return(<TxResult result_type={result_type} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
+      return(
+        <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
+          <TxResult result_type={result_type} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />
+        </div>);
     }
-
+    //
+    if(this.state.view_requests==true)
+    {
+      return   <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
+                  <RequestListWidget
+                      hide_stats={true}
+                      request_type={globalCfg.api.TYPE_WITHDRAW}
+                      the_key={'withdraws'}
+                      filter_hidden_fields={['requested_type', 'to', 'from']}
+                      mode={REQUEST_MODE_INNER_PAGE}
+                  />
+                </div>;
+    }
+    //
     const { getFieldDecorator }               = this.props.form;
     const { input_amount, isFetching}         = this.state;
     return (
-        <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
-          <Form onSubmit={this.handleSubmit}>
-            <div className="money-transfer">    
-              
-              <Form.Item label={this.state.intl.amount_text} className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
-                    {getFieldDecorator('input_amount.value', {
-                      rules: [{ required:        true
-                                  , message:     this.state.intl.forgot_amount
-                                  , whitespace:  true
-                                  , validator:   this.checkPrice }],
-                      initialValue: input_amount.value
-                    })( 
-                      <>  
-                        <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
-                          {globalCfg.currency.symbol}
-                        </span>
-                        <Input 
-                          type="tel" 
-                          step="0.01" 
-                          className="money-transfer__input input-amount placeholder-big" 
-                          placeholder="0" 
-                          value={input_amount.value} 
-                          onChange={this.onInputAmount}  
-                          style={input_amount.style}  
-                        />
-                      </>
-                    )}
-              </Form.Item>
-              <div><br/><br/></div>
-            </div>
+      <div style={{ margin: '0 0px', padding: 24}}>
+        <div className="ly-main-content content-spacing cards">
+          <section className="mp-box mp-box__shadow money-transfer__box">
+            <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
+              <Form onSubmit={this.handleSubmit}>
+                <div className="money-transfer">    
+                  
+                  <Form.Item label={this.state.intl.amount_text} className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
+                        {getFieldDecorator('input_amount.value', {
+                          rules: [{ required:        true
+                                      , message:     this.state.intl.forgot_amount
+                                      , whitespace:  true
+                                      , validator:   this.checkPrice }],
+                          initialValue: input_amount.value
+                        })( 
+                          <>  
+                            <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
+                              {globalCfg.currency.symbol}
+                            </span>
+                            <Input 
+                              type="tel" 
+                              step="0.01" 
+                              className="money-transfer__input input-amount placeholder-big" 
+                              placeholder="0" 
+                              value={input_amount.value} 
+                              onChange={this.onInputAmount}  
+                              style={input_amount.style}  
+                            />
+                          </>
+                        )}
+                  </Form.Item>
+                  <div><br/><br/></div>
+                </div>
 
-            <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={isFetching} >
-                {this.state.intl.request_withdraw_action_text}
-              </Button>
-            </div>
-
-          </Form>  
-          
-        </Spin>
+                <div className="mp-box__actions mp-box__shore">
+                  <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={isFetching} >
+                    {this.state.intl.request_withdraw_action_text}
+                  </Button>
+                </div>
+              </Form>  
+            </Spin>
+          </section>
+        </div>      
+      </div>
     );
   }
   
@@ -321,14 +343,11 @@ class WithdrawMoney extends Component {
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={this.state.intl.title}
+          extra={[
+             <span className="view_requests" key="view_requests_switch"> {this.state.intl.view_requests}&nbsp;<Switch key='view_requests' onChange={ (checked) => this.setState({view_requests:checked})} /></span>
+          ]}
           />
-          <div style={{ margin: '0 0px', padding: 24}}>
-            <div className="ly-main-content content-spacing cards">
-              <section className="mp-box mp-box__shadow money-transfer__box">
-                {content}
-              </section>
-            </div>      
-          </div>
+          {content}
       </>
     );
   }

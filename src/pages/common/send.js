@@ -19,8 +19,9 @@ import * as components_helper from '@app/components/helper';
 
 import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
-import { Select, PageHeader, Button, Spin, Modal, Form, Input } from 'antd';
+import { Switch, Select, PageHeader, Button, Spin, Modal, Form, Input } from 'antd';
 
+import RequestListWidget, {REQUEST_MODE_INNER_PAGE} from '@app/components/request-list-widget';
 import TxResult from '@app/components/TxResult';
 import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
 
@@ -53,6 +54,7 @@ class SendMoney extends Component {
       ...DEFAULT_RESULT,
 
       receipt:             '',
+      view_requests:       false,
       intl:                {}
     };
 
@@ -85,8 +87,8 @@ class SendMoney extends Component {
     const action_send = formatMessage({id:'pages.common.send.action_send'});
     const title = formatMessage({id:'pages.common.send.title'});
     const subtitle = formatMessage({id:'pages.common.send.subtitle'});
-
-    this.setState({intl:{title, subtitle, action_send, memo, memo_message, amount_validation, amount_text, select_transfer_reason_text, select_transfer_reason_placeholder, error_cant_form_validation, select_transfer_reason_validation, valid_amount_required, valid_amount_required_description, confirm_payment, confirm_transfer, valid_number_required_description}});
+    const view_requests = formatMessage({id:'global.view_requests'})
+    this.setState({intl:{view_requests, title, subtitle, action_send, memo, memo_message, amount_validation, amount_text, select_transfer_reason_text, select_transfer_reason_placeholder, error_cant_form_validation, select_transfer_reason_validation, valid_amount_required, valid_amount_required_description, confirm_payment, confirm_transfer, valid_number_required_description}});
 
   }
   componentDidUpdate(prevProps, prevState) 
@@ -325,73 +327,98 @@ class SendMoney extends Component {
       const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error
       
-      return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
+      return(
+          <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
+            <TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />
+          </div>)
     }
+
+    //
+    if(this.state.view_requests==true)
+    {
+      return   <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
+                  <RequestListWidget
+                      hide_stats={true}
+                      request_type={globalCfg.api.TYPE_SEND}
+                      the_key={'sent'}
+                      filter_hidden_fields={['requested_type']}
+                      mode={REQUEST_MODE_INNER_PAGE}
+                  />
+                </div>;
+    }  
+    //
     const option = this.props.isBusiness?this.renderTransferReason():(null);
 
     const { getFieldDecorator }               = this.props.form;
     const { input_amount, isFetching}           = this.state;
 
     return (
-        <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
-          
-          <Form onSubmit={this.handleSubmit}>
-            
-            <div className="money-transfer">    
-               
-              <AutocompleteAccount onRef={ref => (this.autocompleteWidget = ref)} callback={this.onSelect} form={this.props.form} name="receipt"  />
-
-              <Form.Item label={this.state.intl.amount_text} className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
-                    {getFieldDecorator('input_amount.value', {
-                      rules: [{ required: true, message: this.state.intl.amount_validation, whitespace: true, validator: this.checkPrice }],
-                      initialValue: input_amount.value
-                    })( 
-                      <>  
-                        <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
-                          {globalCfg.currency.symbol}
-                        </span>
-                        
-                        <Input 
-                          type="tel" 
-                          step="0.01" 
-                          className="money-transfer__input input-amount placeholder-big" 
-                          placeholder="0" 
-                          value={input_amount.value} 
-                          onChange={this.onInputAmount}  
-                          style={input_amount.style}  
-                        />
-                      </>
-                    )}
-              </Form.Item>
-              <div><br/><br/></div>
+      <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+        <div className="ly-main-content content-spacing cards">
+          <section className="mp-box mp-box__shadow money-transfer__box">
               
+            <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
+              
+              <Form onSubmit={this.handleSubmit}>
+                
+                <div className="money-transfer">    
+                   
+                  <AutocompleteAccount onRef={ref => (this.autocompleteWidget = ref)} callback={this.onSelect} form={this.props.form} name="receipt"  />
 
-              {option}
+                  <Form.Item label={this.state.intl.amount_text} className="money-transfer__row row-complementary input-price" style={{textAlign: 'center'}}>
+                        {getFieldDecorator('input_amount.value', {
+                          rules: [{ required: true, message: this.state.intl.amount_validation, whitespace: true, validator: this.checkPrice }],
+                          initialValue: input_amount.value
+                        })( 
+                          <>  
+                            <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
+                              {globalCfg.currency.symbol}
+                            </span>
+                            
+                            <Input 
+                              type="tel" 
+                              step="0.01" 
+                              className="money-transfer__input input-amount placeholder-big" 
+                              placeholder="0" 
+                              value={input_amount.value} 
+                              onChange={this.onInputAmount}  
+                              style={input_amount.style}  
+                            />
+                          </>
+                        )}
+                  </Form.Item>
+                  <div><br/><br/></div>
+                  
 
-              <div className="money-transfer__row row-expandable row-complementary-bottom"  id="divNote">
-                <Form.Item label={this.state.intl.memo}>
-                  {getFieldDecorator('transfer_extra.message', {
-                    onChange: (e) => this.handleMessageChange(e)
-                  })(
-                  <Input.TextArea 
-                    maxLength="50"
-                    className="money-transfer__input" 
-                    placeholder={this.state.intl.memo_message} autoSize={{ minRows: 3, maxRows: 6 }} 
-                    style={{overflow: 'hidden', overflowWrap: 'break-word', height: 31}}
-                    />
-                  )}
-                </Form.Item>
-              </div>
+                  {option}
 
-            </div>
+                  <div className="money-transfer__row row-expandable row-complementary-bottom"  id="divNote">
+                    <Form.Item label={this.state.intl.memo}>
+                      {getFieldDecorator('transfer_extra.message', {
+                        onChange: (e) => this.handleMessageChange(e)
+                      })(
+                      <Input.TextArea 
+                        maxLength="50"
+                        className="money-transfer__input" 
+                        placeholder={this.state.intl.memo_message} autoSize={{ minRows: 3, maxRows: 6 }} 
+                        style={{overflow: 'hidden', overflowWrap: 'break-word', height: 31}}
+                        />
+                      )}
+                    </Form.Item>
+                  </div>
 
-            <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="sendButton" htmlType="submit" type="primary" loading={isFetching} ><FontAwesomeIcon icon="paper-plane" size="1x"/>&nbsp;{this.state.intl.action_send}</Button>
-            </div>
+                </div>
 
-          </Form>  
-          
-        </Spin>
+                <div className="mp-box__actions mp-box__shore">
+                  <Button size="large" key="sendButton" htmlType="submit" type="primary" loading={isFetching} ><FontAwesomeIcon icon="paper-plane" size="1x"/>&nbsp;{this.state.intl.action_send}</Button>
+                </div>
+
+              </Form>  
+              
+            </Spin>
+          </section>
+        </div>      
+      </div>
     );
   }
   
@@ -407,14 +434,11 @@ class SendMoney extends Component {
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={this.state.intl.title}
           subTitle={this.state.intl.subtitle}
+          extra={[
+             <span className="view_requests" key="view_requests_switch"> {this.state.intl.view_requests}&nbsp;<Switch key='view_requests' onChange={ (checked) => this.setState({view_requests:checked})} /></span>
+          ]}
         />
-          <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-            <div className="ly-main-content content-spacing cards">
-              <section className="mp-box mp-box__shadow money-transfer__box">
-                {content}
-              </section>
-            </div>      
-          </div>
+          {content}
       </>
     );
   }
