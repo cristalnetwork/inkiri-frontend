@@ -1,4 +1,4 @@
-const env        = "dev";
+const env        = "prod";
 
 const language   = "english";
 
@@ -262,20 +262,22 @@ const api = {
   , stateToColor : (request_state) => {
       // source: https://mdbootstrap.com/live/_doc/all-colors.html
       const states = {
-        [api.STATE_REQUESTED]        : 'rgba(43, 187, 173, 0.5)'  , // '#2BBBAD'
-        [api.STATE_RECEIVED]         : 'rgba(43, 187, 173, 0.75)'  , // '#2BBBAD'
-        [api.STATE_PROCESSING]       : 'rgba(0, 105, 92, 0.5)'    , // '#00695c', 
-        [api.STATE_ACCEPTED]         : 'rgba(0, 200, 81, 0.5)'    , // '#00C851', 
+        [api.STATE_REQUESTED]        : 'rgba(255, 255, 255, 1)'  , 
+
+        [api.STATE_RECEIVED]         : 'rgba(255, 187, 51, 1)'  , 
+        [api.STATE_PROCESSING]       : 'rgba(255, 187, 51, 1)'    , 
+
+        [api.STATE_ACCEPTED]         : 'rgba(0, 200, 81, 0.75)'    , 
         
-        [api.STATE_REFUNDED]         : 'rgba(170, 102, 204, 0.5)' , // '#aa66cc', 
-        [api.STATE_REVERTED]         : 'rgba(153, 51, 204, 0.5)'  , // '#9933CC', 
+        [api.STATE_REFUNDED]         : 'rgba(255, 68, 68, 0.9)' , 
+        [api.STATE_REVERTED]         : 'rgba(255, 68, 68, 0.9)'  , 
 
-        [api.STATE_REJECTED]         : 'rgba(204, 0, 0, 0.5)'     , // '#CC0000', 
-        [api.STATE_ERROR]            : 'rgba(204, 0, 0, 0.5)'     , // '#CC0000', 
+        [api.STATE_REJECTED]         : 'rgba(255, 68, 68, 0.9)'     , 
+        [api.STATE_ERROR]            : 'rgba(255, 68, 68, 0.9)'     , 
 
-        [api.STATE_CANCELED]         : 'rgba(255, 68, 68, 0.5)'   , // '#ff4444', 
+        [api.STATE_CANCELED]         : 'rgba(255,68,68, 0.9)'   , 
 
-        [api.STATE_VIRTUAL_PENDING]  : 'rgba(255, 187, 51, 0.5)' , // '#ffbb33'
+        [api.STATE_VIRTUAL_PENDING]  : 'rgba(255, 187, 51, 0.5)' , 
       } 
       return states[request_state] ||  'rgba(80,80,80,0.5)' ;//'gray';
     }

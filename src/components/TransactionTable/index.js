@@ -71,10 +71,17 @@ class TransactionTable extends Component {
     {
       return columns_helper.getColumnsForExternalTransfers(this.props.callback);  
     }
+    
     const is_admin = globalCfg.bank.isAdminAccount(this.props.actualRoleId )
-    // this.props.isBusiness ||  this.props.isAdmin
     const processWages = this.props.isPersonal;
-    return columns_helper.getColumnsForRequests(this.props.callback, is_admin, {process_wages:processWages, account_name:this.props.actualAccountName});
+
+    if(is_admin)
+      return columns_helper.getColumnsForRequests(this.props.callback, is_admin, {process_wages:processWages, account_name:this.props.actualAccountName});
+    
+    return columns_helper.getColumnsForExtrato(this.props.callback
+              , is_admin, {process_wages:processWages
+              , account_name:this.props.actualAccountName}
+              , this.props.actualAccountName);
   }
   
   
@@ -262,8 +269,10 @@ class TransactionTable extends Component {
   };
 
   onChange = (date, dateString) => {
-    console.log(date, dateString);
-    this.setState({payment_date:date})
+    console.log('date:', date);
+    console.log('dateString:', dateString);
+    console.log('unix:', moment(date).unix());
+    this.setState({payment_date:moment(date).unix()})
   }
 
   

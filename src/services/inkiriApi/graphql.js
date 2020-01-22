@@ -368,6 +368,7 @@ const request_fields = `_id
       }
       to
       state
+      simple_state
       tx_id
       refund_tx_id
       requestCounterId

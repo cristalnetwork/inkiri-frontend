@@ -104,43 +104,27 @@ export const getGoogleDocLinkOrNothing = (google_doc_id, with_icon, name, size) 
   return (<><br/>{getGoogleDocLink (google_doc_id, with_icon, name, size)}</>);
 }
 //
+export const getSimpleStateTag = (request) => {
+  const my_state   = request.simple_state; 
+  const text       = `${request.simple_state_string.toUpperCase()}`;
+  return (<Tag color={globalCfg.api.stateToColor(my_state)} key={'state_'+request.id} title={text}>{text}</Tag>)
+}
+//
 export const getStateTag = (request) => {
   const my_state   = request.flag.ok? request.state : globalCfg.bank.STATE_VIRTUAL_PENDING; 
   const extra_text = request.flag.ok? ''            : `-${request.flag.tag}`  
   // const text       = `${globalCfg.api.stateToText(request.state).toUpperCase()}${extra_text}`;
   const text       = `${request.state_string.toUpperCase()}${extra_text}`;
-  return (<Tag color={globalCfg.api.stateToColor(my_state)} key={'state_'+request.id} title={text}>{text}</Tag>)
+  const style      = request.state==globalCfg.api.STATE_REQUESTED
+                     ? {color:'inherit', border: '1px solid black'}
+                     : {};
+  return (<Tag style={style} color={globalCfg.api.stateToColor(my_state)} key={'state_'+request.id} title={text}>{text}</Tag>)
 }
 //
 export const errorStateTag = (text) =>
 {
   return (<Tag color='red' key={Math.random()}>{text}</Tag>);
 }
-// //
-// export const getStateLabel = (request, with_waiting_icon) => {
-//   const color = globalCfg.api.stateToColor(request.state);
-//   let icon = null;
-//   if(with_waiting_icon)
-//   {
-//     const fa_icon  = globalCfg.api.isFinished(request)?'flag-checkered':'user-clock';
-//     const alt_text = globalCfg.api.isFinished(request)?'Done!':'Operation pending/required!';
-//     icon = (<FontAwesomeIcon icon={fa_icon} size="xs" color="gray" title={alt_text}/>);
-//   }
-//   // const text = utils.capitalize(globalCfg.api.stateToText(request.state));
-//   const text = `${request.state_string.toUpperCase()}${extra_text}`;
-//   return (<span style={{color:color}} key={'state_'+request.id}>{}&nbsp;{icon}</span>);
-// }
-
-export const publicState = (request) => {
-
-  //                                      MONEY IN  MONEY OUT
-  // REQUESTED                            green+    red-         #ffffff
-  // PROCESSING                           green+    red-         #ffbb33
-  // DONE (ACCEPTED BY ADMIN)             green+    red-         #00C851
-  // CANCELADO (CANCELADO BY BANK/ADMIN)  gray+     gray-        #ff4444
-
-}
-
 //
 export const getTypeTag = (request) => {
   const text = request.state_string.toUpperCase();
@@ -183,17 +167,20 @@ export const getCircledTypeIcon = (request) => {
   if(typeof request !== 'string')
     request = request.requested_type  
 
-  const my_icon = getTypeConf()[request]; 
-  
-  // const className = 'ui-avatar__content circled_action_type flex_center';
-  const className = 'ui-avatar__content--small circled_action_type flex_center';
-  const style     = {border: `0.0625em solid ${my_icon.color.primary}` , background: `${my_icon.color.secondary}`}
+  const my_icon               = getTypeConf()[request]; 
+  const my_icon_color_primary = 'rgba(0,0,0,0.6)';
+  const className             = 'ui-avatar__content--small circled_action_type flex_center';
+  // const style     = {border: `0.0625em solid ${my_icon.color.primary}` , background: `${my_icon.color.secondary}`}
+  const style     = {border: `0.0625em solid ${my_icon_color_primary}` , background: `${my_icon.color.secondary}`}
   const size      = '1x';
   let icon        = null;
+
   if(my_icon.rotation>0)
-    icon = (<FontAwesomeIcon icon={my_icon.icon} rotation={my_icon.rotation} style={my_icon.style} size={size} color={my_icon.color.primary}/>);
+    // icon = (<FontAwesomeIcon icon={my_icon.icon} rotation={my_icon.rotation} style={my_icon.style} size={size} color={my_icon.color.primary}/>);
+  icon = (<FontAwesomeIcon icon={my_icon.icon} rotation={my_icon.rotation} style={my_icon.style} size={size} color={my_icon_color_primary}/>);
   else
-    icon = (<FontAwesomeIcon icon={my_icon.icon} style={my_icon.style} size={size} color={my_icon.color.primary}/>);
+    // icon = (<FontAwesomeIcon icon={my_icon.icon} style={my_icon.style} size={size} color={my_icon.color.primary}/>);
+  icon = (<FontAwesomeIcon icon={my_icon.icon} style={my_icon.style} size={size} color={my_icon_color_primary}/>);
   return (<div className={className} style={style}>
             {icon} 
           </div>);
@@ -283,22 +270,81 @@ export const getButtonIcon = (icon, callback, param, title) => {
   }
   return (<Button key={Math.random()} size="small" onClick={()=>{ buttonClick(callback, param) }} icon={icon}>{title}</Button>);
 }
+//
+const isNegativeTx =(request, current_account_name) =>{
+  const calculator = 
+  {
+    [globalCfg.api.TYPE_DEPOSIT]    : () => { return false; } // request.from==current_account_name; }
+    , [globalCfg.api.TYPE_EXCHANGE] : () => { return true;  } // request.from==current_account_name; }
+    , [globalCfg.api.TYPE_PAYMENT]  : () => { return request.from==current_account_name; }
+    , [globalCfg.api.TYPE_PROVIDER] : () => { return true; } //request.from==current_account_name; }
+    , [globalCfg.api.TYPE_SEND]     : () => { return request.from==current_account_name; }
+    , [globalCfg.api.TYPE_WITHDRAW] : () => { return true; } //return request.from==current_account_name; }
+    , [globalCfg.api.TYPE_SERVICE]  : () => { return undefined;   }
+    , [globalCfg.api.TYPE_SALARY]   : () => { 
+        return (request.from==current_account_name)
+          ? true
+          : (request && request.wages && request.wages.find(wage=>wage.account_name==current_account_name))
+              ? false
+              : undefined }
+    , [globalCfg.api.TYPE_ISSUE]    : () => { return true; } // request.to==current_account_name; }
+    , [globalCfg.api.TYPE_IUGU]     : () => { return true; } // request.from==current_account_name; }
+    , [globalCfg.api.TYPE_PAD]      : () => { return request.from==current_account_name; }
+  }
+  console.log('################### request.amount: ', request.amount)
+  console.log('request.requested_type: ', request.requested_type)
+  console.log('request.from: ', request.from)
+  console.log('request.to: ', request.to)
+  console.log('current_account_name: ', current_account_name)
+  const ret = calculator[request.requested_type]();
+  console.log('isNEgative?: ', ret)
+  return ret;
+}
+//
+export const styleAmount = (request, current_account_name, process_wages) => {
+
+  let request_amount = request.amount;
+  if(globalCfg.api.isSalary(request) && process_wages && process_wages.process_wages==true)
+    request_amount = computeWageForAccount(request, process_wages.account_name);
+        
+  //                                      MONEY IN  MONEY OUT
+  // REQUESTED                            green+    red-         #ffffff
+  // PROCESSING                           green+    red-         #ffbb33
+  // DONE (ACCEPTED BY ADMIN)             green+    red-         #00C851
+  // CANCELADO (CANCELADO BY BANK/ADMIN)  gray+     gray-        #ff4444
+
+  const currency_parts  = globalCfg.currency.toCurrencyString(request_amount).split(' ');
+  const symbol          = currency_parts[0]
+  const amount          = currency_parts[1]
+  
+  const is_negative     = isNegativeTx(request, current_account_name);
+  const negative_symbol = (is_negative==true?'-':'');
+  
+  const color           = 
+    (is_negative===undefined) || [globalCfg.api.STATE_REJECTED, globalCfg.api.STATE_REVERTED, globalCfg.api.STATE_REFUNDED, globalCfg.api.STATE_ERROR, globalCfg.api.STATE_CANCELED].includes(request.state)
+      ? '#3E4551'
+      : (is_negative===true)
+        ? '#CC0000'
+        : '#007E33';
+  const style           = {color:color, fontSize:16, fontWeight:'bold'}; //{fontSize:'0.75em'}
+  return (<span style={style} key={'amount_'+request.id}> {negative_symbol}&nbsp;<span style={style}>{symbol}</span>&nbsp;{amount} </span>)
+}
 
 //
-export const getStyledAmount = (request, negative) => {
-  // const style = {color:((!globalCfg.api.onOkPath(request))?'gray':(negative?'red':'inherit')), fontSize:16};
-  const color = ((!globalCfg.api.onOkPath(request))?'gray':'inherit');
-  const style = {color:color, fontSize:16};
-  const currency_parts = globalCfg.currency.toCurrencyString(request.amount).split(' ');
-  const symbol = currency_parts[0]
-  const amount = currency_parts[1]
-  // const negative_symbol = (negative?'-':'');
-  const negative_symbol = '';
-  return (<span style={style} key={'amount_'+request.id}> {negative_symbol}&nbsp;<span style={{fontSize:'0.75em'}}>{symbol}</span>&nbsp;{amount} </span>)
+export const getStyledAmount = (request) => {
+  const color           = 
+    [globalCfg.api.STATE_REJECTED, globalCfg.api.STATE_REVERTED, globalCfg.api.STATE_REFUNDED, globalCfg.api.STATE_ERROR, globalCfg.api.STATE_CANCELED].includes(request.state)
+      ? '#3E4551'
+      : 'inherit';
+  const currency_parts  = globalCfg.currency.toCurrencyString(request.amount).split(' ');
+  const symbol          = currency_parts[0]
+  const amount          = currency_parts[1]
+  const style           = {color:color, fontSize:16, fontWeight:'bold'}; //{fontSize:'0.75em'}
+  return (<span style={style} key={'amount_'+request.id}> <span style={style}>{symbol}</span>&nbsp;{amount} </span>)
 }
 
 export const getStyledAmountEx = (amount) => {
-  return getStyledAmount({amount:amount, state:globalCfg.api.STATE_REQUESTED}, false);
+  return getStyledAmount({amount:amount, state:globalCfg.api.STATE_REQUESTED});
 }
 
 //
