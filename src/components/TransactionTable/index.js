@@ -9,7 +9,8 @@ import * as globalCfg from '@app/configs/global';
 import * as gqlService from '@app/services/inkiriApi/graphql'
 import * as gqlRequestI18nService from '@app/services/inkiriApi/requests-i18n-graphql-helper'
 
-import { Button, Table, DatePicker } from 'antd';
+import { Dropdown, Icon, Menu, Button, Table, DatePicker } from 'antd';
+import moment from 'moment';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
 import * as components_helper from '@app/components/helper';
@@ -50,14 +51,18 @@ class TransactionTable extends Component {
 
       selectedRows:      [],
       selectedRowKeys:   [],
+      dummy_rem_link:    '',
       payment_date:      null
     };
     // this.handleChange      = this.handleChange.bind(this);
-    this.onNewData         = this.onNewData.bind(this);
-    this.renderFooter      = this.renderFooter.bind(this); 
-    this.getColumnsForType = this.getColumnsForType.bind(this);
-    this.applyFilter       = this.applyFilter.bind(this);
-    this.refresh           = this.refresh.bind(this);
+    this.onNewData           = this.onNewData.bind(this);
+    this.renderFooter        = this.renderFooter.bind(this); 
+    this.getColumnsForType   = this.getColumnsForType.bind(this);
+    this.applyFilter         = this.applyFilter.bind(this);
+    this.refresh             = this.refresh.bind(this);
+    this.handleREMMenuClick  = this.handleREMMenuClick.bind(this);
+
+    this.myREMRef = React.createRef();
   }
 
   getColumnsForType =() =>{
@@ -243,21 +248,16 @@ class TransactionTable extends Component {
   getRowSelection = () => {
     const {selectedRowKeys} = this.state;
     return{
-      selectedRowKeys: selectedRowKeys,
+        selectedRowKeys: selectedRowKeys,
         onChange: (selectedRowKeys, selectedRows) => {
           console.log(`::onChange:: selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-          const __selectedRows = selectedRows.filter(row=>row.state===globalCfg.api.STATE_RECEIVED);
+          // const __selectedRows = selectedRows.filter(row=>row.state===globalCfg.api.STATE_RECEIVED);
+          const __selectedRows = selectedRows;
           this.setState({selectedRows:__selectedRows, selectedRowKeys:__selectedRows.map(row=>row._id)}
             , () => {
-              // this.validateState()
+              this.validateState()
             });
         },  
-        // onSelect: (record, selected, selectedRows) => {
-        //   console.log('::onSelect::', record, selected, selectedRows);
-        // },
-        // onSelectAll: (selected, selectedRows, changeRows) => {
-        //   console.log('::onSelectAll::', selected, selectedRows, changeRows);
-        // },
       };
   };
 
@@ -265,6 +265,34 @@ class TransactionTable extends Component {
     console.log(date, dateString);
     this.setState({payment_date:date})
   }
+
+  
+
+  handleREMMenuClick = (e) => {
+    if(typeof e === 'object' && typeof e.preventDefault === 'function')
+      e.preventDefault();
+    console.log('--------');
+    console.log('click: ', e);
+    console.log('action: ', e.item.props.action)
+    console.log('href: ', e.item.props.href)
+    this.downloadTxtFile(e.item.props.href);
+  }
+
+  downloadTxtFile = (url) => {
+      // const element = document.createElement("a");
+      // const file = new Blob([document.getElementById('myInput').value], {type: 'text/plain'});
+      // element.href = URL.createObjectURL(file);
+      // element.download = "myFile.txt";
+      // document.body.appendChild(element); // Required for this to work in FireFox
+      // element.click();
+      this.setState({dummy_rem_link:url},
+        ()=>{
+          if(!this.myREMRef)    
+            return;
+          this.myREMRef.current.click();
+        })
+      
+    }
 
   remButtons  = () => {
     const buttons = [ 
@@ -284,13 +312,58 @@ class TransactionTable extends Component {
     const payment_date_placeholder = this.props.intl.formatMessage({id:'pages.bankadmin.external-transfers.payment_date_placeholder'})
     const {selectedRows, payment_date} = this.state;
     const _enabled       = (selectedRows && Array.isArray(selectedRows) && selectedRows.length>0) && payment_date!=null;
+
+    // const menu = (
+    //   <Menu onClick={this.handleREMMenuClick}>
+    //     {
+    //       buttons.map( (btn, idx) => <Menu.Item disabled={!_enabled} key={'update-n-download_'+btn.value} action="update-n-download" href={this.remFileLink(btn.value)}>
+    //                                    <Icon type="bank" />&nbsp;<InjectMessage id={btn.title} />
+    //                                  </Menu.Item> )
+    //     }
+    //     <Menu.SubMenu title={<InjectMessage id="pages.bankadmin.external-transfers.just_rem_files_actions"/>}>
+    //         {
+    //           buttons.map( (btn, idx) => <Menu.Item disabled={!_enabled} key={'download_'+btn.value} action="download" href={this.remFileLink(btn.value)}>
+    //                                        <Icon type="bank" />&nbsp;<InjectMessage id={btn.title} />
+    //                                      </Menu.Item> )
+    //         }
+    //     </Menu.SubMenu>    
+    //   </Menu>
+    // );
+    const menu = (
+      <Menu onClick={this.handleREMMenuClick}>
+        {
+          buttons.map( (btn, idx) => <Menu.Item disabled={!_enabled} key={'update-n-download_'+btn.value} action="update-n-download" href={this.remFileLink(btn.value)}>
+                                       <Icon type="bank" />&nbsp;<InjectMessage id={btn.title} />
+                                     </Menu.Item> )
+        }
+      </Menu>
+    );
+    //
+    const _dropdown_title = _enabled
+      ? (null)
+      : this.props.intl.formatMessage({id:'pages.bankadmin.external-transfers.choose_payment_date'});
     return (<>
-      <DatePicker placeholder={payment_date_placeholder} name="payment_date" onChange={this.onChange} format={'YYYY/MM/DD'}/>
-      {
-        buttons.map( btn => 
-            <Button style={{marginLeft:8}} key={`rem_button_${btn.value}`} disabled={!_enabled} type="primary" href={this.remFileLink(btn.value)} target="_blank" icon="bank" size="small" >&nbsp;<InjectMessage id={btn.title} /></Button>
-          )
-      }</>)
+        <DatePicker placeholder={payment_date_placeholder} 
+                    name="payment_date" 
+                    onChange={this.onChange} 
+                    format={'YYYY/MM/DD'}
+                    disabledDate={ (current) => current && current < moment().endOf('day') }
+                    />
+        <Dropdown overlay={menu}>
+          <Button style={{marginLeft:8}} title={_dropdown_title}>
+            <InjectMessage id="pages.bankadmin.external-transfers.rem_files_actions" />&nbsp;<Icon type="down" />
+          </Button>
+        </Dropdown>
+        <a className="hidden" key="rem_button_dummy" ref={this.myREMRef} href={this.state.dummy_rem_link} target="_blank" >x</a>
+      </>);
+
+    // return (<>
+    //   <DatePicker placeholder={payment_date_placeholder} name="payment_date" onChange={this.onChange} format={'YYYY/MM/DD'}/>
+    //   {
+    //     buttons.map( btn => 
+    //         <Button style={{marginLeft:8}} key={`rem_button_${btn.value}`} disabled={!_enabled} type="primary" href={this.remFileLink(btn.value)} target="_blank" icon="bank" size="small" >&nbsp;<InjectMessage id={btn.title} /></Button>
+    //       )
+    //   }</>)
     // `
   }
   
@@ -329,6 +402,11 @@ class TransactionTable extends Component {
         scroll={{ x: 950 }}
         expandedRowRender={columns_helper.expandedRequestRowRender}
         rowSelection={is_external ? this.getRowSelection() : null}
+        rowClassName={ (record, rowIndex) => {
+                  return (rowIndex%2==0)
+                    ? 'even'
+                    : 'odd';
+            }}
         onRow={ (record, rowIndex) => {
                   return { 
                     onDoubleClick: event => { this.props.callback(record) }

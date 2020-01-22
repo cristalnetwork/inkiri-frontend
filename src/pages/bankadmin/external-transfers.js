@@ -89,10 +89,8 @@ class ExternalTransfers extends Component {
         request_type={`${DISPLAY_EXCHANGES},${DISPLAY_PROVIDER}`} 
       />);
     //`
-    
   }
 
-  
 }
 //
 export default  (withRouter(connect(

@@ -130,6 +130,9 @@ h3.fileds_header{
 /* *********************** */
 
 /*HACK FOR TABLES*/
+.ant-table-row.odd{
+  background-color:#F9F9F9;
+}
 .ant-table-thead > tr > th, .ant-table-tbody > tr > td:not(.amount_col) {
     padding: 8px 8px!important;
     /*overflow-wrap: break-word;*/

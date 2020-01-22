@@ -131,6 +131,16 @@ export const errorStateTag = (text) =>
 //   return (<span style={{color:color}} key={'state_'+request.id}>{}&nbsp;{icon}</span>);
 // }
 
+export const publicState = (request) => {
+
+  //                                      MONEY IN  MONEY OUT
+  // REQUESTED                            green+    red-         #ffffff
+  // PROCESSING                           green+    red-         #ffbb33
+  // DONE (ACCEPTED BY ADMIN)             green+    red-         #00C851
+  // CANCELADO (CANCELADO BY BANK/ADMIN)  gray+     gray-        #ff4444
+
+}
+
 //
 export const getTypeTag = (request) => {
   const text = request.state_string.toUpperCase();
@@ -398,15 +408,15 @@ export const blockchain = {
 */
 //
 export const iugu = {
-  STATE_NOT_PROCESSED : 'state_not_processed'
-  , STATE_ISSUED        : 'state_issued'
-  , STATE_ERROR         : 'state_error'
-  , STATE_ISSUE_ERROR   : 'state_issue_error'
-  , getStates : () => { 
-        return {[iugu.STATE_NOT_PROCESSED] : { color:'#fa8c16', icon:'user-clock' , description: 'NOT PROCESSED YET'},
-                [iugu.STATE_ISSUED]        : { color:'green',   icon:'flag-checkered' , description: 'ISSUED!'},
-                [iugu.STATE_ERROR]         : { color:'red',     icon:'exclamation-circle' , description: 'ERROR'},
-                [iugu.STATE_ISSUE_ERROR]   : { color:'red',     icon:'exclamation-circle' , description: 'ISSUE ERROR'}};
+  // STATE_NOT_PROCESSED : 'state_not_processed'
+  // , STATE_ISSUED        : 'state_issued'
+  // , STATE_ERROR         : 'state_error'
+  // , STATE_ISSUE_ERROR   : 'state_issue_error'
+  getStates : () => { 
+        return {[globalCfg.api.IUGU_STATE_NOT_PROCESSED] : { color:'#fa8c16', icon:'user-clock' , description: 'NOT PROCESSED YET'},
+                [globalCfg.api.IUGU_STATE_ISSUED]        : { color:'green',   icon:'flag-checkered' , description: 'ISSUED!'},
+                [globalCfg.api.IUGU_STATE_ERROR]         : { color:'red',     icon:'exclamation-circle' , description: 'ERROR'},
+                [globalCfg.api.IUGU_STATE_ISSUE_ERROR]   : { color:'red',     icon:'exclamation-circle' , description: 'ISSUE ERROR'}};
   }
       
   , inState : (state, ref) => {
@@ -414,9 +424,9 @@ export const iugu = {
       state = state.state
     return state==ref;  
   }
-  , isProcessing  : (invoice) => { return iugu.inState(invoice, iugu.STATE_NOT_PROCESSED);} 
-  , inError       : (invoice) => { return iugu.inState(invoice, iugu.STATE_ERROR);} 
-  , isIssued      : (invoice) => { return iugu.inState(invoice, iugu.STATE_ISSUED);} 
+  , isProcessing  : (invoice) => { return iugu.inState(invoice, globalCfg.api.IUGU_STATE_NOT_PROCESSED);} 
+  , inError       : (invoice) => { return iugu.inState(invoice, globalCfg.api.IUGU_STATE_ERROR);} 
+  , isIssued      : (invoice) => { return iugu.inState(invoice, globalCfg.api.IUGU_STATE_ISSUED);} 
   , stateIcon     : (invoice) => { return (IuguIconImage); }
   // , header        : (invoice) => { return `${globalCfg.currency.toCurrencyString(invoice.amount)} paid to ${invoice.receipt_alias}`}
   , header        : (invoice) => { return `${invoice.receipt_alias}`}

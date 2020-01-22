@@ -1,5 +1,5 @@
 import React from 'react'
-import { Popconfirm, Alert, Button, Tag, Icon } from 'antd';
+import { Tooltip, Popconfirm, Alert, Button, Tag, Icon } from 'antd';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as form_helper from '@app/components/Form/form_helper';
 import moment from 'moment';
@@ -374,7 +374,7 @@ export const getColumnsForExternalTransfers = (callback) => {
       title: <InjectMessage id="components.TransactionTable.columns.status" />,
       dataIndex: 'state',
       key: 'state',
-      width: '145px',
+      width: '180px',
       render: (state, record) => request_helper.getStateTag(record)
     },
     {
@@ -387,7 +387,7 @@ export const getColumnsForExternalTransfers = (callback) => {
       title: <InjectMessage id="components.TransactionTable.columns.to" />,
       dataIndex: 'to',
       key: 'to',
-      width: '110px',
+      width: '180px',
       render: (to, record) => {
         let text = '';
         if(globalCfg.api.isProviderPayment(record))
@@ -421,7 +421,7 @@ export const getColumnsForExternalTransfers = (callback) => {
     {
       title: <InjectMessage id="components.TransactionTable.columns.bank_name" />,
       key: 'bank',
-      width: '100px',
+      width: '180px',
       render: (text, record) => {
         let to_render = ''
         if(globalCfg.api.isProviderPayment(record) && record.provider_extra&& record.provider_extra.payment_mode==globalCfg.bank.PAYMENT_MODE_BOLETO)
@@ -431,13 +431,33 @@ export const getColumnsForExternalTransfers = (callback) => {
         else
         {
           const bank_account = request_helper.bankForRequest(record);
-          const key_code     = bank_account.bank_keycode
-            ? bank_account.bank_keycode
-            : <InjectMessage id="components.TransactionTable.columns.bank_keycode_missing" />
-          to_render          = [<i key={Math.random()}>{key_code}&nbsp;</i>, <b key={Math.random()}>{bank_account.bank_name}</b>];
+          // const key_code     = bank_account.bank_keycode
+          //   ? bank_account.bank_keycode
+          //   : <i><InjectMessage id="components.TransactionTable.columns.bank_keycode_missing" /></i>;
+          // to_render          = [<span key={Math.random()}>{key_code}&nbsp;</span>, <b key={Math.random()}>{bank_account.bank_name}</b>];
+          to_render = <b key={Math.random()}>{bank_account.bank_name}</b>;
         }
         // TODO: si es boleto, poner bolet  y link al archivo!
 
+        return (<span>{to_render}</span>)
+      }
+    },
+    {
+      title: <InjectMessage id="components.TransactionTable.columns.bank_keycode" />,
+      key: 'bank_keycode',
+      width: '60px',
+      render: (text, record) => {
+        let to_render = '';
+        if(!(globalCfg.api.isProviderPayment(record) && record.provider_extra&& record.provider_extra.payment_mode==globalCfg.bank.PAYMENT_MODE_BOLETO))
+        {
+          const bank_account = request_helper.bankForRequest(record);
+          to_render    = bank_account.bank_keycode
+            ? bank_account.bank_keycode
+            : <Tooltip title={<InjectMessage id="components.TransactionTable.columns.bank_keycode_missing" />}>
+                <i> <InjectMessage id="components.TransactionTable.columns.bank_keycode_missing_min" /></i>
+              </Tooltip>;
+        }
+        // <InjectMessage id="components.TransactionTable.columns.bank_keycode_missing" />
         return (<span>{to_render}</span>)
       }
     },
