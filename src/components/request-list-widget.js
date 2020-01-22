@@ -10,11 +10,11 @@ import RequestsFilter from '@app/components/Filters/requests';
 import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimple} from '@app/components/TransactionTable/stats';
 
 import TransactionTable, { DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
-import {REQUEST_MODE_BANK_TRANSFERS, REQUEST_MODE_EXTRATO, REQUEST_MODE_ALL } from '@app/components/TransactionTable';
+import {REQUEST_MODE_BANK_TRANSFERS, REQUEST_MODE_EXTRATO, REQUEST_MODE_ALL, REQUEST_MODE_INNER_PAGE } from '@app/components/TransactionTable';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import { injectIntl } from "react-intl";
 
-export {REQUEST_MODE_BANK_TRANSFERS, REQUEST_MODE_EXTRATO, REQUEST_MODE_ALL };
+export {REQUEST_MODE_BANK_TRANSFERS, REQUEST_MODE_EXTRATO, REQUEST_MODE_ALL, REQUEST_MODE_INNER_PAGE };
 
 const RequestListWidget = (props) => {
 
@@ -26,7 +26,11 @@ const RequestListWidget = (props) => {
   const [mode, setMode]                          = useState(props.mode || REQUEST_MODE_ALL);
   const [table_ref, setTableRef]                 = useState(null);
   const [stats, setStats]                        = useState([]);
+  const [hide_stats, setHideStats]               = useState(props.hide_stats||false);
   
+  useEffect(() => {
+      setHideStats(props.hide_stats);
+    }, [props.hide_stats]);
   useEffect(() => {
       setHiddenFields(props.filter_hidden_fields || []);
     }, [props.filter_hidden_fields]);
@@ -118,7 +122,7 @@ const RequestListWidget = (props) => {
         callback={requestFilterCallback} 
         request_type={request_type}
         hidden_fields={filter_hidden_fields} />
-      <TableStats stats_array={stats}/>
+      { !hide_stats && <TableStats stats_array={stats}/> }
       <TransactionTable 
         onChange={onTableChange}
         key={'table_'+key} 

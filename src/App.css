@@ -63,6 +63,11 @@
 }
 
 /* HACK FOR PAGEHEADER */
+
+span.view_requests{
+  line-height: 26px;
+  color: rgba(0, 0, 0, 0.85)
+}
 .ant-page-header-ghost {background-color: #fff!important;}
 /*HACK FOR FILTERS*/
 .filter_form{

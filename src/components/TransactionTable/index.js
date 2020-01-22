@@ -32,8 +32,9 @@ export const  DISPLAY_PDA        = globalCfg.api.TYPE_DEPOSIT+'|'+globalCfg.api.
 export const  DISPLAY_EXTERNAL   = globalCfg.api.TYPE_EXCHANGE+'|'+globalCfg.api.TYPE_PROVIDER;
 
 export const REQUEST_MODE_BANK_TRANSFERS = 'request_mode_bank_trasnfers';
-export const REQUEST_MODE_EXTRATO        = 'request_mode_extrato'
-export const REQUEST_MODE_ALL            = 'request_mode_all'
+export const REQUEST_MODE_EXTRATO        = 'request_mode_extrato';
+export const REQUEST_MODE_ALL            = 'request_mode_all';
+export const REQUEST_MODE_INNER_PAGE     = 'request_mode_inner_page';
 
 //
 class TransactionTable extends Component {

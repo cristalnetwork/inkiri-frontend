@@ -14,10 +14,12 @@ import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 import * as utils from '@app/utils/utils';
 
-import { Tabs, Select,PageHeader, Button, Spin, Modal, Form, Input } from 'antd';
+import { Switch, Select, PageHeader, Button, Spin, Modal, Form, Input } from 'antd';
 
 import TxResult from '@app/components/TxResult';
 import { RESET_PAGE, RESET_RESULT, DASHBOARD } from '@app/components/TxResult';
+
+import RequestListWidget, {REQUEST_MODE_INNER_PAGE} from '@app/components/request-list-widget';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -49,6 +51,7 @@ class DepositMoney extends Component {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       loading:             true,
       intl:                {},
+      view_requests:       false,
       ...DEFAULT_STATE,
       ...DEFAULT_RESULT,
     };
@@ -78,8 +81,8 @@ class DepositMoney extends Component {
     const title = formatMessage({id:'pages.common.deposit.title'});
     const subtitle = formatMessage({id:'pages.common.deposit.subtitle'});
     const amount_text = formatMessage({id:'global.amount'})
-
-    this.setState({intl:{amount_text, pushing_tx, loading, cant_fetch_next_envelope_id, internet_connection_error, confirm_deposit_request, valid_number_required_description, info_type_envelope_id, currency_validator, currency_label, amount_input_validator, request_deposit_action, title, subtitle}});
+    const view_requests = formatMessage({id:'global.view_requests'})
+    this.setState({intl:{view_requests, amount_text, pushing_tx, loading, cant_fetch_next_envelope_id, internet_connection_error, confirm_deposit_request, valid_number_required_description, info_type_envelope_id, currency_validator, currency_label, amount_input_validator, request_deposit_action, title, subtitle}});
 
     this.getNextEnvelopeId();
   }
@@ -224,6 +227,7 @@ class DepositMoney extends Component {
     callback(this.state.intl.valid_number_required_description);
   };
 
+
   renderContent() {
   
     if(this.state.result)
@@ -234,9 +238,25 @@ class DepositMoney extends Component {
       const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error
       
-      return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
+      return(<div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
+              <TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />
+            </div>)
     }
+    //
 
+    if(this.state.view_requests==true)
+    {
+      return   <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
+                  <RequestListWidget
+                      hide_stats={true}
+                      request_type={globalCfg.api.TYPE_DEPOSIT}
+                      the_key={'deposits'}
+                      filter_hidden_fields={['requested_type', 'to', 'from']}
+                      mode={REQUEST_MODE_INNER_PAGE}
+                  />
+                </div>;
+    }
+    //
     const { getFieldDecorator }               = this.props.form;
     const { input_amount, isFetching, loading, envelope_id} = this.state;
     const my_currencies                       = [globalCfg.currency.symbol, globalCfg.currency.fiat.symbol];
@@ -247,111 +267,108 @@ class DepositMoney extends Component {
         :'');
 
     return (
-        <Spin spinning={isFetching||loading} delay={500} tip={loading_text}>
-          <Form onSubmit={this.handleSubmit}>
-            <div className="money-transfer">    
-              
-              <div className="money-transfer__row row-complementary money-transfer__select row-complementary-bottom flex_row" >
-                  <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
-                      <span className="picture">
-                        <FontAwesomeIcon icon="envelope" size="lg" color="black"/>
-                      </span>
-                  </div>
-                  <div className="money-transfer__input money-transfer__select">
-                    <span>{this.state.intl.info_type_envelope_id}<br/>
-                      <strong style={{fontWeight:600, fontSize:24}}>{utils.pad(envelope_id)}</strong>
-                    </span>
-                  </div>
-              </div>
-              
-              <div className="money-transfer__row row-complementary money-transfer__select flex_row" >
-                  <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
-                      <span className="picture">
-                        <FontAwesomeIcon icon="dollar-sign" size="lg" color="black"/>
-                      </span>
-                  </div>
-                  <div className="money-transfer__input money-transfer__select">
-                    <Form.Item>
-                        {getFieldDecorator( 'input_amount.symbol', {
-                          rules: [{ required: true, message: this.state.intl.currency_validator}]
-                          , initialValue: input_amount.symbol
-                          , onChange: this.symbolChange
-                        })(
-                          <Select placeholder={this.state.intl.currency_label} optionLabelProp="label" className="select-price__currency">
-                          {my_currencies.map( opt => <Select.Option key={opt} value={opt} label={opt}>{ opt } </Select.Option> )}
-                          </Select>
-                        )}
-                    </Form.Item>
-                  </div>
-              </div>
-
-              <Form.Item label={this.state.intl.amount_text} className="money-transfer__row input-price" style={{textAlign: 'center'}}>
-                    {getFieldDecorator('input_amount.value', {
-                      rules: [{ required: true
-                                , message: this.state.intl.amount_input_validator
-                                , whitespace: true
-                                , validator: this.checkPrice }],
-                      initialValue: input_amount.value,
-                    })( 
-                      <>  
-                        <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
-                          {input_amount.symbol}
+      <div style={{ margin: '0 0px', padding: 24}}>
+        <div className="ly-main-content content-spacing cards">
+          <section className="mp-box mp-box__shadow money-transfer__box">
+            <Spin spinning={isFetching||loading} delay={500} tip={loading_text}>
+              <Form onSubmit={this.handleSubmit}>
+                <div className="money-transfer">    
+                  
+                  <div className="money-transfer__row row-complementary money-transfer__select row-complementary-bottom flex_row" >
+                      <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
+                          <span className="picture">
+                            <FontAwesomeIcon icon="envelope" size="lg" color="black"/>
+                          </span>
+                      </div>
+                      <div className="money-transfer__input money-transfer__select">
+                        <span>{this.state.intl.info_type_envelope_id}<br/>
+                          <strong style={{fontWeight:600, fontSize:24}}>{utils.pad(envelope_id)}</strong>
                         </span>
-                        
-                        <Input 
-                          type="tel" 
-                          step="0.01" 
-                          className="money-transfer__input input-amount placeholder-big" 
-                          id="amount"
-                          placeholder="0" 
-                          value={input_amount.value} 
-                          onChange={this.onInputAmount}  
-                          style={input_amount.style}  
-                        />
-                      </>
-                    )}
-              </Form.Item>
-              <div><br/><br/></div>
-            </div>
+                      </div>
+                  </div>
+                  
+                  <div className="money-transfer__row row-complementary money-transfer__select flex_row" >
+                      <div className="badge badge-extra-small badge-circle addresse-avatar display_block">
+                          <span className="picture">
+                            <FontAwesomeIcon icon="dollar-sign" size="lg" color="black"/>
+                          </span>
+                      </div>
+                      <div className="money-transfer__input money-transfer__select">
+                        <Form.Item>
+                            {getFieldDecorator( 'input_amount.symbol', {
+                              rules: [{ required: true, message: this.state.intl.currency_validator}]
+                              , initialValue: input_amount.symbol
+                              , onChange: this.symbolChange
+                            })(
+                              <Select placeholder={this.state.intl.currency_label} optionLabelProp="label" className="select-price__currency">
+                              {my_currencies.map( opt => <Select.Option key={opt} value={opt} label={opt}>{ opt } </Select.Option> )}
+                              </Select>
+                            )}
+                        </Form.Item>
+                      </div>
+                  </div>
 
-            <div className="mp-box__actions mp-box__shore">
-              <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={isFetching||loading} >
-                {this.state.intl.request_deposit_action}
-              </Button>
-            </div>
+                  <Form.Item label={this.state.intl.amount_text} className="money-transfer__row input-price" style={{textAlign: 'center'}}>
+                        {getFieldDecorator('input_amount.value', {
+                          rules: [{ required: true
+                                    , message: this.state.intl.amount_input_validator
+                                    , whitespace: true
+                                    , validator: this.checkPrice }],
+                          initialValue: input_amount.value,
+                        })( 
+                          <>  
+                            <span className="input-price__currency" id="inputPriceCurrency" style={input_amount.symbol_style}>
+                              {input_amount.symbol}
+                            </span>
+                            
+                            <Input 
+                              type="tel" 
+                              step="0.01" 
+                              className="money-transfer__input input-amount placeholder-big" 
+                              id="amount"
+                              placeholder="0" 
+                              value={input_amount.value} 
+                              onChange={this.onInputAmount}  
+                              style={input_amount.style}  
+                            />
+                          </>
+                        )}
+                  </Form.Item>
+                  <div><br/><br/></div>
+                </div>
 
-          </Form>  
-          
-        </Spin>
+                <div className="mp-box__actions mp-box__shore">
+                  <Button size="large" key="requestButton" htmlType="submit" type="primary" loading={isFetching||loading} >
+                    {this.state.intl.request_deposit_action}
+                  </Button>
+                </div>
+
+              </Form>  
+            </Spin>
+          </section>
+        </div>
+      </div> 
     );
   }
   
   // ** hack for sublime renderer ** //
 
   render() {
-    let content    = this.renderContent();
-    const {routes} = this.state;
-
+    let content                   = this.renderContent();
+    const {intl, loading, routes} = this.state;
     return (
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={this.state.intl.title}
           subTitle={this.state.intl.subtitle}
-          footer={
-            <Tabs defaultActiveKey="1">
-              <Tabs.TabPane tab="Solicitar" key="1" />
-              <Tabs.TabPane tab="Listado" key="2" />
-            </Tabs>
-          }
+           extra={[
+             <span className="view_requests"> {intl.view_requests}&nbsp;<Switch key='view_requests' onChange={ (checked) => this.setState({view_requests:checked})} loading={loading} /></span>
+          ]}
           />
-          <div style={{ margin: '0 0px', padding: 24}}>
-            <div className="ly-main-content content-spacing cards">
-              <section className="mp-box mp-box__shadow money-transfer__box">
-                {content}
-              </section>
-            </div>      
-          </div>
+          
+          {content}
+          
       </>
     );
   }

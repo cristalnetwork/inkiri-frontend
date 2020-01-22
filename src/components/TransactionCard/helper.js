@@ -107,7 +107,10 @@ export const getGoogleDocLinkOrNothing = (google_doc_id, with_icon, name, size) 
 export const getSimpleStateTag = (request) => {
   const my_state   = request.simple_state; 
   const text       = `${request.simple_state_string.toUpperCase()}`;
-  return (<Tag color={globalCfg.api.stateToColor(my_state)} key={'state_'+request.id} title={text}>{text}</Tag>)
+  const style      = request.state==globalCfg.api.STATE_REQUESTED
+                     ? {color:'inherit', border: '1px solid black'}
+                     : {};
+  return (<Tag style={style} color={globalCfg.api.stateToColor(my_state)} key={'state_'+request.id} title={text}>{text}</Tag>)
 }
 //
 export const getStateTag = (request) => {
