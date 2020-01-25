@@ -715,6 +715,35 @@ const GET_IUGUS = gql`
   }
 `;
 
+
+export const servicesEx = async ({page='', limit='', account_name='', id='', serviceCounterId=''}={}) =>{
+  const a = {page:page?page.toString():'0', limit:limit?limit.toString():undefined, account_name:account_name, id:id, serviceCounterId:serviceCounterId};
+  console.log(' ===== servicesEx === >', a)
+  return runQuery(GET_SERVICES_EX, a, 'servicesWithCustomers');
+}
+
+const GET_SERVICES_EX = gql`
+  query xxx($page:String, $limit:String, $account_name:String, $id:String, $serviceCounterId:String) {
+    servicesWithCustomers(page:$page, limit:$limit, account_name:$account_name, id:$id, serviceCounterId:$serviceCounterId){
+      _id
+      created_by{
+        _id
+        account_name
+        business_name
+      }
+      account_name
+      serviceCounterId
+      title
+      description
+      amount
+      state
+      customers
+      not_answered
+    }
+  }
+`;
+
+
 const runQuery = async (query, variables, _return_field) => {
   // const client = useApolloClient();
 

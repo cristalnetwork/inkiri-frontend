@@ -25,6 +25,7 @@ import ServiceForm from '@app/components/Form/service';
 import ServiceContractForm from '@app/components/Form/service_contract';
 
 import * as eos_table_getter from '@app/services/inkiriApi/eostable-getters';
+import * as gqlService from '@app/services/inkiriApi/graphql'
 
 import { injectIntl } from "react-intl";
 
@@ -55,7 +56,7 @@ class Services extends Component {
       pushingTx:          false,
       
       services_states:    null,
-
+      
       provider:           props_provider || props.actualAccountProfile,
       services:           [],
       page:               -1, 
@@ -362,14 +363,16 @@ class Services extends Component {
     let services = [];
 
     try {
-      services = await api.bank.getServices(request_page, limit, {account_name:provider.account_name});
+      services = await gqlService.servicesEx({page:request_page, limit:limit, account_name:this.props.actualAccountName});
+      // services = await api.bank.getServices(request_page, limit, {account_name:provider.account_name});
+      console.log('services:', services)
     } catch (e) {
 
       components_helper.notif.exceptionNotification(this.state.intl.error_retrieving_services, e);
       this.setState({ loading:false})
       return;
     } 
-    this.onNewData (services) ;
+    this.onNewData (services||[]) ;
 
   }
 
@@ -492,7 +495,7 @@ class Services extends Component {
           <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
             <Table
                 key="table_services" 
-                rowKey={record => record.id} 
+                rowKey={record => record._id} 
                 loading={this.state.loading} 
                 columns={this.getColumns()} 
                 dataSource={services} 

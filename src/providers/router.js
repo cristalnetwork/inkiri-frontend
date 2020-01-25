@@ -52,7 +52,7 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           
           if(actualRole=='business') 
           { 
-            history.push(`/common/extrato`);
+            // history.push(`/common/extrato`);
             // history.push(`/common/deposit`);
             // history.push(`/common/providers`);
             // history.push(`/common/request-money`);
@@ -65,17 +65,17 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
             // history.push(`/common/withdraw`);
             // history.push(`/${actualRole}/pdv`);
             // history.push(`/common/contracted-services`);
-            // history.push(`/common/services`);
+            history.push(`/common/services`);
             // history.push(`/common/crew`);   
             // history.push(`/common/configuration`);
             // history.push(`/common/create-provider`);
           }  
           
           if(actualRole=='personal') {
-              history.push(`/common/extrato`);
+              // history.push(`/common/extrato`);
               // history.push(`/common/request-money`);
               // history.push(`/common/configuration`);
-              // history.push(`/common/contracted-services`);
+              history.push(`/common/contracted-services`);
               // history.push(`/common/send`);
               // history.push(`/common/deposit`);
               // history.push(`/common/withdraw`);

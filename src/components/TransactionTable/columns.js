@@ -10,14 +10,16 @@ import * as api from '@app/services/inkiriApi';
 import InjectMessage from "@app/components/intl-messages";
 
 export const events = {
-    VIEW :        'event_view',
-    EDIT :        'event_edit',
-    REMOVE :      'event_remove',
-    DISABLE :     'event_disable',
-    CHILDREN :    'event_children',
-    NEW_CHILD :   'event_new_child',
-    CHARGE :      'event_charge',
-    REQUESTS :    'event_requests',
+    VIEW :            'event_view',
+    EDIT :            'event_edit',
+    REMOVE :          'event_remove',
+    DISABLE :         'event_disable',
+    CHILDREN :        'event_children',
+    NEW_CHILD :       'event_new_child',
+    CHARGE :          'event_charge',
+    REQUESTS :        'event_requests',
+    ACCEPT_SERVICE :  'event_accept_service',
+    REJECT_SERVICE :  'event_reject_service',
 }
 
 //
@@ -1094,7 +1096,7 @@ export const columnsForServices = (callback, services_states) => {
         title: <InjectMessage id="components.TransactionTable.columns.service" />,
         dataIndex: 'title',
         key: 'title',
-        width:'40%',
+        width:'250px',
         render: (title, record) => {
           
             return (<span className="name_value_row">
@@ -1109,6 +1111,7 @@ export const columnsForServices = (callback, services_states) => {
               <span className="row_tx_title">{record.title}</span> 
                <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
                  {record.description} 
+                 <br/> #{record.serviceCounterId}
                </div>
             </div>   
           </span>)
@@ -1117,14 +1120,23 @@ export const columnsForServices = (callback, services_states) => {
       {
         title: <InjectMessage id="components.TransactionTable.columns.status" />,
         dataIndex: 'state',
+        width:'75px',
         key: 'state',
-        render: (state, record) => {
-          const _state = getStateDesc(state);
-          return (<span>
-                  {_state}<br/>
-                  #{record.serviceCounterId}
-                 </span>);
-         }   
+        render: (state, record) => getStateDesc(state)
+      },
+      {
+        title: <InjectMessage id="components.TransactionTable.columns.active_customers" />,
+        key: 'customers',
+        dataIndex: 'customers',
+        width:'100px',
+        render: (customers, record) => customers
+      },
+      {
+        title: <InjectMessage id="components.TransactionTable.columns.unanswered_service_requests_short" />,
+        key: 'not_answered',
+        dataIndex: 'not_answered',
+        width:'100px',
+        render: (not_answered, record) => not_answered
       },
       {
         title: <InjectMessage id="components.TransactionTable.columns.price" />,
@@ -1144,10 +1156,10 @@ export const columnsForServices = (callback, services_states) => {
         align: 'right',
         render: (text, record) => {
           const style     = {marginTop:6};
-          const edit      = (<Button key={'edit_'+record._id}        onClick={()=>{ callback(record, events.EDIT) }}      icon="edit" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.edit" /></Button>);
-          const children  = (<Button style={style} key={'children_'+record._id}   onClick={()=>{ callback(record, events.CHILDREN) }}  icon="usergroup-delete" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.customers" /></Button>);
-          const requests  = (<Button style={style} key={'requests'+record._id}    onClick={()=>{ callback(record, events.REQUESTS) }}  icon="form" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.service_requests" /></Button>);
-          const new_child = (<Button style={style} key={'new_child_'+record._id}  onClick={()=>{ callback(record, events.NEW_CHILD) }} icon="user-add" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.new_customer" /></Button>);
+          const edit      = (<Button key={'edit_'+record._id}                     onClick={()=>{ callback(record, events.EDIT) }}      icon="edit" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.edit" /></Button>);
+          const children  = (<Button style={style} key={'children_'+record._id}   type="link"    onClick={()=>{ callback(record, events.CHILDREN) }}  icon="usergroup-delete" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.customers" /></Button>);
+          const requests  = (<Button style={style} key={'requests'+record._id}    type="link"    onClick={()=>{ callback(record, events.REQUESTS) }}  icon="form" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.unanswered_service_requests_short" /></Button>);
+          const new_child = (<Button style={style} key={'new_child_'+record._id}  type="primary" onClick={()=>{ callback(record, events.NEW_CHILD) }} icon="plus" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.new_customer" /></Button>);
           
           return (<>{edit}<br/>{children}<br/>{requests}<br/>{new_child}</>);
           // const _disable = (<Button key={'details_'+record._id} type="link"     onClick={()=>{ callback(record, events.DISABLE) }} icon="pause-circle" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.disable" /></Button>);
@@ -1440,6 +1452,114 @@ export const columnsForContractedServices = (callback, services_states) => {
     ];
 }
 
+//
+
+export const columnsForContractedServiceRequest = (callback) => {
+    
+    return [
+      {
+        title:       <InjectMessage id="components.TransactionTable.columns.service" />,
+        dataIndex:   'title',
+        key:         'title',
+        width:       '250px',
+        render: (title, record) => {
+            const service  = record.service||{};
+            // const provider = service.created_by
+            //   ? `@${service.created_by.account_name}`
+            //   : <InjectMessage id="components.TransactionTable.columns.error_provider_not_available" />;
+            const provider = `${record.requested_by.business_name} - @${record.requested_by.account_name}`;
+            const _service_id    = service.serviceCounterId
+              ? `#${service.serviceCounterId}`
+              : <InjectMessage id="components.TransactionTable.columns.error_service_id_not_available" />;
+
+            return (<span className="name_value_row">
+            <div className="row_name centered flex_fixed_width_5em" >
+              <div className="ui-row__col ui-row__col--heading">
+                  <div className="ui-avatar">
+                    {request_helper.getCircledTypeIcon('hack_service')} 
+                  </div>
+              </div>
+            </div>
+            <div className="row_value wider">
+              <span className="row_tx_title">{service.title}</span> 
+               <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
+                 <i><InjectMessage id="components.TransactionTable.columns.service_description" />:</i>&nbsp;<b>{service.description}</b>
+                 <br/>&nbsp;<InjectMessage id="components.TransactionTable.columns.provider" />:&nbsp;<b>{provider}</b>
+                 <br/>&nbsp;<InjectMessage id="components.TransactionTable.columns.service_id" />:&nbsp;<b>{_service_id}</b>
+               </div>
+            </div>   
+          </span>)
+        }
+      },
+      {
+        title: <InjectMessage id="components.TransactionTable.columns.status" />,
+        dataIndex: 'state',
+        key: 'state',
+        width: '110px',
+        render: (state, record) => request_helper.getSimpleStateTag(record)
+        
+      },
+
+      {
+        title:   <InjectMessage id="components.TransactionTable.columns.begins_at" />,
+        key:       'begins_at',
+        dataIndex: 'begins_at',
+        width:     '110px',
+        render:    (begins_at, record) => moment(begins_at).format(form_helper.MONTH_FORMAT_HUMANIZED)
+      },
+      {
+        title:      <InjectMessage id="components.TransactionTable.columns.expires_at" />,
+        key:       'expires_at',
+        dataIndex: 'begins_at',
+        width:     '110px',
+        render:    (begins_at, record) => moment(begins_at).add(record.periods, 'months').format(form_helper.MONTH_FORMAT_HUMANIZED)
+      },
+      {
+        title:      <InjectMessage id="components.TransactionTable.columns.last_period_charged" />,
+        key:        'periods_charged',
+        width:      '110px',
+        render: (begins_at, record) => api.pap_helper.getChargeInfo(record).last_charged 
+      },
+      {
+        title:      <InjectMessage id="components.TransactionTable.columns.total_charged" />,
+        key:        'total_charged',
+        width:      '110px',
+        render: (begins_at, record) => api.pap_helper.getChargeInfo(record).total_charged 
+      },
+      {
+        title:       <InjectMessage id="components.TransactionTable.columns.price" />,
+        key:         'amount',
+        dataIndex:   'amount',
+        width:       '110px',
+        render: (amount, record) => {
+          const service = record.service;
+          const price = service
+            ? request_helper.getStyledAmountEx(service.amount)
+            : <InjectMessage id="components.TransactionTable.columns.not_available" />;
+          return price;
+          }
+      },
+      {
+        title:     <InjectMessage id="components.TransactionTable.columns.action" />,
+        key:       'action',        
+        align:     'right',
+        width:     '110px',
+        render: (text, record) => {
+          switch (record.state){
+            case globalCfg.api.STATE_REQUESTED:
+                const accept = (<Button key={'accept_'+record.id} type="primary" onClick={()=>{ callback(record, events.ACCEPT_SERVICE) }}  icon="check" size="small" >&nbsp;<InjectMessage id="components.TransactionTable.columns.accept_action" /></Button>);
+                const cancel = (<Button key={'accept_'+record.id} type="link" onClick={()=>{ callback(record, events.CANCEL_SERVICE) }}  icon="close" size="small" >&nbsp;<InjectMessage id="components.TransactionTable.columns.cancel_action" /></Button>);
+                return (<>{accept} &nbsp; {cancel} </>);
+              break;
+            default:
+              const children = (<Button key={'children_'+record.id} onClick={()=>{ callback(record, events.CHILDREN) }}  icon="download" size="small" >&nbsp;<InjectMessage id="components.TransactionTable.columns.view_payments_action" /></Button>);
+              return (<>{children}</>);
+          }
+          
+        }
+      }
+    ];
+}
 //
 
 export const columnsForServiceContractPayment = (callback) => {

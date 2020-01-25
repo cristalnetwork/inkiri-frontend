@@ -1,4 +1,4 @@
-const env        = "prod";
+const env        = "dev";
 
 const language   = "english";
 
@@ -288,8 +288,12 @@ const api = {
   , getTXId      : (request) => {
       return request.tx_id || request.transaction_id;
     }
+  , isRequested         : (request) => {
+    return api.STATE_REQUESTED == request.state;
+  }
   , isFinished         : (request) => {
-      return [api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR, api.STATE_CANCELED].includes(request.state) && request.flag.ok;
+      return [api.STATE_REJECTED, api.STATE_ACCEPTED, api.STATE_REVERTED, api.STATE_REFUNDED, api.STATE_ERROR, api.STATE_CANCELED].includes(request.state) 
+        && request.flag.ok;
     }
   , isProcessing       : (request) => {
       return [api.STATE_PROCESSING].indexOf(request.state)>=0;

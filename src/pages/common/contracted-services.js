@@ -74,7 +74,8 @@ class Services extends Component {
   }
 
   getColumns(){
-    return columns_helper.columnsForContractedServices(this.onContractListCallback, this.state.services_states);
+    // return columns_helper.columnsForContractedServices(this.columnsForContractedServiceRequestonContractListCallback, this.state.services_states);
+    return columns_helper.columnsForContractedServiceRequest(this.onContractListCallback);
   }
   
   componentDidMount = async () => {
@@ -104,22 +105,90 @@ class Services extends Component {
     }
   }
 
+  acceptServiceRequest = async () =>{
+
+    const {_id, amount, service, service_extra, requested_by, requested_to, requestCounterId} = this.state.request;
+    const private_key    = this.props.actualPrivateKey;
+    const provider       = requested_by.account_name;
+    const customer       = requested_to.account_name;
+    const sender         = globalCfg.currency.issuer; //this.props.actualAccountName;
+    const auth_account   = this.props.actualAccountName;
+    const begins_at      = api.pap_helper.getServiceBeginTimestamp(service_extra.begins_at)
+    const periods        = api.pap_helper.getServicePeriods(service_extra)
+
+    if(amount!=service.amount)
+    {
+      const error_service_price_mismatch_message = this.props.intl.formatMessage( { id:'pages.common.request-details.error_service_price_mismatch_message'}, {amount:amount, service_amount:service.amount});
+      components_helper.notif.warningNotification(this.state.intl.error_service_price_mismatch, error_service_price_mismatch_message);
+      return;
+    } 
+    
+    const that = this;
+    
+    Modal.confirm({
+      title:   this.state.intl.confirm_accept_service, 
+      content: this.state.intl.confirm_accept_service_message,
+      onOk() {
+          
+        //ToDo
+        const steps= [
+          {
+            _function:           'acceptService'
+            , _params:           [auth_account, private_key, customer, provider, service.serviceCounterId, service.amount, begins_at, periods, requestCounterId]
+          }, 
+          {
+            _function:           'bank.acceptServiceRequest'
+            , _params:           [auth_account, _id, api.bank.REQUEST_RECEIVER] 
+            , last_result_param: [{field_name:'transaction_id', result_idx_diff:-1}]
+          },
+        ]
+        that.props.callAPIEx(steps)
+        
+      },
+      onCancel() {
+        // that.setState({pushingTx:false})
+        console.log('Cancel');
+      },
+    });  
+        
+  }
+
+  rejectServiceRequest(){
+    const that       = this;
+    
+    Modal.confirm({
+      title:   this.state.intl.reject_service_request,
+      content: this.state.intl.reject_service_request_message,
+      onOk() {
+        const {request}  = that.state;
+        const sender     = that.props.actualAccountName;
+        const step ={
+                _function:   'bank.rejectService'
+                , _params:   [sender, api.bank.REQUEST_RECEIVER, request.id]
+              }
+        
+        that.props.callAPI(step._function, step._params)
+      },
+      onCancel() {
+        // that.setState({pushingTx:false})
+        console.log('Cancel');
+      },
+    });  
+    
+  }
   onContractListCallback(contract, event){
     const {events} = columns_helper;
     switch(event){
-      case events.VIEW:
+      case events.ACCEPT_SERVICE:
+        this.acceptServiceRequest(contract);
         break;
-      case events.REMOVE:
-        break;
-      case events.EDIT:
-        break;
-      case events.DISABLE:
+      case events.REJECT_SERVICE:
+        this.rejectServiceRequest(contract);
         break;
       case events.CHILDREN:
         this.onViewServiceContractPayments(contract)
         break;
-      case events.NEW_CHILD:
-        break;
+
     }
     return;
 
@@ -189,40 +258,42 @@ class Services extends Component {
     const account_name = this.props.actualAccountName;
     let contracts = []
 
-    // const filter_obj = {limit, page, ...(filter||{})};
-    // console.log(' ---- TransactionTable filter_obj:', filter_obj);
-    // try{
-    //   // const data = await gqlService.requests(filter_obj);
-    //   const data = await gqlRequestI18nService.extrato(filter_obj, this.props.intl);
-    //   that.onNewData(data);
-    // }
-    // catch(e)
-    // {
-    //   this.setState({loading:false});
-    //   components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
-    //   return;
-    // }
-
+    const filter_obj = { limit :           limit
+                         , page :          request_page
+                         , to :            this.props.actualAccountName
+                         , requested_type: globalCfg.api.TYPE_SERVICE};
     try{
-      contracts = await eos_table_getter.listPapByCustomer(account_name, undefined, cursor)
-    }catch(e){
-      const title = this.props.intl.formatMessage({id:'pages.common.contracted-services.error.while_fetching_services'})          
-      components_helper.notif.exceptionNotification(title, e);
-      console.log(e)
+      // const data = await gqlService.requests(filter_obj);
+      const data = await gqlRequestI18nService.requests(filter_obj, this.props.intl);
+      this.onNewData({services:data, more:false, cursor:null});
+    }
+    catch(e)
+    {
+      this.setState({loading:false});
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
       return;
     }
 
-    const counter_ids = contracts.rows.map(contract=>contract.service_id)
-    const services    = await  api.bank.getServices(request_page, limit, {counter_ids:counter_ids})
-    
-    const _services  = _.reduce(services, function(result, value, key) {
-      result[value.serviceCounterId] = value;
-      return result;
-    }, {});
+    // try{
+    //   contracts = await eos_table_getter.listPapByCustomer(account_name, undefined, cursor)
+    // }catch(e){
+    //   const title = this.props.intl.formatMessage({id:'pages.common.contracted-services.error.while_fetching_services'})          
+    //   components_helper.notif.exceptionNotification(title, e);
+    //   console.log(e)
+    //   return;
+    // }
 
-    const data = contracts.rows.map(contract => {return{...contract, service:_services[contract.service_id] }})
+    // const counter_ids = contracts.rows.map(contract=>contract.service_id)
+    // const services    = await  api.bank.getServices(request_page, limit, {counter_ids:counter_ids})
+    
+    // const _services  = _.reduce(services, function(result, value, key) {
+    //   result[value.serviceCounterId] = value;
+    //   return result;
+    // }, {});
+
+    // const data = contracts.rows.map(contract => {return{...contract, service:_services[contract.service_id] }})
         
-    that.onNewData({services:data, more:data.more, cursor:data.next_key});
+    // that.onNewData({services:data, more:data.more, cursor:data.next_key});
 
     
   }
