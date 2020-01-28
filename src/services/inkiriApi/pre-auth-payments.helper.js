@@ -28,9 +28,16 @@ export const getServicePeriods = (dict) =>{
 }
 
 export const getServicePeriodsEx = (begins_at, expires_at) =>{
-  let my_begins_at  = getMoment(begins_at);
-  let my_expires_at = getMoment(expires_at);
+  let my_begins_at  = getMoment(begins_at).startOf('month');
+  let my_expires_at = getMoment(expires_at).startOf('month');
+
+  console.log('============= begins_at: ', begins_at)
+  console.log('============= expires_at: ', expires_at)
+  console.log('============= my_begins_at: ', my_begins_at)
+  console.log('============= my_expires_at: ', my_expires_at)
+  console.log('============= MONTHS-diff: ', my_expires_at.diff(my_begins_at, 'months'))
   return my_expires_at.diff(my_begins_at, 'months')+1;
+
 }
 
 export const getServiceBegin = (begins_at) =>{
@@ -43,13 +50,17 @@ export const getServiceBeginTimestamp = (begins_at) =>{
 }
 
 export const getMoment = (value) => {
+  if(value instanceof moment)
+    return value;
   let moment_value = value;
   // if(typeof value === 'number')
-  if(isNaN(value)==false)
+  if(!isNaN(value))
   {
+    console.log(typeof value);
     let my_value = value;
     if(value.toString().length=='1570910442875'.length)
       my_value = value/1000;
+    // console.log(' ojota!:', value, my_value)
     moment_value = moment.unix(my_value)
   }
   else
