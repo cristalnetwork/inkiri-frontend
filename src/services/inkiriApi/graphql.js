@@ -223,6 +223,10 @@ const GET_CONFIG = gql`
       key
       value      
     }
+    serviceStates{
+      key
+      title
+    }
   }
 `;
 export const loadConfig = async () => runQuery(GET_CONFIG);

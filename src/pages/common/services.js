@@ -439,17 +439,18 @@ class Services extends Component {
     if(active_view==STATE_NEW_SERVICE_CONTRACT)
     {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-          <div className="ly-main-content content-spacing cards">
-            <section className="mp-box mp-box__shadow money-transfer__box">
-              <Spin spinning={this.state.pushingTx} delay={500} tip={this.state.intl.pushing_transaction}>
-                <ServiceContractForm key="edit_service_form" 
-                  callback={this.serviceContractFormCallback} 
-                  services_states={services_states} 
-                  service={active_view_object}
-                  provider={provider} />    
-              </Spin>
-            </section>
-          </div>      
+                
+                <div className="ly-main-content content-spacing cards">
+                  <section className="mp-box mp-box__shadow money-transfer__box">
+                    <Spin spinning={this.state.pushingTx} delay={500} tip={this.state.intl.pushing_transaction}>
+                      <ServiceContractForm key="edit_service_form" 
+                        callback={this.serviceContractFormCallback} 
+                        services_states={services_states} 
+                        service={active_view_object}
+                        provider={provider} />    
+                    </Spin>
+                  </section>
+                </div>      
         </div>);
     }
 

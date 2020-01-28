@@ -107,9 +107,10 @@ const RequestsFilter = (props) => {
 
         let filtered = {...values, 'requested_type' : values['requested_type'] && values['requested_type'].join(',')}
         const date_range = values['date_range']
-        if(date_range && date_range[0] && date_range[1])
+        if(date_range && date_range[0] && date_range[1] && !hidden_fields.includes('date_range') )
           filtered = {...filtered, date_from: date_range[0] ,date_to: date_range[1]};
-        delete filtered.date_range;
+        if(filtered.date_range)
+          delete filtered.date_range;
         // limpiamos las keys que estan vacias
         const filtered_nn  = _.reduce(filtered, function(result, value, key) {
           if(value)

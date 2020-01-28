@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 import * as apiRedux from '@app/redux/models/api';
+import * as graphqlRedux from '@app/redux/models/graphql'
 
 import * as globalCfg from '@app/configs/global';
 import * as utils from '@app/utils/utils';
@@ -18,6 +19,9 @@ import * as components_helper from '@app/components/helper';
 import * as form_helper from '@app/components/Form/form_helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 import {ResizeableTable} from '@app/components/TransactionTable/resizable_columns';
+
+
+import RequestsFilter from '@app/components/Filters/requests';
 
 import { Card, PageHeader, Button} from 'antd';
 import { Modal, Table, Spin } from 'antd';
@@ -48,12 +52,13 @@ class Services extends Component {
   constructor(props) {
     super(props);
     const props_provider = (props && props.location && props.location.state && props.location.state.provider)? props.location.state.provider : null;
+    const default_filter = {'state':`${globalCfg.api.STATE_REQUESTED},${globalCfg.api.STATE_ACCEPTED}`};
     this.state = {
       routes :            routesService.breadcrumbForPaths(props.location.pathname),
       loading:            false,
       pushingTx:          false,
       
-      services_states:    null,
+      services_states:    props.serviceStates,
 
       provider:           props_provider || props.actualAccountProfile,
       services:           [],
@@ -64,16 +69,18 @@ class Services extends Component {
       active_view:        STATE_LIST_SERVICES,
       active_view_object: null,
       intl:               {},
-
+      default_filter:     default_filter,
+      filter:             default_filter,
     };
 
     this.loadServices                 = this.loadServices.bind(this);  
-    this.loadServicesStates           = this.loadServicesStates.bind(this);  
+    // this.loadServicesStates           = this.loadServicesStates.bind(this);  
     this.onContractListCallback       = this.onContractListCallback.bind(this);
     this.getColumns                   = this.getColumns.bind(this);
     this.renderFooter                 = this.renderFooter.bind(this); 
     this.onNewData                    = this.onNewData.bind(this); 
 
+    this.timeout_id = null;
   }
 
   getColumns(){
@@ -91,19 +98,21 @@ class Services extends Component {
     const reject_service_request_message = formatMessage( { id:'pages.common.request-details.reject_service_request_message'});
     this.setState({intl:{ error_service_price_mismatch, confirm_accept_service, confirm_accept_service_message, reject_service_request, reject_service_request_message }});
 
+
+    if(utils.arrayNullOrEmpty(this.state.services_states))
+      this.props.loadConfig();
+
     const { location } = this.props;
     if(location && location.state)
     {
       this.setState({
           provider: location.state.provider || this.props.actualAccountProfile
       }, async () => {
-          const _x_dummy = await this.loadServicesStates();
           const _y_dummy = await this.loadServices();  
       });
     }
     else
     {
-      const x_dummy = await this.loadServicesStates();
       const y_dummy = await this.loadServices();  
     }
   } 
@@ -133,7 +142,6 @@ class Services extends Component {
         setTimeout(()=> that.reloadServices() ,100);
       }
     }
-
 
     if(Object.keys(new_state).length>0)      
         this.setState(new_state);
@@ -245,28 +253,30 @@ class Services extends Component {
         }
     });
   }
-  loadServicesStates = async () => {
-    this.setState({loading:true});
+  
+  // loadServicesStates = async () => {
+  //   this.setState({loading:true});
 
-    let data = null;
+  //   let data = null;
 
-    try {
-      data = await api.bank.getServicesStates();
-    } catch (e) {
-      const title = this.props.intl.formatMessage({id:'pages.common.contracted-services.error.retrieving_state'})          
-      components_helper.notif.exceptionNotification( title, e);    
-      this.setState({ loading:false})
-      return;
-    }
-    this.setState({ services_states: data.services_states, loading:false})
-  }
+  //   try {
+  //     data = await api.bank.getServicesStates();
+  //   } catch (e) {
+  //     const title = this.props.intl.formatMessage({id:'pages.common.contracted-services.error.retrieving_state'})          
+  //     components_helper.notif.exceptionNotification( title, e);    
+  //     this.setState({ loading:false})
+  //     return;
+  //   }
+  //   this.setState({ services_states: data.services_states, loading:false})
+  // }
 
   reloadServices = async () => {
     this.setState({
         can_get_more:  true, 
         services:      [],
+        filter:        this.state.default_filter
       }, async () => {
-        const dummy_1 = await this.loadServicesStates();
+        // const dummy_1 = await this.loadServicesStates();
         const dummy_2 = await this.loadServices();
       });  
   }
@@ -290,11 +300,13 @@ class Services extends Component {
     let that           = this;
     const account_name = this.props.actualAccountName;
     let contracts = []
-
-    const filter_obj = { limit :           limit
+    const {filter} = this.state;
+    const filter_obj = { ...filter
+                         , limit :           limit
                          , page :          request_page
                          , to :            this.props.actualAccountName
                          , requested_type: globalCfg.api.TYPE_SERVICE};
+    
     try{
       // const data = await gqlService.requests(filter_obj);
       const data = await gqlRequestI18nService.requests(filter_obj, this.props.intl);
@@ -306,27 +318,6 @@ class Services extends Component {
       components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
       return;
     }
-
-    // try{
-    //   contracts = await eos_table_getter.listPapByCustomer(account_name, undefined, cursor)
-    // }catch(e){
-    //   const title = this.props.intl.formatMessage({id:'pages.common.contracted-services.error.while_fetching_services'})          
-    //   components_helper.notif.exceptionNotification(title, e);
-    //   console.log(e)
-    //   return;
-    // }
-
-    // const counter_ids = contracts.rows.map(contract=>contract.service_id)
-    // const services    = await  api.bank.getServices(request_page, limit, {counter_ids:counter_ids})
-    
-    // const _services  = _.reduce(services, function(result, value, key) {
-    //   result[value.serviceCounterId] = value;
-    //   return result;
-    // }, {});
-
-    // const data = contracts.rows.map(contract => {return{...contract, service:_services[contract.service_id] }})
-        
-    // that.onNewData({services:data, more:data.more, cursor:data.next_key});
 
     
   }
@@ -353,6 +344,37 @@ class Services extends Component {
 
       const title = this.props.intl.formatMessage({id:'pages.common.contracted-services.end_of_list'})          
       components_helper.notif.infoNotification(title)
+    }
+  }
+
+
+  requestFilterCallback = (error, cancel, values, refresh) => {
+    
+    if(cancel)
+    {
+      return;
+    }
+    if(error)
+    {
+      return;
+    }
+
+    if(refresh)
+    {
+      clearTimeout(this.timeout_id);
+      this.timeout_id = setTimeout(()=> {
+        this.reloadServices();
+      } ,100);
+      return;
+    }
+    
+    if(values!==undefined)
+    {
+      clearTimeout(this.timeout_id);
+      this.timeout_id = setTimeout(()=> {
+        this.setState({filter:values}, ()=> this.reloadServices() );
+        
+      } ,100);
     }
   }
 
@@ -399,6 +421,12 @@ class Services extends Component {
           headStyle={{display:'none'}}
         >
           <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
+            <RequestsFilter 
+              callback={this.requestFilterCallback} 
+              request_type={globalCfg.api.TYPE_SERVICE}
+              hidden_fields={['from', 'to', 'requested_type', 'date_range']}
+              />
+
             <ResizeableTable
                 key="table_services" 
                 rowKey={record => record.id} 
@@ -430,7 +458,9 @@ export default  (withRouter(connect(
         actualRole:           loginRedux.actualRole(state),
         actualAccountProfile: loginRedux.actualAccountProfile(state),
         actualPrivateKey:     loginRedux.actualPrivateKey(state),
-  
+        
+        serviceStates:       graphqlRedux.serviceStates(state),
+
         isFetching:       apiRedux.isFetching(state),
         getErrors:        apiRedux.getErrors(state),
         getLastError:     apiRedux.getLastError(state),
@@ -440,6 +470,8 @@ export default  (withRouter(connect(
     (dispatch)=>({
         callAPI:          bindActionCreators(apiRedux.callAPI, dispatch),
         callAPIEx:        bindActionCreators(apiRedux.callAPIEx, dispatch),
+
+        loadConfig:         bindActionCreators(graphqlRedux.loadConfig, dispatch),
 
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
