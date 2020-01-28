@@ -13,12 +13,15 @@ import * as api from '@app/services/inkiriApi';
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
+import InjectMessage from "@app/components/intl-messages";
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
 import TableStats from '@app/components/TransactionTable/stats'; 
 import * as stats_helper from '@app/components/TransactionTable/stats';
 
+import { Dropdown, Icon, Menu } from 'antd';
 import { Card, PageHeader, Tabs, Button,  Modal, Table, Spin } from 'antd';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import ServiceContractChargeForm from '@app/components/Form/service_contract_charge';
 
@@ -344,9 +347,35 @@ class ServiceContracts extends Component {
         , stats_helper.buildItemMoney(intl.stat_title_price, amount)
         , stats_helper.buildItemSimple(intl.stat_title_state, state)
       ]
-    return (<div style={{ background: '#fff', padding: 24, marginTop: 24}}>
+    return (<div style={{ background: '#fff', padding: 8, marginTop: 24}}>
         <TableStats stats_array={items} visible={true} can_close={false}/>
       </div>)
+  }
+  //
+  bulkChargeClick = (e) => {
+    if(typeof e === 'object' && typeof e.preventDefault === 'function')
+      e.preventDefault();
+    console.log('--------');
+    console.log('click: ', e);
+    console.log('props: ', e.item.props)
+    // this.downloadTxtFile(e.item.props.href);
+  }
+
+  getBulkActions  = () => {
+    const menu = (
+      <Menu onClick={this.bulkChargeClick}>
+        <Menu.Item action="bulk-charge" >
+          <FontAwesomeIcon icon="file-invoice-dollar" size="lg" color="black"/> &nbsp;<InjectMessage id="pages.common.service_contracts.bulk_action_bulk_charge" />
+        </Menu.Item> 
+        
+      </Menu>
+    );
+    //
+    return (<Dropdown overlay={menu}>
+          <Button style={{marginLeft:8}}>
+            <InjectMessage id="pages.common.service_contracts.bulk_action_title" />&nbsp;<Icon type="down" />
+          </Button>
+        </Dropdown>);
   }
   //
   renderContent(){
@@ -372,16 +401,19 @@ class ServiceContracts extends Component {
 
     //if(active_view==STATE_LIST_SERVICES)  
     const {contracts} = this.state;
+    const bulkActions = this.getBulkActions();
     return (
       <Card
           key="card_table_all_requests"
           className="styles listCard"
           bordered={false}
+          bodyStyle={{padding: 8}}
           style={{ marginTop: 24 }}
           headStyle={{display:'none'}}
         >
-          <div style={{ background: '#fff', minHeight: 360, marginTop: 12}}>
+          <div style={{ background: '#fff', minHeight: 360, marginTop: 0}}>
             <Table
+                title={() => bulkActions}
                 key="table_service_contracts" 
                 rowKey={record => record.id} 
                 loading={this.state.loading} 

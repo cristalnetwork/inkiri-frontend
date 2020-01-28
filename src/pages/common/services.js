@@ -495,9 +495,10 @@ class Services extends Component {
           className="styles listCard vertical_align_top"
           bordered={false}
           style={{ marginTop: 24 }}
+          bodyStyle={{padding: 8}}
           headStyle={{display:'none'}}
         >
-          <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
+          <div style={{ background: '#fff', minHeight: 360, marginTop: 0}}>
             <Table
                 key="table_services" 
                 rowKey={record => record._id} 
