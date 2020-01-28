@@ -15,6 +15,7 @@ import * as components_helper from '@app/components/helper';
 
 import * as form_helper from '@app/components/Form/form_helper';
 import * as columns_helper from '@app/components/TransactionTable/columns';
+import {ResizeableTable} from '@app/components/TransactionTable/resizable_columns';
 
 import { Card, PageHeader, Button} from 'antd';
 import { Modal, Table, Spin } from 'antd';
@@ -105,9 +106,9 @@ class Services extends Component {
     }
   }
 
-  acceptServiceRequest = async () =>{
+  acceptServiceRequest = async (request) =>{
 
-    const {_id, amount, service, service_extra, requested_by, requested_to, requestCounterId} = this.state.request;
+    const {_id, amount, service, service_extra, requested_by, requested_to, requestCounterId} = request;
     const private_key    = this.props.actualPrivateKey;
     const provider       = requested_by.account_name;
     const customer       = requested_to.account_name;
@@ -153,14 +154,13 @@ class Services extends Component {
         
   }
 
-  rejectServiceRequest(){
+  rejectServiceRequest(request){
     const that       = this;
     
     Modal.confirm({
       title:   this.state.intl.reject_service_request,
       content: this.state.intl.reject_service_request_message,
       onOk() {
-        const {request}  = that.state;
         const sender     = that.props.actualAccountName;
         const step ={
                 _function:   'bank.rejectService'
@@ -362,17 +362,17 @@ class Services extends Component {
     return (
       <Card
           key="card_table_all_requests"
-          className="styles listCard"
+          className="styles listCard vertical_align_top"
           bordered={false}
           style={{ marginTop: 24 }}
           headStyle={{display:'none'}}
         >
           <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
-            <Table
+            <ResizeableTable
                 key="table_services" 
                 rowKey={record => record.id} 
                 loading={this.state.loading} 
-                columns={this.getColumns()} 
+                columns_def={this.getColumns()} 
                 dataSource={services} 
                 footer={() => this.renderFooter()}
                 pagination={this.state.pagination}

@@ -487,7 +487,7 @@ class Services extends Component {
     return (
       <Card
           key="card_table_all_requests"
-          className="styles listCard"
+          className="styles listCard vertical_align_top"
           bordered={false}
           style={{ marginTop: 24 }}
           headStyle={{display:'none'}}
