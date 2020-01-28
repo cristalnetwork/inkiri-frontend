@@ -535,6 +535,20 @@ export const getColumnsForExternalTransfers = (callback) => {
         return (<span>{to_render}</span>)
       }
     },
+    {
+      title: <InjectMessage id="global.invoice" />,
+      dataIndex: 'attach_nota_fiscal_id',
+      key: 'attach_nota_fiscal_id',
+      width: 50,
+      render: (xx, record) => record.attach_nota_fiscal_id?<Icon type="check" />:<Icon type="close" />
+    },
+    {
+      title: <InjectMessage id="global.receipt" />,
+      dataIndex: 'attach_comprobante_id',
+      key: 'attach_comprobante_id',
+      width: 50,
+      render: (xx, record) => record.attach_comprobante_id?<Icon type="check" />:<Icon type="close" />
+    },
     //
     {
       title: <InjectMessage id="components.TransactionTable.columns.bank_agency" />,
