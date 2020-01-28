@@ -360,10 +360,9 @@ class Services extends Component {
   // Component Events
   
   render() {
-    const content                        = this.renderContent();
     const {routes, loading, active_view } = this.state;
-    
-    const title = this.props.intl.formatMessage({id:titles[active_view]})          
+    const content = this.renderContent();
+    const title   = this.props.intl.formatMessage({id:titles[active_view]})          
 
     const buttons = (active_view==STATE_LIST_SERVICES)
       ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServices()} ></Button>]
@@ -387,8 +386,7 @@ class Services extends Component {
   }
   //
   renderContent(){
-    const {provider, loading, active_view, active_view_object, services_states } = this.state;
-
+    const {provider, loading, active_view, active_view_object, services_states, isFetching } = this.state;
     
     //if(active_view==STATE_LIST_SERVICES)  
     const {services} = this.state;
@@ -404,7 +402,7 @@ class Services extends Component {
             <ResizeableTable
                 key="table_services" 
                 rowKey={record => record.id} 
-                loading={this.state.loading} 
+                loading={loading||isFetching} 
                 columns_def={this.getColumns()} 
                 dataSource={services} 
                 footer={() => this.renderFooter()}
@@ -431,6 +429,7 @@ export default  (withRouter(connect(
         actualRoleId:         loginRedux.actualRoleId(state),
         actualRole:           loginRedux.actualRole(state),
         actualAccountProfile: loginRedux.actualAccountProfile(state),
+        actualPrivateKey:     loginRedux.actualPrivateKey(state),
   
         isFetching:       apiRedux.isFetching(state),
         getErrors:        apiRedux.getErrors(state),

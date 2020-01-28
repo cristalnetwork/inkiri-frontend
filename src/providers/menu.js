@@ -42,7 +42,7 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
         }
         
         const aa = selected?[selected.key]:['dashboard'];
-        console.log(' ************** MENU SELECTED: ', aa);
+        // console.log(' ************** MENU SELECTED: ', aa);
         const bb = menuIsCollapsed?[]:getRootKeys(actualRole); 
 
         const renderItem = (item) => {
