@@ -1,5 +1,5 @@
 import React from 'react'
-import { Select, Form, Input, DatePicker } from 'antd';
+import { Tooltip, Icon, Select, Form, Input, DatePicker } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as moment from 'moment';
 import 'moment/locale/pt-br';
@@ -62,12 +62,18 @@ export const getInputItem = (_form, object, field, title, required_message, _typ
     const { getFieldDecorator }    = _form;
     const initial_value            = object?object[field]:'';
     const _readonly                = (readonly===true);
+    const _readonly_objet          = _readonly
+      ? <Tooltip title="Readonly">
+          <Icon type="lock" style={{ color: 'rgba(0,0,0,.45)' }} />
+        </Tooltip>
+      : null;
+    //
     if(!_type) _type = 'string';
     
     
     const input = (textarea===true) 
-      ? (<TextArea className="money-transfer__input" placeholder={title} readOnly={_readonly} autoSize={{ minRows: 3, maxRows: 6 }} />) 
-      : (<Input className="money-transfer__input" placeholder={title} readOnly={_readonly}/> );
+      ? (<TextArea className="money-transfer__input" placeholder={title} readOnly={_readonly} autoSize={{ minRows: 3, maxRows: 6 }} suffix={_readonly_objet} />) 
+      : (<Input className="money-transfer__input" placeholder={title} readOnly={_readonly} suffix={_readonly_objet} /> );
     // const input = <Input className="money-transfer__input" placeholder={title} readOnly={_readonly}/>;
     return (  <Form.Item label={title}>
                 {getFieldDecorator(field, {

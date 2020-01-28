@@ -138,6 +138,7 @@ class ProfileForm extends Component {
     const zip_desc                       = formatMessage({id:'components.Forms.profile.zip_desc'})
     const country_desc                   = formatMessage({id:'components.Forms.profile.country_desc'})
 
+    const readonly                       = !this.props.isAdmin;
     if(mode=='full')
       return (
         <Form onSubmit={this.handleSubmit} className="with_labels">
@@ -147,8 +148,8 @@ class ProfileForm extends Component {
 
               {!business? 
                 (<>
-                  {form_helper.simple(form_helper.getStringItem(form, profile , 'last_name'     , last_name_desc    , first_name_desc ))}
-                  {form_helper.simple(form_helper.getStringItem(form, profile , 'first_name'    , first_name_desc   , first_name_message ))}
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'last_name'     , last_name_desc    , first_name_desc , readonly))}
+                  {form_helper.simple(form_helper.getStringItem(form, profile , 'first_name'    , first_name_desc   , first_name_message, readonly ))}
                  </>)
                 :
                 (<>
@@ -158,7 +159,7 @@ class ProfileForm extends Component {
 
               }
               {form_helper.simple(form_helper.getEmailItem(form,  profile , 'email'                 , email_desc        , email_message) )}
-              {!business && form_helper.simple(form_helper.getStringItem(form, profile , 'legal_id' , cpf_desc          , cpf_message)) }
+              {!business && form_helper.simple(form_helper.getStringItem(form, profile , 'legal_id' , cpf_desc          , cpf_message, readonly)) }
               {!business && form_helper.simple(form_helper.getDateItem(form, profile   , 'birthday' , birthday_desc     , birthday_message )) }
               {form_helper.simple(form_helper.getStringItem(form, profile , 'phone'                 , phone_desc        , phone_message)) }
               
@@ -230,6 +231,7 @@ export default Form.create() (withRouter(connect(
         isLoading:            loginRedux.isLoading(state),
         personalAccount:      loginRedux.personalAccount(state),
         balance:              balanceRedux.userBalance(state),
+        isAdmin:              loginRedux.isAdmin(state),
     }),
     (dispatch)=>({
         
