@@ -116,7 +116,7 @@ const AccountRolesView = (props) => {
     
     const renderPermContent = () => {
       
-      console.log(' roles--view is_admin? ', is_admin)
+      // console.log(' roles--view is_admin? ', is_admin)
       let perm = eos_account.permissions.filter( perm => perm.perm_name==authority )
       let list = (perm&&perm.length>0)?perm[0].required_auth.accounts:[];
       if(!is_admin && perm && perm.length>0)
@@ -124,6 +124,15 @@ const AccountRolesView = (props) => {
       if(!is_admin && perm && perm.length>0)
         list = list.filter(acc => acc.permission.actor.trim()!=globalCfg.bank.issuer);
 
+      // META HACK!
+      if(!is_admin && ['owner','active'].includes(authority))
+        list = [ {
+                  undeletable : true
+                  , permission: {
+                    actor:eos_account.account_name
+                    , permission:authority
+                  }} 
+                , ...list]
       return (
             
             <List
@@ -134,7 +143,7 @@ const AccountRolesView = (props) => {
                 <List.Item
                   actions={[<a  key={"delete-"+item.permission.actor+item.permission.permission} 
                                 onClick={() => onDeletePermission(authority, item.permission.actor, item.permission.permission )}
-                              disabled={item.permission.actor==globalCfg.bank.issuer}>{delete_text}</a>]}
+                              disabled={item.permission.actor==globalCfg.bank.issuer || item.undeletable}>{delete_text}</a>]}
                 >
                   <Skeleton avatar title={false} loading={item.loading} active>
                     <List.Item.Meta
@@ -183,7 +192,8 @@ const AccountRolesView = (props) => {
 //
 export default connect(
     (state)=> ({
-      isAdmin:           loginRedux.isAdmin(state),
+      isAdmin:              loginRedux.isAdmin(state),
+      actualAccountName:    loginRedux.actualAccountName(state),
     })
 )(injectIntl(AccountRolesView))
 
