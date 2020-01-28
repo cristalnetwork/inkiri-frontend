@@ -222,7 +222,7 @@ export const getColumnsForRequests = (callback, is_admin, process_wages) => {
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.block_time_number - b.block_time_number,
       align: 'left',
-      width: '150px',
+      width: 150,
       render: (block_time, record) => {
         return (
             <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
@@ -236,7 +236,7 @@ export const getColumnsForRequests = (callback, is_admin, process_wages) => {
       title: <InjectMessage id="components.TransactionTable.columns.type" />,
       dataIndex: 'tx_type',
       key: 'tx_type',
-      width: '400px',
+      width: 300,
       render: (tx_type, record) => {
         
         return (<span className="name_value_row ">
@@ -268,25 +268,25 @@ export const getColumnsForRequests = (callback, is_admin, process_wages) => {
       title: <InjectMessage id="components.TransactionTable.columns.status" />,
       dataIndex: 'state',
       key: 'state',
-      width: '145px',
+      width: 145,
       render: (state, record) => request_helper.getStateTag(record)
     },
     {
       title: <InjectMessage id="components.TransactionTable.columns.from" />,
       dataIndex: 'from',
       key: 'from',
-      width: '110px',
+      width: 110,
     },
     {
       title: <InjectMessage id="components.TransactionTable.columns.to" />,
       dataIndex: 'to',
       key: 'to',
-      width: '110px',
+      width: 110,
     },
     {
       title: '#',
       key: 'action',
-      width: '80px',
+      width: 80,
       render: (text, record) => {
         const isFinished = globalCfg.api.isFinished(record);
         const title      = isFinished 
@@ -303,6 +303,7 @@ export const getColumnsForRequests = (callback, is_admin, process_wages) => {
       key:         'amount',
       // fixed:       'right',
       className:   'amount_col',
+      width: 100,
       render: (value, record) => {
         let amount = record.amount;
         if(globalCfg.api.isSalary(record) && process_wages && process_wages.process_wages==true)
@@ -328,7 +329,7 @@ export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAc
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.block_time_number - b.block_time_number,
       align: 'left',
-      width: '150px',
+      width: 150,
       render: (block_time, record) => {
         return (
             <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
@@ -342,7 +343,7 @@ export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAc
       title: <InjectMessage id="components.TransactionTable.columns.type" />,
       dataIndex: 'tx_type',
       key: 'tx_type',
-      width: '400px',
+      width: 300,
       render: (tx_type, record) => {
         
         return (<span className="name_value_row ">
@@ -374,7 +375,7 @@ export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAc
       title: <InjectMessage id="components.TransactionTable.columns.status" />,
       dataIndex: 'state',
       key: 'state',
-      width: '145px',
+      width: 145,
       render: (state, record) => request_helper.getSimpleStateTag(record)
       
     },
@@ -382,18 +383,18 @@ export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAc
       title: <InjectMessage id="components.TransactionTable.columns.from" />,
       dataIndex: 'from',
       key: 'from',
-      width: '110px',
+      width: 110,
     },
     {
       title: <InjectMessage id="components.TransactionTable.columns.to" />,
       dataIndex: 'to',
       key: 'to',
-      width: '110px',
+      width: 110,
     },
     {
       title: '#',
       key: 'action',
-      width: '80px',
+      width: 80,
       render: (text, record) => {
         const isFinished = globalCfg.api.isFinished(record);
         const title      = isFinished 
@@ -410,6 +411,7 @@ export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAc
       key:         'amount',
       // fixed:       'right',
       className:   'amount_col',
+      width: 100,
       render: (value, record) => {
         return (
             <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
@@ -432,7 +434,7 @@ export const getColumnsForExternalTransfers = (callback) => {
       defaultSortOrder: 'descend',
       sorter: (a, b) => a.block_time_number - b.block_time_number,
       align: 'left',
-      width: '150px',
+      width: 150,
       render: (block_time, record) => {
         return (
             <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
@@ -446,20 +448,20 @@ export const getColumnsForExternalTransfers = (callback) => {
       title: <InjectMessage id="components.TransactionTable.columns.status" />,
       dataIndex: 'state',
       key: 'state',
-      width: '180px',
+      width: 180,
       render: (state, record) => request_helper.getStateTag(record)
     },
     {
       title: <InjectMessage id="components.TransactionTable.columns.from" />,
       dataIndex: 'from',
       key: 'from',
-      width: '110px',
+      width: 110,
     },
     {
       title: <InjectMessage id="components.TransactionTable.columns.to" />,
       dataIndex: 'to',
       key: 'to',
-      width: '180px',
+      width: 180,
       render: (to, record) => {
         let text = '';
         if(globalCfg.api.isProviderPayment(record))
@@ -473,7 +475,7 @@ export const getColumnsForExternalTransfers = (callback) => {
     {
       title: <InjectMessage id="components.TransactionTable.columns.origin_account" />,
       key: 'origin_account',
-      width: '100px',
+      width: 100,
       render: (text, record) => {
         let origin_account = '';
         if(globalCfg.api.isExchange(record))
@@ -493,7 +495,7 @@ export const getColumnsForExternalTransfers = (callback) => {
     {
       title: <InjectMessage id="components.TransactionTable.columns.bank_name" />,
       key: 'bank',
-      width: '180px',
+      width: 180,
       render: (text, record) => {
         let to_render = ''
         if(globalCfg.api.isProviderPayment(record) && record.provider_extra&& record.provider_extra.payment_mode==globalCfg.bank.PAYMENT_MODE_BOLETO)
@@ -517,7 +519,7 @@ export const getColumnsForExternalTransfers = (callback) => {
     {
       title: <InjectMessage id="components.TransactionTable.columns.bank_keycode" />,
       key: 'bank_keycode',
-      width: '60px',
+      width: 60,
       render: (text, record) => {
         let to_render = '';
         if(!(globalCfg.api.isProviderPayment(record) && record.provider_extra&& record.provider_extra.payment_mode==globalCfg.bank.PAYMENT_MODE_BOLETO))
@@ -537,7 +539,7 @@ export const getColumnsForExternalTransfers = (callback) => {
     {
       title: <InjectMessage id="components.TransactionTable.columns.bank_agency" />,
       key: 'bank_agency',
-      width: '100px',
+      width: 100,
       render: (text, record) => {
         if(globalCfg.api.isProviderPayment(record) && record.provider_extra&& record.provider_extra.payment_mode==globalCfg.bank.PAYMENT_MODE_BOLETO)
         {
@@ -551,7 +553,7 @@ export const getColumnsForExternalTransfers = (callback) => {
     {
       title: <InjectMessage id="components.TransactionTable.columns.bank_cc" />,
       key: 'bank_cc',
-      width: '100px',
+      width: 100,
       render: (text, record) => {
         if(globalCfg.api.isProviderPayment(record) && record.provider_extra&& record.provider_extra.payment_mode==globalCfg.bank.PAYMENT_MODE_BOLETO)
         {
@@ -565,7 +567,7 @@ export const getColumnsForExternalTransfers = (callback) => {
     {
       title: <InjectMessage id="components.TransactionTable.columns.legal_id_type" />,
       key: 'legal_id_type',
-      width: '75px',
+      width: 75,
       render: (text, record) => {
         const id_type = request_helper.isCNPJ(record);
         let id_type_is_cnpj = <InjectMessage id="components.TransactionTable.columns.legal_id_type_cpf_cnpj_unknown" /> 
@@ -579,7 +581,7 @@ export const getColumnsForExternalTransfers = (callback) => {
     {
       title: <InjectMessage id="components.TransactionTable.columns.legal_id" />,
       key: 'legal_id',
-      width: '110px',
+      width: 110,
       render: (text, record) => {
         return (<span>{request_helper.legalId(record)}</span>)
       }
@@ -588,7 +590,7 @@ export const getColumnsForExternalTransfers = (callback) => {
     {
       title: '#',
       key: 'action',
-      width: '80px',
+      width: 80,
       render: (text, record) => {
         const isFinished = globalCfg.api.isFinished(record);
         const title      = isFinished 
@@ -605,6 +607,7 @@ export const getColumnsForExternalTransfers = (callback) => {
       key:         'amount',
       // fixed:       'right',
       className:   'amount_col',
+      width: 100,
       render: (value, record) => {
         let amount = record.amount;
         return (

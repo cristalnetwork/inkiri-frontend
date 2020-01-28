@@ -9,6 +9,8 @@ import * as globalCfg from '@app/configs/global';
 import * as gqlService from '@app/services/inkiriApi/graphql'
 import * as gqlRequestI18nService from '@app/services/inkiriApi/requests-i18n-graphql-helper'
 
+import {ResizeableTable} from '@app/components/TransactionTable/resizable_columns';
+
 import { Dropdown, Icon, Menu, Button, Table, DatePicker } from 'antd';
 import moment from 'moment';
 
@@ -404,12 +406,12 @@ class TransactionTable extends Component {
       ?this.remButtons()
       :(null);
     return (
-      <Table 
+      <ResizeableTable 
         title={() => header}
         key={'tx_table__'+this.props.request_type}
         rowKey={record => record._id} 
         loading={this.state.loading} 
-        columns={this.getColumnsForType()} 
+        columns_def={this.getColumnsForType()} 
         dataSource={this.state.txs} 
         footer={() => this.renderFooter()}
         pagination={this.state.pagination}

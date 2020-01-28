@@ -294,13 +294,13 @@ const isNegativeTx =(request, current_account_name) =>{
     , [globalCfg.api.TYPE_IUGU]     : () => { return true; } // request.from==current_account_name; }
     , [globalCfg.api.TYPE_PAD]      : () => { return request.from==current_account_name; }
   }
-  console.log('################### request.amount: ', request.amount)
-  console.log('request.requested_type: ', request.requested_type)
-  console.log('request.from: ', request.from)
-  console.log('request.to: ', request.to)
-  console.log('current_account_name: ', current_account_name)
+  // console.log('################### request.amount: ', request.amount)
+  // console.log('request.requested_type: ', request.requested_type)
+  // console.log('request.from: ', request.from)
+  // console.log('request.to: ', request.to)
+  // console.log('current_account_name: ', current_account_name)
   const ret = calculator[request.requested_type]();
-  console.log('isNEgative?: ', ret)
+  // console.log('isNEgative?: ', ret)
   return ret;
 }
 //

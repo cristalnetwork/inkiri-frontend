@@ -136,12 +136,14 @@ h3.fileds_header{
 
 /*HACK FOR TABLES*/
 
-.vertical_align_top .react-resizable {
+.react-resizable
+, .vertical_align_top .react-resizable {
   position: relative;
   background-clip: padding-box;
 }
 
-.vertical_align_top .react-resizable-handle {
+.react-resizable-handle
+, .vertical_align_top .react-resizable-handle {
   position: absolute;
   width: 10px;
   height: 100%;
