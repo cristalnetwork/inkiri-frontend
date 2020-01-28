@@ -35,11 +35,11 @@ export const getExternalRequestDesc = (request) => {
 
   if(globalCfg.api.isProviderPayment(request))
     return (<>
-          Provider:&nbsp;<Tag key={'provider_'+request.id}> { getRequestProviderDesc(request)} </Tag>
+          Provider:&nbsp;<Tag key={'provider_'+request._id}> { getRequestProviderDesc(request)} </Tag>
           </>);
 
   if(globalCfg.api.isExchange(request))
-    return(<>Bank account:&nbsp;<Tag key={'bank_account_'+request.id}>
+    return(<>Bank account:&nbsp;<Tag key={'bank_account_'+request._id}>
           { getBankAccountDesc(request.bank_account)}
        </Tag></>)
 }
@@ -110,7 +110,7 @@ export const getSimpleStateTag = (request) => {
   const style      = request.state==globalCfg.api.STATE_REQUESTED
                      ? {color:'inherit', border: '1px solid black'}
                      : {};
-  return (<Tag style={style} color={globalCfg.api.stateToColor(my_state)} key={'state_'+request.id} title={text}>{text}</Tag>)
+  return (<Tag style={style} color={globalCfg.api.stateToColor(my_state)} key={'state_'+request._id} title={text}>{text}</Tag>)
 }
 //
 export const getStateTag = (request) => {
@@ -121,7 +121,7 @@ export const getStateTag = (request) => {
   const style      = request.state==globalCfg.api.STATE_REQUESTED
                      ? {color:'inherit', border: '1px solid black'}
                      : {};
-  return (<Tag style={style} color={globalCfg.api.stateToColor(my_state)} key={'state_'+request.id} title={text}>{text}</Tag>)
+  return (<Tag style={style} color={globalCfg.api.stateToColor(my_state)} key={'state_'+request._id} title={text}>{text}</Tag>)
 }
 //
 export const errorStateTag = (text) =>
@@ -131,7 +131,7 @@ export const errorStateTag = (text) =>
 //
 export const getTypeTag = (request) => {
   const text = request.state_string.toUpperCase();
-  return (<Tag key={'type_'+request.id}>{text}</Tag>)
+  return (<Tag key={'type_'+request._id}>{text}</Tag>)
 }
 //
 // generator   => https://paletton.com/#uid=51E0u0kvc++jb+qpd+XPj+VZCGN
@@ -259,7 +259,7 @@ export const getProcessButton = (request, callback, text, is_primary) => {
       return;
     }
   }
-  return (<Button key={'details_'+request.id} size="small" type={is_primary?'primary':'default'} onClick={()=>{ buttonClick(callback, request) }}>{title}</Button>);
+  return (<Button key={'details_'+request._id} size="small" type={is_primary?'primary':'default'} onClick={()=>{ buttonClick(callback, request) }}>{title}</Button>);
 }
 //
 
@@ -330,7 +330,7 @@ export const styleAmount = (request, current_account_name, process_wages) => {
         ? '#CC0000'
         : '#007E33';
   const style           = {color:color, fontSize:16, fontWeight:'bold'}; //{fontSize:'0.75em'}
-  return (<span style={style} key={'amount_'+request.id}> {negative_symbol}&nbsp;<span style={style}>{symbol}</span>&nbsp;{amount} </span>)
+  return (<span style={style} key={'amount_'+request._id}> {negative_symbol}&nbsp;<span style={style}>{symbol}</span>&nbsp;{amount} </span>)
 }
 
 //
@@ -343,7 +343,7 @@ export const getStyledAmount = (request) => {
   const symbol          = currency_parts[0]
   const amount          = currency_parts[1]
   const style           = {color:color, fontSize:16, fontWeight:'bold'}; //{fontSize:'0.75em'}
-  return (<span style={style} key={'amount_'+request.id}> <span style={style}>{symbol}</span>&nbsp;{amount} </span>)
+  return (<span style={style} key={'amount_'+request._id}> <span style={style}>{symbol}</span>&nbsp;{amount} </span>)
 }
 
 export const getStyledAmountEx = (amount) => {

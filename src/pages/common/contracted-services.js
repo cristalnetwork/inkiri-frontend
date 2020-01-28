@@ -5,8 +5,10 @@ import { bindActionCreators } from 'redux';
 
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
+import * as apiRedux from '@app/redux/models/api';
 
 import * as globalCfg from '@app/configs/global';
+import * as utils from '@app/utils/utils';
 
 import * as api from '@app/services/inkiriApi';
 import { withRouter } from "react-router-dom";
@@ -61,7 +63,7 @@ class Services extends Component {
       cursor:             '',      
       active_view:        STATE_LIST_SERVICES,
       active_view_object: null,
-
+      intl:               {},
 
     };
 
@@ -80,6 +82,14 @@ class Services extends Component {
   }
   
   componentDidMount = async () => {
+
+    const {formatMessage}  =this.props.intl;
+    const error_service_price_mismatch = formatMessage( { id:'pages.common.request-details.error_service_price_mismatch'});
+    const confirm_accept_service = formatMessage( { id:'pages.common.request-details.confirm_accept_service'});
+    const confirm_accept_service_message = formatMessage( { id:'pages.common.request-details.confirm_accept_service_message'});
+    const reject_service_request = formatMessage( { id:'pages.common.request-details.reject_service_request'});
+    const reject_service_request_message = formatMessage( { id:'pages.common.request-details.reject_service_request_message'});
+    this.setState({intl:{ error_service_price_mismatch, confirm_accept_service, confirm_accept_service_message, reject_service_request, reject_service_request_message }});
 
     const { location } = this.props;
     if(location && location.state)
@@ -104,6 +114,29 @@ class Services extends Component {
     if(prevProps.provider !== provider) {
       this.setState({ provider:provider || this.props.actualAccountProfile});
     }
+
+    let new_state = {};
+    if(prevProps.isFetching!=this.props.isFetching){
+      new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+    const errors_changed = !utils.arraysEqual(prevProps.getErrors, this.props.getErrors);
+    if(errors_changed ){
+      const that = this;
+      setTimeout(()=> that.reloadServices() ,100);
+    }
+    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
+      
+      const lastResult = this.props.getLastResult;
+      if(lastResult)
+      {
+        const that = this;
+        setTimeout(()=> that.reloadServices() ,100);
+      }
+    }
+
+
+    if(Object.keys(new_state).length>0)      
+        this.setState(new_state);
   }
 
   acceptServiceRequest = async (request) =>{
@@ -164,7 +197,7 @@ class Services extends Component {
         const sender     = that.props.actualAccountName;
         const step ={
                 _function:   'bank.rejectService'
-                , _params:   [sender, api.bank.REQUEST_RECEIVER, request.id]
+                , _params:   [sender, api.bank.REQUEST_RECEIVER, request._id]
               }
         
         that.props.callAPI(step._function, step._params)
@@ -398,8 +431,17 @@ export default  (withRouter(connect(
         actualRoleId:         loginRedux.actualRoleId(state),
         actualRole:           loginRedux.actualRole(state),
         actualAccountProfile: loginRedux.actualAccountProfile(state),
+  
+        isFetching:       apiRedux.isFetching(state),
+        getErrors:        apiRedux.getErrors(state),
+        getLastError:     apiRedux.getLastError(state),
+        getResults:       apiRedux.getResults(state),
+        getLastResult:    apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
+        callAPI:          bindActionCreators(apiRedux.callAPI, dispatch),
+        callAPIEx:        bindActionCreators(apiRedux.callAPIEx, dispatch),
+
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(injectIntl(Services)))

@@ -90,6 +90,8 @@ class RequestDetails extends Component {
     const error_service_price_mismatch = formatMessage( { id:'pages.common.request-details.error_service_price_mismatch'});
     const confirm_accept_service = formatMessage( { id:'pages.common.request-details.confirm_accept_service'});
     const confirm_accept_service_message = formatMessage( { id:'pages.common.request-details.confirm_accept_service_message'});
+    const reject_service_request = formatMessage( { id:'pages.common.request-details.reject_service_request'});
+    const reject_service_request_message = formatMessage( { id:'pages.common.request-details.reject_service_request_message'});
     const receipt_attach_required = formatMessage( { id:'pages.common.request-details.receipt_attach_required'});
     const receipt_attach_required_message = formatMessage( { id:'pages.common.request-details.receipt_attach_required_message'});
     const cancel_service = formatMessage( { id:'pages.common.request-details.cancel_service'});
@@ -97,8 +99,6 @@ class RequestDetails extends Component {
     const cancel_request = formatMessage( { id:'pages.common.request-details.cancel_request'});
     const cancel_request_message = formatMessage( { id:'pages.common.request-details.cancel_request_message'});
     const cancel_request_and_refund_message = formatMessage( { id:'pages.common.request-details.cancel_request_and_refund_message'});
-    const reject_service_request = formatMessage( { id:'pages.common.request-details.reject_service_request'});
-    const reject_service_request_message = formatMessage( { id:'pages.common.request-details.reject_service_request_message'});
     const reject_payment_request = formatMessage( { id:'pages.common.request-details.reject_payment_request'});
     const reject_payment_request_message = formatMessage( { id:'pages.common.request-details.reject_payment_request_message'});
     const action_process_request = formatMessage( { id:'pages.common.request-details.action.process_request'});

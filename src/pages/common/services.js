@@ -142,7 +142,11 @@ class Services extends Component {
       const {active_view} = this.state;
       
       if(active_view==STATE_NEW_SERVICE_CONTRACT)
-        setTimeout(()=>that.setState({active_view:STATE_LIST_SERVICES}),250);
+        setTimeout(()=> {
+          that.reloadServices();
+          that.resetPage(STATE_LIST_SERVICES);
+        },250);
+        // setTimeout(()=>that.setState({active_view:STATE_LIST_SERVICES}),250);
       if(active_view==STATE_EDIT_SERVICE || active_view==STATE_NEW_SERVICE)
         setTimeout(()=> {
           that.reloadServices();
