@@ -52,8 +52,8 @@ export const ResizeableTable = props => {
       onResize: handleResize(index),
     }),
   }));
-
-  return <Table bordered components={components} columns={visible_columns} {...props} />;
+  //bordered
+  return <Table components={components} columns={visible_columns} {...props} />;
   
 
 };

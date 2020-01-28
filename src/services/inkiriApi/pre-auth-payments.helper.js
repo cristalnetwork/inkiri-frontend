@@ -19,7 +19,7 @@ export const getChargeInfo = (pap) =>{
     , next:             (_canChargeNext)?_next:null
     , days_to_charge:   days_to_charge 
   }
-  console.log(pap, ret)
+  // console.log(pap, ret)
   return ret;
 }
 

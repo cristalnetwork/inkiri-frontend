@@ -156,6 +156,7 @@ h3.fileds_header{
 }
 .vertical_align_top th{
   vertical-align: middle;
+  border-right: 1px solid #e8e8e8;
 }
 .ant-table-row.odd{
   background-color:#F9F9F9;

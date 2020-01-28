@@ -380,12 +380,13 @@ export const breadcrumbForPaths = (fullpaths, include_root) => {
             const menuItem = routes_config.getItemByFullpath(area, path, null)
 
             return {
-                // path: menuItem.fullpath,
-                path: fullpath,
-                breadcrumbName: menuItem.title,
+                original_path:     menuItem.path,
+                path:              fullpath,
+                breadcrumbName:    menuItem.title,
               }
         });
     
+    // console.log('======================== breadcrumbForPaths: ', breadcrumbs);
     if(include_root===false)
         return breadcrumbs;
     return [
