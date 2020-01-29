@@ -59,6 +59,7 @@ class processExternal extends Component {
       request:       request,
       
       ...DEFAULT_ATTACHS,
+      cancel_reason: ''
     };
 
     this.renderContent              = this.renderContent.bind(this); 
@@ -334,15 +335,25 @@ class processExternal extends Component {
     this.doRefund(globalCfg.api.STATE_REFUNDED);  
   }
   
+  handleCancelChange = (event) => {
+    this.setState({cancel_reason: event.target.value});
+    // console.log(event.target.value)
+  }
+
   rejectRequest(){
     const that            = this;
     const {formatMessage} = this.props.intl;
     Modal.confirm({
       title:   formatMessage({id:'pages.bankadmin.process-external.confirm_reject_step'}),
-      content: formatMessage({id:'pages.bankadmin.process-external.confirm_reject_step_message'}),
+      content: 
+        <div>
+          <div>{formatMessage({id:'pages.bankadmin.process-external.confirm_reject_step_message'})}</div>
+          <Input.TextArea rows="4" onChange={this.handleCancelChange} />
+          <div className="hint">{formatMessage({id:'pages.bankadmin.process-external.cancel_reason'})}</div>
+        </div>,
       onOk() {
         const {request} = that.state;
-        api.bank.rejectExternal(that.props.actualAccountName, request.id)
+        api.bank.rejectExternal(that.props.actualAccountName, request.id, that.state.cancel_reason)
         .then( (data) => {
             that.setState({pushingTx:false})
             components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.process-external.success.reject'}));
@@ -368,7 +379,12 @@ class processExternal extends Component {
     const {formatMessage} = this.props.intl;
     Modal.confirm({
       title:   formatMessage({id:'pages.bankadmin.process-external.confirm_revert_step'}),
-      content: formatMessage({id:'pages.bankadmin.process-external.confirm_revert_step_message'}),
+      // content: formatMessage({id:'pages.bankadmin.process-external.confirm_revert_step_message'}),
+      content:<div>
+          <div>{formatMessage({id:'pages.bankadmin.process-external.confirm_revert_step_message'})}</div>
+          <Input.TextArea rows="4" onChange={this.handleCancelChange} />
+          <div className="hint">{formatMessage({id:'pages.bankadmin.process-external.cancel_reason'})}</div>
+        </div>,
       onOk() {
         that.doRefund(globalCfg.api.STATE_REVERTED);  
       },
@@ -401,7 +417,7 @@ class processExternal extends Component {
       .then((data) => {
         const send_tx             = data;
         console.log(' processExternal::refund (then#1) >>  ', JSON.stringify(send_tx));
-        api.bank.refundExternal(sender, request.id, new_state, send_tx.data.transaction_id)
+        api.bank.refundExternal(sender, request.id, new_state, send_tx.data.transaction_id, that.state.cancel_reason)
           .then((data2) => {
               // that.clearAttachments();
               that.setState({uploading: false, result:'ok', pushingTx:false, result_object:{transaction_id : send_tx.data.transaction_id, request_id:request.id} });

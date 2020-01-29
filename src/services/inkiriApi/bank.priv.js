@@ -139,7 +139,7 @@ export const REQUEST_SENDER   = 'request_sender';
 export const REQUEST_RECEIVER = 'request_receiver';
 export const REQUEST_ADMIN    = 'request_admin';
 
-export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id, is_C2C, c2c_player) => new Promise((res,rej)=> {
+export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id, is_C2C, c2c_player, cancel_reason) => new Promise((res,rej)=> {
  
   let module  = 'requests';
   if(is_C2C && c2c_player)
@@ -170,6 +170,8 @@ export const updateRequest = (sender, request_id, state, tx_id, refund_tx_id, is
     post_params['tx_id'] = tx_id;
   if(refund_tx_id)
     post_params['refund_tx_id'] = refund_tx_id;
+  if(cancel_reason)
+    post_params['cancel_reason'] = cancel_reason;
 
   console.log(' inkiriApi::updateRequest >> ABOUT TO POST', JSON.stringify(post_params))
   jwtHelper.apiCall(path, method, post_params)
@@ -621,8 +623,8 @@ export const createProviderPaymentEx = (account_name, amount, provider_id, provi
     );
 });
 
-export const rejectExternal             = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, false, REQUEST_ADMIN);
-export const refundExternal             = (sender, request_id, state, tx_id)       => updateRequest(sender, request_id, state, undefined, tx_id, false, REQUEST_ADMIN);
+export const rejectExternal             = (sender, request_id, cancel_reason)      => updateRequest(sender, request_id, globalCfg.api.STATE_REJECTED, undefined, undefined, false, REQUEST_ADMIN, cancel_reason);
+export const refundExternal             = (sender, request_id, state, tx_id, cancel_reason)       => updateRequest(sender, request_id, state, undefined, tx_id, false, REQUEST_ADMIN, cancel_reason);
 export const updateProviderPayment      = (sender, request_id, tx_id)              => updateRequest(sender, request_id, undefined, tx_id);
 export const cancelExternal             = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_CANCELED, undefined);
 export const getRefundExternal          = (sender, request_id)                     => updateRequest(sender, request_id, globalCfg.api.STATE_REFUNDED, undefined);

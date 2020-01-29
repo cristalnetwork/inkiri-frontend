@@ -128,6 +128,12 @@ class TransactionCard extends Component {
             request.description && (request.description.trim()!='') 
             && <NameValueIcon name={formatMessage({id:'components.TransactionCard.index.message'})} value={request.description} icon="comment" />
           }
+          
+          {
+            request.cancel_reason && (request.cancel_reason.trim()!='') 
+            && <NameValueIcon name={formatMessage({id:'components.TransactionCard.index.cancel_reason'})} value={request.cancel_reason} icon="ban" />
+          }
+
           <TransactionEnvelope request={request} />
           
           {

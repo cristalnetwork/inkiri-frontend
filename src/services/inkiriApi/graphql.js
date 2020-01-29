@@ -377,6 +377,7 @@ const request_fields = `_id
       refund_tx_id
       requestCounterId
       description
+      cancel_reason
       attach_nota_fiscal_id
       attach_boleto_pagamento_id
       attach_comprobante_id
