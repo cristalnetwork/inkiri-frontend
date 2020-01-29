@@ -362,7 +362,7 @@ class PDV extends Component {
     pagination.pageSize  = _txs.length;
     pagination.total     = _txs.length;
 
-    this.setState({pagination:pagination, txs:_txs, cursor:data.cursor, loading:false})
+    this.setState({pagination:pagination, txs:_txs.filter(tx=> [globalCfg.api.TYPE_PAYMENT, globalCfg.api.TYPE_SEND].includes(tx.request.requested_type)), cursor:data.cursor, loading:false})
     
     if(!data.txs || data.txs.length==0)
     {
