@@ -10,6 +10,7 @@ import * as gqlService from '@app/services/inkiriApi/graphql'
 import * as gqlRequestI18nService from '@app/services/inkiriApi/requests-i18n-graphql-helper'
 
 import {ResizeableTable} from '@app/components/TransactionTable/resizable_columns';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import { Dropdown, Icon, Menu, Button, Table, DatePicker } from 'antd';
 import moment from 'moment';
@@ -55,7 +56,8 @@ class TransactionTable extends Component {
       selectedRows:      [],
       selectedRowKeys:   [],
       dummy_rem_link:    '',
-      payment_date:      null
+      payment_date:      null,
+      sheet_href:        ''
     };
     // this.handleChange      = this.handleChange.bind(this);
     this.onNewData           = this.onNewData.bind(this);
@@ -64,8 +66,12 @@ class TransactionTable extends Component {
     this.applyFilter         = this.applyFilter.bind(this);
     this.refresh             = this.refresh.bind(this);
     this.handleREMMenuClick  = this.handleREMMenuClick.bind(this);
+    this.handleExportClick   = this.handleExportClick.bind(this);
+    this.exportButton        = this.exportButton.bind(this);
 
-    this.myREMRef = React.createRef();
+    this.myREMRef            = React.createRef();
+    this.myExportRef         = React.createRef();
+    
   }
 
   getColumnsForType =() =>{
@@ -147,40 +153,22 @@ class TransactionTable extends Component {
     } 
   }
 
-  loadTxs = async () =>{
-
+  getCurrentFilter = (increase_page_if_needed) => {
     const {can_get_more, requests_filter, filter}   = this.state;
-    if(!can_get_more)
-    {
-      this.setState({loading:false});
-      return;
-    }
-
     const account_name = this.props.isAdmin?'':this.props.actualAccountName;
     const account_name_filter = !this.props.isAdmin? {account_name:this.props.actualAccountName}:{};
-
-    this.setState({loading:true});
-
-    const page           = (this.state.page<0)?0:(this.state.page+1);
+    const page           = (this.state.page<0)
+      ?0
+      :(increase_page_if_needed
+        ?this.state.page+1
+        :this.state.page);
     const limit          = this.state.limit;
-    const that           = this;
     
     if(this.state.mode==REQUEST_MODE_EXTRATO)
     {
-      const filter_obj = {limit, page, ...(filter||{})};
-      console.log(' ---- TransactionTable filter_obj:', filter_obj);
-      try{
-        // const data = await gqlService.requests(filter_obj);
-        const data = await gqlRequestI18nService.extrato(filter_obj, this.props.intl);
-        that.onNewData(data);
-      }
-      catch(e)
-      {
-        this.setState({loading:false});
-        components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
-        return;
-      }
-      return;
+      const filter_obj = {limit, page, account_name, ...(filter||{})};
+      return filter_obj;
+      
     }
 
     const requested_type = this.props.request_type==DISPLAY_REQUESTS?'':this.props.request_type;
@@ -199,9 +187,32 @@ class TransactionTable extends Component {
     const filter_obj = {limit, account_name, page, requested_type, ...requests_filter, ...(filter||{}), ...(account_name_filter||{})};
     console.log(' ---- TransactionTable filter_obj:', filter_obj);
     console.log(' ---- TransactionTable default filter:', filter)
+    return filter_obj;
+  }
+
+  loadTxs = async () =>{
+
+    const {can_get_more}   = this.state;
+    if(!can_get_more)
+    {
+      this.setState({loading:false});
+      return;
+    }
+    
+    this.setState({loading:true});
+
+    const filter_obj = this.getCurrentFilter(true);
+    if(!filter_obj)
+      return;
+
+    const that       = this;
+    let data = null;
+
     try{
-      // const data = await gqlService.requests(filter_obj);
-      const data = await gqlRequestI18nService.requests(filter_obj, this.props.intl);
+      if(this.state.mode==REQUEST_MODE_EXTRATO)  
+        data = await gqlRequestI18nService.extrato(filter_obj, this.props.intl);
+      else
+        data = await gqlRequestI18nService.requests(filter_obj, this.props.intl);
       that.onNewData(data);
     }
     catch(e)
@@ -400,11 +411,63 @@ class TransactionTable extends Component {
     return `${globalCfg.api.rem_generator_endpoint}/${ids}/${conta_pagamento}/${payment_date}`
   }
 
+  exportButton = () => [<a className="hidden" key="export_button_dummy" ref={this.myExportRef}  href={this.state.sheet_href} target="_blank" >x</a>, <Button key="export_button" onClick={this.handleExportClick} size="small" style={{position: 'absolute', right: '8px', top: '16px'}} title={this.props.intl.formatMessage({id:'global.export_sheet_remember_allowing_popups'})}><FontAwesomeIcon icon="file-excel" size="sm" color="black"/>&nbsp;<InjectMessage id="global.export_list_to_spreadsheet" /></Button>];
+  //
+  handleExportClick = async () => {
+
+    const filter_obj = this.getCurrentFilter(false);
+    
+    if(!filter_obj)
+      return;
+
+    this.setState({loading:true});
+    const that       = this;
+    let data = null;
+    try{
+      if(this.state.mode==REQUEST_MODE_EXTRATO)
+        data = await gqlService.exportExtrato(filter_obj);
+      else
+        data = await gqlService.exportRequests(filter_obj);
+      
+      this.setState({loading:false});
+      console.log(data)
+      if(data && data.file_id)
+      {
+        console.log('SETTING STATE')
+        this.setState( { sheet_href: `https://docs.google.com/spreadsheets/d/${data.file_id}` }
+                        , () => { 
+                          console.log('CALLING BUTTON?')
+                         if(!this.myExportRef)    
+                            return;
+                          console.log('YES')
+                          this.myExportRef.current.click();
+                        });
+        
+        return;
+      } 
+      console.log('NOooooooooooooooo')
+      if(data && data.error)
+      {
+        components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}), data.error);
+        return;
+      }
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}));
+    }
+    catch(e)
+    {
+      this.setState({loading:false});
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}), e);
+      return;
+    }
+
+    this.setState({loading:false});
+  }
+  //
   render(){
     const is_external = (this.state.mode==REQUEST_MODE_BANK_TRANSFERS);
     const header = (is_external)
       ?this.remButtons()
-      :(null);
+      :this.exportButton();
     return (
       <ResizeableTable 
         title={() => header}

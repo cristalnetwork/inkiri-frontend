@@ -749,6 +749,44 @@ const GET_SERVICES_EX = gql`
 `;
 
 
+
+const EXPORT_REQUESTS  = gql`
+  query xxx($account_name:String, $page:String, $requested_type:String, $from:String, $to:String, $provider_id:String, $state:String, $id:String, $requestCounterId:Int, $tx_id:String, $refund_tx_id:String, $attach_nota_fiscal_id:String, $attach_boleto_pagamento_id:String, $attach_comprobante_id:String, $deposit_currency:String, $date_from:String, $date_to:String, $service_id:String, $wage_filter:String){
+    export_requests(account_name:$account_name, page:$page, requested_type:$requested_type, from:$from, to:$to, provider_id:$provider_id, state:$state, id:$id, requestCounterId:$requestCounterId, tx_id:$tx_id, refund_tx_id:$refund_tx_id, attach_nota_fiscal_id:$attach_nota_fiscal_id, attach_boleto_pagamento_id:$attach_boleto_pagamento_id, attach_comprobante_id:$attach_comprobante_id, deposit_currency:$deposit_currency, date_from:$date_from, date_to:$date_to, service_id:$service_id, wage_filter:$wage_filter){
+      file_id
+      error
+    }
+  }
+`;
+export const exportRequests = async ({page, requested_type='', account_name='', from='', to='', provider_id='', state='', id='', requestCounterId=null, tx_id='', refund_tx_id='', attach_nota_fiscal_id='', attach_boleto_pagamento_id='', attach_comprobante_id='', deposit_currency='', date_from='', date_to='', service_id='', wage_filter=''}={}) =>{
+  do_log && console.log('============================ requests::page:',page);
+  if(account_name && !to && !from && account_name!=globalCfg.currency.issuer)
+  {
+    from=to=account_name;
+  }
+  const a        = {account_name:account_name, page:page.toString(), requested_type:requested_type, from:from, to:to, provider_id:provider_id, state:state, id:id, requestCounterId:requestCounterId, tx_id:tx_id, refund_tx_id:refund_tx_id, attach_nota_fiscal_id:attach_nota_fiscal_id, attach_boleto_pagamento_id:attach_boleto_pagamento_id, attach_comprobante_id:attach_comprobante_id, deposit_currency:deposit_currency, date_from:date_from, date_to:date_to, service_id:service_id, wage_filter:wage_filter};
+  do_log && console.log(' ######## GQLService::export_requests ', JSON.stringify(a));
+  return runQuery(EXPORT_REQUESTS, a, 'export_requests');
+}
+
+
+const EXPORT_EXTRATO  = gql`
+  query xxx($page:String, $limit:String, $account_name:String, $requested_type:String, $from:String, $to:String, $provider_id:String, $state:String, $date_from:String, $date_to:String){
+    export_extrato(page:$page, limit:$limit, account_name:$account_name, requested_type:$requested_type, from:$from, to:$to, provider_id:$provider_id, state:$state, date_from:$date_from, date_to:$date_to){
+      file_id
+      error    
+    }
+  }
+`;
+
+export const exportExtrato = async ({page='', limit='', account_name='', requested_type='', from='', to='', provider_id='', state='', date_from='', date_to=''}={}) =>{
+  const a        = {page:page.toString(), limit:limit.toString(), account_name:account_name.toString(), requested_type:requested_type.toString(), from:from.toString(), to:to.toString(), provider_id:provider_id.toString(), state:state.toString(), date_from:date_from.toString(), date_to:date_to.toString()};
+  do_log && console.log(' ######## GQLService::exportExtrato ', JSON.stringify(a));
+  return runQuery(EXPORT_EXTRATO, a, 'export_extrato');
+}
+
+
+
 const runQuery = async (query, variables, _return_field) => {
   // const client = useApolloClient();
 
@@ -769,7 +807,7 @@ const runQuery = async (query, variables, _return_field) => {
   }
   catch(e)
   {
-    do_log && console.log('graphql exception for ', _return_field,  e)
+    do_log && console.log(' ** graphql exception for => ', _return_field,  e)
   }
   return null;
 }
