@@ -1,4 +1,4 @@
-const env        = "prod";
+const env        = "dev";
 
 const language   = "english";
 
@@ -334,6 +334,10 @@ const api = {
   , IUGU_STATE_ISSUE_ERROR        : 'state_issue_error'
   , getIuguStates : () => {
     return [api.IUGU_STATE_NOT_PROCESSED, api.IUGU_STATE_PROCESSING, api.IUGU_STATE_ISSUED, api.IUGU_STATE_ERROR, api.IUGU_STATE_ISSUE_ERROR];
+  }
+  // HARDCODED HACK
+  , getIuguAccounts : () => {
+    return ['INSTITUTO','EMPRESA'];
   }
 
   , NOTA_FISCAL                   : 'attach_nota_fiscal'

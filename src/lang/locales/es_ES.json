@@ -501,6 +501,7 @@
   "pages.bankadmin.iugu.end_of_invoices_message": "You have reached the end of IUGU invoices list!",
   "pages.bankadmin.iugu.more_invoices": "More!",
   "pages.bankadmin.iugu.error_loading": "Oops... an error occurred while fetching Iugu invoices list!",
+  "pages.bankadmin.iugu.iugu_account": "IUGU account",
   "pages.bankadmin.iugu.title": "IUGU payments",
   "pages.bankadmin.iugu.stats.issued": "Issued",
   "pages.bankadmin.iugu.stats.pending": "Pending",

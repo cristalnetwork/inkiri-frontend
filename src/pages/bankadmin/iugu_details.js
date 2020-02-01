@@ -29,6 +29,8 @@ import TransactionPetitioner from '@app/components/TransactionCard/petitioner';
 
 import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
+import NameValueIcon from '@app/components/TransactionCard/name_value_icon';
+
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
@@ -277,6 +279,11 @@ class iuguDetails extends Component {
             icon="file-invoice" 
             icon_size="lg" 
             is_external={true} />
+
+          <NameValueIcon 
+            name={this.props.intl.formatMessage({id:'pages.bankadmin.iugu.iugu_account'})}  
+            value={invoice.iugu_account} 
+            className="shorter" />
 
           <TransactionTitle 
             title={ this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.paid_to'}) } 

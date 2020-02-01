@@ -501,6 +501,7 @@
   "pages.bankadmin.iugu.end_of_invoices_message": "Fim da lista de faturas IUGU.",
   "pages.bankadmin.iugu.more_invoices": "Mais!",
   "pages.bankadmin.iugu.error_loading": "Oops... houve um erro ao carregar a lista de faturas IUGU!",
+  "pages.bankadmin.iugu.iugu_account": "Conta IUGU",
   "pages.bankadmin.iugu.title": "Faturas IUGU",
   "pages.bankadmin.iugu.stats.issued": "Emitida",
   "pages.bankadmin.iugu.stats.pending": "Pendente",

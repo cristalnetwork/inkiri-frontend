@@ -4,7 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import InjectMessage from "@app/components/intl-messages";
 
 const IuguInvoice = ({invoice}) => {
-    const _i = invoice.original;
+    const _i = (typeof invoice.original == 'string')
+      ?JSON.parse(invoice.original)
+      :invoice.original;
     return(
       <div className="ui-list">
           <ul className="ui-list__content">

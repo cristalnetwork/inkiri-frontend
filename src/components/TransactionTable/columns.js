@@ -906,7 +906,7 @@ export const columnsForIUGU = (callback) => {
         title: <InjectMessage id="components.TransactionTable.columns.description" />,
         dataIndex: 'sub_header',
         key: 'sub_header',
-        width: '250px',
+        width: 250,
         render: (value, record) => {
           return(
             <span className="name_value_row">
@@ -923,10 +923,17 @@ export const columnsForIUGU = (callback) => {
         }
       },
       {
+        title: <InjectMessage id="pages.bankadmin.iugu.iugu_account" />,
+        dataIndex: 'iugu_account',
+        key: 'iugu_account',
+        width: 100, 
+        render: (iugu_account, record) => iugu_account
+      },  
+      {
         title: <InjectMessage id="components.TransactionTable.columns.tags" />,
         key: 'tx_type',
         dataIndex: 'tx_type',
-        width: '250px',
+        width: 250,
         render: (tx_type, record) => {
           const error  = (request_helper.iugu.inError(record) && record.error)?(<Alert message={record.error} type="error" />):(null);
           const issued = (record.issued_at)?(<p>&nbsp;<InjectMessage id="components.TransactionTable.columns.issued_at" />: {request_helper.iugu.getDate(record.issued_at)} </p>):(null);
@@ -942,7 +949,7 @@ export const columnsForIUGU = (callback) => {
       {
         title: <InjectMessage id="components.TransactionTable.columns.action" />,
         key: 'action',
-        width: '250px',
+        width: 250,
         render: (text, record) => {
           const iugu        = request_helper.iugu.iuguLink(record);
           const process     = request_helper.getProcessButton(record, callback, <InjectMessage id="components.TransactionTable.columns.details" />);
@@ -959,6 +966,7 @@ export const columnsForIUGU = (callback) => {
         defaultSortOrder: 'descend',
         sorter: (a, b) => a.paid_at - b.paid_at,
         align: 'right',
+        width: 150,
         render: (paid_at, record) => (
           <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
             {request_helper.iugu.styledAmount(record, (record.error))}

@@ -682,16 +682,17 @@ const GET_MAX_REQUEST_ID = gql`
 `;
 
 
-export const iugus = async ({page='', limit='', id='', iugu_id='', paid_at_from='', paid_at_to='', business_name='', alias='', account_name='', iuguCounterId='', issued_at_from='', issued_at_to='', issued_tx_id='', state=''}={}) =>{
-  const a = {page:page, limit:limit, id:id, iugu_id:iugu_id, paid_at_from:paid_at_from, paid_at_to:paid_at_to, business_name:business_name, alias:alias, account_name:account_name, iuguCounterId:iuguCounterId, issued_at_from:issued_at_from, issued_at_to:issued_at_to, issued_tx_id:issued_tx_id, state:state};
+export const iugus = async ({page='', limit='', id='', iugu_id='', paid_at_from='', paid_at_to='', business_name='', alias='', account_name='', iuguCounterId='', issued_at_from='', issued_at_to='', issued_tx_id='', state='', iugu_account=''}={}) =>{
+  const a = {page:page, limit:limit, id:id, iugu_id:iugu_id, paid_at_from:paid_at_from, paid_at_to:paid_at_to, business_name:business_name, alias:alias, account_name:account_name, iuguCounterId:iuguCounterId, issued_at_from:issued_at_from, issued_at_to:issued_at_to, issued_tx_id:issued_tx_id, state:state, iugu_account:iugu_account};
   return runQuery(GET_IUGUS, a, 'iugus');
 }
 
 const GET_IUGUS = gql`
-  query xxx($page:String, $limit:String, $id:String, $iugu_id:String, $paid_at_from:String, $paid_at_to:String, $business_name:String, $alias:String, $account_name:String, $iuguCounterId:String, $issued_at_from:String, $issued_at_to:String, $issued_tx_id:String, $state:String) {
-    iugus(page:$page, limit:$limit, id:$id, iugu_id:$iugu_id, paid_at_from:$paid_at_from, paid_at_to:$paid_at_to, business_name:$business_name, alias:$alias, account_name:$account_name, iuguCounterId:$iuguCounterId, issued_at_from:$issued_at_from, issued_at_to:$issued_at_to, issued_tx_id:$issued_tx_id, state:$state){
+  query xxx($page:String, $limit:String, $id:String, $iugu_id:String, $paid_at_from:String, $paid_at_to:String, $business_name:String, $alias:String, $account_name:String, $iuguCounterId:String, $issued_at_from:String, $issued_at_to:String, $issued_tx_id:String, $state:String, $iugu_account:String) {
+    iugus(page:$page, limit:$limit, id:$id, iugu_id:$iugu_id, paid_at_from:$paid_at_from, paid_at_to:$paid_at_to, business_name:$business_name, alias:$alias, account_name:$account_name, iuguCounterId:$iuguCounterId, issued_at_from:$issued_at_from, issued_at_to:$issued_at_to, issued_tx_id:$issued_tx_id, state:$state, iugu_account:$iugu_account){
       _id
       amount
+      iugu_account
       iugu_id
       paid_at
       receipt{
@@ -785,6 +786,18 @@ export const exportExtrato = async ({page='', limit='', account_name='', request
   return runQuery(EXPORT_EXTRATO, a, 'export_extrato');
 }
 
+const EXPORT_IUGUS = gql`
+  query xxx($page:String, $limit:String, $id:String, $iugu_id:String, $paid_at_from:String, $paid_at_to:String, $business_name:String, $alias:String, $account_name:String, $iuguCounterId:String, $issued_at_from:String, $issued_at_to:String, $issued_tx_id:String, $state:String, $iugu_account:String) {
+    export_iugus(page:$page, limit:$limit, id:$id, iugu_id:$iugu_id, paid_at_from:$paid_at_from, paid_at_to:$paid_at_to, business_name:$business_name, alias:$alias, account_name:$account_name, iuguCounterId:$iuguCounterId, issued_at_from:$issued_at_from, issued_at_to:$issued_at_to, issued_tx_id:$issued_tx_id, state:$state, iugu_account:$iugu_account){
+      file_id
+      error    
+    }
+  }`; 
+
+export const exportIugus = async ({page='', limit='', id='', iugu_id='', paid_at_from='', paid_at_to='', business_name='', alias='', account_name='', iuguCounterId='', issued_at_from='', issued_at_to='', issued_tx_id='', state='', iugu_account=''}={}) =>{
+  const a = {page:page, limit:limit, id:id, iugu_id:iugu_id, paid_at_from:paid_at_from, paid_at_to:paid_at_to, business_name:business_name, alias:alias, account_name:account_name, iuguCounterId:iuguCounterId, issued_at_from:issued_at_from, issued_at_to:issued_at_to, issued_tx_id:issued_tx_id, state:state, iugu_account:iugu_account};
+  return runQuery(EXPORT_IUGUS, a, 'export_iugus');
+}
 
 
 const runQuery = async (query, variables, _return_field) => {

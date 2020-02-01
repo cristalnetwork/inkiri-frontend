@@ -49,26 +49,7 @@ const IuguFilter = (props) => {
 
     useEffect(() => {
       const myIntl = {}; 
-      myIntl.type_deposit = formatMessage({id:'requests.types.type_deposit'});
-      myIntl.type_exchange = formatMessage({id:'requests.types.type_exchange'});
-      myIntl.type_payment = formatMessage({id:'requests.types.type_payment'});
-      myIntl.type_provider = formatMessage({id:'requests.types.type_provider'});
-      myIntl.type_send = formatMessage({id:'requests.types.type_send'});
-      myIntl.type_withdraw = formatMessage({id:'requests.types.type_withdraw'});
-      myIntl.type_service = formatMessage({id:'requests.types.type_service'});
-      myIntl.type_salary = formatMessage({id:'requests.types.type_salary'});
-      myIntl.type_pad = formatMessage({id:'requests.types.type_pad'});
-      myIntl.type_issue = formatMessage({id:'requests.types.type_issue'});
-      myIntl.type_iugu = formatMessage({id:'requests.types.type_iugu'});
-      myIntl.type_refund = formatMessage({id:'requests.types.type_refund'});
-      myIntl.type_receive = formatMessage({id:'requests.types.type_receive'});
-      myIntl.type_unknown = formatMessage({id:'requests.types.type_unknown'});
-      myIntl.type_new_account = formatMessage({id:'requests.types.type_new_account'});
-      myIntl.type_upsert_cust = formatMessage({id:'requests.types.type_upsert_cust'});
-      myIntl.type_erase_cust = formatMessage({id:'requests.types.type_erase_cust'});
-      myIntl.type_upsert_pap = formatMessage({id:'requests.types.type_upsert_pap'});
-      myIntl.type_erase_pap = formatMessage({id:'requests.types.type_erase_pap'});
-      myIntl.type_charge_pap = formatMessage({id:'requests.types.type_charge_pap'});
+      myIntl.iugu_account = formatMessage({id:'pages.bankadmin.iugu.iugu_account'});
 
       myIntl.state_not_processed = formatMessage({id:'components.filters.iugu.state_not_processed'});
       myIntl.state_processing = formatMessage({id:'components.filters.iugu.state_processing'});
@@ -135,6 +116,12 @@ const IuguFilter = (props) => {
       )
     }
     //
+    const iuguAccountsOptions = () => {
+      return (
+        globalCfg.api.getIuguAccounts().map( iugu_st => {return (<Option key={'option'+iugu_st} value={iugu_st} title={iugu_st} label={iugu_st}>{iugu_st} </Option>)})
+      )
+    }
+    //
     const validateAccountNames = (rule, value, callback) => {
       const { form } = props;
       if(!props.isAdmin && form.getFieldValue('to') && form.getFieldValue('from')){
@@ -190,6 +177,18 @@ const IuguFilter = (props) => {
             , iuguStatesOptions()
             , stateText
             , stateText
+            , 'default'
+            , dropdownRender
+            , undefined
+            , true) 
+        }
+
+        { form_helper.getSelectItem(_form
+            , filter
+            , 'iugu_account'
+            , iuguAccountsOptions()
+            , intl.iugu_account
+            , intl.iugu_account
             , 'default'
             , dropdownRender
             , undefined

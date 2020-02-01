@@ -14,11 +14,15 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
 import { Card, PageHeader, Button, Table } from 'antd';
 
 import {DISPLAY_ALL_TXS, DISPLAY_PROVIDER, DISPLAY_EXCHANGES} from '@app/components/TransactionTable';
 import TableStats, { buildItemMoneyPending, buildItemUp, buildItemDown, buildItemCompute, buildItemSimple, buildItemMoney, buildItemPending} from '@app/components/TransactionTable/stats';
 import * as columns_helper from '@app/components/TransactionTable/columns';
+
+import {ResizeableTable} from '@app/components/TransactionTable/resizable_columns';
 
 import * as gqlService from '@app/services/inkiriApi/graphql'
 import IuguFilter from '@app/components/Filters/iugu';
@@ -26,6 +30,7 @@ import IuguFilter from '@app/components/Filters/iugu';
 import * as request_helper from '@app/components/TransactionCard/helper';
 
 import { injectIntl } from "react-intl";
+import InjectMessage from "@app/components/intl-messages";
 
 class Iugu extends Component {
   constructor(props) {
@@ -50,15 +55,18 @@ class Iugu extends Component {
       
     };
 
-    this.loadExternalTxs            = this.loadExternalTxs.bind(this);  
-    this.renderFooter               = this.renderFooter.bind(this); 
-    this.onNewData                  = this.onNewData.bind(this);
-    this.onInvoiceClick             = this.onInvoiceClick.bind(this);
-    this.iuguFilterCallback         = this.iuguFilterCallback.bind(this);
+    this.loadInvoices            = this.loadInvoices.bind(this);  
+    this.renderFooter            = this.renderFooter.bind(this); 
+    this.onNewData               = this.onNewData.bind(this);
+    this.onInvoiceClick          = this.onInvoiceClick.bind(this);
+    this.iuguFilterCallback      = this.iuguFilterCallback.bind(this);
+
+    this.myExportRef             = React.createRef();
+    
   }
   
   componentDidMount(){
-    this.loadExternalTxs();  
+    this.loadInvoices();  
   } 
 
   getColumns(){
@@ -70,11 +78,23 @@ class Iugu extends Component {
         page:   -1, 
         txs:    [],
       }, () => {
-        this.loadExternalTxs();
+        this.loadInvoices();
       });  
   }
   //
-  loadExternalTxs = async () => {
+  getInvoicesFilter = (increase_page_if_needed) => {
+    const page             = (this.state.page<=0)
+      ?0
+      :(increase_page_if_needed)
+        ?(this.state.page+1)
+        :this.state.page;
+
+    const {limit, filter}  = this.state;
+    
+    return {limit:limit.toString(), page:page.toString(), ...filter};
+  }
+  //
+  loadInvoices = async () => {
 
     let can_get_more   = this.state.can_get_more;
     if(!can_get_more && this.state.page>=0)
@@ -85,13 +105,10 @@ class Iugu extends Component {
 
     this.setState({loading:true});
 
-    const page    = (this.state.page<0)?0:(this.state.page+1);
-    const limit   = this.state.limit;
     let that      = this;
-    const {filter} = this.state;
-    
+    const filter = this.getInvoicesFilter(true);
     try{
-      const data = await gqlService.iugus({limit:limit.toString(), page:page.toString(), ...filter});
+      const data = await gqlService.iugus(filter);
       console.log(data)
       that.onNewData(data);
     }
@@ -186,7 +203,7 @@ class Iugu extends Component {
 
   renderFooter(){
     
-    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadExternalTxs()}>
+    return (<><Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadInvoices()}>
         {this.props.intl.formatMessage({id:'pages.bankadmin.iugu.more_invoices'})}
       </Button> </>)
   }
@@ -224,6 +241,55 @@ class Iugu extends Component {
       })
     } ,100);
     
+  }
+
+  exportButton = () => [<a className="hidden" key="export_button_dummy" ref={this.myExportRef}  href={this.state.sheet_href} target="_blank" >x</a>, <Button key="export_button" onClick={this.handleExportClick} size="small" style={{position: 'absolute', right: '8px', top: '16px'}} title={this.props.intl.formatMessage({id:'global.export_sheet_remember_allowing_popups'})}><FontAwesomeIcon icon="file-excel" size="sm" color="black"/>&nbsp;<InjectMessage id="global.export_list_to_spreadsheet" /></Button>];
+  //
+  handleExportClick = async () => {
+
+    const filter = this.getInvoicesFilter(false);
+      
+    console.log(filter)
+    if(!filter)
+      return;
+
+    this.setState({loading:true});
+    const that       = this;
+    try{
+      const data = await gqlService.exportIugus(filter);
+      
+      this.setState({loading:false});
+      console.log(data)
+      if(data && data.file_id)
+      {
+        console.log('SETTING STATE')
+        this.setState( { sheet_href: `https://docs.google.com/spreadsheets/d/${data.file_id}` }
+                        , () => { 
+                          console.log('CALLING BUTTON?')
+                         if(!this.myExportRef)    
+                            return;
+                          console.log('YES')
+                          this.myExportRef.current.click();
+                        });
+        
+        return;
+      } 
+      console.log('NOooooooooooooooo')
+      if(data && data.error)
+      {
+        components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}), data.error);
+        return;
+      }
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}));
+    }
+    catch(e)
+    {
+      this.setState({loading:false});
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}), e);
+      return;
+    }
+
+    this.setState({loading:false});
   }
 
   render() {
@@ -272,11 +338,12 @@ class Iugu extends Component {
 
   renderContent(){
     return (<div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
-          <Table
+          <ResizeableTable
+            title = { () => this.exportButton() }
             key="table_all_requests" 
             rowKey={record => record._id} 
             loading={this.state.loading} 
-            columns={this.getColumns()} 
+            columns_def={this.getColumns()} 
             dataSource={this.state.txs} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
