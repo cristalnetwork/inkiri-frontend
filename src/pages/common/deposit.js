@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 
 import * as loginRedux from '@app/redux/models/login'
 import * as apiRedux from '@app/redux/models/api';
+import * as menuRedux from '@app/redux/models/menu';
 
 import * as api from '@app/services/inkiriApi';
 import * as globalCfg from '@app/configs/global';
@@ -63,7 +64,22 @@ class DepositMoney extends Component {
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.symbolChange               = this.symbolChange.bind(this);
     this.onInputAmount              = this.onInputAmount.bind(this);
+  
+    this.onRequestClick             = this.onRequestClick.bind(this);
   }
+  
+  onRequestClick(request){
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
+    this.props.history.push({
+      pathname: '/common/request-details'
+      , state: { 
+          request: request 
+          , referrer: this.props.location.pathname
+        }
+    })
+  }
+  // callback={this.onRequestClick}
 
   componentDidMount(){
     const {formatMessage} = this.props.intl;
@@ -227,7 +243,6 @@ class DepositMoney extends Component {
     callback(this.state.intl.valid_number_required_description);
   };
 
-
   renderContent() {
   
     if(this.state.result)
@@ -248,6 +263,7 @@ class DepositMoney extends Component {
     {
       return   <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
                   <RequestListWidget
+                      callback={this.onRequestClick}
                       hide_stats={true}
                       request_type={globalCfg.api.TYPE_DEPOSIT}
                       the_key={'deposits'}
@@ -386,8 +402,8 @@ export default Form.create() (withRouter(connect(
         getLastResult:      apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
-        callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),
-        clearAll:    bindActionCreators(apiRedux.clearAll, dispatch),
-        
+        callAPI:                 bindActionCreators(apiRedux.callAPI, dispatch),
+        clearAll:                bindActionCreators(apiRedux.clearAll, dispatch),
+        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(injectIntl(DepositMoney)) ));
