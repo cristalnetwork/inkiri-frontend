@@ -370,6 +370,11 @@ class AdminAccounts extends Component {
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
             scroll={{ x: 700 }}
+            onRow={ (record, rowIndex) => {
+                  return { 
+                    onDoubleClick: event => { this.onButtonClick(record) }
+                  };
+            }}
             />
       </div>
       )

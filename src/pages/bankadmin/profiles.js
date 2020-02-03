@@ -277,7 +277,7 @@ class Profiles extends Component {
             hidden_fields={['balance_status', 'account_type']} />
 
           {content}
-          
+
         </Card>
 
       </>
@@ -298,6 +298,11 @@ class Profiles extends Component {
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}
             scroll={{ x: 700 }}
+            onRow={ (record, rowIndex) => {
+                  return { 
+                    onDoubleClick: event => { this.onButtonClick(record) }
+                  };
+            }}
             />
       </div>
       )
