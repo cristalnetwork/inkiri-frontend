@@ -1,4 +1,4 @@
-const env        = "prod";
+const env        = "dev";
 
 const language   = "english";
 
@@ -67,13 +67,16 @@ const bank = {
   // },
   ACCOUNT_ICONS:           ['none', 'user', 'shop', 'home', 'bank'],
   getPermsForAccountType : (account_type) => {
-   const perms = {
+    const perms = {
         [bank.ACCOUNT_TYPE_PERSONAL]     : ['owner', 'active', 'viewer']
         , [bank.ACCOUNT_TYPE_BUSINESS  ] : ['owner', 'active', 'pdv', 'viewer']
         , [bank.ACCOUNT_TYPE_FOUNDATION] : ['owner', 'active', 'viewer']
         , [bank.ACCOUNT_TYPE_BANKADMIN ] : ['owner', 'active', 'pda', 'viewer']
         }
-    return perms[account_type];
+    let my_account_type = account_type;
+    if(typeof account_type =='string')
+      my_account_type = bank.ACCOUNT_TYPES.indexOf(account_type);
+    return perms[my_account_type];
   },
   isValidPermission : (account_type, required_permission, my_permission) => {
     const my_perms = bank.getPermsForAccountType(account_type);

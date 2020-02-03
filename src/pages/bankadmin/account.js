@@ -54,7 +54,7 @@ class Profile extends Component {
       ...DEFAULT_RESULT,
       account:            (props && props.location && props.location.state && props.location.state.account)? props.location.state.account : null,
       eos_account:        null,
-      profile:            null,
+      profile:            props.location.state.account,
       role_authority:     'owner'
     };
 
@@ -78,18 +78,20 @@ class Profile extends Component {
   */
   componentDidMount(){
     this.reloadAccount()
-    this.reloadProfile()
+    // this.reloadProfile()
   }
 
   reloadAccount = async () => {
-    var eos_account = await api.getAccount(this.state.account.key);
+    var eos_account = await api.getAccount(this.state.account.account_name);
     this.setState({eos_account:eos_account.data});
   }
 
   reloadProfile = async () => {
     this.setState({pushingTx:true});
     const that = this;
-    api.bank.getProfile(this.state.account.key)
+    
+
+    api.bank.getProfile(this.state.account.account_name)
       .then( (data) => {
           that.setState({pushingTx:false, profile:data})
         },
@@ -370,7 +372,7 @@ class Profile extends Component {
                   key={'new_perm'}
                   style = { { marginBottom: 24 } } 
                   >
-                  <AddRoleForm owner={account.key} authority={active_tab_object} callback={this.onAddPermission} />                  
+                  <AddRoleForm owner={account.account_name} authority={active_tab_object} callback={this.onAddPermission} />                  
                 </Card>
               </Spin>} 
             icon="user-shield" />  );
@@ -405,7 +407,7 @@ class Profile extends Component {
       <>
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-          title={(<>{account.key}@{globalCfg.bank.getAccountType(account.account_type)}</>)}
+          title={(<>{account.account_name}@{globalCfg.bank.getAccountType(account.account_type)}</>)}
           footer={
             <Tabs defaultActiveKey="1" onChange={this.onTabChange}>
               <Tabs.TabPane tab={formatMessage({id:'pages.bankadmin.account.tab.info'})}      key={ACTIVE_TAB_INFO} />

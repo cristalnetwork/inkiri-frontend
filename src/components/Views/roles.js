@@ -76,7 +76,7 @@ const AccountRolesView = (props) => {
                       values={ {
                                 permission_actor:         permission_actor
                                 , permission_permission:  permission_permission
-                                , account_key:            account.key
+                                , account_key:            account.key||account.account_name
                                 , permission_name:        permission_name
                                 , bold: (str) => <b key={Math.random()}>{str}</b>
                                 , italic: (str) => <i key={Math.random()}>{str}</i>
