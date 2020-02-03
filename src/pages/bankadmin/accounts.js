@@ -14,12 +14,17 @@ import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
+
 import TableStats from '@app/components/TransactionTable/stats'; 
 import * as stats_helper from '@app/components/TransactionTable/stats';
 
+import {ResizeableTable} from '@app/components/TransactionTable/resizable_columns';
+import * as gqlService from '@app/services/inkiriApi/graphql'
+import AccountFilter from '@app/components/Filters/account';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
 import { Radio, Select, Card, PageHeader, Tabs, Button } from 'antd';
-import { Form, Input} from 'antd';
-import { Table, Spin } from 'antd';
+import { Form, Input, Table, Spin } from 'antd';
 
 import _ from 'lodash';
 
@@ -35,9 +40,11 @@ class AdminAccounts extends Component {
       accounts:       [],
       
       page:           -1, 
-      limit:          globalCfg.api.default_page_size,
-      can_get_more:   true,
-      cursor:         '',
+      limit:           globalCfg.api.default_page_size,
+      can_get_more:    true,
+
+      filter:         {},
+
       stats:          undefined,
     };
 
@@ -47,6 +54,10 @@ class AdminAccounts extends Component {
     this.onButtonClick              = this.onButtonClick.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
     this.onNewAccount               = this.onNewAccount.bind(this); 
+    this.filterCallback             = this.filterCallback.bind(this);
+
+    this.myExportRef    = React.createRef();
+    this.timeout_id     = null;   
   }
 
   getColumns(){
@@ -74,14 +85,6 @@ class AdminAccounts extends Component {
 
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
-    // this.props.history.push({
-    //   pathname: `/${this.props.actualRole}/account`
-    //   , state: { 
-    //       referrer: this.props.location.pathname,
-    //       account:  account
-    //     }
-    // })
-
     this.props.history.push({
       pathname: `/${this.props.actualRole}/account`
       , state: { 
@@ -102,91 +105,48 @@ class AdminAccounts extends Component {
   }
   //
 
-  loadAccounts = async () => {
+  getAccountFilter = (increase_page_if_needed) => {
+    const page             = (this.state.page<=0)
+      ?0
+      :(increase_page_if_needed)
+        ?(this.state.page+1)
+        :this.state.page;
 
-    let can_get_more   = this.state.can_get_more;
-    if(!can_get_more && this.state.page>=0)
-    {
-      this.setState({loading:false});
-      return;
-    }
-
-    this.setState({loading:true});
-
+    const {limit, filter}  = this.state;
     
-    const {formatMessage} = this.props.intl;
-    let that              = this;
-    
-    api.listBankAccounts()
-    .then( async (res) => {
-
-        console.log(' >> api.listBankAccounts >>', JSON.stringify(res.data))
-        const account_names = res.data.accounts.map(acc=>acc.key)
-        let promises = [
-          api.dfuse.getAccountsBalances(account_names)
-          , api.bank.listProfiles(null, account_names.length, {account_names:account_names})
-        ];
-
-        let values;
-        try{
-          values = await Promise.all(promises);
-        }
-        catch(err){
-          components_helper.notif.exceptionNotification( formatMessage({id:'pages.bankadmin.accounts.error.loading_account'}), err);
-          that.setState({loading:false});  
-        }
-
-        if(!values)
-        {
-          components_helper.notif.errorNotification( formatMessage({id:'pages.bankadmin.accounts.error.cant_load_balances_profiles'}));
-          // return;
-        }
-
-        if(values && !values[0])
-        {
-          components_helper.notif.errorNotification( formatMessage({id:'pages.bankadmin.accounts.error.cant_load_balances'}));
-        }
-
-        if(values && !values[1])
-        {
-          components_helper.notif.errorNotification( formatMessage({id:'pages.bankadmin.accounts.error.cant_load_profiles'}));          
-        }
-
-        const __balances = (values&&values.length>0)?values[0]:[];
-        const _balances  = _.reduce(__balances, function(result, value, key) {
-          result[value.account] = value.balance;
-          return result;
-        }, {});
-        
-        const __aliases = (values&&values.length>1)?values[1]:[];
-        const _aliases  = _.reduce(__aliases, function(result, value, key) {
-          result[value.account_name] = value.alias;
-          return result;
-        }, {});
-        
-        const _data = res.data.accounts.map(acc => {return{...acc, balance:_balances[acc.key] , alias:_aliases[acc.key]}})
-        
-        that.onNewData({accounts:_data, more:res.data.more});
-        
-      } ,(ex) => {
-        console.log(' dfuse.getAccountsBalances ERROR#1', JSON.stringify(ex) )
-        that.setState({loading:false});  
-      } 
-    );
-    
+    return {limit:limit.toString(), page:page.toString(), ...filter};
   }
 
-  onNewData(data){
-    
+  loadAccounts = async () => {
+    let that      = this;
+    const filter = this.getAccountFilter(true);
+    try{
+      const data = await gqlService.listUsers(filter);
+      console.log(data)
+      that.onNewData(data);
+    }
+    catch(ex){
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'pages.bankadmin.iugu.error_loading'}), ex);
+      that.setState({loading:false});  
+    }
 
-    const _accounts       = [...this.state.accounts, ...data.accounts];
+  }
+
+  onNewData(accounts){
+    
+    const _accounts       = [...this.state.accounts, ...accounts];
     const pagination      = {...this.state.pagination};
     pagination.pageSize   = _accounts.length;
     pagination.total      = _accounts.length;
 
-    const has_received_new_data = (data.accounts && data.accounts.length>0);
+    const has_received_new_data = (accounts && accounts.length>0);
 
-    this.setState({pagination:pagination, accounts:_accounts, can_get_more:data.more, loading:false})
+    const page           = (this.state.page<0)?0:(this.state.page+1);
+    this.setState({pagination:    pagination
+                , accounts:       _accounts
+                , can_get_more:   (has_received_new_data && accounts.length==this.state.limit)
+                , loading:        false
+                , page:           page})
 
     if(!has_received_new_data)
     {
@@ -196,8 +156,8 @@ class AdminAccounts extends Component {
         , formatMessage({id:'pages.bankadmin.accounts.end_of_accounts_message'}) 
       );
     }
-    else
-      this.computeStats();
+    // else
+    //   this.computeStats();
   }
 
   
@@ -249,6 +209,90 @@ class AdminAccounts extends Component {
     return x?x:this.getDefaultStats();
   }
 
+  //
+  filterCallback = (error, cancel, values, refresh) => {
+    
+    if(cancel)
+    {
+      return;
+    }
+    if(error)
+    {
+      return;
+    }
+
+    if(refresh)
+    {
+      clearTimeout(this.timeout_id);
+      this.timeout_id = setTimeout(()=> {
+        this.reloadAccounts();
+      } ,100);
+      return;
+    }
+    
+    console.log(' accountFilter: ', JSON.stringify(values));
+    /*
+      {"state":"state_error","to":"centroinkiri","date_from":"2020-01-02T00:13:52.742Z","date_to":"2020-01-25T00:13:52.742Z"}
+    */
+
+    
+    clearTimeout(this.timeout_id);
+    this.timeout_id = setTimeout(()=> {
+      this.setState({filter:(values||{})}, ()=>{
+        this.reloadAccounts();
+      })
+    } ,100);
+    
+  }
+
+  exportButton = () => [<a className="hidden" key="export_button_dummy" ref={this.myExportRef}  href={this.state.sheet_href} target="_blank" >x</a>, <Button key="export_button" onClick={this.handleExportClick} size="small" style={{position: 'absolute', right: '8px', top: '16px'}} title={this.props.intl.formatMessage({id:'global.export_sheet_remember_allowing_popups'})}><FontAwesomeIcon icon="file-excel" size="sm" color="black"/>&nbsp;<InjectMessage id="global.export_list_to_spreadsheet" /></Button>];
+  //
+  handleExportClick = async () => {
+
+    const filter = this.getAccountFilter(false);
+      
+    console.log(filter)
+    if(!filter)
+      return;
+
+    this.setState({loading:true});
+    const that       = this;
+    try{
+      const data = await gqlService.exportUsers(filter);
+      
+      this.setState({loading:false});
+      console.log(data)
+      if(data && data.file_id)
+      {
+        console.log('SETTING STATE')
+        this.setState( { sheet_href: `https://docs.google.com/spreadsheets/d/${data.file_id}` }
+                        , () => { 
+                          console.log('CALLING BUTTON?')
+                         if(!this.myExportRef)    
+                            return;
+                          console.log('YES')
+                          this.myExportRef.current.click();
+                        });
+        
+        return;
+      } 
+      console.log('NOooooooooooooooo')
+      if(data && data.error)
+      {
+        components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}), data.error);
+        return;
+      }
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}));
+    }
+    catch(e)
+    {
+      this.setState({loading:false});
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}), e);
+      return;
+    }
+
+    this.setState({loading:false});
+  }
   // Component Events
   renderFooter(){
     return (<Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadAccounts()}>
@@ -284,6 +328,9 @@ class AdminAccounts extends Component {
           style={{ marginTop: 24 }}
           headStyle={{display:'none'}}
         >
+          <AccountFilter 
+            callback={this.filterCallback} />
+
           {stats}
           {content}
         </Card>
@@ -310,12 +357,13 @@ class AdminAccounts extends Component {
   renderContent(){
 
     return (
-      <div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
-        <Table
+      <div style={{ background: '#fff', minHeight: 360}}>
+        <ResizeableTable
+            title = { () => this.exportButton() }
             key="table_all_txs" 
-            rowKey={record => record.key} 
+            rowKey={record => record.account_name} 
             loading={this.state.loading} 
-            columns={this.getColumns()} 
+            columns_def={this.getColumns()} 
             dataSource={this.state.accounts} 
             footer={() => this.renderFooter()}
             pagination={this.state.pagination}

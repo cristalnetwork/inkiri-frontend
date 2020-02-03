@@ -51,8 +51,8 @@ const listAllBankAccounts = async () => {
   // if more==true, entonces hay que traer mas usando lower_bound o upper_bound
   var accounts = response.rows.map(account => 
         ({  ...account
-                  ,'state_description' :        globalCfg.bank.getAccountState(account.state)
-                  ,'account_type_description' : globalCfg.bank.getAccountType(account.account_type) }));
+            ,'state_description' :        globalCfg.bank.getAccountState(account.state)
+            ,'account_type_description' : globalCfg.bank.getAccountType(account.account_type) }));
   return {data:{accounts:accounts, more:response.more}};
 }
 

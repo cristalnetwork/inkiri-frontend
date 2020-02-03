@@ -107,8 +107,10 @@ export const getAccountsBalances = (account_names_array) => new Promise((res,rej
 
       const query = `?account=${currency_token}&scopes=${scopes}&table=accounts&json=true`;
       
+      // console.log(path+query);
       jwtHelper.apiCall(path+query, method)
         .then((data) => {
+
             res(data.tables.map(row=>{
               return{account:row.scope, balance:((row.rows&&row.rows.length>0)?globalCfg.currency.toNumber(row.rows[0].json.balance):0)}} ) )
           }, (ex) => {

@@ -643,22 +643,23 @@ export const columnsForAccounts = (callback) => {
         dataIndex: 'key',
         key: 'account_name',
         render: (value, record) => {
+          const state = '' ; //request_helper.getAccountStateTag(record, true)
           return(
             <span className="name_value_row">
               <div className="row_name centered" >
                 {request_helper.getAccountTypeIcon(record.account_type)} 
               </div>
               <div className="row_value wider">
-                <span className="row_tx_title">{record.key}</span> 
-                 {request_helper.getAccountStateTag(record, true)} 
+                <span className="row_tx_title">{record.account_name}</span> 
+                {state}
               </div>   
             </span>);
         }
       },
       {
         title: <InjectMessage id="components.TransactionTable.columns.iugu_alias" />,
-        key: 'overdraft',
-        dataIndex: 'overdraft',
+        key: 'alias',
+        dataIndex: 'alias',
         
         render: (overdraft, record) =>{
           const isBiz = globalCfg.bank.isBusinessAccount(record);
@@ -669,25 +670,21 @@ export const columnsForAccounts = (callback) => {
             </span> 
           )}
       },
-      //
       {
-        title: <InjectMessage id="components.TransactionTable.columns.fee_overdraft" />,
+        title: <InjectMessage id="components.TransactionTable.columns.overdraft" />,
+        key: 'overdraft',
+        dataIndex: 'overdraft',
+        
+        render: (overdraft, record) => globalCfg.currency.toCurrencyString(overdraft)
+      },
+      {
+        title: <InjectMessage id="components.TransactionTable.columns.fee" />,
         key: 'fee',
         dataIndex: 'fee',
-        render: (fee, record) => {
-          
-          return (
-            <span>
-              <Tag color={'geekblue'} key={Math.random()}>
-                <InjectMessage id="components.TransactionTable.columns.fee" />: {globalCfg.currency.toCurrencyString(fee)}
-              </Tag>
-              <Tag color={'geekblue'} key={Math.random()}>
-                <InjectMessage id="components.TransactionTable.columns.overdraft" />: {globalCfg.currency.toCurrencyString(record.overdraft)}
-              </Tag>
-            </span> 
-          )}
+        
+        render: (fee, record) => globalCfg.currency.toCurrencyString(fee)
       },
-      //
+      
       {
         title: <InjectMessage id="components.TransactionTable.columns.action" />,
         key: 'action',        

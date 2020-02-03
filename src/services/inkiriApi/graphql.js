@@ -799,6 +799,64 @@ export const exportIugus = async ({page='', limit='', id='', iugu_id='', paid_at
   return runQuery(EXPORT_IUGUS, a, 'export_iugus');
 }
 
+const GET_USERS = gql`
+  query xxx($page:String, $limit:String, $balance_status:Int, $search_text:String, $email:String, $account_type:String, $account_name:String, $id:String, $alias:String, $last_name:String, $business_name:String, $bank_name:String, $bank_agency:String, $bank_cc:String){
+    users(page:$page, limit:$limit, balance_status:$balance_status, search_text:$search_text, email:$email, account_type:$account_type, account_name:$account_name, id:$id, alias:$alias, last_name:$last_name, business_name:$business_name, bank_name:$bank_name, bank_agency:$bank_agency, bank_cc:$bank_cc){
+      _id
+      account_name
+      alias
+      first_name
+      last_name
+      email
+      legal_id
+      birthday
+      phone
+      address{
+        street
+        city
+        state
+        zip
+        country
+      }
+      bank_accounts{
+        _id
+        bank_name
+        bank_keycode
+        agency
+        cc
+      }
+      account_type
+      business_name
+      created_at
+      updated_at
+      userCounterId
+      balance
+      overdraft
+      fee
+    }
+  }
+`;
+export const listUsers = async ({page='', limit='', balance_status=0, search_text='', email='', account_type='', account_name='', id='', alias='', last_name='', business_name='', bank_name='', bank_agency='', bank_cc=''}) => {
+  const a        = {page:page.toString(), limit:limit.toString(), balance_status:balance_status, search_text:search_text,email:email.toString(), account_type:account_type.toString(), account_name:account_name.toString(), id:id.toString(), alias:alias.toString(), last_name:last_name.toString(), business_name:business_name.toString(), bank_name:bank_name.toString(), bank_agency:bank_agency.toString(), bank_cc:bank_cc.toString()};
+  do_log && console.log(' ######## GQLService::listUsers ', JSON.stringify(a));
+  return runQuery(GET_USERS, a, 'users');
+}
+
+
+const EXPORT_USERS  = gql`
+  query xxx($page:String, $limit:String, $balance_status:Int, $search_text:String, $email:String, $account_type:String, $account_name:String, $id:String, $alias:String, $last_name:String, $business_name:String, $bank_name:String, $bank_agency:String, $bank_cc:String){
+    export_users(page:$page, limit:$limit, balance_status:$balance_status, search_text:$search_text, email:$email, account_type:$account_type, account_name:$account_name, id:$id, alias:$alias, last_name:$last_name, business_name:$business_name, bank_name:$bank_name, bank_agency:$bank_agency, bank_cc:$bank_cc){
+      file_id
+      error
+    }
+  }
+`;
+export const exportUsers = async ({page='', limit='', balance_status=0, search_text='', email='', account_type='', account_name='', id='', alias='', last_name='', business_name='', bank_name='', bank_agency='', bank_cc=''}) => {
+  const a        = {page:page.toString(), limit:limit.toString(), balance_status:balance_status, search_text:search_text,email:email.toString(), account_type:account_type.toString(), account_name:account_name.toString(), id:id.toString(), alias:alias.toString(), last_name:last_name.toString(), business_name:business_name.toString(), bank_name:bank_name.toString(), bank_agency:bank_agency.toString(), bank_cc:bank_cc.toString()};
+  do_log && console.log(' ######## GQLService::listUsers ', JSON.stringify(a));
+  return runQuery(EXPORT_USERS, a, 'export_users');
+}
+
 
 const runQuery = async (query, variables, _return_field) => {
   // const client = useApolloClient();

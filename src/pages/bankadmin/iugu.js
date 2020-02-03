@@ -61,8 +61,8 @@ class Iugu extends Component {
     this.onInvoiceClick          = this.onInvoiceClick.bind(this);
     this.iuguFilterCallback      = this.iuguFilterCallback.bind(this);
 
-    this.myExportRef             = React.createRef();
-    
+    this.myExportRef    = React.createRef();
+    this.timeout_id     = null;   
   }
   
   componentDidMount(){
@@ -182,7 +182,6 @@ class Iugu extends Component {
 
     this.setState({stats:stats})
 
-    this.timeout_id = null;
   }
 
   // Component Events
