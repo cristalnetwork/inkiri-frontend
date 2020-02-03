@@ -391,6 +391,7 @@
   "components.Views.account_menu.role": "Permissão",
   "components.Views.account_menu.type": "Tipo",
   "components.Views.balance_menu.balance": "Saldo",
+  "components.Views.profile_security.current_key": "Current key",
   "components.Views.profile.edit_text": "Editar info de perfil",
   "components.Views.profile.add_bank_text": "Adicionar Nova Conta Bancária",
   "components.Views.profile.no_banks_added_yet": "Nenhuma conta bancária adicionada ainda",

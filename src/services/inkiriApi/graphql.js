@@ -837,6 +837,8 @@ const GET_USERS = gql`
   }
 `;
 export const listUsers = async ({page='', limit='', balance_status=0, search_text='', email='', account_type='', account_name='', id='', alias='', last_name='', business_name='', bank_name='', bank_agency='', bank_cc=''}) => {
+  if (balance_status)
+    balance_status = parseInt(balance_status);  
   const a        = {page:page.toString(), limit:limit.toString(), balance_status:balance_status, search_text:search_text,email:email.toString(), account_type:account_type.toString(), account_name:account_name.toString(), id:id.toString(), alias:alias.toString(), last_name:last_name.toString(), business_name:business_name.toString(), bank_name:bank_name.toString(), bank_agency:bank_agency.toString(), bank_cc:bank_cc.toString()};
   do_log && console.log(' ######## GQLService::listUsers ', JSON.stringify(a));
   return runQuery(GET_USERS, a, 'users');

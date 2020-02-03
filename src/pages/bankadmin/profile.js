@@ -21,6 +21,8 @@ import ProfileForm from '@app/components/Form/profile';
 import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/components/Views/profile';
 import Skeleton from '@app/components/Views/skeleton';
 
+import SecurityView from '@app/components/Views/security';
+
 import { injectIntl } from "react-intl";
 import InjectMessage from "@app/components/intl-messages";
 
@@ -30,6 +32,7 @@ const ACTIVE_TAB_PROFILE_BANK_ACCOUNT  = 'active_tab_profile_add_or_update_bank_
 const ACTIVE_TAB_ACCOUNTS              = 'active_tab_accounts';
 const ACTIVE_TAB_PREFERENCES           = 'active_tab_preferences';
 const ACTIVE_TAB_SECURITY              = 'active_tab_security';
+const ACTIVE_TAB_SECURITY_CHANGE_KEY   = 'active_tab_security_change_key';
 
 class Profile extends Component {
   constructor(props) {
@@ -41,6 +44,7 @@ class Profile extends Component {
       active_tab_action:   ACTIVE_TAB_PROFILE,
       active_tab_object:   null,
       
+      eos_account:        {},
       profile:            (props && props.location && props.location.state && props.location.state.profile)? props.location.state.profile : null
     };
 
@@ -66,7 +70,17 @@ class Profile extends Component {
       this.setState({ profile:profile});
     }
   }
-    
+
+  componentDidMount(){
+    this.reloadAccount()
+  }
+
+  reloadAccount = async () => {
+    const eos_account = await api.getAccount(this.state.profile.account_name);
+    this.setState({eos_account:eos_account.data});
+    console.log(eos_account)
+  }
+
   onConfigurationEvents = (event_type, object) => {
 
     switch (event_type){
@@ -223,6 +237,18 @@ class Profile extends Component {
     const pushing_transaction = formatMessage({id: 'pages.bankadmin.profile.pushing_transaction'});
     const update_profile      = formatMessage({id: 'pages.bankadmin.profile.update_profile'});
     
+    if(active_tab==ACTIVE_TAB_SECURITY)
+    {
+      if(active_tab_action==ACTIVE_TAB_SECURITY_CHANGE_KEY){
+
+        return null;
+      }
+      return <SecurityView 
+        profile={this.state.profile} 
+        eos_account={this.state.eos_account} 
+        />;
+    }
+
     if(active_tab==ACTIVE_TAB_PROFILE){
       if(active_tab_action==ACTIVE_TAB_PROFILE_BANK_ACCOUNT)
       {
@@ -266,12 +292,6 @@ class Profile extends Component {
     let content     = this.renderContent();
     const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
 
-    
-    
-    
-    
-
-
     return (
       <>
         <PageHeader
@@ -282,7 +302,7 @@ class Profile extends Component {
               <Tabs.TabPane tab={<InjectMessage id="pages.bankadmin.profile.tab.profile" />}     key={ACTIVE_TAB_PROFILE} />
               <Tabs.TabPane tab={<InjectMessage id="pages.bankadmin.profile.tab.accounts" />}    key={ACTIVE_TAB_ACCOUNTS} disabled />
               <Tabs.TabPane tab={<InjectMessage id="pages.bankadmin.profile.tab.preferences" />} key={ACTIVE_TAB_PREFERENCES} disabled />
-              <Tabs.TabPane tab={<InjectMessage id="pages.bankadmin.profile.tab.security" />}    key={ACTIVE_TAB_SECURITY} disabled />
+              <Tabs.TabPane tab={<InjectMessage id="pages.bankadmin.profile.tab.security" />}    key={ACTIVE_TAB_SECURITY} />
             </Tabs>
           }>
         </PageHeader>

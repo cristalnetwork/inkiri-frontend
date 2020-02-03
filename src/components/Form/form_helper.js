@@ -16,7 +16,7 @@ export const getSelectItem = (_form, object, field, options, title, placeholder,
     
     const _mode                    = mode?mode:'multiple';
     const { getFieldDecorator }    = _form;
-    const initial_value            = object?object[field]:'';
+    const initial_value            = object?object[field]:null;
     
     return (  <Form.Item label={title}>
                 {getFieldDecorator(field, {

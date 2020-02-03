@@ -110,9 +110,9 @@ const AccountFilter = (props) => {
     //
     const renderBalanceStatusOptions = () => {
       const balance_status = [
-        {   title : balance_status_positive, value: 1}
-        , { title : balance_status_negative, value: -1}
-        , { title : balance_status_any, value: 0}
+        {   title : balance_status_positive, value: '1'}
+        , { title : balance_status_negative, value: '-1'}
+        , { title : balance_status_any, value: '0'}
       ]
       return (
         balance_status.map( status => {return(<Option key={'option'+status.title} value={status.value} label={status.title}>{ status.title } </Option>)})
@@ -179,7 +179,7 @@ const AccountFilter = (props) => {
             , renderBalanceStatusOptions()
             , balance_status
             , balance_status
-            , 'simple'
+            , 'multiple'
             , dropdownRender
             , undefined
             , true) }
