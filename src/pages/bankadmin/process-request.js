@@ -242,9 +242,7 @@ class processExternal extends Component {
                 uploader={uploader}
         />
         <div className="c-detail bottom">
-          <Card style={ { marginBottom: 24, textAlign:'center' } }>
           { buttons?buttons.map(button=>button):(<></>)}
-          </Card>
         </div>
       </Spin>);
   }

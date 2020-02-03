@@ -309,9 +309,7 @@ class iuguDetails extends Component {
 
         </div>
         <div className="c-detail bottom">
-          <Card style={ { marginBottom: 24, textAlign:'center' } }>
           { buttons?buttons.map(button=>button):(<></>)}
-          </Card>
         </div>
       </Spin>);
   }

@@ -265,14 +265,15 @@ class RequestDetails extends Component {
               uploader={uploader}
         />
         <div className="c-detail bottom">
-          <Card style={ { marginBottom: 24, textAlign:'center' } }  >
           { buttons?buttons.map(button=>button):(<></>)}
-          </Card>
         </div>
       </Spin>);
   }
   //
-  
+  /*
+    <Card style={ { marginBottom: 24, textAlign:'center' } }  >
+    </Card>
+  */
   getAttach(attach_name){
     const attachments      = this.state.attachments;
     return (attachments[attach_name] && attachments[attach_name].length>0) ? attachments[attach_name][0] : undefined; 
