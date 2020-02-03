@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login'
 import * as accountsRedux from '@app/redux/models/accounts'
 import * as apiRedux from '@app/redux/models/api';
+import * as menuRedux from '@app/redux/models/menu';
 
 import * as globalCfg from '@app/configs/global';
 
@@ -56,6 +57,19 @@ class Exchange extends Component {
     this.resetResult                = this.resetResult.bind(this); 
 
     this.userResultEvent            = this.userResultEvent.bind(this); 
+    this.onRequestClick             = this.onRequestClick.bind(this);
+  }
+  
+  onRequestClick(request){
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
+    this.props.history.push({
+      pathname: '/common/request-details'
+      , state: { 
+          request: request 
+          , referrer: this.props.location.pathname
+        }
+    })
   }
 
   componentDidUpdate(prevProps, prevState) 
@@ -187,11 +201,12 @@ class Exchange extends Component {
                <TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />
              </div>)
     }
-    
+    //
     if(this.state.view_requests==true)
     {
       return   <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
                   <RequestListWidget
+                      callback={this.onRequestClick}
                       hide_stats={true}
                       request_type={globalCfg.api.TYPE_EXCHANGE}
                       the_key={'exchanges'}
@@ -257,7 +272,7 @@ export default Form.create() (withRouter(connect(
         callAPi:          bindActionCreators(apiRedux.callAPI, dispatch),
         callAPIEx:        bindActionCreators(apiRedux.callAPIEx, dispatch),
         clearAll:         bindActionCreators(apiRedux.clearAll, dispatch),
-
+        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch),
     })
 )(injectIntl(Exchange)) )
 );

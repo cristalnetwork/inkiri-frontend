@@ -7,6 +7,7 @@ import * as accountsRedux from '@app/redux/models/accounts'
 import * as loginRedux from '@app/redux/models/login';
 import * as balanceRedux from '@app/redux/models/balance';
 import * as apiRedux from '@app/redux/models/api';
+import * as menuRedux from '@app/redux/models/menu';
 
 import * as globalCfg from '@app/configs/global';
 
@@ -64,6 +65,19 @@ class RequestMoney extends Component {
     this.onInputAmount              = this.onInputAmount.bind(this);
     this.handleChange               = this.handleChange.bind(this);
     this.handleMessageChange        = this.handleMessageChange.bind(this);
+    this.onRequestClick             = this.onRequestClick.bind(this);
+  }
+  
+  onRequestClick(request){
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
+    this.props.history.push({
+      pathname: '/common/request-details'
+      , state: { 
+          request: request 
+          , referrer: this.props.location.pathname
+        }
+    })
   }
 
   componentDidMount(){
@@ -312,6 +326,7 @@ class RequestMoney extends Component {
     {
       return   <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
                   <RequestListWidget
+                      callback={this.onRequestClick}
                       hide_stats={true}
                       request_type={globalCfg.api.TYPE_PAYMENT}
                       the_key={'sent'}
@@ -449,7 +464,7 @@ export default Form.create() (withRouter(connect(
     (dispatch)=>({
         callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),
         clearAll:    bindActionCreators(apiRedux.clearAll, dispatch),
-
+        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch),
         loadBalance: bindActionCreators(balanceRedux.loadBalance, dispatch),
         
     })
