@@ -29,24 +29,20 @@ const AccountFilter = (props) => {
     const [buttonType, setButtonType]       = useState('default');
     const [key, setKey]                     = useState(props.the_key);
     const [is_loading, setIsLoading]        = useState(props.isOperationsLoading||false);
-    
+    const [hidden_fields, setHiddenFields]  = useState([]);
+
     const [intl, setIntl]                   = useState({});
 
-    const default_filter               = { 
-        operation_type:   undefined     
-        , date_range:     [null, null]
-        , account_type:   undefined     
-        , state:          undefined     
-        , search_text:    ''
-    };
+    useEffect(() => {
+      if(!Array.isArray(props.hidden_fields))
+        return;
+      setHiddenFields(props.hidden_fields || []);
+    }, [props.hidden_fields]);
 
-    const [filter, setFilter]          = useState(props.filter||default_filter);
+
+    const [filter, setFilter]          = useState(props.filter);
 
     const {formatMessage} = props.intl;
-
-    // useEffect(() => {
-    //   setCallback(props.callback);
-    // }, [props.callback]);
 
     useEffect(() => {
       const myIntl = {}; 
@@ -131,8 +127,8 @@ const AccountFilter = (props) => {
     const className = `filter_form ${buttonType}`; 
     const _form     = props.form;
     
-    if(!filter)
-      return (null);
+    // if(!filter)
+    //   return (null);
     
     const fromText        = formatMessage({id:'components.filters.requests.from'})
     const toText          = formatMessage({id:'components.filters.requests.to'})
@@ -164,7 +160,8 @@ const AccountFilter = (props) => {
             , undefined)
         }
         
-        { form_helper.getSelectItem(_form
+        { !hidden_fields.includes('account_type')
+          && form_helper.getSelectItem(_form
             , filter
             , 'account_type'
             , renderSelectAccountTypeOptions()
@@ -175,7 +172,8 @@ const AccountFilter = (props) => {
             , undefined
             , true) }
 
-        { form_helper.getSelectItem(_form
+        { !hidden_fields.includes('balance_status')
+          && form_helper.getSelectItem(_form
             , filter
             , 'balance_status'
             , renderBalanceStatusOptions()

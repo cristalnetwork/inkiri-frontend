@@ -112,6 +112,7 @@ const AccountRolesView = (props) => {
     }
     // console.log(' roles-view: YES show component.')
     const {account_type}  = account;
+
     const my_permisssions = globalCfg.bank.getPermsForAccountType(account_type);
     
     const renderPermContent = () => {

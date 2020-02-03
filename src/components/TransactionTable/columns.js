@@ -642,6 +642,7 @@ export const columnsForAccounts = (callback) => {
         title: <InjectMessage id="components.TransactionTable.columns.account" />,
         dataIndex: 'key',
         key: 'account_name',
+        width: 250,
         render: (value, record) => {
           const state = '' ; //request_helper.getAccountStateTag(record, true)
           return(
@@ -660,7 +661,7 @@ export const columnsForAccounts = (callback) => {
         title: <InjectMessage id="components.TransactionTable.columns.iugu_alias" />,
         key: 'alias',
         dataIndex: 'alias',
-        
+        width: 200,
         render: (overdraft, record) =>{
           const isBiz = globalCfg.bank.isBusinessAccount(record);
           const _alias = (isBiz&&record.alias)?record.alias:(isBiz?request_helper.errorStateTag('Alias not configured!'):'');
@@ -674,20 +675,21 @@ export const columnsForAccounts = (callback) => {
         title: <InjectMessage id="components.TransactionTable.columns.overdraft" />,
         key: 'overdraft',
         dataIndex: 'overdraft',
-        
+        width: 150,
         render: (overdraft, record) => globalCfg.currency.toCurrencyString(overdraft)
       },
       {
         title: <InjectMessage id="components.TransactionTable.columns.fee" />,
         key: 'fee',
         dataIndex: 'fee',
-        
+        width: 150,
         render: (fee, record) => globalCfg.currency.toCurrencyString(fee)
       },
       
       {
         title: <InjectMessage id="components.TransactionTable.columns.action" />,
         key: 'action',        
+        width: 150,  
         render: (text, record) => {
           // return (<Button key={'details_'+request.id} size="small" onClick={()=>{ buttonClick(callback, request) }}>{title}</Button>);
           return <Button key={'details_'+record.key} onClick={()=>{ callback(record) }} icon="profile" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.details" /></Button>
@@ -699,6 +701,7 @@ export const columnsForAccounts = (callback) => {
         dataIndex: 'balance',
         key: 'balance',
         align: 'right',
+        width: 150,
         render: (balance, record) => (
           <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
             {request_helper.getStyledBalance(record)}
@@ -795,6 +798,7 @@ export const columnsForProfiles = (callback) => {
         title: <InjectMessage id="components.TransactionTable.columns.name" />,
         dataIndex: 'first_name',
         key: 'first_name',
+        width: 250,
         render: (first_name, record) => {
           return(
             <span className="name_value_row">
@@ -809,9 +813,17 @@ export const columnsForProfiles = (callback) => {
         }
       },
       {
+        title: <InjectMessage id="components.TransactionTable.columns.legal_id" />,
+        dataIndex: 'legal_id',
+        key: 'legal_id',
+        width: 150,
+        render: (legal_id, record) => legal_id
+      },
+      {
         title: <InjectMessage id="components.TransactionTable.columns.email" />,
         key: 'email',
         dataIndex: 'email',
+        width: 250,
         render: (email, record) => {
           
           return (
@@ -821,17 +833,17 @@ export const columnsForProfiles = (callback) => {
           )}
       },
       {
-        title: <InjectMessage id="components.TransactionTable.columns.accounts" />,
-        dataIndex: 'userCounterId',
-        key: 'userCounterId',
-        render: (userCounterId, record) => (
-          <span>&nbsp;<InjectMessage id="components.TransactionTable.columns.not_available" /></span>
-          )
+        title: <InjectMessage id="components.TransactionTable.columns.phone" />,
+        dataIndex: 'phone',
+        key: 'phone',
+        width: 150,
+        render: (phone, record) => phone
       },
       {
         title: <InjectMessage id="components.TransactionTable.columns.action" />,
         key: 'action',        
         align: 'right',
+        width: 200,
         render: (text, record) => {
           return <Button key={'details_'+record.key} onClick={()=>{ callback(record) }} icon="profile" size="small">&nbsp;<InjectMessage id="components.TransactionTable.columns.details" /></Button>
         }

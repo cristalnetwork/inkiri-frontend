@@ -54,8 +54,8 @@ class AdminAccounts extends Component {
     this.onButtonClick              = this.onButtonClick.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
     this.onNewAccount               = this.onNewAccount.bind(this); 
+    
     this.filterCallback             = this.filterCallback.bind(this);
-
     this.myExportRef    = React.createRef();
     this.timeout_id     = null;   
   }
@@ -126,7 +126,7 @@ class AdminAccounts extends Component {
       that.onNewData(data);
     }
     catch(ex){
-      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'pages.bankadmin.iugu.error_loading'}), ex);
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'pages.bankadmin.accounts.error.loading_account'}), ex);
       that.setState({loading:false});  
     }
 
@@ -293,12 +293,14 @@ class AdminAccounts extends Component {
 
     this.setState({loading:false});
   }
+  
   // Component Events
   renderFooter(){
     return (<Button key="load-more-data" disabled={!this.state.can_get_more} onClick={()=>this.loadAccounts()}>
         { this.props.intl.formatMessage({id: 'pages.bankadmin.accounts.load_more_records'})}
       </Button>)
   }
+  
   //
   render() {
     const content               = this.renderContent();

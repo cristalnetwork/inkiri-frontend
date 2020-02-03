@@ -311,6 +311,7 @@
   "components.TransactionTable.columns.bank_keycode_missing_min": "N/A",
   "components.TransactionTable.columns.bank_keycode_missing": "Código do banco ausente",
   "components.TransactionTable.columns.legal_id_type": "Tipo",
+  "components.TransactionTable.columns.phone": "Telefone",
   "components.TransactionTable.columns.legal_id": "CNPJ/CPF",
   "components.TransactionTable.columns.legal_id_type_cnpj": "CNPJ",
   "components.TransactionTable.columns.legal_id_type_cpf": "CPF",
