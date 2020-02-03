@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login'
 import * as balanceRedux from '@app/redux/models/balance'
 import * as apiRedux from '@app/redux/models/api';
+import * as menuRedux from '@app/redux/models/menu';
 
 import * as globalCfg from '@app/configs/global';
 
@@ -53,7 +54,22 @@ class WithdrawMoney extends Component {
     this.resetResult                = this.resetResult.bind(this); 
     this.userResultEvent            = this.userResultEvent.bind(this); 
     this.onInputAmount              = this.onInputAmount.bind(this);
+    this.onRequestClick             = this.onRequestClick.bind(this);
   }
+  
+  onRequestClick(request){
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
+    this.props.history.push({
+      pathname: '/common/request-details'
+      , state: { 
+          request: request 
+          , referrer: this.props.location.pathname
+        }
+    })
+  }
+  // callback={this.onRequestClick}
+
 
   componentDidMount(){
     const {formatMessage} = this.props.intl;
@@ -273,6 +289,7 @@ class WithdrawMoney extends Component {
     {
       return   <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
                   <RequestListWidget
+                      callback={this.onRequestClick}
                       hide_stats={true}
                       request_type={globalCfg.api.TYPE_WITHDRAW}
                       the_key={'withdraws'}
@@ -373,7 +390,7 @@ export default Form.create() (withRouter(connect(
         callAPI:            bindActionCreators(apiRedux.callAPI, dispatch),
         callAPIEx:          bindActionCreators(apiRedux.callAPIEx, dispatch),
         clearAll:           bindActionCreators(apiRedux.clearAll, dispatch),
-        
+        setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch),
         loadBalance:        bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
 )(injectIntl(WithdrawMoney)) ));
