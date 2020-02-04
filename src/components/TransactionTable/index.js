@@ -166,7 +166,7 @@ class TransactionTable extends Component {
     
     if(this.state.mode==REQUEST_MODE_EXTRATO)
     {
-      const filter_obj = {limit, page, account_name, ...(filter||{})};
+      const filter_obj = {limit, page, account_name, ...requests_filter, ...(filter||{})};
       return filter_obj;
       
     }
@@ -185,8 +185,8 @@ class TransactionTable extends Component {
         }
     }
     const filter_obj = {limit, account_name, page, requested_type, ...requests_filter, ...(filter||{}), ...(account_name_filter||{})};
-    console.log(' ---- TransactionTable filter_obj:', filter_obj);
-    console.log(' ---- TransactionTable default filter:', filter)
+    // console.log(' ---- TransactionTable filter_obj:', filter_obj);
+    // console.log(' ---- TransactionTable default filter:', filter)
     return filter_obj;
   }
 
@@ -208,6 +208,7 @@ class TransactionTable extends Component {
     const that       = this;
     let data = null;
 
+    // console.log(' ====================== request-table -> ', filter_obj)
     try{
       if(this.state.mode==REQUEST_MODE_EXTRATO)  
         data = await gqlRequestI18nService.extrato(filter_obj, this.props.intl);

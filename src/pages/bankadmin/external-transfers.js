@@ -78,13 +78,14 @@ class ExternalTransfers extends Component {
     );
   }
   
+  //filter={ {state:`${globalCfg.api.STATE_RECEIVED},${globalCfg.api.STATE_PROCESSING}`} }
   renderContent(){
     return (<RequestListWidget 
         the_key={'external_transfert_widget_key'} 
         callback={this.onProcessRequestClick} 
         onRef={ref => (this.table_widget = ref)}
         filter_hidden_fields={['to']}
-        filter={ {state:`${globalCfg.api.STATE_RECEIVED},${globalCfg.api.STATE_PROCESSING}`} }
+        
         mode={REQUEST_MODE_BANK_TRANSFERS}
         request_type={`${DISPLAY_EXCHANGES},${DISPLAY_PROVIDER}`} 
       />);
