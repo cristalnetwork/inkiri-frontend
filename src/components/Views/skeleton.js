@@ -1,7 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-const Skeleton = ({content, icon}) => {
+const Skeleton = ({content, icon, title=''}) => {
     
     return(
 
@@ -15,7 +15,9 @@ const Skeleton = ({content, icon}) => {
                     >
                     <FontAwesomeIcon icon={icon||'user'} size="4x" color="black"/>
                   </span>
-                  
+                  {title!=''
+                    ?(<h3>{title}</h3>)
+                    :(null)}
                 </div>
               </div>
             </div>

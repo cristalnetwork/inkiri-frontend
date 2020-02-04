@@ -21,7 +21,8 @@ import ProfileForm from '@app/components/Form/profile';
 import ConfigurationProfile, {ENUM_EVENT_EDIT_PROFILE, ENUM_EVENT_EDIT_BANK_ACCOUNT, ENUM_EVENT_NEW_BANK_ACCOUNT} from '@app/components/Views/profile';
 import Skeleton from '@app/components/Views/skeleton';
 
-import SecurityView from '@app/components/Views/security';
+import SecurityView, {ENUM_EVENT_EDIT_KEY} from '@app/components/Views/security';
+import EditKeyForm from '@app/components/Form/edit_key';
 
 import { injectIntl } from "react-intl";
 import InjectMessage from "@app/components/intl-messages";
@@ -83,6 +84,8 @@ class Profile extends Component {
 
   onConfigurationEvents = (event_type, object) => {
 
+    console.log('**********onConfigurationEvents', event_type);
+
     switch (event_type){
       case ENUM_EVENT_EDIT_PROFILE:
         this.setState({active_tab_action:ACTIVE_TAB_PROFILE_EDIT_PROFILE, active_tab_object:null});
@@ -93,6 +96,11 @@ class Profile extends Component {
       case ENUM_EVENT_NEW_BANK_ACCOUNT:
         this.setState({active_tab_action:ACTIVE_TAB_PROFILE_BANK_ACCOUNT, active_tab_object:null});
         break;
+    
+      case ENUM_EVENT_EDIT_KEY:
+        this.setState({active_tab_action:ACTIVE_TAB_SECURITY_CHANGE_KEY, active_tab_object:object});
+        break;
+    
       default:
         break;
     }
@@ -236,16 +244,26 @@ class Profile extends Component {
     const add_bank_account    = formatMessage({id: 'pages.bankadmin.profile.add_bank_account'});
     const pushing_transaction = formatMessage({id: 'pages.bankadmin.profile.pushing_transaction'});
     const update_profile      = formatMessage({id: 'pages.bankadmin.profile.update_profile'});
-    
+    const edit_profile        = formatMessage({id: 'components.Views.profile.edit_text'});
+    const edit_key            = formatMessage({id: 'components.Views.profile_security.edit_key'});
     if(active_tab==ACTIVE_TAB_SECURITY)
     {
       if(active_tab_action==ACTIVE_TAB_SECURITY_CHANGE_KEY){
 
-        return null;
+        return (
+          <Skeleton 
+            title={edit_key} 
+            content={
+              <Spin spinning={pushingTx} delay={500} tip={pushing_transaction}>
+                <EditKeyForm />
+              </Spin>} 
+            icon="shield-alt" />  );
+
       }
       return <SecurityView 
         profile={this.state.profile} 
         eos_account={this.state.eos_account} 
+        onEvent={this.onConfigurationEvents}
         />;
     }
 
@@ -254,7 +272,8 @@ class Profile extends Component {
       {
         const button_text = active_tab_object?update_bank_account:add_bank_account;
         return (
-          <Skeleton 
+          <Skeleton
+            title={button_text} 
             content={
               <Spin spinning={pushingTx} delay={500} tip={pushing_transaction}>
                 <BankAccountForm 
@@ -269,6 +288,7 @@ class Profile extends Component {
       {
         return (
           <Skeleton 
+            title={edit_profile} 
             content={
               <Spin spinning={pushingTx} delay={500} tip={pushing_transaction}>
                 <ProfileForm 

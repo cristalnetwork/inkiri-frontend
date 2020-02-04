@@ -93,9 +93,11 @@ const ConfigurationProfile = (props) => {
     if(!profile)
       return (null);
     
+    const title = props.intl.formatMessage({id:'pages.bankadmin.profile.tab.profile'})
     if(globalCfg.bank.isFoundationAccount(profile))
       return(
-        <Skeleton 
+        <Skeleton
+          title={title} 
           content={
               <div className="c-detail">
                 <TransactionPetitioner profile={profile} title={fund_name} />
@@ -107,6 +109,7 @@ const ConfigurationProfile = (props) => {
     if(globalCfg.bank.isBusinessAccount(profile))
       return(
         <Skeleton 
+          title={title} 
           content={
               <div className="c-detail">
                 <TransactionPetitioner profile={profile} title={business_name} />
@@ -118,7 +121,8 @@ const ConfigurationProfile = (props) => {
 
     if(globalCfg.bank.isPersonalAccount(profile))
       return(
-        <Skeleton 
+        <Skeleton
+          title={title}  
           content={
               <div className="c-detail">
                 <TransactionPetitioner profile={profile} title={full_name} />

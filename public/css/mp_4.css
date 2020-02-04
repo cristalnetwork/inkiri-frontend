@@ -639,7 +639,7 @@ section.my-data.box-cards.info-account {
   clear: none; }
 
 .my-data-info .add-picture-badge-img {
-  right: -1px;
+  /*right: -1px;*/
   width: 70px;
   height: 70px; }
 
@@ -716,7 +716,7 @@ section.my-data.box-cards.info-account {
   display: block;
   float: right;
   height: 125px;
-  margin-right: 5px;
+  /*margin-right: 5px;*/
   overflow: hidden;
   padding: 0 0;
   width: 125px;
@@ -945,7 +945,7 @@ section.my-data.box-cards.info-account {
     display: block;
     float: right;
     height: 125px;
-    margin-right: 5px;
+    /*margin-right: 5px;*/
     overflow: hidden;
     padding: 0 0;
     width: 125px;
@@ -964,7 +964,7 @@ section.my-data.box-cards.info-account {
     -o-object-fit: cover;
     object-fit: cover; }
   .my-data-info .add-picture-badge-img {
-    right: -1px;
+    /*right: -1px;*/
     width: 70px;
     height: 70px; }
   .moxie-shim-html5 input:hover {
