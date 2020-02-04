@@ -967,10 +967,11 @@ export const columnsForIUGU = (callback) => {
         key: 'action',
         width: 250,
         render: (text, record) => {
-          const iugu        = request_helper.iugu.iuguLink(record);
+          //const iugu        = request_helper.iugu.iuguLink(record);
           const process     = request_helper.getProcessButton(record, callback, <InjectMessage id="components.TransactionTable.columns.details" />);
           const blockchain  = record.issued_tx_id?request_helper.getBlockchainLink(record.issued_tx_id, true, null, <InjectMessage id="components.TransactionTable.columns.blockchain_link_text" />):(null);
-          return (<>{process}&nbsp;{iugu}&nbsp;{blockchain}</>)
+          //return (<>{process}&nbsp;{iugu}&nbsp;{blockchain}</>)
+          return (<>{process}&nbsp;{blockchain}</>)
         }
       },
 

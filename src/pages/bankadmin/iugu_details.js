@@ -274,7 +274,7 @@ class iuguDetails extends Component {
 
           <ItemLink 
             link={null} 
-            href={invoice.original.secure_url} 
+            href={JSON.parse(invoice.original).secure_url} 
             text={this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.original_iugu_invoice'})} 
             icon="file-invoice" 
             icon_size="lg" 
