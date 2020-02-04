@@ -607,14 +607,26 @@ const GET_PROVIDER_DATA  = gql`
   }
 `;
 
-export const providers = async ({page, limit='', id='', name='', cnpj='', email='', category='', products_services='', state='', providerCounterId='', bank_name='', bank_agency='', bank_cc=''}={}) =>{
-  const a = {page:page.toString(), limit:limit, id:id, name:name, cnpj:cnpj, email:email, category:category, products_services:products_services, state:state, providerCounterId:providerCounterId, bank_name:bank_name, bank_agency:bank_agency, bank_cc:bank_cc};
+export const exportProviders = async ({page, limit='', id='', search_text='', name='', cnpj='', email='', category='', products_services='', state='', providerCounterId='', bank_name='', bank_agency='', bank_cc=''}={}) =>{
+  const a = {page:page.toString(), limit:limit, id:id, search_text:search_text, name:name, cnpj:cnpj, email:email, category:category, products_services:products_services, state:state, providerCounterId:providerCounterId, bank_name:bank_name, bank_agency:bank_agency, bank_cc:bank_cc};
+  return runQuery(EXPORT_PROVIDERS, a, 'export_providers');
+}
+const EXPORT_PROVIDERS = gql`
+  query getProviders($page:String!, $limit:String!, $search_text:String, $id:String, $name:String, $cnpj:String, $email:String, $category:String, $products_services:String, $state:String, $providerCounterId:String, $bank_name:String, $bank_agency:String, $bank_cc:String ) {
+    export_providers(page:$page, limit:$limit, id:$id, search_text:$search_text, name:$name, cnpj:$cnpj, email:$email, category:$category, products_services:$products_services, state:$state, providerCounterId:$providerCounterId, bank_name:$bank_name, bank_agency:$bank_agency, bank_cc:$bank_cc){
+      file_id
+      error    
+    }
+  }`;
+
+export const providers = async ({page, limit='', id='', search_text='', name='', cnpj='', email='', category='', products_services='', state='', providerCounterId='', bank_name='', bank_agency='', bank_cc=''}={}) =>{
+  const a = {page:page.toString(), limit:limit, id:id, search_text:search_text, name:name, cnpj:cnpj, email:email, category:category, products_services:products_services, state:state, providerCounterId:providerCounterId, bank_name:bank_name, bank_agency:bank_agency, bank_cc:bank_cc};
   return runQuery(GET_PROVIDERS, a, 'providers');
 }
 
 const GET_PROVIDERS = gql`
-  query getProviders($page:String!, $limit:String!, $id:String, $name:String, $cnpj:String, $email:String, $category:String, $products_services:String, $state:String, $providerCounterId:String, $bank_name:String, $bank_agency:String, $bank_cc:String ) {
-    providers(page:$page, limit:$limit, id:$id, name:$name, cnpj:$cnpj, email:$email, category:$category, products_services:$products_services, state:$state, providerCounterId:$providerCounterId, bank_name:$bank_name, bank_agency:$bank_agency, bank_cc:$bank_cc){
+  query getProviders($page:String!, $limit:String!, $search_text:String, $id:String, $name:String, $cnpj:String, $email:String, $category:String, $products_services:String, $state:String, $providerCounterId:String, $bank_name:String, $bank_agency:String, $bank_cc:String ) {
+    providers(page:$page, limit:$limit, id:$id, search_text:$search_text, name:$name, cnpj:$cnpj, email:$email, category:$category, products_services:$products_services, state:$state, providerCounterId:$providerCounterId, bank_name:$bank_name, bank_agency:$bank_agency, bank_cc:$bank_cc){
       _id
       name
       cnpj

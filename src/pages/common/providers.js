@@ -21,8 +21,14 @@ import * as columns_helper from '@app/components/TransactionTable/columns';
 
 import * as utils from '@app/utils/utils';
 
+import InjectMessage from "@app/components/intl-messages";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { injectIntl } from "react-intl";
 import * as gqlService from '@app/services/inkiriApi/graphql'
+
+import {ResizeableTable} from '@app/components/TransactionTable/resizable_columns';
+
+import ProviderFilter from '@app/components/Filters/provider';
 
 
 class Providers extends Component {
@@ -44,6 +50,11 @@ class Providers extends Component {
     this.onButtonClick              = this.onButtonClick.bind(this);
     this.getColumns                 = this.getColumns.bind(this);
     this.onNewProvider               = this.onNewProvider.bind(this); 
+
+    this.filterCallback      = this.filterCallback.bind(this);
+
+    this.myExportRef    = React.createRef();
+    this.timeout_id     = null;   
   }
 
   getColumns(){
@@ -77,6 +88,90 @@ class Providers extends Component {
     });
   }
 
+  filterCallback = (error, cancel, values, refresh) => {
+    
+    if(cancel)
+    {
+      return;
+    }
+    if(error)
+    {
+      return;
+    }
+
+    if(refresh)
+    {
+      clearTimeout(this.timeout_id);
+      this.timeout_id = setTimeout(()=> {
+        this.reloadProviders();
+      } ,100);
+      return;
+    }
+    
+    console.log(' iuguFilter: ', JSON.stringify(values));
+    /*
+      {"state":"state_error","to":"centroinkiri","date_from":"2020-01-02T00:13:52.742Z","date_to":"2020-01-25T00:13:52.742Z"}
+    */
+
+    
+    clearTimeout(this.timeout_id);
+    this.timeout_id = setTimeout(()=> {
+      this.setState({filter:(values||{})}, ()=>{
+        this.reloadProviders();
+      })
+    } ,100);
+    
+  }
+
+  exportButton = () => [<a className="hidden" key="export_button_dummy" ref={this.myExportRef}  href={this.state.sheet_href} target="_blank" >x</a>, <Button key="export_button" onClick={this.handleExportClick} size="small" style={{position: 'absolute', right: '8px', top: '16px'}} title={this.props.intl.formatMessage({id:'global.export_sheet_remember_allowing_popups'})}><FontAwesomeIcon icon="file-excel" size="sm" color="black"/>&nbsp;<InjectMessage id="global.export_list_to_spreadsheet" /></Button>];
+  //
+  handleExportClick = async () => {
+
+    const filter = this.getFilter(false);
+      
+    console.log(filter)
+    if(!filter)
+      return;
+
+    this.setState({loading:true});
+    const that       = this;
+    try{
+      const data = await gqlService.exportProviders(filter);
+      
+      this.setState({loading:false});
+      console.log(data)
+      if(data && data.file_id)
+      {
+        console.log('SETTING STATE')
+        this.setState( { sheet_href: `https://docs.google.com/spreadsheets/d/${data.file_id}` }
+                        , () => { 
+                          console.log('CALLING BUTTON?')
+                         if(!this.myExportRef)    
+                            return;
+                          console.log('YES')
+                          this.myExportRef.current.click();
+                        });
+        
+        return;
+      } 
+      console.log('NOooooooooooooooo')
+      if(data && data.error)
+      {
+        components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}), data.error);
+        return;
+      }
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}));
+    }
+    catch(e)
+    {
+      this.setState({loading:false});
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}), e);
+      return;
+    }
+
+    this.setState({loading:false});
+  }
+
   reloadProviders(){
     this.setState({
         page:        -1, 
@@ -85,6 +180,18 @@ class Providers extends Component {
       }, () => {
         this.loadProviders();
       });  
+  }
+
+  getFilter = (increase_page_if_needed) => {
+    const page             = (this.state.page<=0)
+      ?0
+      :(increase_page_if_needed)
+        ?(this.state.page+1)
+        :this.state.page;
+
+    const {limit, filter}  = this.state;
+    
+    return {limit:limit.toString(), page:page.toString(), ...filter};
   }
 
   loadProviders = async (first) => {
@@ -99,10 +206,10 @@ class Providers extends Component {
 
     this.setState({loading:true});
 
-    let that           = this;
-    let page           = (this.state.page<0)?0:(this.state.page+1); 
+    let that     = this;
+    const filter = this.getFilter(true);
     try{
-      const data = await gqlService.providers({page:page});
+      const data = await gqlService.providers(filter);
       console.log(' ==== providers::gqlService:', data)
       that.onNewData(data);
     }
@@ -181,11 +288,15 @@ class Providers extends Component {
             title={ this.props.intl.formatMessage({id:'pages.common.providers.table_title'}) }
             style={{ marginTop: 24 }}
           >
-            <Table
+            <ProviderFilter 
+              callback={this.filterCallback} />
+
+            <ResizeableTable
+              title = { () => this.exportButton() }
               key="table_all_txs" 
               rowKey={record => record._id} 
               loading={this.state.loading} 
-              columns={this.getColumns()} 
+              columns_def={this.getColumns()} 
               dataSource={this.state.providers} 
               footer={() => this.renderFooter()}
               pagination={this.state.pagination}

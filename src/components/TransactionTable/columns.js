@@ -718,6 +718,7 @@ export const columnsForProviders = (callback) => {
       title: <InjectMessage id="components.TransactionTable.columns.name" />,
       dataIndex: 'name',
       key: 'name',
+      width: 150,
       sortDirections: ['descend'],
       defaultSortOrder: 'descend',
       // sorter: (a, b) => a.block_time_number - b.block_time_number,
@@ -725,13 +726,15 @@ export const columnsForProviders = (callback) => {
     {
       title: <InjectMessage id="components.TransactionTable.columns.cnpj" />,
       dataIndex: 'cnpj',
-      key: 'cnpj'
+      key: 'cnpj',
+      width: 110
     },
     //
     {
       title: <InjectMessage id="components.TransactionTable.columns.contact" />,
       dataIndex: 'email',
       key: 'email',
+      width: 150,
       render: (email, record) => (
         <>
           <span key={'email_'+record._id}>
@@ -746,6 +749,7 @@ export const columnsForProviders = (callback) => {
       title: <InjectMessage id="components.TransactionTable.columns.address" />,
       dataIndex: 'address',
       key: 'address',
+      width: 250,
       render: (address, record) => (
         <span key={address._id}>
          <Icon type="environment" /> {address.street}, {address.city}, CP {address.zip}, {address.state}, {address.country}
@@ -755,12 +759,14 @@ export const columnsForProviders = (callback) => {
     {
       title: <InjectMessage id="components.TransactionTable.columns.category" />,
       key: 'category',
+      width: 150,
       dataIndex: 'category',
     },
     //
     {
       title: <InjectMessage id="components.TransactionTable.columns.products_services" />,
       dataIndex: 'products_services',
+      width: 150,
       key: 'products_services',
       
     },
@@ -768,6 +774,7 @@ export const columnsForProviders = (callback) => {
       title: <InjectMessage id="components.TransactionTable.columns.bank_accounts" />,
       dataIndex: 'bank_accounts',
       key: 'bank_accounts',
+      width: 150,
       render: (bank_accounts, record) => (
         <span key={'bank_accounts_'+record._id}>
           <Icon type="bank" /> {bank_accounts.map(bank_account => <span key={'bank_accounts'+bank_account._id}>{bank_account.bank_name}, {bank_account.agency}, {bank_account.cc}</span>)} 
@@ -777,7 +784,7 @@ export const columnsForProviders = (callback) => {
     //
     {
       title: <InjectMessage id="components.TransactionTable.columns.action" />,
-      fixed: 'right',
+      align:       'right',
       width: 100,
       key: 'action',
       render: (record) => 
