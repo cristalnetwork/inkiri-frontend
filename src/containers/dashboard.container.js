@@ -58,7 +58,10 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
     console.log('isMobile:',isMobile)
     console.log('menu_is_collapsed:',menu_is_collapsed)
 
-    const hidden_if_collapsed = menu_is_collapsed?' hidden':'';
+    const hidden_if_collapsed   = menu_is_collapsed?' hidden':'';
+    const zeroWidthTriggerStyle = menu_is_collapsed ? {top:14, left:14} : {};
+    const content_style         = isMobile?
+      (menu_is_collapsed?{}:{ margin: '24px 16px 0' }):{ margin: '24px 16px 0' };
     return (
         <Layout style={{ minHeight: '100vh' }}>
         <Sider 
@@ -72,6 +75,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
             // console.log( ' >>> Sider::broken? >>>' , broken);
           }}
           collapsedWidth={isMobile?0:80}
+          zeroWidthTriggerStyle={zeroWidthTriggerStyle}
           >
 
             <div className={"logo" + logo_mobile}>
@@ -98,7 +102,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
           <Header style={{ background: '#fff', padding: 0 }}>
             { TopMenu? <TopMenu/>: <InkiriHeader/> }
           </Header>
-          <Content style={{ margin: '24px 16px 0' }}>
+          <Content style={content_style}>
 
             { Children? <Children/>: false }
             <BackTop />

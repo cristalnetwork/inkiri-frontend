@@ -112,7 +112,7 @@ class InkiriHeader extends Component {
     {
       header_content = (
         <>
-          <a className={logo_class} key="logo" href="/" style={{paddingLeft:8}}>
+          <a className={logo_class} key="logo" href="/" style={{paddingLeft:64}}>
             <img src="/favicons/favicon-32x32.png" alt="logo"/>
           </a>
           <div className="right">

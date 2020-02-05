@@ -466,9 +466,11 @@ class TransactionTable extends Component {
   //
   render(){
     const is_external = (this.state.mode==REQUEST_MODE_BANK_TRANSFERS);
+    
     const header = (is_external)
       ?this.remButtons()
       :this.exportButton();
+
     return (
       <ResizeableTable 
         title={() => header}

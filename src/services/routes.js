@@ -374,13 +374,6 @@ const routes  = {
                 path:         routes_config.pathNames.mobileExtrato,
                 title:        'menu.item.extrato',
                 icon:         'wallet',
-            },
-            {
-                key:         routes_config.pathNames.mobilePDV,
-                path:        routes_config.pathNames.mobilePDV,
-                title:       'menu.item.vendas_pdv',
-                permission:  'owner,active,pdv',
-                icon:        'plus-square',
             }
         ]
     }
