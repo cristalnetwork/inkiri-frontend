@@ -12,7 +12,7 @@ export const pathNames = utils.arrToObj([
     'bankadminOperations',
     'bankadminServices',
     'bankadminExternalTransfers',
-    // 'bankadminExternalTransfers_ProcessExternal',
+    'bankadminExternalTransfers_ProcessExternal',
     'bankadminIugu',
     'bankadminIugu_Details',
     'bankadminConfiguration',
@@ -35,7 +35,7 @@ export const pathNames = utils.arrToObj([
 
     'commonExtrato',
     'commonRequestDetails',
-    'commontransactionDetails',
+    'commonTransactionDetails',
     'commonDeposit',
     'commonWithdraw',
     'commonSend',
@@ -52,25 +52,12 @@ export const pathNames = utils.arrToObj([
     'commonProviders_CreateProvider',
     'commonProviders_ProviderProfile',
 
+    'mobileExtrato',
+    'mobilePDV',
     'dashboard'
 ])
 
 const personal =[
-    // {
-    //    key:        pathNames.dashboard,
-    //    fileName:   'under-construction',
-    //    area:       'personal',
-    //    path:       'dashboard',
-    //    container:  'dashboard',
-    //    role:       'personal',
-    // },
-    {
-       key:       pathNames.personalWithdraw,
-       fileName:  'withdraw',
-       area:      'personal',
-       path:      'withdraw',
-       container: 'dashboard' 
-    },
     {
        key:        pathNames.personalExchange,
        fileName:   'exchange',
@@ -393,7 +380,7 @@ const common = [
        container:    'dashboard',
        role:         '*'
     },
-    {
+  {
        key:          pathNames.commonExtrato,
        fileName:     'extrato',
        area:         'common',
@@ -404,12 +391,30 @@ const common = [
 
 ];
 
+const mobile = [{
+       key:          pathNames.mobileExtrato,
+       fileName:     'extrato',
+       area:         'mobile',
+       path:         'extrato',
+       container:    'dashboard',
+       role:         '*'
+    },
+    {
+       key:          pathNames.mobilePDV,
+       fileName:     'pdv',
+       area:         'mobile',
+       path:         'pdv',
+       container:    'dashboard',
+       role:         'business'
+    },
+];
 
 const merged  = [
     ...personal,
     ...bankadmin,
     ...business,
-    ...common
+    ...common,
+    ...mobile
   ]
 
 export const getPath = (key) => {

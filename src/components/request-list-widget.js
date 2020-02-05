@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 
 import * as pageRedux from '@app/redux/models/page'
 import * as loginRedux from '@app/redux/models/login'
+import * as menuRedux from '@app/redux/models/menu';
 
 import RequestsFilter from '@app/components/Filters/requests';
 import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimple} from '@app/components/TransactionTable/stats';
@@ -118,11 +119,11 @@ const RequestListWidget = (props) => {
 
   return(
       <>
-      <RequestsFilter 
-        callback={requestFilterCallback} 
-        request_type={request_type}
-        hidden_fields={filter_hidden_fields} />
-      { !hide_stats && <TableStats stats_array={stats}/> }
+      { !props.isMobile && <RequestsFilter 
+              callback={requestFilterCallback} 
+              request_type={request_type}
+              hidden_fields={filter_hidden_fields} />}
+      { !props.isMobile && !hide_stats && <TableStats stats_array={stats}/> }
       <TransactionTable 
         onChange={onTableChange}
         key={'table_'+key} 
@@ -141,6 +142,7 @@ export default connect(
         actualAccountName:    loginRedux.actualAccountName(state),
         page_key_values:      pageRedux.pageKeyValues(state),
         isAdmin:              loginRedux.isAdmin(state),
+        isMobile :            menuRedux.isMobile(state),
     }),
     (dispatch)=>({
         setPageKeyValue:      bindActionCreators(pageRedux.setPageKeyValue, dispatch),

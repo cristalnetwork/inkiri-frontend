@@ -15,10 +15,11 @@ import MenuByRole from './menu';
 import history from '@app/history.js'
 
 import * as loginRedux from '@app/redux/models/login'
+import * as menuRedux from '@app/redux/models/menu'
 
 // LOGIN, ROLES and REDIRECT TO REFERRER -- > https://reacttraining.com/react-router/web/example/auth-workflow
 
-const _checkRole = ({role, actualRole, children, history, location}) => {
+const _checkRole = ({role, actualRole, children, history, location, isMobile}) => {
     
     // console.log( ' ************ ', ' ROUTER -> role:', role, '=== actualRole:', actualRole );
 
@@ -52,26 +53,35 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           
           if(actualRole=='business') 
           { 
-            history.push(`/common/extrato`);
-            // history.push(`/common/deposit`);
-            // history.push(`/common/providers`);
-            // history.push(`/common/request-money`);
-            // history.push(`/common/salaries`);
-            // history.push(`/common/send`);
-            // history.push(`/${actualRole}/providers-payments`);
-            // history.push(`/${actualRole}/providers-payments-request`);
-            // history.push(`/${actualRole}/provider-payment-request-details`);
-            // history.push(`/common/deposit`);
-            // history.push(`/common/withdraw`);
-            // history.push(`/${actualRole}/pdv`);
-            // history.push(`/common/contracted-services`);
-            // history.push(`/common/services`);
-            // history.push(`/common/crew`);   
-            // history.push(`/common/configuration`);
-            // history.push(`/common/create-provider`);
+            if(isMobile)
+              history.push(`/mobile/extrato`);
+            else
+            {
+              history.push(`/common/extrato`);
+              // history.push(`/common/deposit`);
+              // history.push(`/common/providers`);
+              // history.push(`/common/request-money`);
+              // history.push(`/common/salaries`);
+              // history.push(`/common/send`);
+              // history.push(`/${actualRole}/providers-payments`);
+              // history.push(`/${actualRole}/providers-payments-request`);
+              // history.push(`/${actualRole}/provider-payment-request-details`);
+              // history.push(`/common/deposit`);
+              // history.push(`/common/withdraw`);
+              // history.push(`/${actualRole}/pdv`);
+              // history.push(`/common/contracted-services`);
+              // history.push(`/common/services`);
+              // history.push(`/common/crew`);   
+              // history.push(`/common/configuration`);
+              // history.push(`/common/create-provider`);
+            }
           }  
           
           if(actualRole=='personal') {
+            if(isMobile)
+              history.push(`/mobile/extrato`);
+            else
+            {
               history.push(`/common/extrato`);
               // history.push(`/common/request-money`);
               // history.push(`/common/configuration`);
@@ -82,6 +92,7 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
               // history.push(`/${actualRole}/exchange`);
               //history.push(`/${actualRole}/account-settings`);
               //history.push(`/${actualRole}/dashboard`);
+            }
           }
           if(actualRole=='foundation') {
               history.push(`/common/extrato`);
@@ -102,7 +113,8 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
 }
 
 const CheckRole = connect((state)=>({
-    actualRole:       loginRedux.actualRole(state),
+    actualRole:         loginRedux.actualRole(state),
+    isMobile :          menuRedux.isMobile(state),
 }),()=>({}))(withRouter(_checkRole))
 
 const CheckLogin = () => <CheckRole role={undefined}><Login/></CheckRole>
@@ -129,6 +141,7 @@ const loadableComponent = (area, fileName, container, role, itemPath)=> {
 }
 
 export const DashboardRouter = ({routes}) => {    
+  // console.log(' DashboardRouter => ', routes);
   return (
     <Router history={history}>
         <Route path="/login" component={CheckLogin} />

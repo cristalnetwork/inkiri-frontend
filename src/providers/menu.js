@@ -16,12 +16,17 @@ import { getRootKeys } from '@app/services/routes'
 import InjectMessage from "@app/components/intl-messages";
 const  { SubMenu } = Menu;
 
-export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [], allAccounts, getMenu, trySwitchAccount2, actualAccountName, actualRole , actualRoleId,  actualPermission, 
+export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [], allAccounts, isMobile, getMenu, trySwitchAccount2, actualAccountName, actualRole , actualRoleId,  actualPermission, 
                              lastRootMenu, menuIsCollapsed}) => {
         
         const [myActualAccountName, setActualAccountName]   = useState(null);
         const [myActualrole, setActualRole]                 = useState(null);
-        
+        const [mobileMode, setMobileMode]                   = useState(isMobile);
+
+        useEffect(()=>{
+          setMobileMode(isMobile)
+        }, [mobileMode])
+
         useEffect(()=>{
             if(myActualrole!=actualRole && myActualAccountName!=actualAccountName)
             {
@@ -29,7 +34,7 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
               setActualRole(actualRole);
               getMenu(actualAccountName, actualRole);
             }
-        })
+        }, [actualRole, actualAccountName])
 
         let selected = routes_config.getItemByAreaNFilename(area, fileName, itemPath)
         
@@ -116,7 +121,8 @@ export default connect(
         actualRoleId:          loginRedux.actualRoleId(state),
         actualPermission:      loginRedux.actualPermission(state),
         lastRootMenu:          menuRedux.lastRootMenu(state),
-        menuIsCollapsed :      menuRedux.isCollapsed(state)
+        menuIsCollapsed :      menuRedux.isCollapsed(state),
+        isMobile :             menuRedux.isMobile(state),
     }),
     dispatch => ({
         getMenu:               bindActionCreators( menuRedux.getMenu, dispatch),

@@ -47,11 +47,16 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
     }
     
     const onCollapse = (collapsed, type )=> {
-        // console.log('dashboard::onCollpase:', collapsed, type);
+        console.log('dashboard::onCollpase:', collapsed, type);
         if(type=='clickTrigger')
           collapseMenu(collapsed)
         
       };
+
+    //defaultCollapsed={menu_is_collapsed} 
+
+    console.log('isMobile:',isMobile)
+    console.log('menu_is_collapsed:',menu_is_collapsed)
 
     const hidden_if_collapsed = menu_is_collapsed?' hidden':'';
     return (
@@ -60,7 +65,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
           collapsible 
           collapsed={menu_is_collapsed} 
           onCollapse={(collapsed, type) => {onCollapse(collapsed, type)}}
-          defaultCollapsed={menu_is_collapsed} 
+          defaultCollapsed={isMobile}           
           theme="light"
           breakpoint="sm"
           onBreakpoint={broken => {

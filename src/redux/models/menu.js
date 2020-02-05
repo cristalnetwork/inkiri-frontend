@@ -1,5 +1,4 @@
-// import * as api from '../../services/userApi'
-import { getRoutesByRole } from '@app/services/routes'
+import { getRoutesByRole, getRoutesByRoleAndDevice } from '@app/services/routes'
 import { takeEvery, put } from '@redux-saga/core/effects';
 import { store } from '@app/redux/configureStore'
 
@@ -55,12 +54,13 @@ function* getMenuSaga({ type, payload }) {
     // if (typeof error === 'undefined') {
       // yield put(setMenu({ role: data.role, menu: getRoutesByRole( data.role )}))
     // }
+    const { account_type } = payload;
     
-    const {account_type } = payload;
-    // console.log(' --------------- getMENUSAGA > payload', payload)
-    // console.log(' --------------- getMENUSAGA > account_name', account_name)
-    // console.log(' --------------- getMENUSAGA > account_type', account_type)
-    yield put(setMenu({ role: account_type, menu: getRoutesByRole( account_type )}))
+    const { is_mobile } = store.getState().menu;
+    
+    // yield put(setMenu({ role: account_type, menu: getRoutesByRole( account_type )}))
+    yield put(setMenu({ role: account_type, menu: getRoutesByRoleAndDevice( account_type, is_mobile )}))
+
   } catch(error) {
     console.log({error})
     yield put(getMenuFail(error))
@@ -169,9 +169,11 @@ function reducer(state = defaultState, action = {}) {
         last_root_menu_fullpath:   action.payload.fullpath
       }
     case SET_MOBILE:
+        // const is_collapsed = state.is_collapsed;
         return {
             ...state,
-            is_mobile:             action.payload.is_mobile
+            is_mobile:             action.payload.is_mobile,
+            // is_collapsed:          action.payload.is_mobile?action.payload.is_mobile:is_collapsed
         }
     case SET_LANGUAGE:
         return {

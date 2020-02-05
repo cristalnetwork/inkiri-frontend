@@ -64,6 +64,9 @@
 
 /* HACK FOR PAGEHEADER */
 
+.ant-pro-global-header{
+  position:relative;
+}
 span.view_requests{
   line-height: 26px;
   color: rgba(0, 0, 0, 0.85)

@@ -108,12 +108,11 @@ class InkiriHeader extends Component {
     let header_content ;
     const {referrer, isMobile, menuIsCollapsed} = this.state;
     const logo_class = menuIsCollapsed? 'ant-pro-global-header-logo':'hidden';
-    
     if(isMobile)
     {
       header_content = (
         <>
-          <a className={logo_class} key="logo" href="/">
+          <a className={logo_class} key="logo" href="/" style={{paddingLeft:8}}>
             <img src="/favicons/favicon-32x32.png" alt="logo"/>
           </a>
           <div className="right">
@@ -136,13 +135,12 @@ class InkiriHeader extends Component {
         </div>
       );
     }
-    //
+    // <Header style={{ background: '#fff', padding: 0 }}> </Header>
     return (
-       <Header style={{ background: '#fff', padding: 0 }}>
           <div className="ant-pro-global-header">  
             {header_content}
           </div>
-        </Header>
+       
     )
   }
 

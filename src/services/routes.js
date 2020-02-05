@@ -347,6 +347,48 @@ const routes  = {
             }
         ]
     }
+    
+    , mobile_business: {
+        items: [
+            {
+
+                key:         routes_config.pathNames.mobileExtrato,
+                path:        routes_config.pathNames.mobileExtrato,
+                title:       'menu.item.extrato',
+                icon:        'wallet',
+            },
+            {
+                key:         routes_config.pathNames.mobilePDV,
+                path:        routes_config.pathNames.mobilePDV,
+                title:       'menu.item.vendas_pdv',
+                permission:  'owner,active,pdv',
+                icon:        'plus-square',
+            }
+        ]
+    }
+    , mobile_personal: {
+        items: [
+            {
+
+                key:          routes_config.pathNames.mobileExtrato,
+                path:         routes_config.pathNames.mobileExtrato,
+                title:        'menu.item.extrato',
+                icon:         'wallet',
+            },
+            {
+                key:         routes_config.pathNames.mobilePDV,
+                path:        routes_config.pathNames.mobilePDV,
+                title:       'menu.item.vendas_pdv',
+                permission:  'owner,active,pdv',
+                icon:        'plus-square',
+            }
+        ]
+    }
+}
+
+export const getRoutesByRoleAndDevice = ( role, is_mobile) =>  {
+    const my_role = is_mobile? `mobile_${role}`:role;
+    return role?routes[my_role]:[];
 }
 
 export const getRoutesByRole = (role) => {
