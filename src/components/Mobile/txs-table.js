@@ -12,7 +12,7 @@ import * as gqlRequestI18nService from '@app/services/inkiriApi/requests-i18n-gr
 import {ResizeableTable} from '@app/components/TransactionTable/resizable_columns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import { Dropdown, Icon, Menu, Button, Table, DatePicker } from 'antd';
+import { Dropdown, Icon, Menu, Button, Table, DatePicker, Spin } from 'antd';
 import moment from 'moment';
 
 import * as columns_helper from '@app/components/TransactionTable/columns';
@@ -58,7 +58,7 @@ class TxsTable extends Component {
       mode:              props.mode,
       filter:            props.filter,
       requests_filter:   {},
-
+      intl:              {}
       
     };
     // this.handleChange      = this.handleChange.bind(this);
@@ -88,6 +88,14 @@ class TxsTable extends Component {
     }
 
     this.loadTxs();
+
+    const reached_end_of_list  = this.props.intl.formatMessage({id:'global.list.reached_end_of_list'});
+    const reached_end_of_list_message = this.props.intl.formatMessage({id:'global.list.reached_end_of_list_message'});
+    const pull_to_refresh  = this.props.intl.formatMessage({id:'global.list.pull_to_refresh'});
+    const release_to_refresh = this.props.intl.formatMessage({id:'global.list.release_to_refresh'});
+
+
+    this.setState({intl:{reached_end_of_list, reached_end_of_list_message, pull_to_refresh, release_to_refresh}})
   }
   
   componentWillUnmount() {
@@ -243,10 +251,6 @@ class TxsTable extends Component {
       }
   }
 
-  refresh = () => {
-
-  }
-
   items = () => {
     const {actualAccountName} = this.props;
     const process_wages = { process_wages:this.props.isPersonal, account_name:actualAccountName};
@@ -280,7 +284,7 @@ class TxsTable extends Component {
                 {from_to}
               </div>
               <div className="hint" key={`${__id}__f`}>
-                {tx.sub_header}
+                {request_helper.formatDateForMobile(tx)}
               </div>
             </div>
             <div className="right_content" key={`${__id}__g`}>
@@ -293,26 +297,27 @@ class TxsTable extends Component {
       }
     )
   }
-  //
+  // `
 
   render(){
+
     return (<InfiniteScroll
           dataLength={this.state.txs.length} //This is important field to render the next data
           next={this.loadTxs}
           hasMore={this.state.can_get_more}
-          loader={<h4>Loading...</h4>}
+          loader={<div style={{ width: '100%', textAlign: 'center' }}><Spin size="large" /></div>}
           endMessage={
-            <p style={{textAlign: 'center'}}>
-              <b>Yay! You have seen it all</b>
+            <p className="end_of_list">
+              <b>{this.state.intl.reached_end_of_list}</b>
             </p>
           }
           refreshFunction={this.refresh}
           pullDownToRefresh
           pullDownToRefreshContent={
-            <h3 style={{textAlign: 'center'}}>&#8595; Pull down to refresh</h3>
+            <h3 style={{textAlign: 'center'}}>&#8595; {this.state.intl.pull_to_refresh}</h3>
           }
           releaseToRefreshContent={
-            <h3 style={{textAlign: 'center'}}>&#8593; Release to refresh</h3>
+            <h3 style={{textAlign: 'center'}}>&#8593; {this.state.intl.release_to_refresh}</h3>
           }>
           {this.items()}
         </InfiniteScroll>)

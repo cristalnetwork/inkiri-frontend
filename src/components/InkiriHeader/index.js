@@ -111,11 +111,13 @@ class InkiriHeader extends Component {
     if(isMobile)
     {
       const logo_class = menuIsCollapsed? 'ant-pro-global-header-logo':'hidden';
+      /*
+      <a className={logo_class} key="logo" href="/" style={{paddingLeft:64}}>
+        <img src="/favicons/favicon-32x32.png" alt="logo"/>
+      </a>
+      */
       header_content = (
         <>
-          <a className={logo_class} key="logo" href="/" style={{paddingLeft:64}}>
-            <img src="/favicons/favicon-32x32.png" alt="logo"/>
-          </a>
           <div className="right">
             <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
           </div>

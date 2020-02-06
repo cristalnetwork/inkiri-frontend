@@ -100,7 +100,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
             { Menu? <Menu renderAccounts={true} area={area} fileName={fileName} itemPath={itemPath} />: false }
         </Sider>
         <Layout>
-          <Header style={{ background: '#fff', padding: 0 }}>
+          <Header>
             { TopMenu? <TopMenu/>: <InkiriHeader/> }
           </Header>
           <Content style={content_style}>

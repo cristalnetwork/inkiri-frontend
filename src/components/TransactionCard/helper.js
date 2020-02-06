@@ -23,6 +23,10 @@ export const getRequestDate = (request) => {
 export const formatDate = (date) => {
   return moment(date).format('LLLL');
 }
+export const formatDateForMobile= (request) =>{
+  const _date = getRequestDate(request);
+  return moment(_date).format('DD MMM YY, HH:mm');
+}
 
 export const formatUnix = (date, _format='LLLL') => {
   let my_value = date;
@@ -392,7 +396,7 @@ export const formatBlockTime = (request) => {
   const my_date = (request.block_time?request.block_time:request.paid_at)
   return my_date.replace('T',' ');
 }
-//
+ //
 export const getStyledBalance = (record, full) => {
 
   const real_balance = parseFloat(record.balance) - parseFloat(record.overdraft);

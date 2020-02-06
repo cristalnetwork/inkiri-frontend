@@ -117,9 +117,16 @@ class Extrato extends Component {
     const wage_filter = this.props.isPersonal
       ?{wage_filter:this.props.actualAccountName}
       :{};
+    const collapsedMenuOverlay = (this.props.menuIsCollapsed)
+      ?(null)
+      :(<div className="overlay"></div>);//
+    const collapsedMenu        = (this.props.menuIsCollapsed)
+      ?''
+      :' menu_shown';
     return (
       <>
-        <div className="styles standardList" style={{overflow:'hidden', backgroundColor:'#fff', marginTop: 0, padding: 0 }}>
+        <div className={'transaction_list' + collapsedMenu}>
+          {collapsedMenuOverlay}
           <MobileBalanceWidget userId={this.props.actualAccountName} />
           <div className="mobile_table_wrapper">
             <MobileRequestListWidget
@@ -146,7 +153,7 @@ export default  (withRouter(connect(
         actualRoleId:         loginRedux.actualRoleId(state),
         isPersonal:           loginRedux.isPersonal(state),
         isMobile :            menuRedux.isMobile(state),
-
+        menuIsCollapsed:      menuRedux.isCollapsed(state),
         page_key_values:      pageRedux.pageKeyValues(state),
     }),
     (dispatch)=>({
