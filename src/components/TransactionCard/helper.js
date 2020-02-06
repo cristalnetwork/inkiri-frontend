@@ -189,6 +189,31 @@ export const getCircledTypeIcon = (request) => {
           </div>);
 }
 //
+export const getBoxedTypeIcon = (request) => {
+  
+  if(typeof request !== 'string')
+    request = request.requested_type  
+
+  const my_icon               = getTypeConf()[request]; 
+  // const my_icon_color_primary = 'rgba(0,0,0,0.6)';
+  const my_icon_color_primary = '#ffffff';
+  const className             = 'boxed-tx-type';
+  // const style     = {border: `0.0625em solid ${my_icon.color.primary}` , background: `${my_icon.color.secondary}`}
+  const style     = {background: `${my_icon.color.secondary}`}
+  const size      = '1x';
+  let icon        = null;
+
+  if(my_icon.rotation>0)
+    // icon = (<FontAwesomeIcon icon={my_icon.icon} rotation={my_icon.rotation} style={my_icon.style} size={size} color={my_icon.color.primary}/>);
+  icon = (<FontAwesomeIcon icon={my_icon.icon} rotation={my_icon.rotation} style={my_icon.style} size={size} color={my_icon_color_primary}/>);
+  else
+    // icon = (<FontAwesomeIcon icon={my_icon.icon} style={my_icon.style} size={size} color={my_icon.color.primary}/>);
+  icon = (<FontAwesomeIcon className="boxed_icon" icon={my_icon.icon} style={my_icon.style} size={size} color={my_icon_color_primary}/>);
+  return (<div className={className} style={style}>
+            {icon} 
+          </div>);
+}
+//
 export const getTypeIcon = (request, size, color) => {
   
   const my_icon = getTypeConf()[request.requested_type]; 
@@ -220,7 +245,11 @@ export const getAccountStateTag = (account, include_br) => {
 //
 export const computeWageForAccount = (request, account_name) => {
   if(globalCfg.api.isSalary(request) && request.wages && account_name)
-    return request.wages.filter(wage => wage.account_name==account_name)[0].wage;
+  {
+    const wage = request.wages.find(wage => wage.account_name==account_name);
+    if(wage)
+      return wage.wage;
+  }
   return request.amount;
 }
 //
@@ -310,16 +339,12 @@ export const styleAmount = (request, current_account_name, process_wages) => {
   if(globalCfg.api.isSalary(request) && process_wages && process_wages.process_wages==true)
     request_amount = computeWageForAccount(request, process_wages.account_name);
         
-  //                                      MONEY IN  MONEY OUT
-  // REQUESTED                            green+    red-         #ffffff
-  // PROCESSING                           green+    red-         #ffbb33
-  // DONE (ACCEPTED BY ADMIN)             green+    red-         #00C851
-  // CANCELADO (CANCELADO BY BANK/ADMIN)  gray+     gray-        #ff4444
-
   const currency_parts  = globalCfg.currency.toCurrencyString(request_amount).split(' ');
   const symbol          = currency_parts[0]
   const amount          = currency_parts[1]
-  
+  const amount_int_part = amount.split('.')[0]
+  const amount_dec_part = amount.split('.')[1]
+
   const is_negative     = isNegativeTx(request, current_account_name);
   const negative_symbol = (is_negative==true?'-':'');
   
@@ -330,8 +355,15 @@ export const styleAmount = (request, current_account_name, process_wages) => {
         ? '#CC0000'
         : '#007E33';
   const style           = {color:color, fontSize:16, fontWeight:'bold'}; //{fontSize:'0.75em'}
-  return (<span style={style} key={'amount_'+request._id}> {negative_symbol}&nbsp;<span style={style}>{symbol}</span>&nbsp;{amount} </span>)
+  return (<span className="symbol_amount" style={style} key={'amount_'+request._id}>
+        <span className="currency_symbol" style={style}>{negative_symbol}&nbsp;{symbol}</span>&nbsp;<span className="quantity">
+          <span className="integer_part">{amount_int_part}</span>
+          <span className="decimal_separator">.</span>
+          <span className="deciml_part">{amount_dec_part}</span>
+        </span>
+      </span>)
 }
+
 
 //
 export const getStyledAmount = (request) => {

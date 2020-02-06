@@ -3,6 +3,17 @@ import Eslang from './entries/es_ES';
 import Brlang from './entries/pt_BR';
 // import { addLocaleData } from 'react-intl';
 
+export const LocalesMap = {
+  en: 'en_US'
+  , es: 'es_ES'
+  , pt: 'pt_BR'
+}
+
+export const LocalesMomentMap = {
+  en: 'en-gb'
+  , es: 'es'
+  , pt: 'pt-br'
+}
 const AppLocale = {
   en: Enlang,
   es: Eslang,

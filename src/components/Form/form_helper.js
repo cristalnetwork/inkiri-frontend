@@ -2,9 +2,6 @@ import React from 'react'
 import { Tooltip, Icon, Select, Form, Input, DatePicker } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as moment from 'moment';
-import 'moment/locale/pt-br';
-
-moment.locale('pt-BR');
 
 const {TextArea} = Input;
 

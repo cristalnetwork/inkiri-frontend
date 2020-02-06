@@ -21,6 +21,10 @@ import * as components_helper from '@app/components/helper';
 import InjectMessage from "@app/components/intl-messages";
 import { injectIntl } from "react-intl";
 
+
+import InfiniteScroll from 'react-infinite-scroll-component';
+import * as request_helper from '@app/components/TransactionCard/helper';
+
 export const  DISPLAY_ALL_TXS    = 'all_txs';
 export const  DISPLAY_REQUESTS   = 'type_all';
 export const  DISPLAY_DEPOSIT    = globalCfg.api.TYPE_DEPOSIT;
@@ -38,6 +42,8 @@ export const REQUEST_MODE_BANK_TRANSFERS = 'request_mode_bank_trasnfers';
 export const REQUEST_MODE_EXTRATO        = 'request_mode_extrato';
 export const REQUEST_MODE_ALL            = 'request_mode_all';
 export const REQUEST_MODE_INNER_PAGE     = 'request_mode_inner_page';
+
+
 
 //
 class TxsTable extends Component {
@@ -237,10 +243,82 @@ class TxsTable extends Component {
       }
   }
 
- 
-  
-  
+  refresh = () => {
+
+  }
+
+  items = () => {
+    const {actualAccountName} = this.props;
+    const process_wages = { process_wages:this.props.isPersonal, account_name:actualAccountName};
+    // request_helper.getSimpleStateTag(record)
+    return this.state.txs.map(
+      (tx) => {
+        let from_to = null;
+        if(actualAccountName==tx.from)
+        { 
+          const text = this.props.intl.formatMessage({id:'transactions.transfer_pay.sub_header_sent'}, {'account':tx.to}) 
+          from_to    = (<span className="receiver" >{text}</span>); //
+        }
+        else
+        { 
+          const text = this.props.intl.formatMessage({id:'transactions.transfer_pay.sub_header_received'}, {'account':tx.from}) 
+          from_to    = (<span className="sender" >{text}</span>); //
+        }
+        const __id = tx._id;
+        return (
+          <div className="tx" onClick={() => this.props.callback(tx)} key={`${__id}__0`}>
+            <div className="left_content" key={`${__id}__a`}>
+              <div className="type" key={`${__id}__b`}>
+                {request_helper.getBoxedTypeIcon(tx)}
+              </div>
+            </div>
+            <div className="main_content" key={`${__id}__c`}>
+              <div className="title" key={`${__id}__d`}>
+                {tx.header}
+              </div>
+              <div className="description" key={`${__id}__e`}>
+                {from_to}
+              </div>
+              <div className="hint" key={`${__id}__f`}>
+                {tx.sub_header}
+              </div>
+            </div>
+            <div className="right_content" key={`${__id}__g`}>
+              <div className="amount" key={`${__id}__h`}>
+                {request_helper.styleAmount(tx, actualAccountName, process_wages)}
+              </div>
+            </div>
+          </div>
+        )
+      }
+    )
+  }
+  //
+
   render(){
+    return (<InfiniteScroll
+          dataLength={this.state.txs.length} //This is important field to render the next data
+          next={this.loadTxs}
+          hasMore={this.state.can_get_more}
+          loader={<h4>Loading...</h4>}
+          endMessage={
+            <p style={{textAlign: 'center'}}>
+              <b>Yay! You have seen it all</b>
+            </p>
+          }
+          refreshFunction={this.refresh}
+          pullDownToRefresh
+          pullDownToRefreshContent={
+            <h3 style={{textAlign: 'center'}}>&#8595; Pull down to refresh</h3>
+          }
+          releaseToRefreshContent={
+            <h3 style={{textAlign: 'center'}}>&#8593; Release to refresh</h3>
+          }>
+          {this.items()}
+        </InfiniteScroll>)
+  }
+  
+  renderOLDY(){
     
     return (
       <ResizeableTable 

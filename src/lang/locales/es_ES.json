@@ -1017,7 +1017,7 @@
   "requests.types.type_exchange": "Exchange",
   "requests.types.type_payment": "Payment",
   "requests.types.type_provider": "Provider payment",
-  "requests.types.type_send": "Money transfer/payment",
+  "requests.types.type_send": "Transfer",
   "requests.types.type_withdraw": "Withdraw",
   "requests.types.type_service": "Service provisioning agreement",
   "requests.types.type_salary": "Salary",
