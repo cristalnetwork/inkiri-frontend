@@ -96,7 +96,7 @@ export const isLoadingStats        = (state) => state.balances.is_loading_stats
 // El reducer del modelo
 const defaultState = {
   balance:           0,
-  without_overdraft:          0,
+  without_overdraft: 0,
   isLoading:         0,
   currency_stats:    {},
   is_loading_stats:  false

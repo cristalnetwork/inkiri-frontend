@@ -66,24 +66,11 @@ class TxsTable extends Component {
 
   getColumnsForType =() =>{
 
-    if(this.state.mode==REQUEST_MODE_BANK_TRANSFERS)
-    {
-      return columns_helper.getColumnsForExternalTransfers(this.props.callback);  
-    }
-    
-    const is_admin = globalCfg.bank.isAdminAccount(this.props.actualRoleId )
     const processWages = this.props.isPersonal;
-
-    if(is_admin)
-      return columns_helper.getColumnsForRequests(this.props.callback, is_admin, {process_wages:processWages, account_name:this.props.actualAccountName});
-    
-    if(this.state.mode==REQUEST_MODE_INNER_PAGE)
-    {
-      // ??
-    }
-    return columns_helper.getColumnsForExtrato(this.props.callback
-              , is_admin, {process_wages:processWages
-              , account_name:this.props.actualAccountName}
+    return columns_helper.getColumnsForMobileExtrato(
+              this.props.callback
+              , false
+              , {  process_wages:processWages, account_name:this.props.actualAccountName}
               , this.props.actualAccountName);
   }
   

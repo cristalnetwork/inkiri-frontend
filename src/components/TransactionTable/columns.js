@@ -424,6 +424,92 @@ export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAc
 };
 
 //
+export const getColumnsForMobileExtrato = (callback, is_admin, process_wages, actualAccountName) => {
+  return [
+    {
+      dataIndex: 'block_time',
+      key: 'block_time',
+      sortDirections: ['descend'],
+      defaultSortOrder: 'descend',
+      sorter: (a, b) => a.block_time_number - b.block_time_number,
+      align: 'left',
+      width: 150,
+      render: (block_time, record) => {
+        return (
+            <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
+              {request_helper.formatBlockTime(record)}
+            </div>
+            )
+        }
+    },
+    //
+    {
+      dataIndex: 'tx_type',
+      key: 'tx_type',
+      width: 300,
+      render: (tx_type, record) => {
+        
+        return (<span className="name_value_row ">
+              <div className="row_name centered flex_fixed_width_5em" >
+                <div className="ui-row__col ui-row__col--heading">
+                    <div className="ui-avatar">
+                      {request_helper.getCircledTypeIcon(record)} 
+                    </div>
+                </div>
+              </div>
+              <div className="row_value wider">
+                <div className="ui-info-row__content">
+                  <div className="ui-info-row__title">
+                    {record.header}
+                  </div>
+                  <div className="ui-info-row__details">
+                      <ul>
+                          <li>{is_admin?record.sub_header_admin:record.sub_header_ex}</li>
+                          
+                      </ul>
+                  </div>
+                </div>
+              </div>
+            </span>)
+
+      }
+    },
+    {
+      dataIndex: 'state',
+      key: 'state',
+      width: 145,
+      render: (state, record) => request_helper.getSimpleStateTag(record)
+      
+    },
+    {
+      dataIndex: 'from',
+      key: 'from',
+      width: 110,
+    },
+    {
+      dataIndex: 'to',
+      key: 'to',
+      width: 110,
+    },
+    //
+    {
+      align:       'right',
+      dataIndex:   'amount',
+      key:         'amount',
+      // fixed:       'right',
+      className:   'amount_col',
+      width: 100,
+      render: (value, record) => {
+        return (
+            <div className="c-activity-row__extra-action c-activity-row__extra-action--margin_HACK-NO">
+              {request_helper.styleAmount(record, actualAccountName, process_wages)}
+            </div>
+            )
+        }
+    }
+  ]
+};
+//
 export const getColumnsForExternalTransfers = (callback) => {
   return [
     {

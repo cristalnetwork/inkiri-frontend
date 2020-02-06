@@ -107,9 +107,10 @@ class InkiriHeader extends Component {
   render(){
     let header_content ;
     const {referrer, isMobile, menuIsCollapsed} = this.state;
-    const logo_class = menuIsCollapsed? 'ant-pro-global-header-logo':'hidden';
+    
     if(isMobile)
     {
+      const logo_class = menuIsCollapsed? 'ant-pro-global-header-logo':'hidden';
       header_content = (
         <>
           <a className={logo_class} key="logo" href="/" style={{paddingLeft:64}}>
@@ -137,13 +138,12 @@ class InkiriHeader extends Component {
     }
     // <Header style={{ background: '#fff', padding: 0 }}> </Header>
     return (
-          <div className="ant-pro-global-header">  
+          <div className="ant-pro-global-header" >  
             {header_content}
           </div>
-       
     )
   }
-
+  
 }
 //
 //
