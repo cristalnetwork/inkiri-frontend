@@ -125,7 +125,7 @@ export const referrer      = (state) => { return { referrer:           state.men
 const defaultState = { 
   items:                     [], 
   loading:                   0, 
-  is_collapsed:              false, 
+  is_collapsed:              true, 
   error:                     undefined, 
   last_root_menu_fullpath:   undefined, 
   is_mobile:                 false,

@@ -38,20 +38,30 @@ const DEFAULT_RESULT = {
 
 const DEFAULT_STATE = {
   input_amount    : {  
-                      style   : {maxWidth: 370, fontSize: 100, width: 60}
-                       , value : undefined 
-                       , symbol_style : {fontSize: 60}
-                     },
+                      style                 : {maxWidth: 370, fontSize: 100, width: 60}
+                      , symbol_style        : {fontSize: 60}
+                      , value               : undefined 
+                    }
+}
 
+
+const DEFAULT_STATE_MOBILE = {
+  input_amount    : {  
+                       style        : {maxWidth: 370, fontSize: 48, width: 50}
+                      , symbol_style : {fontSize: 20}
+                      , value               : undefined 
+                      
+                     }
 }
 class SendMoney extends Component {
   constructor(props) {
     super(props);
+    const input_style = props.isMobile?DEFAULT_STATE_MOBILE:DEFAULT_STATE;
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       isFetching:          props.isFetching,
       transferReasons:     props.transferReasons,
-      ...DEFAULT_STATE,
+      ...input_style,
       ...DEFAULT_RESULT,
 
       receipt:             '',
@@ -152,7 +162,8 @@ class SendMoney extends Component {
   }
 
   resetPage(){
-    this.setState({...DEFAULT_RESULT, ...DEFAULT_STATE});
+    const input_style = this.props.isMobile?DEFAULT_STATE_MOBILE:DEFAULT_STATE;
+    this.setState({...DEFAULT_RESULT, ...input_style});
     if(this.autocompleteWidget)
     {
       const that = this;
@@ -219,7 +230,7 @@ class SendMoney extends Component {
           const value = the_value.toString();
           var digitCount = value.length > 0 ? value.replace(/\./g,"").replace(/,/g,"").length : 1
           var symbolCount = value.length > 0 ? value.length - digitCount : 0;
-          const isMobile = false;
+          const isMobile = this.props.isMobile;
           var size = isMobile ? 48 : 100
 
           if(digitCount > 7){
@@ -368,7 +379,7 @@ class SendMoney extends Component {
     const { input_amount, isFetching}           = this.state;
 
     return (
-      <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
+      <div className="send-form-container" >
         <div className="ly-main-content content-spacing cards">
           <section className="mp-box mp-box__shadow money-transfer__box">
               
@@ -481,6 +492,8 @@ export default Form.create() (withRouter(connect(
 
         transferReasons:    graphqlRedux.transferReasons(state),
         getConfig:          graphqlRedux.getConfig(state),
+
+        isMobile :         menuRedux.isMobile(state),
     }),
     (dispatch)=>({
         callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),

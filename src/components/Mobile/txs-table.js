@@ -323,32 +323,7 @@ class TxsTable extends Component {
         </InfiniteScroll>)
   }
   
-  renderOLDY(){
-    
-    return (
-      <ResizeableTable 
-        key={'tx_table__'+this.props.request_type}
-        rowKey={record => record._id} 
-        loading={this.state.loading} 
-        columns_def={this.getColumnsForType()} 
-        dataSource={this.state.txs} 
-        footer={() => this.renderFooter()}
-        pagination={this.state.pagination}
-        scroll={{ x: 950 }}
-        rowClassName={ (record, rowIndex) => {
-                  return (rowIndex%2==0)
-                    ? 'even'
-                    : 'odd';
-            }}
-        onRow={ (record, rowIndex) => {
-                  return { 
-                    onDoubleClick: event => { this.props.callback(record) }
-                  };
-            }}
-      />
-      
-    )
-  }
+  
 
 }
 

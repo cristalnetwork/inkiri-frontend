@@ -144,8 +144,10 @@ export const getTypeTag = (request) => {
 
 export const getTypeConf = () => {
   return {
-      [globalCfg.api.TYPE_DEPOSIT]     : {icon:'arrow-up',             rotation: 0,  color:{primary: '#1890ff' /*azul*/          , secondary:'#e6f7ff'}, style: {borderTop: '1px solid #1890ff'}},
-      [globalCfg.api.TYPE_WITHDRAW]    : {icon:'arrow-down',           rotation: 0,  color:{primary: '#18ff88' /*verde*/         , secondary:'#d6ffea'}, style: {borderTop: '1px solid #18ff88'}},
+      // [globalCfg.api.TYPE_DEPOSIT]     : {icon:'arrow-up',             rotation: 0,  color:{primary: '#1890ff' /*azul*/          , secondary:'#e6f7ff'}, style: {borderTop: '1px solid #1890ff'}},
+      // [globalCfg.api.TYPE_WITHDRAW]    : {icon:'arrow-down',           rotation: 0,  color:{primary: '#18ff88' /*verde*/         , secondary:'#d6ffea'}, style: {borderTop: '1px solid #18ff88'}},
+      [globalCfg.api.TYPE_DEPOSIT]     : {icon:'arrow-up',             rotation: 0,  color:{primary: '#1890ff' /*azul*/          , secondary:'#e6f7ff'}, style: {}},
+      [globalCfg.api.TYPE_WITHDRAW]    : {icon:'arrow-down',           rotation: 0,  color:{primary: '#18ff88' /*verde*/         , secondary:'#d6ffea'}, style: {}},
       [globalCfg.api.TYPE_EXCHANGE]    : {icon:'exchange-alt',         rotation: 90, color:{primary: '#ff9606' /*naranja*/       , secondary:'#fce9cf'}, style: {}},
       [globalCfg.api.TYPE_PAYMENT]     : {icon:'shopping-bag',         rotation: 0,  color:{primary: '#FF06A3' /*fuccia*/        , secondary:'#facae8'}, style: {}},
       [globalCfg.api.TYPE_PROVIDER]    : {icon:'truck-moving',         rotation: 0,  color:{primary: '#ff5906' /*naranjrojo*/    , secondary:'#fcdecf'}, style: {}},
@@ -208,11 +210,9 @@ export const getBoxedTypeIcon = (request) => {
   let icon        = null;
 
   if(my_icon.rotation>0)
-    // icon = (<FontAwesomeIcon icon={my_icon.icon} rotation={my_icon.rotation} style={my_icon.style} size={size} color={my_icon.color.primary}/>);
-  icon = (<FontAwesomeIcon icon={my_icon.icon} rotation={my_icon.rotation} style={my_icon.style} size={size} color={my_icon_color_primary}/>);
+    icon = (<FontAwesomeIcon className="boxed_icon" icon={my_icon.icon} rotation={my_icon.rotation} style={my_icon.style} size={size} />);
   else
-    // icon = (<FontAwesomeIcon icon={my_icon.icon} style={my_icon.style} size={size} color={my_icon.color.primary}/>);
-  icon = (<FontAwesomeIcon className="boxed_icon" icon={my_icon.icon} style={my_icon.style} size={size} color={my_icon_color_primary}/>);
+    icon = (<FontAwesomeIcon className="boxed_icon" icon={my_icon.icon} style={my_icon.style} size={size} />);
   return (<div className={className} style={style}>
             {icon} 
           </div>);

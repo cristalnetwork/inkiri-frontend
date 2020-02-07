@@ -710,7 +710,7 @@ div.headerList td .ant-descriptions-item-content{flex:3; align-self: flex-start;
 }
 
 .tx .left_content .type .boxed-tx-type .boxed_icon{
-
+  color:rgb(108, 84, 163);
 }
 
 
@@ -820,3 +820,97 @@ div.headerList td .ant-descriptions-item-content{flex:3; align-self: flex-start;
   color:#fff;
 
 }
+
+
+.mobile_device .c-detail{
+  margin-left:8px;
+  margin-right:8px;
+  width:calc(100% - 16px);
+}
+
+.mobile_device  .price-tag.price-tag-billing {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.mobile_device  .price-tag.price-tag-symbol { 
+  font-size:12px;
+  line-height:1em;
+}
+
+.mobile_device .ui-avatar__content {
+  border: 0.0625em solid #1890ff;
+    background: #e6f7ff;
+    line-height: 40px;
+    text-align: center;
+}
+.mobile_device .ui-avatar__content--initials{
+    width: 40px;
+    height: 40px;
+    font-size: 12px;
+    overflow: hidden;
+    border-radius: 50%;
+    line-height: 40px;
+}
+
+.mobile_device .ui-avatar__content{
+    width: 40px;
+    height: 40px;
+    font-size: 12px;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+.mobile_device .ui-list .shorter .ui-avatar__content{
+    width: 20px;
+    height: 20px;
+    font-size: 8px;
+    overflow: hidden;
+    border-radius: 50%;
+}
+.mobile_device .ui-row{
+  padding:8px;
+}
+
+
+.mobile_device .transaction_list .action_buttons{
+  position: fixed;
+  bottom: 100px;
+  /*right: calc(50%-16px);*/
+  right: 20px;
+}
+
+.mobile_device .transaction_list .action_buttons button{
+  box-shadow: 2px 2px 5px 2px rgba(0,0,0,0.25);
+  background-color: rgb(108, 84, 163);
+  color:#fff;
+}
+.mobile_device .transaction_list.menu_shown .action_buttons{
+  display:none;
+}
+
+.send-form-container { 
+  margin: 24px 0px 0px 0px ;
+  padding: 24px; 
+}
+
+.mobile_device .send-form-container { 
+  margin: 0px 0px 0px 0px ;
+  padding: 8px; 
+}
+
+.mobile_device .col_icon{
+  flex: 0 0 34px;
+  display:none;
+}
+
+.mobile_device .send-form-container .money-transfer__input.money-transfer__select{
+  border-bottom: 1px solid rgb(57,57,57);
+}
+
+.mobile_device .send-form-container textarea.ant-input {
+  border-bottom: 1px solid rgb(57,57,57);
+}
+

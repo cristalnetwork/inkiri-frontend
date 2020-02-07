@@ -13,7 +13,7 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Card, PageHeader, Tabs} from 'antd';
+import { Card, PageHeader, Button} from 'antd';
 
 import { DISPLAY_ALL_TXS, DISPLAY_REQUESTS} from '@app/components/TransactionTable';
 
@@ -23,8 +23,6 @@ import * as utils from '@app/utils/utils';
 
 import { injectIntl } from "react-intl";
 import InjectMessage from "@app/components/intl-messages";
-
-const { TabPane } = Tabs;
 
 class Extrato extends Component {
   constructor(props) {
@@ -59,6 +57,14 @@ class Extrato extends Component {
           , referrer: this.props.location.pathname
         }
     })
+  }
+
+  gotoSend =() => {
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
+    this.props.history.push({
+      pathname: '/common/send'
+    }) 
   }
 
   onRequestClick(request){
@@ -123,6 +129,12 @@ class Extrato extends Component {
     const collapsedMenu        = (this.props.menuIsCollapsed)
       ?''
       :' menu_shown';
+    const action_buttons = this.props.menuIsCollapsed
+      ?(<div className="action_buttons">
+          <Button key={'pay_button'} size="large" shape="circle" onClick={this.gotoSend} icon="plus"></Button>
+        </div>)
+      :(null);
+    //
     return (
       <>
         <div className={'transaction_list' + collapsedMenu}>
@@ -139,6 +151,7 @@ class Extrato extends Component {
                 mode={REQUEST_MODE_EXTRATO}
             />
           </div>
+          {action_buttons}
         </div>
       </>
     );
