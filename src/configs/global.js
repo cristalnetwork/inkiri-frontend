@@ -384,15 +384,15 @@ const eos = {
   },
   create_account            : 'https://api.monitor.jungletestnet.io/#account',
   // create_account           : 'https://eos-account-creator.com/choose/'
-  security_prefix           : '1nK1r1_K3y_Pr3F1x_',
-  generateSeed : (account_name, seed) => {
-    if(!account_name || account_name.trim()=='')
-      throw new Error('Account name can not be empty');
-    if(!seed || seed.trim()=='')
-      throw new Error('Password can not be empty');
-    // We should derivate several times for security reasons.
-    return eos.security_prefix.trim() + account_name.trim() + seed.trim();
-  }
+  // security_prefix           : '1nK1r1_K3y_Pr3F1x_',
+  // generateSeed : (account_name, seed) => {
+  //   if(!account_name || account_name.trim()=='')
+  //     throw new Error('Account name can not be empty');
+  //   if(!seed || seed.trim()=='')
+  //     throw new Error('Password can not be empty');
+  //   // We should derivate several times for security reasons.
+  //   return eos.security_prefix.trim() + account_name.trim() + seed.trim();
+  // }
 }
 
 export { language, api, currency, dfuse, bank, eos };

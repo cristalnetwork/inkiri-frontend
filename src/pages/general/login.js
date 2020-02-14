@@ -36,16 +36,8 @@ class Login extends Component {
         let password = values.password;
         if(!api.eosHelper.isValidPrivate(password))
         {
-          let seed  = null;
-          try{
-            seed  = globalCfg.eos.generateSeed(values.account_name, password);
-          }catch(e){
-            const _text = this.props.intl.formatMessage({id:'errors.occurred_title'});
-            components_helper.notif.exceptionNotification(_text, e)
-            return;
-          }
-          // const seed = globalCfg.eos.generateSeed(password);
-          password = api.eosHelper.seedPrivate(seed).wif;
+          const keys = api.keyHelper.getDerivedKey(account_name, password)
+          password = keys.wif;
         }  
 
         this.props.tryLogin(values.account_name, password, values.remember);

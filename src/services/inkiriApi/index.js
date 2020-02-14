@@ -2,6 +2,8 @@ import * as globalCfg from '@app/configs/global';
 
 import * as eosHelper from './eos-helper.js';
 import * as nameHelper from './eosjs-name.js';
+import * as AccountNameHelper from './eosjs-account-name.js';
+import * as keyHelper from './eosjs-key.js';
 import * as dfuse from './dfuse.js';
 import * as bank from './bank.priv.js';
 import * as jwt from './jwt-helper.js';
@@ -18,11 +20,13 @@ import _ from 'lodash';
 
 export {txsHelper};
 export {nameHelper};
+export {accountNameHelper};
 export {eosHelper};
 export {dfuse};
 export {bank};
 export {jwt};
 export {pap_helper};
+export {keyHelper};
 
 function prettyJson(input){
   return JSON.stringify(input, null, 2)

@@ -94,15 +94,9 @@ class EditKeyForm extends Component {
     }
     const { form }     = this.props;
     const account_name = form.getFieldValue('account_name')
-    let seed       = null;
     const password = do_generate;
-    try{
-      seed = globalCfg.eos.generateSeed(account_name, password);
-    }catch(e){
-      callback(JSON.strnigify(e));
-      return;
-    }
-    const keys = api.eosHelper.seedPrivate(seed);
+    // const keys = api.eosHelper.seedPrivate(seed);
+    const keys = api.keyHelper.getDerivedKey(account_name, password)
     const that = this;
     api.getKeyAccounts(keys.pub_key)
       .then(()=>{

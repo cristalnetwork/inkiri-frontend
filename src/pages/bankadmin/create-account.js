@@ -208,7 +208,7 @@ class CreateAccount extends Component {
             ? [values.first_name.trim().toLowerCase(), values.last_name.trim().toLowerCase()] 
             : [values.business_name.trim().toLowerCase()];
 
-          values['account_name'] = api.nameHelper.generateAccountName(seeds);
+          values['account_name'] = api.accountNameHelper.generateAccountName(seeds);
         }
         
         if(current_step==1 && default_keys.wif==generated_keys.wif)
@@ -472,15 +472,9 @@ class CreateAccount extends Component {
     }
     const { form }     = this.props;
     const account_name = form.getFieldValue('account_name')
-    let seed       = null;
     const password = do_generate;
-    try{
-      seed = globalCfg.eos.generateSeed(account_name, password);
-    }catch(e){
-      callback(JSON.strnigify(e));
-      return;
-    }
-    const keys = api.eosHelper.seedPrivate(seed);
+    // const keys = api.eosHelper.seedPrivate(seed);
+    const keys = api.keyHelper.getDerivedKey(account_name, password)
     const that = this;
     api.getKeyAccounts(keys.pub_key)
       .then(()=>{
@@ -546,7 +540,7 @@ class CreateAccount extends Component {
     
     const name = value;
     
-    if (api.nameHelper.isValidAccountName(name)) 
+    if (api.accountNameHelper.isValidAccountName(name)) 
     {
       api.getAccount(value)
       .then(()=>{
@@ -1128,12 +1122,12 @@ class CreateAccount extends Component {
 //
 export default Form.create() (withRouter(connect(
     (state)=> ({
-        accounts:         accountsRedux.accounts(state),
-        actualAccountName:    loginRedux.actualAccountName(state),
-        actualRole:       loginRedux.actualRole(state),
-        actualPrivateKey: loginRedux.actualPrivateKey(state),
-        isLoading:        loginRedux.isLoading(state),
-        balance:          balanceRedux.userBalanceFormatted(state),
+        accounts:           accountsRedux.accounts(state),
+        actualAccountName:  loginRedux.actualAccountName(state),
+        actualRole:         loginRedux.actualRole(state),
+        actualPrivateKey:   loginRedux.actualPrivateKey(state),
+        isLoading:          loginRedux.isLoading(state),
+        balance:            balanceRedux.userBalanceFormatted(state),
     }),
     (dispatch)=>({
       loadAccounts: bindActionCreators(accountsRedux.loadAccounts, dispatch)        

@@ -106,36 +106,36 @@ export function getTableBoundsForName2(name, asLittleEndianHex, step) {
 * https://developers.eos.io/eosio-cpp/docs/naming-conventions
 * (^[a-z1-5.]{0,11}[a-z1-5]$)|(^[a-z1-5.]{12}[a-j1-5]$) => https://github.com/EOSIO/eos/issues/955
 */
-export function generateAccountName(seed_array) {
+// export function generateAccountName(seed_array) {
 
-  console.log(' -- generateAccountName#1')
-  if(!seed_array || seed_array.length==0)
-    return '';
+//   console.log(' -- generateAccountName#1')
+//   if(!seed_array || seed_array.length==0)
+//     return '';
 
-  let name         = seed_array.join('') ;
-  let account_name = '';
+//   let name         = seed_array.join('') ;
+//   let account_name = '';
 
-  // for (let i = 0; i < name.length; i++) {
-  //   account_name = account_name + emptyIfInvalid(name[i]);
-  // }
+//   // for (let i = 0; i < name.length; i++) {
+//   //   account_name = account_name + emptyIfInvalid(name[i]);
+//   // }
 
-  console.log(' -- generateAccountName#2')
-  account_name  = name.split('').map( _char => emptyIfInvalid(_char)).join('');
-  console.log(' -- generateAccountName#3')
-  while(account_name.length>0 && emptyIfInvalid(account_name.charAt(0), start_with_map) === '')
-  {
-    console.log(' -- generateAccountName#3.', account_name)
-    account_name = account_name.substr(1);
-  }
-  console.log(' -- generateAccountName#4')
-  account_name = (account_name + end_with_map).slice(0, 12);
-  console.log(' -- generateAccountName#5')
-  return account_name;
-}
+//   console.log(' -- generateAccountName#2')
+//   account_name  = name.split('').map( _char => emptyIfInvalid(_char)).join('');
+//   console.log(' -- generateAccountName#3')
+//   while(account_name.length>0 && emptyIfInvalid(account_name.charAt(0), start_with_map) === '')
+//   {
+//     console.log(' -- generateAccountName#3.', account_name)
+//     account_name = account_name.substr(1);
+//   }
+//   console.log(' -- generateAccountName#4')
+//   account_name = (account_name + end_with_map).slice(0, 12);
+//   console.log(' -- generateAccountName#5')
+//   return account_name;
+// }
 
-export const isValidAccountName = (name) => {
-  // const regEx = new RegExp("^([a-z1-5]){12,}$");
-  const regEx = new RegExp("(^[a-z1-5.]{0,11}[a-z1-5]$)|(^[a-z1-5.]{12}[a-j1-5]$)");
-  return (name.length == 12 && regEx.test(name)) 
+// export const isValidAccountName = (name) => {
+//   // const regEx = new RegExp("^([a-z1-5]){12,}$");
+//   const regEx = new RegExp("(^[a-z1-5.]{0,11}[a-z1-5]$)|(^[a-z1-5.]{12}[a-j1-5]$)");
+//   return (name.length == 12 && regEx.test(name)) 
   
-}
+// }
