@@ -23,7 +23,8 @@ import { injectIntl } from "react-intl";
 
 const EMPTY_KEYS = {
     wif:      null, 
-    pub_key:  null}
+    pub_key:  null,
+  }
 ;
 class EditKeyForm extends Component {
   constructor(props) {
@@ -57,7 +58,7 @@ class EditKeyForm extends Component {
   */
     
   fireEvent = (error, cancel, data) => {
-    const {callback} = this.state;
+    const {callback} = this.props;
     if(typeof  callback === 'function') {
         callback(error, cancel, data)
     }
@@ -120,23 +121,20 @@ class EditKeyForm extends Component {
           const confirm_password     = form.getFieldValue('confirm_password');
           if(password!=confirm_password || !password || password.trim()=='')
           {
-            that.setState({generated_keys:EMPTY_KEYS})
+            that.setState({generated_keys:EMPTY_KEYS, loading:false})
             components_helper.notif.errorNotification( that.state.intl.both_passwords_must_be_equal );
-            that.setState({loading:false});
             return;
           }
+          
           const keys = api.keyHelper.getDerivedKey_ex(account_name, password)
           api.getKeyAccounts(keys.pub_key)
             .then(()=>{
-              that.setState({generated_keys:EMPTY_KEYS})
+              that.setState({generated_keys:EMPTY_KEYS, loading:false})
               components_helper.notif.errorNotification( that.state.intl.account_unique_validation );
-              that.setState({loading:false});
             },(err)=>{
-              that.setState({generated_keys:keys})
-              that.setState({loading:false});
-              
+              that.setState({generated_keys:keys, loading:false});
             })      
-        } ,200);
+        } ,2000);
         
       })
     

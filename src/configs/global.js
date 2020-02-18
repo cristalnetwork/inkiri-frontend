@@ -375,7 +375,7 @@ const eos = {
   endpoint                  : 'https://jungle2.cryptolions.io:443',
   node                      : 'https://proxy.eosnode.tools/',
   push: {
-    retries                 : 1,
+    retries                 : 3,
     use_options             : true,
     options:  {
       blocksBehind          : 3,

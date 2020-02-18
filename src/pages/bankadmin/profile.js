@@ -35,6 +35,12 @@ const ACTIVE_TAB_PREFERENCES           = 'active_tab_preferences';
 const ACTIVE_TAB_SECURITY              = 'active_tab_security';
 const ACTIVE_TAB_SECURITY_CHANGE_KEY   = 'active_tab_security_change_key';
 
+const DEFAULT_RESULT = {
+  result:             undefined,
+  result_object:      undefined,
+  error:              {},
+}
+
 class Profile extends Component {
   constructor(props) {
     super(props);
@@ -120,12 +126,13 @@ class Profile extends Component {
   }
 
   resetResult(){
-    // this.setState({...DEFAULT_RESULT});
+    this.setState({...DEFAULT_RESULT});
   }
 
   resetPage(active_tab){
     let my_active_tab = active_tab?active_tab:ACTIVE_TAB_PROFILE;
-    this.setState({ active_tab:          my_active_tab, 
+    this.setState({ ...DEFAULT_RESULT,
+                    active_tab:          my_active_tab, 
                     active_tab_action:   my_active_tab, 
                     active_tab_object:   null,
                     pushingTx:           false
@@ -159,6 +166,7 @@ class Profile extends Component {
       this.resetPage();
     
   }
+  
   onSecurityCallback(error, cancel, values){
     if(cancel)
     {
@@ -172,26 +180,26 @@ class Profile extends Component {
     {
       return;
     }
+
     console.log(values);
-
-    // public_key
+    console.log('a armar permission....')
+    const {eos_account}   = this.state;
+    const new_permissions = api.permissionHelper.overrideKeys(eos_account, values.public_key);
+    const tx              = api.permissionHelper.getActions(eos_account.account_name, new_permissions);
+    const that            = this;
     
-    // const that            = this;
-    // const {profile}       = this.state;
-    // const {formatMessage} = this.props.intl;
-    // this.setState({active_tab_object:values, pushingTx:true})
-    // let bank_accounts = [...profile.bank_accounts, values];
-    // api.bank.updateUserBankAccounts(profile.id, bank_accounts)
-    //   .then((res)=>{
-    //     that.reload();
-    //     components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.profile.succcess.bank_account_saved'}));
-    //     that.resetPage(ACTIVE_TAB_PROFILE);
+    this.setState({pushingTx:true});
+    api.setAccountPermission(tx, this.props.actualPrivateKey)
+      .then(data => {
+        console.log(' ### setAccountPermission >>> ', JSON.stringify(data))
+        that.reloadAccount();
+        that.setState({result:'ok', pushingTx:false, result_object:data});
+      }, (ex)=>{
+        console.log( ' ### setAccountPermission >>> ERROR >> ', JSON.stringify(ex))
+        that.reloadAccount();
+        that.setState({pushingTx:false, result:'error', error:JSON.stringify(ex)});
+      });
 
-    //   }, (err)=>{
-    //     console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(err));
-    //     components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.profile.error.occurred_title'}), err);
-    //     that.setState({pushingTx:false});
-    //   })
   }
 
   onAddOrUpdateBankAccount(error, cancel, values){
@@ -270,7 +278,12 @@ class Profile extends Component {
       const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error
       
-      return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
+      return(<div style={{ margin: '0 0px', padding: 24, marginTop: 24, backgroundColor:'#ffffff'}}>
+                <div className="ly-main-content content-spacing cards">          
+                  <TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />
+                </div>
+              </div>);
+
     }
 
     const { active_tab, active_tab_action, active_tab_object, pushingTx } = this.state;

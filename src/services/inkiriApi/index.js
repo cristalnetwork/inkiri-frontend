@@ -217,7 +217,10 @@ const pushTX = async (tx, privatekey) => {
       return {data:result};
       
     } catch (e) {
-      console.log(' InkiriApi::pushTX (error#1) >>  ', JSON.stringify(e));
+
+      console.log(' ================pushTX (error#1) >>  ')
+      console.log(JSON.stringify(e));
+      console.log(e);
       // throw e.json.error.details[0].message;
       if (retries <= 1 || isBreakException(e)) 
         throw e;
@@ -229,20 +232,6 @@ const pushTX = async (tx, privatekey) => {
   const response = await push_retry(actions, tx_options, retries);
   return response;
 
- //  try {
-	  
- //    const result = await api.transact(
-	//     { actions: my_actions },
-	//     options 
-	//   );
- //    console.log(' InkiriApi::pushTX (then#1) >> ', JSON.stringify(result));
- //    return {data:result};
-	  
-	// } catch (e) {
-	//   console.log(' InkiriApi::pushTX (error#1) >>  ', JSON.stringify(e));
- //    // throw e.json.error.details[0].message;
- //    throw e;
-	// }
 }
 
 export const createAccount = async (creator_priv, new_account_name, new_account_public_key, account_type, fee, overdraft, permissions) => { 

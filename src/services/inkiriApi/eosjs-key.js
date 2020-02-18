@@ -21,7 +21,7 @@ export const getKey = (account_name, password, do_log=false) =>{
   };
 }
 
-export const getDerivedKey_ex = (account_name, password, do_log=false) =>{
+export const getDerivedKey = (account_name, password, do_log=false) =>{
   const seed      = account_name + '.' + password;
   let private_key = ecc.seedPrivate(seed);
   let master      = hdkey.fromMasterSeed(Buffer.from(ecc.sha256(private_key.toString()), 'hex'));
@@ -40,7 +40,7 @@ export const getDerivedKey_ex = (account_name, password, do_log=false) =>{
   };
 }
 
-export const getDerivedKey  = (account_name, password, do_log=false) =>{
+export const getDerivedKeyOLD  = (account_name, password, do_log=false) =>{
   const seed = generateSeed (account_name, password);
   return eosHelper.seedPrivate(seed);
 }

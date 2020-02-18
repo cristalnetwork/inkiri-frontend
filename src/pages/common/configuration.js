@@ -286,48 +286,37 @@ class Configuration extends Component {
     this.addPermission(values.permissioned, values.authority);
 
   }
+  
+  
   addPermission = async (permissioned, perm_name) => {
-    this.setState({pushingTx:true});
     const {eos_account}  = this.state;
-    console.log(' addPermission: => ',eos_account)
-    const new_perm       = api.permissionHelper.getNewPermissionObj (eos_account, permissioned, perm_name)
-    this.setAccountPermission(perm_name, new_perm);
+    const account_permission = api.permissionHelper.addAccount(eos_account, permissioned, perm_name)
+    this.setAccountPermission(perm_name, account_permission);
+
   }
 
   deletePermission = async (perm_name, actor, permission) => {
     
-    this.setState({pushingTx:true});
-    
     const {eos_account}  = this.state;
-    let the_authority = eos_account.permissions.filter( perm => perm.perm_name==perm_name )[0]
-    
-    
-    let new_authority = Object.assign({}, the_authority); 
-
-    _.remove(new_authority.required_auth.accounts, function(e) {
-      return e.permission.actor === actor && e.permission.permission === permission;
-    });
-    
-    this.setAccountPermission(perm_name, new_authority.required_auth);
+    const account_permission = api.permissionHelper.removeAccount(eos_account, actor, permission)
+    this.setAccountPermission(perm_name, account_permission);
     
   }
 
-  setAccountPermission(perm_name, new_perm){
-    // this.setState({pushingTx:false});
-    // console.log(` ### setAccountPermission >>> ABOUT TO SET -> ${perm_name}`, JSON.stringify(new_perm))
-    // return;
-
+  setAccountPermission(permission_name, new_permission){
     const {eos_account}  = this.state;
-    const that = this;
+    const tx             = api.permissionHelper.getAction(eos_account.account_name, permission_name, new_permission);
+    const that           = this;
     
-    api.setAccountPermission(eos_account.account_name, this.props.actualPrivateKey, perm_name, new_perm)
+    this.setState({pushingTx:true});
+    api.setAccountPermission(tx, this.props.actualPrivateKey)
       .then(data => {
         console.log(' ### setAccountPermission >>> ', JSON.stringify(data))
-        that.props.loadEosAccount(that.props.actualAccountName);
+        that.reloadAccount();
         that.setState({result:'ok', pushingTx:false, result_object:data});
       }, (ex)=>{
         console.log( ' ### setAccountPermission >>> ERROR >> ', JSON.stringify(ex))
-        that.props.loadEosAccount(that.props.actualAccountName);
+        that.reloadAccount();
         that.setState({pushingTx:false, result:'error', error:JSON.stringify(ex)});
       });
   }

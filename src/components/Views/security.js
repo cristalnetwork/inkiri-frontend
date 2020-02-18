@@ -55,6 +55,7 @@ const Security = (props) => {
     const getKey = () => {
       return eos_account.permissions.filter(perm => perm.perm_name=='owner')[0].required_auth.keys[0].key
     }
+    
     return(
       <Skeleton 
         title={title_text}
