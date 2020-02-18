@@ -431,7 +431,7 @@ class PDV extends Component {
     let private_key         = null;
     if(!api.eosHelper.isValidPrivate(password))
     {
-      const keys  = api.keyHelper.getDerivedKey(account_name, password)
+      const keys  = api.keyHelper.getDerivedKey(payer, password)
       // const keys  = api.eosHelper.seedPrivate(seed);
       private_key = keys.wif;
       public_key  = keys.pub_key;

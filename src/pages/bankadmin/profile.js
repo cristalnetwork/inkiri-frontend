@@ -57,6 +57,8 @@ class Profile extends Component {
     this.onUpdateProfile            = this.onUpdateProfile.bind(this); 
     this.reload                     = this.reload.bind(this);
 
+    this.onSecurityCallback         = this.onSecurityCallback.bind(this); 
+
     this.onTabChange                = this.onTabChange.bind(this); 
   }
 
@@ -157,6 +159,40 @@ class Profile extends Component {
       this.resetPage();
     
   }
+  onSecurityCallback(error, cancel, values){
+    if(cancel)
+    {
+      this.setState({  
+          active_tab_action:   ACTIVE_TAB_SECURITY, 
+          active_tab_object:   null
+      });
+      return;
+    }
+    if(error)
+    {
+      return;
+    }
+    console.log(values);
+
+    // public_key
+    
+    // const that            = this;
+    // const {profile}       = this.state;
+    // const {formatMessage} = this.props.intl;
+    // this.setState({active_tab_object:values, pushingTx:true})
+    // let bank_accounts = [...profile.bank_accounts, values];
+    // api.bank.updateUserBankAccounts(profile.id, bank_accounts)
+    //   .then((res)=>{
+    //     that.reload();
+    //     components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.profile.succcess.bank_account_saved'}));
+    //     that.resetPage(ACTIVE_TAB_PROFILE);
+
+    //   }, (err)=>{
+    //     console.log(' >> onAddOrUpdateBankAccount >> ', JSON.stringify(err));
+    //     components_helper.notif.exceptionNotification(formatMessage({id:'pages.bankadmin.profile.error.occurred_title'}), err);
+    //     that.setState({pushingTx:false});
+    //   })
+  }
 
   onAddOrUpdateBankAccount(error, cancel, values){
     if(cancel)
@@ -255,7 +291,9 @@ class Profile extends Component {
             title={edit_key} 
             content={
               <Spin spinning={pushingTx} delay={500} tip={pushing_transaction}>
-                <EditKeyForm />
+                <EditKeyForm  
+                  account_name={this.state.profile.account_name} 
+                  callback={this.onSecurityCallback} />
               </Spin>} 
             icon="shield-alt" />  );
 

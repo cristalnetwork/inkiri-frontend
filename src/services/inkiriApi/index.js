@@ -1,8 +1,9 @@
 import * as globalCfg from '@app/configs/global';
 
 import * as eosHelper from './eos-helper.js';
+import * as permissionHelper from './eos-permission-helper.js';
 import * as nameHelper from './eosjs-name.js';
-import * as AccountNameHelper from './eosjs-account-name.js';
+import * as accountNameHelper from './eosjs-account-name.js';
 import * as keyHelper from './eosjs-key.js';
 import * as dfuse from './dfuse.js';
 import * as bank from './bank.priv.js';
@@ -18,6 +19,7 @@ import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig';
 
 import _ from 'lodash';
 
+export {permissionHelper}
 export {txsHelper};
 export {nameHelper};
 export {accountNameHelper};
@@ -173,6 +175,8 @@ export const listTransactions = (account_name, cursor) => dfuse.listTransactions
 // export const listTransactions = (account_name, cursor) => new Promise((res,rej)=> { 
 
 // });  
+
+export const setAccountPermission = async (tx, privatekey) => pushTX (tx, privatekey);
 
 const pushTX = async (tx, privatekey) => { 
 	const signatureProvider = new JsSignatureProvider([privatekey])
@@ -551,105 +555,6 @@ export const issueMoney = async (issuer_account, issuer_priv, receiver_account, 
 
 }
 
-export const setAccountPermission = async (account, account_priv, permission_name, authority_obj, parent) => { 
-
-  if(!parent && permission_name!='owner')
-    parent='owner';
-  else
-    parent = '';
-
-
-  const empty = ((!authority_obj.keys || authority_obj.keys.length==0) && (!authority_obj.accounts || authority_obj.accounts.length==0));
-
-  let action_name = 'updateauth';
-  let data        = {
-      account:    account,
-      permission: permission_name,
-      auth   : authority_obj,
-      parent : parent
-    }
-
-  if(empty)
-  {
-    action_name = 'deleteauth';
-    data        = {
-      account:    account,
-      permission: permission_name,
-    }
-
-  }
-
-  const permAction = {
-    account: 'eosio',
-    name: action_name,
-    authorization: [
-      {
-        actor: account,
-        permission: "owner"
-      }
-    ],
-    data: data
-  }
-
-  console.log(' InkiriApi::permAction >> About to change permission >> ', prettyJson(permAction))
-
-  return pushTX(permAction, account_priv);
-
-}
-
-const default_perm = {
-            "perm_name": "active",
-            "parent": "", //"parent": "owner",
-            "required_auth":
-            {
-                "threshold": 1,
-                "keys": [],
-                "accounts": [],
-                "waits": []
-            }
-        }
-
-export const getNewPermissionObj = (eos_account_object, permissioned, perm_name) =>{
-
-  // Creamos el nuevo permiso
-  const new_perm = {
-                    "permission":
-                    {
-                        "actor": permissioned,
-                        "permission": "active"
-                    },
-                    "weight": 1
-                };
-  
-  // If permission not in eos_account_obj, we create it 
-  let perm = eos_account_object.permissions.filter( perm => perm.perm_name==perm_name )
-  // console.log('getNewPermissionObj => ', perm)
-  if(!perm || perm.length==0)
-  {
-    // const not_exist = !perm;
-    // console.log('getNewPermissionObj => ', 'podria hacerlo!!!  ||| perm_name:', perm_name)
-    perm = Object.assign({}, default_perm);
-    // if(!not_exist && perm_name!=='owner')
-    //   perm.parent = 'owner';
-    perm.perm_name = perm_name;
-    perm.required_auth.accounts.push(new_perm)
-  }
-  else
-  {
-    // Add permission and sort accounts array for created permission => perm_name   
-    perm = perm[0];
-    perm.required_auth.accounts.push(new_perm)
-    const ordered = _.sortBy(perm.required_auth.accounts, function(perm) { return perm.permission.actor; })
-    perm.required_auth.accounts = ordered;
-
-  }
-
-  // console.log(' RETURN getNewPermissionObj >> eos_account_object >>', JSON.stringify(eos_account_object))
-  // console.log(' RETURN getNewPermissionObj >> new_perm >>', JSON.stringify(perm))
-  // delete perm.required_auth.waits
-
-  return perm.required_auth;
-}
 
 // permissioning_accounts
 

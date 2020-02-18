@@ -36,7 +36,7 @@ class Login extends Component {
         let password = values.password;
         if(!api.eosHelper.isValidPrivate(password))
         {
-          const keys = api.keyHelper.getDerivedKey(account_name, password)
+          const keys = api.keyHelper.getDerivedKey(values.account_name, password)
           password = keys.wif;
         }  
 

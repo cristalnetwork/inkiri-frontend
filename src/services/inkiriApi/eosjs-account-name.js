@@ -60,7 +60,7 @@ const isAlphanumeric = (character) =>{
   return alphanumeric.indexOf(character) >= 0 ;
 }
 
-exports.isValidAccountName = (name) => {
+export const isValidAccountName = (name) => {
   // const regEx = new RegExp("^([a-z1-5]){12,}$");
   const regEx = new RegExp("(^[a-z1-5.]{0,11}[a-z1-5]$)|(^[a-z1-5.]{12}[a-j1-5]$)");
   return (name.length == 12 && regEx.test(name)) 

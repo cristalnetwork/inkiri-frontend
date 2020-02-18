@@ -193,7 +193,7 @@ class Configuration extends Component {
   addPermission = async (permissioned, perm_name) => {
     this.setState({pushingTx:true});
     const {eos_account}  = this.state;
-    const new_perm       = api.getNewPermissionObj (eos_account, permissioned, perm_name)
+    const new_perm       = api.permissionHelper.getNewPermissionObj (eos_account, permissioned, perm_name)
     this.setAccountPermission(perm_name, new_perm);
   }
 
