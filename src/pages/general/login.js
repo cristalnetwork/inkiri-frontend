@@ -33,14 +33,26 @@ class Login extends Component {
       if (!err) {
         // console.log('Received values of form: ', values);
 
-        let password = values.password;
-        if(!api.eosHelper.isValidPrivate(password))
-        {
-          const keys = api.keyHelper.getDerivedKey(values.account_name, password)
-          password = keys.wif;
-        }  
-
-        this.props.tryLogin(values.account_name, password, values.remember);
+        const doLogin = (password) => {
+          this.props.tryLogin(values.account_name, password, values.remember);
+        }
+        this.setState({loading:true},
+          ()=>{ 
+            
+            setTimeout( ()=> {
+              let password = values.password;
+              if(!api.eosHelper.isValidPrivate(password))
+              {
+                const keys = api.keyHelper.getDerivedKey(values.account_name, password)
+                password = keys.wif;
+                
+              }  
+              this.setState({loading:false},
+                ()=>{ 
+                  doLogin(password);
+                });
+            } ,2000);
+        });  
       }
     });
   };
