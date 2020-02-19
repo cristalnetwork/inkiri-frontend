@@ -126,7 +126,7 @@ class EditKeyForm extends Component {
             return;
           }
           
-          const keys = api.keyHelper.getDerivedKey_ex(account_name, password)
+          const keys = api.keyHelper.getDerivedKey(account_name, password)
           api.getKeyAccounts(keys.pub_key)
             .then(()=>{
               that.setState({generated_keys:EMPTY_KEYS, loading:false})
