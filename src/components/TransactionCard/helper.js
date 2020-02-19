@@ -283,6 +283,7 @@ const isNegativeTx =(request, current_account_name) =>{
     , [globalCfg.api.TYPE_PROVIDER] : () => { return true; } //request.from==current_account_name; }
     , [globalCfg.api.TYPE_SEND]     : () => { return request.from==current_account_name; }
     , [globalCfg.api.TYPE_WITHDRAW] : () => { return true; } //return request.from==current_account_name; }
+    , [globalCfg.api.TYPE_ISSUE]    : () => { return false;   }
     , [globalCfg.api.TYPE_SERVICE]  : () => { return undefined;   }
     , [globalCfg.api.TYPE_SALARY]   : () => { 
         return (request.from==current_account_name)
@@ -290,8 +291,7 @@ const isNegativeTx =(request, current_account_name) =>{
           : (request && request.wages && request.wages.find(wage=>wage.account_name==current_account_name))
               ? false
               : undefined }
-    , [globalCfg.api.TYPE_ISSUE]    : () => { return true; } // request.to==current_account_name; }
-    , [globalCfg.api.TYPE_IUGU]     : () => { return true; } // request.from==current_account_name; }
+    , [globalCfg.api.TYPE_IUGU]     : () => { return false; } // request.from==current_account_name; }
     , [globalCfg.api.TYPE_PAD]      : () => { return request.from==current_account_name; }
   }
   // console.log('################### request.amount: ', request.amount)
