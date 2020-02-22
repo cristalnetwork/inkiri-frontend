@@ -21,7 +21,8 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading : true
+      loading         : true,
+      generating_keys : false
     };
     
     this.timeout_id = null;
@@ -36,7 +37,7 @@ class Login extends Component {
         const doLogin = (password) => {
           this.props.tryLogin(values.account_name, password, values.remember);
         }
-        this.setState({loading:true},
+        this.setState({generating_keys:true},
           ()=>{ 
             
             setTimeout( ()=> {
@@ -47,7 +48,7 @@ class Login extends Component {
                 password = keys.wif;
                 
               }  
-              this.setState({loading:false},
+              this.setState({generating_keys:false},
                 ()=>{ 
                   doLogin(password);
                 });
@@ -145,7 +146,7 @@ class Login extends Component {
             <a className="login-form-forgot" href="#" disabled >
               {formatMessage({id:'pages.general.login.texts_forgot_password'})}
             </a>
-            <Button type="primary" htmlType="submit" className="login-form-button" loading={this.props.isLoading}>
+            <Button type="primary" htmlType="submit" className="login-form-button" loading={this.props.isLoading||this.state.generating_keys}>
               {formatMessage({id:'pages.general.login.texts_log_in'})}
             </Button>
             <a href="#" disabled >{formatMessage({id:'pages.general.login.texts_register_now'})}</a>
