@@ -114,7 +114,7 @@ class Profiles extends Component {
   }
 
   getAccountFilter = (increase_page_if_needed) => {
-    const page             = (this.state.page<=0)
+    const page             = (this.state.page<0)
       ?0
       :(increase_page_if_needed)
         ?(this.state.page+1)
@@ -122,12 +122,15 @@ class Profiles extends Component {
 
     const {limit, filter}  = this.state;
     
+    if(this.props.actualAccountName==globalCfg.bank.issuer)
+      return {limit:limit.toString(), page:page.toString(), ...filter};
     return {limit:limit.toString(), page:page.toString(), ...filter, account_type:'personal'};
   }
 
   loadProfiles = async () => {
     let that      = this;
     const filter = this.getAccountFilter(true);
+    console.log('getAccountFilter:', filter);
     try{
       const data = await gqlService.listUsers(filter);
       console.log(data)
@@ -149,10 +152,10 @@ class Profiles extends Component {
 
     const has_received_new_data = (profiles && profiles.length>0);
     const can_get_more          = (has_received_new_data && profiles.length==this.state.limit)
-    const page           = (this.state.page<0)?0:(this.state.page+1);
+    const page                  = (this.state.page<0)?0:(this.state.page+1);
 
     this.setState({pagination:    pagination
-                , profiles:       profiles
+                , profiles:       _profiles
                 , can_get_more:   (has_received_new_data && profiles.length==this.state.limit)
                 , loading:        false
                 , page:           page})
@@ -165,7 +168,7 @@ class Profiles extends Component {
     }
   }
   //
-   filterCallback = (error, cancel, values, refresh) => {
+  filterCallback = (error, cancel, values, refresh) => {
     
     if(cancel)
     {

@@ -120,10 +120,10 @@ class AdminAccounts extends Component {
   loadAccounts = async () => {
     let that      = this;
     const filter = this.getAccountFilter(true);
-    console.log('loadAccounts: ', filter)
+    // console.log('loadAccounts: ', filter)
     try{
       const data = await gqlService.listUsers(filter);
-      console.log(data)
+      // console.log(data)
       that.onNewData(data);
     }
     catch(ex){

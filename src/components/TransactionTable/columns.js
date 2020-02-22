@@ -802,6 +802,12 @@ export const columnsForProfiles = (callback) => {
     
     return [
       {
+          title: '',
+          width: 35,
+          key: 'index',
+          render : (text, record, index) => index+1,
+      },
+      {
         title: <InjectMessage id="components.TransactionTable.columns.name" />,
         dataIndex: 'first_name',
         key: 'first_name',
