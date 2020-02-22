@@ -60,12 +60,12 @@ const DEFAULT_STATE = {
       password:         '',
       confirm_password: '',
       default_keys:     {  
-                         wif:      'Generated Private Key',
-                         pub_key:  'Generated Public Key',
+                         wif:      null,
+                         pub_key:  null,
                          seed:     ''}, 
       generated_keys:   {
-                         wif:      'Generated Private Key',
-                         pub_key:  'Generated Public Key',
+                         wif:      null,
+                         pub_key:  null,
                          seed:     ''} ,
 
       account_type:     undefined,
@@ -90,14 +90,19 @@ const DEFAULT_STATE = {
       alias:            '',
     };
 
+const EMPTY_KEYS = {
+    wif:      null, 
+    pub_key:  null,
+    seed:     null
+  };
 class CreateAccount extends Component {
   constructor(props) {
     super(props);
     this.state = {
       referrer:        (props && props.location && props.location.state && props.location.state.referrer)? props.location.state.referrer : undefined,
-      loading:          false,
       
       pushingTx:        false,
+      generating_keys:  false,
       result:           undefined,
       result_object:    undefined,
       error:            {},
@@ -118,7 +123,7 @@ class CreateAccount extends Component {
     this.handleAddPermissionSubmit = this.handleAddPermissionSubmit.bind(this);
     
     this.resetPage                     = this.resetPage.bind(this); 
-    this.generateKeys                  = this.generateKeys.bind(this); 
+    // this.generateKeys                  = this.generateKeys.bind(this); 
     this.doCreateAccount               = this.doCreateAccount.bind(this); 
     this.validateNConfirmCreateAccount = this.validateNConfirmCreateAccount.bind(this); 
     this.handleAccountTypeChange       = this.handleAccountTypeChange.bind(this);
@@ -130,7 +135,7 @@ class CreateAccount extends Component {
     this.handleAcountNameChange        = this.handleAcountNameChange.bind(this);
     this.userResultEvent               = this.userResultEvent.bind(this); 
     this.validateAccountName           = this.validateAccountName.bind(this); 
-    
+    this.createKeys                    = this.createKeys.bind(this)    
     this.timeout_id = null;
   }
 
@@ -198,7 +203,7 @@ class CreateAccount extends Component {
         if(new_values.birthday)
           new_values.birthday = values.birthday.format(dateFormat)
         
-        //HACK
+        //HACK #1
         if(current_step==0 && !account_name)
         {
           // const my_account_name   = globalCfg.bank.isPersonalAccount(this.state.account_type) ? (values.last_name.trim() + values.first_name.trim()).toLowerCase() : (values.business_name.trim()).toLowerCase();
@@ -211,11 +216,24 @@ class CreateAccount extends Component {
           values['account_name'] = api.accountNameHelper.generateAccountName(seeds);
         }
         
-        if(current_step==1 && default_keys.wif==generated_keys.wif)
+        console.log('current_step:', current_step)
+        console.log('generated_keys:', generated_keys)
+        if(current_step==1 && (default_keys.wif==generated_keys.wif||generated_keys.wif==null))
         {
-          const _seed_value = this.props.form.getFieldValue('password');
-          this.generateKeys(_seed_value);
+          // this.createKeys();
+          const msg = this.props.intl.formatMessage({id:'pages.bankadmin.create_account.alert_please_generate_key'});
+          components_helper.notif.warningNotification(msg);
+          rej(msg);
+          return;
         }
+
+        // if(current_step==2 && (default_keys.wif==generated_keys.wif||generated_keys.wif==null))
+        // {
+        //   const msg = this.props.intl.formatMessage({id:'pages.bankadmin.create_account.alert_please_generate_key'});
+        //   components_helper.notif.infoNotification(msg);
+        //   rej(msg);
+        //   return;
+        // }
 
         this.setState(values);
         res(true);
@@ -462,39 +480,80 @@ class CreateAccount extends Component {
     this.setState({ confirmDirty: this.state.confirmDirty || !!value });
   };
 
-  generateKeys(do_generate, callback){
-
-    if(!do_generate)
-    {
-      const {default_keys} = this.state;
-      this.setState({generated_keys:default_keys})
-      return;
-    }
-    const { form }     = this.props;
-    const account_name = form.getFieldValue('account_name')
-    const password = do_generate;
-    // const keys = api.eosHelper.seedPrivate(seed);
-    const keys = api.keyHelper.getDerivedKey(account_name, password)
+  createKeys(){
     const that = this;
-    api.getKeyAccounts(keys.pub_key)
-      .then(()=>{
-        if(callback)
-          callback(that.state.intl.account_unique_validation);
-      },(err)=>{
-        that.setState({generated_keys:keys})
-        if(callback)
-          callback()
+    this.setState({generating_keys:true},
+      ()=>{
+        setTimeout(()=> {
+          const { form }             = that.props;
+          const account_name         = form.getFieldValue('account_name')
+          const password             = form.getFieldValue('password');
+          const confirm_password     = form.getFieldValue('confirm_password');
+          console.log('generating keys:', account_name, password, confirm_password)
+          if(password!=confirm_password || !password || password.trim()=='')
+          {
+            that.setState({generated_keys:EMPTY_KEYS, generating_keys:false})
+            components_helper.notif.errorNotification( that.state.intl.both_passwords_must_be_equal );
+            return;
+          }
+          
+          const keys = api.keyHelper.getDerivedKey(account_name, password)
+          api.getKeyAccounts(keys.pub_key)
+            .then(()=>{
+              that.setState({generated_keys:EMPTY_KEYS, generating_keys:false})
+              components_helper.notif.errorNotification( that.state.intl.account_unique_validation );
+            },(err)=>{
+              that.setState({generated_keys:keys, generating_keys:false});
+            })      
+        } ,2000);
+        
       })
-
   }
+
+  cleanKeys = () =>{
+    this.setState({generated_keys:EMPTY_KEYS})
+  }
+
+  // generateKeys(do_generate, callback){
+
+  //   if(!do_generate)
+  //   {
+  //     const {default_keys} = this.state;
+  //     this.setState({generated_keys:default_keys})
+  //     return;
+  //   }
+  //   const { form }     = this.props;
+  //   const account_name = form.getFieldValue('account_name')
+  //   const password = do_generate;
+  //   const that = this;
+  //   this.setState({pushingTx:true},
+  //     ()=>{
+  //       setTimeout(()=> {
+  //         const keys = api.keyHelper.getDerivedKey(account_name, password)
+  //         api.getKeyAccounts(keys.pub_key)
+  //           .then(()=>{
+  //             that.setState({generated_keys:default_keys, pushingTx:false});
+  //             if(callback)
+  //               callback(that.state.intl.account_unique_validation);
+  //           },(err)=>{
+  //             that.setState({generated_keys:keys, pushingTx:false})
+  //             if(callback)
+  //               callback()
+  //           })
+  //       }, 1500)
+  //   }); 
+    
+
+  // }
 
   compareToFirstPassword = (rule, value, callback) => {
     const { form } = this.props;
     if (value && value !== form.getFieldValue('password')) {
-      this.generateKeys(undefined)
+      // this.generateKeys(undefined)
+      this.cleanKeys();
       callback(this.state.intl.passwords_are_not_equal);
     } else {
-      this.generateKeys(value)
+      // this.generateKeys(value)
       callback();
     }
   };
@@ -507,7 +566,7 @@ class CreateAccount extends Component {
       // return;
     }
     if (value && form.getFieldValue('confirm_password') && value !== form.getFieldValue('confirm_password')) {
-      this.generateKeys(undefined)
+      // this.generateKeys(undefined)
       callback(this.state.intl.both_passwords_must_be_equal);
       return;
     }
@@ -747,24 +806,27 @@ class CreateAccount extends Component {
 
   renderAccountHint =() =>{
     const {formatMessage} = this.props.intl;
-    return ([1,2,3,4,5].map(i=>
+    return ([1,2,3,4].map(i=>
               <span key={`key_${Math.random()}`}>{formatMessage({id:`pages.bankadmin.create_account.account_name_help_${i}`})}<br/></span>
           ))
   }
   //`
   renderStep1 = () => {
-    const {formatMessage}       = this.props.intl;
+    const { formatMessage }                    = this.props.intl;
     const { getFieldDecorator, getFieldError } = this.props.form;
-    const {account_name, account_name_status, password, confirm_password, default_keys, generated_keys} = this.state;  
-      
-      //help={!getFieldError('account_name') && account_name_status}
+    const { pushingTx, generating_keys }        = this.state;
+    const { account_name, account_name_status, password, confirm_password, default_keys, generated_keys} = this.state;  
+    const tip = generating_keys
+      ?formatMessage({id:'pages.bankadmin.create_account.message_generating_keys'})
+      :formatMessage({id:'pages.bankadmin.create_account.pushing_transaction'});
+
     const help =(getFieldError('account_name'))
       ? (<><span key='xxxx'>{account_name_status}</span><br/></>)
       : (null);
     //
     return (
         <div style={{ margin: '0 0px', maxWidth: '600px', background: '#fff'}}>
-          <Spin spinning={this.state.pushingTx} delay={500} tip={formatMessage({id:'pages.bankadmin.create_account.pushing_transaction'})}>
+          <Spin spinning={pushingTx||generating_keys} delay={500} tip={tip}>
             <Form {...formItemLayout} onSubmit={this.handleSubmitS1}>
               
               <h3 className="fileds_header">{ formatMessage({id:'pages.bankadmin.create_account.eos_account_name_section'}) }</h3>
@@ -816,6 +878,10 @@ class CreateAccount extends Component {
                   initialValue: confirm_password
                 })(<Input.Password visibilityToggle="true" onBlur={this.handleConfirmBlur} />)}
               </Form.Item>
+              <div style={{padding: '8px 0px', textAlign: 'right'}}>
+                <Button disabled={this.state.loading} key="generate_keys" type="primary" onClick={()=>{this.createKeys()}} >{this.props.intl.formatMessage({id:'components.Views.profile_security.generate_keys_button_text'})}</Button>
+              </div>
+
               <h3 className="fileds_header">{ formatMessage({id:'pages.bankadmin.create_account.keys_section'}) }</h3>
               <Form.Item label={ formatMessage({id: 'pages.bankadmin.create_account.private_key' }) } 
                          extra={ formatMessage({id: 'pages.bankadmin.create_account.private_key_hint'}) }>
@@ -908,7 +974,6 @@ class CreateAccount extends Component {
             title={(<span><strong>{step_title}</strong> </span> )}
             key={'new_perm'}
             style = { { marginBottom: 24, marginTop: 24 } } 
-            loading={this.state.pushingTx}
             >
             {content}
           </Card>

@@ -24,8 +24,8 @@ import { injectIntl } from "react-intl";
 const EMPTY_KEYS = {
     wif:      null, 
     pub_key:  null,
-  }
-;
+  };
+  
 class EditKeyForm extends Component {
   constructor(props) {
     super(props);
@@ -85,30 +85,28 @@ class EditKeyForm extends Component {
   resetForm(){
   }
 
-  generateKeys(do_generate, callback){
-
-    if(!do_generate)
-    {
-      this.cleanKeys();
-      return;
-    }
-    const { form }     = this.props;
-    const account_name = 'cambiodeinki'; //form.getFieldValue('account_name')
-    const password = do_generate;
-    // const keys = api.eosHelper.seedPrivate(seed);
-    const keys = api.keyHelper.getDerivedKey_ex(account_name, password)
-    const that = this;
-    api.getKeyAccounts(keys.pub_key)
-      .then(()=>{
-        if(callback)
-          callback(that.state.intl.account_unique_validation);
-      },(err)=>{
-        that.setState({generated_keys:keys})
-        if(callback)
-          callback()
-      })
-
-  }
+  // generateKeys(do_generate, callback){
+  //   if(!do_generate)
+  //   {
+  //     this.cleanKeys();
+  //     return;
+  //   }
+  //   const { form }     = this.props;
+  //   const account_name = 'cambiodeinki'; //form.getFieldValue('account_name')
+  //   const password = do_generate;
+  //   // const keys = api.eosHelper.seedPrivate(seed);
+  //   const keys = api.keyHelper.getDerivedKey(account_name, password)
+  //   const that = this;
+  //   api.getKeyAccounts(keys.pub_key)
+  //     .then(()=>{
+  //       if(callback)
+  //         callback(that.state.intl.account_unique_validation);
+  //     },(err)=>{
+  //       that.setState({generated_keys:keys})
+  //       if(callback)
+  //         callback()
+  //     })
+  // }
 
   createKeys(){
     const that = this;
@@ -137,13 +135,12 @@ class EditKeyForm extends Component {
         } ,2000);
         
       })
-    
-
   }
 
   cleanKeys = () =>{
     this.setState({generated_keys:EMPTY_KEYS})
   }
+
   compareToFirstPassword = (rule, value, callback) => {
     const { form } = this.props;
     if (value && value !== form.getFieldValue('password')) {
