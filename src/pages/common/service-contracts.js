@@ -365,7 +365,7 @@ class ServiceContracts extends Component {
     const menu = (
       <Menu onClick={this.bulkChargeClick}>
         <Menu.Item action="bulk-charge" >
-          <FontAwesomeIcon icon="file-invoice-dollar" size="lg" color="black"/> &nbsp;<InjectMessage id="pages.common.service_contracts.bulk_action_bulk_charge" />
+          <FontAwesomeIcon icon="hand-holding-usd" size="lg" color="black"/> &nbsp;<InjectMessage id="pages.common.service_contracts.bulk_action_charge" />
         </Menu.Item> 
         
       </Menu>
