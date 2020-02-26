@@ -19,9 +19,6 @@ import * as stats_helper from '@app/components/TransactionTable/stats';
 
 import { Card, PageHeader, Button, Table } from 'antd';
 
-
-import ServiceContractChargeForm from '@app/components/Form/service_contract_charge';
-
 import * as utils from '@app/utils/utils';
 
 import _ from 'lodash';

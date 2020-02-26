@@ -1329,7 +1329,7 @@ export const columnsForServiceContract = (callback) => {
         title: <InjectMessage id="components.TransactionTable.columns.customer" />,
         dataIndex: 'account',
         key: 'account',
-        width:'40%',
+        width:200,
         render: (account, record) => {
           
             return (<span className="name_value_row">
@@ -1351,6 +1351,7 @@ export const columnsForServiceContract = (callback) => {
         title: <InjectMessage id="components.TransactionTable.columns.duration" />,
         key: 'begins_at',
         dataIndex: 'begins_at',
+        width:150,
         render: (begins_at, record) => {
           
           return (
@@ -1368,6 +1369,7 @@ export const columnsForServiceContract = (callback) => {
         title:     <InjectMessage id="components.TransactionTable.columns.status" />,
         dataIndex: 'enabled',
         key:       'enabled',
+        width:200,
         render: (enabled, record) => {
           const {last_charged, total_charged} = api.pap_helper.getChargeInfo(record);
           const _state                        = (enabled)?<InjectMessage id="components.TransactionTable.columns.active" />:<InjectMessage id="components.TransactionTable.columns.inactive" />;
@@ -1382,7 +1384,8 @@ export const columnsForServiceContract = (callback) => {
       
       {
         title: <InjectMessage id="components.TransactionTable.columns.action" />,
-        key: 'action',        
+        key: 'action', 
+        width:200,       
         align: 'right',
         render: (text, record) => {
           const style     = {marginTop:6};
@@ -1395,6 +1398,123 @@ export const columnsForServiceContract = (callback) => {
     ];
 }
 
+//
+export const columnsForCustomers = () => {
+    
+    return [
+      {
+        title:       <InjectMessage id="components.TransactionTable.columns.service" />,
+        dataIndex:   'service',
+        key:         'service',
+        width:       250,
+        render: (_service, record) => {
+            const service  = record.service||{};
+            const _service_id    = service.serviceCounterId
+              ? `#${service.serviceCounterId}`
+              : <InjectMessage id="components.TransactionTable.columns.error_service_id_not_available" />;
+
+            return (<span className="name_value_row">
+            <div className="row_name centered flex_fixed_width_5em" >
+              <div className="ui-row__col ui-row__col--heading">
+                  <div className="ui-avatar">
+                    {request_helper.getCircledTypeIcon('hack_service')} 
+                  </div>
+              </div>
+            </div>
+            <div className="row_value wider">
+              <span className="row_tx_title">{service.title}</span> 
+               <div className="" style={{maxWidth:400, overflowWrap:'normal'}}>
+                 {service.description}
+                 <br/><InjectMessage id="components.TransactionTable.columns.service_id" />:&nbsp;{_service_id} 
+               </div>
+            </div>   
+          </span>)
+        }
+      },
+      {
+        title: <InjectMessage id="components.TransactionTable.columns.customer" />,
+        dataIndex: 'account',
+        key: 'account',
+        width:200,
+        render: (account, record) => {
+          
+            return (<span className="name_value_row">
+            <div className="row_name centered flex_fixed_width_5em" >
+              <div className="ui-row__col ui-row__col--heading">
+                  <div className="ui-avatar">
+                    {request_helper.getCircledTypeIcon('hack_user')} 
+                  </div>
+              </div>
+            </div>
+            <div className="row_value wider">
+              <span className="row_tx_title">@{account}</span> 
+               
+            </div>   
+          </span>)
+        }
+      },
+      {
+        title: <InjectMessage id="components.TransactionTable.columns.duration" />,
+        key: 'begins_at',
+        dataIndex: 'begins_at',
+        width:150,
+        render: (begins_at, record) => {
+          
+          return (
+            <>
+              <span>
+                <InjectMessage id="components.TransactionTable.columns.begins_at" />: {moment(begins_at).format(form_helper.MONTH_FORMAT_HUMANIZED)}
+              </span> 
+              <br/><span> 
+                <InjectMessage id="components.TransactionTable.columns.expires_at" />: {moment(begins_at).add(record.periods, 'months').format(form_helper.MONTH_FORMAT_HUMANIZED)}
+              </span> 
+            </> 
+          )}
+      },
+      {
+        title:     <InjectMessage id="components.TransactionTable.columns.status" />,
+        dataIndex: 'enabled',
+        key:       'enabled',
+        width:200,
+        render: (enabled, record) => {
+          const {last_charged, total_charged} = record.info;
+          const _state                        = (enabled)?<InjectMessage id="components.TransactionTable.columns.active" />:<InjectMessage id="components.TransactionTable.columns.inactive" />;
+          return (
+            <>
+              <span><InjectMessage id="components.TransactionTable.columns.last_period_charged" />:&nbsp;{last_charged}</span>
+              <br/><span><InjectMessage id="components.TransactionTable.columns.total_periods_charged" />:&nbsp;{total_charged}</span>
+              <br/><span>{_state}</span>
+            </>);
+         }   
+      },
+      {
+        title:     <InjectMessage id="pages.common.bulk_pad_charge.action_result" />,
+        dataIndex: 'action_result',
+        key:       'action_result',
+        align:     'right',
+        width:200,
+        render: (action_result, record) => {
+          const already_charged = record.info.days_to_charge<0
+            ? (null)
+            : <Tag color="green"><InjectMessage id="pages.common.bulk_pad_charge.already_charged_this_period" /></Tag>;
+          
+          const getResult = (result) => {
+            if(!result) return null;
+            if(result.json) return <Tag color="red">{result.json.error.details[0].message}</Tag>;
+            if(result.data) return <Tag color="green">{result.data.transaction_id}</Tag>;
+            if(result.status) return <Tag color="red">{result.message}</Tag>;
+            return null;
+          }
+          const result = getResult(record.result);
+            
+          return <span>
+            {request_helper.getStyledAmountEx(record.price)}
+            <br/> {result || already_charged}
+            </span>;
+         }   
+      }
+    ];
+}
 //
 
 export const columnsForContractedServices = (callback, services_states) => {

@@ -69,6 +69,7 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
             // history.push(`/common/crew`);   
             // history.push(`/common/configuration`);
             // history.push(`/common/create-provider`);
+            // history.push('/common/bulk-pad-charge');
           }  
           
           if(actualRole=='personal') {

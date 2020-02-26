@@ -51,6 +51,7 @@ export const pathNames = utils.arrToObj([
     'commonProviders',
     'commonProviders_CreateProvider',
     'commonProviders_ProviderProfile',
+    'commonBulkPadCharge',
 
     'dashboard'
 ])
@@ -400,8 +401,15 @@ const common = [
        path:         'extrato',
        container:    'dashboard',
        role:         '*'
-    }
-
+    },
+    {
+       key:          pathNames.commonBulkPadCharge,
+       fileName:     'bulk-pad-charge',
+       area:         'common',
+       path:         'bulk-pad-charge',
+       container:    'dashboard',
+       role:         '*'
+    },
 ];
 
 

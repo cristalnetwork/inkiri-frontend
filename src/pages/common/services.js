@@ -404,10 +404,17 @@ class Services extends Component {
     {
       components_helper.notif.infoNotification(this.state.intl.end_of_services_list);
     }
-    // else
-    //   this.computeStats();
   }
 
+  onBulkCharge = () =>{
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+    this.props.history.push({
+      pathname: '/common/bulk-pad-charge'
+      , state: { 
+          referrer: this.props.location.pathname
+        }
+    });
+  }
 
   // Component Events
   
@@ -419,7 +426,7 @@ class Services extends Component {
     const buttons = (active_view==STATE_LIST_SERVICES)
       ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServices()} ></Button>, 
         <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewService()}}> {this.state.intl.create_service_action}</Button>,
-        <Button size="small" type="primary" key="_charge_all" onClick={()=>{this.onNewService()}}><FontAwesomeIcon icon="hand-holding-usd" color="white"/>&nbsp;{this.state.intl.bulk_action_charge}</Button>]
+        <Button size="small" type="primary" key="_charge_all" onClick={()=>{this.onBulkCharge()}}><FontAwesomeIcon icon="hand-holding-usd" color="white"/>&nbsp;{this.state.intl.bulk_action_charge}</Button>]
         :[];
     //
     return (
@@ -427,11 +434,7 @@ class Services extends Component {
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={buttons}
-          title={title}
-
-        >
-          
-        </PageHeader>
+          title={title} />
         
           {content}
         
@@ -536,7 +539,6 @@ export default  (withRouter(connect(
         actualRole:           loginRedux.actualRole(state),
         actualAccountProfile: loginRedux.actualAccountProfile(state),
     
-
         isFetching:         apiRedux.isFetching(state),
         getErrors:          apiRedux.getErrors(state),
         getLastError:       apiRedux.getLastError(state),

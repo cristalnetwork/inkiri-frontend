@@ -733,6 +733,31 @@ const GET_IUGUS = gql`
   }
 `;
 
+export const services = async ({page='', limit='', account_name='', id='', serviceCounterId=''}={}) =>{
+  const a = {page:page?page.toString():'0', limit:limit?limit.toString():undefined, account_name:account_name, id:id, serviceCounterId:serviceCounterId};
+  console.log(' ===== services === >', a)
+  return runQuery(GET_SERVICES, a, 'services');
+}
+
+const GET_SERVICES = gql`
+  query xxx($page:String, $limit:String, $account_name:String, $id:String, $serviceCounterId:String) {
+    services(page:$page, limit:$limit, account_name:$account_name, id:$id, serviceCounterId:$serviceCounterId){
+      _id
+      created_by{
+        _id
+        account_name
+        business_name
+      }
+      account_name
+      serviceCounterId
+      title
+      description
+      amount
+      state
+      customers
+    }
+  }
+`;
 
 export const servicesEx = async ({page='', limit='', account_name='', id='', serviceCounterId=''}={}) =>{
   const a = {page:page?page.toString():'0', limit:limit?limit.toString():undefined, account_name:account_name, id:id, serviceCounterId:serviceCounterId};
