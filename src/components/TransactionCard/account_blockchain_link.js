@@ -1,13 +1,16 @@
 import React from 'react';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import * as globalCfg from '@app/configs/global';
 
-const ItemBlockchainLink = ({tx_id, title, size}) => {
+const AccountBlockchainLink = ({account_name, title, size}) => {
     
-    if(!tx_id)
+    if(!account_name)
       return (null);
-      
-    const href = request_helper.getBlockchainUrl(tx_id);
+    
+    const url = globalCfg.dfuse.account_url;
+    const _id = globalCfg.dfuse.account_keys_url_postfix;
+    const href = `${url}${account_name}${_id}`;
     
     return (<div className="ui-list shorter">
               <a className="ui-row ui-info-row ui-info-row--medium" href={href} target="_blank">
@@ -30,4 +33,4 @@ const ItemBlockchainLink = ({tx_id, title, size}) => {
           </div>);
 }
 //
-export default (ItemBlockchainLink)
+export default (AccountBlockchainLink)

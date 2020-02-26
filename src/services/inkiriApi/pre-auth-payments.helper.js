@@ -17,7 +17,7 @@ export const getChargeInfo = (pap) =>{
     , total_charged:    globalCfg.currency.toCurrencyString( pap.last_charged * price_amount)
     , total_amount:     globalCfg.currency.toCurrencyString( pap.periods * price_amount)
     , next:             (_canChargeNext)?_next:null
-    , days_to_charge:   days_to_charge 
+    , days_to_charge:   days_to_charge
   }
   // console.log(pap, ret)
   return ret;

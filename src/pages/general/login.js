@@ -21,7 +21,8 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      loading : true
+      loading         : true,
+      generating_keys : false
     };
     
     this.timeout_id = null;
@@ -33,22 +34,26 @@ class Login extends Component {
       if (!err) {
         // console.log('Received values of form: ', values);
 
-        let password = values.password;
-        if(!api.eosHelper.isValidPrivate(password))
-        {
-          let seed  = null;
-          try{
-            seed  = globalCfg.eos.generateSeed(values.account_name, password);
-          }catch(e){
-            const _text = this.props.intl.formatMessage({id:'errors.occurred_title'});
-            components_helper.notif.exceptionNotification(_text, e)
-            return;
-          }
-          // const seed = globalCfg.eos.generateSeed(password);
-          password = api.eosHelper.seedPrivate(seed).wif;
-        }  
-
-        this.props.tryLogin(values.account_name, password, values.remember);
+        const doLogin = (password) => {
+          this.props.tryLogin(values.account_name, password, values.remember);
+        }
+        this.setState({generating_keys:true},
+          ()=>{ 
+            
+            setTimeout( ()=> {
+              let password = values.password;
+              if(!api.eosHelper.isValidPrivate(password))
+              {
+                const keys = api.keyHelper.getDerivedKey(values.account_name, password)
+                password = keys.wif;
+                
+              }  
+              this.setState({generating_keys:false},
+                ()=>{ 
+                  doLogin(password);
+                });
+            } ,2000);
+        });  
       }
     });
   };
@@ -141,7 +146,7 @@ class Login extends Component {
             <a className="login-form-forgot" href="#" disabled >
               {formatMessage({id:'pages.general.login.texts_forgot_password'})}
             </a>
-            <Button type="primary" htmlType="submit" className="login-form-button" loading={this.props.isLoading}>
+            <Button type="primary" htmlType="submit" className="login-form-button" loading={this.props.isLoading||this.state.generating_keys}>
               {formatMessage({id:'pages.general.login.texts_log_in'})}
             </Button>
             <a href="#" disabled >{formatMessage({id:'pages.general.login.texts_register_now'})}</a>

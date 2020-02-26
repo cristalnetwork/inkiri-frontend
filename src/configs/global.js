@@ -360,6 +360,7 @@ const dfuse = {
   default_page_size         : 25,
   tx_url                    : 'https://jungle.bloks.io/transaction/',
   account_url               : 'https://jungle.bloks.io/account/',
+  account_keys_url_postfix  : '#keys',
   getBlockExplorerTxLink : (tx_id) => {
     return dfuse.tx_url + tx_id;
   }
@@ -374,7 +375,7 @@ const eos = {
   endpoint                  : 'https://jungle2.cryptolions.io:443',
   node                      : 'https://proxy.eosnode.tools/',
   push: {
-    retries                 : 1,
+    retries                 : 3,
     use_options             : true,
     options:  {
       blocksBehind          : 3,
@@ -384,15 +385,6 @@ const eos = {
   },
   create_account            : 'https://api.monitor.jungletestnet.io/#account',
   // create_account           : 'https://eos-account-creator.com/choose/'
-  security_prefix           : '1nK1r1_K3y_Pr3F1x_',
-  generateSeed : (account_name, seed) => {
-    if(!account_name || account_name.trim()=='')
-      throw new Error('Account name can not be empty');
-    if(!seed || seed.trim()=='')
-      throw new Error('Password can not be empty');
-    // We should derivate several times for security reasons.
-    return eos.security_prefix.trim() + account_name.trim() + seed.trim();
-  }
 }
 
 export { language, api, currency, dfuse, bank, eos };

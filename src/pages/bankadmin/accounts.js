@@ -106,7 +106,7 @@ class AdminAccounts extends Component {
   //
 
   getAccountFilter = (increase_page_if_needed) => {
-    const page             = (this.state.page<=0)
+    const page = (this.state.page<0)
       ?0
       :(increase_page_if_needed)
         ?(this.state.page+1)
@@ -120,9 +120,10 @@ class AdminAccounts extends Component {
   loadAccounts = async () => {
     let that      = this;
     const filter = this.getAccountFilter(true);
+    // console.log('loadAccounts: ', filter)
     try{
       const data = await gqlService.listUsers(filter);
-      console.log(data)
+      // console.log(data)
       that.onNewData(data);
     }
     catch(ex){
@@ -142,6 +143,7 @@ class AdminAccounts extends Component {
     const has_received_new_data = (accounts && accounts.length>0);
 
     const page           = (this.state.page<0)?0:(this.state.page+1);
+    console.log('page:', page)
     this.setState({pagination:    pagination
                 , accounts:       _accounts
                 , can_get_more:   (has_received_new_data && accounts.length==this.state.limit)

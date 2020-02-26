@@ -35,6 +35,12 @@ const ACTIVE_TAB_PREFERENCES           = 'active_tab_preferences';
 const ACTIVE_TAB_SECURITY              = 'active_tab_security';
 const ACTIVE_TAB_SECURITY_CHANGE_KEY   = 'active_tab_security_change_key';
 
+const DEFAULT_RESULT = {
+  result:             undefined,
+  result_object:      undefined,
+  error:              {},
+}
+
 class Profile extends Component {
   constructor(props) {
     super(props);
@@ -56,6 +62,8 @@ class Profile extends Component {
     this.onAddOrUpdateBankAccount   = this.onAddOrUpdateBankAccount.bind(this); 
     this.onUpdateProfile            = this.onUpdateProfile.bind(this); 
     this.reload                     = this.reload.bind(this);
+
+    this.onSecurityCallback         = this.onSecurityCallback.bind(this); 
 
     this.onTabChange                = this.onTabChange.bind(this); 
   }
@@ -118,12 +126,13 @@ class Profile extends Component {
   }
 
   resetResult(){
-    // this.setState({...DEFAULT_RESULT});
+    this.setState({...DEFAULT_RESULT});
   }
 
   resetPage(active_tab){
     let my_active_tab = active_tab?active_tab:ACTIVE_TAB_PROFILE;
-    this.setState({ active_tab:          my_active_tab, 
+    this.setState({ ...DEFAULT_RESULT,
+                    active_tab:          my_active_tab, 
                     active_tab_action:   my_active_tab, 
                     active_tab_object:   null,
                     pushingTx:           false
@@ -156,6 +165,41 @@ class Profile extends Component {
     if(evt_type==RESET_PAGE)
       this.resetPage();
     
+  }
+  
+  onSecurityCallback(error, cancel, values){
+    if(cancel)
+    {
+      this.setState({  
+          active_tab_action:   ACTIVE_TAB_SECURITY, 
+          active_tab_object:   null
+      });
+      return;
+    }
+    if(error)
+    {
+      return;
+    }
+
+    console.log(values);
+    console.log('a armar permission....')
+    const {eos_account}   = this.state;
+    const new_permissions = api.permissionHelper.overrideKeys(eos_account, values.public_key);
+    const tx              = api.permissionHelper.getActions(eos_account.account_name, new_permissions);
+    const that            = this;
+    
+    this.setState({pushingTx:true});
+    api.setAccountPermission(tx, this.props.actualPrivateKey)
+      .then(data => {
+        console.log(' ### setAccountPermission >>> ', JSON.stringify(data))
+        that.reloadAccount();
+        that.setState({result:'ok', pushingTx:false, result_object:data});
+      }, (ex)=>{
+        console.log( ' ### setAccountPermission >>> ERROR >> ', JSON.stringify(ex))
+        that.reloadAccount();
+        that.setState({pushingTx:false, result:'error', error:JSON.stringify(ex)});
+      });
+
   }
 
   onAddOrUpdateBankAccount(error, cancel, values){
@@ -234,7 +278,12 @@ class Profile extends Component {
       const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error
       
-      return(<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />)
+      return(<div style={{ margin: '0 0px', padding: 24, marginTop: 24, backgroundColor:'#ffffff'}}>
+                <div className="ly-main-content content-spacing cards">          
+                  <TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />
+                </div>
+              </div>);
+
     }
 
     const { active_tab, active_tab_action, active_tab_object, pushingTx } = this.state;
@@ -255,7 +304,9 @@ class Profile extends Component {
             title={edit_key} 
             content={
               <Spin spinning={pushingTx} delay={500} tip={pushing_transaction}>
-                <EditKeyForm />
+                <EditKeyForm  
+                  account_name={this.state.profile.account_name} 
+                  callback={this.onSecurityCallback} />
               </Spin>} 
             icon="shield-alt" />  );
 

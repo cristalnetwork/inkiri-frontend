@@ -29,6 +29,8 @@ import * as gqlService from '@app/services/inkiriApi/graphql'
 
 import { injectIntl } from "react-intl";
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 const STATE_LIST_SERVICES          = 'state_list_services';
 const STATE_NEW_SERVICE            = 'state_new_service';
 const STATE_EDIT_SERVICE           = 'state_edit_service';
@@ -107,7 +109,10 @@ class Services extends Component {
     const pushing_transaction = formatMessage({id:'pages.common.services.pushing_transaction'});
     const load_more_services = formatMessage({id:'pages.common.services.load_more_services'});
 
-    this.setState({intl:{title_list_service_requests, title_list_services, title_new_service, title_edit_service, title_new_service_contract, title_edit_service_contract, title_list_service_contracts, error_duplicated, error_duplicated_message, confirm_send_request, error_retrieving_state, end_of_services_list, error_retrieving_services, new_service_action_text, pushing_transaction, load_more_services}});
+    const create_service_action  = formatMessage({id:'pages.common.service_contracts.create_service_action'});
+    const bulk_action_charge     = formatMessage({id:'pages.common.service_contracts.bulk_action_charge'});
+    
+    this.setState({intl:{create_service_action, bulk_action_charge, title_list_service_requests, title_list_services, title_new_service, title_edit_service, title_new_service_contract, title_edit_service_contract, title_list_service_contracts, error_duplicated, error_duplicated_message, confirm_send_request, error_retrieving_state, end_of_services_list, error_retrieving_services, new_service_action_text, pushing_transaction, load_more_services}});
 
 
 
@@ -399,10 +404,17 @@ class Services extends Component {
     {
       components_helper.notif.infoNotification(this.state.intl.end_of_services_list);
     }
-    // else
-    //   this.computeStats();
   }
 
+  onBulkCharge = () =>{
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+    this.props.history.push({
+      pathname: '/common/bulk-pad-charge'
+      , state: { 
+          referrer: this.props.location.pathname
+        }
+    });
+  }
 
   // Component Events
   
@@ -413,7 +425,8 @@ class Services extends Component {
 
     const buttons = (active_view==STATE_LIST_SERVICES)
       ?[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadServices()} ></Button>, 
-        <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewService()}}> Service</Button>]
+        <Button size="small" type="primary" key="_new_profile" icon="plus" onClick={()=>{this.onNewService()}}> {this.state.intl.create_service_action}</Button>,
+        <Button size="small" type="primary" key="_charge_all" onClick={()=>{this.onBulkCharge()}}><FontAwesomeIcon icon="hand-holding-usd" color="white"/>&nbsp;{this.state.intl.bulk_action_charge}</Button>]
         :[];
     //
     return (
@@ -421,11 +434,7 @@ class Services extends Component {
         <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={buttons}
-          title={title}
-
-        >
-          
-        </PageHeader>
+          title={title} />
         
           {content}
         
@@ -530,7 +539,6 @@ export default  (withRouter(connect(
         actualRole:           loginRedux.actualRole(state),
         actualAccountProfile: loginRedux.actualAccountProfile(state),
     
-
         isFetching:         apiRedux.isFetching(state),
         getErrors:          apiRedux.getErrors(state),
         getLastError:       apiRedux.getLastError(state),

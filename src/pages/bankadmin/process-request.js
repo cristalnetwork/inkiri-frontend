@@ -246,7 +246,7 @@ class processExternal extends Component {
         </div>
       </Spin>);
   }
-  
+  //
   processRequest(){
     let that = this;  
     that.setState({pushingTx:true});

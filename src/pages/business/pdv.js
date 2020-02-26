@@ -431,14 +431,8 @@ class PDV extends Component {
     let private_key         = null;
     if(!api.eosHelper.isValidPrivate(password))
     {
-      let seed  = null;
-      try{
-        seed  = globalCfg.eos.generateSeed(payer, password);
-      }catch(e){
-        components_helper.notif.exceptionNotification( formatMessage({id:'errors.occurred_title'}) , e);
-        return;
-      }
-      const keys  = api.eosHelper.seedPrivate(seed);
+      const keys  = api.keyHelper.getDerivedKey(payer, password)
+      // const keys  = api.eosHelper.seedPrivate(seed);
       private_key = keys.wif;
       public_key  = keys.pub_key;
     }
