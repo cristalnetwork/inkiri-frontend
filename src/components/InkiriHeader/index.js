@@ -3,6 +3,7 @@ import { Layout, Button, Modal } from 'antd';
 
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
+import { withRouter } from "react-router-dom";
 
 import * as apiRedux from '@app/redux/models/api';
 import * as menuRedux from '@app/redux/models/menu'
@@ -25,7 +26,6 @@ class InkiriHeader extends Component {
       isMobile:       props.isMobile,
       referrer:       props.referrer 
     }
-    this.handleChange = this.handleChange.bind(this);
     this.handleLogout = this.handleLogout.bind(this);
   }
 
@@ -68,7 +68,6 @@ class InkiriHeader extends Component {
       }
     }
 
-
     if(Object.keys(new_state).length>0)      
         this.setState(new_state);
   }
@@ -77,17 +76,6 @@ class InkiriHeader extends Component {
     this.props.collapseMenu(!this.props.menuIsCollapsed);
   };
 
-  accountToString(account){
-    return JSON.stringify(account);
-  }
-  
-
-  handleChange(account_name) {
-    console.log(`selected ${account_name}`);
-    this.props.trySwitchAccount(account_name);
-  }
-
-  
   handleLogout() {
     const that = this;
     const {formatMessage} = this.props.intl;
@@ -104,6 +92,10 @@ class InkiriHeader extends Component {
     
   }
 
+  goBack(){
+    this.props.history.goBack();
+}
+
   render(){
     let header_content ;
     const {referrer, isMobile, menuIsCollapsed} = this.state;
@@ -118,6 +110,7 @@ class InkiriHeader extends Component {
       */
       header_content = (
         <>
+          <Button className='ant-pro-global-header-logo' icon="left" onClick={this.goBack} style={{marginLeft:64, borderColor:'transparent', backgroundColor:'transparent', color: '#fff'}} ></Button>
           <div className="right">
             <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
           </div>
@@ -149,7 +142,7 @@ class InkiriHeader extends Component {
 }
 //
 //
-export default connect(
+export default withRouter(connect(
     (state)=> ({
       actualAccountName : loginRedux.actualAccountName(state),
       menuIsCollapsed :   menuRedux.isCollapsed(state),
@@ -172,4 +165,4 @@ export default connect(
       collapseMenu:       bindActionCreators(menuRedux.collapseMenu, dispatch),
 
     })
-)( injectIntl(InkiriHeader))
+)( injectIntl(InkiriHeader)) )

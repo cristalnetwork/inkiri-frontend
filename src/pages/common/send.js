@@ -405,7 +405,6 @@ class SendMoney extends Component {
                               type="tel" 
                               step="0.01" 
                               className="money-transfer__input input-amount placeholder-big" 
-                              placeholder="0" 
                               value={input_amount.value} 
                               onChange={this.onInputAmount}  
                               style={input_amount.style}  

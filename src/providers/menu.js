@@ -36,20 +36,33 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
             }
         }, [actualRole, actualAccountName])
 
-        let selected = routes_config.getItemByAreaNFilename(area, fileName, itemPath)
-        
-        if(((!selected || selected.father_key==='*') || area==='common') && lastRootMenu)
-        {
-            const path_parts = lastRootMenu.split('/'); 
-            const area = path_parts[1];
-            const path = path_parts[2];
-            selected = routes_config.getItemByFullpath(area, path, null)
-        }
-        
-        const aa = selected?[selected.key]:['dashboard'];
-        // console.log(' ************** MENU SELECTED: ', aa);
-        const bb = menuIsCollapsed?[]:getRootKeys(actualRole); 
 
+        const [selected, setSelected]                       = useState(null);
+        const [selectedKey, setSelectedKey]                 = useState(['dashboard']);
+        useEffect(()=>{
+          let _selected = routes_config.getItemByAreaNFilename(area, fileName, itemPath)
+          if(((!_selected || _selected.father_key==='*') || area==='common') && lastRootMenu)
+          {
+              const path_parts = lastRootMenu.split('/'); 
+              const area = path_parts[1];
+              const path = path_parts[2];
+              _selected = routes_config.getItemByFullpath(area, path, null)
+          }
+          setSelected(_selected)
+          setSelectedKey(_selected?[_selected.key]:['dashboard']);
+
+          console.log('************************** SELECTED MENU ITEM:')
+          console.log(_selected)
+
+        }, [area, fileName, itemPath])
+
+        const [rootKeys, setRootKeys]                       = useState([]);
+        useEffect(()=>{
+          const bb = menuIsCollapsed?[]:getRootKeys(actualRole); 
+          setRootKeys(bb)
+        }, [actualRole, menuIsCollapsed])
+
+        
         const renderItem = (item) => {
           if(item.permission && !globalCfg.bank.isValidPermission(actualRoleId, item.permission, actualPermission))
               return (null);
@@ -99,8 +112,8 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
         
         return (
                 <Menu
-                    defaultSelectedKeys={aa}
-                    defaultOpenKeys={bb}
+                    defaultSelectedKeys={selectedKey}
+                    defaultOpenKeys={rootKeys}
                     mode="inline"
                     theme="light"
                 >

@@ -63,7 +63,7 @@ class Extrato extends Component {
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
     this.props.history.push({
-      pathname: '/common/send'
+      pathname: '/mobile/send'
     }) 
   }
 

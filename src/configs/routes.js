@@ -55,6 +55,7 @@ export const pathNames = utils.arrToObj([
 
     'mobileExtrato',
     'mobilePDV',
+    'mobileSend',
     'dashboard'
 ])
 
@@ -415,6 +416,15 @@ const mobile = [{
        container:    'dashboard',
        role:         'business'
     },
+    {
+       key:          pathNames.mobileSend,
+       fileName:     'send',
+       area:         'mobile',
+       path:         'send',
+       container:    'dashboard',
+       role:         '*'
+    },
+    
 ];
 
 const merged  = [
