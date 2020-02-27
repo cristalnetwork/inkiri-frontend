@@ -31,6 +31,8 @@ import AutocompleteAccount from '@app/components/AutocompleteAccount';
 
 import NameValueIcon from '@app/components/TransactionCard/name_value_icon';
 
+import * as gqlService from '@app/services/inkiriApi/graphql'
+
 import TxResult from '@app/components/TxResult';
 import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 
@@ -84,27 +86,41 @@ class iuguDetails extends Component {
     }
   }
 
-  reload(){
+  reload = async() =>{
     const that      = this;
     const {invoice} = this.state;
     this.setState({pushingTx:true});
     console.log(' trying to reload invoice:', invoice._id)
-    api.bank.getIuguInvoiceById(invoice._id)
-        .then( (data) => {
-            console.log(data);
-            // that.setState({pushingTx:false, invoice:JSON.parse(JSON.stringify(data))})
-            that.setState({pushingTx:false})
-          },
-          (ex) => {
-            console.log(' ** ERROR @ iuguDetails', JSON.stringify(ex))
-            components_helper.notif.exceptionNotification( 
-              that.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.error.while_reloading'}),
-              ex
-            );
-            that.setState({pushingTx:false});
+
+    try{
+      const data = await gqlService.iugu({id:invoice._id});
+      that.setState({pushingTx:false, invoice:data})
+    }catch(e){
+      that.setState({pushingTx:false})
+      console.log(' ** ERROR @ iuguDetails', JSON.stringify(ex))
+      components_helper.notif.exceptionNotification( 
+        that.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.error.while_reloading'}),
+        ex
+      );
+    }
+    
+
+    // api.bank.getIuguInvoiceById(invoice._id)
+    //     .then( (data) => {
+    //         console.log(data);
+    //         that.setState({pushingTx:false, invoice:JSON.parse(JSON.stringify(data))})
+    //         // that.setState({pushingTx:false})
+    //       },
+    //       (ex) => {
+    //         console.log(' ** ERROR @ iuguDetails', JSON.stringify(ex))
+    //         components_helper.notif.exceptionNotification( 
+    //           that.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.error.while_reloading'}),
+    //           ex
+    //         );
+    //         that.setState({pushingTx:false});
             
-          }  
-        );
+    //       }  
+    //     );
   }
 
   onSelect(value) {
@@ -264,7 +280,9 @@ class iuguDetails extends Component {
     const buttons                   = this.getActionsForInvoice();
      
      //<Alert message={invoice.error} description="Cant fetch alias or there is no account related to invoice alias." type="error" showIcon/>
-
+    const paid_title = (invoice.state==request_helper.iugu.STATE_ISSUED_)
+      ? this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.paid_to'})
+      : this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.tried_to_paid_to'});
     return (
       <Spin spinning={pushingTx} delay={500} tip={this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.pushing_tx'}) }>
         <div className="c-detail">
@@ -290,7 +308,7 @@ class iuguDetails extends Component {
             className="shorter" />
 
           <TransactionTitle 
-            title={ this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.paid_to'}) } 
+            title={ paid_title } 
             button={<Button type="primary" onClick={this.setAlias} icon="edit" >{this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.upsert_alias'})}</Button>} />
 
           <div className="ui-list">
@@ -317,7 +335,7 @@ class iuguDetails extends Component {
         </div>
       </Spin>);
   }
-  
+  //`
   processInvoice(){
     let that = this;  
     
@@ -359,6 +377,7 @@ class iuguDetails extends Component {
     
     const processButton = (<Button loading={pushingTx} size="large" onClick={() => this.processInvoice()} key="processButton" type="primary" title="" >{this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.re_process'})}</Button>);
     //
+    console.log(' ----------- invoice.state:',invoice.state)
     switch (invoice.state){
       case request_helper.iugu.STATE_ERROR:
       case request_helper.iugu.STATE_ISSUE_ERROR:
