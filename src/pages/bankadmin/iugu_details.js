@@ -88,18 +88,21 @@ class iuguDetails extends Component {
     const that      = this;
     const {invoice} = this.state;
     this.setState({pushingTx:true});
-    console.log(' trying to reload invoice:', invoice.id)
-    api.bank.getIuguInvoiceById(invoice.id)
+    console.log(' trying to reload invoice:', invoice._id)
+    api.bank.getIuguInvoiceById(invoice._id)
         .then( (data) => {
-            that.setState({pushingTx:false, invoice:data})
+            console.log(data);
+            // that.setState({pushingTx:false, invoice:JSON.parse(JSON.stringify(data))})
+            that.setState({pushingTx:false})
           },
           (ex) => {
+            console.log(' ** ERROR @ iuguDetails', JSON.stringify(ex))
             components_helper.notif.exceptionNotification( 
               that.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.error.while_reloading'}),
               ex
             );
             that.setState({pushingTx:false});
-            console.log(' ** ERROR @ iuguDetails', JSON.stringify(ex))
+            
           }  
         );
   }
@@ -165,7 +168,8 @@ class iuguDetails extends Component {
         return;
       }
 
-      // console.log('--values::', values)
+      console.log('--values::', values)
+      console.log('--that.state.invoice::', that.state.invoice)
       that.setState({pushingTx:true})
       api.bank.updateIuguAlias(that.state.invoice._id, values.business)
         .then( (data) => {
