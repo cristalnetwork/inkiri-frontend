@@ -219,6 +219,7 @@ export const getAccountStateTag = (account, include_br) => {
 }
 //
 export const computeWageForAccount = (request, account_name) => {
+  if(!request) return 0;
   if(globalCfg.api.isSalary(request) && request.wages && account_name)
     return request.wages.filter(wage => wage.account_name==account_name)[0].wage;
   return request.amount;
