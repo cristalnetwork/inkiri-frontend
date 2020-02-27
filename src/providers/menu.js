@@ -87,8 +87,6 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
         }
         //
         
-        // trySwitchAccount(account_name)
-
         const handleSwitch = (account_name, role) => {
           if(account_name==actualAccountName && actualRole==role)
             return;
