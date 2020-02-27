@@ -100,7 +100,12 @@ class Configuration extends Component {
     }
 
   }
-    
+  
+  reloadAccount = async () => {
+    this.props.loadEosAccount(this.props.actualAccountName)
+    this.props.loadBankAccount(this.props.actualAccountName)
+  }
+  
   onTabChange(key) {
     // console.log(key);
     this.setState({active_tab:key})
@@ -276,9 +281,10 @@ class Configuration extends Component {
     if(active_tab==ACTIVE_TAB_ROLES){
       if(active_tab_action==ACTIVE_TAB_ROLES_NEW)
       {
-        const authority             = formatMessage({id:`components.Views.roles.${active_tab_object}`});
+        const authority             = formatMessage({id:`components.Views.roles.${active_tab_object.authority}`});
         const authority_tab_text    = formatMessage({id: 'pages.bankadmin.configuration.new_perm_title'}, {  authority: authority, bold: (str) => <b key={Math.random()}>{str}</b> });
         //  
+        console.log('*****************************', active_tab_object)
         return (
           <Skeleton 
             content={
@@ -288,7 +294,7 @@ class Configuration extends Component {
                   key={'new_perm'}
                   style = { { marginBottom: 24 } } 
                   >
-                  <AddRoleForm owner={this.state.bank_account.key} authority={active_tab_object} callback={this.onAddPermission} />                  
+                  <AddRoleForm owner={this.state.bank_account.key} authority={active_tab_object.authority} callback={this.onAddPermission} />                  
                 </Card>
               </Spin>} 
             icon="user-shield" />  );

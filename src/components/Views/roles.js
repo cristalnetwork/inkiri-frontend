@@ -69,18 +69,10 @@ const AccountRolesView = (props) => {
     // content: (<p>You are about to remove <b>{permission_actor}@{permission_permission}</b> from <b>{account.key}</b> <i>{permission_name}</i> authority's list. Continue or cancel.</p>),
         
     const onDeletePermission = (permission_name, permission_actor, permission_permission ) => {
+      const msg = props.intl.formatMessage({id:'components.Views.roles.delete_role_message'}, {permission_actor:permission_actor, permission_permission:  permission_permission, account_key:            account.key||account.account_name, permission_name:        permission_name, bold: (str) => <b key={Math.random()}>{str}</b>, italic: (str) => <i key={Math.random()}>{str}</i>})
       Modal.confirm({
         title: confirm_role_delete
-        , content: (<InjectMessage 
-                      id="components.Views.roles.delete_role_message"
-                      values={ {
-                                permission_actor:         permission_actor
-                                , permission_permission:  permission_permission
-                                , account_key:            account.key||account.account_name
-                                , permission_name:        permission_name
-                                , bold: (str) => <b key={Math.random()}>{str}</b>
-                                , italic: (str) => <i key={Math.random()}>{str}</i>
-                        }} />)
+        , content: msg
         , onOk() {
           fireEvent(ENUM_EVENT_DELETE_PERMISSION, 
           {
