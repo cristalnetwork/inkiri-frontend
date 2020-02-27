@@ -398,7 +398,7 @@ class Configuration extends Component {
     if(active_tab==ACTIVE_TAB_ROLES){
       if(active_tab_action==ACTIVE_TAB_ROLES_NEW)
       {
-        const authority             = formatMessage({id:`components.Views.roles.${active_tab_object.authority}`});
+        const authority             = formatMessage({id:`components.Views.roles.${active_tab_object}`});
         const authority_tab_text    = formatMessage({id: 'pages.common.configuration.new_perm_title'}, {  authority: authority, bold: (str) => <b key={Math.random()}>{str}</b> });
         //
         console.log('*****************************', active_tab_object)
@@ -411,7 +411,7 @@ class Configuration extends Component {
                   key={'new_perm'}
                   style = { { marginBottom: 24 } } 
                   >
-                  <AddRoleForm owner={this.state.bank_account.key} authority={active_tab_object.authority} callback={this.onAddPermission} />                  
+                  <AddRoleForm owner={this.state.bank_account.key} authority={active_tab_object} callback={this.onAddPermission} />                  
                 </Card>
               </Spin>} 
             icon="user-shield" />  );
