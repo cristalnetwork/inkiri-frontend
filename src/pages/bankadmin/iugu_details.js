@@ -95,7 +95,7 @@ class iuguDetails extends Component {
     try{
       const data = await gqlService.iugu({id:invoice._id});
       that.setState({pushingTx:false, invoice:data})
-    }catch(e){
+    }catch(ex){
       that.setState({pushingTx:false})
       console.log(' ** ERROR @ iuguDetails', JSON.stringify(ex))
       components_helper.notif.exceptionNotification( 

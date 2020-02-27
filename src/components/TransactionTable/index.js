@@ -208,7 +208,7 @@ class TransactionTable extends Component {
     const that       = this;
     let data = null;
 
-    // console.log(' ====================== request-table -> ', filter_obj)
+    console.log(' ====================== request-table -> ', filter_obj)
     try{
       if(this.state.mode==REQUEST_MODE_EXTRATO)  
         data = await gqlRequestI18nService.extrato(filter_obj, this.props.intl);
