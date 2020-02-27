@@ -537,6 +537,7 @@
   "pages.bankadmin.iugu_details.iugu_payment": "IUGU Payment",
   "pages.bankadmin.iugu_details.amount": "Amount",
   "pages.bankadmin.iugu_details.paid_to": "Paid to:",
+  "pages.bankadmin.iugu_details.tried_to_paid_to": "Tried to pay to:",
   "pages.bankadmin.iugu_details.destination_account": "Destination account",
   "pages.bankadmin.iugu_details.cant_fetch_alias": "Cant fetch alias or there is no account related to invoice alias.",
   "pages.bankadmin.iugu_details.issue_tx": "Issue transaction",

@@ -135,6 +135,11 @@ class Configuration extends Component {
     this.setState({active_tab:key})
   }
 
+  reloadAccount = async () => {
+    this.props.loadEosAccount(this.props.actualAccountName)
+    this.props.loadBankAccount(this.props.actualAccountName)
+  }
+
   handleSubmit = e => {
     e.preventDefault();
     
@@ -396,6 +401,7 @@ class Configuration extends Component {
         const authority             = formatMessage({id:`components.Views.roles.${active_tab_object}`});
         const authority_tab_text    = formatMessage({id: 'pages.common.configuration.new_perm_title'}, {  authority: authority, bold: (str) => <b key={Math.random()}>{str}</b> });
         //
+        console.log('*****************************', active_tab_object)
         return (
           <Skeleton 
             content={

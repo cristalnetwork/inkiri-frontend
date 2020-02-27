@@ -248,6 +248,7 @@ export const getAccountStateTag = (account, include_br) => {
 }
 //
 export const computeWageForAccount = (request, account_name) => {
+  if(!request) return 0;
   if(globalCfg.api.isSalary(request) && request.wages && account_name)
   {
     const wage = request.wages.find(wage => wage.account_name==account_name);
@@ -493,10 +494,11 @@ export const blockchain = {
 */
 //
 export const iugu = {
-  // STATE_NOT_PROCESSED : 'state_not_processed'
-  // , STATE_ISSUED        : 'state_issued'
-  // , STATE_ERROR         : 'state_error'
-  // , STATE_ISSUE_ERROR   : 'state_issue_error'
+  STATE_NOT_PROCESSED : 'state_not_processed',
+  STATE_PROCESSING    : 'state_processing',
+  STATE_ISSUED        : 'state_issued',
+  STATE_ERROR         : 'state_error',
+  STATE_ISSUE_ERROR   : 'state_issue_error',
   getStates : () => { 
         return {[globalCfg.api.IUGU_STATE_NOT_PROCESSED] : { color:'#fa8c16', icon:'user-clock' , description: 'NOT PROCESSED YET'},
                 [globalCfg.api.IUGU_STATE_ISSUED]        : { color:'green',   icon:'flag-checkered' , description: 'ISSUED!'},

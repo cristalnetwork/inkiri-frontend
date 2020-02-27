@@ -693,6 +693,44 @@ const GET_MAX_REQUEST_ID = gql`
   }
 `;
 
+export const iugu = async ({id='', iugu_id=''}={}) =>{
+  const a = {id:id, iugu_id:iugu_id};
+  return runQuery(GET_IUGU, a, 'iugu');
+}
+
+const GET_IUGU = gql`
+  query xxx($id:String, $iugu_id:String) {
+    iugu(id:$id, iugu_id:$iugu_id){
+      _id
+      amount
+      iugu_account
+      iugu_id
+      paid_at
+      receipt{
+        _id
+        account_name
+        alias
+        email
+        legal_id
+        phone
+        account_type
+        business_name
+        created_at
+        userCounterId
+      }
+      receipt_alias
+      receipt_accountname
+      original
+      iuguCounterId
+      issued_at
+      issued_tx_id
+      error
+      state
+      created_at
+      updated_at
+    }
+  }
+`;
 
 export const iugus = async ({page='', limit='', id='', iugu_id='', paid_at_from='', paid_at_to='', business_name='', alias='', account_name='', iuguCounterId='', issued_at_from='', issued_at_to='', issued_tx_id='', state='', iugu_account=''}={}) =>{
   const a = {page:page, limit:limit, id:id, iugu_id:iugu_id, paid_at_from:paid_at_from, paid_at_to:paid_at_to, business_name:business_name, alias:alias, account_name:account_name, iuguCounterId:iuguCounterId, issued_at_from:issued_at_from, issued_at_to:issued_at_to, issued_tx_id:issued_tx_id, state:state, iugu_account:iugu_account};
