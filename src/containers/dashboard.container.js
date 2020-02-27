@@ -47,7 +47,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
     }
     
     const onCollapse = (collapsed, type )=> {
-        console.log('dashboard::onCollpase:', collapsed, type);
+        // console.log('dashboard::onCollpase:', collapsed, type);
         if(type=='clickTrigger')
           collapseMenu(collapsed)
         
@@ -55,14 +55,15 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
 
     //defaultCollapsed={menu_is_collapsed} 
 
-    console.log('isMobile:',isMobile)
-    console.log('menu_is_collapsed:',menu_is_collapsed)
+    // console.log('isMobile:',isMobile)
+    // console.log('menu_is_collapsed:',menu_is_collapsed)
 
     const mobile_class          = isMobile?'mobile_device':'';
     const hidden_if_collapsed   = menu_is_collapsed?' hidden':'';
     const zeroWidthTriggerStyle = menu_is_collapsed ? {top:14, left:14} : {};
     const content_style         = isMobile?
       (menu_is_collapsed?{}:{ margin: '24px 16px 0' }):{ margin: '24px 16px 0' };
+    
     return (
       <Layout style={{ minHeight: '100vh' }} className={mobile_class}>
         <Sider 

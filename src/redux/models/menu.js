@@ -30,6 +30,8 @@ const SET_LANGUAGE           = 'menu/SET_LANGUAGE'
 const SET_REFERRER           = 'menu/SET_REFERRER'
 const CLEAR_REFERRER         = 'menu/CLEAR_REFERRER'
 
+const SET_GO_BACK_ENABLED    = 'menu/SET_GO_BACK_ENABLED'
+
 // Creadores de acciones (se pueden usar desde los compoenentes)
 export const getMenu                  = (account_name, account_type) =>({ type: GET_ASYNC, payload: { account_name, account_type }});
 export const getMenuFail              = (error)                      =>({ type: GET_FAIL, payload: { error }});
@@ -45,6 +47,8 @@ export const setLanguage              = (language)                   =>({ type: 
 
 export const setReferrer              = (title, referrer, father, icon)  =>({ type: SET_REFERRER, payload: { title:title, referrer:referrer, father:father, icon:icon} });
 export const clearReferrer            = ()                           =>({ type: CLEAR_REFERRER });
+
+export const setGoBackEnabled         = (can_go_back)                =>({ type: SET_GO_BACK_ENABLED, payload: { go_back_enabled:can_go_back} });
 
 //Eventos que requieren del async
 function* getMenuSaga({ type, payload }) {
@@ -115,6 +119,7 @@ export const isCollapsed   = (state) => state.menu.is_collapsed
 export const lastRootMenu  = (state) => state.menu.last_root_menu_fullpath
 export const isMobile      = (state) => state.menu.is_mobile
 export const language      = (state) => state.menu.language
+export const canGoBack     = (state) => state.menu.go_back_enabled
 
 export const referrer      = (state) => { return { referrer:           state.menu.referrer
                                                    , referrer_father:  state.menu.referrer_father 
@@ -133,7 +138,8 @@ const defaultState = {
   referrer:                  null,
   referrer_father:           null,
   referrer_title:            '',
-  referrer_icon:             ''
+  referrer_icon:             '',
+  go_back_enabled:           false
 };
 
 function reducer(state = defaultState, action = {}) {
@@ -163,10 +169,15 @@ function reducer(state = defaultState, action = {}) {
         ...state,
         is_collapsed:              action.payload.is_collapsed
       }
-     case SET_MENU_FATHER:
+    case SET_MENU_FATHER:
        return{
         ...state, 
         last_root_menu_fullpath:   action.payload.fullpath
+      }
+    case SET_GO_BACK_ENABLED:
+       return{
+        ...state, 
+        go_back_enabled:   action.payload.go_back_enabled
       }
     case SET_MOBILE:
         // const is_collapsed = state.is_collapsed;

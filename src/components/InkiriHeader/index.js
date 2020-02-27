@@ -23,14 +23,20 @@ class InkiriHeader extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isMobile:       props.isMobile,
-      referrer:       props.referrer 
+      isMobile:        props.isMobile,
+      referrer:        props.referrer,
+      canGoBack:       props.canGoBack,
+      menuIsCollapsed: props.menuIsCollapsed
     }
     this.handleLogout = this.handleLogout.bind(this);
+    this.goBack       = this.goBack.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState) {
     let new_state = {};
+
+    if(this.props.canGoBack!=prevProps.canGoBack)
+      new_state = {...new_state, canGoBack:this.props.canGoBack}
 
     if(this.props.isMobile!=prevProps.isMobile)
       new_state = {...new_state, isMobile:this.props.isMobile}
@@ -94,23 +100,27 @@ class InkiriHeader extends Component {
 
   goBack(){
     this.props.history.goBack();
-}
+  }
 
   render(){
     let header_content ;
-    const {referrer, isMobile, menuIsCollapsed} = this.state;
+    const {referrer, isMobile, menuIsCollapsed, canGoBack} = this.state;
     
     if(isMobile)
     {
-      const logo_class = menuIsCollapsed? 'ant-pro-global-header-logo':'hidden';
+      console.log('canGoBack:', canGoBack)
+      console.log('menuIsCollapsed:', menuIsCollapsed)
+      const logo_class = (menuIsCollapsed&&canGoBack)
+        ? 'ant-pro-global-header-logo'
+        : 'hidden';
       /*
-      <a className={logo_class} key="logo" href="/" style={{paddingLeft:64}}>
-        <img src="/favicons/favicon-32x32.png" alt="logo"/>
-      </a>
+        <a className={logo_class} key="logo" href="/" style={{paddingLeft:64}}>
+          <img src="/favicons/favicon-32x32.png" alt="logo"/>
+        </a>
       */
       header_content = (
         <>
-          <Button className='ant-pro-global-header-logo' icon="left" onClick={this.goBack} style={{marginLeft:64, borderColor:'transparent', backgroundColor:'transparent', color: '#fff'}} ></Button>
+          <Button className={'back_button ' + logo_class} icon="left" onClick={this.goBack} ></Button>
           <div className="right">
             <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
           </div>
@@ -147,7 +157,7 @@ export default withRouter(connect(
       actualAccountName : loginRedux.actualAccountName(state),
       menuIsCollapsed :   menuRedux.isCollapsed(state),
       isMobile :          menuRedux.isMobile(state),
-      
+      canGoBack:          menuRedux.canGoBack(state),
       isFetching:         apiRedux.isFetching(state),
       getErrors:          apiRedux.getErrors(state),
       getLastError:       apiRedux.getLastError(state),

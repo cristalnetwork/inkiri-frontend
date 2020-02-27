@@ -773,6 +773,53 @@ div.headerList td .ant-descriptions-item-content{flex:3; align-self: flex-start;
   color:#fff;
 }
 
+.mobile_device .back_button {
+  margin-left:       14px;
+  z-index:           100;
+  border-color:      rgb(108, 84, 163);
+  background-color:  rgb(108, 84, 163);
+  color:             #fff;
+}
+
+/*.mobile_device input.money-transfer__input::placeholder
+  , .mobile_device input.money-transfer__input::-webkit-input-placeholder
+  , .mobile_device input.money-transfer__input::-moz-placeholder
+{
+  font-size: 100px!important;
+  color:#ff0000!important;
+}*/
+
+.mobile_device  .input-price input::-webkit-input-placeholder {
+    color: #009EE3 !important;
+    font-size: 48px !important; }
+.mobile_device  .input-price input:-ms-input-placeholder {
+    color: #009EE3 !important;
+    font-size: 48px !important; }
+.mobile_device  .input-price input::-moz-placeholder {
+    color: #009EE3 !important;
+    font-size: 48px !important; }
+
+/*
+  input.placeholder-big::-webkit-input-placeholder {
+    font-size: 100px !important; }
+  input.placeholder-big:-ms-input-placeholder {
+    font-size: 100px !important; }
+  input.placeholder-big::-moz-placeholder {
+    font-size: 100px !important; }
+*/
+
+.mobile_device .__mp-box{
+    background: none repeat scroll 0 0 #fff;
+    /*margin: 10px auto 0;*/
+    max-width: 700px;
+    padding: 0;
+    position: relative;
+
+    overflow: hidden;
+    width: 100%;
+    /*padding-top: 40px!important;*/
+
+}
 .mobile_device .ant-pro-global-header{
   background-color: rgb(108, 84, 163);
 }
@@ -891,6 +938,9 @@ div.headerList td .ant-descriptions-item-content{flex:3; align-self: flex-start;
   display:none;
 }
 
+.mobile_device .money-transfer__row {
+  padding: 15px 15px 15px 15px;
+}
 .send-form-container { 
   margin: 24px 0px 0px 0px ;
   padding: 24px; 

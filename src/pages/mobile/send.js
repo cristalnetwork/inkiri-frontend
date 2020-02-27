@@ -38,25 +38,17 @@ const DEFAULT_RESULT = {
 
 const DEFAULT_STATE = {
   input_amount    : {  
-                      style                 : {maxWidth: 370, fontSize: 100, width: 60}
-                      , symbol_style        : {fontSize: 60}
-                      , value               : undefined 
-                    }
-}
-
-
-const DEFAULT_STATE_MOBILE = {
-  input_amount    : {  
                        style        : {maxWidth: 370, fontSize: 48, width: 50}
                       , symbol_style : {fontSize: 20}
                       , value               : undefined 
                       
                      }
 }
+
 class SendMoney extends Component {
   constructor(props) {
     super(props);
-    const input_style = props.isMobile?DEFAULT_STATE_MOBILE:DEFAULT_STATE;
+    const input_style = DEFAULT_STATE;
     this.state = {
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       isFetching:          props.isFetching,
@@ -162,7 +154,7 @@ class SendMoney extends Component {
   }
 
   resetPage(){
-    const input_style = this.props.isMobile?DEFAULT_STATE_MOBILE:DEFAULT_STATE;
+    const input_style = DEFAULT_STATE;
     this.setState({...DEFAULT_RESULT, ...input_style});
     if(this.autocompleteWidget)
     {
@@ -379,9 +371,8 @@ class SendMoney extends Component {
     const { input_amount, isFetching}           = this.state;
 
     return (
-      <div className="send-form-container" >
-        <div className="ly-main-content content-spacing cards">
-          <section className="mp-box mp-box__shadow money-transfer__box">
+        <div className="cards">
+          <section className="__mp-box mp-box__shadow XXXmp-boxXXX  XXXmoney-transfer__boxXXX">
               
             <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
               
@@ -444,7 +435,7 @@ class SendMoney extends Component {
             </Spin>
           </section>
         </div>      
-      </div>
+      
     );
   }
   
@@ -457,12 +448,7 @@ class SendMoney extends Component {
     return (
       <>
         <PageHeader
-          breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={this.state.intl.title}
-          subTitle={this.state.intl.subtitle}
-          extra={[
-             <span className="view_requests" key="view_requests_switch"> {this.state.intl.view_requests}&nbsp;<Switch key='view_requests' onChange={ (checked) => this.setState({view_requests:checked})} /></span>
-          ]}
         />
           {content}
       </>

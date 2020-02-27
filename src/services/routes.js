@@ -400,6 +400,20 @@ export const getRootKeys = (area) => {
     return routes[area].items.map( item => item.key );
 }
 
+export const getRootKeysEx = (area) => {
+    if(!area)
+        return [];
+    return routes[area].items.map( item => 
+        {
+          return getItemsKey(item)} );
+}
+
+const getItemsKey = (item) => {
+  if(item.items)
+    return item.items.map(_item=>getItemsKey(_item))
+  return item.key;
+}
+
 export const breadcrumbForPaths = (fullpaths, include_root) => {
     
     const my_fullpaths = Array.isArray(fullpaths)?fullpaths:[fullpaths];
