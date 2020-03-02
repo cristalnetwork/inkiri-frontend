@@ -16,7 +16,7 @@ import { getRootKeys, getRootKeysEx } from '@app/services/routes'
 import InjectMessage from "@app/components/intl-messages";
 const  { SubMenu } = Menu;
 
-export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [], allAccounts, isMobile, getMenu, trySwitchAccount2, 
+export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [], allAccounts, isMobile, collapseMenu, getMenu, trySwitchAccount2, 
                              actualAccountName, actualRole , actualRoleId,  actualPermission, 
                              lastRootMenu, menuIsCollapsed, setGoBackEnabled}) => {
         
@@ -27,10 +27,7 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
 
         useEffect(()=>{
           setMobileMode(isMobile)
-
         }, [isMobile])
-
-
 
         useEffect(()=>{
           const my_role = isMobile? `mobile_${actualRole}`:actualRole;
@@ -61,9 +58,7 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
 
         const [selected, setSelected]        = useState(null);
         const [selectedKey, setSelectedKey]  = useState(['dashboard']);
-        const getSelectedKey = () => {
-
-        }
+        
         useEffect(()=>{
           let _selected = routes_config.getItemByAreaNFilename(area, fileName, itemPath)
           if(((!_selected || _selected.father_key==='*') || area==='common') && lastRootMenu)
@@ -87,7 +82,18 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
           setRootKeys(bb)
         }, [actualRole, menuIsCollapsed])
 
-        
+        const onMenuItemClick = ({ item, key, keyPath, domEvent }) =>{
+          // console.log(' ======================== onMenuItemClick');
+          // console.log('key: ',key)
+          // console.log('item: ',item)
+          // console.log('isMobile: ', isMobile);
+          if(!(item.props.eventKey.startsWith('____') && isMobile))
+            return;
+          
+          // console.log('collapse fired!');
+          collapseMenu(true);
+        }
+
         const renderItem = (item) => {
           if(item.permission && !globalCfg.bank.isValidPermission(actualRoleId, item.permission, actualPermission))
               return (null);
@@ -101,7 +107,7 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
               //
           } else {
               return  (
-              <Menu.Item key={item.key} disabled={item.path!=item.key} className={ item.icon?'is_root_menu':''}>
+              <Menu.Item key={'____'+item.key} disabled={item.path!=item.key} className={ item.icon?'is_root_menu':''}>
                   <Link to={routes_config.getPath(item.path || item.key)}>
                       { item.icon? <Icon type={item.icon} />: false }
                       <span><InjectMessage id={item.title} defaultMessage={item.title} /></span>
@@ -135,6 +141,7 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
         
         return (
                 <Menu
+                    onClick={onMenuItemClick}
                     defaultSelectedKeys={selectedKey}
                     defaultOpenKeys={rootKeys}
                     mode="inline"
@@ -162,6 +169,7 @@ export default connect(
     }),
     dispatch => ({
         setGoBackEnabled:      bindActionCreators( menuRedux.setGoBackEnabled, dispatch),   
+        collapseMenu:          bindActionCreators( menuRedux.collapseMenu, dispatch),   
         getMenu:               bindActionCreators( menuRedux.getMenu, dispatch),
         trySwitchAccount2:     bindActionCreators(loginRedux.trySwitchAccount2, dispatch),
     })

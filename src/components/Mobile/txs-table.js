@@ -66,7 +66,7 @@ class TxsTable extends Component {
     this.renderFooter        = this.renderFooter.bind(this); 
     this.getColumnsForType   = this.getColumnsForType.bind(this);
     this.applyFilter         = this.applyFilter.bind(this);
-    this.refresh             = this.refresh.bind(this);
+    this.refreshTxs          = this.refreshTxs.bind(this);
     
   }
 
@@ -108,7 +108,7 @@ class TxsTable extends Component {
     this.setState({
       requests_filter:filter
     },() => {
-      this.refresh();
+      this.refreshTxs();
     });
   }
 
@@ -118,7 +118,8 @@ class TxsTable extends Component {
               </Button> </>)
   }
 
-  refresh(){
+  refreshTxs(){
+    console.log(' ------------- loading!!')
     const that = this;
     this.setState({
       txs:[]
@@ -133,7 +134,7 @@ class TxsTable extends Component {
   componentDidUpdate(prevProps) {
     // Typical usage (don't forget to compare props):
     if (this.props.need_refresh !== prevProps.need_refresh && this.props.need_refresh) {
-      this.refresh();
+      this.refreshTxs();
     }
     if (this.props.mode !== prevProps.mode) {
       this.setState({mode: this.props.mode});
@@ -301,26 +302,27 @@ class TxsTable extends Component {
 
   render(){
 
+    // pullDownToRefreshThreshold="150px"
     return (<InfiniteScroll
-          dataLength={this.state.txs.length} //This is important field to render the next data
-          next={this.loadTxs}
-          hasMore={this.state.can_get_more}
-          loader={<div style={{ width: '100%', textAlign: 'center' }}><Spin size="large" /></div>}
-          endMessage={
-            <p className="end_of_list">
-              <b>{this.state.intl.reached_end_of_list}</b>
-            </p>
-          }
-          refreshFunction={this.refresh}
-          pullDownToRefresh
-          pullDownToRefreshContent={
-            <h3 style={{textAlign: 'center'}}>&#8595; {this.state.intl.pull_to_refresh}</h3>
-          }
-          releaseToRefreshContent={
-            <h3 style={{textAlign: 'center'}}>&#8593; {this.state.intl.release_to_refresh}</h3>
-          }>
-          {this.items()}
-        </InfiniteScroll>)
+              dataLength={this.state.txs.length} //This is important field to render the next data
+              next={this.loadTxs}
+              hasMore={this.state.can_get_more}
+              loader={<div style={{ width: '100%', textAlign: 'center' }}><Spin size="large" /></div>}
+              endMessage={
+                <p className="end_of_list">
+                  <b>{this.state.intl.reached_end_of_list}</b>
+                </p>
+              }
+              pullDownToRefresh
+              refreshFunction={this.refreshTxs}
+              pullDownToRefreshContent={
+                <h3 style={{textAlign: 'center'}}>&#8595; {this.state.intl.pull_to_refresh}</h3>
+              }
+              releaseToRefreshContent={
+                <h3 style={{textAlign: 'center'}}>&#8593; {this.state.intl.release_to_refresh}</h3>
+              }>
+              {this.items()}
+            </InfiniteScroll>)
   }
   
   

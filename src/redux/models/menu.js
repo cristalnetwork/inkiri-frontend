@@ -165,6 +165,7 @@ function reducer(state = defaultState, action = {}) {
         loading:                   state.loading - 1
       }
     case SET_COLLAPSE:
+      console.log(' SET_COLLAPSE -> collapsing menu???', action.payload.is_collapsed)
       return {
         ...state,
         is_collapsed:              action.payload.is_collapsed

@@ -48,15 +48,15 @@ class Extrato extends Component {
   }
   
   onTransactionClick(transaction){
-    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+    // this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
-    this.props.history.push({
-      pathname: '/common/transaction-details'
-      , state: { 
-          transaction: transaction
-          , referrer: this.props.location.pathname
-        }
-    })
+    // this.props.history.push({
+    //   pathname: '/common/transaction-details'
+    //   , state: { 
+    //       transaction: transaction
+    //       , referrer: this.props.location.pathname
+    //     }
+    // })
   }
 
   gotoSend =() => {
@@ -71,7 +71,7 @@ class Extrato extends Component {
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
     this.props.history.push({
-      pathname: '/common/request-details'
+      pathname: '/mobile/request-details'
       , state: { 
           request: request 
           , referrer: this.props.location.pathname

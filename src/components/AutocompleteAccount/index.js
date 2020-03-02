@@ -214,13 +214,13 @@ class AutocompleteAccount extends Component {
                           <AutoComplete 
                             size={size||'large'} 
                             dataSource={data.map(this.renderAccount)} 
-                            style={{ width: '100%' }} 
+                            style={{ width: '100%'}} 
                             onSelect={this.handleSelect} 
                             placeholder={ formatMessage({id:"components.AutocompleteAccount.index.placeholder"}) }
                             filterOption={(inputValue, option) =>
                               {
                                 // console.log('>>filterOption >> ',inputValue, option);
-                                return option.key.indexOf(inputValue) !== -1;
+                                return option.key.indexOf((inputValue||'').toLowerCase()) !== -1;
                               }
                             } 
                             optionLabelProp="value" >

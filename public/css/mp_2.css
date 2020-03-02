@@ -739,15 +739,17 @@ p.congrats-content {
       font-size: 64px;
       height: 107px;
       line-height: 105px; }
-      .input-price input::-webkit-input-placeholder {
-        color: #009EE3 !important;
-        font-size: 64px !important; }
-      .input-price input:-ms-input-placeholder {
-        color: #009EE3 !important;
-        font-size: 64px !important; }
-      .input-price input::-moz-placeholder {
-        color: #009EE3 !important;
-        font-size: 64px !important; }
+      
+  .input-price input::-webkit-input-placeholder {
+    color: #009EE3 !important;
+    font-size: 64px !important; }
+  .input-price input:-ms-input-placeholder {
+    color: #009EE3 !important;
+    font-size: 64px !important; }
+  .input-price input::-moz-placeholder {
+    color: #009EE3 !important;
+    font-size: 64px !important; }
+  
   input.placeholder-big::-webkit-input-placeholder {
     font-size: 100px !important; }
   input.placeholder-big:-ms-input-placeholder {

@@ -4,7 +4,7 @@ import hdkey from 'hdkey';
 import wif from 'wif';
 import * as eosHelper from './eos-helper';
 const derivation_path = "m/44'/194'/0'/0/0";
-const loop_count      = 1000;
+const loop_count      = 10;
 
 export const getKey = (account_name, password, do_log=false) =>{
   const seed        = account_name + '.' + password;

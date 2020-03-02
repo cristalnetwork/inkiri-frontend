@@ -80,8 +80,8 @@ const _checkRole = ({role, actualRole, children, history, location, isMobile}) =
           
           if(actualRole=='personal') {
             if(isMobile)
-              // history.push(`/mobile/extrato`);
-            history.push(`/mobile/send`);
+              history.push(`/mobile/extrato`);
+              // history.push(`/mobile/send`);
             else
             {
               history.push(`/common/extrato`);

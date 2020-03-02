@@ -36,6 +36,13 @@ const DEFAULT_RESULT = {
   error:              {},
 }
 
+// const DEFAULT_RESULT = {
+//   result:             'ok',
+//   result_object:      {transaction_id:'1125d'},
+//   error:              {},
+// }
+
+
 const DEFAULT_STATE = {
   input_amount    : {  
                        style        : {maxWidth: 370, fontSize: 48, width: 50}
@@ -76,7 +83,7 @@ class SendMoney extends Component {
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
     this.props.history.push({
-      pathname: '/common/request-details'
+      pathname: '/mobile/request-details'
       , state: { 
           request: request 
           , referrer: this.props.location.pathname
@@ -279,6 +286,7 @@ class SendMoney extends Component {
       components_helper.notif.errorNotification(this.state.intl.valid_amount_required, this.state.intl.valid_amount_required_description);
       return;
     }
+    console.log('====this.props.balance: ', this.props.balance)
     if(parseFloat(input_amount.value)>parseFloat(this.props.balance))
     {
       const balance_txt = globalCfg.currency.toCurrencyString(this.props.balance);

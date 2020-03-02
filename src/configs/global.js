@@ -358,8 +358,10 @@ const dfuse = {
   chain_id                  : 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
   websocket_url             : 'wss://jungle.eos.dfuse.io/v1/stream',
   default_page_size         : 25,
-  tx_url                    : 'https://jungle.bloks.io/transaction/',
-  account_url               : 'https://jungle.bloks.io/account/',
+  // tx_url                    : 'https://jungle.bloks.io/transaction/',
+  // account_url               : 'https://jungle.bloks.io/account/',
+  tx_url                    : 'https://telos-test.bloks.io/transaction/',
+  account_url               : 'https://telos-test.bloks.io/account/',
   account_keys_url_postfix  : '#keys',
   getBlockExplorerTxLink : (tx_id) => {
     return dfuse.tx_url + tx_id;
@@ -372,7 +374,9 @@ const dfuse = {
 const eos = {
   // endpoint       : env=='dev' ? 'http://127.0.0.1:8888' : 'https://jungle2.cryptolions.io:443',
   /* HACK */
-  endpoint                  : 'https://jungle2.cryptolions.io:443',
+  // endpoint                  : 'https://jungle2.cryptolions.io:443',
+  endpoint                  : 'https://testnet.telosusa.io',
+  history_endpoint          : 'https://testnet.telosusa.io',
   node                      : 'https://proxy.eosnode.tools/',
   push: {
     retries                 : 3,

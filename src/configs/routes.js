@@ -56,6 +56,7 @@ export const pathNames = utils.arrToObj([
     'mobileExtrato',
     'mobilePDV',
     'mobileSend',
+    'mobileRequestDetails',
     'dashboard'
 ])
 
@@ -424,6 +425,14 @@ const mobile = [{
        container:    'dashboard',
        role:         '*'
     },
+    {
+     key:            pathNames.mobileRequestDetails,
+     fileName:       'request-details',
+     area:           'mobile',
+     path:           'request-details',
+     container:      'dashboard',
+     role:           '*', 
+  },
     
 ];
 

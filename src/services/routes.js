@@ -374,6 +374,13 @@ const routes  = {
                 path:         routes_config.pathNames.mobileExtrato,
                 title:        'menu.item.extrato',
                 icon:         'wallet',
+            },
+            {
+
+                key:          routes_config.pathNames.mobileSend,
+                path:         routes_config.pathNames.mobileSend,
+                title:        'menu.item.send_money',
+                icon:         'arrow-up',
             }
         ]
     }

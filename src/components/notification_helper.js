@@ -11,14 +11,16 @@ export const openNotificationWithIcon = (type, title, message, onClose, duration
     message:     title,
     description: message,
     duration:    nullOrUndefined(duration)?5:duration,
-    onClose:      () => {
+    // duration:    0,
+    onClose:     () => {
       if(typeof onClose === 'function')
         onClose();
     },
-    style: {
-      width: 600,
-      marginLeft: 400 - 600
-    },
+    className: 'my_notification'
+    // style: {
+    //   width: 600,
+    //   marginLeft: 400 - 600
+    // },
   });
 }
 
