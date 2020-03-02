@@ -234,6 +234,8 @@ const pushTX = async (tx, privatekey) => {
 
 }
 
+const CURRENCY_SYMBOL = globalCfg.eos.currency_symbol;
+
 export const createAccount = async (creator_priv, new_account_name, new_account_public_key, account_type, fee, overdraft, permissions) => { 
 
   const fee_string       = globalCfg.currency.toEOSNumber(fee);
@@ -341,8 +343,8 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
     data: {
       from: globalCfg.bank.issuer,
       receiver: new_account_name,
-      stake_net_quantity: '0.2500 EOS',
-      stake_cpu_quantity: '0.2500 EOS',
+      stake_net_quantity: '0.2500 ' + CURRENCY_SYMBOL,
+      stake_cpu_quantity: '0.2500 ' + CURRENCY_SYMBOL,
       transfer: false,
     }
   }

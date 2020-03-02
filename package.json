@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@dfuse/client": "^0.3.8",
+    "@eoscafe/hyperion": "^3.2.4",
     "@fortawesome/fontawesome-svg-core": "^1.2.27",
     "@fortawesome/free-brands-svg-icons": "^5.12.1",
     "@fortawesome/free-regular-svg-icons": "^5.12.1",
