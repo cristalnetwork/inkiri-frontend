@@ -25,7 +25,6 @@ class InkiriHeader extends Component {
       isMobile:       props.isMobile,
       referrer:       props.referrer 
     }
-    this.handleChange = this.handleChange.bind(this);
     this.handleLogout = this.handleLogout.bind(this);
   }
 
@@ -82,12 +81,6 @@ class InkiriHeader extends Component {
   }
   
 
-  handleChange(account_name) {
-    console.log(`selected ${account_name}`);
-    this.props.trySwitchAccount(account_name);
-  }
-
-  
   handleLogout() {
     const that = this;
     const {formatMessage} = this.props.intl;
@@ -167,7 +160,6 @@ export default connect(
       clearAll:           bindActionCreators(apiRedux.clearAll, dispatch),
 
       tryLogin:           bindActionCreators(loginRedux.tryLogin, dispatch),
-      trySwitchAccount:   bindActionCreators(loginRedux.trySwitchAccount, dispatch),
       logout:             bindActionCreators(loginRedux.logout, dispatch),
       collapseMenu:       bindActionCreators(menuRedux.collapseMenu, dispatch),
 

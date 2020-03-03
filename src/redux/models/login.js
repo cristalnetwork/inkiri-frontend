@@ -15,7 +15,7 @@ const SET_LOGIN         = 'login/SET_LOGIN'
 const LOGOUT            = 'login/LOGOUT'
 const CLEAR_SESSION     = 'login/CLEAR_SESSION'
 
-const TRY_SWITCH        = 'login/TRY_SWITCH';
+// const TRY_SWITCH        = 'login/TRY_SWITCH';
 const TRY_SWITCH2       = 'login/TRY_SWITCH2';
 const TRY_SWITCH_END    = 'login/TRY_SWITCH_END';
 
@@ -25,7 +25,7 @@ const SET_PROFILE       = 'login/SET_PROFILE';
 
 // Creadores de acciones (se pueden usar desde los compoenentes)
 // export const tryLogin = (account, save) =>({ type: TRY_LOGIN, payload: {account, save } });
-export const trySwitchAccount = (account_name)             => ({ type: TRY_SWITCH, payload: { account_name } });
+// export const trySwitchAccount = (account_name)             => ({ type: TRY_SWITCH, payload: { account_name } });
 export const trySwitchAccount2 = (account_name, role)      => ({ type: TRY_SWITCH2, payload: { account_name:account_name , role:role } });
 export const tryLogin = (account_name, password, remember) => ({ type: TRY_LOGIN, payload: { account_name, password, remember } });
 export const tryLoginError = (e)                           => ({ type: TRY_LOGIN_ERROR, payload: { exception:e } });
@@ -88,34 +88,30 @@ function* tryLoginSaga({ type, payload }) {
     // yield put( tryUserState(account_name))
 }
 
-function* trySwitchAccountSaga({ type, payload }) {
-
-    const { account_name } = payload
-    // console.log(' LOGIN REDUX >> trySwitchAccountSaga >> ', account_name);
-    const { data } = yield getStorage(ACCOUNT_DATA);
-    if (account_name === data.account_name) {
-        // console.log(' LOGIN REDUX >> trySwitchAccountSaga >> NOTHING TO DO >> account_name===data.account_name', account_name);
-        yield put({ type: TRY_SWITCH_END })
-        return;
-    }
-
-    const stateData = getLoginDataFromStorage(data, account_name);
-
-    const profile = yield api.bank.getProfile(account_name);
-    stateData['profile'] = profile;
-    // console.log(' LOGIN REDUX >> trySwitchAccountSaga >>putting new data', JSON.stringify(stateData));
-    setStorage(ACCOUNT_DATA, { account_name: account_name
-                               , password: data.password
-                               , remember: data.remember
-                               , accounts: stateData.accounts
-                               , master_account: stateData.master_account
-                               , profile:profile })
-    yield put({ type: TRY_DELETE_SESSION });
-    yield put(setLoginData(stateData))
-    yield put({ type: TRY_SWITCH_END })
-    history.replace('/');
-
-}
+// function* trySwitchAccountSaga({ type, payload }) {
+//     const { account_name } = payload
+//     // console.log(' LOGIN REDUX >> trySwitchAccountSaga >> ', account_name);
+//     const { data } = yield getStorage(ACCOUNT_DATA);
+//     if (account_name === data.account_name) {
+//         // console.log(' LOGIN REDUX >> trySwitchAccountSaga >> NOTHING TO DO >> account_name===data.account_name', account_name);
+//         yield put({ type: TRY_SWITCH_END })
+//         return;
+//     }
+//     const stateData = getLoginDataFromStorage(data, account_name);
+//     const profile = yield api.bank.getProfile(account_name);
+//     stateData['profile'] = profile;
+//     // console.log(' LOGIN REDUX >> trySwitchAccountSaga >>putting new data', JSON.stringify(stateData));
+//     setStorage(ACCOUNT_DATA, { account_name: account_name
+//                                , password: data.password
+//                                , remember: data.remember
+//                                , accounts: stateData.accounts
+//                                , master_account: stateData.master_account
+//                                , profile:profile })
+//     yield put({ type: TRY_DELETE_SESSION });
+//     yield put(setLoginData(stateData))
+//     yield put({ type: TRY_SWITCH_END })
+//     history.replace('/');
+// }
 
 function* trySwitchAccount2Saga({ type, payload }) {
 
@@ -142,7 +138,11 @@ function* trySwitchAccount2Saga({ type, payload }) {
     yield put({ type: TRY_DELETE_SESSION });
     yield put(setLoginData(stateData))
     yield put({ type: TRY_SWITCH_END })
-    history.replace('/');
+
+    setTimeout(()=> {
+      history.replace('/');
+    } , 500);
+    // history.replace('/');
 
 }
 
@@ -193,7 +193,7 @@ store.injectSaga('login', [
     // takeEvery(core.INIT_READY_TO_START, initLoginDataSaga),
     takeEvery(core.INIT, initLoginDataSaga),
     takeEvery(TRY_LOGIN, tryLoginSaga),
-    takeEvery(TRY_SWITCH, trySwitchAccountSaga),
+    // takeEvery(TRY_SWITCH, trySwitchAccountSaga),
     takeEvery(TRY_SWITCH2, trySwitchAccount2Saga),
     takeEvery(LOAD_PROFILE, loadProfileSaga),
     takeEvery(LOGOUT, logoutSaga),
@@ -253,11 +253,11 @@ function reducer(state = defaultState, action = {}) {
                 loading: 0,
                 error: action.payload.exception
             }
-        case TRY_SWITCH:
-            return {
-                ...state,
-                loading: state.loading + 1
-            }
+        // case TRY_SWITCH:
+        //     return {
+        //         ...state,
+        //         loading: state.loading + 1
+        //     }
         case TRY_SWITCH2:
             return {
                 ...state,
