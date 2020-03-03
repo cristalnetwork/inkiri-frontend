@@ -220,7 +220,7 @@ class Profile extends Component {
     const {formatMessage} = this.props.intl;
     this.setState({active_tab_object:values, pushingTx:true})
     let bank_accounts = [...profile.bank_accounts, values];
-    api.bank.updateUserBankAccounts(profile.id, bank_accounts)
+    api.bank.updateUserBankAccounts(profile._id, bank_accounts)
       .then((res)=>{
         that.reload();
         components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.profile.succcess.bank_account_saved'}));
@@ -248,14 +248,14 @@ class Profile extends Component {
     }
   
     const that                = this;
-    const {id, account_name}  = this.state.profile;
+    const {_id, account_name}  = this.state.profile;
     const new_profile         = values;
     const {formatMessage}     = this.props.intl;
     const {account_type, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias} = new_profile;
     
     this.setState({active_tab_object:values, pushingTx:true})
     
-    api.bank.createOrUpdateUser(id, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias)
+    api.bank.createOrUpdateUser(_id, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias)
       .then((res)=>{
         components_helper.notif.successNotification(formatMessage({id:'pages.bankadmin.profile.succcess.profile_updated'}));
         that.reload();
