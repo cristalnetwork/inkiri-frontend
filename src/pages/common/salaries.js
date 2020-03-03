@@ -349,7 +349,7 @@ class Salaries extends Component {
 
     const pay_salaries               = this.props.intl.formatMessage({id:'pages.common.salaries.confirmation_action_title'});
     const new_salaries_payment_text  = this.props.intl.formatMessage({id:'pages.common.salaries.new_salaries_payment_text'});
-
+    const total_members              = dataSource?dataSource.length:0;
     return (
       <Card
           title={pay_salaries}
@@ -369,7 +369,8 @@ class Salaries extends Component {
                 loading={loading} 
                 columns={columns}
                 components={components} 
-                dataSource={dataSource} 
+                dataSource={dataSource}
+                pagination={{pageSize:total_members, total:total_members}}  
                 scroll={{ x: 700 }}
                 rowClassName={() => 'editable-row'}
                 />
