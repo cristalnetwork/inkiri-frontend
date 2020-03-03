@@ -369,11 +369,18 @@ const dfuse = {
 const eos = {
   // endpoint       : env=='dev' ? 'http://127.0.0.1:8888' : 'https://jungle2.cryptolions.io:443',
   currency_symbol           : 'TLOS',
+  
   // endpoint                  : 'https://jungle2.cryptolions.io:443',
+  
   // endpoint                  : 'https://testnet.telosusa.io',
   // history_endpoint          : 'https://testnet.telosusa.io',
-  endpoint                  : 'https://mainnet.telosusa.io',
-  history_endpoint          : 'https://mainnet.telosusa.io',
+  
+  // endpoint                  : 'https://mainnet.telosusa.io',
+  // history_endpoint          : 'https://mainnet.telosusa.io',
+  
+  endpoint                  : 'https://telos.eoscafeblock.com',
+  history_endpoint          : 'https://telos.eoscafeblock.com',
+  
   node                      : 'https://proxy.eosnode.tools/',
   push: {
     retries                 : 3,
