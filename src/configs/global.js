@@ -49,7 +49,9 @@ const bank = {
   provider_account:        "cristaltoken",
   withdraw_account:        "cristaltoken",
   
-  customers:               'https://jungle.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
+  // customers:               'https://jungle.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
+  // customers:               'https://telos-test.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
+  customers:               'https://telos.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
   
   // HACK from server's config
   PAYMENT_VEHICLE_INKIRI :    'payment_vehicle_inkiri', //empresa
@@ -143,27 +145,15 @@ const bank = {
     
   },
   isPersonalAccount : (param) => {
-    // if(typeof param !== 'number' && typeof param !== 'string')
-    //   param = param.account_type  
-    // return parseInt(param) == bank.ACCOUNT_TYPE_PERSONAL;
     return bank.isAccountOfType(param, bank.ACCOUNT_TYPE_PERSONAL)
   },
   isBusinessAccount : (param) => {
-    // if(typeof param !== 'number' && typeof param !== 'string')
-    //   param = param.account_type  
-    // return parseInt(param) == bank.ACCOUNT_TYPE_BUSINESS;
     return bank.isAccountOfType(param, bank.ACCOUNT_TYPE_BUSINESS)
   },
   isFoundationAccount : (param) => {
-    // if(typeof param !== 'number' && typeof param !== 'string')
-    //   param = param.account_type  
-    // return parseInt(param) == bank.ACCOUNT_TYPE_FOUNDATION;
     return bank.isAccountOfType(param, bank.ACCOUNT_TYPE_FOUNDATION)
   },
   isAdminAccount : (param) => {
-    // if(typeof param !== 'number' && typeof param !== 'string')
-    //   param = param.account_type  
-    // return parseInt(param) == bank.ACCOUNT_TYPE_BANKADMIN;
     return bank.isAccountOfType(param, bank.ACCOUNT_TYPE_BANKADMIN)
   },
   isEnabledAccount : (account_state) => {
@@ -360,8 +350,13 @@ const dfuse = {
   default_page_size         : 25,
   // tx_url                    : 'https://jungle.bloks.io/transaction/',
   // account_url               : 'https://jungle.bloks.io/account/',
-  tx_url                    : 'https://telos-test.bloks.io/transaction/',
-  account_url               : 'https://telos-test.bloks.io/account/',
+
+  // tx_url                    : 'https://telos-test.bloks.io/transaction/',
+  // account_url               : 'https://telos-test.bloks.io/account/',
+
+  tx_url                    : 'https://telos.bloks.io/transaction/',
+  account_url               : 'https://telos.bloks.io/account/',
+  
   account_keys_url_postfix  : '#keys',
   getBlockExplorerTxLink : (tx_id) => {
     return dfuse.tx_url + tx_id;
@@ -373,11 +368,12 @@ const dfuse = {
   */
 const eos = {
   // endpoint       : env=='dev' ? 'http://127.0.0.1:8888' : 'https://jungle2.cryptolions.io:443',
-  /* HACK */
-  // endpoint                  : 'https://jungle2.cryptolions.io:443',
   currency_symbol           : 'TLOS',
-  endpoint                  : 'https://testnet.telosusa.io',
-  history_endpoint          : 'https://testnet.telosusa.io',
+  // endpoint                  : 'https://jungle2.cryptolions.io:443',
+  // endpoint                  : 'https://testnet.telosusa.io',
+  // history_endpoint          : 'https://testnet.telosusa.io',
+  endpoint                  : 'https://mainnet.telosusa.io',
+  history_endpoint          : 'https://mainnet.telosusa.io',
   node                      : 'https://proxy.eosnode.tools/',
   push: {
     retries                 : 3,
@@ -388,7 +384,9 @@ const eos = {
     },
     breakable_error_codes   : [3081001]
   },
-  create_account            : 'https://api.monitor.jungletestnet.io/#account',
+  create_account            : 'https://app.telos.net/accounts/add',
+  // create_account            : 'https://app.telos.net/testnet/developers',
+  // create_account            : 'https://api.monitor.jungletestnet.io/#account',
   // create_account           : 'https://eos-account-creator.com/choose/'
 }
 

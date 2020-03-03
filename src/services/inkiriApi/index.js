@@ -180,7 +180,8 @@ export const setAccountPermission = async (tx, privatekey) => pushTX (tx, privat
 
 const pushTX = async (tx, privatekey) => { 
 	const signatureProvider = new JsSignatureProvider([privatekey])
-  const rpc = new JsonRpc(globalCfg.dfuse.base_url)
+  // const rpc = new JsonRpc(globalCfg.dfuse.base_url)
+  const rpc = new JsonRpc(globalCfg.eos.endpoint)
   const api = new Api({
     rpc,
     signatureProvider
@@ -240,41 +241,47 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
 
   const fee_string       = globalCfg.currency.toEOSNumber(fee);
   const overdraft_string = globalCfg.currency.toEOSNumber(overdraft);
+
+  const is_business = account_type==globalCfg.bank.ACCOUNT_TYPE_BUSINESS||account_type==2||account_type=='business';
+  const ram         = 4096 ;
+  const net         = is_business? '0.5000' : '0.2500'; 
+  const cpu         = is_business? '1.0000' : '0.2500';
+
   let actions = [];
   let newAccountAction = 
     {
-    account:         'eosio',
-    name:            'newaccount',
+    account:             'eosio',
+    name:                'newaccount',
     authorization: [{
-      actor:         globalCfg.bank.issuer,
-      permission:    'active',
+      actor:             globalCfg.bank.issuer,
+      permission:        'active',
     }],
     data: {
-      creator: globalCfg.bank.issuer,
-      name: new_account_name,
+      creator:           globalCfg.bank.issuer,
+      name:              new_account_name,
       owner: {
-        threshold: 1,
+        threshold:       1,
         keys: [{
-          key: new_account_public_key,
-          weight: 1
+          key:           new_account_public_key,
+          weight:        1
         }],
         accounts: [{
           permission: {
-            actor: globalCfg.bank.issuer,
-            permission: "active"
+            actor:       globalCfg.bank.issuer,
+            permission:  "active"
           },
-          weight: 1
+          weight:        1
         }],
-        waits: []
+        waits:           []
       },
       active: {
-        threshold: 1,
+        threshold:       1,
         keys: [{
-          key: new_account_public_key,
-          weight: 1
+          key:           new_account_public_key,
+          weight:        1
         }],
-        accounts: [],
-        waits: []
+        accounts:        [],
+        waits:           []
       },
     },
   };
@@ -286,12 +293,11 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
     Object.keys(permissions).forEach(function (key, idx) {
       if(!(key in newAccountAction.data))
       {
-        // console.log(' ******* CREATED PERM: ', key)
         newAccountAction.data[key] = {
-          threshold: 1,
-          keys: [],
-          accounts: [],
-          waits: []
+          threshold:     1,
+          keys:          [],
+          accounts:      [],
+          waits:         []
         };
       }
       
@@ -300,10 +306,10 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
         newAccountAction.data[key].accounts.push(
             {
               permission: {
-                actor: auth_account,
-                permission: "active"
+                actor:       auth_account,
+                permission:  "active"
               },
-              weight: 1
+              weight:        1
             }
           );
       });
@@ -318,52 +324,52 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
   console.log(JSON.stringify(newAccountAction));
 
   const buyRamAction = {
-    account: 'eosio',
-    name: 'buyrambytes',
+    account:               'eosio',
+    name:                  'buyrambytes',
     authorization: [{
-      actor: globalCfg.bank.issuer,
-      permission: 'active',
+      actor:               globalCfg.bank.issuer,
+      permission:          'active',
     }],
     data: {
-      payer: globalCfg.bank.issuer,
-      receiver: new_account_name,
+      payer:               globalCfg.bank.issuer,
+      receiver:            new_account_name,
       // bytes: 8192,
-      bytes: 4096,
+      bytes:               ram,
     },
   };
   // actions.push(buyRamAction)
 
   const delegateBWAction= {
-    account: 'eosio',
-    name: 'delegatebw',
+    account:               'eosio',
+    name:                  'delegatebw',
     authorization: [{
-      actor: globalCfg.bank.issuer,
-      permission: 'active',
+      actor:               globalCfg.bank.issuer,
+      permission:          'active',
     }],
     data: {
-      from: globalCfg.bank.issuer,
-      receiver: new_account_name,
-      stake_net_quantity: '0.2500 ' + CURRENCY_SYMBOL,
-      stake_cpu_quantity: '0.2500 ' + CURRENCY_SYMBOL,
-      transfer: false,
+      from:                globalCfg.bank.issuer,
+      receiver:            new_account_name,
+      stake_net_quantity:  net + ' ' + CURRENCY_SYMBOL,
+      stake_cpu_quantity:  cpu + ' ' + CURRENCY_SYMBOL,
+      transfer:            false,
     }
   }
   // actions.push(delegateBWAction)
 
   const createBankAccountAction = {
-    account: globalCfg.bank.issuer,
-    name: globalCfg.bank.table_customers_action,
+    account:               globalCfg.bank.issuer,
+    name:                  globalCfg.bank.table_customers_action,
     authorization: [{
-      actor:       globalCfg.bank.issuer,
-      permission:  'active',
+      actor:               globalCfg.bank.issuer,
+      permission:          'active',
     }],
     data: {
-      to              : new_account_name
-      , fee           : fee_string
-      , overdraft     : overdraft_string
-      , account_type  : account_type
-      , state         : 1
-      , memo          : ''
+      to              :    new_account_name
+      , fee           :    fee_string
+      , overdraft     :    overdraft_string
+      , account_type  :    account_type
+      , state         :    1
+      , memo          :    ''
     },
   }
   
