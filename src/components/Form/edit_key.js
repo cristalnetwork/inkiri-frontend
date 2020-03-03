@@ -126,9 +126,16 @@ class EditKeyForm extends Component {
           
           const keys = api.keyHelper.getDerivedKey(account_name, password)
           api.getKeyAccounts(keys.pub_key)
-            .then(()=>{
-              that.setState({generated_keys:EMPTY_KEYS, loading:false})
-              components_helper.notif.errorNotification( that.state.intl.account_unique_validation );
+            .then((data)=>{
+              if(data && Array.isArray(data) && data.length>0)
+              {
+                that.setState({generated_keys:EMPTY_KEYS, loading:false})
+                components_helper.notif.errorNotification( that.state.intl.account_unique_validation );
+              }
+              else
+              {
+                that.setState({generated_keys:keys, loading:false});
+              }  
             },(err)=>{
               that.setState({generated_keys:keys, loading:false});
             })      

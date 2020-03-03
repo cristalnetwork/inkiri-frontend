@@ -378,9 +378,13 @@ const eos = {
   // endpoint                  : 'https://mainnet.telosusa.io',
   // history_endpoint          : 'https://mainnet.telosusa.io',
   
-  endpoint                  : 'https://telos.eoscafeblock.com',
-  history_endpoint          : 'https://telos.eoscafeblock.com',
+  // endpoint                  : 'https://telos.eoscafeblock.com',
+  // history_endpoint          : 'https://telos.eoscafeblock.com',
   
+  endpoint                  : 'https://mainnet.telosusa.io',
+  endpoint_ex               : 'https://telos.eoscafeblock.com',
+  history_endpoint          : 'https://telos.eoscafeblock.com',
+   
   node                      : 'https://proxy.eosnode.tools/',
   push: {
     retries                 : 3,

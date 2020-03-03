@@ -124,16 +124,33 @@ export const getCurrencyStats = async () => {
 /*
 * Retrieves account names related to a given public key.
 */
-export const getKeyAccounts = (public_key) => dfuse.getKeyAccounts(public_key);
-// export const getKeyAccounts = (public_key) => getKeyAccountsImpl(public_key);
+// export const getKeyAccounts = (public_key) => dfuse.getKeyAccounts(public_key);
+export const getKeyAccounts = (public_key) => getKeyAccountsImpl(public_key);
 const getKeyAccountsImpl = async (public_key) => { 
-  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint);
-  // const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url);
-  
+  // const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint);
+  // const response  = await jsonRpc.history_get_key_accounts(public_key);
+  // console.log(' ########## getKeyAccounts:', JSON.stringify(response));
+  // return response?response.account_names:[];
+
+  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint_ex);
   const response  = await jsonRpc.history_get_key_accounts(public_key);
-  
   console.log(' ########## getKeyAccounts:', JSON.stringify(response));
   return response?response.account_names:[];
+
+  // const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
+  // try{
+  //   const response = await jsonRpc.get_key_accounts(public_key);
+  //   console.log(response.account_names);
+
+  //   if(!response.account_names){
+  //     rej('No name for given public key');
+  //     return;
+  //   }
+  //   res(response.account_names);
+  // }catch(ex){
+  //   console.log('error', ex)
+  //   rej(ex);
+  // }
 }
 
 
@@ -176,12 +193,15 @@ export const listTransactions = (account_name, cursor) => dfuse.listTransactions
 
 // });  
 
-export const setAccountPermission = async (tx, privatekey) => pushTX (tx, privatekey);
+export const setAccountPermission = async (tx, privatekey) => pushTX (tx, privatekey, true);
 
-const pushTX = async (tx, privatekey) => { 
+const pushTX = async (tx, privatekey, use_v2) => { 
 	const signatureProvider = new JsSignatureProvider([privatekey])
   // const rpc = new JsonRpc(globalCfg.dfuse.base_url)
-  const rpc = new JsonRpc(globalCfg.eos.endpoint)
+  const endpoint = use_v2==true
+    ?globalCfg.eos.endpoint_ex
+    :globalCfg.eos.endpoint;
+  const rpc = new JsonRpc(endpoint)
   const api = new Api({
     rpc,
     signatureProvider
@@ -398,7 +418,7 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
   if(issueAction)
     actions.push(issueAction)
   // throw new Error('ESTA!');  
-  return pushTX(actions, creator_priv);
+  return pushTX(actions, creator_priv, true);
 }
 
 export const acceptService = async (auth_account, auth_priv, account_name, provider_name, service_id, price, begins_at, periods, request_id) => { 

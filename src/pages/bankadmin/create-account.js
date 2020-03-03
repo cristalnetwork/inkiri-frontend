@@ -499,11 +499,24 @@ class CreateAccount extends Component {
           
           const keys = api.keyHelper.getDerivedKey(account_name, password)
           api.getKeyAccounts(keys.pub_key)
-            .then(()=>{
-              that.setState({generated_keys:EMPTY_KEYS, generating_keys:false})
-              components_helper.notif.errorNotification( that.state.intl.account_unique_validation );
+            .then((data)=>{
+              // console.log(' ************** getKeyAccounts:',keys.pub_key)
+              // console.log(data)
+              if(data && Array.isArray(data) && data.length>0)
+              {
+                that.setState({generated_keys:EMPTY_KEYS, generating_keys:false})
+                components_helper.notif.errorNotification( that.state.intl.account_unique_validation );
+                return;
+              }
+              else
+              {
+                that.setState({generated_keys:keys, generating_keys:false});
+                return;
+              }
             },(err)=>{
+              console.log(' ************** getKeyAccounts ERR:', err)
               that.setState({generated_keys:keys, generating_keys:false});
+              return;
             })      
         } ,2000);
         
@@ -602,9 +615,12 @@ class CreateAccount extends Component {
     if (api.accountNameHelper.isValidAccountName(name)) 
     {
       api.getAccount(value)
-      .then(()=>{
+      .then((data)=>{
+        console.log('test account creation #1')
+        console.log(data)
         callback(this.state.intl.account_unique_validation);
       },(err)=>{
+        console.log('test account creation #2')
         callback()
       })
     }

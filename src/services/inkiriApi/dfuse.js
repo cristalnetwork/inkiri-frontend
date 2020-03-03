@@ -17,25 +17,25 @@ const endpoint    = globalCfg.eos.history_endpoint;
 // GET /v0/state/key_accounts
 // In replace of -> /v1/history/get_key_accounts
 // Source -> https://docs.dfuse.io/#rest-get-v0-state-key-accounts
-export const getKeyAccounts = async (public_key) => new Promise( async (res,rej)=> {
+// export const getKeyAccounts = async (public_key) => new Promise( async (res,rej)=> {
 
-  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
+//   const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
 
-  try{
-    const response = await jsonRpc.get_key_accounts(public_key);
-    console.log(response.account_names);
+//   try{
+//     const response = await jsonRpc.get_key_accounts(public_key);
+//     console.log(response.account_names);
 
-    if(!response.account_names){
-      rej('No name for given public key');
-      return;
-    }
-    res(response.account_names);
-  }catch(ex){
-    console.log('error', ex)
-    rej(ex);
-  }          
+//     if(!response.account_names){
+//       rej('No name for given public key');
+//       return;
+//     }
+//     res(response.account_names);
+//   }catch(ex){
+//     console.log('error', ex)
+//     rej(ex);
+//   }          
            
-})
+// })
 
 export const getAccountBalance = (account_name) => new Promise(async(res,rej)=> {
   
