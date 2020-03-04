@@ -14,7 +14,7 @@ import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 import { withRouter } from "react-router-dom";
 
-import { Drawer, Table, Steps, Card, PageHeader, Button, Spin, Form, Icon, Input } from 'antd';
+import { Drawer, Steps, Card, PageHeader, Button, Spin, Form, Icon, Input } from 'antd';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
 import TxResult from '@app/components/TxResult';
@@ -22,6 +22,8 @@ import {RESET_PAGE, RESET_RESULT, DASHBOARD} from '@app/components/TxResult';
 import PaymentForm from '@app/components/Form/payment';
 import PaymentItemsForm from '@app/components/Form/payment_items';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+import RequestListWidget, {REQUEST_MODE_PDV} from '@app/components/request-list-widget';
 
 import { injectIntl } from "react-intl";
 import InjectMessage from "@app/components/intl-messages";
@@ -79,7 +81,7 @@ class PDV extends Component {
       ...DEFAULT_RESULT,
       
       pushingTx:          false,
-      loading:            true,
+      loading:            false,
       txs:                [],
       
       cursor:             '',
@@ -98,26 +100,25 @@ class PDV extends Component {
     this.onCloseModal               = this.onCloseModal.bind(this);
     this.launchConnection           = this.launchConnection.bind(this);
     this.stop                       = this.stop.bind(this);
-    this.loadTransactionsForAccount = this.loadTransactionsForAccount.bind(this);
-
+   
     this.onPaymentModalCallback     = this.onPaymentModalCallback.bind(this);
     this.onPaymentItemsCallback     = this.onPaymentItemsCallback.bind(this);
 
-    // Dfuse WebSocket
-    // this.stream = undefined
-    // this.client = undefined
-    // this.client = createDfuseClient({
-    //   apiKey:globalCfg.dfuse.api_key,
-    //   network:globalCfg.dfuse.network,
-    //   streamClientOptions: {
-    //     socketOptions: {
-    //       onClose: this.onClose,
-    //       onError: this.onError,
-    //     }
-    //   }
-    // })
+    this.onRequestClick             = this.onRequestClick.bind(this);
+
   }
 
+  onRequestClick(request){
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
+    this.props.history.push({
+      pathname: '/common/request-details'
+      , state: { 
+          request: request 
+          , referrer: this.props.location.pathname
+        }
+    })
+  }
   checkPrice = (rule, value, callback) => {
     if (value > 0) {
       callback();
@@ -311,103 +312,28 @@ class PDV extends Component {
 
 
   componentDidMount(){
-    this.loadTransactionsForAccount(true);  
     // this.launchConnection();
   } 
 
   reloadTxs = async () =>{
     const {formatMessage} = this.props.intl;
-    this.setState({
-        page:   -1, 
-        txs:    [],
-      }, async () => {
-        try{
-          const ret = await this.stop();
-        }
-        catch(e){
-          console.log(' reloadTxs -> stop ERROR')
-        }
-        try{
-          const ret = await this.launchConnection();
-        }
-        catch(e){
-          const title = formatMessage({id:'pages.business.pdv.error.cant_listen_to_transactions'})          
-          components_helper.notif.exceptionNotification( title, e);    
-        }
-        this.loadTransactionsForAccount(true);
-      });  
-  }
-
-  loadTransactionsForAccount = async (is_first) =>{
-
-    let account_name = this.props.actualAccountName;
-    // const {formatMessage} = this.props.intl;
-    // let that = this;
-    // this.setState({loading:true});
-    // api.dfuse.incomingTransactions(account_name, (is_first===true?undefined:this.state.cursor))
-    // .then( (res) => {
-    //     that.onNewData(res.data);
-    //   } ,(ex) => {
-    //     const title = formatMessage({id:'pages.business.pdv.error.cant_load_transactions'})          
-    //     components_helper.notif.exceptionNotification( title, ex);    
-    //     that.setState({loading:false});  
-    //   } 
-    // );
-  
-    // const {can_get_more}   = this.state;
-    // if(!can_get_more)
-    // {
-    //   this.setState({loading:false});
-    //   return;
-    // }
-    
-    this.setState({loading:true});
-
-    const filter_obj = {
-      requested_type: `${globalCfg.api.TYPE_PAYMENT},${globalCfg.api.TYPE_SEND}`
-      , to:account_name 
-    };
-
-    const that = this;
-    console.log(' ====================== PDV!! ')
-    console.log(' ====================== filter -> ', filter_obj)
     try{
-      const data = await gqlRequestI18nService.extrato(filter_obj, this.props.intl);
-      that.onNewData(data);
+      const ret = await this.stop();
     }
-    catch(e)
-    {
-      this.setState({loading:false});
-      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
-      return;
+    catch(e){
+      console.log(' reloadTxs -> stop ERROR')
     }
+    try{
+      const ret = await this.launchConnection();
+    }
+    catch(e){
+      const title = formatMessage({id:'pages.business.pdv.error.cant_listen_to_transactions'})          
+      components_helper.notif.exceptionNotification( title, e);    
+    }
+      
   }
-  //
-  onNewData(data, prepend){
-    
-    const _txs           = prepend==true?[...data.txs, ...this.state.txs]:[...this.state.txs, ...data.txs];
 
-    const pagination     = {...this.state.pagination};
-    pagination.pageSize  = _txs.length;
-    pagination.total     = _txs.length;
-
-    this.setState({pagination:pagination, txs:_txs.filter(tx=> [globalCfg.api.TYPE_PAYMENT, globalCfg.api.TYPE_SEND].includes(tx.request.requested_type)), cursor:data.cursor, loading:false})
-    
-    if(!data.txs || data.txs.length==0)
-    {
-      const {formatMessage} = this.props.intl;
-      const title   = formatMessage({id: 'pages.business.pdv.reached_end_of_transactions'});
-      const message = formatMessage({id: 'pages.business.pdv.reached_end_of_transactions_message'});
-      components_helper.notif.infoNotification( title, message);    
-    }
-  }
   ///
-  renderFooter(){
-    return (<Button key="load-more-data" disabled={!this.state.cursor} onClick={()=>this.loadTransactionsForAccount(false)}>
-              <InjectMessage id="pages.business.pdv.load_older_transactions" />
-            </Button>)
-  }
-  //
   onPaymentItemsCallback = async (error, cancel, values) => {
     // if(cancel)
     // {
@@ -602,18 +528,20 @@ class PDV extends Component {
   //
   render() {
     const {loading, selectedRowKeys, connected} = this.state;
-    const content         = this.renderContent();
-    const routes          = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
-    const {formatMessage} = this.props.intl;
-    const conn_title      = connected
+    const content           = this.renderContent();
+    const routes            = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
+    const {formatMessage}   = this.props.intl;
+
+    const conn_title        = connected
       ?formatMessage({id:'pages.business.pdv.connection.ok_status'})
       :formatMessage({id:'pages.business.pdv.connection.error_status'});
     const connection_icon = connected
       ?(<Icon title={conn_title} key={Math.random()} type="check-circle" theme="twoTone" style={{fontSize:20}} twoToneColor="#52c41a"/>)
       :(<Icon title={conn_title} key={Math.random()} type="api" theme="twoTone" twoToneColor="#eb2f96" style={{fontSize:20}} />);
-    
-    const payModal = this.renderPaymentModal()
-    
+    const redo_button_title = formatMessage({id:'pages.business.pdv.connection.reconnect_button_text'});
+    const payModal          = this.renderPaymentModal()
+    const _types            = `${globalCfg.api.TYPE_PAYMENT},${globalCfg.api.TYPE_SEND}`;
+
     return (
       <>
         
@@ -621,7 +549,7 @@ class PDV extends Component {
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={formatMessage({id:'pages.business.pdv.title'})}
           extra={[
-            <Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadTxs()} ></Button>,
+            <Button size="small" key="refresh" icon="redo" title={redo_button_title} disabled={loading} onClick={()=>this.reloadTxs()} ></Button>,
             connection_icon]}
           >
         </PageHeader>
@@ -640,17 +568,17 @@ class PDV extends Component {
         <Card 
           title={formatMessage({id:'pages.business.pdv.transactions.title'})}
           extra={ <Spin spinning={this.state.loading} />}>
-          <Table
-            showHeader={false}
-            key="pdv"
-            rowKey={record => record.id} 
-            loading={this.state.loading} 
-            columns={ columns_helper.getColumnsBlockchainTXs(this.onTransactionClick)} 
-            dataSource={this.state.txs} 
-            footer={() => this.renderFooter()}
-            pagination={this.state.pagination}
-            scroll={{ x: 700 }}
-          />
+          <RequestListWidget
+                hide_filter={true}
+                hide_export_button={true}
+                callback={this.onRequestClick}
+                hide_stats={true}
+                request_type={_types}
+                the_key={'_received'}
+                filter={{'to':this.props.actualAccountName}}
+                mode={REQUEST_MODE_PDV}
+                scroll={{ x: 700 }}
+            />
         </Card>
       </>
     );

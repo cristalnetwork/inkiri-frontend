@@ -10,11 +10,11 @@ import RequestsFilter from '@app/components/Filters/requests';
 import TableStats, { buildItemUp, buildItemDown, buildItemCompute, buildItemSimple} from '@app/components/TransactionTable/stats';
 
 import TransactionTable, { DISPLAY_ALL_TXS, DISPLAY_DEPOSIT, DISPLAY_EXCHANGES, DISPLAY_PAYMENTS, DISPLAY_REQUESTS, DISPLAY_WITHDRAWS, DISPLAY_PROVIDER, DISPLAY_SEND, DISPLAY_SERVICE} from '@app/components/TransactionTable';
-import {REQUEST_MODE_BANK_TRANSFERS, REQUEST_MODE_EXTRATO, REQUEST_MODE_ALL, REQUEST_MODE_INNER_PAGE } from '@app/components/TransactionTable';
+import {REQUEST_MODE_BANK_TRANSFERS, REQUEST_MODE_EXTRATO, REQUEST_MODE_ALL, REQUEST_MODE_INNER_PAGE, REQUEST_MODE_PDV } from '@app/components/TransactionTable';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import { injectIntl } from "react-intl";
 
-export {REQUEST_MODE_BANK_TRANSFERS, REQUEST_MODE_EXTRATO, REQUEST_MODE_ALL, REQUEST_MODE_INNER_PAGE };
+export {REQUEST_MODE_BANK_TRANSFERS, REQUEST_MODE_EXTRATO, REQUEST_MODE_ALL, REQUEST_MODE_INNER_PAGE, REQUEST_MODE_PDV };
 
 const RequestListWidget = (props) => {
 
@@ -27,7 +27,17 @@ const RequestListWidget = (props) => {
   const [table_ref, setTableRef]                 = useState(null);
   const [stats, setStats]                        = useState([]);
   const [hide_stats, setHideStats]               = useState(props.hide_stats||false);
-  
+  const [hide_filter, setHideFilter]             = useState(props.hide_filter);
+  const [hide_export_button, setHideExportButton] = useState(props.hide_export_button);
+
+  useEffect(() => {
+      setHideExportButton(props.hide_export_button);
+    }, [props.hide_export_button]);
+
+  useEffect(() => {
+      setHideFilter(props.hide_filter);
+    }, [props.hide_filter]);
+
   useEffect(() => {
       setHideStats(props.hide_stats);
     }, [props.hide_stats]);
@@ -118,12 +128,13 @@ const RequestListWidget = (props) => {
 
   return(
       <>
-      <RequestsFilter 
-        callback={requestFilterCallback} 
-        request_type={request_type}
-        hidden_fields={filter_hidden_fields} />
+      { !hide_filter && <RequestsFilter 
+              callback={requestFilterCallback} 
+              request_type={request_type}
+              hidden_fields={filter_hidden_fields} />}
       { !hide_stats && <TableStats stats_array={stats}/> }
       <TransactionTable 
+        hide_export_button={hide_export_button||false}
         onChange={onTableChange}
         key={'table_'+key} 
         request_type={request_type} 

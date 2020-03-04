@@ -319,14 +319,8 @@ export const getColumnsForRequests = (callback, is_admin, process_wages) => {
 };
 
 //
-export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAccountName) => {
-  return [
-    {
-      title: '',
-      width: 35,
-      key: 'index',
-      render : (text, record, index) => index+1,
-    },
+export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAccountName, show_index) => {
+  const x = [
     {
       title: <InjectMessage id="components.TransactionTable.columns.date" />,
       dataIndex: 'block_time',
@@ -426,7 +420,17 @@ export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAc
             )
         }
     }
-  ]
+  ];
+  //
+  const idx_column = {
+      title: '',
+      width: 35,
+      key: 'index',
+      render : (text, record, index) => index+1,
+    };
+  if (show_index) 
+    return [idx_column, ...x];
+  return x;
 };
 
 //

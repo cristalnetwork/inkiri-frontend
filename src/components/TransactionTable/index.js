@@ -38,6 +38,7 @@ export const REQUEST_MODE_BANK_TRANSFERS = 'request_mode_bank_trasnfers';
 export const REQUEST_MODE_EXTRATO        = 'request_mode_extrato';
 export const REQUEST_MODE_ALL            = 'request_mode_all';
 export const REQUEST_MODE_INNER_PAGE     = 'request_mode_inner_page';
+export const REQUEST_MODE_PDV            = 'request_mode_pdv';
 
 //
 class TransactionTable extends Component {
@@ -52,7 +53,8 @@ class TransactionTable extends Component {
       mode:              props.mode,
       filter:            props.filter,
       requests_filter:   {},
-
+      hide_export_button: props.hide_export_button||false,
+      show_reload_button: props.mode == REQUEST_MODE_PDV || props.show_reload_button,
       selectedRows:      [],
       selectedRowKeys:   [],
       dummy_rem_link:    '',
@@ -87,14 +89,19 @@ class TransactionTable extends Component {
     if(is_admin)
       return columns_helper.getColumnsForRequests(this.props.callback, is_admin, {process_wages:processWages, account_name:this.props.actualAccountName});
     
-    if(this.state.mode==REQUEST_MODE_INNER_PAGE)
+    if(this.state.mode==REQUEST_MODE_INNER_PAGE || this.state.mode==REQUEST_MODE_PDV)
     {
-      // ??
+      return columns_helper.getColumnsForExtrato(this.props.callback
+              , is_admin, {process_wages:processWages
+              , account_name:this.props.actualAccountName}
+              , this.props.actualAccountName
+              , false);
     }
     return columns_helper.getColumnsForExtrato(this.props.callback
               , is_admin, {process_wages:processWages
               , account_name:this.props.actualAccountName}
-              , this.props.actualAccountName);
+              , this.props.actualAccountName
+              , true);
   }
   
   
@@ -414,7 +421,18 @@ class TransactionTable extends Component {
     return `${globalCfg.api.rem_generator_endpoint}/${ids}/${conta_pagamento}/${payment_date}`
   }
 
-  exportButton = () => [<a className="hidden" key="export_button_dummy" ref={this.myExportRef}  href={this.state.sheet_href} target="_blank" >x</a>, <Button key="export_button" onClick={this.handleExportClick} size="small" style={{position: 'absolute', right: '8px', top: '16px'}} title={this.props.intl.formatMessage({id:'global.export_sheet_remember_allowing_popups'})}><FontAwesomeIcon icon="file-excel" size="sm" color="black"/>&nbsp;<InjectMessage id="global.export_list_to_spreadsheet" /></Button>];
+  exportButton = () => {
+    const redo_title = this.props.intl.formatMessage({id:'components.TransactionTable.reload_button_text'});
+    const export_button = this.state.hide_export_button 
+      ? []
+      : [<a className="hidden" key="export_button_dummy" ref={this.myExportRef}  href={this.state.sheet_href} target="_blank" >x</a>, <Button key="export_button" onClick={this.handleExportClick} size="small" style={{position: 'absolute', right: '8px', top: '16px'}} title={this.props.intl.formatMessage({id:'global.export_sheet_remember_allowing_popups'})}><FontAwesomeIcon icon="file-excel" size="sm" color="black"/>&nbsp;<InjectMessage id="global.export_list_to_spreadsheet" /></Button>];
+    const redo_button   = this.state.show_reload_button
+    ? [<Button size="small" key="refresh" style={{position: 'absolute', right: '8px', top: '16px'}} title={redo_title} icon="redo" disabled={this.state.loading} onClick={()=>this.refresh() } ></Button>]
+    : [];
+    
+    return [...redo_button,...export_button]  
+  }
+    
   //
   handleExportClick = async () => {
 
