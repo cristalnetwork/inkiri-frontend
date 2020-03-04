@@ -423,9 +423,11 @@ class TransactionTable extends Component {
     if(!filter_obj)
       return;
 
+    // console.log(filter_obj)
     this.setState({loading:true});
     const that       = this;
     let data = null;
+
     try{
       if(this.state.mode==REQUEST_MODE_EXTRATO)
         data = await gqlService.exportExtrato(filter_obj);

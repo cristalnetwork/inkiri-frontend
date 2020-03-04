@@ -40,6 +40,13 @@ export const warningNotification = (title, message, onClose) => {
 
 export const exceptionNotification = (title, ex, onClose, intl) => {
   
+  const copy_btn_0 = (<CopyToClipboard key="copy_error_btn0" text={JSON.stringify(ex)}>
+                           <Button type="link" icon="copy" title="Copy error!"/>
+                        </CopyToClipboard>);
+  const copy_btn   = (<CopyToClipboard key="copy_error_btn" text={JSON.stringify(ex)}>
+                           <Button type="link" icon="copy" title="Copy error!"/>
+                        </CopyToClipboard>);
+  //
   // is EOS error?
   if(ex&&ex.json&&ex.json.error&&ex.json.error.what){
     
@@ -54,26 +61,22 @@ export const exceptionNotification = (title, ex, onClose, intl) => {
     let _title   = err_title;
     let _message = err_details;
     
-    const copy_btn = (<CopyToClipboard key="copy_error_btn" text={JSON.stringify(ex)}>
-                           <Button type="link" icon="copy" title="Copy error!"/>
-                        </CopyToClipboard>);
-    //
     const is_blockgin_notif = globalCfg.eos.push.breakable_error_codes.includes(eos_error.code);
     if(is_blockgin_notif)
     {
-      console.log(' >> YES!!!, ', eos_error.code, ' IS IN array <<<<<<<<<<<<<<<<<<<<<<<<<<')
+      // console.log(' >> YES!!!, ', eos_error.code, ' IS IN array <<<<<<<<<<<<<<<<<<<<<<<<<<')
       _title       = intl
-        ? intl.formatMessage({id:`eos.errors.title.wait_for_response`})
-        : 'IMPORTANT!!!!';
+            ? intl.formatMessage({id:`eos.errors.title.wait_for_response`})
+            : 'IMPORTANT!!!!';
       _message     = intl
-        ? intl.formatMessage({id:`eos.errors.title.wait_for_response_intro`})
-        : 'Please read the message and then go to Operations List and wait for results refreshing page manually!';
-      _message = [(<span key="notification_message">{_message}</span>), (<span key="notification_message2"><br/>{err_title}<br/></span>), (copy_btn)];
+            ? intl.formatMessage({id:`eos.errors.title.wait_for_response_intro`})
+            : 'Please read the message and then go to Operations List and wait for results refreshing page manually!';
+      _message = [(copy_btn_0), (<span key="notification_message">{_message}</span>), (<span key="notification_message2"><br/>{err_title}<br/></span>), (copy_btn)];
       //
     } 
     else
     {  
-      _message = [(<span key="notification_message">{_message}<br/></span>), (copy_btn)]; 
+      _message = [(copy_btn_0), (<span key="notification_message">{_message}<br/></span>), (copy_btn)]; 
     }
     //
     openNotificationWithIcon('error', _title, _message, onClose, 0)
@@ -81,7 +84,7 @@ export const exceptionNotification = (title, ex, onClose, intl) => {
   }
 
   const message = (ex && Object.keys(ex).length>0)
-    ? JSON.stringify(ex)
+    ? [(copy_btn_0), (<span key="notification_message">{JSON.stringify(ex)}<br/></span>), (copy_btn)]
     : 'Please check internet connection and service availability!';
   openNotificationWithIcon('error', title, message, onClose)
 }

@@ -322,6 +322,12 @@ export const getColumnsForRequests = (callback, is_admin, process_wages) => {
 export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAccountName) => {
   return [
     {
+      title: '',
+      width: 35,
+      key: 'index',
+      render : (text, record, index) => index+1,
+    },
+    {
       title: <InjectMessage id="components.TransactionTable.columns.date" />,
       dataIndex: 'block_time',
       key: 'block_time',
