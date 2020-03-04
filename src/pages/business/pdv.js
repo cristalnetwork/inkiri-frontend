@@ -26,8 +26,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { injectIntl } from "react-intl";
 import InjectMessage from "@app/components/intl-messages";
 
+import * as gqlRequestI18nService from '@app/services/inkiriApi/requests-i18n-graphql-helper'
+
 // Dfuse WebSocket
-import { InboundMessageType, createDfuseClient } from '@dfuse/client';
+// import { InboundMessageType, createDfuseClient } from '@dfuse/client';
 
 const { Step } = Steps;
 const steps = [
@@ -102,18 +104,18 @@ class PDV extends Component {
     this.onPaymentItemsCallback     = this.onPaymentItemsCallback.bind(this);
 
     // Dfuse WebSocket
-    this.stream = undefined
-    this.client = undefined
-    this.client = createDfuseClient({
-      apiKey:globalCfg.dfuse.api_key,
-      network:globalCfg.dfuse.network,
-      streamClientOptions: {
-        socketOptions: {
-          onClose: this.onClose,
-          onError: this.onError,
-        }
-      }
-    })
+    // this.stream = undefined
+    // this.client = undefined
+    // this.client = createDfuseClient({
+    //   apiKey:globalCfg.dfuse.api_key,
+    //   network:globalCfg.dfuse.network,
+    //   streamClientOptions: {
+    //     socketOptions: {
+    //       onClose: this.onClose,
+    //       onError: this.onError,
+    //     }
+    //   }
+    // })
   }
 
   checkPrice = (rule, value, callback) => {
@@ -310,7 +312,7 @@ class PDV extends Component {
 
   componentDidMount(){
     this.loadTransactionsForAccount(true);  
-    this.launchConnection();
+    // this.launchConnection();
   } 
 
   reloadTxs = async () =>{
@@ -336,22 +338,49 @@ class PDV extends Component {
       });  
   }
 
-  loadTransactionsForAccount(is_first){
+  loadTransactionsForAccount = async (is_first) =>{
 
     let account_name = this.props.actualAccountName;
-    const {formatMessage} = this.props.intl;
-    let that = this;
-    this.setState({loading:true});
-    api.dfuse.incomingTransactions(account_name, (is_first===true?undefined:this.state.cursor))
-    .then( (res) => {
-        that.onNewData(res.data);
-      } ,(ex) => {
-        const title = formatMessage({id:'pages.business.pdv.error.cant_load_transactions'})          
-        components_helper.notif.exceptionNotification( title, ex);    
-        that.setState({loading:false});  
-      } 
-    );
+    // const {formatMessage} = this.props.intl;
+    // let that = this;
+    // this.setState({loading:true});
+    // api.dfuse.incomingTransactions(account_name, (is_first===true?undefined:this.state.cursor))
+    // .then( (res) => {
+    //     that.onNewData(res.data);
+    //   } ,(ex) => {
+    //     const title = formatMessage({id:'pages.business.pdv.error.cant_load_transactions'})          
+    //     components_helper.notif.exceptionNotification( title, ex);    
+    //     that.setState({loading:false});  
+    //   } 
+    // );
+  
+    // const {can_get_more}   = this.state;
+    // if(!can_get_more)
+    // {
+    //   this.setState({loading:false});
+    //   return;
+    // }
     
+    this.setState({loading:true});
+
+    const filter_obj = {
+      requested_type: `${globalCfg.api.TYPE_PAYMENT},${globalCfg.api.TYPE_SEND}`
+      , to:account_name 
+    };
+
+    const that = this;
+    console.log(' ====================== PDV!! ')
+    console.log(' ====================== filter -> ', filter_obj)
+    try{
+      const data = await gqlRequestI18nService.extrato(filter_obj, this.props.intl);
+      that.onNewData(data);
+    }
+    catch(e)
+    {
+      this.setState({loading:false});
+      components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_loading'}), e);
+      return;
+    }
   }
   //
   onNewData(data, prepend){
@@ -628,66 +657,68 @@ class PDV extends Component {
   }
 
   launchConnection = async() => {
-     try { 
-      this.stream = await this.client.streamActionTraces({
-                account: globalCfg.currency.token 
-                , receivers: this.props.actualAccountName
-                , action_name: "transfer"}
-              , this.onTransaction
-              , {
-                irreversible_only: false
-              });
+     
+    //  try { 
+    //   this.stream = await this.client.streamActionTraces({
+    //             account: globalCfg.currency.token 
+    //             , receivers: this.props.actualAccountName
+    //             , action_name: "transfer"}
+    //           , this.onTransaction
+    //           , {
+    //             irreversible_only: false
+    //           });
 
-      this.setState({ connected: true });
-      console.log(' -- launchConnection::  LAUNCH OK')
-    } catch (error) {
-      console.log(' -- launchConnection::  LAUNCH error', JSON.stringify(error))
-      // this.setState({ errorMessages: ["Unable to connect to socket.", JSON.stringify(error)] })
-    }
+    //   this.setState({ connected: true });
+    //   console.log(' -- launchConnection::  LAUNCH OK')
+    // } catch (error) {
+    //   console.log(' -- launchConnection::  LAUNCH error', JSON.stringify(error))
+    //   // this.setState({ errorMessages: ["Unable to connect to socket.", JSON.stringify(error)] })
+    // }
   }
 
   onTransaction = async (message) => {
-    // console.log(' ON TRANSACTION ', JSON.stringify(message))
-    if (message.type !== InboundMessageType.ACTION_TRACE) {
-      return
-    }
+    
+    // // console.log(' ON TRANSACTION ', JSON.stringify(message))
+    // if (message.type !== InboundMessageType.ACTION_TRACE) {
+    //   return
+    // }
 
-    const txs = api.dfuse.transformTransactions(message, this.props.actualAccountName);
-    this.onNewData({txs:txs, cursor:null}, true);
-    console.log(' ON TRANSACTION ', JSON.stringify(txs))
-    components_helper.notif.successNotification( this.props.intl.formatMessage({id:'pages.business.pdv.message.new_payment_received'}) );
+    // const txs = api.dfuse.transformTransactions(message, this.props.actualAccountName);
+    // this.onNewData({txs:txs, cursor:null}, true);
+    // console.log(' ON TRANSACTION ', JSON.stringify(txs))
+    // components_helper.notif.successNotification( this.props.intl.formatMessage({id:'pages.business.pdv.message.new_payment_received'}) );
 
-    const that = this;
-    setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
+    // const that = this;
+    // setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
      
   }
 
   stop = async () => {
-    if (this.stream === undefined) {
-      return;
-    }
+    // if (this.stream === undefined) {
+    //   return;
+    // }
 
-    try {
-      await this.stream.close()
-      this.stream = undefined;
-    } catch (error) {
-      console.log(' STOP - Cant close connection. ', JSON.stringify(error))
-    }
+    // try {
+    //   await this.stream.close()
+    //   this.stream = undefined;
+    // } catch (error) {
+    //   console.log(' STOP - Cant close connection. ', JSON.stringify(error))
+    // }
   }
 
   onClose = () => {
-    console.log(' onClose socket event ')
-    this.setState({ connected: false })
+    // console.log(' onClose socket event ')
+    // this.setState({ connected: false })
   }
 
   onError = (error) => {
-    console.log(' onError - An error occurred with the socket. ', JSON.stringify(error))
+    // console.log(' onError - An error occurred with the socket. ', JSON.stringify(error))
   }
 
   componentWillUnmount() {
-    if (this.stream !== undefined) {
-      this.stream.close()
-    }
+    // if (this.stream !== undefined) {
+    //   this.stream.close()
+    // }
   }
   
 }
