@@ -106,6 +106,7 @@ class PDV extends Component {
 
     this.onRequestClick             = this.onRequestClick.bind(this);
 
+    this.socket = null;
   }
 
   onRequestClick(request){
@@ -312,7 +313,7 @@ class PDV extends Component {
 
 
   componentDidMount(){
-    // this.launchConnection();
+    this.launchConnection();
   } 
 
   reloadTxs = async () =>{
@@ -538,7 +539,10 @@ class PDV extends Component {
     const connection_icon = connected
       ?(<Icon title={conn_title} key={Math.random()} type="check-circle" theme="twoTone" style={{fontSize:20}} twoToneColor="#52c41a"/>)
       :(<Icon title={conn_title} key={Math.random()} type="api" theme="twoTone" twoToneColor="#eb2f96" style={{fontSize:20}} />);
+    
     const redo_button_title = formatMessage({id:'pages.business.pdv.connection.reconnect_button_text'});
+    // const reconnect_button  = <Button size="small" key="refresh" icon="redo" title={redo_button_title} disabled={loading} onClick={()=>this.reloadTxs()} ></Button>;
+    const reconnect_button  = null;
     const payModal          = this.renderPaymentModal()
     const _types            = `${globalCfg.api.TYPE_PAYMENT},${globalCfg.api.TYPE_SEND}`;
 
@@ -549,7 +553,7 @@ class PDV extends Component {
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={formatMessage({id:'pages.business.pdv.title'})}
           extra={[
-            <Button size="small" key="refresh" icon="redo" title={redo_button_title} disabled={loading} onClick={()=>this.reloadTxs()} ></Button>,
+            reconnect_button,
             connection_icon]}
           >
         </PageHeader>
@@ -585,7 +589,56 @@ class PDV extends Component {
   }
 
   launchConnection = async() => {
-     
+    
+    this.socket = new WebSocket("wss://telos.spectrumeos.io/streaming");
+
+    var actionsList = ["transfer"]; 
+    var messageBody = {
+       "apikey":"test-api-key",
+       "event":"subscribe",
+       "type":"get_actions",
+       "data": {"account":this.props.actualAccountName}
+    };
+
+    this.socket.onmessage = this.onTransaction;
+    this.socket.onclose = this.onClose;
+    this.socket.onerror = this.onError;
+
+    this.socket.onopen = () => {
+      console.log("[open] Connection established");
+      console.log("Sending to server: "+JSON.stringify(messageBody));
+      try{
+        const ret = this.socket.send(JSON.stringify(messageBody));
+        console.log(ret);
+        this.setState({ connected: true });
+      }catch(ex){
+        components_helper.notif.exceptionNotification(  );
+        console.log(' -- launchConnection::  LAUNCH error', JSON.stringify(error))
+      }
+      
+    }
+
+
+    // var chain = "telos";
+    // var apikey = "test-api-key";
+    // var onOpenHandler = function(e) { 
+    //   console.log("[open] Connection established"); 
+    // };
+    // var onMessageHandler = function(event) {
+    //   console.log(event.data);
+    //   };
+    // var onCloseHandler = function(event) {
+    //   console.log("[close] Connection closed");
+    //   };
+    // var onErrorHandler = function(error) {
+    //   console.log("[error] ${error.message}");
+    //   };
+    // var socket = open_connection(chain, apikey, onOpenHandler, onMessageHandler, onCloseHandler, onErrorHandler);
+
+    // get_actions(socket, "eosio", ["transfer","buyram"]);
+
+
+
     //  try { 
     //   this.stream = await this.client.streamActionTraces({
     //             account: globalCfg.currency.token 
@@ -606,7 +659,12 @@ class PDV extends Component {
 
   onTransaction = async (message) => {
     
-    // // console.log(' ON TRANSACTION ', JSON.stringify(message))
+    console.log(' *****************************NEW TRANSACTION ', JSON.stringify(message));
+    console.log('message', message);
+    console.log('message.data', message.data);
+
+    // message.data {"requestType":"get_actions","action":{"context_free":false,"elapsed":5,"console":"","act":{"authorization":[{"actor":"atomakinnaka","permission":"active"}],"name":"transfer","account":"cristaltoken","data":"{\"from\":\"atomakinnaka\",\"to\":\"inkirilabink\",\"quantity\":\"0.7500 INK\",\"memo\":\"pay|undefined|this is a test [Payed at store]\"}"},"creator_action_ordinal":1,"receiver":"inkirilabink","action_ordinal":3,"receipt":{"receiver":"inkirilabink","code_sequence":1,"abi_sequence":1,"recv_sequence":5,"auth_sequence":[{"sequence":13,"account":"atomakinnaka"}],"act_digest":"ece105f767a07614b355cae13d77aa1f96c10ce60d7449221a9c4c2b64896e7d","global_sequence":2541384181},"except":"","account_ram_deltas":[],"block_num":77082390,"block_timestamp":"2020-03-05T01:41:09.500","trxid":"2aee23f262c46c2dec81c72a94052697cd1e654127daccbcb341d130cf3296ef"}}
+
     // if (message.type !== InboundMessageType.ACTION_TRACE) {
     //   return
     // }
@@ -619,34 +677,37 @@ class PDV extends Component {
     // const that = this;
     // setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
      
+    components_helper.notif.successNotification( this.props.intl.formatMessage({id:'pages.business.pdv.message.new_payment_received'}) );
+    const that = this;
+    setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
   }
 
   stop = async () => {
-    // if (this.stream === undefined) {
-    //   return;
-    // }
+    if (this.stream === null) {
+      return;
+    }
 
-    // try {
-    //   await this.stream.close()
-    //   this.stream = undefined;
-    // } catch (error) {
-    //   console.log(' STOP - Cant close connection. ', JSON.stringify(error))
-    // }
+    try {
+      await this.socket.close()
+      this.socket = null;
+    } catch (error) {
+      console.log(' STOP - Cant close connection. ', JSON.stringify(error))
+    }
   }
 
   onClose = () => {
-    // console.log(' onClose socket event ')
-    // this.setState({ connected: false })
+    console.log(' onClose socket event ')
+    this.setState({ connected: false })
   }
 
   onError = (error) => {
-    // console.log(' onError - An error occurred with the socket. ', JSON.stringify(error))
+    console.log(' onError - An error occurred with the socket. ', JSON.stringify(error))
   }
 
   componentWillUnmount() {
-    // if (this.stream !== undefined) {
-    //   this.stream.close()
-    // }
+    if (this.socket !== null) {
+      this.socket.close()
+    }
   }
   
 }
