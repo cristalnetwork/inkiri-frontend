@@ -284,8 +284,8 @@ class RequestDetails extends Component {
     const {request}      = this.state;
     const {_id, amount, requested_by, requested_to, requestCounterId, description} = request;
     const privateKey     = this.props.actualPrivateKey;
-    const receiver       = requested_by.account_name;
-    // const sender         = requested_to.account_name;
+    // const receiver       = requested_by.account_name;
+    const receiver       = requested_to.account_name;
     const sender         = this.props.actualAccountName;
     const memo           = description
     
@@ -576,7 +576,8 @@ class RequestDetails extends Component {
         }
 
         if(globalCfg.api.isSendOrPayment(request)){
-          if(request.requested_by.account_name==this.props.actualAccountName)
+          // if(request.requested_by.account_name==this.props.actualAccountName)
+          if(request.requested_to.account_name==this.props.actualAccountName)
           {
             return [cancelButton];
           }

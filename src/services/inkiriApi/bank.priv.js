@@ -772,11 +772,14 @@ export const createMoneyRequest = (sender, request_type, requested, amount, memo
   const path    = globalCfg.api.endpoint + '/requests';
   const method  = 'POST';
   const post_params = {
-          'from':               sender
+          // 'from':               sender
+          // , 'to':               requested
+          'from':               requested
+          , 'to':               sender
           , 'requested_type':   request_type
           , 'amount':           Number(amount).toFixed(2)
           , 'description':      memo
-          , 'to':               requested
+          
           
         };
   // console.log(' ============================== createMoneyRequest', post_params)
