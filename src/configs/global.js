@@ -409,9 +409,17 @@ const eos = {
     },
     breakable_error_codes   : [3081001]
   },
-  create_account            : 'https://app.telos.net/accounts/add',
-  // create_account            : 'https://app.telos.net/testnet/developers',
+
+  // TELOS MAINNET
+  // create_account            : 'https://app.telos.net/accounts/add',
+  
+  // EOS TESTNET
+  create_account            : 'https://app.telos.net/testnet/developers',
+  
+  // EOS TESTNET
   // create_account            : 'https://api.monitor.jungletestnet.io/#account',
+  
+  // EOS MAINNET
   // create_account           : 'https://eos-account-creator.com/choose/'
 }
 

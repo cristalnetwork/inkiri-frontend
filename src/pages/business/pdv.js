@@ -414,6 +414,7 @@ class PDV extends Component {
      
     if(!accounts || accounts.length<=0){
       components_helper.notif.errorNotification( formatMessage({id:'pages.business.pdv.error.no_accounts'}));
+      this.setState({pushingTx:false});
       return;
     }
 
