@@ -139,9 +139,9 @@ function* trySwitchAccount2Saga({ type, payload }) {
     yield put(setLoginData(stateData))
     yield put({ type: TRY_SWITCH_END })
 
-    setTimeout(()=> {
-      history.replace('/');
-    } , 500);
+    // setTimeout(()=> {
+    //   history.replace('/');
+    // } , 500);
     // history.replace('/');
 
 }
@@ -185,7 +185,7 @@ function getLoginDataFromStorage(storageData, switch_to) {
 }
 
 function accountsToArray(accounts) {
-    return [accounts.personalAccount].concat(accounts.otherPersonalAccounts, accounts.corporateAccounts, accounts.adminAccount).filter(item => item !== undefined)
+    return [accounts.personalAccount].concat(accounts.otherPersonalAccounts, accounts.corporateAccounts, accounts.adminAccount, accounts.fundAccounts).filter(item => item !== undefined)
 }
 
 //Se envan las sagas a redux estableciendo que y cuantas veces dispara la funcià¸£à¸“n
@@ -220,6 +220,7 @@ export const isFund                = (state) => globalCfg.bank.isFoundationAccou
 export const personalAccount       = (state) => state.login.accounts.personalAccount
 export const otherPersonalAccounts = (state) => state.login.accounts.otherPersonalAccounts
 export const corporateAccounts     = (state) => state.login.accounts.corporateAccounts
+export const fundAccounts          = (state) => state.login.accounts.fundAccounts
 export const adminAccount          = (state) => state.login.accounts.adminAccount
 export const allAccounts           = (state) => accountsToArray(state.login.accounts)
 

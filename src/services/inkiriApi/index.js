@@ -746,6 +746,7 @@ export const login = async (account_name, private_key) => {
 
   do_log && console.log('inkiriApi::login::permissions retrieved ok!') 
 
+  let fundAccounts          = persmissionedAccounts.filter(perm => globalCfg.bank.isFoundationAccount(perm.permissioner.account_type))
   let corporateAccounts     = persmissionedAccounts.filter(perm => globalCfg.bank.isBusinessAccount(perm.permissioner.account_type))
   let adminAccount          = persmissionedAccounts.filter(perm => globalCfg.bank.isAdminAccount(perm.permissioner.account_type))
   let personalAccounts      = persmissionedAccounts.filter(perm => perm.permissioner.account_name!==account_name && globalCfg.bank.isPersonalAccount(perm.permissioner.account_type))
@@ -810,6 +811,7 @@ export const login = async (account_name, private_key) => {
     profile               : profile,
     personalAccount       : personalAccount,
     // persmissionedAccounts : persmissionedAccounts,
+    fundAccounts          : fundAccounts.length>0?fundAccounts:undefined,
     corporateAccounts     : corporateAccounts.length>0?corporateAccounts:undefined,
     adminAccount          : (adminAccount&&adminAccount.length>0)?adminAccount[0]:undefined,
     otherPersonalAccounts : personalAccounts

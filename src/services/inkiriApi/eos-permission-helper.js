@@ -118,11 +118,11 @@ export const removeAccount = (account, authority, permissioned_account, permissi
   let the_authority = account.permissions.find( perm => perm.perm_name==authority );
   let new_authority = Object.assign({}, the_authority); 
     
-  console.log('********** remove ACCOUNT ');
-  console.log('** account: ', account);
-  console.log('** permissioned_account: ', permissioned_account);
-  console.log('** authority: ', authority);
-  console.log('** authority obj: ', JSON.stringify(new_authority));
+  // console.log('********** remove ACCOUNT ');
+  // console.log('** account: ', account);
+  // console.log('** permissioned_account: ', permissioned_account);
+  // console.log('** authority: ', authority);
+  // console.log('** authority obj: ', JSON.stringify(new_authority));
 
   new_authority.required_auth.accounts = new_authority.required_auth.accounts.filter( (p) => {
     return !(p.permission.actor === permissioned_account && p.permission.permission === permissioned_account_permission);
