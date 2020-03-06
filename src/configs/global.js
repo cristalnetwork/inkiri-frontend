@@ -1,4 +1,4 @@
-const env        = "prod";
+const env        = "dev";
 
 const language   = "english";
 
@@ -49,9 +49,14 @@ const bank = {
   provider_account:        "cristaltoken",
   withdraw_account:        "cristaltoken",
   
+  // EOS TESTNET
   // customers:               'https://jungle.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
-  // customers:               'https://telos-test.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
-  customers:               'https://telos.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
+  
+  // TELOS TESTNET
+  customers:               'https://telos-test.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
+  
+  // TELOS MAINNET
+  // customers:               'https://telos.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
   
   // HACK from server's config
   PAYMENT_VEHICLE_INKIRI :    'payment_vehicle_inkiri', //empresa
@@ -162,8 +167,8 @@ const bank = {
 };
 
 
-// const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristal-backend.herokuapp.com';
-const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristaltoken.herokuapp.com';
+const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristal-backend.herokuapp.com';
+// const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristaltoken.herokuapp.com';
 
 const api_version = '/api/v1';
 const api = {
@@ -348,14 +353,18 @@ const dfuse = {
   // chain_id                  : 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
   // websocket_url             : 'wss://jungle.eos.dfuse.io/v1/stream',
   default_page_size         : 25,
+  
+  // EOS TESTNET  
   // tx_url                    : 'https://jungle.bloks.io/transaction/',
   // account_url               : 'https://jungle.bloks.io/account/',
 
-  // tx_url                    : 'https://telos-test.bloks.io/transaction/',
-  // account_url               : 'https://telos-test.bloks.io/account/',
+  // TELOS TESTNET
+  tx_url                    : 'https://telos-test.bloks.io/transaction/',
+  account_url               : 'https://telos-test.bloks.io/account/',
 
-  tx_url                    : 'https://telos.bloks.io/transaction/',
-  account_url               : 'https://telos.bloks.io/account/',
+  // TELOS MAINNET
+  // tx_url                    : 'https://telos.bloks.io/transaction/',
+  // account_url               : 'https://telos.bloks.io/account/',
   
   account_keys_url_postfix  : '#keys',
   getBlockExplorerTxLink : (tx_id) => {
@@ -367,23 +376,28 @@ const dfuse = {
   * I should take a look at: https://api.monitor.jungletestnet.io/#apiendpoints
   */
 const eos = {
-  // endpoint       : env=='dev' ? 'http://127.0.0.1:8888' : 'https://jungle2.cryptolions.io:443',
   currency_symbol           : 'TLOS',
-  
+
+  // EOS TESTNET
   // endpoint                  : 'https://jungle2.cryptolions.io:443',
-  
-  // endpoint                  : 'https://testnet.telosusa.io',
-  // history_endpoint          : 'https://testnet.telosusa.io',
-  
+
+  // TELOS TESTNET
+  endpoint                  : 'https://testnet.telosusa.io',
+  history_endpoint          : 'https://testnet.telosusa.io',
+  endpoint_ex               : 'https://testnet.telosusa.io',
+
+  // TELOS MAINNET ERROR!
   // endpoint                  : 'https://mainnet.telosusa.io',
   // history_endpoint          : 'https://mainnet.telosusa.io',
   
+  // TELOS MAINNET ERROR!
   // endpoint                  : 'https://telos.eoscafeblock.com',
   // history_endpoint          : 'https://telos.eoscafeblock.com',
   
-  endpoint                  : 'https://mainnet.telosusa.io',
-  endpoint_ex               : 'https://telos.eoscafeblock.com',
-  history_endpoint          : 'https://telos.eoscafeblock.com',
+  // TELOS MAINNET
+  // endpoint                  : 'https://mainnet.telosusa.io',
+  // endpoint_ex               : 'https://telos.eoscafeblock.com',
+  // history_endpoint          : 'https://telos.eoscafeblock.com',
    
   node                      : 'https://proxy.eosnode.tools/',
   push: {

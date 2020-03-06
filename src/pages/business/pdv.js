@@ -613,7 +613,7 @@ class PDV extends Component {
         this.setState({ connected: true });
       }catch(ex){
         components_helper.notif.exceptionNotification(  );
-        console.log(' -- launchConnection::  LAUNCH error', JSON.stringify(error))
+        console.log(' -- launchConnection::  LAUNCH error', JSON.stringify(ex))
       }
       
     }

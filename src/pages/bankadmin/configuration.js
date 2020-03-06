@@ -206,7 +206,8 @@ class Configuration extends Component {
   deletePermission = async (perm_name, actor, permission) => {
     
     const {eos_account}  = this.state;
-    const account_permission = api.permissionHelper.removeAccount(eos_account, actor, permission)
+    // const account_permission = api.permissionHelper.removeAccount(eos_account, actor, permission)
+    const account_permission = api.permissionHelper.removeAccount(eos_account, perm_name, actor, permission)
     this.setAccountPermission(perm_name, account_permission);
     
   }

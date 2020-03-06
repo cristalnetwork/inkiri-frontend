@@ -113,12 +113,27 @@ export const overrideKeys = (account, permissioned_pub_key, authorities) =>{
   return permissions;
 }
 
-export const removeAccount = (account, permissioned_account, authority) => {
-  let the_authority = account.permissions.filter( perm => perm.perm_name==authority )[0]
+export const removeAccount = (account, authority, permissioned_account, permissioned_account_permission) => {
+  
+  let the_authority = account.permissions.find( perm => perm.perm_name==authority );
   let new_authority = Object.assign({}, the_authority); 
-  _.remove(new_authority.required_auth.accounts, function(e) {
-    return e.permission.actor === permissioned_account && e.permission.permission === authority;
-  });
+    
+  console.log('********** remove ACCOUNT ');
+  console.log('** account: ', account);
+  console.log('** permissioned_account: ', permissioned_account);
+  console.log('** authority: ', authority);
+  console.log('** authority obj: ', JSON.stringify(new_authority));
+
+  new_authority.required_auth.accounts = new_authority.required_auth.accounts.filter( (p) => {
+    return !(p.permission.actor === permissioned_account && p.permission.permission === permissioned_account_permission);
+  })
+  // _.remove(new_authority.required_auth.accounts, function(e) {
+  //   console.log('e.permission.actor: ', e.permission.actor)
+  //   console.log('permissioned_account: ', permissioned_account) 
+  //   console.log('e.permission.permission: ', e.permission.permission)
+  //   console.log('authority: ', authority)
+  //   return e.permission.actor === permissioned_account && e.permission.permission === authority;
+  // });
   return new_authority.required_auth;
 }
 
