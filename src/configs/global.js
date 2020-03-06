@@ -1,4 +1,6 @@
-const env        = "dev";
+// const env        = "dev";
+const env        = "demo";
+// const env        = "prod";
 
 const language   = "english";
 
@@ -423,4 +425,4 @@ const eos = {
   // create_account           : 'https://eos-account-creator.com/choose/'
 }
 
-export { language, api, currency, dfuse, bank, eos };
+export { language, api, currency, dfuse, bank, eos, env };

@@ -9,7 +9,7 @@ import * as api from '@app/services/inkiriApi';
 import SelectLanguage from '@app/components/InkiriHeader/SelectLang';
 import * as components_helper from '@app/components/helper';
 import * as utils from '@app/utils/utils';
-
+import VersionIndicator from '@app/components/version_indicator';
 import './login.css'
 
 import Loading from '@app/pages/general/loading'
@@ -87,7 +87,6 @@ class Login extends Component {
     const { getFieldDecorator }   = this.props.form;
     const { loading, loginError } = this.state;
     const { formatMessage }       = this.props.intl;
-    
     if(loading)
       return(<Loading />);
     
@@ -96,7 +95,8 @@ class Login extends Component {
         <div className="login-header">
           <div className="login-wrapper">
             <h1 align="center">
-            <img src="/favicons/favicon-32x32.png" alt="" />&nbsp;<span className="omnes_isologo">{formatMessage({id:'inkiri.bank.title'})}</span>
+              <img src="/favicons/favicon-32x32.png" alt="" />&nbsp;<span className="omnes_isologo">{formatMessage({id:'inkiri.bank.title'})}</span>
+              <VersionIndicator newline={true} />
             </h1>
           </div>     
         </div> 

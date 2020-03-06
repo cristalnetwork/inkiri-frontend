@@ -14,6 +14,8 @@ import SelectLanguage from '@app/components/InkiriHeader/SelectLang';
 import ReferrerWidget  from '@app/components/InkiriHeader/referrer_widget';
 import * as components_helper from '@app/components/helper';
 
+import VersionIndicator from '@app/components/version_indicator';
+
 import { injectIntl } from "react-intl";
 
 const { Header } = Layout;
@@ -110,6 +112,7 @@ class InkiriHeader extends Component {
             <img src="/favicons/favicon-32x32.png" alt="logo"/>
           </a>
           <div className="right">
+            <VersionIndicator />
             <Button icon={'logout'} shape="circle" onClick={this.props.logout} style={{marginLeft: '8px'}}></Button>
           </div>
         </>
@@ -120,6 +123,7 @@ class InkiriHeader extends Component {
       header_content=(
         <div className="right">
           <div className="header_element_container">
+           <VersionIndicator />
            <ReferrerWidget />
            <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">
              {this.props.intl.formatMessage({id:'global.logout'})}
