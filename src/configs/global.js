@@ -1,6 +1,16 @@
-// const env        = "dev";
-const env        = "demo";
-// const env        = "prod";
+/*
+*  ENV & BLOCKCHAIN CONFIGURATION!
+*/
+const ENV_DEV            = 'dev';
+const ENV_DEMO           = 'demo';
+const ENV_PROD           = 'prod';
+
+const EOS_TESTNET        = 'eos_testnet';
+const TELOS_TESTNET      = 'telos_testnet';
+const TELOS_MAINNET      = 'telos_mainnet';
+
+const env                = ENV_PROD;
+const BLOCKCHAIN_NETWORK = TELOS_MAINNET;
 
 const language   = "english";
 
@@ -50,15 +60,6 @@ const bank = {
   exchange_account:        "cristaltoken",
   provider_account:        "cristaltoken",
   withdraw_account:        "cristaltoken",
-  
-  // EOS TESTNET
-  // customers:               'https://jungle.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
-  
-  // TELOS TESTNET
-  customers:               'https://telos-test.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
-  
-  // TELOS MAINNET
-  // customers:               'https://telos.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
   
   // HACK from server's config
   PAYMENT_VEHICLE_INKIRI :    'payment_vehicle_inkiri', //empresa
@@ -168,9 +169,12 @@ const bank = {
   }
 };
 
-
-const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristal-backend.herokuapp.com';
-// const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristaltoken.herokuapp.com';
+const base_api_url = {
+  [ENV_DEV]  : 'http://localhost:3600',
+  [ENV_DEMO] : 'https://cristal-backend.herokuapp.com',
+  [ENV_PROD] : 'https://cristaltoken.herokuapp.com'
+}
+const base_url     = base_api_url[env];
 
 const api_version = '/api/v1';
 const api = {
@@ -320,10 +324,10 @@ const api = {
   , PAYMENT_MODE                  : 'payment_mode'
   , getPaymentTitles : () => {
     return {
-      [api.PAYMENT_VEHICLE]:   'Vehicle',
-      [api.PAYMENT_CATEGORY]:  'Category',
-      [api.PAYMENT_TYPE]:      'Type',
-      [api.PAYMENT_MODE]:      'Mode',
+      [api.PAYMENT_VEHICLE]       : 'Vehicle',
+      [api.PAYMENT_CATEGORY]      : 'Category',
+      [api.PAYMENT_TYPE]          : 'Type',
+      [api.PAYMENT_MODE]          : 'Mode',
     }
   }
   
@@ -356,52 +360,48 @@ const dfuse = {
   // websocket_url             : 'wss://jungle.eos.dfuse.io/v1/stream',
   default_page_size         : 25,
   
-  // EOS TESTNET  
-  // tx_url                    : 'https://jungle.bloks.io/transaction/',
-  // account_url               : 'https://jungle.bloks.io/account/',
+}
 
-  // TELOS TESTNET
-  tx_url                    : 'https://telos-test.bloks.io/transaction/',
-  account_url               : 'https://telos-test.bloks.io/account/',
-
-  // TELOS MAINNET
-  // tx_url                    : 'https://telos.bloks.io/transaction/',
-  // account_url               : 'https://telos.bloks.io/account/',
+const eosio_net = {
+  [EOS_TESTNET]:  {
+    customers                 : 'https://jungle.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
+    endpoint                  : 'https://jungle2.cryptolions.io:443',
+    create_account            : 'https://api.monitor.jungletestnet.io/#account',
+    tx_url                    : 'https://jungle.bloks.io/transaction/',
+    account_url               : 'https://jungle.bloks.io/account/',
+    currency_symbol           : 'ELOS'
+  },
+  [TELOS_TESTNET]: {
+    customers                 : 'https://telos-test.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
+    endpoint                  : 'https://testnet.telosusa.io',
+    endpoint_ex               : 'https://testnet.telosusa.io',
+    history_endpoint          : 'https://testnet.telosusa.io',
+    create_account            : 'https://app.telos.net/testnet/developers',
+    tx_url                    : 'https://telos-test.bloks.io/transaction/',
+    account_url               : 'https://telos-test.bloks.io/account/',
+    currency_symbol           : 'TLOS'
+  },
+  [TELOS_MAINNET]: {
+    customers                 : 'https://telos.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
+    endpoint                  : 'https://mainnet.telosusa.io',
+    endpoint_ex               : 'https://telos.eoscafeblock.com',
+    history_endpoint          : 'https://telos.eoscafeblock.com',
+    create_account            : 'https://app.telos.net/accounts/add',
+    tx_url                    : 'https://telos.bloks.io/transaction/',
+    account_url               : 'https://telos.bloks.io/account/',
+    currency_symbol           : 'TLOS'
+  }
+}
+const eos = {
+  ...eosio_net[BLOCKCHAIN_NETWORK],
   
   account_keys_url_postfix  : '#keys',
   getBlockExplorerTxLink : (tx_id) => {
-    return dfuse.tx_url + tx_id;
-  }
-}
-
-  /*
-  * I should take a look at: https://api.monitor.jungletestnet.io/#apiendpoints
-  */
-const eos = {
-  currency_symbol           : 'TLOS',
-
-  // EOS TESTNET
-  // endpoint                  : 'https://jungle2.cryptolions.io:443',
-
-  // TELOS TESTNET
-  endpoint                  : 'https://testnet.telosusa.io',
-  history_endpoint          : 'https://testnet.telosusa.io',
-  endpoint_ex               : 'https://testnet.telosusa.io',
-
-  // TELOS MAINNET ERROR!
-  // endpoint                  : 'https://mainnet.telosusa.io',
-  // history_endpoint          : 'https://mainnet.telosusa.io',
-  
-  // TELOS MAINNET ERROR!
-  // endpoint                  : 'https://telos.eoscafeblock.com',
-  // history_endpoint          : 'https://telos.eoscafeblock.com',
-  
-  // TELOS MAINNET
-  // endpoint                  : 'https://mainnet.telosusa.io',
-  // endpoint_ex               : 'https://telos.eoscafeblock.com',
-  // history_endpoint          : 'https://telos.eoscafeblock.com',
-   
-  node                      : 'https://proxy.eosnode.tools/',
+    return eos.tx_url + tx_id;
+  },
+  getBlockExplorerAccountLink : (account_name) => {
+    return eos.account_url + account_name;
+  },
   push: {
     retries                 : 3,
     use_options             : true,
@@ -411,18 +411,7 @@ const eos = {
     },
     breakable_error_codes   : [3081001]
   },
-
-  // TELOS MAINNET
-  // create_account            : 'https://app.telos.net/accounts/add',
   
-  // EOS TESTNET
-  create_account            : 'https://app.telos.net/testnet/developers',
-  
-  // EOS TESTNET
-  // create_account            : 'https://api.monitor.jungletestnet.io/#account',
-  
-  // EOS MAINNET
-  // create_account           : 'https://eos-account-creator.com/choose/'
 }
 
 export { language, api, currency, dfuse, bank, eos, env };

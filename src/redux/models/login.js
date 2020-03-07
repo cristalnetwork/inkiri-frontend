@@ -142,8 +142,7 @@ function* trySwitchAccount2Saga({ type, payload }) {
     // setTimeout(()=> {
     //   history.replace('/');
     // } , 500);
-    // history.replace('/');
-
+    
 }
 
 function* loadProfileSaga({ type, payload }) {
@@ -167,8 +166,10 @@ function* loadProfileSaga({ type, payload }) {
 
 
 function* logoutSaga() {
+    setTimeout(()=> {
+      history.replace('/');
+    } , 500);
     yield clearStorage();
-    history.replace('/');
 }
 
 function getLoginDataFromStorage(storageData, switch_to) {

@@ -48,6 +48,7 @@ class AutocompleteAccount extends Component {
     this.setAccounts                = this.setAccounts.bind(this)
     this.loadAccounts               = this.loadAccounts.bind(this)
     this.reset                      = this.reset.bind(this)
+    this.onAutocompleteBlur         = this.onAutocompleteBlur.bind(this)
   }
 
   componentDidMount(){
@@ -123,6 +124,7 @@ class AutocompleteAccount extends Component {
     if(typeof e === 'object' && typeof e.preventDefault === 'function')
       e.preventDefault();
     this.props.loadAccounts();
+    this.reset();
   }
   
   handleChange = (value) => {
@@ -163,7 +165,7 @@ class AutocompleteAccount extends Component {
   }
 
   onChange = (o) => {
-
+    console.log(o)
   }
   renderAccount = (item) => {
     //<AutoComplete.Option key={item.key} text={item.key}>
@@ -176,6 +178,11 @@ class AutocompleteAccount extends Component {
     );
   };
 
+  onAutocompleteBlur = () => {
+    // console.log('onAutocompleteBlur:', this.state.selected, this.props.form.getFieldValue(this.props.name));
+    if(!this.state.selected)
+      this.reset();
+  }
   render = () => {
     const { formatMessage }  = this.props.intl;
     const { form }           = this.props;
@@ -211,7 +218,9 @@ class AutocompleteAccount extends Component {
                         {getFieldDecorator(name, {
                         rules: [{ required: !not_required, message: (!not_required)?formatMessage({id:'components.AutocompleteAccount.index.choose_account_message'}):undefined , validator: validation_rule}]
                       })(
-                          <AutoComplete 
+                          <AutoComplete
+                            onBlur={this.onAutocompleteBlur} 
+                            backfill={true}
                             size={size||'large'} 
                             dataSource={data.map(this.renderAccount)} 
                             style={{ width: '100%' }} 

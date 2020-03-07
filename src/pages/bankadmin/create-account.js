@@ -1150,8 +1150,7 @@ class CreateAccount extends Component {
     if(this.state.result)
     {
       const result_type = this.state.result;
-      const title       = this.props.intl.formatMessage({id:'pages.bankadmin.create_account.succedd_message'});
-      //const _href        = api.dfuse.getBlockExplorerAccountLink(account_name);
+      const title       = this.props.intl.formatMessage({id:'pages.bankadmin.create_account.succedd_message'})
       const message     = null;
       const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error

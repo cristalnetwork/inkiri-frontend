@@ -423,14 +423,21 @@ class PDV extends Component {
     const items_text = (items||'').replace(/|/g, '').slice(0,50);
     const stamp_text = formatMessage({id:'pages.business.pdv.message.payed_at_store'});
     const memo = `${items_text} ${stamp_text}`;
+
+    console.log('***********************************************')
+    console.log(accounts[0], private_key, this.props.actualAccountName, input_amount.value, memo);
+    
+    // that.setState({pushingTx:false, show_payment:false});
+    // return;
+
     api.sendPayment(accounts[0], private_key, this.props.actualAccountName, input_amount.value, memo)
       .then((data) => {
-        console.log(' pdv::pay (then#1) >>  ', JSON.stringify(data));
+        console.log(' ******************************* pdv::pay (then#1) >>  ', JSON.stringify(data));
         that.setState({pushingTx:false, show_payment:false});
         that.resetState();
         components_helper.notif.successNotification( formatMessage({id:'pages.business.pdv.success.payment_completed'}) );
       }, (ex) => {
-        console.log(' pdv::pay (error#1) >>  ', JSON.stringify(ex));
+        console.log(' ******************************* pdv::pay (error#1) >>  ', JSON.stringify(ex));
         components_helper.notif.exceptionNotification( formatMessage({id:'pages.business.pdv.error.payment_not_completed'}) , ex);
         that.setState({pushingTx:false});
       });
@@ -480,7 +487,6 @@ class PDV extends Component {
             <Card 
               title={(<span><strong>{title}</strong> </span> )}
               key="payment"
-              loading={this.state.pushingTx}
               style={{width:700}}
               >
                 {current_step==0 && 
@@ -511,7 +517,7 @@ class PDV extends Component {
                   </Button>
                 )}
                 {current_step === steps.length - 1 && (
-                  <Button type="primary" onClick={() => this.doPay()} disabled={this.state.pushingTx} disabled={this.state.adding_new_perm}>
+                  <Button type="primary" disabled={this.state.pushingTx} onClick={() => this.doPay()}>
                     <FontAwesomeIcon icon="shopping-bag" size="1x"/>&nbsp;{formatMessage({id:'global.pay'})}
                   </Button>
                 )}
@@ -658,13 +664,17 @@ class PDV extends Component {
     // }
   }
 
+
+
   onTransaction = async (message) => {
     
     console.log(' *****************************NEW TRANSACTION ', JSON.stringify(message));
     console.log('message', message);
     console.log('message.data', message.data);
 
-    // message.data {"requestType":"get_actions","action":{"context_free":false,"elapsed":5,"console":"","act":{"authorization":[{"actor":"atomakinnaka","permission":"active"}],"name":"transfer","account":"cristaltoken","data":"{\"from\":\"atomakinnaka\",\"to\":\"inkirilabink\",\"quantity\":\"0.7500 INK\",\"memo\":\"pay|undefined|this is a test [Payed at store]\"}"},"creator_action_ordinal":1,"receiver":"inkirilabink","action_ordinal":3,"receipt":{"receiver":"inkirilabink","code_sequence":1,"abi_sequence":1,"recv_sequence":5,"auth_sequence":[{"sequence":13,"account":"atomakinnaka"}],"act_digest":"ece105f767a07614b355cae13d77aa1f96c10ce60d7449221a9c4c2b64896e7d","global_sequence":2541384181},"except":"","account_ram_deltas":[],"block_num":77082390,"block_timestamp":"2020-03-05T01:41:09.500","trxid":"2aee23f262c46c2dec81c72a94052697cd1e654127daccbcb341d130cf3296ef"}}
+    // JSON
+    // {"requestType":"get_actions","action":{"context_free":false,"elapsed":6,"console":"","act":{"authorization":[{"actor":"atomakinnaka","permission":"active"}],"name":"transfer","account":"cristaltoken","data":"{\"from\":\"atomakinnaka\",\"to\":\"dargonarbizz\",\"quantity\":\"0.2500 INK\",\"memo\":\"pay|undefined|test [Payed at store]\"}"},"creator_action_ordinal":1,"receiver":"dargonarbizz","action_ordinal":3,"receipt":{"receiver":"dargonarbizz","code_sequence":1,"abi_sequence":1,"recv_sequence":2,"auth_sequence":[{"sequence":26,"account":"atomakinnaka"}],"act_digest":"d020f06e2a9abcdc6f9e89693c34cc77330935248796a312e5d805973e8cd666","global_sequence":2544351829},"except":"","account_ram_deltas":[],"block_num":77525039,"block_timestamp":"2020-03-07T15:49:10.500","trxid":"64c638e93ab1fea5b9cb887a60d74a6ac436a10ce04549c09db3139d03ae41e4"}}
+  
 
     // if (message.type !== InboundMessageType.ACTION_TRACE) {
     //   return

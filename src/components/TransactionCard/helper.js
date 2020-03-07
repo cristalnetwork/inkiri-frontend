@@ -247,7 +247,7 @@ export const getBlockchainLink = (tx_id, withIcon, size, text) => {
 export const getBlockchainUrl = (tx_id) => {
   if(!tx_id)
     return '#';
-  return api.dfuse.getBlockExplorerTxLink(tx_id);
+  return globalCfg.eos.getBlockExplorerTxLink(tx_id);
 }
 //
 export const getProcessButton = (request, callback, text, is_primary) => {

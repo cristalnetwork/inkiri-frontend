@@ -37,7 +37,7 @@ const TxResult = ({result_type, title, message, tx_id, error, cb, intl}) => {
     if(result_type=='ok') result_type='success'
     if(result_type=='success' && tx_id)
     {
-      const _href = globalCfg.dfuse.getBlockExplorerTxLink( tx_id);
+      const _href = globalCfg.eos.getBlockExplorerTxLink( tx_id);
       const view_on_blockchain = intl.formatMessage({id:'components.TxResult.index.view_on_blockchain'}) ;
       const blockchain         = intl.formatMessage({id:'components.TxResult.index.blockchain'}) ;
       buttons.push(<Button type="link" href={_href} target="_blank" key="view-on-blockchain" icon="cloud" title={view_on_blockchain}>{blockchain}</Button>)

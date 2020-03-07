@@ -8,8 +8,8 @@ const AccountBlockchainLink = ({account_name, title, size}) => {
     if(!account_name)
       return (null);
     
-    const url = globalCfg.dfuse.account_url;
-    const _id = globalCfg.dfuse.account_keys_url_postfix;
+    const url = globalCfg.eos.account_url;
+    const _id = globalCfg.eos.account_keys_url_postfix;
     const href = `${url}${account_name}${_id}`;
     
     return (<div className="ui-list shorter">
