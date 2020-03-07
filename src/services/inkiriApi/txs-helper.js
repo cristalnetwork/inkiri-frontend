@@ -7,13 +7,19 @@ import {i18n} from '@app/lang/provider';
 */
 export const toReadable = (account_name, transaction) => {
   
-  const is_ws_event      = (typeof transaction.data !== 'undefined');
-  const is_search        = (typeof transaction.lifecycle !== 'undefined');
-  const is_graphql       = (!is_ws_event&&!is_search)//(typeof transaction.undo !== 'undefined');
+  const is_ws_event       = (typeof transaction.data !== 'undefined');
+  const is_search         = (typeof transaction.lifecycle !== 'undefined');
+  const is_spectrum_event = (typeof transaction.action !== 'undefined');
+  const is_graphql        = (!is_ws_event&&!is_search&&!is_spectrum_event)//(typeof transaction.undo !== 'undefined');
 
   if(is_graphql)
   {
     return toReadableGraphQL(account_name, transaction);
+  }
+
+  if(is_spectrum_event)
+  {
+    return toReadableSpectrum(account_name, transaction);
   }
 
   const operations       = (is_ws_event)
@@ -51,6 +57,29 @@ export const toReadable = (account_name, transaction) => {
   }
 }
 
+const toReadableSpectrum = (account_name, tx) => {
+  console.log('..toReadableSpectrum..')
+  console.log('..toReadableSpectrum..#1')
+  let readable_operations  = [getOperationMetadata(account_name, tx.action.act)];
+  console.log('..toReadableSpectrum..#2')
+  let total_Amount         = globalCfg.currency.toNumber(tx.action.act.data.quantity);
+  console.log('..toReadableSpectrum..#3')
+  let my_oper  = readable_operations[0];
+  let raw_oper = tx.action.act;
+  console.log('..toReadableSpectrum..#4')
+  return {
+    id :                 tx.action.trxid
+    , transaction_id:    tx.action.trxid
+    , block_time:        tx.action.block_timestamp.split('.')[0]
+    , block_time_number: utils.dateToNumber(tx.action.block_timestamp.split('.')[0])
+    , block_num:         tx.action.block_num
+    , ...raw_oper
+    , operations:        readable_operations
+    , ...my_oper
+    // , ...readable_transaction
+    , amount : total_Amount
+  }  
+}
 const toReadableGraphQL = (account_name, tx) => {
 
   let readable_operations   = tx.trace.topLevelActions.map( operation => getOperationMetadata(account_name, operation));

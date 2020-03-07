@@ -318,6 +318,7 @@ export const getColumnsForRequests = (callback, is_admin, process_wages) => {
   ]
 };
 
+
 //
 export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAccountName, show_index) => {
   const x = [
@@ -431,6 +432,13 @@ export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAc
   if (show_index) 
     return [idx_column, ...x];
   return x;
+};
+
+export const getColumnsForPDV = (callback, actualAccountName) => {
+  
+  const cols = getColumnsForExtrato(callback, false, {}, actualAccountName, false);
+
+  return cols.filter(col=>col.key!='state');
 };
 
 //
