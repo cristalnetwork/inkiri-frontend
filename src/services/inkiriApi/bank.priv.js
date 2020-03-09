@@ -259,7 +259,7 @@ export const createOrUpdateUser = (id, account_type, account_name, first_name, l
           , last_name:     last_name
           , email:         email
           , legal_id:      legal_id
-          // , birthday:    birthday
+          , birthday:    birthday
           , phone:         phone
           , address:       address
           , business_name: business_name
