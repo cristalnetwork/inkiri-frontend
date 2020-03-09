@@ -40,7 +40,7 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
       })
     .then((data) => {
       
-      console.log(' bank::auth >> ', JSON.stringify(data));
+      // console.log(' bank::auth >> ', JSON.stringify(data));
       const challenge = data.to_sign;
 
       eosHelper.signString(private_key, challenge).then((signed) => {  
@@ -53,7 +53,7 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
         
         const auth_endpoint      = globalCfg.api.endpoint+'/eos/auth';    
         
-        console.log(' AUTH PARAMS:', auth_endpoint, JSON.stringify(auth_params))
+        // console.log(' AUTH PARAMS:', auth_endpoint, JSON.stringify(auth_params))
 
         fetch(auth_endpoint, {
           method: 'POST',
@@ -65,13 +65,13 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
         })
           .then((response2) => {
             if (!response2.ok) {
-              console.log(' ********************************** !OK#3')
+              // console.log(' ********************************** !OK#3')
               rej(response2.statusText);
               throw new Error(response2.statusText);
             }
             return response2.json()
           }, (err) => {
-            console.log(' ********************************** !OK#4')
+            // console.log(' ********************************** !OK#4')
             rej(err); 
             throw err;
           })

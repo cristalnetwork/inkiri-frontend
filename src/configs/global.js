@@ -146,6 +146,8 @@ const bank = {
     return (parseInt(account_type)<bank.ACCOUNT_TYPES.length)?bank.ACCOUNT_TYPES[parseInt(account_type)]:undefined;
   },
   isAccountOfType : (param, type_ref) => {
+    if(typeof param === 'undefined' || param === null)
+      return false;
     if(typeof param !== 'number' && typeof param !== 'string')
       param = param.account_type  
     if(typeof param === 'number')

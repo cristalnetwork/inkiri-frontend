@@ -139,9 +139,9 @@ function* trySwitchAccount2Saga({ type, payload }) {
     yield put(setLoginData(stateData))
     yield put({ type: TRY_SWITCH_END })
 
-    // setTimeout(()=> {
-    //   history.replace('/');
-    // } , 500);
+    setTimeout(()=> {
+      history.replace('/');
+    } , 500);
     
 }
 
@@ -213,17 +213,17 @@ export const actualRoleId          = (state) => (state.login.current_account) ? 
 export const actualPermission      = (state) => (state.login.current_account) ? state.login.current_account.permission : undefined
 export const currentAccount        = (state) => state.login.current_account
 
-export const isAdmin               = (state) => globalCfg.bank.isAdminAccount(state.login.current_account.permissioner.account_type);
-export const isBusiness            = (state) => globalCfg.bank.isBusinessAccount(state.login.current_account.permissioner.account_type);
-export const isPersonal            = (state) => globalCfg.bank.isPersonalAccount(state.login.current_account.permissioner.account_type);
-export const isFund                = (state) => globalCfg.bank.isFoundationAccount(state.login.current_account.permissioner.account_type);
+export const isAdmin               = (state) => state.login.current_account && globalCfg.bank.isAdminAccount(state.login.current_account.permissioner.account_type);
+export const isBusiness            = (state) => state.login.current_account && globalCfg.bank.isBusinessAccount(state.login.current_account.permissioner.account_type);
+export const isPersonal            = (state) => state.login.current_account && globalCfg.bank.isPersonalAccount(state.login.current_account.permissioner.account_type);
+export const isFund                = (state) => state.login.current_account && globalCfg.bank.isFoundationAccount(state.login.current_account.permissioner.account_type);
 
-export const personalAccount       = (state) => state.login.accounts.personalAccount
-export const otherPersonalAccounts = (state) => state.login.accounts.otherPersonalAccounts
-export const corporateAccounts     = (state) => state.login.accounts.corporateAccounts
-export const fundAccounts          = (state) => state.login.accounts.fundAccounts
-export const adminAccount          = (state) => state.login.accounts.adminAccount
-export const allAccounts           = (state) => accountsToArray(state.login.accounts)
+export const personalAccount       = (state) => state.login.accounts && state.login.accounts.personalAccount
+export const otherPersonalAccounts = (state) => state.login.accounts && state.login.accounts.otherPersonalAccounts
+export const corporateAccounts     = (state) => state.login.accounts && state.login.accounts.corporateAccounts
+export const fundAccounts          = (state) => state.login.accounts && state.login.accounts.fundAccounts
+export const adminAccount          = (state) => state.login.accounts && state.login.accounts.adminAccount
+export const allAccounts           = (state) => state.login.accounts?accountsToArray(state.login.accounts):[]
 
 export const loginError            = (state) => state.login.error;
 
