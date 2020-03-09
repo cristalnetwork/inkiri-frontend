@@ -99,7 +99,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
             { Children? <Children/>: false }
             <BackTop />
           </Content>
-          <Footer style={{ textAlign: 'center' }}>{ footerText || `INKIRI © ${(new Date()).getFullYear()} v${globalCfg.version}`}</Footer>
+          <Footer style={{ textAlign: 'center' }}>{ footerText || `INKIRI © ${(new Date()).getFullYear()} v ${globalCfg.version}`}</Footer>
         </Layout>
       </Layout>
     );

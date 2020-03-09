@@ -53,20 +53,12 @@ class Info extends Component {
             subTitle={this.state.intl.subtitle || ''} >
               <div className="desc">
                 <Paragraph>
-                  <Text strong style={{ fontSize: 16, }}>{this.state.intl.app_version}</Text>
+                  <Text style={{ fontSize: 16, }}>{this.state.intl.app_version}</Text>
+                  &nbsp; <Text strong style={{ fontSize: 16, }}>{globalCfg.version}</Text>
                 </Paragraph>
                 <Paragraph>
-                  {globalCfg.version}
-                </Paragraph>
-              </div>
-              <div className="desc">
-                <Paragraph>
-                  <Text strong style={{ fontSize: 16, }}>{this.state.intl.blockchain_network}</Text>
-                </Paragraph>
-                <Paragraph>
-                  <a link={globalCfg.eos.info_link} target="_blank">
-                    {globalCfg.eos.info}
-                  </a>
+                  <Text style={{ fontSize: 16, }}>{this.state.intl.blockchain_network}</Text>
+                  &nbsp;<a style={{fontSize: 16, fontWeight:'strong'}} href={globalCfg.eos.info_link} target="_blank">{globalCfg.eos.info}</a>
                 </Paragraph>
               </div>
           </Result>

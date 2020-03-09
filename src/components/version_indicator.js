@@ -10,7 +10,7 @@ const VersionIndicator = (props) => {
   }
   const demo_test_tag = globalCfg.env!='prod'
       ? ( <Tag key='demo' color="#eb2f96" onClick={gotoInfo}>{globalCfg.env.toUpperCase()}&nbsp;VERSION</Tag>)
-      : (<Button icon={'inf'} shape="circle" onClick={gotoInfo} ></Button>) ;
+      : (<Button icon="info" size="small" shape="circle" onClick={gotoInfo} title="Info"></Button>) ;
   //
   return (
     

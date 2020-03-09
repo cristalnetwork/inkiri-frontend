@@ -952,6 +952,7 @@
   "pages.common.withdraw.confirm_request_message": "Confirme o saque no valor de {amount}",
   "pages.common.withdraw.amount_le_balance_message": "Valor de ser menor ou igual ao seu saldo de: {balance}",
   "pages.common.info.title": "App information",
+  "pages.common.info.sub_title": "App version and blockchain network.",
   "pages.common.info.app_version": "App version:",
   "pages.common.info.blockchain_network": "Blockchain network:",
   "pages.personal.exchange.pushing_transaction": "Enviando transação...",
