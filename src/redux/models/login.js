@@ -1,7 +1,7 @@
 import { takeEvery, put } from '@redux-saga/core/effects';
 import { store } from '../configureStore'
 import * as globalCfg from '@app/configs/global';
-import { getStorage, clearStorage, setStorage } from '@app/services/localStorage'
+import * as storage from '@app/services/localStorage';
 import * as core from './core';
 import * as api from '@app/services/inkiriApi';
 import {TRY_DELETE_SESSION} from './page';
@@ -43,7 +43,7 @@ const ACCOUNT_DATA = 'account_data'
 function* initLoginDataSaga() {
     console.log( ' # core.INIT@login-saga ' )
     yield put({ type: core.ACTION_START, payload: { login: 'Check local storage' } })
-    const { data } = yield getStorage(ACCOUNT_DATA);
+    const { data } = yield storage.getStorage(ACCOUNT_DATA);
     // console.log(' loginREDUX::loadLoginData >> storage >> ', JSON.stringify(data))
     if (data && data.account_name && data.password) {
         //yield put(tryLogin(data.account_name, data.password, false))
@@ -68,9 +68,10 @@ function* tryLoginSaga({ type, payload }) {
         // console.log('login.redux -> api.login -> :', accounts)
         console.log(' login-redux::tryloginsaga::result', accounts)
         if (payload.remember) {
+            storage.setVersion(globalCfg.version);
             let master_account = account_name;
             const profile = accounts.profile;
-            setStorage(ACCOUNT_DATA, { account_name, password, remember, accounts, master_account, profile })
+            storage.setStorage(ACCOUNT_DATA, { account_name, password, remember, accounts, master_account, profile })
         }
         yield put({ type: TRY_DELETE_SESSION });
         yield put(setLoginData({ 
@@ -91,7 +92,7 @@ function* tryLoginSaga({ type, payload }) {
 // function* trySwitchAccountSaga({ type, payload }) {
 //     const { account_name } = payload
 //     // console.log(' LOGIN REDUX >> trySwitchAccountSaga >> ', account_name);
-//     const { data } = yield getStorage(ACCOUNT_DATA);
+//     const { data } = yield storage.getStorage(ACCOUNT_DATA);
 //     if (account_name === data.account_name) {
 //         // console.log(' LOGIN REDUX >> trySwitchAccountSaga >> NOTHING TO DO >> account_name===data.account_name', account_name);
 //         yield put({ type: TRY_SWITCH_END })
@@ -101,7 +102,7 @@ function* tryLoginSaga({ type, payload }) {
 //     const profile = yield api.bank.getProfile(account_name);
 //     stateData['profile'] = profile;
 //     // console.log(' LOGIN REDUX >> trySwitchAccountSaga >>putting new data', JSON.stringify(stateData));
-//     setStorage(ACCOUNT_DATA, { account_name: account_name
+//     storage.setStorage(ACCOUNT_DATA, { account_name: account_name
 //                                , password: data.password
 //                                , remember: data.remember
 //                                , accounts: stateData.accounts
@@ -117,7 +118,7 @@ function* trySwitchAccount2Saga({ type, payload }) {
 
     const { account_name, role } = payload
     // console.log(' LOGIN REDUX >> trySwitchAccount2Saga >> ', account_name, role);
-    const { data } = yield getStorage(ACCOUNT_DATA);
+    const { data } = yield storage.getStorage(ACCOUNT_DATA);
     if (account_name === data.account_name) {
         // console.log(' LOGIN REDUX >> trySwitchAccount2Saga >> NOTHING TO DO >> account_name===data.account_name', account_name);
         yield put({ type: TRY_SWITCH_END })
@@ -129,7 +130,7 @@ function* trySwitchAccount2Saga({ type, payload }) {
     const profile = yield api.bank.getProfile(account_name);
     stateData['profile'] = profile;
     // console.log(' LOGIN REDUX >> trySwitchAccount2Saga >>putting new data', JSON.stringify(stateData));
-    setStorage(ACCOUNT_DATA, { account_name: account_name
+    storage.setStorage(ACCOUNT_DATA, { account_name: account_name
                                , password: data.password
                                , remember: data.remember
                                , accounts: stateData.accounts
@@ -152,9 +153,9 @@ function* loadProfileSaga({ type, payload }) {
   const profile = yield api.bank.getProfile(account_name);
   // console.log(' ** LOGIN-REDUX::loadProfileSaga profile: ', JSON.stringify(profile))
   if(profile) {
-    const { data } = yield getStorage(ACCOUNT_DATA);
-    // console.log(' ** LOGIN-REDUX::loadProfileSaga getStorage: ', JSON.stringify(data))
-    setStorage(ACCOUNT_DATA, { account_name: account_name
+    const { data } = yield storage.getStorage(ACCOUNT_DATA);
+    // console.log(' ** LOGIN-REDUX::loadProfileSaga storage.getStorage: ', JSON.stringify(data))
+    storage.setStorage(ACCOUNT_DATA, { account_name: account_name
                                , password: data.password
                                , remember: data.remember
                                , accounts: data.accounts
@@ -169,7 +170,8 @@ function* logoutSaga() {
     setTimeout(()=> {
       history.replace('/');
     } , 500);
-    yield clearStorage();
+    yield storage.clearStorage();
+    storage.setVersion(globalCfg.version);
 }
 
 function getLoginDataFromStorage(storageData, switch_to) {

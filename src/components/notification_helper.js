@@ -83,9 +83,16 @@ export const exceptionNotification = (title, ex, onClose, intl) => {
     return;  
   }
 
+  if(ex.toString().startsWith('JWT Authentication error:')){
+    const auth_message = 'Please consider re authenticating! ' + ex.toString();
+    openNotificationWithIcon('error', title, auth_message, onClose)    
+    return;
+  }
+
   const message = (ex && Object.keys(ex).length>0)
     ? [(copy_btn_0), (<span key="notification_message">{JSON.stringify(ex)}<br/></span>), (copy_btn)]
     : 'Please check internet connection and service availability!';
+  //
   openNotificationWithIcon('error', title, message, onClose)
 }
 

@@ -25,17 +25,36 @@ import MenuAccountView from '@app/components/Views/account_menu'
 
 import * as globalCfg from '@app/configs/global';
 import InjectMessage from "@app/components/intl-messages";
+import * as storage from '@app/services/localStorage'
 
 const { Header, Content, Footer, Sider } = Layout;
 
 const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileName, itemPath, menuIsCollapsed, actualAccountName, actualRole, currentAccount
-                              , collapseMenu, setIsMobile}) => {
+                              , logout, collapseMenu, setIsMobile}) => {
     
     const [menu_is_collapsed, setMenuIsCollapsed] = useState(menuIsCollapsed);
     
     useEffect(() => {
       setMenuIsCollapsed(menuIsCollapsed);
     }, [menuIsCollapsed])
+
+    useEffect(() => {
+      const build_version     = globalCfg.version;
+      const _default_version  = '_default_version_';
+      const storage_version   = storage.getVersion(_default_version);
+      if(build_version==storage_version)
+        return;
+      if(build_version==_default_version && build_version.startsWith('1.0.'))
+      {
+        logout()
+        return;
+      }
+      if(build_version!=storage_version)
+      {
+        logout()
+        return;
+      }
+    }, [])
 
     const isMobile = useMedia({
       id: 'DashboardContainer',
@@ -114,7 +133,7 @@ const DashboardContainer =
       currentAccount:       loginRedux.currentAccount(state),
     }),
     dispatch => ({
-
+      logout:               bindActionCreators(loginRedux.logout, dispatch),
       collapseMenu:         bindActionCreators(menuRedux.collapseMenu, dispatch),
       setIsMobile:          bindActionCreators(menuRedux.setIsMobile, dispatch),
     })
