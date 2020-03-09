@@ -2,7 +2,7 @@
 *  APP VERSION
 * DO NOT CHANGE FOLLOWING LINE!!!!!!!!
 */
-const version = '1.0.3';
+const version = '1.0.4';
 /*
 *  ENV & BLOCKCHAIN CONFIGURATION!
 */
@@ -15,7 +15,7 @@ const EOS_TESTNET        = 'eos_testnet';
 const TELOS_TESTNET      = 'telos_testnet';
 const TELOS_MAINNET      = 'telos_mainnet';
 
-const env                = ENV_DEV;
+const env                = ENV_PROD;
 const BLOCKCHAIN_NETWORK = TELOS_MAINNET;
 
 const language   = "english";

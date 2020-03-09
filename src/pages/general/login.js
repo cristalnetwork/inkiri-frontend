@@ -96,7 +96,6 @@ class Login extends Component {
           <div className="login-wrapper">
             <h1 align="center">
               <img src="/favicons/favicon-32x32.png" alt="" />&nbsp;<span className="omnes_isologo">{formatMessage({id:'inkiri.bank.title'})}</span>
-              <VersionIndicator newline={true} />
             </h1>
           </div>     
         </div> 
@@ -157,7 +156,9 @@ class Login extends Component {
 
         </Form>
         
-        <div style={{ maxWidth:'500px', margin: '0 auto', textAlign: 'center' }}>{ `INKIRI © ${(new Date()).getFullYear()} Version ${globalCfg.version}`}</div>
+        <div className="login_version_footer">{ `INKIRI © ${(new Date()).getFullYear()} Version ${globalCfg.version}`}
+          <br/><VersionIndicator newline={true} for_login={true}/>
+        </div>
 
       </div>
       

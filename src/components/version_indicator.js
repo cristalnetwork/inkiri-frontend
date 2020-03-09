@@ -6,9 +6,12 @@ import { withRouter } from "react-router-dom";
 const VersionIndicator = (props) => {
   
   const gotoInfo = () => {
+    if(props.for_login)
+      return;
     props.history.push({pathname: '/common/info'})
   }
-  const demo_test_tag = globalCfg.env!='prod'
+
+  const demo_test_tag = (globalCfg.env!='prod' || props.for_login==true)
       ? ( <Tag key='demo' color="#eb2f96" onClick={gotoInfo}>{globalCfg.env.toUpperCase()}&nbsp;VERSION</Tag>)
       : (<Button icon="info" size="small" shape="circle" onClick={gotoInfo} title="Info"></Button>) ;
   //
