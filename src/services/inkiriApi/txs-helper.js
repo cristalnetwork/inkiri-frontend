@@ -68,7 +68,9 @@ const toReadableSpectrum = (account_name, tx) => {
   let raw_oper = tx.action.act;
   console.log('..toReadableSpectrum..#4')
   return {
-    id :                 tx.action.trxid
+    tx_id:               tx.action.trxid
+    , _id :              tx.action.trxid
+    , id :               tx.action.trxid
     , transaction_id:    tx.action.trxid
     , block_time:        tx.action.block_timestamp.split('.')[0]
     , block_time_number: utils.dateToNumber(tx.action.block_timestamp.split('.')[0])
@@ -76,8 +78,10 @@ const toReadableSpectrum = (account_name, tx) => {
     , ...raw_oper
     , operations:        readable_operations
     , ...my_oper
+    , ...my_oper.request
     // , ...readable_transaction
     , amount : total_Amount
+    , unconfirmed : true
   }  
 }
 const toReadableGraphQL = (account_name, tx) => {
@@ -123,6 +127,9 @@ const toReadableGraphQL = (account_name, tx) => {
 
 function getOperationMetadata(account_name, operation){
   
+  // console.log(' ================ getOperationMetadata => ', operation);
+  operation.data = JSON.parse(operation.data);
+  // console.log(' ================ getOperationMetadata => PARSED => ', operation.data)
   const tx         = operation; // .action_traces[0].act;
   const tx_type    = combineTxNameCode(tx);
   const i_sent     = isSender(account_name, tx)

@@ -169,7 +169,7 @@ export const getCircledTypeIcon = (request) => {
   
   if(typeof request !== 'string')
     request = request.requested_type  
-
+  
   const my_icon               = getTypeConf()[request]; 
   const my_icon_color_primary = 'rgba(0,0,0,0.6)';
   const className             = 'ui-avatar__content--small circled_action_type flex_center';

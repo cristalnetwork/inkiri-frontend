@@ -650,6 +650,8 @@
   "pages.business.pdv.connection.ok_status": "Você está conectado e recebendo transações!",
   "pages.business.pdv.connection.error_status": "Algp deu errado... Você não está conectado nem recebendo transações.",
   "pages.business.pdv.connection.reconnect_button_text": "Reconecte-se para receber notificações de pagamento",
+  "pages.business.pdv.payment_in_progess": "Payment in progress",
+  "pages.business.pdv.payment_in_progess_description": "Please update payments table until payment is confirmed.",
   "pages.business.pdv.title": "PDV - Ponto de Venda",
   "pages.business.pdv.transactions.title": "Recebimentos Recentes",
   "pages.business.pdv.message.new_payment_received": "Novo Recebimento",

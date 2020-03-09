@@ -172,6 +172,11 @@ h3.fileds_header{
     /*overflow-wrap: break-word;*/
 }
 
+
+.ant-table-row.unconfirmed{
+  background-color:rgba(255, 0, 0, 0.2);
+}
+
 .amount_col{
   padding-right: 0px!important;
   padding-left: 0px!important;

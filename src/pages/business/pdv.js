@@ -106,10 +106,17 @@ class PDV extends Component {
 
     this.onRequestClick             = this.onRequestClick.bind(this);
 
-    this.socket = null;
+    this.socket      = null;
+    this.txsTableRef = null;
   }
 
   onRequestClick(request){
+    if(request.unconfirmed==true){
+      const title = this.props.intl.formatMessage({id: 'pages.business.pdv.payment_in_progess'})
+      const msg   = this.props.intl.formatMessage({id: 'pages.business.pdv.payment_in_progess_description'})
+      components_helper.notif.infoNotification( title, msg);    
+      return;
+    }
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
     this.props.history.push({
@@ -588,6 +595,7 @@ class PDV extends Component {
                 filter={{'to':this.props.actualAccountName}}
                 mode={REQUEST_MODE_PDV}
                 scroll={{ x: 700 }}
+                onRef={ref => (this.txsTableRef = ref)}
             />
         </Card>
       </>
@@ -607,15 +615,14 @@ class PDV extends Component {
     };
 
     this.socket.onmessage = this.onTransaction;
-    this.socket.onclose = this.onClose;
-    this.socket.onerror = this.onError;
+    this.socket.onclose   = this.onClose;
+    this.socket.onerror   = this.onError;
 
     this.socket.onopen = () => {
       console.log("[open] Connection established");
       console.log("Sending to server: "+JSON.stringify(messageBody));
       try{
         const ret = this.socket.send(JSON.stringify(messageBody));
-        console.log(ret);
         this.setState({ connected: true });
       }catch(ex){
         components_helper.notif.exceptionNotification(  );
@@ -626,53 +633,53 @@ class PDV extends Component {
 
 
     // JSON
-    const message = {
-      "data":
-      {
-        "requestType": "get_actions",
-        "action":
-        {
-            "context_free": false,
-            "elapsed": 6,
-            "console": "",
-            "act":
-            {
-                "authorization": [
-                {
-                    "actor": "atomakinnaka",
-                    "permission": "active"
-                }],
-                "name": "transfer",
-                "account": "cristaltoken",
-                "data": "{\"from\":\"atomakinnaka\",\"to\":\"dargonarbizz\",\"quantity\":\"0.7500 INK\",\"memo\":\"pay|undefined|test [Payed at store]\"}"
-            },
-            "creator_action_ordinal": 1,
-            "receiver": "dargonarbizz",
-            "action_ordinal": 3,
-            "receipt":
-            {
-                "receiver": "dargonarbizz",
-                "code_sequence": 1,
-                "abi_sequence": 1,
-                "recv_sequence": 2,
-                "auth_sequence": [
-                {
-                    "sequence": 26,
-                    "account": "atomakinnaka"
-                }],
-                "act_digest": "d020f06e2a9abcdc6f9e89693c34cc77330935248796a312e5d805973e8cd666",
-                "global_sequence": 2544351829
-            },
-            "except": "",
-            "account_ram_deltas": [],
-            "block_num": 77525039,
-            "block_timestamp": "2020-03-07T15:49:10.500",
-            "trxid": "64c638e93ab1fea5b9cb887a60d74a6ac436a10ce04549c09db3139d03ae41e4"
-        }
-      }
-    };
+    // const message = {
+    //   "data":
+    //   {
+    //     "requestType": "get_actions",
+    //     "action":
+    //     {
+    //         "context_free": false,
+    //         "elapsed": 6,
+    //         "console": "",
+    //         "act":
+    //         {
+    //             "authorization": [
+    //             {
+    //                 "actor": "atomakinnaka",
+    //                 "permission": "active"
+    //             }],
+    //             "name": "transfer",
+    //             "account": "cristaltoken",
+    //             "data": "{\"from\":\"atomakinnaka\",\"to\":\"dargonarbizz\",\"quantity\":\"0.7500 INK\",\"memo\":\"pay|undefined|test [Payed at store]\"}"
+    //         },
+    //         "creator_action_ordinal": 1,
+    //         "receiver": "dargonarbizz",
+    //         "action_ordinal": 3,
+    //         "receipt":
+    //         {
+    //             "receiver": "dargonarbizz",
+    //             "code_sequence": 1,
+    //             "abi_sequence": 1,
+    //             "recv_sequence": 2,
+    //             "auth_sequence": [
+    //             {
+    //                 "sequence": 26,
+    //                 "account": "atomakinnaka"
+    //             }],
+    //             "act_digest": "d020f06e2a9abcdc6f9e89693c34cc77330935248796a312e5d805973e8cd666",
+    //             "global_sequence": 2544351829
+    //         },
+    //         "except": "",
+    //         "account_ram_deltas": [],
+    //         "block_num": 77525039,
+    //         "block_timestamp": "2020-03-07T15:49:10.500",
+    //         "trxid": "64c638e93ab1fea5b9cb887a60d74a6ac436a10ce04549c09db3139d03ae41e4"
+    //     }
+    //   }
+    // };
     
-    this.onTransaction(message);
+    // this.onTransaction(message);
 
     //  try { 
     //   this.stream = await this.client.streamActionTraces({
@@ -689,21 +696,27 @@ class PDV extends Component {
     //   console.log(' -- launchConnection::  LAUNCH error', JSON.stringify(error))
     //   // this.setState({ errorMessages: ["Unable to connect to socket.", JSON.stringify(error)] })
     // }
+
   }
 
 
 
   onTransaction = async (message) => {
     
-    // console.log(' *****************************NEW TRANSACTION ', JSON.stringify(message));
-    // console.log('message', message);
-    // console.log('message.data', message.data);
+    console.log(' *****************************NEW TRANSACTION ', message);
+    let tx_data = null;
+    if (typeof message === 'string') 
+      tx_data = JSON.parse(message).data;  
+    else
+      tx_data = message.data;  
+    
+    if (typeof tx_data === 'string') 
+      tx_data = JSON.parse(tx_data);
+    
+    console.log(typeof tx_data)
+    console.log(tx_data)
 
-    // if (message.type !== InboundMessageType.ACTION_TRACE) {
-    //   return
-    // }
-
-    const txs = api.txsHelper.toReadable(this.props.actualAccountName, message.data);
+    const txs = api.txsHelper.toReadable(this.props.actualAccountName, tx_data);
     // this.onNewData({txs:txs, cursor:null}, true);
     console.log(' ** TRANSFORMED TRANSACTION :', JSON.stringify(txs))
     
@@ -712,7 +725,11 @@ class PDV extends Component {
      
     components_helper.notif.successNotification( this.props.intl.formatMessage({id:'pages.business.pdv.message.new_payment_received'}) );
     const that = this;
-    setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
+    setTimeout(()=> {
+      if(that.txsTableRef!=null)
+        that.txsTableRef.onNewTx(txs)
+      that.props.loadBalance(that.props.actualAccountName)
+    } ,1000);
   }
 
   stop = async () => {

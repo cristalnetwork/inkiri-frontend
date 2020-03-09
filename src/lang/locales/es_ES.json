@@ -650,6 +650,8 @@
   "pages.business.pdv.connection.ok_status": "You are connected and receiving transaction!",
   "pages.business.pdv.connection.error_status": "Something went wrong. You are not connected neither receiving transactions.",
   "pages.business.pdv.connection.reconnect_button_text": "Reconnect to receive push notification",
+  "pages.business.pdv.payment_in_progess": "Payment in progress",
+  "pages.business.pdv.payment_in_progess_description": "Please update payments table until payment is confirmed.",
   "pages.business.pdv.title": "POS - Point of sale",
   "pages.business.pdv.transactions.title": "Recent incoming payments",
   "pages.business.pdv.message.new_payment_received": "New payment received",

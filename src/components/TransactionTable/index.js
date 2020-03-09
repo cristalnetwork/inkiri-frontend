@@ -46,6 +46,7 @@ class TransactionTable extends Component {
     super(props);
     this.state = {
       txs:               [],
+      nonconfirmed_txs:  [],
       page:              -1, 
       loading:           false,
       limit:             globalCfg.api.default_page_size,
@@ -63,6 +64,7 @@ class TransactionTable extends Component {
     };
     // this.handleChange      = this.handleChange.bind(this);
     this.onNewData           = this.onNewData.bind(this);
+    this.onNewTx             = this.onNewTx.bind(this);
     this.renderFooter        = this.renderFooter.bind(this); 
     this.getColumnsForType   = this.getColumnsForType.bind(this);
     this.applyFilter         = this.applyFilter.bind(this);
@@ -109,7 +111,23 @@ class TransactionTable extends Component {
               , true);
   }
   
-  
+  onNewTx = (tx) => {
+    console.log('========= onNewTx#1')
+    const new_txs          = Array.isArray(tx)?tx:[tx];
+    const nonconfirmed_txs = this.state.nonconfirmed_txs;
+    const txs              = this.state.txs;
+    console.log('========= onNewTx#2')
+    const filtered_txs     = new_txs.filter(new_tx => 
+        nonconfirmed_txs.find(tx=>tx.tx_id==new_tx.tx_id)===undefined 
+          && txs.find(tx=>tx.tx_id==new_tx.tx_id)===undefined   
+        ); 
+    // console.log('========= onNewTx#3', filtered_txs);
+    const that = this;
+    this.setState({nonconfirmed_txs:[...filtered_txs, ...nonconfirmed_txs]}, ()=>{
+      that.onNewData([], true);
+    });
+  }
+
   componentDidMount(){
     if(typeof this.props.onRef==='function')
     {
@@ -239,27 +257,36 @@ class TransactionTable extends Component {
     
   }
 
-  onNewData(txs){
+  onNewData(txs, is_hack){
     
     if(!txs || !txs.length) txs = [];
+
     const _txs            = [...this.state.txs, ...txs];
+    
+    // delete temp txs
+    const nonconfirmed_txs = this.state.nonconfirmed_txs.filter(nc_tx => 
+      _txs.find(tx=>tx.tx_id==nc_tx.tx_id)===undefined 
+    ); 
+    
     const pagination      = {...this.state.pagination};
-    pagination.pageSize   = _txs.length;
-    pagination.total      = _txs.length;
+    pagination.pageSize   = _txs.length+nonconfirmed_txs.length;
+    pagination.total      = _txs.length+nonconfirmed_txs.length;
 
     const has_received_new_data = (txs && txs.length>0);
 
+    
     const {page}   = this.state;
     const the_page = has_received_new_data?(page+1):page;
     this.setState({
-      page:           the_page,
-      pagination:     pagination, 
-      txs:            _txs, 
-      can_get_more:   (has_received_new_data && txs.length==this.state.limit), 
-      loading:        false
+      page:             the_page,
+      pagination:       pagination, 
+      txs:              _txs, 
+      nonconfirmed_txs: nonconfirmed_txs,
+      can_get_more:     (has_received_new_data && txs.length==this.state.limit), 
+      loading:          false
     });
 
-    if(!has_received_new_data)
+    if(!has_received_new_data && !is_hack)
     {
       const end_of_list           = this.props.intl.formatMessage({id:'components.TransactionTable.index.end_of_list'})
       const no_records_for_filter = this.props.intl.formatMessage({id:'components.TransactionTable.index.no_records_for_filter'})
@@ -492,6 +519,7 @@ class TransactionTable extends Component {
   }
   //
   render(){
+    
     const is_external = (this.state.mode==REQUEST_MODE_BANK_TRANSFERS);
     const header = (is_external)
       ?this.remButtons()
@@ -503,13 +531,15 @@ class TransactionTable extends Component {
         rowKey={record => record._id} 
         loading={this.state.loading} 
         columns_def={this.getColumnsForType()} 
-        dataSource={this.state.txs} 
+        dataSource={[...this.state.nonconfirmed_txs, ...this.state.txs]} 
         footer={() => this.renderFooter()}
         pagination={this.state.pagination}
         scroll={{ x: 950 }}
         expandedRowRender={columns_helper.expandedRequestRowRender}
         rowSelection={is_external ? this.getRowSelection() : null}
         rowClassName={ (record, rowIndex) => {
+                  if(record.unconfirmed==true)
+                    return 'unconfirmed';
                   return (rowIndex%2==0)
                     ? 'even'
                     : 'odd';

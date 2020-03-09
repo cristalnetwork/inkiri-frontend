@@ -30,6 +30,14 @@ const RequestListWidget = (props) => {
   const [hide_filter, setHideFilter]             = useState(props.hide_filter);
   const [hide_export_button, setHideExportButton] = useState(props.hide_export_button);
 
+  const doSetTableRef = (ref) => {
+    if(typeof props.onRef==='function')
+    {
+      props.onRef(ref)
+    }
+    setTableRef(ref);
+  }
+  
   useEffect(() => {
       setHideExportButton(props.hide_export_button);
     }, [props.hide_export_button]);
@@ -139,7 +147,7 @@ const RequestListWidget = (props) => {
         key={'table_'+key} 
         request_type={request_type} 
         callback={onRequestClick}
-        onRef={ref => (setTableRef(ref))}
+        onRef={ref => (doSetTableRef(ref))}
         filter={filter}
         mode={mode}
         />
