@@ -52,6 +52,7 @@ export const pathNames = utils.arrToObj([
     'commonProviders_CreateProvider',
     'commonProviders_ProviderProfile',
     'commonBulkPadCharge',
+    'commonInfo',
 
     'dashboard'
 ])
@@ -410,6 +411,15 @@ const common = [
        container:    'dashboard',
        role:         '*'
     },
+    {
+       key:          pathNames.commonInfo,
+       fileName:     'info',
+       area:         'common',
+       path:         'info',
+       container:    'dashboard',
+       role:         '*'
+    },
+    
 ];
 
 

@@ -1,4 +1,9 @@
 /*
+*  APP VERSION
+* DO NOT CHANGE FOLLOWING LINE!!!!!!!!
+*/
+const version = '1.0.1';
+/*
 *  ENV & BLOCKCHAIN CONFIGURATION!
 */
 const ENV_DEV            = 'dev';
@@ -373,7 +378,10 @@ const eosio_net = {
     create_account            : 'https://api.monitor.jungletestnet.io/#account',
     tx_url                    : 'https://jungle.bloks.io/transaction/',
     account_url               : 'https://jungle.bloks.io/account/',
-    currency_symbol           : 'ELOS'
+    info_link                 : 'https://jungle.bloks.io',
+    info                      : 'EOS TESTNET',
+    currency_symbol           : 'ELOS',
+
   },
   [TELOS_TESTNET]: {
     customers                 : 'https://telos-test.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
@@ -383,6 +391,8 @@ const eosio_net = {
     create_account            : 'https://app.telos.net/testnet/developers',
     tx_url                    : 'https://telos-test.bloks.io/transaction/',
     account_url               : 'https://telos-test.bloks.io/account/',
+    info_link                 : 'https://telos-test.bloks.io',
+    info                      : 'TELOS TESTNET',
     currency_symbol           : 'TLOS'
   },
   [TELOS_MAINNET]: {
@@ -393,6 +403,8 @@ const eosio_net = {
     create_account            : 'https://app.telos.net/accounts/add',
     tx_url                    : 'https://telos.bloks.io/transaction/',
     account_url               : 'https://telos.bloks.io/account/',
+    info_link                 : 'https://telos.bloks.io',
+    info                      : 'TELOS MAINNET',
     currency_symbol           : 'TLOS'
   }
 }
@@ -418,4 +430,4 @@ const eos = {
   
 }
 
-export { language, api, currency, dfuse, bank, eos, env };
+export { language, api, currency, dfuse, bank, eos, env, version };

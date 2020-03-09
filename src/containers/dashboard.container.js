@@ -23,6 +23,7 @@ import useMedia from 'react-media-hook2';
 import MenuBalanceView from '@app/components/Views/balance_menu'
 import MenuAccountView from '@app/components/Views/account_menu'
 
+import * as globalCfg from '@app/configs/global';
 import InjectMessage from "@app/components/intl-messages";
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -98,7 +99,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
             { Children? <Children/>: false }
             <BackTop />
           </Content>
-          <Footer style={{ textAlign: 'center' }}>{ footerText || `INKIRI © ${(new Date()).getFullYear()}`}</Footer>
+          <Footer style={{ textAlign: 'center' }}>{ footerText || `INKIRI © ${(new Date()).getFullYear()} v${globalCfg.version}`}</Footer>
         </Layout>
       </Layout>
     );

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Alert, Form, Icon, Input, Button, Checkbox } from 'antd';
+import { Layout, Alert, Form, Icon, Input, Button, Checkbox } from 'antd';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
 import * as loginRedux from '@app/redux/models/login';
@@ -154,8 +154,13 @@ class Login extends Component {
               {formatMessage({id:'pages.general.login.texts_reset_session'})}
             </Button>
           </Form.Item>
+
         </Form>
+        
+        <div style={{ maxWidth:'500px', margin: '0 auto', textAlign: 'center' }}>{ `INKIRI © ${(new Date()).getFullYear()} Version ${globalCfg.version}`}</div>
+
       </div>
+      
     );
   }
 }

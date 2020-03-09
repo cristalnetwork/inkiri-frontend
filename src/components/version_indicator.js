@@ -1,11 +1,16 @@
 import React from 'react';
 import * as globalCfg from '@app/configs/global';
-import { Tag } from 'antd';
+import { Tag, Button } from 'antd';
+import { withRouter } from "react-router-dom";
+
 const VersionIndicator = (props) => {
   
+  const gotoInfo = () => {
+    props.history.push({pathname: '/common/info'})
+  }
   const demo_test_tag = globalCfg.env!='prod'
-      ? ( <Tag key='demo' color="#eb2f96">{globalCfg.env.toUpperCase()}&nbsp;VERSION</Tag>)
-      : null ;
+      ? ( <Tag key='demo' color="#eb2f96" onClick={gotoInfo}>{globalCfg.env.toUpperCase()}&nbsp;VERSION</Tag>)
+      : (<Button icon={'inf'} shape="circle" onClick={gotoInfo} ></Button>) ;
   //
   return (
     
@@ -15,5 +20,5 @@ const VersionIndicator = (props) => {
     </>
     );
 }
-export default VersionIndicator;
+export default withRouter(VersionIndicator);
 
