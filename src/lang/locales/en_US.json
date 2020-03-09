@@ -955,6 +955,7 @@
   "pages.common.info.sub_title": "App version and blockchain network.",
   "pages.common.info.app_version": "App version:",
   "pages.common.info.blockchain_network": "Blockchain network:",
+  "pages.common.info.logout_login_message": "If this is the first time you see this information, we ask you to log out and log in again with username and password.",
   "pages.personal.exchange.pushing_transaction": "Pushing transaction...",
   "pages.personal.exchange.request_exchange_action_text": "Request exchange",
   "pages.personal.exchange.title": "Request an exchange",

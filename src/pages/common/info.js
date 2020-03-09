@@ -7,7 +7,7 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Result, Button, Typography, Icon } from 'antd';
+import { Alert, Result, Button, Typography, Icon } from 'antd';
 import { PageHeader } from 'antd';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -32,8 +32,9 @@ class Info extends Component {
     const subtitle = formatMessage({id:'pages.common.info.sub_title'});
     const app_version = formatMessage({id:'pages.common.info.app_version'});
     const blockchain_network = formatMessage({id:'pages.common.info.blockchain_network'});
+    const logout_login_message = formatMessage({id:'pages.common.info.logout_login_message'});
 
-    this.setState({intl:{title, subtitle, app_version, blockchain_network}});
+    this.setState({intl:{title, subtitle, app_version, blockchain_network, logout_login_message}});
 
   }
   
@@ -48,6 +49,13 @@ class Info extends Component {
         />
         
         <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
+          <Alert
+              message="Info"
+              description={this.state.intl.logout_login_message}
+              type="info"
+              showIcon
+              closable
+            />
           <Result
             title={this.state.intl.title}
             subTitle={this.state.intl.subtitle || ''} >
