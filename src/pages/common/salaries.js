@@ -184,7 +184,7 @@ class Salaries extends Component {
                                                                 account_name: item.member.account_name
                                                                 , amount:     item.current_wage }});
     
-    // console.log(JSON.stringify(to_amount_array));
+    // console.log(sender_account, sender_priv, to_amount_array, description, worked_month.format(form_helper.MONTH_FORMAT));
 
     that.props.callAPI('paySalaries', [sender_account, sender_priv, to_amount_array, description, worked_month.format(form_helper.MONTH_FORMAT)])
 

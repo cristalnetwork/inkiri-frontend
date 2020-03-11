@@ -156,7 +156,10 @@ class SendMoney extends Component {
     if(this.autocompleteWidget)
     {
       const that = this;
-      setTimeout(()=> that.autocompleteWidget.reset() ,100);
+      setTimeout(()=> {
+        if(that.autocompleteWidget)
+          that.autocompleteWidget.reset()
+      } ,100);
     }
     this.props.form.setFieldsValue({'transfer_extra.message':''})
     

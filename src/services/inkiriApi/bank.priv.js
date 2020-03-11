@@ -776,7 +776,8 @@ export const createMoneyRequest = (sender, request_type, requested, amount, memo
           // , 'to':               requested
           'from':               requested
           , 'to':               sender
-          , 'requested_type':   request_type
+          , 'requested_type':   globalCfg.api.TYPE_PAYMENT
+          // , 'requested_type':   request_type
           , 'amount':           Number(amount).toFixed(2)
           , 'description':      memo
           
