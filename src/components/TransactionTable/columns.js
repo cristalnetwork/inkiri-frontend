@@ -957,6 +957,8 @@ export const columnsForIUGU = (callback) => {
                 <span className="row_tx_title">
                   {request_helper.iugu.header(record)}
                 </span> 
+                <br/># Texto Fatura: <b>{request_helper.iugu.invoice_description(record)}</b>
+                <br/># custom_variables['projeto']: <b>{request_helper.iugu.invoice_variable(record)}</b>
                 <br/># {record.iuguCounterId}
               </div>   
             </span>)

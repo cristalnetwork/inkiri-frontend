@@ -44,7 +44,7 @@ function* initLoginDataSaga() {
     console.log( ' # core.INIT@login-saga ' )
     yield put({ type: core.ACTION_START, payload: { login: 'Check local storage' } })
     const { data } = yield storage.getStorage(ACCOUNT_DATA);
-    // console.log(' loginREDUX::loadLoginData >> storage >> ', JSON.stringify(data))
+    console.log(' loginREDUX::loadLoginData >> storage >> ', JSON.stringify(data))
     if (data && data.account_name && data.password) {
         //yield put(tryLogin(data.account_name, data.password, false))
         const stateData = getLoginDataFromStorage(data);
@@ -175,6 +175,7 @@ function* logoutSaga() {
 }
 
 function getLoginDataFromStorage(storageData, switch_to) {
+
     const account_name    = storageData.account_name;
     const master_account  = storageData.master_account;
     const password        = storageData.password;

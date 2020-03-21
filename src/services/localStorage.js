@@ -80,3 +80,5 @@ export function clearStorage () {
             res({status: 'ok'})
     })
 }
+
+export const clear = () => localStorage.clear();

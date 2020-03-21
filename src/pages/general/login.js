@@ -2,7 +2,10 @@ import React, { Component } from "react";
 import { Layout, Alert, Form, Icon, Input, Button, Checkbox } from 'antd';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
+
+import * as storage from '@app/services/localStorage'; 
 import * as loginRedux from '@app/redux/models/login';
+
 import { withRouter } from "react-router-dom";
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
@@ -79,8 +82,11 @@ class Login extends Component {
         this.setState({loading:false})
       }, 250);       
     }
+  }
 
-
+  clearSession = () => {
+    storage.clear();
+    this.props.clearSession();
   }
 
   render() {
@@ -149,7 +155,7 @@ class Login extends Component {
               {formatMessage({id:'pages.general.login.texts_log_in'})}
             </Button>
             <a href="#" disabled >{formatMessage({id:'pages.general.login.texts_register_now'})}</a>
-            <Button type="link" className="login-form-forgot" onClick={ () => this.props.clearSession() }>
+            <Button type="link" className="login-form-forgot" onClick={ this.clearSession }>
               {formatMessage({id:'pages.general.login.texts_reset_session'})}
             </Button>
           </Form.Item>

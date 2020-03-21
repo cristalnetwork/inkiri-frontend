@@ -457,6 +457,13 @@ export const blockchain = {
 * Helper functions for IUGU transcations
 */
 //
+const getOriginal = (record) => {
+      if(typeof record.original == 'object')
+        return record.original;
+      return JSON.parse(record.original);
+    }
+    
+
 export const iugu = {
   STATE_NOT_PROCESSED : 'state_not_processed',
   STATE_PROCESSING    : 'state_processing',
@@ -481,6 +488,19 @@ export const iugu = {
   , stateIcon     : (invoice) => { return (IuguIconImage); }
   // , header        : (invoice) => { return `${globalCfg.currency.toCurrencyString(invoice.amount)} paid to ${invoice.receipt_alias}`}
   , header        : (invoice) => { return `${invoice.receipt_alias}`}
+  , invoice_description : (invoice) => { 
+      const _original = getOriginal(invoice);
+      return _original.items&& _original.items.length>0
+              ? _original.items[0].description
+              : 'N/A'
+          }
+  , invoice_variable : (invoice) => { 
+      const _original = getOriginal(invoice);
+      if(!_original.custom_variables || _original.custom_variables.length<1)
+        return 'N/A';
+      const custom_variable = _original.custom_variables.find(_custom_var => _custom_var.name=='projeto')
+      return custom_variable?custom_variable.value:'N/A';
+          }
   , stateTag      : (invoice) => {
       const my_state = iugu.getStates()[invoice.state];                    
       // const icon     = (<FontAwesomeIcon icon={my_state.icon} size="xs" color={my_state.color} />);
