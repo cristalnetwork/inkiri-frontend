@@ -617,7 +617,7 @@ export const createProviderPaymentEx = (account_name, amount, provider_id, provi
     ).catch(
       (error) => {
         console.log(JSON.stringify(error));
-        res(error);
+        rej(error);
         
       }
     );
@@ -690,7 +690,7 @@ export const updateExternal             = (sender, request_id, state, attachment
     ).catch(
       (error) => {
         console.log(JSON.stringify(error));
-        res(error);
+        rej(error);
         
       }
     );
@@ -752,14 +752,14 @@ export const createExchangeRequest      = (account_name, amount, bank_account, a
     ).catch(
       (error) => {
         console.log(JSON.stringify(error));
-        res(error);
+        rej(error);
         
       }
     );
     /*
     , (error) => {
         console.log(JSON.stringify(error));
-        res(error);
+        rej(error);
         
       });
       */

@@ -203,6 +203,14 @@ const IuguFilter = (props) => {
             , undefined
             , props.intl) }
         
+        { form_helper.getSearchItem(_form
+            , filter
+            , 'search_text'
+            , searchText
+            , searchText
+            , undefined
+            , undefined)
+        }
         
         <Form.Item style={{alignSelf:'flex-end', alignItems:'flex-end', flex:1}}>
           <Button htmlType="submit" disabled={is_loading} type={buttonType}>
