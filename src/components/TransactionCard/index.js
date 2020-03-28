@@ -17,6 +17,17 @@ import TransactionTitle from '@app/components/TransactionCard/title';
 import Wage from '@app/components/TransactionCard/wage';
 import NameValueIcon from '@app/components/TransactionCard/name_value_icon';
 
+
+import { Button } from 'antd';
+import TransactionTitleAndAmount from '@app/components/TransactionCard/title_amount';
+import IuguAlias from '@app/components/TransactionCard/iugu_alias';
+import IuguHeader from '@app/components/TransactionCard/iugu_header';
+import IuguInvoice from '@app/components/TransactionCard/iugu_invoice';
+import ItemBlockchainLink from '@app/components/TransactionCard/item_blockchain_link';
+import ItemLink from '@app/components/TransactionCard/item_link';
+import ErrorItem from '@app/components/TransactionCard/item_error';
+import * as request_helper from '@app/components/TransactionCard/helper';
+
 import TransactionBankAccount from '@app/components/TransactionCard/bank_account';
 
 import ServiceCard from '@app/components/TransactionCard/service_card';
@@ -80,6 +91,72 @@ class TransactionCard extends Component {
     
   }
 
+  iuguInfo = () => {
+    const {request} = this.state;
+    if(!request.iugu)
+      return null;
+    const invoice = request.iugu;
+    console.log('invoice.state:', invoice.state)
+    const paid_title = (invoice.state==request_helper.iugu.STATE_ISSUED)
+      ? this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.paid_to'})
+      : this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.tried_to_paid_to'});
+
+    return (      
+        <>
+          <div style={{margin:'24px 0px', borderTop: '1px solid rgba(0,0,0,0.25)', width:'100%'}}></div>
+          
+          <TransactionTitle title={this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.iugu_payment'}) } button={(null)} />
+          <IuguHeader invoice={invoice} />
+          <TransactionTitleAndAmount title={this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.amount'})} amount={parseFloat(invoice.amount).toFixed(2)}/>
+          <IuguInvoice invoice={invoice} />
+          
+
+          <ItemLink 
+            link={null} 
+            href={JSON.parse(invoice.original).secure_url} 
+            text={this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.original_iugu_invoice'})} 
+            icon="file-invoice" 
+            icon_size="xs" 
+            is_external={true} />
+
+          <NameValueIcon 
+            name={this.props.intl.formatMessage({id:'pages.bankadmin.iugu.iugu_account'})}  
+            value={invoice.iugu_account} 
+            className="shorter" />
+          <NameValueIcon 
+            name={this.props.intl.formatMessage({id:'pages.bankadmin.iugu.paid_at'})}  
+            value={request_helper.formatUnix(invoice.paid_at)} 
+            className="shorter" />
+          <NameValueIcon 
+            name={this.props.intl.formatMessage({id:'components.TransactionTable.columns.issued_at'})}  
+            value={request_helper.formatUnix(invoice.issued_at)} 
+            className="shorter" />
+          <NameValueIcon 
+            name={this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.iugu_id'})}  
+            value={invoice.iugu_id} 
+            className="shorter" />
+          <NameValueIcon 
+            name={this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.origin_account'})}  
+            value={invoice.iugu_account}
+            className="shorter" />
+
+          <TransactionTitle 
+            title={ paid_title } />
+
+          <div className="ui-list">
+            <ul className="ui-list__content">
+              <IuguAlias profile={{alias:invoice.receipt_alias}} alone_component={false} />          
+            </ul>
+          </div>
+          
+          {(invoice.issued_tx_id)?(
+              <ItemBlockchainLink tx_id={invoice.issued_tx_id} title={ this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.issue_tx'}) } />
+              ):(null)}
+
+          
+      </>);
+  }
+  //` 
   render() {
     const { request, bank_account, uploader }   = this.state;
       
@@ -99,6 +176,8 @@ class TransactionCard extends Component {
                 {source.map(wage => <Wage key={Math.random()} wage={wage} />)}</>);
     }
     
+    //
+    const iugu_info           = this.iuguInfo (); 
     //
     const alert               = this.getAlert(request);
     const __blockchain_title  = globalCfg.api.isService(request)?formatMessage({id:'components.TransactionCard.index.response_transaction'}):null;
@@ -154,6 +233,7 @@ class TransactionCard extends Component {
           
           <TransactionAttachments request={request} uploader={uploader}/>
           
+          {iugu_info}
       </div>
     </>);
   }

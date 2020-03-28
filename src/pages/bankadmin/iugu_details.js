@@ -280,7 +280,7 @@ class iuguDetails extends Component {
     const buttons                   = this.getActionsForInvoice();
      
      //<Alert message={invoice.error} description="Cant fetch alias or there is no account related to invoice alias." type="error" showIcon/>
-    const paid_title = (invoice.state==request_helper.iugu.STATE_ISSUED_)
+    const paid_title = (invoice.state==request_helper.iugu.STATE_ISSUED)
       ? this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.paid_to'})
       : this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.tried_to_paid_to'});
     return (
@@ -306,7 +306,23 @@ class iuguDetails extends Component {
             name={this.props.intl.formatMessage({id:'pages.bankadmin.iugu.iugu_account'})}  
             value={invoice.iugu_account} 
             className="shorter" />
-
+          <NameValueIcon 
+            name={this.props.intl.formatMessage({id:'pages.bankadmin.iugu.paid_at'})}  
+            value={request_helper.formatUnix(invoice.paid_at)} 
+            className="shorter" />
+          <NameValueIcon 
+            name={this.props.intl.formatMessage({id:'components.TransactionTable.columns.issued_at'})}  
+            value={request_helper.formatUnix(invoice.issued_at)} 
+            className="shorter" />
+          <NameValueIcon 
+            name={this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.iugu_id'})}  
+            value={invoice.iugu_id} 
+            className="shorter" />
+          <NameValueIcon 
+            name={this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.origin_account'})}  
+            value={invoice.iugu_account}
+            className="shorter" />
+            
           <TransactionTitle 
             title={ paid_title } 
             button={<Button type="primary" onClick={this.setAlias} icon="edit" >{this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.upsert_alias'})}</Button>} />
@@ -377,7 +393,7 @@ class iuguDetails extends Component {
     
     const processButton = (<Button loading={pushingTx} size="large" onClick={() => this.processInvoice()} key="processButton" type="primary" title="" >{this.props.intl.formatMessage({id:'pages.bankadmin.iugu_details.re_process'})}</Button>);
     //
-    console.log(' ----------- invoice.state:',invoice.state)
+    // console.log(' ----------- invoice.state:',invoice.state)
     switch (invoice.state){
       case request_helper.iugu.STATE_ERROR:
       case request_helper.iugu.STATE_ISSUE_ERROR:

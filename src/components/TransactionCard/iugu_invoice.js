@@ -4,9 +4,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import InjectMessage from "@app/components/intl-messages";
 
 const IuguInvoice = ({invoice}) => {
+    // console.log(' ------------ typeof invoice.original', typeof invoice.original)
     const _i = (typeof invoice.original == 'string')
       ?JSON.parse(invoice.original)
       :invoice.original;
+
+    console.log(' *********** _i.items:',_i['items'])
+    console.log(' *********** invoice.original:',invoice.original)  
+    console.log(' *********** _i:', _i)
+    
     return(
       <div className="ui-list">
           <ul className="ui-list__content">
@@ -21,7 +27,7 @@ const IuguInvoice = ({invoice}) => {
                       </div>
                       <div className="ui-row__col ui-row__col--content">
                           <div className="ui-info-row__content">
-                              <div className="ui-info-row__title">{_i.items[0].description}</div>
+                              <div className="ui-info-row__title">{_i.items?_i.items[0].description:'NA'}</div>
                               <div className="ui-info-row__details name_value_row">
                                  <div className="row_name">
                                    <InjectMessage id="components.iugu_invoice.customer_name"/>

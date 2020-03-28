@@ -515,7 +515,7 @@ export const iugu = {
     //
   , iuguLink : (invoice, with_icon) => {
       const icon = (with_icon===undefined || with_icon)?(<FontAwesomeIcon icon="external-link-alt" />):(null);
-      const href = invoice.original.secure_url;
+      const href = JSON.parse(invoice.original).secure_url;
       const key = 'key_iugu_link_'+Math.random(); 
       return (<Button type="link" href={href} target="_blank" key={key} size={'default'} style={{color:'inherit', paddingLeft:0}}>IUGU original &nbsp; {icon}</Button>)
     }

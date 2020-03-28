@@ -148,9 +148,9 @@ class Operations extends Component {
     const {routes, active_tab, isMobile, page_keys} = this.state;
     const widget_key = page_keys[active_tab];
     
-    const content = (active_tab==DISPLAY_ALL_TXS)
-      ? (<TxListWidget the_key={widget_key} callback={this.onTransactionClick} />)
-      : (<RequestListWidget request_type={active_tab} the_key={widget_key} callback={this.onRequestClick} onRef={ref => (this.table_widget = ref)}/>);
+    // const content = (active_tab==DISPLAY_ALL_TXS)
+    //   ? (<TxListWidget the_key={widget_key} callback={this.onTransactionClick} />)
+    //   : (<RequestListWidget request_type={active_tab} the_key={widget_key} callback={this.onRequestClick} onRef={ref => (this.table_widget = ref)}/>);
     
     return (
       <>
@@ -160,19 +160,41 @@ class Operations extends Component {
         >
         </PageHeader>
 
-        <div className="styles standardList" style={{ marginTop: 24 }}>
-          <Card key={'card_master'}  
-            tabList={ Object.keys(tabs).map(key_tab => { return {key: key_tab, tab: this.props.intl.formatMessage({id:`pages.bankadmin.operations.tab.${tabs[key_tab]}`}) } } ) }
-            activeTabKey={active_tab}
-            onTabChange={ (key) => this.onTabChange(key)}
-            >
-
-            {content}
+        <Card
+          key="card_master"
+          className="styles listCard"
+          bordered={false}
+          style={{ marginTop: 24 }}
+          headStyle={{display:'none'}}
+        >
+          
+            <RequestListWidget request_type={active_tab} the_key={widget_key} callback={this.onRequestClick} onRef={ref => (this.table_widget = ref)}/>
     
-          </Card>
-        </div>
+        </Card>
       </>
     );
+    // return (
+    //   <>
+    //     <PageHeader
+    //       breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
+    //       title={this.props.intl.formatMessage({id:'pages.bankadmin.operations.title'})}
+    //     >
+    //     </PageHeader>
+
+    //     <div className="styles standardList" style={{ marginTop: 24 }}>
+          
+    //       <Card key={'card_master'}  
+    //         tabList={ Object.keys(tabs).map(key_tab => { return {key: key_tab, tab: this.props.intl.formatMessage({id:`pages.bankadmin.operations.tab.${tabs[key_tab]}`}) } } ) }
+    //         activeTabKey={active_tab}
+    //         onTabChange={ (key) => this.onTabChange(key)}
+    //         >
+
+    //         {content}
+    
+    //       </Card>
+    //     </div>
+    //   </>
+    // );
   }
 
 }

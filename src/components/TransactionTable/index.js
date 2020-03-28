@@ -196,7 +196,7 @@ class TransactionTable extends Component {
     
     if(this.state.mode==REQUEST_MODE_EXTRATO)
     {
-      const filter_obj = {limit, page, account_name, ...requests_filter, ...(filter||{})};
+      const filter_obj = {limit:limit.toString(), page:page.toString(), account_name, ...requests_filter, ...(filter||{})};
       return filter_obj;
       
     }
@@ -214,7 +214,7 @@ class TransactionTable extends Component {
           requests_filter.to=account_name;
         }
     }
-    const filter_obj = {limit, account_name, page, requested_type, ...requests_filter, ...(filter||{}), ...(account_name_filter||{})};
+    const filter_obj = {limit:limit.toString(), account_name, page, requested_type, ...requests_filter, ...(filter||{}), ...(account_name_filter||{})};
     // console.log(' ---- TransactionTable filter_obj:', filter_obj);
     // console.log(' ---- TransactionTable default filter:', filter)
     return filter_obj;
@@ -274,7 +274,7 @@ class TransactionTable extends Component {
 
     const has_received_new_data = (txs && txs.length>0);
 
-    
+    // console.log('has_received_new_data:', has_received_new_data,  '||txs.length:',txs.length, '| this.state.limit:', this.state.limit );
     const {page}   = this.state;
     const the_page = has_received_new_data?(page+1):page;
     this.setState({
@@ -282,7 +282,7 @@ class TransactionTable extends Component {
       pagination:       pagination, 
       txs:              _txs, 
       nonconfirmed_txs: nonconfirmed_txs,
-      can_get_more:     (has_received_new_data && txs.length==this.state.limit), 
+      can_get_more:     (has_received_new_data && txs.length>=this.state.limit), 
       loading:          false
     });
 
