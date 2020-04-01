@@ -74,12 +74,15 @@ export const searchPermissioningAccounts = (account_name) => new Promise( async(
     // const response = await jsonRpc.history_get_controlled_accounts(account_name);
     
     //curl -X POST "https://testnet.telosusa.io/v1/history/get_controlled_accounts" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"controlling_account\":\"cristaltoken\"}"
-    const path    = globalCfg.eos.endpoint + '/v1/history/get_controlled_accounts';
+    // const path    = globalCfg.eos.endpoint + '/v1/history/get_controlled_accounts';
+    const path    = globalCfg.eos.endpoint_ex + '/v1/history/get_controlled_accounts';
+    
     const method  = 'POST';
     const post_params = {'controlling_account':               account_name};
     console.log(' inkiriApi::createDeposit >> ABOUT TO POST', JSON.stringify(post_params))
     jwtHelper.apiCall(path, method, post_params)
     .then((response) => {
+        console.log(`DFUSE::searchPermissioningAccounts(${account_name})::response:`, response)
         if(!response || !response.controlled_accounts){
           rej('No controlling accounts');
           return;
