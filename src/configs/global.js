@@ -2,7 +2,7 @@
 *  APP VERSION
 * DO NOT CHANGE FOLLOWING LINE!!!!!!!!
 */
-const version = '1.0.11';
+const version = '1.0.12';
 /*
 *  ENV & BLOCKCHAIN CONFIGURATION!
 */
@@ -15,7 +15,7 @@ const EOS_TESTNET        = 'eos_testnet';
 const TELOS_TESTNET      = 'telos_testnet';
 const TELOS_MAINNET      = 'telos_mainnet';
 
-const env                = ENV_STAGING;
+const env                = ENV_PROD;
 const BLOCKCHAIN_NETWORK = TELOS_MAINNET;
 
 const language   = "english";
@@ -397,9 +397,11 @@ const eosio_net = {
   },
   [TELOS_MAINNET]: {
     customers                 : 'https://telos.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
-    endpoint                  : 'https://mainnet.telosusa.io',
+    // endpoint                  : 'https://mainnet.telosusa.io',
     // endpoint                  : 'https://telos.caleos.io',
+    endpoint                  : 'https://telos.eoscafeblock.com',
     endpoint_ex               : 'https://telos.eoscafeblock.com',
+    // endpoint_ex               : 'https://telos.caleos.io',
     history_endpoint          : 'https://telos.eoscafeblock.com',
     create_account            : 'https://app.telos.net/accounts/add',
     tx_url                    : 'https://telos.bloks.io/transaction/',
