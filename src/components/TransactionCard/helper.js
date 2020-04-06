@@ -25,6 +25,8 @@ export const formatDate = (date) => {
 }
 
 export const formatUnix = (date, _format='LLLL') => {
+  if(!date)
+    return 'N/D';
   let my_value = date;
   if(date.toString().length=='1570910442875'.length)
     my_value = date/1000;
