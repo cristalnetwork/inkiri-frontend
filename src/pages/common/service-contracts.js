@@ -70,7 +70,7 @@ class ServiceContracts extends Component {
     this.ServiceContractChargeCallback  = this.ServiceContractChargeCallback.bind(this);
     this.renderFooter                 = this.renderFooter.bind(this); 
     this.onNewData                    = this.onNewData.bind(this); 
-    this.goBack                         = this.goBack.bind(this); 
+    this.goBack                       = this.goBack.bind(this); 
   }
   goBack(){
     this.props.history.goBack();

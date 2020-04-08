@@ -109,7 +109,7 @@ class ServiceRequests extends Component {
 
     const request_filter = {account_name:this.props.actualAccountName
       , page:           "0"
-      , limit:           "100"
+      , limit:          "100"
       , requested_type: globalCfg.api.TYPE_SERVICE 
       , state:          `${globalCfg.api.STATE_REQUESTED},${globalCfg.api.STATE_REJECTED},${globalCfg.api.STATE_ERROR},${globalCfg.api.STATE_CANCELED}`
       , from:           this.props.actualAccountName
