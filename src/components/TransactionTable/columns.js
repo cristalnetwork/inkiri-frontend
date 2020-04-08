@@ -1093,7 +1093,7 @@ export const columnsForSalaries = (callback, remove_callback, job_positions) => 
               </div>
               <div className="row_value wider">
                 <span className="row_tx_title">{request_helper.getProfileName(record.member)}</span> 
-                <br/>@{record.member.account_name} 
+                <br/>@{record.member.account_name}
               </div>   
             </span>)
         }
@@ -1362,7 +1362,7 @@ export const columnsForServiceContract = (callback) => {
             </div>
             <div className="row_value wider">
               <span className="row_tx_title">@{account}</span> 
-               
+              <br/>#{record.service_id} 
             </div>   
           </span>)
         }
