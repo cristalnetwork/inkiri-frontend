@@ -25,7 +25,7 @@ import RequestListWidget from '@app/components/request-list-widget';
 
 import { injectIntl } from "react-intl";
 
-class ServiceContracts extends Component {
+class ServiceRequests extends Component {
   constructor(props) {
     super(props);
     const props_provider = (props && props.location && props.location.state && props.location.state.provider)? props.location.state.provider : null;
@@ -43,8 +43,8 @@ class ServiceContracts extends Component {
       intl:               {}
     };
 
-    this.onRequestClick             = this.onRequestClick.bind(this);
-    this.goBack                         = this.goBack.bind(this); 
+    this.onRequestClick   = this.onRequestClick.bind(this);
+    this.goBack           = this.goBack.bind(this); 
   }
 
   goBack(){
@@ -54,7 +54,7 @@ class ServiceContracts extends Component {
   componentDidMount = async () => {
 
     const {formatMessage} = this.props.intl;
-    const title = formatMessage({id:'pages.common.service_requests.title'});
+    const title           = formatMessage({id:'pages.common.service_requests.title'});
     this.setState({intl:{title}})
 
     const { location } = this.props;
@@ -65,7 +65,7 @@ class ServiceContracts extends Component {
           service:  location.state.service
       }, async () => {
           
-          // const _y_dummy = await this.loadServiceContracts();  
+          // const _y_dummy = await this.loadServiceRequests();  
       });
     }
   } 
@@ -108,10 +108,12 @@ class ServiceContracts extends Component {
     // breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
 
     const request_filter = {account_name:this.props.actualAccountName
-      , page:"0"
-      , requested_type:globalCfg.api.TYPE_SERVICE 
-      , from:this.props.actualAccountName
-      , service_id:service._id}
+      , page:           "0"
+      , limit:           "100"
+      , requested_type: globalCfg.api.TYPE_SERVICE 
+      , state:          `${globalCfg.api.STATE_REQUESTED},${globalCfg.api.STATE_REJECTED},${globalCfg.api.STATE_ERROR},${globalCfg.api.STATE_CANCELED}`
+      , from:           this.props.actualAccountName
+      , service_id:     service._id}
     return (
       <>
         <PageHeader
@@ -162,5 +164,5 @@ export default  (withRouter(connect(
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch),
         loadBalance:             bindActionCreators(balanceRedux.loadBalance, dispatch)
     })
-)(injectIntl(ServiceContracts)))
+)(injectIntl(ServiceRequests)))
 );
