@@ -92,8 +92,8 @@ function* messageHandlerSaga(message) {
 
 
 function* initMessaging () {
-  const { token } = store.getState().messaging;
-  if(token)
+  const { registrationToken } = store.getState().messaging;
+  if(registrationToken)
     return;
   yield requestPermissionSaga()
   do_log && console.log('PUSH-NOTIFICATION::requested ok!')

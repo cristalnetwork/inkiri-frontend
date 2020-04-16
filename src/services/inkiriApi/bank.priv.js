@@ -106,12 +106,15 @@ export const setPushInfo = (account_name, token) =>   new Promise((res,rej)=> {
   
   const path    = globalCfg.api.endpoint + `/notifications/${account_name}/${token}`;
   const method  = 'POST';
-  jwtHelper.apiCall(path, method, post_params)
+  console.log('INKIRIAPI::setPushInfo:', path)
+  jwtHelper.apiCall(path, method)
     .then((data) => {
         console.log(' inkiriApi::setPushInfo >> RESPONSE', JSON.stringify(data))
+        console.log('INKIRIAPI::setPushInfo: OK', data )
         res(data)
       }, (ex) => {
         console.log(' inkiriApi::setPushInfo >> ERROR ', JSON.stringify(ex))
+        console.log('INKIRIAPI::setPushInfo: ERROR', ex)
         res({error:ex});
       });
 });

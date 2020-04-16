@@ -81,8 +81,12 @@ function* tryLoginSaga({ type, payload }) {
                 , current_account:  accounts.personalAccount
                 , password:         password
                 , profile:          accounts.profile }))
-        const { token } = store.getState().messaging;
-        const x = await api.setPushInfo(account_name, token);
+        const { registrationToken } = store.getState().messaging;
+        console.log('LOGIN-REDUX::tryLoginSaga::pushong token:', registrationToken, account_name)
+        if(registrationToken)
+        {  
+          const x = yield api.setPushInfo(account_name, registrationToken);
+        }
     } catch (e) {
         console.log(' >> LOGIN REDUX ERROR#1', e)
         yield put({ type: TRY_LOGIN_ERROR, payload: {exception:e} })
@@ -141,8 +145,12 @@ function* trySwitchAccount2Saga({ type, payload }) {
     yield put(setLoginData(stateData))
     yield put({ type: TRY_SWITCH_END })
 
-    const { token } = store.getState().messaging;
-    const x = await api.setPushInfo(account_name, token);
+    const { registrationToken } = store.getState().messaging;
+    console.log('LOGIN-REDUX::trySwitchAccount2Saga::pushong token:', registrationToken, account_name)
+    if(registrationToken)
+    {  
+      const x = yield api.setPushInfo(account_name, registrationToken);
+    }
     
     setTimeout(()=> {
       history.replace('/');
