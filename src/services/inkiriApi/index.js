@@ -36,6 +36,8 @@ function prettyJson(input){
 
 const do_log = false;
 
+export const setPushInfo  = async (account_name, token) => bank.setPushInfo(account_name, token);
+
 /*
 * Retrieves Smart Contract's Bank accounts profile list.
 */

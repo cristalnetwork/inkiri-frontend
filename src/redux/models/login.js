@@ -81,6 +81,8 @@ function* tryLoginSaga({ type, payload }) {
                 , current_account:  accounts.personalAccount
                 , password:         password
                 , profile:          accounts.profile }))
+        const { token } = store.getState().messaging;
+        const x = await api.setPushInfo(account_name, token);
     } catch (e) {
         console.log(' >> LOGIN REDUX ERROR#1', e)
         yield put({ type: TRY_LOGIN_ERROR, payload: {exception:e} })
@@ -126,7 +128,6 @@ function* trySwitchAccount2Saga({ type, payload }) {
     }
 
     const stateData = getLoginDataFromStorage(data, account_name);
-
     const profile = yield api.bank.getProfile(account_name);
     stateData['profile'] = profile;
     // console.log(' LOGIN REDUX >> trySwitchAccount2Saga >>putting new data', JSON.stringify(stateData));
@@ -140,6 +141,9 @@ function* trySwitchAccount2Saga({ type, payload }) {
     yield put(setLoginData(stateData))
     yield put({ type: TRY_SWITCH_END })
 
+    const { token } = store.getState().messaging;
+    const x = await api.setPushInfo(account_name, token);
+    
     setTimeout(()=> {
       history.replace('/');
     } , 500);

@@ -102,6 +102,20 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
 })
 
 
+export const setPushInfo = (account_name, token) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.endpoint + `/notifications/${account_name}/${token}`;
+  const method  = 'POST';
+  jwtHelper.apiCall(path, method, post_params)
+    .then((data) => {
+        console.log(' inkiriApi::setPushInfo >> RESPONSE', JSON.stringify(data))
+        res(data)
+      }, (ex) => {
+        console.log(' inkiriApi::setPushInfo >> ERROR ', JSON.stringify(ex))
+        res({error:ex});
+      });
+});
+
 
 export const createDeposit = (account_name, amount, currency) =>   new Promise((res,rej)=> {
   
