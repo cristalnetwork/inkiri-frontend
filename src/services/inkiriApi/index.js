@@ -34,6 +34,8 @@ function prettyJson(input){
   return JSON.stringify(input, null, 2)
 }
 
+const do_log = false;
+
 /*
 * Retrieves Smart Contract's Bank accounts profile list.
 */
@@ -680,7 +682,6 @@ const getPermissionedAccountsForAccount = (account_name) => new Promise((res, re
 
 export const login = async (account_name, private_key) => {
   
-  const do_log = true;
   // 1.- Obtengo la publica de la privada.
   const pubkey  = ecc.privateToPublic(private_key); 
   
@@ -817,7 +818,7 @@ export const login = async (account_name, private_key) => {
     otherPersonalAccounts : personalAccounts
   };
 
-  console.log(' ============================================== inkiriApi::login >> result: '
+  do_log && console.log(' ============================================== inkiriApi::login >> result: '
       , JSON.stringify(ret));
 
   return ret;

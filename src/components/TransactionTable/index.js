@@ -112,11 +112,11 @@ class TransactionTable extends Component {
   }
   
   onNewTx = (tx) => {
-    console.log('========= onNewTx#1')
+    // console.log('========= onNewTx#1')
     const new_txs          = Array.isArray(tx)?tx:[tx];
     const nonconfirmed_txs = this.state.nonconfirmed_txs;
     const txs              = this.state.txs;
-    console.log('========= onNewTx#2')
+    // console.log('========= onNewTx#2')
     const filtered_txs     = new_txs.filter(new_tx => 
         nonconfirmed_txs.find(tx=>tx.tx_id==new_tx.tx_id)===undefined 
           && txs.find(tx=>tx.tx_id==new_tx.tx_id)===undefined   
@@ -143,7 +143,7 @@ class TransactionTable extends Component {
   }
 
   applyFilter = (filter) =>{
-    console.log(' -- table-widget::applyFilter:', filter)
+    // console.log(' -- table-widget::applyFilter:', filter)
     this.setState({
       requests_filter:filter
     },() => {
@@ -238,9 +238,9 @@ class TransactionTable extends Component {
     const that       = this;
     let data = null;
 
-    console.log(' ====================== EXTRATO!! ')
-    console.log(' ====================== filter -> ', filter_obj)
-    console.log(' ====================== mode -> ', this.state.mode)
+    // console.log(' ====================== EXTRATO!! ')
+    // console.log(' ====================== filter -> ', filter_obj)
+    // console.log(' ====================== mode -> ', this.state.mode)
     try{
       if(this.state.mode==REQUEST_MODE_EXTRATO)  
         data = await gqlRequestI18nService.extrato(filter_obj, this.props.intl);
@@ -317,7 +317,7 @@ class TransactionTable extends Component {
     return{
         selectedRowKeys: selectedRowKeys,
         onChange: (selectedRowKeys, selectedRows) => {
-          console.log(`::onChange:: selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+          // console.log(`::onChange:: selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
           // const __selectedRows = selectedRows.filter(row=>row.state===globalCfg.api.STATE_RECEIVED);
           const __selectedRows = selectedRows;
           this.setState({selectedRows:__selectedRows, selectedRowKeys:__selectedRows.map(row=>row._id)}
@@ -329,9 +329,9 @@ class TransactionTable extends Component {
   };
 
   onChange = (date, dateString) => {
-    console.log('date:', date);
-    console.log('dateString:', dateString);
-    console.log('unix:', moment(date).unix());
+    // console.log('date:', date);
+    // console.log('dateString:', dateString);
+    // console.log('unix:', moment(date).unix());
     this.setState({payment_date:moment(date).unix()})
   }
 
@@ -340,10 +340,10 @@ class TransactionTable extends Component {
   handleREMMenuClick = (e) => {
     if(typeof e === 'object' && typeof e.preventDefault === 'function')
       e.preventDefault();
-    console.log('--------');
-    console.log('click: ', e);
-    console.log('action: ', e.item.props.action)
-    console.log('href: ', e.item.props.href)
+    // console.log('--------');
+    // console.log('click: ', e);
+    // console.log('action: ', e.item.props.action)
+    // console.log('href: ', e.item.props.href)
     this.downloadTxtFile(e.item.props.href);
   }
 
@@ -485,22 +485,22 @@ class TransactionTable extends Component {
         data = await gqlService.exportRequests(filter_obj);
       
       this.setState({loading:false});
-      console.log(data)
+      // console.log(data)
       if(data && data.file_id)
       {
-        console.log('SETTING STATE')
+        // console.log('SETTING STATE')
         this.setState( { sheet_href: `https://docs.google.com/spreadsheets/d/${data.file_id}` }
                         , () => { 
-                          console.log('CALLING BUTTON?')
+                          // console.log('CALLING BUTTON?')
                          if(!this.myExportRef)    
                             return;
-                          console.log('YES')
+                          // console.log('YES')
                           this.myExportRef.current.click();
                         });
         
         return;
       } 
-      console.log('NOooooooooooooooo')
+      // console.log('NOooooooooooooooo')
       if(data && data.error)
       {
         components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}), data.error);

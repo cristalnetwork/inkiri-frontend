@@ -94,7 +94,7 @@ const RequestListWidget = (props) => {
 
   var t_id3 = null;
   const onTableChange = (key, txs) => {
-    console.log('onTableChange', key)
+    // console.log('onTableChange', key)
     clearTimeout(t_id3);
     t_id3 = setTimeout(()=> {
       buildStats(txs)
@@ -103,7 +103,7 @@ const RequestListWidget = (props) => {
 
   const buildStats = (txs) => {
     
-    console.log('buildStats')
+    // console.log('buildStats')
     const money_in  = txs.filter( tx => request_helper.blockchain.is_money_in(tx, props.actualAccountName))
                     .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
@@ -119,7 +119,7 @@ const RequestListWidget = (props) => {
         , buildItemSimple(props.intl.formatMessage( { id:'components.request-list-widget.stats.transactions-count'}) , (count||0))
       ];
       
-    console.log('...about to set stats')
+    // console.log('...about to set stats')
     setStats(items);
   }
 

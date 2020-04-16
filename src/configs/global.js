@@ -15,7 +15,7 @@ const EOS_TESTNET        = 'eos_testnet';
 const TELOS_TESTNET      = 'telos_testnet';
 const TELOS_MAINNET      = 'telos_mainnet';
 
-const env                = ENV_PROD;
+const env                = ENV_DEV;
 const BLOCKCHAIN_NETWORK = TELOS_MAINNET;
 
 const language   = "english";
@@ -436,5 +436,15 @@ const eos = {
   },
   
 }
-
-export { language, api, currency, dfuse, bank, eos, env, version };
+const firebase = {
+  apiKey:               'AIzaSyDTc_r8rfooRQMZrcgEIdGQEbXYyJoG11s',
+  authDomain:           'cristalnetwork-a4720.firebaseapp.com',
+  databaseURL:          'https://cristalnetwork-a4720.firebaseio.com',
+  projectId:            'cristalnetwork-a4720',
+  storageBucket:        'cristalnetwork-a4720.appspot.com',
+  messagingSenderId:    '953654846878',
+  appId:                '1:953654846878:web:b4b5946dcfea3750ef628f',
+  measurementId:        'G-HVBRMHZBDV',
+  vapid:                'BL5yhFPcmYQmRmeagmGUycnk5HrY-QvBr7AevdKeD52XU110KGpxSQlaD5qs5x6vfZdpPSrKKcKasPZ1RLTP61A'
+};
+export { language, api, currency, dfuse, bank, eos, env, version , firebase};

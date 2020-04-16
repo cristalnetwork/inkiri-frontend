@@ -21,13 +21,14 @@ export const loadData     = (account_name, account_type) =>({ type: LOAD_DATA, p
 export const setData      = (key, data)                  =>({ type: SET_DATA,  payload: {key:key, data:data}});
 //Eventos que requieren del async
 
+const do_log = false;
 function* tryLoadConfigSaga () {
   
   try
   {
-    console.log(' about to load gql')
+    do_log && console.log(' about to load gql')
     const data = yield gqlService.loadConfig();
-    console.log(' gql loaded', data)
+    do_log && console.log(' gql loaded', data)
     if(data) {
       yield put(setConfig(data))
     }
@@ -37,7 +38,7 @@ function* tryLoadConfigSaga () {
     return;
   }
   catch(e){
-    console.log(e);
+    do_log && console.log(e);
     yield put({ type: END_LOAD_CONFIG })
   }
   
@@ -49,7 +50,7 @@ function* tryLoadDataSaga ({type, payload}) {
   {
     return;
   } 
-  console.log('graphql redux:', account_type, account_name)
+  do_log && console.log('graphql redux:', account_type, account_name)
   try
   {
     if(globalCfg.bank.isAdminAccount(account_type)){
@@ -76,7 +77,7 @@ function* tryLoadDataSaga ({type, payload}) {
     return;
   }
   catch(e){
-    console.log(e);
+    do_log && console.log(e);
     yield put({ type: END_LOAD_DATA })
   }
   
@@ -84,13 +85,13 @@ function* tryLoadDataSaga ({type, payload}) {
 
 function* initGraphqlReduxSaga () {
   // yield put({type: core.ACTION_START, payload: { loadCurrencyStats: 'Loading currency stats'}})
-  console.log( ' # core.INIT@graphql-saga ' )
+  do_log && console.log( ' # core.INIT@graphql-saga ' )
   yield call(tryLoadConfigSaga)
   // yield put({type: core.ACTION_END, payload: 'loadCurrencyStats'})
 }
 
 //Se envan las sagas a redux estableciendo que y cuantas veces dispara la función
-console.log(' ... store.injectSaga(graphql)...')
+do_log && console.log(' ... store.injectSaga(graphql)...')
 store.injectSaga('graphql', [
   // takeEvery(core.INIT_READY_TO_START, initGraphqlReduxSaga),
   takeEvery(core.INIT, initGraphqlReduxSaga),
