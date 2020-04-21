@@ -76,10 +76,25 @@ function* registerMessageHandlerSaga()
   do_log && console.log('PUSH-NOTIFICATION::messages listener REGISTERED!')
 }
 
+/*
+  Message structure:
+  {
+    message : {
+      data:{
+        account_name: "dargonarbizz"
+        , amount: "8"
+        , body: "type_payment@state_requested by atomakinnaka to dargonarbizz. Amount: 8.00. "
+        , message: "type_payment@state_requested by atomakinnaka to dargonarbizz. Amount: 8.00. "
+        , request_counter_id: "4041"
+        , title: "New TRANSITION_NEW_REQUEST"
+      }    
+  }}
+*/
 function* messageHandlerSaga(message) {
   // console.log(" ============================ onMessage", JSON.stringify(message.data))
   yield put({type: ON_MESSAGE, payload: {message : {read:false, message:message, mode: 'auto'}}})
 }
+
 
 // function* OLDmessageHandlerSaga() {
 //   const messageChannel = rsf.messaging.channel()

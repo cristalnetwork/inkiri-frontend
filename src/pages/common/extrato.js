@@ -40,8 +40,6 @@ class Extrato extends Component {
       
       isMobile:            props.isMobile,
 
-      pushNotifications :  props.pushNotifications,
-
       page_key_values:     props.page_key_values,
       // active_tab:          utils.twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_tab', DISPLAY_ALL_TXS)
       active_tab:          utils.twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_tab', DISPLAY_REQUESTS)
@@ -89,12 +87,6 @@ class Extrato extends Component {
         new_state = {...new_state, isMobile:this.props.isMobile};
       }
 
-      if(!utils.arraysEqual(this.state.pushNotifications, this.props.pushNotifications) )
-      {
-        new_state = {...new_state, pushNotifications: this.props.pushNotifications};
-        console.log('EXTRATO::ON pushNotifications:', this.props.pushNotifications)
-      }
-
       if(prevProps.filterKeyValues !== this.props.filterKeyValues)
       {
         // new_state = {...new_state, filter: this.props.filterKeyValues};        
@@ -134,7 +126,6 @@ class Extrato extends Component {
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={this.props.intl.formatMessage({id:'pages.common.extrato.title'})}
           subTitle={this.props.intl.formatMessage({id:'pages.common.extrato.list_title.requests'}) }
-          extra={[<Button key="update_push_notifications" onClick={()=>this.props.getPushNotifications()} size="small">Push Notifications</Button>]}
         />
 
         <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
@@ -166,13 +157,10 @@ export default  (withRouter(connect(
 
         page_key_values:      pageRedux.pageKeyValues(state),
 
-        pushNotifications:    messagingRedux.messages(state),
-
     }),
     (dispatch)=>({
         setPageKeyValue:         bindActionCreators(pageRedux.setPageKeyValue, dispatch),
         subscribePushNotifications:    bindActionCreators(messagingRedux.registerIfNot, dispatch),
-        getPushNotifications:    bindActionCreators(messagingRedux.doReadMessages, dispatch),
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(injectIntl(Extrato))));
