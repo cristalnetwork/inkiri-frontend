@@ -14,9 +14,10 @@ const ENV_PROD           = 'prod';
 const EOS_TESTNET        = 'eos_testnet';
 const TELOS_TESTNET      = 'telos_testnet';
 const TELOS_MAINNET      = 'telos_mainnet';
+const LOCAL_TESTNET      = 'local_testnet';
 
 const env                = ENV_DEV;
-const BLOCKCHAIN_NETWORK = TELOS_MAINNET;
+const BLOCKCHAIN_NETWORK = LOCAL_TESTNET;
 
 const language   = "english";
 
@@ -377,12 +378,13 @@ const eosio_net = {
     endpoint                  : 'https://jungle2.cryptolions.io:443',
     endpoint_ex               : 'https://jungle2.cryptolions.io:443',
     endpoint_scope            : 'https://jungle2.cryptolions.io:443',
+    history_endpoint          : 'https://jungle2.cryptolions.io:443', 
     create_account            : 'https://api.monitor.jungletestnet.io/#account',
     tx_url                    : 'https://jungle.bloks.io/transaction/',
     account_url               : 'https://jungle.bloks.io/account/',
     info_link                 : 'https://jungle.bloks.io',
     info                      : 'EOS TESTNET',
-    currency_symbol           : 'ELOS',
+    currency_symbol           : 'EOS',
 
   },
   [TELOS_TESTNET]: {
@@ -413,7 +415,20 @@ const eosio_net = {
     info_link                 : 'https://telos.bloks.io',
     info                      : 'TELOS MAINNET',
     currency_symbol           : 'TLOS'
-  }
+  },
+  [LOCAL_TESTNET]:  {
+    customers                 : '#',
+    endpoint                  : 'http://localhost:8888',
+    endpoint_ex               : 'http://localhost:8888',
+    endpoint_scope            : 'http://localhost:8888',
+    history_endpoint          : 'http://localhost:8888',
+    create_account            : '#',
+    tx_url                    : 'http://localhost:8888/v2/history/get_transaction?id=',
+    account_url               : 'http://localhost:8888/v2/state/get_account?account=',
+    info_link                 : 'http://localhost:8888/v2/docs/index.html',
+    info                      : 'EOS Local Single-Node Testnet',
+    currency_symbol           : 'EOS',
+  },
 }
 const eos = {
   ...eosio_net[BLOCKCHAIN_NETWORK],
