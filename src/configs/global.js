@@ -17,7 +17,7 @@ const TELOS_MAINNET      = 'telos_mainnet';
 const LOCAL_TESTNET      = 'local_testnet';
 
 const env                = ENV_DEV;
-const BLOCKCHAIN_NETWORK = LOCAL_TESTNET;
+const BLOCKCHAIN_NETWORK = TELOS_MAINNET;
 
 const language   = "english";
 
@@ -376,7 +376,7 @@ const eosio_net = {
   [EOS_TESTNET]:  {
     customers                 : 'https://jungle.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
     endpoint                  : 'https://jungle2.cryptolions.io:443',
-    endpoint_ex               : 'https://jungle2.cryptolions.io:443',
+    endpoint_long_tx          : 'https://jungle2.cryptolions.io:443',
     endpoint_scope            : 'https://jungle2.cryptolions.io:443',
     history_endpoint          : 'https://jungle2.cryptolions.io:443', 
     create_account            : 'https://api.monitor.jungletestnet.io/#account',
@@ -390,7 +390,7 @@ const eosio_net = {
   [TELOS_TESTNET]: {
     customers                 : 'https://telos-test.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
     endpoint                  : 'https://testnet.telosusa.io',
-    endpoint_ex               : 'https://testnet.telosusa.io',
+    endpoint_long_tx          : 'https://testnet.telosusa.io',
     endpoint_scope            : 'https://testnet.telosusa.io',
     history_endpoint          : 'https://testnet.telosusa.io',
     create_account            : 'https://app.telos.net/testnet/developers',
@@ -402,13 +402,21 @@ const eosio_net = {
   },
   [TELOS_MAINNET]: {
     customers                 : 'https://telos.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
-    // endpoint                  : 'https://mainnet.telosusa.io',
-    // endpoint                  : 'https://telos.caleos.io',
-    endpoint                  : 'https://telos.eoscafeblock.com',
-    endpoint_ex               : 'https://telos.eoscafeblock.com',
-    // endpoint_ex               : 'https://telos.caleos.io',
-    endpoint_scope            : 'https://mainnet.telosusa.io',
+    
+    endpoint                  : 'https://telos.caleos.io',
+    endpoint_long_tx          : 'https://telos.caleos.io',
+    endpoint_scope            : 'https://telos.caleos.io',
     history_endpoint          : 'https://telos.eoscafeblock.com',
+
+    // endpoint                  : 'https://mainnet.telosusa.io',
+    // endpoint_long_tx          : 'https://mainnet.telosusa.io',
+    // endpoint_scope            : 'https://mainnet.telosusa.io',
+    // history_endpoint          : 'https://mainnet.telosusa.io',
+
+    // endpoint                  : 'https://telos.eoscafeblock.com',
+    // endpoint_long_tx          : 'https://telos.eoscafeblock.com',
+    // history_endpoint          : 'https://telos.eoscafeblock.com',
+    
     create_account            : 'https://app.telos.net/accounts/add',
     tx_url                    : 'https://telos.bloks.io/transaction/',
     account_url               : 'https://telos.bloks.io/account/',
@@ -419,7 +427,7 @@ const eosio_net = {
   [LOCAL_TESTNET]:  {
     customers                 : '#',
     endpoint                  : 'http://localhost:8888',
-    endpoint_ex               : 'http://localhost:8888',
+    endpoint_long_tx          : 'http://localhost:8888',
     endpoint_scope            : 'http://localhost:8888',
     history_endpoint          : 'http://localhost:8888',
     create_account            : '#',
