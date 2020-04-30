@@ -132,7 +132,7 @@ const getKeyAccountsImpl = async (public_key) => {
   // console.log(' ########## getKeyAccounts:', JSON.stringify(response));
   // return response?response.account_names:[];
 
-  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint_ex);
+  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint_long_tx);
   const response  = await jsonRpc.history_get_key_accounts(public_key);
   console.log(' ########## getKeyAccounts:', JSON.stringify(response));
   return response?response.account_names:[];
@@ -199,7 +199,7 @@ const pushTX = async (tx, privatekey, use_v2) => {
 	const signatureProvider = new JsSignatureProvider([privatekey])
   // const rpc = new JsonRpc(globalCfg.dfuse.base_url)
   const endpoint = use_v2==true
-    ?globalCfg.eos.endpoint_ex
+    ?globalCfg.eos.endpoint_long_tx
     :globalCfg.eos.endpoint;
   const rpc = new JsonRpc(endpoint)
   const api = new Api({
