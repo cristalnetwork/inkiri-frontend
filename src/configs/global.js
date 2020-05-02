@@ -21,9 +21,11 @@ const BLOCKCHAIN_NETWORK = EOS_TESTNET;
 
 const language   = "english";
 
+const contract_account = "labisteste21";
+
 const currency = {
-  token:            "labisteste21",
-  issuer:           "labisteste21",
+  token:            contract_account,
+  issuer:           contract_account,
   name:             "INKIRI",
   symbol:           "IK$",
   eos_symbol:       "INK",
@@ -54,8 +56,8 @@ const currency = {
 };
 
 const bank = {
-  contract:                "labisteste21",
-  issuer:                  "labisteste21",
+  contract:                contract_account,
+  issuer:                  contract_account,
   table_customers:         "customer", 
   table_customers_action:  "upsertcust",
   table_customers_delete:  "erasecust", 
@@ -64,9 +66,9 @@ const bank = {
   table_paps_delete:       'erasepap', 
   table_paps_charge:       'chargepap',
 
-  exchange_account:        "labisteste21",
-  provider_account:        "labisteste21",
-  withdraw_account:        "labisteste21",
+  exchange_account:        contract_account,
+  provider_account:        contract_account,
+  withdraw_account:        contract_account,
   
   // HACK from server's config
   PAYMENT_VEHICLE_INKIRI :    'payment_vehicle_inkiri', //empresa
