@@ -136,25 +136,29 @@ const getKeyAccountsImpl = async (public_key) => {
   // console.log(' ########## getKeyAccounts:', JSON.stringify(response));
   // return response?response.account_names:[];
 
-  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint_ex);
-  const response  = await jsonRpc.history_get_key_accounts(public_key);
-  console.log(' ########## getKeyAccounts:', JSON.stringify(response));
-  return response?response.account_names:[];
+  // const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint_long_tx);
+  // const response  = await jsonRpc.history_get_key_accounts(public_key);
+  // console.log(' ########## getKeyAccounts:', JSON.stringify(response));
+  // return response?response.account_names:[];
 
-  // const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
-  // try{
-  //   const response = await jsonRpc.get_key_accounts(public_key);
-  //   console.log(response.account_names);
+  
 
-  //   if(!response.account_names){
-  //     rej('No name for given public key');
-  //     return;
-  //   }
-  //   res(response.account_names);
-  // }catch(ex){
-  //   console.log('error', ex)
-  //   rej(ex);
-  // }
+  try{
+    //curl -X GET "https://jungle2.cryptolions.io/v2/state/get_key_accounts?public_key=EOS7wB5NGGnDcw676aSqwe5tmmND1ZffDr2qehbxUCGwoXfbrBAbR" -H "accept: application/json"
+
+    const path         = globalCfg.eos.endpoint_history_v2 + '/v2/state/get_key_accounts';
+    const method       = 'GET';
+    const query_string = `?public_key=${public_key}`
+    const options      = { method: method};
+    const response     = await fetch(path+query_string, options);
+    const responseJSON = await response.json();
+    console.log('----responseJSON:',responseJSON)
+    return (responseJSON.account_names || []);
+   }catch(ex){
+    console.log('error', ex)
+    return[];
+  }
+  
 }
 
 
