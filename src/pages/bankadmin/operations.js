@@ -26,46 +26,27 @@ import * as columns_helper from '@app/components/TransactionTable/columns';
 import * as utils from '@app/utils/utils';
 import * as ui_helper from '@app/components/helper';
 
-import { DISPLAY_PDA, DISPLAY_EXTERNAL, DISPLAY_ALL_TXS, DISPLAY_REQUESTS} from '@app/components/TransactionTable';
+import { DISPLAY_REQUESTS} from '@app/components/TransactionTable';
 
 import { injectIntl } from "react-intl";
-
-const { TabPane } = Tabs;
-
-
-const tabs = {
-  [DISPLAY_REQUESTS] :  'requests', 
-  [DISPLAY_ALL_TXS] :   'blockchain_transactions',       
-  
-  // [DISPLAY_PDA] :       'Deposits & Withdraws requests', 
-  // [DISPLAY_EXTERNAL] :  'External transfers requests',   
-}
 
 class Operations extends Component {
   constructor(props) {
     super(props);
 
-    
+    const filter_key = `${props.location.pathname}_filter`;
+    const filter     = props.page_key_values && props.page_key_values[filter_key] || {};
+
     this.state = {
       page_key:            props.location.pathname,
+      filter_key:          filter_key,
+      filter:              filter,
       routes :             routesService.breadcrumbForPaths(props.location.pathname),
       
-      page_keys: {
-         [DISPLAY_ALL_TXS] :   `${props.location.pathname}_${DISPLAY_ALL_TXS}`,
-         [DISPLAY_PDA] :       `${props.location.pathname}_${DISPLAY_PDA}`,
-         [DISPLAY_EXTERNAL] :  `${props.location.pathname}_${DISPLAY_EXTERNAL}`,
-         [DISPLAY_REQUESTS] :  `${props.location.pathname}_${DISPLAY_REQUESTS}`
-       },
-      
       need_refresh:        {},  
-
-      page_key_values:     props.page_key_values,
-      active_tab:          utils .twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_tab', DISPLAY_REQUESTS)
-      // active_tab:           DISPLAY_ALL_TXS
+      keep_search:         this.props.location && this.props.location.state && this.props.location.state.keep_search,
+      page_key_values:     props.page_key_values
     };
-
-
-    this.onTabChange                = this.onTabChange.bind(this);
     
     this.onTransactionClick         = this.onTransactionClick.bind(this);
     this.onRequestClick             = this.onRequestClick.bind(this);
@@ -97,61 +78,36 @@ class Operations extends Component {
   }
 
   componentDidMount(){
+
   } 
 
 
   componentDidUpdate(prevProps, prevState) 
   {
-      let new_state = {};
-      if(prevProps.filterKeyValues !== this.props.filterKeyValues)
-      {
-        // new_state = {...new_state, filter: this.props.filterKeyValues};        
-      }
-
-      if(prevProps.page_key_values !== this.props.page_key_values )
-      {
-        const active_tab = utils .twoLevelObjectValueOrDefault(this.props.page_key_values, this.props.location.pathname, 'active_tab', DISPLAY_ALL_TXS)
-        new_state = {...new_state
-            , page_key_values: this.props.page_key_values
-            , active_tab: active_tab};        
-
-      }
-
-      if(Object.keys(new_state).length>0)      
-        this.setState(new_state);
-  }
-
-  // computeStats(txs){
-  //   let stats = this.currentStats();
-  //   if(txs===undefined)
-  //     txs = this.state.txs;
-  //   const money_in  = txs.filter( tx => request_helper.blockchain.isNegativeTransaction(tx)===false 
-  //                                       && request_helper.blockchain.isValidTransaction(tx))
-  //                   .map(tx =>tx.amount)
-  //                   .reduce((acc, amount) => acc + Number(amount), 0);
-  //   const money_out = txs.filter( tx => request_helper.blockchain.isNegativeTransaction(tx)
-  //                                       && request_helper.blockchain.isValidTransaction(tx))
-  //                   .map(tx =>tx.amount)
-  //                   .reduce((acc, amount) => acc + Number(amount), 0);
+    let new_state = {};
     
-  //   stats[this.state.active_tab] = {money_out:money_out||0, money_in:money_in||0, count:txs.length}
-  //   this.setState({stats:stats})
-  // }
+    if(!utils.objectsEqual(this.state.page_key_values, this.props.page_key_values) )
+    {
+      const filter     = this.props.page_key_values && this.props.page_key_values[this.state.filter_key] || {};
+      new_state = {...new_state, page_key_values: this.props.page_key_values, filter:filter};
+    }
 
-  onTabChange(key) {
-    this.setState({active_tab:key});
-    this.props.setPageKeyValue(this.props.location.pathname, {active_tab:key})
+    if(Object.keys(new_state).length>0)      
+      this.setState(new_state);
   }
 
   render() {
 
-    const {routes, active_tab, isMobile, page_keys} = this.state;
-    const widget_key = page_keys[active_tab];
+    const {routes, isMobile, filter, filter_key, keep_search} = this.state;
+    const _filter = (keep_search==true)
+      ?filter
+      :{};
     
-    // const content = (active_tab==DISPLAY_ALL_TXS)
-    //   ? (<TxListWidget the_key={widget_key} callback={this.onTransactionClick} />)
-    //   : (<RequestListWidget request_type={active_tab} the_key={widget_key} callback={this.onRequestClick} onRef={ref => (this.table_widget = ref)}/>);
-    
+    console.log('++PAGE_OPERATIONS::FILTER:STATE:', filter);
+    console.log('++PAGE_OPERATIONS::FILTER:TO-PASS:', _filter);
+
+    console.log('???keep_search:' , keep_search);
+
     return (
       <>
         <PageHeader
@@ -162,39 +118,21 @@ class Operations extends Component {
 
         <Card
           key="card_master"
-          className="styles listCard"
+          className="operations"
           bordered={false}
           style={{ marginTop: 24 }}
           headStyle={{display:'none'}}
         >
-          
-            <RequestListWidget request_type={active_tab} the_key={widget_key} callback={this.onRequestClick} onRef={ref => (this.table_widget = ref)}/>
-    
+          <RequestListWidget 
+            filter={_filter}
+            request_type={DISPLAY_REQUESTS} 
+            the_key={filter_key} 
+            callback={this.onRequestClick} 
+            onRef={ref => (this.table_widget = ref)}/>
+
         </Card>
       </>
     );
-    // return (
-    //   <>
-    //     <PageHeader
-    //       breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
-    //       title={this.props.intl.formatMessage({id:'pages.bankadmin.operations.title'})}
-    //     >
-    //     </PageHeader>
-
-    //     <div className="styles standardList" style={{ marginTop: 24 }}>
-          
-    //       <Card key={'card_master'}  
-    //         tabList={ Object.keys(tabs).map(key_tab => { return {key: key_tab, tab: this.props.intl.formatMessage({id:`pages.bankadmin.operations.tab.${tabs[key_tab]}`}) } } ) }
-    //         activeTabKey={active_tab}
-    //         onTabChange={ (key) => this.onTabChange(key)}
-    //         >
-
-    //         {content}
-    
-    //       </Card>
-    //     </div>
-    //   </>
-    // );
   }
 
 }
@@ -202,15 +140,12 @@ class Operations extends Component {
 //
 export default  (withRouter(connect(
     (state)=> ({
-        actualAccountName:    loginRedux.actualAccountName(state),
-        actualRole:           loginRedux.actualRole(state),
-        actualRoleId:         loginRedux.actualRoleId(state),
-        
-        page_key_values:      pageRedux.pageKeyValues(state),
+        actualAccountName:          loginRedux.actualAccountName(state),
+        actualRole:                 loginRedux.actualRole(state),
+        actualRoleId:               loginRedux.actualRoleId(state),
+        page_key_values:            pageRedux.pageKeyValues(state),
     }),
     (dispatch)=>({
-        setPageKeyValue:      bindActionCreators(pageRedux.setPageKeyValue, dispatch),
-
-        setLastRootMenuFullpath:      bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
+        setLastRootMenuFullpath:    bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(injectIntl(Operations))));

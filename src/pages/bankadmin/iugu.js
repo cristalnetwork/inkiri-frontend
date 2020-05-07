@@ -191,7 +191,7 @@ class Iugu extends Component {
 
     // ToDo: Move to common
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/iugu-invoice`
+      pathname: `/${this.props.actualRole}/iugu-invoice/${invoice.iugu_id}`
       , state: { 
           invoice:  invoice, 
           referrer: this.props.location.pathname

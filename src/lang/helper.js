@@ -4,8 +4,8 @@ import * as globalCfg from '@app/configs/global';
 
 import * as moment from 'moment';
 import 'moment/locale/pt-br';
-// import 'moment/locale/en';
 import 'moment/locale/es';
+// import 'moment/locale/en';
 
 export const getLocale = () => {
   const lang  = getLanguage()
@@ -16,7 +16,6 @@ export const getLocale = () => {
   
   console.log('lang:', lang)
   console.log('lan_key:', lan_key)
-  // moment.locale('pt-BR');
   moment.locale(globalCfg.language.moment);
 
   return AppLocale[the_key];
@@ -31,3 +30,4 @@ export const getLocale = () => {
 //     the_key = lan_key[0];
 //   return AppLocale[the_key];
 // }
+

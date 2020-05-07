@@ -301,17 +301,6 @@ class TransactionTable extends Component {
       }
   }
 
-//   const { selectedRowsArray } = this.state;
-// const rowSelection = {
-//       selectedRowKeys: selectedRowsArray,
-//       onChange: (selectedRowKeys, rows) => {
-//         this.setState({
-//           selectedRowsArray: [...rows]
-//         });
-//       },
-//     };
-  
-
   getRowSelection = () => {
     const {selectedRowKeys} = this.state;
     return{

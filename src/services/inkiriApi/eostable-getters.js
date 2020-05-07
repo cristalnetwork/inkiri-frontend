@@ -27,7 +27,8 @@ export const INDEX_POSITION_PAP_BY_CUSTOMER_SERVICE           = 5;
 
 
 
-const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint_scope)
+// const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint_scope)
+const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint_history_v1)
 
 export const fetchResult = async (options, limit) => {
   const mergedOptions = {

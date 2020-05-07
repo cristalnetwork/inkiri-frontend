@@ -34,7 +34,7 @@ function prettyJson(input){
   return JSON.stringify(input, null, 2)
 }
 
-const do_log = false;
+const do_log = true;
 
 export const setPushInfo  = async (account_name, token) => bank.setPushInfo(account_name, token);
 

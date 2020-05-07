@@ -44,7 +44,11 @@ const RequestsFilter = (props) => {
 
     };
 
-    const [filter, setFilter]          = useState(props.filter||default_filter);
+    // const [filter, setFilter]          = useState(props.filter||default_filter);
+    const [filter, setFilter]          = useState({...default_filter, ...(props.filter||{})});
+    useEffect(() => {
+      setFilter({...default_filter, ...(props.filter||{})});
+    }, [props.filter]);
 
     const {formatMessage} = props.intl;
 
@@ -193,6 +197,7 @@ const RequestsFilter = (props) => {
     const dateRangeText   = formatMessage({id:'components.filters.requests.date_range'})    
     const externalText    = formatMessage({id:'components.filters.requests.external'})    
 
+    console.log('FILTER::REQUESTS:filter:',filter);
     return( 
       <Form 
         layout="inline" 
@@ -205,6 +210,7 @@ const RequestsFilter = (props) => {
           && <AutocompleteAccount
                 validation_rule={validateAccountNames} 
                 autoFocus 
+                defaultValue={filter.from}
                 label={fromText}
                 not_required={true}
                 form={_form} 
@@ -214,13 +220,14 @@ const RequestsFilter = (props) => {
         }
         { !hidden_fields.includes('to') 
           && <AutocompleteAccount
-                        validation_rule={validateAccountNames} 
-                        label={toText}
-                        not_required={true}
-                        form={_form} 
-                        name="to" 
-                        without_icon={true}
-                        size="default"/>
+                defaultValue={filter.to}
+                validation_rule={validateAccountNames} 
+                label={toText}
+                not_required={true}
+                form={_form} 
+                name="to" 
+                without_icon={true}
+                size="default"/>
         }
 
         { show_search 
@@ -294,7 +301,7 @@ const RequestsFilter = (props) => {
         
         
           <div style={{alignSelf:'flex-end', justifyContent:'flex-end', alignItems:'flex-end', flex:1, display: 'flex'}}>
-            <Button type="link" disabled={is_loading} onClick={(event) => resetFilter(event)} style={{alignSelf:'flex-end'}}>
+            <Button disabled={is_loading} onClick={(event) => resetFilter(event)} style={{alignSelf:'flex-end', marginRight:8}}>
               { formatMessage({id:'components.filters.requests.reset'}) }
             </Button>
             <Button htmlType="submit" disabled={is_loading} type={buttonType} style={{alignSelf:'flex-end'}}>
