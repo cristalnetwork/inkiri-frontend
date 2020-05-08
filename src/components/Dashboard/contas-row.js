@@ -14,7 +14,7 @@ import { injectIntl } from "react-intl";
 import * as globalCfg from '@app/configs/global';
 
 // import './stolen.css';
-import './umi.e70625bc.css';
+// import './umi.e70625bc.css';
 
 const topColResponsiveProps = {
   xs: 24,

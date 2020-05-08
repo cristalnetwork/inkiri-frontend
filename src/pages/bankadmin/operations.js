@@ -38,14 +38,15 @@ class Operations extends Component {
     const filter     = props.page_key_values && props.page_key_values[filter_key] || {};
 
     this.state = {
-      page_key:            props.location.pathname,
       filter_key:          filter_key,
       filter:              filter,
-      routes :             routesService.breadcrumbForPaths(props.location.pathname),
-      
-      need_refresh:        {},  
       keep_search:         this.props.location && this.props.location.state && this.props.location.state.keep_search,
-      page_key_values:     props.page_key_values
+      page_key_values:     props.page_key_values,
+
+      routes :             routesService.breadcrumbForPaths(props.location.pathname),
+
+      need_refresh:        {},  
+      
     };
     
     this.onTransactionClick         = this.onTransactionClick.bind(this);
@@ -103,10 +104,9 @@ class Operations extends Component {
       ?filter
       :{};
     
-    console.log('++PAGE_OPERATIONS::FILTER:STATE:', filter);
-    console.log('++PAGE_OPERATIONS::FILTER:TO-PASS:', _filter);
-
-    console.log('???keep_search:' , keep_search);
+    // console.log('++PAGE_OPERATIONS::FILTER:STATE:', filter);
+    // console.log('++PAGE_OPERATIONS::FILTER:TO-PASS:', _filter);
+    // console.log('???keep_search:' , keep_search);
 
     return (
       <>
@@ -140,12 +140,12 @@ class Operations extends Component {
 //
 export default  (withRouter(connect(
     (state)=> ({
-        actualAccountName:          loginRedux.actualAccountName(state),
-        actualRole:                 loginRedux.actualRole(state),
-        actualRoleId:               loginRedux.actualRoleId(state),
-        page_key_values:            pageRedux.pageKeyValues(state),
+      actualAccountName:          loginRedux.actualAccountName(state),
+      actualRole:                 loginRedux.actualRole(state),
+      actualRoleId:               loginRedux.actualRoleId(state),
+      page_key_values:            pageRedux.pageKeyValues(state),
     }),
     (dispatch)=>({
-        setLastRootMenuFullpath:    bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
+      setLastRootMenuFullpath:    bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(injectIntl(Operations))));

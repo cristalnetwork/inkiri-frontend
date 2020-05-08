@@ -52,10 +52,6 @@ const RequestsFilter = (props) => {
 
     const {formatMessage} = props.intl;
 
-    // useEffect(() => {
-    //   setCallback(props.callback);
-    // }, [props.callback]);
-
     useEffect(() => {
       const myIntl = {}; 
       myIntl.type_deposit = formatMessage({id:'requests.types.type_deposit'});

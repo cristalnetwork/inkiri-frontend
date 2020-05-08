@@ -34,13 +34,13 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           {
             // history.push(`/${actualRole}/dashboard`);
             // history.push(`/${actualRole}/teams`);
-            history.push(`/${actualRole}/external-transfers`);
+            // history.push(`/${actualRole}/external-transfers`);
             // history.push(`/${actualRole}/operations`);
             // history.push(`/common/salaries`);
             // history.push(`/common/crew`);
             // history.push(`/common/providers`);
             // history.push(`/${actualRole}/configuration`);
-            // history.push(`/${actualRole}/iugu`);
+            history.push(`/${actualRole}/iugu`);
             // history.push(`/${actualRole}/profiles`);
             // history.push(`/${actualRole}/provider-profile`);
             // history.push(`/common/providers`);

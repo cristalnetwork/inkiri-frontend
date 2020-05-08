@@ -91,7 +91,7 @@ class ExternalTransfers extends Component {
           
         <Card
           key="card_table_all_requests"
-          className="operations"
+          className={'operations '+REQUEST_MODE_BANK_TRANSFERS}
           bordered={false}
           style={{ marginTop: 24 }}
           headStyle={{display:'none'}}

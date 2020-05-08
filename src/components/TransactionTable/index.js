@@ -534,10 +534,10 @@ class TransactionTable extends Component {
                     : 'odd';
             }}
         onRow={ (record, rowIndex) => {
-                  return { 
-                    onDoubleClick: event => { this.props.callback(record) }
-                  };
-            }}
+            return { 
+              onDoubleClick: event => { this.props.callback(record) }
+            };
+          }}
       />
       
     )

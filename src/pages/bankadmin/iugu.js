@@ -9,7 +9,7 @@ import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
 
 import * as api from '@app/services/inkiriApi';
-
+import * as pageRedux from '@app/redux/models/page'
 import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
@@ -35,6 +35,15 @@ import InjectMessage from "@app/components/intl-messages";
 class Iugu extends Component {
   constructor(props) {
     super(props);
+
+    const keep_search  = this.props.location && this.props.location.state && this.props.location.state.keep_search;
+    const filter_key   = `${props.location.pathname}_filter`;
+    const filter       = keep_search
+      ?props.page_key_values && props.page_key_values[filter_key] || {}
+      :{};
+    
+    console.log('IUGU:CONSTRUCTOR:', filter, keep_search);
+
     this.state = {
       routes :        routesService.breadcrumbForPaths(props.location.pathname),
       loading:        false,
@@ -44,7 +53,11 @@ class Iugu extends Component {
       limit:           globalCfg.api.default_page_size,
       can_get_more:    true,
 
-      filter:         {},
+      filter_key:          filter_key,
+      filter:              filter,
+      keep_search:         keep_search,
+      page_key_values:     props.page_key_values,
+
       stats:          {
                         processed: 0 
                         , waiting:0 
@@ -71,6 +84,20 @@ class Iugu extends Component {
 
   getColumns(){
     return columns_helper.columnsForIUGU(this.onInvoiceClick);
+  }
+  //
+  componentDidUpdate(prevProps, prevState) 
+  {
+    let new_state = {};
+    
+    // if(!utils.objectsEqual(this.state.page_key_values, this.props.page_key_values) )
+    // {
+    //   const filter     = this.props.page_key_values && this.props.page_key_values[this.state.filter_key] || {};
+    //   new_state = {...new_state, page_key_values: this.props.page_key_values, filter:filter};
+    // }
+
+    if(Object.keys(new_state).length>0)      
+      this.setState(new_state);
   }
   //
   reloadTxs(){
@@ -188,7 +215,7 @@ class Iugu extends Component {
   
   onInvoiceClick(invoice){
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
-
+    console.log('****onInvoiceClick(invoice)')
     // ToDo: Move to common
     this.props.history.push({
       pathname: `/${this.props.actualRole}/iugu-invoice/${invoice.iugu_id}`
@@ -228,18 +255,16 @@ class Iugu extends Component {
     }
     
     console.log(' iuguFilter: ', JSON.stringify(values));
-    /*
-      {"state":"state_error","to":"centroinkiri","date_from":"2020-01-02T00:13:52.742Z","date_to":"2020-01-25T00:13:52.742Z"}
-    */
-
+    
+    const _filter = (values||{});
     
     clearTimeout(this.timeout_id);
     this.timeout_id = setTimeout(()=> {
-      this.setState({filter:(values||{})}, ()=>{
+      this.props.setPageKeyValue(this.state.filter_key, _filter);
+      this.setState({filter:_filter}, ()=>{
         this.reloadTxs();
       })
     } ,100);
-    
   }
 
   exportButton = () => [<a className="hidden" key="export_button_dummy" ref={this.myExportRef}  href={this.state.sheet_href} target="_blank" >x</a>, <Button key="export_button" onClick={this.handleExportClick} size="small" style={{position: 'absolute', right: '8px', top: '16px'}} title={this.props.intl.formatMessage({id:'global.export_sheet_remember_allowing_popups'})}><FontAwesomeIcon icon="file-excel" size="sm" color="black"/>&nbsp;<InjectMessage id="global.export_list_to_spreadsheet" /></Button>];
@@ -293,9 +318,8 @@ class Iugu extends Component {
 
   render() {
     //
-    const content               = this.renderContent();
-    const stats                 = this.renderTableViewStats();
-    const {routes, loading}     = this.state;
+    const stats                                 = this.renderTableViewStats();
+    const {routes, loading, filter_key, filter} = this.state;
     return (
       <>
         <PageHeader
@@ -308,13 +332,34 @@ class Iugu extends Component {
           key="card_table_all_requests"
           className="styles listCard"
           bordered={false}
-          style={{ marginTop: 24 }}
           headStyle={{display:'none'}}
         >
           <IuguFilter 
-            callback={this.iuguFilterCallback} />
+            callback={this.iuguFilterCallback} 
+            filter={filter}
+            the_key={filter_key}
+            />
           {stats}
-          {content}
+          
+          <div style={{ background: '#fff', minHeight: 360, marginTop: 0}}>
+            <ResizeableTable
+              title = { () => this.exportButton() }
+              key="table_all_requests" 
+              rowKey={record => record._id} 
+              loading={this.state.loading} 
+              columns_def={this.getColumns()} 
+              dataSource={this.state.txs} 
+              footer={() => this.renderFooter()}
+              pagination={this.state.pagination}
+              onRow={ (record, rowIndex) => {
+                return { 
+                  onDoubleClick: event => { this.onInvoiceClick(record) }
+                };
+              }}
+              scroll={{ x: 700 }}
+              />
+          </div>
+
         </Card>
       </>
     );
@@ -335,31 +380,18 @@ class Iugu extends Component {
     return (<TableStats title={formatMessage({id:'pages.bankadmin.iugu.stats.stats'})} stats_array={items}/>)
   }
 
-  renderContent(){
-    return (<div style={{ background: '#fff', minHeight: 360, marginTop: 24}}>
-          <ResizeableTable
-            title = { () => this.exportButton() }
-            key="table_all_requests" 
-            rowKey={record => record._id} 
-            loading={this.state.loading} 
-            columns_def={this.getColumns()} 
-            dataSource={this.state.txs} 
-            footer={() => this.renderFooter()}
-            pagination={this.state.pagination}
-            scroll={{ x: 700 }}
-            />
-          </div>);
-  }
 
 }
 //
 export default  (withRouter(connect(
     (state)=> ({
-        actualAccountName:    loginRedux.actualAccountName(state),
-        actualRoleId:     loginRedux.actualRoleId(state),
-        actualRole:       loginRedux.actualRole(state),
+        actualAccountName:       loginRedux.actualAccountName(state),
+        actualRoleId:            loginRedux.actualRoleId(state),
+        actualRole:              loginRedux.actualRole(state),
+        page_key_values:         pageRedux.pageKeyValues(state),
     }),
     (dispatch)=>({
+        setPageKeyValue:         bindActionCreators(pageRedux.setPageKeyValue, dispatch),
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(injectIntl(Iugu)))

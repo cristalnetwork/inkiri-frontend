@@ -39,13 +39,13 @@ const IuguFilter = (props) => {
         , search_text:    ''
     };
 
-    const [filter, setFilter]          = useState(props.filter||default_filter);
+    // const [filter, setFilter]          = useState(props.filter||default_filter);
+    const [filter, setFilter]          = useState({...default_filter, ...(props.filter||{})});
+    useEffect(() => {
+      setFilter({...default_filter, ...(props.filter||{})});
+    }, [props.filter]);
 
     const {formatMessage} = props.intl;
-
-    // useEffect(() => {
-    //   setCallback(props.callback);
-    // }, [props.callback]);
 
     useEffect(() => {
       const myIntl = {}; 
@@ -213,13 +213,13 @@ const IuguFilter = (props) => {
         }
         
         <Form.Item style={{alignSelf:'flex-end', alignItems:'flex-end', flex:1}}>
-          <Button htmlType="submit" disabled={is_loading} type={buttonType}>
+          <Button htmlType="submit" disabled={is_loading} type={buttonType} style={{marginRight:8}}>
             { formatMessage({id:'components.filters.requests.filter'}) }
           </Button>
-          <Button type="link" disabled={is_loading} onClick={(event) => resetFilter(event)}>
+          <Button disabled={is_loading} onClick={(event) => resetFilter(event)} style={{marginRight:8}}>
             { formatMessage({id:'components.filters.requests.reset'}) }
           </Button>
-          <Button size="small" key="requests_refresh" icon="redo" disabled={is_loading} onClick={()=>reload()} ></Button>,
+          <Button size="small" key="requests_refresh" icon="redo" disabled={is_loading} onClick={()=>reload()} ></Button>
         </Form.Item>
       </Form>
       
