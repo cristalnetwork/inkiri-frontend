@@ -154,7 +154,6 @@ export default  (withRouter(connect(
         actualRoleId:         loginRedux.actualRoleId(state),
         isPersonal:           loginRedux.isPersonal(state),
         isMobile :            menuRedux.isMobile(state),
-
         page_key_values:      pageRedux.pageKeyValues(state),
 
     }),

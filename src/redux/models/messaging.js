@@ -19,12 +19,15 @@ export const SET_REGISTRATION_TOKEN = 'messaging/SET_REGISTRATION_TOKEN';
 export const ON_MESSAGE             = 'messaging/ON_MESSAGE';
 export const ON_READ_MESSAGES       = 'messaging/ON_READ_MESSAGES';
 export const REGISTER_IF_NOT        = 'messaging/REGISTER_IF_NOT';
-export const DO_READ_MESSAGES       = 'messaging/DO_READ_MESSAGES';
+export const ON_SHOWN_MESSAGES      = 'messaging/ON_SHOWN_MESSAGES';
+export const ON_CLEAR_MESSAGES      = 'messaging/ON_CLEAR_MESSAGES';
 
-export const setRegistrationToken = token          => ({type: SET_REGISTRATION_TOKEN, payload: {token} });
+export const setRegistrationToken = (token)        => ({type: SET_REGISTRATION_TOKEN, payload: {token} });
 export const setReadMessages      = (index, count) => ({type: ON_READ_MESSAGES, payload: {index, count} });
+export const clearMessages        = (index, count) => ({type: ON_CLEAR_MESSAGES, payload: {index, count} });
 export const registerIfNot        = ()             => ({type: REGISTER_IF_NOT} );
-export const doReadMessages       = ()             => ({type: DO_READ_MESSAGES} );
+export const onReadMessages       = ()             => ({type: ON_READ_MESSAGES} );
+export const onShownMessages      = ()             => ({type: ON_SHOWN_MESSAGES} );
 
 function* requestPermissionSaga() {
   const messaging = firebase.messaging()
@@ -42,18 +45,9 @@ function* requestPermissionSaga() {
 }
 
 function* readMessagesSaga() {
-  do_log && console.log('PUSH-NOTIFICATION::readMessagesSaga:#1')
-  // while(true) {
-  // console.log('PUSH-NOTIFICATION::readMessagesSaga:#2')
-  //   const message = yield take(channel);
-  //   if(message)
-  //     yield put({type: ON_MESSAGE, payload: {message : {read:false, message:message, mode: 'a_manuk'}}})
-  // }
-
-  // rsf.messaging.syncMessages,
-
-  do_log && console.log('PUSH-NOTIFICATION::readMessagesSaga:#3')
-  do_log && console.log('PUSH-NOTIFICATION::readMessagesSaga:END:')
+  // do_log && console.log('PUSH-NOTIFICATION::readMessagesSaga:#1')
+  // do_log && console.log('PUSH-NOTIFICATION::readMessagesSaga:#3')
+  // do_log && console.log('PUSH-NOTIFICATION::readMessagesSaga:END:')
 }
 
 
@@ -71,7 +65,7 @@ function* registerMessageHandlerSaga()
     takeEvery(core.INIT, initMessaging)
     , takeEvery(REGISTER_IF_NOT, initMessaging)
     , takeEvery(messageChannel, messageHandlerSaga)
-    , takeEvery(DO_READ_MESSAGES, readMessagesSaga)
+    , takeEvery(ON_READ_MESSAGES, readMessagesSaga)
   ]);
   do_log && console.log('PUSH-NOTIFICATION::messages listener REGISTERED!')
 }
@@ -92,7 +86,7 @@ function* registerMessageHandlerSaga()
 */
 function* messageHandlerSaga(message) {
   // console.log(" ============================ onMessage", JSON.stringify(message.data))
-  yield put({type: ON_MESSAGE, payload: {message : {read:false, message:message, mode: 'auto'}}})
+  yield put({type: ON_MESSAGE, payload: {message : { shown:false, read:false, message:message, mode: 'auto'}}})
 }
 
 
@@ -126,7 +120,7 @@ function* initMessaging () {
 store.injectSaga('messaging', [
   takeEvery(core.INIT, initMessaging)
   , takeEvery(REGISTER_IF_NOT, initMessaging)
-  , takeEvery(DO_READ_MESSAGES, readMessagesSaga)
+  , takeEvery(ON_READ_MESSAGES, readMessagesSaga)
   
 ]);
 
@@ -152,11 +146,24 @@ function reducer(state = defaultState, action = {}) {
         ...state
         , messages:         [action.payload.message, ...messages]
       };
-    case ON_READ_MESSAGES:
-      let messages_1 = state.messages;
+    case ON_SHOWN_MESSAGES:
+      let shown_messages = state.messages.map(msg=>{msg.shown=true;return msg;});
       return  {
         ...state
-        , messages:         messages_1
+        , messages:         shown_messages
+      }
+    case ON_CLEAR_MESSAGES:
+      let cleared_messages = state.messages.splice(action.payload.index, action.payload.count);
+      return  {
+        ...state
+        , messages:         cleared_messages
+      }
+    // case ON_READ_MESSAGES:
+    case ON_READ_MESSAGES:
+      let read_messages = state.messages.map(msg=>{msg.read=true;return msg;});
+      return  {
+        ...state
+        , messages:         read_messages
       }
     default: return state;
   }

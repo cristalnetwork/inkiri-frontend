@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import * as pageRedux from '@app/redux/models/page'
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
+import * as messagingRedux from '@app/redux/models/messaging'
 
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
@@ -79,8 +80,8 @@ class Operations extends Component {
   }
 
   componentDidMount(){
-
-  } 
+    this.props.subscribePushNotifications();
+  }  
 
 
   componentDidUpdate(prevProps, prevState) 
@@ -146,6 +147,7 @@ export default  (withRouter(connect(
       page_key_values:            pageRedux.pageKeyValues(state),
     }),
     (dispatch)=>({
+      subscribePushNotifications:    bindActionCreators(messagingRedux.registerIfNot, dispatch),
       setLastRootMenuFullpath:    bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(injectIntl(Operations))));

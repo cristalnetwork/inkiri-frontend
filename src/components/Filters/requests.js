@@ -193,7 +193,7 @@ const RequestsFilter = (props) => {
     const dateRangeText   = formatMessage({id:'components.filters.requests.date_range'})    
     const externalText    = formatMessage({id:'components.filters.requests.external'})    
 
-    console.log('FILTER::REQUESTS:filter:',filter);
+    // console.log('FILTER::REQUESTS:filter:',filter);
     return( 
       <Form 
         layout="inline" 
