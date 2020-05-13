@@ -9,7 +9,8 @@ import { Spin } from 'antd'
 import { BlankContainer } from '@app/containers/blank.container';
 import DashboardContainer from '@app/containers/dashboard.container';
 
-import Login from '@app/pages/general/login'
+// import Login from '@app/pages/general/login'
+import Login from '@app/pages/general/onboard'
 import MenuByRole from './menu';
 
 import history from '@app/history.js'

@@ -2,7 +2,7 @@
 
 @pro-header-hover-bg: rgba(0, 0, 0, 0.025);
 
-.logo {
+/*.logo {
   display: inline-block;
   height: @layout-header-height;
   padding: 0 0 0 24px;
@@ -14,7 +14,7 @@
     display: inline-block;
     vertical-align: middle;
   }
-}
+}*/
 
 .menu {
   :global(.anticon) {

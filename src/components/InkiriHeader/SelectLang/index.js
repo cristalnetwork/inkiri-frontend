@@ -26,10 +26,12 @@ const SelectLanguage = props => {
       ))}
     </Menu>
   );
+  // const fontSize = props.size=='big'?16:12;
+  const fontSize = 16;
   return (
-    <HeaderDropdown overlay={langMenu} placement="bottomRight" >
-      <span className={classNames(styles.dropDown, className, 'language_selector')} style={{marginRight:12}}>
-        <Icon type="global" title={props.intl.formatMessage({ id: 'global.navbar.lang_selector' })} />
+    <HeaderDropdown overlay={langMenu} placement="bottomRight"  >
+      <span className={classNames(styles.dropDown, className, 'language_selector')} style={{ marginLeft:8}}>
+        <Icon style={{fontSize:fontSize}} type="global" title={props.intl.formatMessage({ id: 'global.navbar.lang_selector' })} />
       </span>
     </HeaderDropdown>
   );

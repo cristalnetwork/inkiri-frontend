@@ -9,6 +9,8 @@ import { injectIntl } from "react-intl";
 import groupBy from 'lodash/groupBy';
 import moment from 'moment';
 
+import * as request_helper from '@app/components/TransactionCard/helper';
+
 import * as messagingRedux from '@app/redux/models/messaging'
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
@@ -16,8 +18,9 @@ import * as loginRedux from '@app/redux/models/login'
 import * as globalCfg from '@app/configs/global';
 
 // import * as NoticeIcon from '@app/components/NoticeIcon';
-import NoticeIcon from './NoticeIcon';
-import styles from './index.less';
+import NoticeIcon, {Tab as NoticeIconTab} from './NoticeIcon';
+import './index.less';
+
 
 class GlobalHeaderRight extends Component {
   
@@ -38,7 +41,10 @@ class GlobalHeaderRight extends Component {
   }
 
   changeReadState = (clickedItem) => {
-    // const { id } = clickedItem;
+    message.success(`${this.props.intl.formatMessage({ id: 'component.noticeIcon.read' })}`);
+    // console.log('****changeReadState(clickedItem)', clickedItem._id , clickedItem.message && clickedItem.message._id );
+    const { _id } = clickedItem.message;
+    this.props.onReadMessage(_id);
     // const { dispatch } = this.props;
     // if (dispatch) {
     //   dispatch({
@@ -48,16 +54,14 @@ class GlobalHeaderRight extends Component {
     // }
   };
 
-  handleNoticeClear = (title, key) => {
-    // const { dispatch } = this.props;
-    message.success(`${this.props.intl.formatMessage({ id: 'component.noticeIcon.cleared' })} ${title}`);
+  // handleNoticeClear = (title, key) => {
+  //   // const { dispatch } = this.props;
+  //   message.success(`${this.props.intl.formatMessage({ id: 'component.noticeIcon.cleared' })} ${title}`);
+  // };
 
-    // if (dispatch) {
-    //   dispatch({
-    //     type: 'global/clearNotices',
-    //     payload: key,
-    //   });
-    // }
+  handleNoticeClear = (_list) => {
+    message.success(`${this.props.intl.formatMessage({ id: 'component.noticeIcon.cleared' })}`);
+    this.props.clearMessages(_list.map(msg=>msg.message._id));
   };
 
   getNoticeData = () => {
@@ -69,31 +73,33 @@ class GlobalHeaderRight extends Component {
       return {};
     }
     const newNotices = notices.map(notice => {
-      const newNotice = { ...notice };
-      if (newNotice.created_at) {
-        newNotice.created_at = moment.unix(notice.created_at).fromNow();
+      let newNotice = { ...notice };
+      console.log(newNotice)
+      newNotice.type = 'notification'; //hack
+      if (newNotice.message.created_at) {
+        newNotice.created_at = moment.unix(newNotice.message.created_at/1000).fromNow();
       }
-      if (newNotice._id) {
-        newNotice.key = newNotice._id;
+      if (newNotice.message._id) {
+        newNotice.message.key = newNotice.message._id;
       }
-      if (newNotice.message && newNotice.state) {
-        // const color = {
-        //   todo: '',
-        //   processing: 'blue',
-        //   urgent: 'red',
-        //   doing: 'gold',
-        // }[newNotice.status];
-        const color = globalCfg.api.stateToColor(newNotice.state)
-        newNotice.extra = (
-          <Tag color={color} style={{ marginRight: 0 }}>
-            {newNotice.extra}
-          </Tag>
-        );
+      if (newNotice.message ) {
+        newNotice.message.avatar = request_helper.smallCircleIcon(newNotice.message);
+      }
+      if (newNotice.message.message && newNotice.message.state) {
+        const color = globalCfg.api.stateToColor(newNotice.message.state)
+        // newNotice.extra = (
+        //   <Tag color={color} style={{ marginRight: 0 }}>
+        //     {newNotice.message.message}
+        //   </Tag>
+        // );
+        newNotice.extra = request_helper.getSimpleStateTag(newNotice.message)
       }
       return newNotice;
     });
-    // return groupBy(newNotices, '__typename');
-    return {'notification':newNotices};
+    //
+    // return groupBy(newNotices, 'message.requested_type');
+    return groupBy(newNotices, 'type');
+    // return {'notification':newNotices};
   };
   //
   getUnreadData = (noticeData) => {
@@ -114,25 +120,29 @@ class GlobalHeaderRight extends Component {
     const { fetchingNotices, onShownMessages } = this.props;
     const noticeData      = this.getNoticeData();
     const unreadMsg       = this.getUnreadData(noticeData);
-    const unreadMsgCount  = Object.keys(unreadMsg).map(key=>unreadMsg[key].length).reduce((acc, obj) => { acc = acc+obj; return acc; } , 0);
+    
+    console.log('**************** noticeData:', noticeData)
+    console.log('**************** unreadMsg:', unreadMsg)
+    
+    const unreadMsgCount  = Object.keys(unreadMsg).reduce((acc, key) => { acc = acc+unreadMsg[key]; return acc; } , 0)||0;
     const {formatMessage} = this.props.intl;
 
     return (
       <NoticeIcon
-        className={styles.action}
+        className={'action'}
         count={unreadMsgCount}
         onItemClick={item => {
           this.changeReadState(item);
         }}
-        loading={fetchingNotices}
+        loading={fetchingNotices||false}
         clearText={formatMessage({ id: 'component.noticeIcon.clear' })}
         viewMoreText={formatMessage({ id: 'component.noticeIcon.view-more' })}
-        onClear={this.handleNoticeClear}
+        onClear={()=>this.handleNoticeClear(noticeData.notification)}
         onPopupVisibleChange={onShownMessages}
         onViewMore={() => message.info('Click on view more')}
         clearClose
       >
-        <NoticeIcon.Tab
+        <NoticeIconTab
           tabKey="notification"
           count={unreadMsg.notification}
           list={noticeData.notification}
@@ -140,24 +150,50 @@ class GlobalHeaderRight extends Component {
           emptyText={formatMessage({ id: 'component.globalHeader.notification.empty' })}
           showViewMore
         />
-        <NoticeIcon.Tab
-          tabKey="message"
-          count={unreadMsg.message}
-          list={noticeData.message}
-          title={formatMessage({ id: 'component.globalHeader.message' })}
-          emptyText={formatMessage({ id: 'component.globalHeader.message.empty' })}
-          showViewMore
-        />
-        <NoticeIcon.Tab
-          tabKey="event"
-          title={formatMessage({ id: 'component.globalHeader.event' })}
-          emptyText={formatMessage({ id: 'component.globalHeader.event.empty' })}
-          count={unreadMsg.event}
-          list={noticeData.event}
-          showViewMore
-        />
       </NoticeIcon>
     );
+
+    // return (
+    //   <NoticeIcon
+    //     className={'action'}
+    //     count={unreadMsgCount}
+    //     onItemClick={item => {
+    //       this.changeReadState(item);
+    //     }}
+    //     loading={fetchingNotices||false}
+    //     clearText={formatMessage({ id: 'component.noticeIcon.clear' })}
+    //     viewMoreText={formatMessage({ id: 'component.noticeIcon.view-more' })}
+    //     onClear={this.handleNoticeClear}
+    //     onPopupVisibleChange={onShownMessages}
+    //     onViewMore={() => message.info('Click on view more')}
+    //     clearClose
+    //   >
+    //     <NoticeIconTab
+    //       tabKey="notification"
+    //       count={unreadMsg.notification}
+    //       list={noticeData.notification}
+    //       title={formatMessage({ id: 'component.globalHeader.notification' })}
+    //       emptyText={formatMessage({ id: 'component.globalHeader.notification.empty' })}
+    //       showViewMore
+    //     />
+    //     <NoticeIconTab
+    //       tabKey="message"
+    //       count={unreadMsg.message}
+    //       list={noticeData.message}
+    //       title={formatMessage({ id: 'component.globalHeader.message' })}
+    //       emptyText={formatMessage({ id: 'component.globalHeader.message.empty' })}
+    //       showViewMore
+    //     />
+    //     <NoticeIconTab
+    //       tabKey="event"
+    //       title={formatMessage({ id: 'component.globalHeader.event' })}
+    //       emptyText={formatMessage({ id: 'component.globalHeader.event.empty' })}
+    //       count={unreadMsg.event}
+    //       list={noticeData.event}
+    //       showViewMore
+    //     />
+    //   </NoticeIcon>
+    // );
   }
 }
 
@@ -169,6 +205,8 @@ export default connect(
       notices:            messagingRedux.messages(state),
     }),
     (dispatch)=>({
+      clearMessages:      bindActionCreators(messagingRedux.clearMessages, dispatch),
+      onReadMessage:      bindActionCreators(messagingRedux.onReadMessage, dispatch),
       onShownMessages:    bindActionCreators(messagingRedux.onShownMessages, dispatch),
       collapseMenu:       bindActionCreators(menuRedux.collapseMenu, dispatch),
 

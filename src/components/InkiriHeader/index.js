@@ -103,6 +103,11 @@ class InkiriHeader extends Component {
     
   }
 
+  /*
+    <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">
+     {this.props.intl.formatMessage({id:'global.logout'})}
+    </Button>
+ */
   render(){
     let header_content ;
     const {referrer, isMobile, menuIsCollapsed} = this.state;
@@ -128,10 +133,8 @@ class InkiriHeader extends Component {
           <div className="header_element_container">
            <NotificationWidget />
            <ReferrerWidget />
-           <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">
-             {this.props.intl.formatMessage({id:'global.logout'})}
-           </Button>
            <SelectLanguage />
+           <Button icon={'logout'} type="link" onClick={this.props.logout} style={{marginLeft:8, marginRight: '10px', color:'rgba(0, 0, 0, 0.8)'}} title={this.props.intl.formatMessage({id:'global.logout'})}></Button>
           </div>
         </div>
       );

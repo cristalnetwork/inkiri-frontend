@@ -13,18 +13,21 @@ import firebase from 'firebase'
 import * as globalCfg from '@app/configs/global';
 import rsf from '../rsf'
 
+// import demo_messages from './messaging.demo';
+const demo_messages = undefined;
 const do_log = false;
 
 export const SET_REGISTRATION_TOKEN = 'messaging/SET_REGISTRATION_TOKEN';
 export const ON_MESSAGE             = 'messaging/ON_MESSAGE';
+export const ON_READ_MESSAGE        = 'messaging/ON_READ_MESSAGE';
 export const ON_READ_MESSAGES       = 'messaging/ON_READ_MESSAGES';
 export const REGISTER_IF_NOT        = 'messaging/REGISTER_IF_NOT';
 export const ON_SHOWN_MESSAGES      = 'messaging/ON_SHOWN_MESSAGES';
 export const ON_CLEAR_MESSAGES      = 'messaging/ON_CLEAR_MESSAGES';
 
 export const setRegistrationToken = (token)        => ({type: SET_REGISTRATION_TOKEN, payload: {token} });
-export const setReadMessages      = (index, count) => ({type: ON_READ_MESSAGES, payload: {index, count} });
-export const clearMessages        = (index, count) => ({type: ON_CLEAR_MESSAGES, payload: {index, count} });
+export const onReadMessage        = (_id)          => ({type: ON_READ_MESSAGE, payload: {_id} });
+export const clearMessages        = (_id_array)    => ({type: ON_CLEAR_MESSAGES, payload: {_id_array} });
 export const registerIfNot        = ()             => ({type: REGISTER_IF_NOT} );
 export const onReadMessages       = ()             => ({type: ON_READ_MESSAGES} );
 export const onShownMessages      = ()             => ({type: ON_SHOWN_MESSAGES} );
@@ -132,7 +135,7 @@ export const messages  = (state) => state.messaging.messages ;
 // El reducer del modelo
 const defaultState = {
     registrationToken:  null,
-    messages:           []
+    messages:           demo_messages||[]
   };
 
 function reducer(state = defaultState, action = {}) {
@@ -153,12 +156,18 @@ function reducer(state = defaultState, action = {}) {
         , messages:         shown_messages
       }
     case ON_CLEAR_MESSAGES:
-      let cleared_messages = state.messages.splice(action.payload.index, action.payload.count);
+      // let cleared_messages = state.messages.splice(action.payload.index, action.payload.count);
+      let cleared_messages = state.messages.filter(msg=>!action.payload._id_array.includes(msg.message._id));
       return  {
         ...state
         , messages:         cleared_messages
       }
-    // case ON_READ_MESSAGES:
+    case ON_READ_MESSAGE: 
+      let read_messages1 = state.messages.map(msg=>{if(msg.message._id==action.payload._id)msg.read=true;return msg;}); 
+      return  {
+        ...state
+        , messages:         read_messages1
+      }
     case ON_READ_MESSAGES:
       let read_messages = state.messages.map(msg=>{msg.read=true;return msg;});
       return  {
