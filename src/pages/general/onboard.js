@@ -159,9 +159,9 @@ class Login extends Component {
       </div>);
     //            
     const logo_small  = (<a href="/" className="logo_small">
-                      <img alt="logo" src="/favicons/favicon-32x32.png" />
+                      <img alt="logo" src="/images/onboarding/nlUNcWIVLKoarLnWNaWS.png" />
                       <span className="antd-pro-layouts-user-layout-title">
-                        <span className="omnes_isologo">{formatMessage({id:'cristalnetwork.title'})}</span>
+                        <span className="cristal_network">{formatMessage({id:'cristalnetwork.title'})}</span>
                       </span>
                     </a>);
     //
@@ -209,8 +209,7 @@ class Login extends Component {
             
             <div className="antd-pro-layouts-user-layout-content">
 
-              <Row gutter={24}>
-                <Col lg={18} md={24} className="onboarding onboarding_col">
+                <div className="onboarding onboarding_col">
                     {header_logo}
                     <div className="cards_carousel">
                       <Carousel effect="fade">
@@ -224,14 +223,16 @@ class Login extends Component {
                         
                       </Carousel>
                     </div>
-                </Col>
-                <Col lg={6} md={24} className="login_col">
-                  <div className="login_col_header">{logo_inkiri_small}</div>
-                  <div className="login_form">
-                      {login_form}
+                </div>
+                <div className="login_col">
+                  <div className="login_col_wrapper">
+                    <div className="login_col_header">{logo_inkiri_small}</div>
+                    <div className="login_form">
+                        {login_form}
+                    </div>
                   </div>
-                </Col>
-              </Row>
+                </div>
+              
             </div>
           </div>
         </Content>
@@ -241,7 +242,6 @@ class Login extends Component {
             <Button type="link" title="Github"          target="_blank" href="https://github.com/cristalnetwork/" icon="github"></Button>
           </div>
           <div className="ant-pro-global-footer-copyright"><UIFooter one_line={true}/></div>
-            
         </Footer>
     </Layout>
     );

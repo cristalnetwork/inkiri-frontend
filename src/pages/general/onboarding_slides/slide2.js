@@ -10,7 +10,7 @@ const Slide2 = (props) => {
         <p><InjectMessage id={'global.onboarding.subtitle2'} /></p> 
       </div>
       <div className="banner_image">
-        <img src="/images/onboarding/EzhXjBHtavGDkTbewrvp.png" height="250" width="auto" />
+        <img src="/images/onboarding/slVtnOCcgeAcLEPwtewY.svg" />
       </div>
     </div>
     );
