@@ -2,7 +2,7 @@
 *  APP VERSION
 * DO NOT CHANGE FOLLOWING LINE!!!!!!!!
 */
-const version = '1.0.16';
+const version = '1.0.17';
 /*
 *  ENV & BLOCKCHAIN CONFIGURATION!
 */
