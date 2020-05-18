@@ -16,7 +16,7 @@ const TELOS_TESTNET      = 'telos_testnet';
 const TELOS_MAINNET      = 'telos_mainnet';
 const LOCAL_TESTNET      = 'local_testnet';
 
-const env                = ENV_DEV;
+const env                = ENV_STAGING;
 const BLOCKCHAIN_NETWORK = TELOS_MAINNET;
 
 const language   = {
@@ -196,8 +196,10 @@ const bank = {
 const base_api_url = {
   [ENV_DEV]      : 'http://localhost:3600',
   [ENV_DEMO]     : 'https://cristal-backend.herokuapp.com',
-  [ENV_STAGING]  : 'https://labisteste21.herokuapp.com',
-  [ENV_PROD]     : 'https://labisteste21.herokuapp.com'
+  // [ENV_STAGING]  : 'https://labisteste21.herokuapp.com',
+  // [ENV_PROD]     : 'https://labisteste21.herokuapp.com'
+  [ENV_STAGING]  : 'https://cristaltoken.herokuapp.com',
+  [ENV_PROD]     : 'https://cristaltoken.herokuapp.com'
 }
 const base_url     = base_api_url[env];
 

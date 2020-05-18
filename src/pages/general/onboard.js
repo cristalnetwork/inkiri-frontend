@@ -79,8 +79,9 @@ class Login extends Component {
     clearTimeout(this.timeout_id);
   }
   componentDidUpdate(prevProps, prevState) {
-    if(prevProps.loginError!=this.props.loginError)
+    if(!utils.objectsEqual(this.state.loginError,this.props.loginError))
     {
+      console.log('====componentDidUpdate:', this.props.loginError)
       this.setState({loginError:this.props.loginError})
     }
     if(!utils.objectsEqual(prevProps.account, this.props.account) )
@@ -96,15 +97,38 @@ class Login extends Component {
     this.props.clearSession();
   }
 
+  getError = (error) =>{
+    if(!error)
+      return '';
 
+    if (error && error.stack && error.message) 
+      return error.message;
+    
+    if(typeof error == 'string')
+      return error;
+
+    if(typeof error == 'object') 
+      return JSON.stringify(error);
+  }
+  
   render() {
     const { getFieldDecorator }   = this.props.form;
     const { loading, loginError } = this.state;
     const { formatMessage }       = this.props.intl;
     if(loading)
       return(<Loading />);
-    
+    const error_message = this.getError(loginError);
     const login_form  = (<div className="antd-pro-pages-user-login-components-login-index-login">
+        { !loginError  
+              ?(null)
+              :  <Alert
+                    message={this.props.intl.formatMessage({id:'pages.general.login.login_error'})}
+                    description={error_message}
+                    type="error"
+                    showIcon
+                    closable
+                  />
+          }
         <Form onSubmit={this.handleSubmit} className="login-form ant-form ant-form-horizontal">
             
           <Form.Item>
@@ -209,29 +233,29 @@ class Login extends Component {
             
             <div className="antd-pro-layouts-user-layout-content">
 
-                <div className="onboarding onboarding_col">
-                    {header_logo}
-                    <div className="cards_carousel">
-                      <Carousel effect="fade">
-                        <div>
-                          <Slide1 />
-                        </div>
-                        
-                        <div>
-                          <Slide2 />
-                        </div>
-                        
-                      </Carousel>
-                    </div>
-                </div>
-                <div className="login_col">
-                  <div className="login_col_wrapper">
-                    <div className="login_col_header">{logo_inkiri_small}</div>
-                    <div className="login_form">
-                        {login_form}
-                    </div>
+              <div className="onboarding onboarding_col">
+                  {header_logo}
+                  <div className="cards_carousel">
+                    <Carousel effect="fade">
+                      <div>
+                        <Slide1 />
+                      </div>
+                      
+                      <div>
+                        <Slide2 />
+                      </div>
+                      
+                    </Carousel>
+                  </div>
+              </div>
+              <div className="login_col">
+                <div className="login_col_wrapper">
+                  <div className="login_col_header">{logo_inkiri_small}</div>
+                  <div className="login_form">
+                      {login_form}
                   </div>
                 </div>
+              </div>
               
             </div>
           </div>
