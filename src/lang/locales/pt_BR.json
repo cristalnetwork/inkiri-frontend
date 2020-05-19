@@ -1,7 +1,7 @@
 {
   "global.navbar.lang_selector": "Línguas",
   "cristalnetwork.title": "Cristal Network",
-  "inkiri.bank.title": "INKIRI BANK",
+  "inkiri.bank.title": "CLOUD BANK",
   "inkiri.bank.description": "Cristal Network: Community currencies launch platform.",
   "global.onboarding.title": "Sistema Bancário Para Economias Locais",
   "global.onboarding.subtitle": "Facilite as Trocas e Promova Desenvolvimento em Uma Economia Local.",
@@ -721,7 +721,7 @@
   "pages.common.contracted-services.error.while_fetching_services": "Houve um erro ao carregar sua lista de serviços",
   "pages.common.contracted-services.load_more_services": "Caregar mais serviços",
   "pages.common.contracted-services.error_service_not_exists": "Oops... Can't get service",
-  "pages.common.contracted-services.error_service_not_exists_message": "Service can't be retrieved. Please check if this contract is still active, otherwise notify system administrator. ",
+  "pages.common.contracted-services.error_service_not_exists_message": "Service can't be retrieved. Please check if this contract is still active, otherwise notify system administrator.",
   "pages.common.create-provider.invalid_form": "Confira as notificações de campos",
   "pages.common.create-provider.loading": "Carregando...",
   "pages.common.create-provider.pushing": "Enviando transação...",

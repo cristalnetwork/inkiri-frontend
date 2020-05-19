@@ -2,7 +2,7 @@
 *  APP VERSION
 * DO NOT CHANGE FOLLOWING LINE!!!!!!!!
 */
-const version = '1.0.17';
+const version = '1.0.18';
 /*
 *  ENV & BLOCKCHAIN CONFIGURATION!
 */
@@ -16,8 +16,8 @@ const TELOS_TESTNET      = 'telos_testnet';
 const TELOS_MAINNET      = 'telos_mainnet';
 const LOCAL_TESTNET      = 'local_testnet';
 
-const env                = ENV_STAGING;
-const BLOCKCHAIN_NETWORK = TELOS_MAINNET;
+const env                = ENV_PROD;
+const BLOCKCHAIN_NETWORK = EOS_TESTNET;
 
 const language   = {
   simple:      "es"
@@ -33,8 +33,8 @@ const language   = {
   }; 
 
 
-// const contract_account = "labisteste21";
-const contract_account = "cristaltoken";
+const contract_account = "labisteste21";
+// const contract_account = "cristaltoken";
 
 const currency = {
   token:            contract_account,
@@ -196,10 +196,10 @@ const bank = {
 const base_api_url = {
   [ENV_DEV]      : 'http://localhost:3600',
   [ENV_DEMO]     : 'https://cristal-backend.herokuapp.com',
-  // [ENV_STAGING]  : 'https://labisteste21.herokuapp.com',
-  // [ENV_PROD]     : 'https://labisteste21.herokuapp.com'
-  [ENV_STAGING]  : 'https://cristaltoken.herokuapp.com',
-  [ENV_PROD]     : 'https://cristaltoken.herokuapp.com'
+  [ENV_STAGING]  : 'https://cristal-backend.herokuapp.com',
+  [ENV_PROD]     : 'https://cristal-backend.herokuapp.com'
+  // [ENV_STAGING]  : 'https://cristaltoken.herokuapp.com',
+  // [ENV_PROD]     : 'https://cristaltoken.herokuapp.com'
 }
 const base_url     = base_api_url[env];
 
