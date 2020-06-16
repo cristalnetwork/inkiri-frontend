@@ -14,7 +14,7 @@ import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 import { withRouter } from "react-router-dom";
 
-import { Drawer, Table, Steps, Card, PageHeader, Button, Spin, Form, Icon, Input } from 'antd';
+import { Drawer, Steps, Card, PageHeader, Button, Spin, Form, Icon, Input } from 'antd';
 import * as columns_helper from '@app/components/TransactionTable/columns';
 
 import TxResult from '@app/components/TxResult';
@@ -23,11 +23,15 @@ import PaymentForm from '@app/components/Form/payment';
 import PaymentItemsForm from '@app/components/Form/payment_items';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
+import RequestListWidget, {REQUEST_MODE_PDV} from '@app/components/request-list-widget';
+
 import { injectIntl } from "react-intl";
 import InjectMessage from "@app/components/intl-messages";
 
+import * as gqlRequestI18nService from '@app/services/inkiriApi/requests-i18n-graphql-helper'
+
 // Dfuse WebSocket
-import { InboundMessageType, createDfuseClient } from '@dfuse/client';
+// import { InboundMessageType, createDfuseClient } from '@dfuse/client';
 
 const { Step } = Steps;
 const steps = [
@@ -77,7 +81,7 @@ class PDV extends Component {
       ...DEFAULT_RESULT,
       
       pushingTx:          false,
-      loading:            true,
+      loading:            false,
       txs:                [],
       
       cursor:             '',
@@ -96,26 +100,33 @@ class PDV extends Component {
     this.onCloseModal               = this.onCloseModal.bind(this);
     this.launchConnection           = this.launchConnection.bind(this);
     this.stop                       = this.stop.bind(this);
-    this.loadTransactionsForAccount = this.loadTransactionsForAccount.bind(this);
-
+   
     this.onPaymentModalCallback     = this.onPaymentModalCallback.bind(this);
     this.onPaymentItemsCallback     = this.onPaymentItemsCallback.bind(this);
 
-    // Dfuse WebSocket
-    this.stream = undefined
-    this.client = undefined
-    this.client = createDfuseClient({
-      apiKey:globalCfg.dfuse.api_key,
-      network:globalCfg.dfuse.network,
-      streamClientOptions: {
-        socketOptions: {
-          onClose: this.onClose,
-          onError: this.onError,
-        }
-      }
-    })
+    this.onRequestClick             = this.onRequestClick.bind(this);
+
+    this.socket      = null;
+    this.txsTableRef = null;
   }
 
+  onRequestClick(request){
+    if(request.unconfirmed==true){
+      const title = this.props.intl.formatMessage({id: 'pages.business.pdv.payment_in_progess'})
+      const msg   = this.props.intl.formatMessage({id: 'pages.business.pdv.payment_in_progess_description'})
+      components_helper.notif.infoNotification( title, msg);    
+      return;
+    }
+    this.props.setLastRootMenuFullpath(this.props.location.pathname);
+
+    this.props.history.push({
+      pathname: '/common/request-details'
+      , state: { 
+          request: request 
+          , referrer: this.props.location.pathname
+        }
+    })
+  }
   checkPrice = (rule, value, callback) => {
     if (value > 0) {
       callback();
@@ -309,76 +320,27 @@ class PDV extends Component {
 
 
   componentDidMount(){
-    this.loadTransactionsForAccount(true);  
     this.launchConnection();
   } 
 
-  reloadTxs = async () =>{
-    const {formatMessage} = this.props.intl;
-    this.setState({
-        page:   -1, 
-        txs:    [],
-      }, async () => {
-        try{
-          const ret = await this.stop();
-        }
-        catch(e){
-          console.log(' reloadTxs -> stop ERROR')
-        }
-        try{
-          const ret = await this.launchConnection();
-        }
-        catch(e){
-          const title = formatMessage({id:'pages.business.pdv.error.cant_listen_to_transactions'})          
-          components_helper.notif.exceptionNotification( title, e);    
-        }
-        this.loadTransactionsForAccount(true);
-      });  
-  }
+  // reloadTxs = async () =>{
+  //   const {formatMessage} = this.props.intl;
+  //   try{
+  //     const ret = await this.stop();
+  //   }
+  //   catch(e){
+  //     console.log(' reloadTxs -> stop ERROR')
+  //   }
+  //   try{
+  //     const ret = await this.launchConnection();
+  //   }
+  //   catch(e){
+  //     const title = formatMessage({id:'pages.business.pdv.error.cant_listen_to_transactions'})          
+  //     components_helper.notif.exceptionNotification( title, e);    
+  //   }      
+  // }
 
-  loadTransactionsForAccount(is_first){
-
-    let account_name = this.props.actualAccountName;
-    const {formatMessage} = this.props.intl;
-    let that = this;
-    this.setState({loading:true});
-    api.dfuse.incomingTransactions(account_name, (is_first===true?undefined:this.state.cursor))
-    .then( (res) => {
-        that.onNewData(res.data);
-      } ,(ex) => {
-        const title = formatMessage({id:'pages.business.pdv.error.cant_load_transactions'})          
-        components_helper.notif.exceptionNotification( title, ex);    
-        that.setState({loading:false});  
-      } 
-    );
-    
-  }
-  //
-  onNewData(data, prepend){
-    
-    const _txs           = prepend==true?[...data.txs, ...this.state.txs]:[...this.state.txs, ...data.txs];
-
-    const pagination     = {...this.state.pagination};
-    pagination.pageSize  = _txs.length;
-    pagination.total     = _txs.length;
-
-    this.setState({pagination:pagination, txs:_txs.filter(tx=> [globalCfg.api.TYPE_PAYMENT, globalCfg.api.TYPE_SEND].includes(tx.request.requested_type)), cursor:data.cursor, loading:false})
-    
-    if(!data.txs || data.txs.length==0)
-    {
-      const {formatMessage} = this.props.intl;
-      const title   = formatMessage({id: 'pages.business.pdv.reached_end_of_transactions'});
-      const message = formatMessage({id: 'pages.business.pdv.reached_end_of_transactions_message'});
-      components_helper.notif.infoNotification( title, message);    
-    }
-  }
   ///
-  renderFooter(){
-    return (<Button key="load-more-data" disabled={!this.state.cursor} onClick={()=>this.loadTransactionsForAccount(false)}>
-              <InjectMessage id="pages.business.pdv.load_older_transactions" />
-            </Button>)
-  }
-  //
   onPaymentItemsCallback = async (error, cancel, values) => {
     // if(cancel)
     // {
@@ -458,6 +420,7 @@ class PDV extends Component {
      
     if(!accounts || accounts.length<=0){
       components_helper.notif.errorNotification( formatMessage({id:'pages.business.pdv.error.no_accounts'}));
+      this.setState({pushingTx:false});
       return;
     }
 
@@ -466,14 +429,21 @@ class PDV extends Component {
     const items_text = (items||'').replace(/|/g, '').slice(0,50);
     const stamp_text = formatMessage({id:'pages.business.pdv.message.payed_at_store'});
     const memo = `${items_text} ${stamp_text}`;
+
+    console.log('***********************************************')
+    console.log(accounts[0], private_key, this.props.actualAccountName, input_amount.value, memo);
+    
+    // that.setState({pushingTx:false, show_payment:false});
+    // return;
+
     api.sendPayment(accounts[0], private_key, this.props.actualAccountName, input_amount.value, memo)
       .then((data) => {
-        console.log(' pdv::pay (then#1) >>  ', JSON.stringify(data));
+        console.log(' ******************************* pdv::pay (then#1) >>  ', JSON.stringify(data));
         that.setState({pushingTx:false, show_payment:false});
         that.resetState();
         components_helper.notif.successNotification( formatMessage({id:'pages.business.pdv.success.payment_completed'}) );
       }, (ex) => {
-        console.log(' pdv::pay (error#1) >>  ', JSON.stringify(ex));
+        console.log(' ******************************* pdv::pay (error#1) >>  ', JSON.stringify(ex));
         components_helper.notif.exceptionNotification( formatMessage({id:'pages.business.pdv.error.payment_not_completed'}) , ex);
         that.setState({pushingTx:false});
       });
@@ -523,7 +493,6 @@ class PDV extends Component {
             <Card 
               title={(<span><strong>{title}</strong> </span> )}
               key="payment"
-              loading={this.state.pushingTx}
               style={{width:700}}
               >
                 {current_step==0 && 
@@ -554,7 +523,7 @@ class PDV extends Component {
                   </Button>
                 )}
                 {current_step === steps.length - 1 && (
-                  <Button type="primary" onClick={() => this.doPay()} disabled={this.state.pushingTx} disabled={this.state.adding_new_perm}>
+                  <Button type="primary" disabled={this.state.pushingTx} onClick={() => this.doPay()}>
                     <FontAwesomeIcon icon="shopping-bag" size="1x"/>&nbsp;{formatMessage({id:'global.pay'})}
                   </Button>
                 )}
@@ -573,18 +542,23 @@ class PDV extends Component {
   //
   render() {
     const {loading, selectedRowKeys, connected} = this.state;
-    const content         = this.renderContent();
-    const routes          = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
-    const {formatMessage} = this.props.intl;
-    const conn_title      = connected
+    const content           = this.renderContent();
+    const routes            = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
+    const {formatMessage}   = this.props.intl;
+
+    const conn_title        = connected
       ?formatMessage({id:'pages.business.pdv.connection.ok_status'})
       :formatMessage({id:'pages.business.pdv.connection.error_status'});
     const connection_icon = connected
       ?(<Icon title={conn_title} key={Math.random()} type="check-circle" theme="twoTone" style={{fontSize:20}} twoToneColor="#52c41a"/>)
       :(<Icon title={conn_title} key={Math.random()} type="api" theme="twoTone" twoToneColor="#eb2f96" style={{fontSize:20}} />);
     
-    const payModal = this.renderPaymentModal()
-    
+    const redo_button_title = formatMessage({id:'pages.business.pdv.connection.reconnect_button_text'});
+    // const reconnect_button  = <Button size="small" key="refresh" icon="redo" title={redo_button_title} disabled={loading} onClick={()=>this.reloadTxs()} ></Button>;
+    const reconnect_button  = null;
+    const payModal          = this.renderPaymentModal()
+    const _types            = `${globalCfg.api.TYPE_PAYMENT},${globalCfg.api.TYPE_SEND}`;
+
     return (
       <>
         
@@ -592,7 +566,7 @@ class PDV extends Component {
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={formatMessage({id:'pages.business.pdv.title'})}
           extra={[
-            <Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reloadTxs()} ></Button>,
+            reconnect_button,
             connection_icon]}
           >
         </PageHeader>
@@ -607,69 +581,165 @@ class PDV extends Component {
         </div>
 
         
-
         <Card 
           title={formatMessage({id:'pages.business.pdv.transactions.title'})}
-          extra={ <Spin spinning={this.state.loading} />}>
-          <Table
-            showHeader={false}
-            key="pdv"
-            rowKey={record => record.id} 
-            loading={this.state.loading} 
-            columns={ columns_helper.getColumnsBlockchainTXs(this.onTransactionClick)} 
-            dataSource={this.state.txs} 
-            footer={() => this.renderFooter()}
-            pagination={this.state.pagination}
-            scroll={{ x: 700 }}
-          />
+          extra={ <Spin spinning={this.state.loading} />}
+          bodyStyle={{padding:'0px 8px'}}>
+          <RequestListWidget
+                hide_filter={true}
+                hide_export_button={true}
+                callback={this.onRequestClick}
+                hide_stats={true}
+                request_type={_types}
+                the_key={'_received'}
+                filter={{'to':this.props.actualAccountName}}
+                mode={REQUEST_MODE_PDV}
+                scroll={{ x: 700 }}
+                onRef={ref => (this.txsTableRef = ref)}
+            />
         </Card>
       </>
     );
   }
 
   launchConnection = async() => {
-     try { 
-      this.stream = await this.client.streamActionTraces({
-                account: globalCfg.currency.token 
-                , receivers: this.props.actualAccountName
-                , action_name: "transfer"}
-              , this.onTransaction
-              , {
-                irreversible_only: false
-              });
+    
+    this.socket = new WebSocket("wss://telos.spectrumeos.io/streaming");
 
-      this.setState({ connected: true });
-      console.log(' -- launchConnection::  LAUNCH OK')
-    } catch (error) {
-      console.log(' -- launchConnection::  LAUNCH error', JSON.stringify(error))
-      // this.setState({ errorMessages: ["Unable to connect to socket.", JSON.stringify(error)] })
+    var actionsList = ["transfer"]; 
+    var messageBody = {
+       "apikey":"test-api-key",
+       "event":"subscribe",
+       "type":"get_actions",
+       "data": {"account":this.props.actualAccountName}
+    };
+
+    this.socket.onmessage = this.onTransaction;
+    this.socket.onclose   = this.onClose;
+    this.socket.onerror   = this.onError;
+
+    this.socket.onopen = () => {
+      console.log("[open] Connection established");
+      console.log("Sending to server: "+JSON.stringify(messageBody));
+      try{
+        const ret = this.socket.send(JSON.stringify(messageBody));
+        this.setState({ connected: true });
+      }catch(ex){
+        components_helper.notif.exceptionNotification(  );
+        console.log(' -- launchConnection::  LAUNCH error', JSON.stringify(ex))
+      }
+      
     }
+
+
+    // JSON
+    // const message = {
+    //   "data":
+    //   {
+    //     "requestType": "get_actions",
+    //     "action":
+    //     {
+    //         "context_free": false,
+    //         "elapsed": 6,
+    //         "console": "",
+    //         "act":
+    //         {
+    //             "authorization": [
+    //             {
+    //                 "actor": "atomakinnaka",
+    //                 "permission": "active"
+    //             }],
+    //             "name": "transfer",
+    //             "account": "cristaltoken",
+    //             "data": "{\"from\":\"atomakinnaka\",\"to\":\"dargonarbizz\",\"quantity\":\"0.7500 INK\",\"memo\":\"pay|undefined|test [Payed at store]\"}"
+    //         },
+    //         "creator_action_ordinal": 1,
+    //         "receiver": "dargonarbizz",
+    //         "action_ordinal": 3,
+    //         "receipt":
+    //         {
+    //             "receiver": "dargonarbizz",
+    //             "code_sequence": 1,
+    //             "abi_sequence": 1,
+    //             "recv_sequence": 2,
+    //             "auth_sequence": [
+    //             {
+    //                 "sequence": 26,
+    //                 "account": "atomakinnaka"
+    //             }],
+    //             "act_digest": "d020f06e2a9abcdc6f9e89693c34cc77330935248796a312e5d805973e8cd666",
+    //             "global_sequence": 2544351829
+    //         },
+    //         "except": "",
+    //         "account_ram_deltas": [],
+    //         "block_num": 77525039,
+    //         "block_timestamp": "2020-03-07T15:49:10.500",
+    //         "trxid": "64c638e93ab1fea5b9cb887a60d74a6ac436a10ce04549c09db3139d03ae41e4"
+    //     }
+    //   }
+    // };
+    
+    // this.onTransaction(message);
+
+    //  try { 
+    //   this.stream = await this.client.streamActionTraces({
+    //             account: globalCfg.currency.token 
+    //             , receivers: this.props.actualAccountName
+    //             , action_name: "transfer"}
+    //           , this.onTransaction
+    //           , {
+    //             irreversible_only: false
+    //           });
+    //   this.setState({ connected: true });
+    //   console.log(' -- launchConnection::  LAUNCH OK')
+    // } catch (error) {
+    //   console.log(' -- launchConnection::  LAUNCH error', JSON.stringify(error))
+    //   // this.setState({ errorMessages: ["Unable to connect to socket.", JSON.stringify(error)] })
+    // }
+
   }
 
+
+
   onTransaction = async (message) => {
-    // console.log(' ON TRANSACTION ', JSON.stringify(message))
-    if (message.type !== InboundMessageType.ACTION_TRACE) {
-      return
-    }
+    
+    console.log(' *****************************NEW TRANSACTION ', message);
+    let tx_data = null;
+    if (typeof message === 'string') 
+      tx_data = JSON.parse(message).data;  
+    else
+      tx_data = message.data;  
+    
+    if (typeof tx_data === 'string') 
+      tx_data = JSON.parse(tx_data);
+    
+    console.log(typeof tx_data)
+    console.log(tx_data)
 
-    const txs = api.dfuse.transformTransactions(message, this.props.actualAccountName);
-    this.onNewData({txs:txs, cursor:null}, true);
-    console.log(' ON TRANSACTION ', JSON.stringify(txs))
-    components_helper.notif.successNotification( this.props.intl.formatMessage({id:'pages.business.pdv.message.new_payment_received'}) );
-
-    const that = this;
-    setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
+    const txs = api.txsHelper.toReadable(this.props.actualAccountName, tx_data);
+    // this.onNewData({txs:txs, cursor:null}, true);
+    console.log(' ** TRANSFORMED TRANSACTION :', JSON.stringify(txs))
+    
+    // const that = this;
+    // setTimeout(()=> that.props.loadBalance(that.props.actualAccountName) ,1000);
      
+    components_helper.notif.successNotification( this.props.intl.formatMessage({id:'pages.business.pdv.message.new_payment_received'}) );
+    const that = this;
+    setTimeout(()=> {
+      if(that.txsTableRef!=null)
+        that.txsTableRef.onNewTx(txs)
+      that.props.loadBalance(that.props.actualAccountName)
+    } ,1000);
   }
 
   stop = async () => {
-    if (this.stream === undefined) {
+    if (this.stream === null) {
       return;
     }
 
     try {
-      await this.stream.close()
-      this.stream = undefined;
+      await this.socket.close()
+      this.socket = null;
     } catch (error) {
       console.log(' STOP - Cant close connection. ', JSON.stringify(error))
     }
@@ -685,8 +755,8 @@ class PDV extends Component {
   }
 
   componentWillUnmount() {
-    if (this.stream !== undefined) {
-      this.stream.close()
+    if (this.socket !== null) {
+      this.socket.close()
     }
   }
   

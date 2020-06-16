@@ -7,6 +7,8 @@ import { coreReducer, coreSagas } from './models/core';
 
 import { createSagaInjector } from './sajasInjector'
 
+// import { firebaseReducer } from 'react-redux-firebase';
+
 const coreReducers = {
   core: coreReducer
 }
@@ -29,7 +31,7 @@ export default function configureStore(initialState) {
   // Create an inject reducer function
   // This function adds the async reducer, and creates a new combined reducer
   store.injectReducer = (key, asyncReducer) => {
-    console.log(' .. me injectaron:', key)
+    console.log(' .. on reducer injected:', key)
     store.asyncReducers[key] = asyncReducer;
     store.replaceReducer(createReducer(store.asyncReducers));
   };
@@ -44,7 +46,8 @@ export default function configureStore(initialState) {
 function createReducer(asyncReducers) {
   return combineReducers({
     ...coreReducers,
-    ...asyncReducers,
+    ...asyncReducers
+    // firebase: firebaseReducer, 
   });
 }
 

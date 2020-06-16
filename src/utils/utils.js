@@ -1,5 +1,16 @@
 import _ from 'lodash';
+import HashImg from './identicon';
 
+export {HashImg};
+
+export const parseString = (str) => {
+    let idx = 0;
+    while(typeof str == 'string' && idx<5){
+      str = JSON.parse(str);
+      idx=idx+1;
+    }
+    return str;
+  }
 
 export const is_cnpj = (legal_id) =>{
   if(!legal_id || legal_id=='')

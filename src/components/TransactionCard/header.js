@@ -32,7 +32,7 @@ const TransactionHeader = ({request, transaction}) => {
     }
     //
     return(
-      <div className="c-header-detail ">
+      <div className="c-header-detail request_detail_header">
         <div className="c-header-detail__head u-clearfix">
             <div className="c-header-detail__title">
               {header}

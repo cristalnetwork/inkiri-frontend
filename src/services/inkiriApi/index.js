@@ -34,6 +34,10 @@ function prettyJson(input){
   return JSON.stringify(input, null, 2)
 }
 
+const do_log = true;
+
+export const setPushInfo  = async (account_name, token) => bank.setPushInfo(account_name, token);
+
 /*
 * Retrieves Smart Contract's Bank accounts profile list.
 */
@@ -124,16 +128,37 @@ export const getCurrencyStats = async () => {
 /*
 * Retrieves account names related to a given public key.
 */
-export const getKeyAccounts = (public_key) => dfuse.getKeyAccounts(public_key);
-// export const getKeyAccounts = (public_key) => getKeyAccountsImpl(public_key);
+// export const getKeyAccounts = (public_key) => dfuse.getKeyAccounts(public_key);
+export const getKeyAccounts = (public_key) => getKeyAccountsImpl(public_key);
 const getKeyAccountsImpl = async (public_key) => { 
-  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint);
-  // const jsonRpc   = new JsonRpc(globalCfg.dfuse.base_url);
+  // const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint);
+  // const response  = await jsonRpc.history_get_key_accounts(public_key);
+  // console.log(' ########## getKeyAccounts:', JSON.stringify(response));
+  // return response?response.account_names:[];
+
+  // const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint_long_tx);
+  // const response  = await jsonRpc.history_get_key_accounts(public_key);
+  // console.log(' ########## getKeyAccounts:', JSON.stringify(response));
+  // return response?response.account_names:[];
+
   
-  const response  = await jsonRpc.history_get_key_accounts(public_key);
+
+  try{
+    //curl -X GET "https://jungle2.cryptolions.io/v2/state/get_key_accounts?public_key=EOS7wB5NGGnDcw676aSqwe5tmmND1ZffDr2qehbxUCGwoXfbrBAbR" -H "accept: application/json"
+
+    const path         = globalCfg.eos.endpoint_history_v2 + '/v2/state/get_key_accounts';
+    const method       = 'GET';
+    const query_string = `?public_key=${public_key}`
+    const options      = { method: method};
+    const response     = await fetch(path+query_string, options);
+    const responseJSON = await response.json();
+    console.log('----responseJSON:',responseJSON)
+    return (responseJSON.account_names || []);
+   }catch(ex){
+    console.log('error', ex)
+    return[];
+  }
   
-  console.log(' ########## getKeyAccounts:', JSON.stringify(response));
-  return response?response.account_names:[];
 }
 
 
@@ -176,11 +201,15 @@ export const listTransactions = (account_name, cursor) => dfuse.listTransactions
 
 // });  
 
-export const setAccountPermission = async (tx, privatekey) => pushTX (tx, privatekey);
+export const setAccountPermission = async (tx, privatekey) => pushTX (tx, privatekey, true);
 
-const pushTX = async (tx, privatekey) => { 
+const pushTX = async (tx, privatekey, use_v2) => { 
 	const signatureProvider = new JsSignatureProvider([privatekey])
-  const rpc = new JsonRpc(globalCfg.dfuse.base_url)
+  // const rpc = new JsonRpc(globalCfg.dfuse.base_url)
+  const endpoint = use_v2==true
+    ?globalCfg.eos.endpoint_long_tx
+    :globalCfg.eos.endpoint;
+  const rpc = new JsonRpc(endpoint)
   const api = new Api({
     rpc,
     signatureProvider
@@ -234,45 +263,53 @@ const pushTX = async (tx, privatekey) => {
 
 }
 
+const CURRENCY_SYMBOL = globalCfg.eos.currency_symbol;
+
 export const createAccount = async (creator_priv, new_account_name, new_account_public_key, account_type, fee, overdraft, permissions) => { 
 
   const fee_string       = globalCfg.currency.toEOSNumber(fee);
   const overdraft_string = globalCfg.currency.toEOSNumber(overdraft);
+
+  const is_business = account_type==globalCfg.bank.ACCOUNT_TYPE_BUSINESS||account_type==2||account_type=='business';
+  const ram         = 4096 ;
+  const net         = is_business? '0.5000' : '0.2500'; 
+  const cpu         = is_business? '1.0000' : '0.2500';
+
   let actions = [];
   let newAccountAction = 
     {
-    account:         'eosio',
-    name:            'newaccount',
+    account:             'eosio',
+    name:                'newaccount',
     authorization: [{
-      actor:         globalCfg.bank.issuer,
-      permission:    'active',
+      actor:             globalCfg.bank.issuer,
+      permission:        'active',
     }],
     data: {
-      creator: globalCfg.bank.issuer,
-      name: new_account_name,
+      creator:           globalCfg.bank.issuer,
+      name:              new_account_name,
       owner: {
-        threshold: 1,
+        threshold:       1,
         keys: [{
-          key: new_account_public_key,
-          weight: 1
+          key:           new_account_public_key,
+          weight:        1
         }],
         accounts: [{
           permission: {
-            actor: globalCfg.bank.issuer,
-            permission: "active"
+            actor:       globalCfg.bank.issuer,
+            permission:  "active"
           },
-          weight: 1
+          weight:        1
         }],
-        waits: []
+        waits:           []
       },
       active: {
-        threshold: 1,
+        threshold:       1,
         keys: [{
-          key: new_account_public_key,
-          weight: 1
+          key:           new_account_public_key,
+          weight:        1
         }],
-        accounts: [],
-        waits: []
+        accounts:        [],
+        waits:           []
       },
     },
   };
@@ -284,12 +321,11 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
     Object.keys(permissions).forEach(function (key, idx) {
       if(!(key in newAccountAction.data))
       {
-        // console.log(' ******* CREATED PERM: ', key)
         newAccountAction.data[key] = {
-          threshold: 1,
-          keys: [],
-          accounts: [],
-          waits: []
+          threshold:     1,
+          keys:          [],
+          accounts:      [],
+          waits:         []
         };
       }
       
@@ -298,10 +334,10 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
         newAccountAction.data[key].accounts.push(
             {
               permission: {
-                actor: auth_account,
-                permission: "active"
+                actor:       auth_account,
+                permission:  "active"
               },
-              weight: 1
+              weight:        1
             }
           );
       });
@@ -316,52 +352,52 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
   console.log(JSON.stringify(newAccountAction));
 
   const buyRamAction = {
-    account: 'eosio',
-    name: 'buyrambytes',
+    account:               'eosio',
+    name:                  'buyrambytes',
     authorization: [{
-      actor: globalCfg.bank.issuer,
-      permission: 'active',
+      actor:               globalCfg.bank.issuer,
+      permission:          'active',
     }],
     data: {
-      payer: globalCfg.bank.issuer,
-      receiver: new_account_name,
+      payer:               globalCfg.bank.issuer,
+      receiver:            new_account_name,
       // bytes: 8192,
-      bytes: 4096,
+      bytes:               ram,
     },
   };
   // actions.push(buyRamAction)
 
   const delegateBWAction= {
-    account: 'eosio',
-    name: 'delegatebw',
+    account:               'eosio',
+    name:                  'delegatebw',
     authorization: [{
-      actor: globalCfg.bank.issuer,
-      permission: 'active',
+      actor:               globalCfg.bank.issuer,
+      permission:          'active',
     }],
     data: {
-      from: globalCfg.bank.issuer,
-      receiver: new_account_name,
-      stake_net_quantity: '0.2500 EOS',
-      stake_cpu_quantity: '0.2500 EOS',
-      transfer: false,
+      from:                globalCfg.bank.issuer,
+      receiver:            new_account_name,
+      stake_net_quantity:  net + ' ' + CURRENCY_SYMBOL,
+      stake_cpu_quantity:  cpu + ' ' + CURRENCY_SYMBOL,
+      transfer:            false,
     }
   }
   // actions.push(delegateBWAction)
 
   const createBankAccountAction = {
-    account: globalCfg.bank.issuer,
-    name: globalCfg.bank.table_customers_action,
+    account:               globalCfg.bank.issuer,
+    name:                  globalCfg.bank.table_customers_action,
     authorization: [{
-      actor:       globalCfg.bank.issuer,
-      permission:  'active',
+      actor:               globalCfg.bank.issuer,
+      permission:          'active',
     }],
     data: {
-      to              : new_account_name
-      , fee           : fee_string
-      , overdraft     : overdraft_string
-      , account_type  : account_type
-      , state         : 1
-      , memo          : ''
+      to              :    new_account_name
+      , fee           :    fee_string
+      , overdraft     :    overdraft_string
+      , account_type  :    account_type
+      , state         :    1
+      , memo          :    ''
     },
   }
   
@@ -390,7 +426,7 @@ export const createAccount = async (creator_priv, new_account_name, new_account_
   if(issueAction)
     actions.push(issueAction)
   // throw new Error('ESTA!');  
-  return pushTX(actions, creator_priv);
+  return pushTX(actions, creator_priv, true);
 }
 
 export const acceptService = async (auth_account, auth_priv, account_name, provider_name, service_id, price, begins_at, periods, request_id) => { 
@@ -652,7 +688,6 @@ const getPermissionedAccountsForAccount = (account_name) => new Promise((res, re
 
 export const login = async (account_name, private_key) => {
   
-  const do_log = true;
   // 1.- Obtengo la publica de la privada.
   const pubkey  = ecc.privateToPublic(private_key); 
   
@@ -718,6 +753,7 @@ export const login = async (account_name, private_key) => {
 
   do_log && console.log('inkiriApi::login::permissions retrieved ok!') 
 
+  let fundAccounts          = persmissionedAccounts.filter(perm => globalCfg.bank.isFoundationAccount(perm.permissioner.account_type))
   let corporateAccounts     = persmissionedAccounts.filter(perm => globalCfg.bank.isBusinessAccount(perm.permissioner.account_type))
   let adminAccount          = persmissionedAccounts.filter(perm => globalCfg.bank.isAdminAccount(perm.permissioner.account_type))
   let personalAccounts      = persmissionedAccounts.filter(perm => perm.permissioner.account_name!==account_name && globalCfg.bank.isPersonalAccount(perm.permissioner.account_type))
@@ -782,12 +818,13 @@ export const login = async (account_name, private_key) => {
     profile               : profile,
     personalAccount       : personalAccount,
     // persmissionedAccounts : persmissionedAccounts,
+    fundAccounts          : fundAccounts.length>0?fundAccounts:undefined,
     corporateAccounts     : corporateAccounts.length>0?corporateAccounts:undefined,
     adminAccount          : (adminAccount&&adminAccount.length>0)?adminAccount[0]:undefined,
     otherPersonalAccounts : personalAccounts
   };
 
-  console.log(' ============================================== inkiriApi::login >> result: '
+  do_log && console.log(' ============================================== inkiriApi::login >> result: '
       , JSON.stringify(ret));
 
   return ret;

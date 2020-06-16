@@ -49,7 +49,7 @@ class ReferrerWidget extends React.Component {
     const menuHeaderDropdown = (
       <Menu className="menu" selectedKeys={[]} onClick={this.onMenuClick}>
         <Menu.Item key="goto_referrer">
-            <FontAwesomeIcon icon={referrer.referrer_icon} color="black"/>
+            <FontAwesomeIcon icon={referrer.referrer_icon||'university'} color="black"/>
             &nbsp;{referrer.referrer_title}
           </Menu.Item>
         <Menu.Divider />
@@ -62,9 +62,8 @@ class ReferrerWidget extends React.Component {
     return (
       <HeaderDropdown overlay={menuHeaderDropdown} style={{marginRigth:16}} className="temp_alert_action">
           <span className={`action account`}>
-            <FontAwesomeIcon icon={referrer.referrer_icon} className="fa_icon"/>
+            <FontAwesomeIcon icon={referrer.referrer_icon||'university'} className="fa_icon"/>
           </span>
-        
       </HeaderDropdown>
     );
   }

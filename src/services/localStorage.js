@@ -8,6 +8,15 @@ export const getLanguage = (_default='en-US') =>{
 export const setLanguage = (lang) =>{
     return localStorage.setItem(language_key, lang);
 }
+
+const version_key = 'version';
+export const getVersion = (_default) =>{
+    // console.log('localStorage.getItem(language_key) || _default ======>', localStorage.getItem(language_key) || _default)
+    return localStorage.getItem(version_key) || _default;
+}
+export const setVersion = (version) =>{
+    return localStorage.setItem(version_key, version);
+}
 /**
  *
  * @param {String} area
@@ -71,3 +80,5 @@ export function clearStorage () {
             res({status: 'ok'})
     })
 }
+
+export const clear = () => localStorage.clear();

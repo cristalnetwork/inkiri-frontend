@@ -29,6 +29,8 @@ export const formatDateForMobile= (request) =>{
 }
 
 export const formatUnix = (date, _format='LLLL') => {
+  if(!date)
+    return 'N/D';
   let my_value = date;
   if(date.toString().length=='1570910442875'.length)
     my_value = date/1000;
@@ -142,43 +144,19 @@ export const getTypeTag = (request) => {
 // calculator  => https://www.sessions.edu/color-calculator/
 // alpha       => https://www.google.com/search?q=rgb+to+hex&oq=rgb+to+hex&aqs=chrome..69i57j0l5.2827j0j7&sourceid=chrome&ie=UTF-8
 
-export const getTypeConf = () => {
-  return {
-      // [globalCfg.api.TYPE_DEPOSIT]     : {icon:'arrow-up',             rotation: 0,  color:{primary: '#1890ff' /*azul*/          , secondary:'#e6f7ff'}, style: {borderTop: '1px solid #1890ff'}},
-      // [globalCfg.api.TYPE_WITHDRAW]    : {icon:'arrow-down',           rotation: 0,  color:{primary: '#18ff88' /*verde*/         , secondary:'#d6ffea'}, style: {borderTop: '1px solid #18ff88'}},
-      [globalCfg.api.TYPE_DEPOSIT]     : {icon:'arrow-up',             rotation: 0,  color:{primary: '#1890ff' /*azul*/          , secondary:'#e6f7ff'}, style: {}},
-      [globalCfg.api.TYPE_WITHDRAW]    : {icon:'arrow-down',           rotation: 0,  color:{primary: '#18ff88' /*verde*/         , secondary:'#d6ffea'}, style: {}},
-      [globalCfg.api.TYPE_EXCHANGE]    : {icon:'exchange-alt',         rotation: 90, color:{primary: '#ff9606' /*naranja*/       , secondary:'#fce9cf'}, style: {}},
-      [globalCfg.api.TYPE_PAYMENT]     : {icon:'shopping-bag',         rotation: 0,  color:{primary: '#FF06A3' /*fuccia*/        , secondary:'#facae8'}, style: {}},
-      [globalCfg.api.TYPE_PROVIDER]    : {icon:'truck-moving',         rotation: 0,  color:{primary: '#ff5906' /*naranjrojo*/    , secondary:'#fcdecf'}, style: {}},
-      [globalCfg.api.TYPE_SEND]        : {icon:'paper-plane',          rotation: 0,  color:{primary: '#ffd606' /*amarillo*/      , secondary:'#fcf4c7'}, style: {}},
-      [globalCfg.api.TYPE_SERVICE]     : {icon:'store',                rotation: 0,  color:{primary: '#9DFF06' /*lima*/          , secondary:'#e7fcc5'}, style: {}},
-      [globalCfg.api.TYPE_SALARY]      : {icon:['fab', 'pagelines'],   rotation: 0,  color:{primary: '#25AEFF' /*celeste dark*/  , secondary:'#d7eefc'}, style: {}},
-      [globalCfg.api.TYPE_ISSUE]       : {icon:'credit-card',          rotation: 0,  color:{primary: '#067748' /*verde dark*/    , secondary:'#c5fce5'}, style: {}},
-      [globalCfg.api.TYPE_IUGU]        : {icon:'credit-card',          rotation: 0,  color:{primary: '#A115FF' /*violeta*/       , secondary:'#e2c3f7'}, style: {}},
-      [globalCfg.api.TYPE_REFUND]      : {icon:'credit-card',          rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/       , secondary:'#b1ecfa'}, style: {}},
-      [globalCfg.api.TYPE_PAD]         : {icon:'shopping-bag',         rotation: 0,  color:{primary: '#FF06A3' /*fuccia*/        , secondary:'#facae8'}, style: {}},
 
-      [globalCfg.api.TYPE_NEW_ACCOUNT] : {icon:'user-plus',            rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
-      [globalCfg.api.TYPE_ERASE_CUST]  : {icon:'user-minus',           rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
-      [globalCfg.api.TYPE_UPSERT_PAP]  : {icon:'file-signature',       rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
-      [globalCfg.api.TYPE_ERASE_PAP]   : {icon:'minus-circle',         rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
-      [globalCfg.api.TYPE_CHARGE_PAP]  : {icon:'file-invoice-dollar',  rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
-      [globalCfg.api.TYPE_UPSERT_CUST] : {icon:'user-plus',            rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
-      [globalCfg.api.TYPE_UNKNOWN]     : {icon:'question-circle',      rotation: 0,  color:{primary: '#FF0619' /*rojo*/           , secondary:'#f7c6ca'}, style: {}},
-      'hack_service'                   : {icon:'shapes',               rotation: 0,  color:{primary: '#EBCE54' /*yellow*/         , secondary:'rgba(235, 205, 86, 0.4)'}, style: {}},
-      'hack_user'                      : {icon:'user',                 rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}}
-  }
-}
-//
-export const getCircledTypeIcon = (request) => {
+export const smallCircleIcon = (request) => getCircledTypeIcon(request, true);
+
+export const getCircledTypeIcon = (request, smaller) => {
   
   if(typeof request !== 'string')
     request = request.requested_type  
-
-  const my_icon               = getTypeConf()[request]; 
+  
+  const my_icon               = globalCfg.api.getTypeConf()[request]; 
   const my_icon_color_primary = 'rgba(0,0,0,0.6)';
-  const className             = 'ui-avatar__content--small circled_action_type flex_center';
+  const className             = smaller
+    ?'ui-avatar__content--smaller circled_action_type flex_center'
+    :'ui-avatar__content--small circled_action_type flex_center';
   // const style     = {border: `0.0625em solid ${my_icon.color.primary}` , background: `${my_icon.color.secondary}`}
   const style     = {border: `0.0625em solid ${my_icon_color_primary}` , background: `${my_icon.color.secondary}`}
   const size      = '1x';
@@ -195,12 +173,13 @@ export const getCircledTypeIcon = (request) => {
           </div>);
 }
 //
+
 export const getBoxedTypeIcon = (request) => {
   
   if(typeof request !== 'string')
     request = request.requested_type  
 
-  const my_icon               = getTypeConf()[request]; 
+  const my_icon               = globalCfg.api.getTypeConf()[request]; 
   // const my_icon_color_primary = 'rgba(0,0,0,0.6)';
   const my_icon_color_primary = '#ffffff';
   const className             = 'boxed-tx-type';
@@ -218,17 +197,7 @@ export const getBoxedTypeIcon = (request) => {
           </div>);
 }
 //
-export const getTypeIcon = (request, size, color) => {
-  
-  const my_icon = getTypeConf()[request.requested_type]; 
-  if(!my_icon)
-    return (<FontAwesomeIcon icon="question-circle" size="1x" color="gray" />);
-  // style={my_icon.style} 
-  if(my_icon.rotation>0)
-    return (<FontAwesomeIcon icon={my_icon.icon} rotation={my_icon.rotation} style={my_icon.style} size={size||'1x'} color={color||'gray'}/>);
-  return (<FontAwesomeIcon icon={my_icon.icon} style={my_icon.style} size={size||'1x'} color={color||'gray'}/>);
-}
-//
+
 export const getAccountTypeIcon = (account_type) => {
   if(isNaN(account_type))
     account_type = globalCfg.bank.ACCOUNT_TYPES.indexOf(account_type);
@@ -280,8 +249,9 @@ export const getBlockchainLink = (tx_id, withIcon, size, text) => {
 export const getBlockchainUrl = (tx_id) => {
   if(!tx_id)
     return '#';
-  return api.dfuse.getBlockExplorerTxLink(tx_id);
+  return globalCfg.eos.getBlockExplorerTxLink(tx_id);
 }
+
 //
 export const getProcessButton = (request, callback, text, is_primary) => {
   // const title = (typeof text==='undefined')?((globalCfg.api.isFinished(request))?"Details":"Process"):text;
@@ -493,6 +463,13 @@ export const blockchain = {
 * Helper functions for IUGU transcations
 */
 //
+const getOriginal = (record) => {
+      if(typeof record.original == 'object')
+        return record.original;
+      return JSON.parse(record.original);
+    }
+    
+
 export const iugu = {
   STATE_NOT_PROCESSED : 'state_not_processed',
   STATE_PROCESSING    : 'state_processing',
@@ -517,6 +494,19 @@ export const iugu = {
   , stateIcon     : (invoice) => { return (IuguIconImage); }
   // , header        : (invoice) => { return `${globalCfg.currency.toCurrencyString(invoice.amount)} paid to ${invoice.receipt_alias}`}
   , header        : (invoice) => { return `${invoice.receipt_alias}`}
+  , invoice_description : (invoice) => { 
+      const _original = getOriginal(invoice);
+      return _original.items&& _original.items.length>0
+              ? _original.items[0].description
+              : 'N/A'
+          }
+  , invoice_variable : (invoice) => { 
+      const _original = getOriginal(invoice);
+      if(!_original.custom_variables || _original.custom_variables.length<1)
+        return 'N/A';
+      const custom_variable = _original.custom_variables.find(_custom_var => _custom_var.name=='projeto')
+      return custom_variable?custom_variable.value:'N/A';
+          }
   , stateTag      : (invoice) => {
       const my_state = iugu.getStates()[invoice.state];                    
       // const icon     = (<FontAwesomeIcon icon={my_state.icon} size="xs" color={my_state.color} />);
@@ -531,7 +521,7 @@ export const iugu = {
     //
   , iuguLink : (invoice, with_icon) => {
       const icon = (with_icon===undefined || with_icon)?(<FontAwesomeIcon icon="external-link-alt" />):(null);
-      const href = invoice.original.secure_url;
+      const href = JSON.parse(invoice.original).secure_url;
       const key = 'key_iugu_link_'+Math.random(); 
       return (<Button type="link" href={href} target="_blank" key={key} size={'default'} style={{color:'inherit', paddingLeft:0}}>IUGU original &nbsp; {icon}</Button>)
     }

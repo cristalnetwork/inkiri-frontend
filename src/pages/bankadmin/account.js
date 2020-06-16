@@ -160,8 +160,14 @@ class Profile extends Component {
 
   deletePermission = async (perm_name, actor, permission) => {
     
+    // console.log('???????????????')
+    // console.log('perm_name: ', JSON.stringify(perm_name));
+    // console.log('actor: ', JSON.stringify(actor));
+    // console.log('permission: ', JSON.stringify(permission));
     const {eos_account}  = this.state;
-    const account_permission = api.permissionHelper.removeAccount(eos_account, actor, permission)
+    const account_permission = api.permissionHelper.removeAccount(eos_account, perm_name, actor, permission)
+    // console.log(perm_name, account_permission)
+    // return;
     this.setAccountPermission(perm_name, account_permission);
     
   }

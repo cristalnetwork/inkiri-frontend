@@ -64,17 +64,24 @@ export const getTokenIfNotExpired = (key) => {
 export const apiCall = (path, method, data, timeout) => new Promise((res,rej)=> {
   let bearer_token;
   let _key = DFUSE_AUTH_TOKEN_KEY;
-  if(!path.startsWith(globalCfg.dfuse.base_url) )
+  // if(!path.startsWith(globalCfg.dfuse.base_url) )
+  //   _key = BANK_AUTH_TOKEN_KEY;
+
+  if(path.startsWith(globalCfg.api.endpoint) )
     _key = BANK_AUTH_TOKEN_KEY;
+
   bearer_token = getBearerToken(getTokenIfNotExpired(_key));
   method = method || "GET";
 
+  const auth = _key==BANK_AUTH_TOKEN_KEY
+    ? {Authorization: bearer_token}
+    : {}; 
   console.log(_key, bearer_token)
   let fetchOptions = {
     method: method,
     headers: {
       Accept: "application/json, text/plain, */*", "Content-Type": "application/json",
-      Authorization: bearer_token
+      ...auth
     }
   };
 

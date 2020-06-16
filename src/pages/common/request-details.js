@@ -61,6 +61,8 @@ class RequestDetails extends Component {
         [globalCfg.api.BOLETO_PAGAMENTO]  : undefined,
         [globalCfg.api.COMPROBANTE]       : undefined,
       },
+
+      isMobile:   props.isMobile
     };
 
     // this.handleSearch = this.handleSearch.bind(this); 
@@ -119,6 +121,9 @@ class RequestDetails extends Component {
     let new_state = {};
     if(prevProps.isFetching!=this.props.isFetching){
       new_state = {...new_state, isFetching:this.props.isFetching}
+    }
+    if(prevProps.isMobile!=this.props.isMobile){
+      new_state = {...new_state, isMobile:this.props.isMobile}
     }
     const errors_changed = !utils.arraysEqual(prevProps.getErrors, this.props.getErrors);
     if(errors_changed ){
@@ -284,8 +289,8 @@ class RequestDetails extends Component {
     const {request}      = this.state;
     const {_id, amount, requested_by, requested_to, requestCounterId, description} = request;
     const privateKey     = this.props.actualPrivateKey;
-    const receiver       = requested_by.account_name;
-    // const sender         = requested_to.account_name;
+    // const receiver       = requested_by.account_name;
+    const receiver       = requested_to.account_name;
     const sender         = this.props.actualAccountName;
     const memo           = description
     
@@ -576,7 +581,8 @@ class RequestDetails extends Component {
         }
 
         if(globalCfg.api.isSendOrPayment(request)){
-          if(request.requested_by.account_name==this.props.actualAccountName)
+          // if(request.requested_by.account_name==this.props.actualAccountName)
+          if(request.requested_to.account_name==this.props.actualAccountName)
           {
             return [cancelButton];
           }
@@ -630,7 +636,7 @@ class RequestDetails extends Component {
   //
   render() {
 
-    const {request, referrer, loading, intl} = this.state;
+    const {isMobile, request, referrer, loading, intl} = this.state;
     if(!request)
       return (<Spin loading="true" />)
     let content      = this.renderContent();
@@ -639,14 +645,16 @@ class RequestDetails extends Component {
     {
       routes         = routesService.breadcrumbForPaths([referrer, this.props.location.pathname]);
     }
-    
-    return (
-      <>
-        <PageHeader
+    const header = (!isMobile)
+      ?( <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           extra={[<Button size="small" key="refresh" icon="redo" disabled={loading} onClick={()=>this.reload()} ></Button>]}
-          title={intl.title} />
-        
+          title={intl.title} />)
+      :(null);
+    return (
+      <>
+         
+        {header}
         {content}
         
       </>
@@ -668,6 +676,7 @@ export default Form.create() (withRouter(connect(
         isBusiness:         loginRedux.isBusiness(state),
         isPersonal:         loginRedux.isPersonal(state),
         lastRootMenu:       menuRedux.lastRootMenu(state),
+        isMobile :          menuRedux.isMobile(state),
 
         isFetching:       apiRedux.isFetching(state),
         getErrors:        apiRedux.getErrors(state),

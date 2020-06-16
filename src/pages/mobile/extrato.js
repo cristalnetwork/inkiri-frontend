@@ -71,7 +71,8 @@ class Extrato extends Component {
     this.props.setLastRootMenuFullpath(this.props.location.pathname);
 
     this.props.history.push({
-      pathname: '/mobile/request-details'
+      // pathname: '/mobile/request-details'
+      pathname: '/common/request-details'
       , state: { 
           request: request 
           , referrer: this.props.location.pathname

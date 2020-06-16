@@ -9,7 +9,7 @@ import Yuan from './utils/Yuan';
 import styles from './style.less';
 
 // import './stolen.css';
-import './umi.e70625bc.css';
+// import './umi.e70625bc.css';
 import { injectIntl } from "react-intl";
 
 const topColResponsiveProps = {

@@ -322,45 +322,48 @@ class CreateAccount extends Component {
     console.log(' FINALLY createAccount!!!')
     const {permissions, business_name, alias, account_name, password, confirm_password, generated_keys, account_type, account_overdraft, account_fee, first_name, last_name, email, legal_id, birthday, phone, address} = this.state;
     const that             = this;
-    that.setState({pushingTx:true})
-    
-    /*
-    * Step #1: create EOS account
-    */
-    console.log('actualPrivateKey:', this.props.actualPrivateKey 
-      , ' | account_name:', account_name
-      , ' | generated_keys.pub_key:', generated_keys.pub_key, 
-      ' | account_fee:', account_fee, 
-      ' | account_overdraft:', account_overdraft, 
-      ' | account_type:', account_type, 
-      ' | permissions:', JSON.stringify(permissions));
-
-    api.createAccount(this.props.actualPrivateKey 
+    that.setState({pushingTx:true},
+      () =>{
+        setTimeout(()=> { 
+            api.createAccount(this.props.actualPrivateKey 
                         , account_name
                         , generated_keys.pub_key
                         , account_type
                         , account_fee
                         , account_overdraft
                         , permissions)
-      .then((res)=>{
-        // console.log(' doCreateAccount() BLOCKCHAIN OK ',JSON.stringify(res))
-        /*
-        * Step #2: create account on private servers 
-        */
-        api.bank.createOrUpdateUser(null, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias)
-          .then((res2)=>{
-            that.setState({result:'ok', pushingTx:false, result_object:{account_name:account_name}});
-            console.log(' doCreateAccount() MONGO OK ',JSON.stringify(res2))
-          }, (err2)=>{
-            that.setState({result:'error', pushingTx:false, error:JSON.stringify(err2)});
-            console.log(' doCreateAccount() MONGO ERROR ',JSON.stringify(err2))          
-          })
-      }, (err)=>{
-        that.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
-        components_helper.notif.exceptionNotification(  this.props.intl.formatMessage({id:'errors.occurred_title'}), err, null, this.props.intl)
-        console.log(' doCreateAccount() BLOCKCHAIN ERROR', JSON.stringify(err))
-      })
+              .then((res)=>{
+                // console.log(' doCreateAccount() BLOCKCHAIN OK ',JSON.stringify(res))
+                /*
+                * Step #2: create account on private servers 
+                */
+                api.bank.createOrUpdateUser(null, account_type, account_name, first_name, last_name, email, legal_id, birthday, phone, address, business_name, alias)
+                  .then((res2)=>{
+                    that.setState({result:'ok', pushingTx:false, result_object:{account_name:account_name}});
+                    console.log(' doCreateAccount() MONGO OK ',JSON.stringify(res2))
+                  }, (err2)=>{
+                    that.setState({result:'error', pushingTx:false, error:JSON.stringify(err2)});
+                    console.log(' doCreateAccount() MONGO ERROR ',JSON.stringify(err2))          
+                  })
+              }, (err)=>{
+                that.setState({result:'error', pushingTx:false, error:JSON.stringify(err)});
+                components_helper.notif.exceptionNotification(  that.props.intl.formatMessage({id:'errors.occurred_title'}), err, null, that.props.intl)
+                console.log(' doCreateAccount() BLOCKCHAIN ERROR', JSON.stringify(err))
+              })
 
+        } , 1000 );
+      });
+    
+    // /*
+    // * Step #1: create EOS account
+    // */
+    // console.log('actualPrivateKey:', this.props.actualPrivateKey 
+    //   , ' | account_name:', account_name
+    //   , ' | generated_keys.pub_key:', generated_keys.pub_key, 
+    //   ' | account_fee:', account_fee, 
+    //   ' | account_overdraft:', account_overdraft, 
+    //   ' | account_type:', account_type, 
+    //   ' | permissions:', JSON.stringify(permissions));
     
   }
 
@@ -499,11 +502,24 @@ class CreateAccount extends Component {
           
           const keys = api.keyHelper.getDerivedKey(account_name, password)
           api.getKeyAccounts(keys.pub_key)
-            .then(()=>{
-              that.setState({generated_keys:EMPTY_KEYS, generating_keys:false})
-              components_helper.notif.errorNotification( that.state.intl.account_unique_validation );
+            .then((data)=>{
+              // console.log(' ************** getKeyAccounts:',keys.pub_key)
+              // console.log(data)
+              if(data && Array.isArray(data) && data.length>0)
+              {
+                that.setState({generated_keys:EMPTY_KEYS, generating_keys:false})
+                components_helper.notif.errorNotification( that.state.intl.account_unique_validation );
+                return;
+              }
+              else
+              {
+                that.setState({generated_keys:keys, generating_keys:false});
+                return;
+              }
             },(err)=>{
+              console.log(' ************** getKeyAccounts ERR:', err)
               that.setState({generated_keys:keys, generating_keys:false});
+              return;
             })      
         } ,2000);
         
@@ -602,9 +618,12 @@ class CreateAccount extends Component {
     if (api.accountNameHelper.isValidAccountName(name)) 
     {
       api.getAccount(value)
-      .then(()=>{
+      .then((data)=>{
+        console.log('test account creation #1')
+        console.log(data)
         callback(this.state.intl.account_unique_validation);
       },(err)=>{
+        console.log('test account creation #2')
         callback()
       })
     }
@@ -1131,8 +1150,7 @@ class CreateAccount extends Component {
     if(this.state.result)
     {
       const result_type = this.state.result;
-      const title       = this.props.intl.formatMessage({id:'pages.bankadmin.create_account.succedd_message'});
-      //const _href        = api.dfuse.getBlockExplorerAccountLink(account_name);
+      const title       = this.props.intl.formatMessage({id:'pages.bankadmin.create_account.succedd_message'})
       const message     = null;
       const tx_id       = this.state.result_object?this.state.result_object.transaction_id:null;
       const error       = this.state.error

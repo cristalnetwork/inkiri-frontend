@@ -318,9 +318,10 @@ export const getColumnsForRequests = (callback, is_admin, process_wages) => {
   ]
 };
 
+
 //
-export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAccountName) => {
-  return [
+export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAccountName, show_index) => {
+  const x = [
     {
       title: <InjectMessage id="components.TransactionTable.columns.date" />,
       dataIndex: 'block_time',
@@ -420,7 +421,24 @@ export const getColumnsForExtrato = (callback, is_admin, process_wages, actualAc
             )
         }
     }
-  ]
+  ];
+  //
+  const idx_column = {
+      title: '',
+      width: 35,
+      key: 'index',
+      render : (text, record, index) => index+1,
+    };
+  if (show_index) 
+    return [idx_column, ...x];
+  return x;
+};
+
+export const getColumnsForPDV = (callback, actualAccountName) => {
+  
+  const cols = getColumnsForExtrato(callback, false, {}, actualAccountName, false);
+
+  return cols.filter(col=>col.key!='state');
 };
 
 //
@@ -1025,6 +1043,8 @@ export const columnsForIUGU = (callback) => {
                 <span className="row_tx_title">
                   {request_helper.iugu.header(record)}
                 </span> 
+                <br/># Texto Fatura: <b>{request_helper.iugu.invoice_description(record)}</b>
+                <br/># custom_variables['projeto']: <b>{request_helper.iugu.invoice_variable(record)}</b>
                 <br/># {record.iuguCounterId}
               </div>   
             </span>)
@@ -1159,7 +1179,7 @@ export const columnsForSalaries = (callback, remove_callback, job_positions) => 
               </div>
               <div className="row_value wider">
                 <span className="row_tx_title">{request_helper.getProfileName(record.member)}</span> 
-                <br/>@{record.member.account_name} 
+                <br/>@{record.member.account_name}
               </div>   
             </span>)
         }
@@ -1428,7 +1448,7 @@ export const columnsForServiceContract = (callback) => {
             </div>
             <div className="row_value wider">
               <span className="row_tx_title">@{account}</span> 
-               
+              <br/>#{record.service_id} 
             </div>   
           </span>)
         }

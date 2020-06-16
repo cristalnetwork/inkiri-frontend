@@ -52,6 +52,7 @@ export const pathNames = utils.arrToObj([
     'commonProviders_CreateProvider',
     'commonProviders_ProviderProfile',
     'commonBulkPadCharge',
+    'commonInfo',
 
     'mobileExtrato',
     'mobilePDV',
@@ -399,6 +400,15 @@ const common = [
        container:    'dashboard',
        role:         '*'
     },
+    {
+       key:          pathNames.commonInfo,
+       fileName:     'info',
+       area:         'common',
+       path:         'info',
+       container:    'dashboard',
+       role:         '*'
+    },
+    
 ];
 
 const mobile = [{

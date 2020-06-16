@@ -1,7 +1,7 @@
 import { takeEvery, put } from '@redux-saga/core/effects';
 import { store } from '../configureStore'
 import * as globalCfg from '@app/configs/global';
-import { getStorage, clearStorage, setStorage } from '@app/services/localStorage'
+import * as storage from '@app/services/localStorage';
 import * as core from './core';
 import * as api from '@app/services/inkiriApi';
 import {TRY_DELETE_SESSION} from './page';
@@ -15,7 +15,7 @@ const SET_LOGIN         = 'login/SET_LOGIN'
 const LOGOUT            = 'login/LOGOUT'
 const CLEAR_SESSION     = 'login/CLEAR_SESSION'
 
-const TRY_SWITCH        = 'login/TRY_SWITCH';
+// const TRY_SWITCH        = 'login/TRY_SWITCH';
 const TRY_SWITCH2       = 'login/TRY_SWITCH2';
 const TRY_SWITCH_END    = 'login/TRY_SWITCH_END';
 
@@ -25,7 +25,7 @@ const SET_PROFILE       = 'login/SET_PROFILE';
 
 // Creadores de acciones (se pueden usar desde los compoenentes)
 // export const tryLogin = (account, save) =>({ type: TRY_LOGIN, payload: {account, save } });
-export const trySwitchAccount = (account_name)             => ({ type: TRY_SWITCH, payload: { account_name } });
+// export const trySwitchAccount = (account_name)             => ({ type: TRY_SWITCH, payload: { account_name } });
 export const trySwitchAccount2 = (account_name, role)      => ({ type: TRY_SWITCH2, payload: { account_name:account_name , role:role } });
 export const tryLogin = (account_name, password, remember) => ({ type: TRY_LOGIN, payload: { account_name, password, remember } });
 export const tryLoginError = (e)                           => ({ type: TRY_LOGIN_ERROR, payload: { exception:e } });
@@ -43,7 +43,7 @@ const ACCOUNT_DATA = 'account_data'
 function* initLoginDataSaga() {
     console.log( ' # core.INIT@login-saga ' )
     yield put({ type: core.ACTION_START, payload: { login: 'Check local storage' } })
-    const { data } = yield getStorage(ACCOUNT_DATA);
+    const { data } = yield storage.getStorage(ACCOUNT_DATA);
     // console.log(' loginREDUX::loadLoginData >> storage >> ', JSON.stringify(data))
     if (data && data.account_name && data.password) {
         //yield put(tryLogin(data.account_name, data.password, false))
@@ -68,9 +68,10 @@ function* tryLoginSaga({ type, payload }) {
         // console.log('login.redux -> api.login -> :', accounts)
         console.log(' login-redux::tryloginsaga::result', accounts)
         if (payload.remember) {
+            storage.setVersion(globalCfg.version);
             let master_account = account_name;
             const profile = accounts.profile;
-            setStorage(ACCOUNT_DATA, { account_name, password, remember, accounts, master_account, profile })
+            storage.setStorage(ACCOUNT_DATA, { account_name, password, remember, accounts, master_account, profile })
         }
         yield put({ type: TRY_DELETE_SESSION });
         yield put(setLoginData({ 
@@ -80,6 +81,12 @@ function* tryLoginSaga({ type, payload }) {
                 , current_account:  accounts.personalAccount
                 , password:         password
                 , profile:          accounts.profile }))
+
+        const messaging = store.getState().messaging;
+        if(messaging && messaging.registrationToken)
+        {  
+          const x = yield api.setPushInfo(account_name, messaging.registrationToken);
+        }
     } catch (e) {
         console.log(' >> LOGIN REDUX ERROR#1', e)
         yield put({ type: TRY_LOGIN_ERROR, payload: {exception:e} })
@@ -88,40 +95,36 @@ function* tryLoginSaga({ type, payload }) {
     // yield put( tryUserState(account_name))
 }
 
-function* trySwitchAccountSaga({ type, payload }) {
-
-    const { account_name } = payload
-    // console.log(' LOGIN REDUX >> trySwitchAccountSaga >> ', account_name);
-    const { data } = yield getStorage(ACCOUNT_DATA);
-    if (account_name === data.account_name) {
-        // console.log(' LOGIN REDUX >> trySwitchAccountSaga >> NOTHING TO DO >> account_name===data.account_name', account_name);
-        yield put({ type: TRY_SWITCH_END })
-        return;
-    }
-
-    const stateData = getLoginDataFromStorage(data, account_name);
-
-    const profile = yield api.bank.getProfile(account_name);
-    stateData['profile'] = profile;
-    // console.log(' LOGIN REDUX >> trySwitchAccountSaga >>putting new data', JSON.stringify(stateData));
-    setStorage(ACCOUNT_DATA, { account_name: account_name
-                               , password: data.password
-                               , remember: data.remember
-                               , accounts: stateData.accounts
-                               , master_account: stateData.master_account
-                               , profile:profile })
-    yield put({ type: TRY_DELETE_SESSION });
-    yield put(setLoginData(stateData))
-    yield put({ type: TRY_SWITCH_END })
-    history.replace('/');
-
-}
+// function* trySwitchAccountSaga({ type, payload }) {
+//     const { account_name } = payload
+//     // console.log(' LOGIN REDUX >> trySwitchAccountSaga >> ', account_name);
+//     const { data } = yield storage.getStorage(ACCOUNT_DATA);
+//     if (account_name === data.account_name) {
+//         // console.log(' LOGIN REDUX >> trySwitchAccountSaga >> NOTHING TO DO >> account_name===data.account_name', account_name);
+//         yield put({ type: TRY_SWITCH_END })
+//         return;
+//     }
+//     const stateData = getLoginDataFromStorage(data, account_name);
+//     const profile = yield api.bank.getProfile(account_name);
+//     stateData['profile'] = profile;
+//     // console.log(' LOGIN REDUX >> trySwitchAccountSaga >>putting new data', JSON.stringify(stateData));
+//     storage.setStorage(ACCOUNT_DATA, { account_name: account_name
+//                                , password: data.password
+//                                , remember: data.remember
+//                                , accounts: stateData.accounts
+//                                , master_account: stateData.master_account
+//                                , profile:profile })
+//     yield put({ type: TRY_DELETE_SESSION });
+//     yield put(setLoginData(stateData))
+//     yield put({ type: TRY_SWITCH_END })
+//     history.replace('/');
+// }
 
 function* trySwitchAccount2Saga({ type, payload }) {
 
     const { account_name, role } = payload
     // console.log(' LOGIN REDUX >> trySwitchAccount2Saga >> ', account_name, role);
-    const { data } = yield getStorage(ACCOUNT_DATA);
+    const { data } = yield storage.getStorage(ACCOUNT_DATA);
     if (account_name === data.account_name) {
         // console.log(' LOGIN REDUX >> trySwitchAccount2Saga >> NOTHING TO DO >> account_name===data.account_name', account_name);
         yield put({ type: TRY_SWITCH_END })
@@ -129,11 +132,10 @@ function* trySwitchAccount2Saga({ type, payload }) {
     }
 
     const stateData = getLoginDataFromStorage(data, account_name);
-
     const profile = yield api.bank.getProfile(account_name);
     stateData['profile'] = profile;
     // console.log(' LOGIN REDUX >> trySwitchAccount2Saga >>putting new data', JSON.stringify(stateData));
-    setStorage(ACCOUNT_DATA, { account_name: account_name
+    storage.setStorage(ACCOUNT_DATA, { account_name: account_name
                                , password: data.password
                                , remember: data.remember
                                , accounts: stateData.accounts
@@ -142,8 +144,17 @@ function* trySwitchAccount2Saga({ type, payload }) {
     yield put({ type: TRY_DELETE_SESSION });
     yield put(setLoginData(stateData))
     yield put({ type: TRY_SWITCH_END })
-    history.replace('/');
 
+    const messaging = store.getState().messaging;
+    if(messaging && messaging.registrationToken)
+    {  
+      const x = yield api.setPushInfo(account_name, messaging.registrationToken);
+    }
+
+    setTimeout(()=> {
+      history.replace('/');
+    } , 500);
+    
 }
 
 function* loadProfileSaga({ type, payload }) {
@@ -153,9 +164,9 @@ function* loadProfileSaga({ type, payload }) {
   const profile = yield api.bank.getProfile(account_name);
   // console.log(' ** LOGIN-REDUX::loadProfileSaga profile: ', JSON.stringify(profile))
   if(profile) {
-    const { data } = yield getStorage(ACCOUNT_DATA);
-    // console.log(' ** LOGIN-REDUX::loadProfileSaga getStorage: ', JSON.stringify(data))
-    setStorage(ACCOUNT_DATA, { account_name: account_name
+    const { data } = yield storage.getStorage(ACCOUNT_DATA);
+    // console.log(' ** LOGIN-REDUX::loadProfileSaga storage.getStorage: ', JSON.stringify(data))
+    storage.setStorage(ACCOUNT_DATA, { account_name: account_name
                                , password: data.password
                                , remember: data.remember
                                , accounts: data.accounts
@@ -167,11 +178,15 @@ function* loadProfileSaga({ type, payload }) {
 
 
 function* logoutSaga() {
-    yield clearStorage();
-    history.replace('/');
+    setTimeout(()=> {
+      history.replace('/');
+    } , 500);
+    yield storage.clearStorage();
+    storage.setVersion(globalCfg.version);
 }
 
 function getLoginDataFromStorage(storageData, switch_to) {
+
     const account_name    = storageData.account_name;
     const master_account  = storageData.master_account;
     const password        = storageData.password;
@@ -185,7 +200,7 @@ function getLoginDataFromStorage(storageData, switch_to) {
 }
 
 function accountsToArray(accounts) {
-    return [accounts.personalAccount].concat(accounts.otherPersonalAccounts, accounts.corporateAccounts, accounts.adminAccount).filter(item => item !== undefined)
+    return [accounts.personalAccount].concat(accounts.otherPersonalAccounts, accounts.corporateAccounts, accounts.adminAccount, accounts.fundAccounts).filter(item => item !== undefined)
 }
 
 //Se envan las sagas a redux estableciendo que y cuantas veces dispara la funcià¸£à¸“n
@@ -193,7 +208,7 @@ store.injectSaga('login', [
     // takeEvery(core.INIT_READY_TO_START, initLoginDataSaga),
     takeEvery(core.INIT, initLoginDataSaga),
     takeEvery(TRY_LOGIN, tryLoginSaga),
-    takeEvery(TRY_SWITCH, trySwitchAccountSaga),
+    // takeEvery(TRY_SWITCH, trySwitchAccountSaga),
     takeEvery(TRY_SWITCH2, trySwitchAccount2Saga),
     takeEvery(LOAD_PROFILE, loadProfileSaga),
     takeEvery(LOGOUT, logoutSaga),
@@ -212,16 +227,17 @@ export const actualRoleId          = (state) => (state.login.current_account) ? 
 export const actualPermission      = (state) => (state.login.current_account) ? state.login.current_account.permission : undefined
 export const currentAccount        = (state) => state.login.current_account
 
-export const isAdmin               = (state) => globalCfg.bank.isAdminAccount(state.login.current_account.permissioner.account_type);
-export const isBusiness            = (state) => globalCfg.bank.isBusinessAccount(state.login.current_account.permissioner.account_type);
-export const isPersonal            = (state) => globalCfg.bank.isPersonalAccount(state.login.current_account.permissioner.account_type);
-export const isFund                = (state) => globalCfg.bank.isFoundationAccount(state.login.current_account.permissioner.account_type);
+export const isAdmin               = (state) => state.login.current_account && globalCfg.bank.isAdminAccount(state.login.current_account.permissioner.account_type);
+export const isBusiness            = (state) => state.login.current_account && globalCfg.bank.isBusinessAccount(state.login.current_account.permissioner.account_type);
+export const isPersonal            = (state) => state.login.current_account && globalCfg.bank.isPersonalAccount(state.login.current_account.permissioner.account_type);
+export const isFund                = (state) => state.login.current_account && globalCfg.bank.isFoundationAccount(state.login.current_account.permissioner.account_type);
 
-export const personalAccount       = (state) => state.login.accounts.personalAccount
-export const otherPersonalAccounts = (state) => state.login.accounts.otherPersonalAccounts
-export const corporateAccounts     = (state) => state.login.accounts.corporateAccounts
-export const adminAccount          = (state) => state.login.accounts.adminAccount
-export const allAccounts           = (state) => accountsToArray(state.login.accounts)
+export const personalAccount       = (state) => state.login.accounts && state.login.accounts.personalAccount
+export const otherPersonalAccounts = (state) => state.login.accounts && state.login.accounts.otherPersonalAccounts
+export const corporateAccounts     = (state) => state.login.accounts && state.login.accounts.corporateAccounts
+export const fundAccounts          = (state) => state.login.accounts && state.login.accounts.fundAccounts
+export const adminAccount          = (state) => state.login.accounts && state.login.accounts.adminAccount
+export const allAccounts           = (state) => state.login.accounts?accountsToArray(state.login.accounts):[]
 
 export const loginError            = (state) => state.login.error;
 
@@ -253,11 +269,11 @@ function reducer(state = defaultState, action = {}) {
                 loading: 0,
                 error: action.payload.exception
             }
-        case TRY_SWITCH:
-            return {
-                ...state,
-                loading: state.loading + 1
-            }
+        // case TRY_SWITCH:
+        //     return {
+        //         ...state,
+        //         loading: state.loading + 1
+        //     }
         case TRY_SWITCH2:
             return {
                 ...state,

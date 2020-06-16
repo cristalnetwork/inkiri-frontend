@@ -1,15 +1,18 @@
 import React, { Component } from "react";
-import { Alert, Form, Icon, Input, Button, Checkbox } from 'antd';
+import { Layout, Alert, Form, Icon, Input, Button, Checkbox } from 'antd';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
+
+import * as storage from '@app/services/localStorage'; 
 import * as loginRedux from '@app/redux/models/login';
+
 import { withRouter } from "react-router-dom";
 import * as globalCfg from '@app/configs/global';
 import * as api from '@app/services/inkiriApi';
 import SelectLanguage from '@app/components/InkiriHeader/SelectLang';
 import * as components_helper from '@app/components/helper';
 import * as utils from '@app/utils/utils';
-
+import VersionIndicator from '@app/components/version_indicator';
 import './login.css'
 
 import Loading from '@app/pages/general/loading'
@@ -79,15 +82,17 @@ class Login extends Component {
         this.setState({loading:false})
       }, 250);       
     }
+  }
 
-
+  clearSession = () => {
+    storage.clear();
+    this.props.clearSession();
   }
 
   render() {
     const { getFieldDecorator }   = this.props.form;
     const { loading, loginError } = this.state;
     const { formatMessage }       = this.props.intl;
-    
     if(loading)
       return(<Loading />);
     
@@ -96,7 +101,7 @@ class Login extends Component {
         <div className="login-header">
           <div className="login-wrapper">
             <h1 align="center">
-            <img src="/favicons/favicon-32x32.png" alt="" />&nbsp;<span className="omnes_isologo">{formatMessage({id:'inkiri.bank.title'})}</span>
+              <img src="/favicons/favicon-32x32.png" alt="" />&nbsp;<span className="omnes_isologo">{formatMessage({id:'inkiri.bank.title'})}</span>
             </h1>
           </div>     
         </div> 
@@ -150,12 +155,19 @@ class Login extends Component {
               {formatMessage({id:'pages.general.login.texts_log_in'})}
             </Button>
             <a href="#" disabled >{formatMessage({id:'pages.general.login.texts_register_now'})}</a>
-            <Button type="link" className="login-form-forgot" onClick={ () => this.props.clearSession() }>
+            <Button type="link" className="login-form-forgot" onClick={ this.clearSession }>
               {formatMessage({id:'pages.general.login.texts_reset_session'})}
             </Button>
           </Form.Item>
+
         </Form>
+        
+        <div className="login_version_footer">{ `INKIRI © ${(new Date()).getFullYear()} Version ${globalCfg.version}`}
+          <br/><VersionIndicator newline={true} for_login={true}/>
+        </div>
+
       </div>
+      
     );
   }
 }

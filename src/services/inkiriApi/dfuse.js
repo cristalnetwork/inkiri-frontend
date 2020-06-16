@@ -11,35 +11,35 @@ const endpoint    = globalCfg.eos.history_endpoint;
 // {
 //   "token": "eyJhbGciOiJLTVNFUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NTA2OTIxNzIsImp0aSI6IjQ0Y2UzMDVlLWMyN2QtNGIzZS1iN2ExLWVlM2NlNGUyMDE1MyIsImlhdCI6MTU1MDYwNTc3MiwiaXNzIjoiZGZ1c2UuaW8iLCJzdWIiOiJ1aWQ6bWRmdXNlMmY0YzU3OTFiOWE3MzE1IiwidGllciI6ImVvc3EtdjEiLCJvcmlnaW4iOiJlb3NxLmFwcCIsInN0YmxrIjotMzYwMCwidiI6MX0.k1Y66nqBS7S6aSt-zyt24lPFiNfWiLPbICc89kxoDvTdyDnLuUK7JxuGru9_PbPf89QBipdldRZ_ajTwlbT-KQ",
 //   "expires_at": 1550692172 // An UNIX timestamp (UTC) indicating when the JWT will expire.
-// }  							
+// }                
 
 
 // GET /v0/state/key_accounts
 // In replace of -> /v1/history/get_key_accounts
 // Source -> https://docs.dfuse.io/#rest-get-v0-state-key-accounts
-export const getKeyAccounts = async (public_key) => new Promise( async (res,rej)=> {
+// export const getKeyAccounts = async (public_key) => new Promise( async (res,rej)=> {
 
-  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
+//   const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
 
-  try{
-    const response = await jsonRpc.get_key_accounts(public_key);
-    console.log(response.account_names);
+//   try{
+//     const response = await jsonRpc.get_key_accounts(public_key);
+//     console.log(response.account_names);
 
-    if(!response.account_names){
-      rej('No name for given public key');
-      return;
-    }
-    res(response.account_names);
-  }catch(ex){
-    console.log('error', ex)
-    rej(ex);
-  }          
+//     if(!response.account_names){
+//       rej('No name for given public key');
+//       return;
+//     }
+//     res(response.account_names);
+//   }catch(ex){
+//     console.log('error', ex)
+//     rej(ex);
+//   }          
            
-})
+// })
 
 export const getAccountBalance = (account_name) => new Promise(async(res,rej)=> {
   
-  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)	
+  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint) 
   try{
     const response = await jsonRpc.get_currency_balance(globalCfg.currency.token, account_name, globalCfg.currency.eos_symbol)
     const balance = response && response.length>0
@@ -58,7 +58,7 @@ export const getAccountBalance = (account_name) => new Promise(async(res,rej)=> 
       rej(ex);
  }
 
-})	
+})  
 
 /**
  * Function that retrieves all blockchain transactions that includes
@@ -68,24 +68,39 @@ export const getAccountBalance = (account_name) => new Promise(async(res,rej)=> 
  */
 export const searchPermissioningAccounts = (account_name) => new Promise( async(res, rej) => {
 
-  const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
+  // const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
 
   try{
-    const response = await jsonRpc.history_get_controlled_accounts(account_name);
-    /*
-    {
-      "controlled_accounts": [
-        "tutinopablo1",
-        "cristaltoken"
-      ]
-    }
-    */
+    // const response = await jsonRpc.history_get_controlled_accounts(account_name);
+    
+    //curl -X POST "https://testnet.telosusa.io/v1/history/get_controlled_accounts" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"controlling_account\":\"cristaltoken\"}"
+    const path    = globalCfg.eos.endpoint_history_v1 + '/v1/history/get_controlled_accounts';
+    
+    const method       = 'POST';
+    const post_params = {'controlling_account':               account_name};
+    const options      = { method: method, body : JSON.stringify(post_params)};
+    const response     = await fetch(path, options);
+    const responseJSON = await response.json();
+    console.log('----responseJSON:',responseJSON)
+    return res(responseJSON.controlled_accounts.filter(account=>account!=account_name) || []);
 
-    if(!response || !response.controlled_accounts){
-      rej('No controlling accounts');
-      return;
-    }
-    res(response.controlled_accounts);
+    // const method  = 'POST';
+    // const post_params = {'controlling_account':               account_name};
+    // console.log(' inkiriApi::searchPermissioningAccounts >> ABOUT TO POST', JSON.stringify(post_params))
+    // jwtHelper.apiCall(path, method, post_params)
+    // .then((response) => {
+    //     console.log(`DFUSE::searchPermissioningAccounts(${account_name})::response:`, response)
+    //     if(!response || !response.controlled_accounts){
+    //       rej('No controlling accounts');
+    //       return;
+    //     }
+    //     res(response.controlled_accounts.filter(account=>account!=account_name));
+        
+    //   }, (ex) => {
+    //     console.log(' inkiriApi::createDeposit >> ERROR ', JSON.stringify(ex))
+    //     rej(ex);
+    //   });
+
   }catch(ex){
     console.log('error', ex)
     rej(ex);
@@ -145,7 +160,7 @@ export const incomingTransactions = (account_name, cursor) => listTransactions(a
 *  Source: https://github.com/dfuse-io/client-js/blob/73cce71b5a73b2bf2f21f608d7af17b956cb9e82/src/client/__tests__/client.test.ts
 */
 export const listTransactions = (account_name, cursor, received, start_block) => new Promise( async(res,rej)=> {
-	
+  
   const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
   const options = {
     // from: '' , // string? source account
@@ -164,26 +179,15 @@ export const listTransactions = (account_name, cursor, received, start_block) =>
         // => { from: 'eosio.bpay', to: 'eosnewyorkio', amount: 326.524, symbol: 'EOS', memo: 'producer block pay' }
     }
 
-  	const txs = transformTransactionsImpl(response.actions, account_name);
+    const txs = transformTransactionsImpl(response.actions, account_name);
     res ({data:{txs:txs, cursor:null}})
   }catch (ex) {
       rej(ex);
   }
   
-})	
-
-// Extract tx_id from push transaction result
-export const getBlockExplorerTxLink = (tx_id) => {
-
-  return globalCfg.dfuse.getBlockExplorerTxLink( tx_id);
-}
+})  
 
 export const getTxId = (result_tx) => {
 
   return result_tx.transaction_id;
-}
-
-export const getBlockExplorerAccountLink = (account_name) => {
-
-  return globalCfg.dfuse.account_url + account_name;
 }

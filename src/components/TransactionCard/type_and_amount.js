@@ -16,13 +16,6 @@ const TransactionTypeAndAmount = ({request, transaction, custom, isPersonal, act
       amount      = (<ItemAmount amount={custom.amount} />);
     }
     //
-    if(request){
-      let quantity = request.amount;
-      if(globalCfg.api.isSalary(request) && isPersonal)
-          quantity = request_helper.computeWageForAccount(request, actualAccountName);
-      description = (<><span className="uppercase" key={Math.random()}><InjectMessage id={ `requests.types.${request.requested_type}`} /></span>&nbsp;<small><InjectMessage id="global.request" /></small></>);
-      amount      = (<ItemAmount amount={quantity} />);
-    }
     //`
     if(transaction){
       description = transaction.name.toUpperCase();
@@ -69,8 +62,17 @@ const TransactionTypeAndAmount = ({request, transaction, custom, isPersonal, act
     
     //
 
+    if(request)
+    {
+      let quantity = request.amount;
+      if(globalCfg.api.isSalary(request) && isPersonal)
+          quantity = request_helper.computeWageForAccount(request, actualAccountName);
+      description = (<><span className="uppercase" key={Math.random()}><InjectMessage id={ `requests.types.${request.requested_type}`} /></span>&nbsp;<small><InjectMessage id="global.request" /></small></>);
+      amount      = (<ItemAmount amount={quantity} />);
+    }
+    //` 
     return(
-      <div className="ui-list">
+      <div className="ui-list request_detail_amount">
           <ul className="ui-list__content">
               <li>
                   <div className="c-ticket ">

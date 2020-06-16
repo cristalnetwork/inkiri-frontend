@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import * as menuRedux from '@app/redux/models/menu';
 import * as loginRedux from '@app/redux/models/login'
 import * as pageRedux from '@app/redux/models/page'
+import * as messagingRedux from '@app/redux/models/messaging'
 
 import * as globalCfg from '@app/configs/global';
 
@@ -13,7 +14,7 @@ import { withRouter } from "react-router-dom";
 import * as routesService from '@app/services/routes';
 import * as components_helper from '@app/components/helper';
 
-import { Card, PageHeader, Tabs} from 'antd';
+import { Button, Card, PageHeader, Tabs} from 'antd';
 
 import { DISPLAY_ALL_TXS, DISPLAY_REQUESTS} from '@app/components/TransactionTable';
 
@@ -74,6 +75,8 @@ class Extrato extends Component {
   }
 
   componentDidMount(){
+    // this.props.getPushNotifications();
+    this.props.subscribePushNotifications();
   } 
 
   componentDidUpdate(prevProps, prevState) 
@@ -151,12 +154,12 @@ export default  (withRouter(connect(
         actualRoleId:         loginRedux.actualRoleId(state),
         isPersonal:           loginRedux.isPersonal(state),
         isMobile :            menuRedux.isMobile(state),
-
         page_key_values:      pageRedux.pageKeyValues(state),
+
     }),
     (dispatch)=>({
-        setPageKeyValue:      bindActionCreators(pageRedux.setPageKeyValue, dispatch),
-
+        setPageKeyValue:         bindActionCreators(pageRedux.setPageKeyValue, dispatch),
+        subscribePushNotifications:    bindActionCreators(messagingRedux.registerIfNot, dispatch),
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(injectIntl(Extrato))));

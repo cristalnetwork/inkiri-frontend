@@ -1,10 +1,44 @@
-const env        = "prod";
+/*
+*  APP VERSION
+* DO NOT CHANGE FOLLOWING LINE!!!!!!!!
+*/
+const version = '1.0.17';
+/*
+*  ENV & BLOCKCHAIN CONFIGURATION!
+*/
+const ENV_DEV            = 'dev';
+const ENV_DEMO           = 'demo';
+const ENV_STAGING        = 'staging';
+const ENV_PROD           = 'prod';
 
-const language   = "english";
+const EOS_TESTNET        = 'eos_testnet';
+const TELOS_TESTNET      = 'telos_testnet';
+const TELOS_MAINNET      = 'telos_mainnet';
+const LOCAL_TESTNET      = 'local_testnet';
+
+const env                = ENV_STAGING;
+const BLOCKCHAIN_NETWORK = TELOS_MAINNET;
+
+const language   = {
+  simple:      "es"
+  , extended : "es-ES"
+  , moment:    "es"
+  
+  // simple:      "pt"
+  // , extended : "pt-BR"
+  // , moment:    "pt-BR"
+  // simple:      "en"
+  // , extended : "en-Us"
+  // , moment : undefined
+  }; 
+
+
+// const contract_account = "labisteste21";
+const contract_account = "cristaltoken";
 
 const currency = {
-  token:            "cristaltoken",
-  issuer:           "cristaltoken",
+  token:            contract_account,
+  issuer:           contract_account,
   name:             "INKIRI",
   symbol:           "IK$",
   eos_symbol:       "INK",
@@ -35,8 +69,8 @@ const currency = {
 };
 
 const bank = {
-  contract:                "cristaltoken",
-  issuer:                  "cristaltoken",
+  contract:                contract_account,
+  issuer:                  contract_account,
   table_customers:         "customer", 
   table_customers_action:  "upsertcust",
   table_customers_delete:  "erasecust", 
@@ -45,11 +79,9 @@ const bank = {
   table_paps_delete:       'erasepap', 
   table_paps_charge:       'chargepap',
 
-  exchange_account:        "cristaltoken",
-  provider_account:        "cristaltoken",
-  withdraw_account:        "cristaltoken",
-  
-  customers:               'https://jungle.bloks.io/account/cristaltoken?loadContract=true&tab=Tables&account=cristaltoken&scope=cristaltoken&limit=100&table=customer',
+  exchange_account:        contract_account,
+  provider_account:        contract_account,
+  withdraw_account:        contract_account,
   
   // HACK from server's config
   PAYMENT_VEHICLE_INKIRI :    'payment_vehicle_inkiri', //empresa
@@ -135,6 +167,8 @@ const bank = {
     return (parseInt(account_type)<bank.ACCOUNT_TYPES.length)?bank.ACCOUNT_TYPES[parseInt(account_type)]:undefined;
   },
   isAccountOfType : (param, type_ref) => {
+    if(typeof param === 'undefined' || param === null)
+      return false;
     if(typeof param !== 'number' && typeof param !== 'string')
       param = param.account_type  
     if(typeof param === 'number')
@@ -143,27 +177,15 @@ const bank = {
     
   },
   isPersonalAccount : (param) => {
-    // if(typeof param !== 'number' && typeof param !== 'string')
-    //   param = param.account_type  
-    // return parseInt(param) == bank.ACCOUNT_TYPE_PERSONAL;
     return bank.isAccountOfType(param, bank.ACCOUNT_TYPE_PERSONAL)
   },
   isBusinessAccount : (param) => {
-    // if(typeof param !== 'number' && typeof param !== 'string')
-    //   param = param.account_type  
-    // return parseInt(param) == bank.ACCOUNT_TYPE_BUSINESS;
     return bank.isAccountOfType(param, bank.ACCOUNT_TYPE_BUSINESS)
   },
   isFoundationAccount : (param) => {
-    // if(typeof param !== 'number' && typeof param !== 'string')
-    //   param = param.account_type  
-    // return parseInt(param) == bank.ACCOUNT_TYPE_FOUNDATION;
     return bank.isAccountOfType(param, bank.ACCOUNT_TYPE_FOUNDATION)
   },
   isAdminAccount : (param) => {
-    // if(typeof param !== 'number' && typeof param !== 'string')
-    //   param = param.account_type  
-    // return parseInt(param) == bank.ACCOUNT_TYPE_BANKADMIN;
     return bank.isAccountOfType(param, bank.ACCOUNT_TYPE_BANKADMIN)
   },
   isEnabledAccount : (account_state) => {
@@ -171,9 +193,15 @@ const bank = {
   }
 };
 
-
-// const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristal-backend.herokuapp.com';
-const base_url    = env=='dev' ? 'http://localhost:3600' : 'https://cristaltoken.herokuapp.com';
+const base_api_url = {
+  [ENV_DEV]      : 'http://localhost:3600',
+  [ENV_DEMO]     : 'https://cristal-backend.herokuapp.com',
+  // [ENV_STAGING]  : 'https://labisteste21.herokuapp.com',
+  // [ENV_PROD]     : 'https://labisteste21.herokuapp.com'
+  [ENV_STAGING]  : 'https://cristaltoken.herokuapp.com',
+  [ENV_PROD]     : 'https://cristaltoken.herokuapp.com'
+}
+const base_url     = base_api_url[env];
 
 const api_version = '/api/v1';
 const api = {
@@ -207,6 +235,33 @@ const api = {
   , TYPE_UPSERT_PAP           : 'type_upsert_pap'
   , TYPE_ERASE_PAP            : 'type_erase_pap'
   , TYPE_CHARGE_PAP           : 'type_charge_pap'
+
+  , getTypeConf : () => {
+    return {
+      [api.TYPE_DEPOSIT]     : {icon:'arrow-up',             rotation: 0,  color:{primary: '#1890ff' /*azul*/          , secondary:'#e6f7ff'}, style: {borderTop: '1px solid #1890ff'}},
+      [api.TYPE_WITHDRAW]    : {icon:'arrow-down',           rotation: 0,  color:{primary: '#18ff88' /*verde*/         , secondary:'#d6ffea'}, style: {borderTop: '1px solid #18ff88'}},
+      [api.TYPE_EXCHANGE]    : {icon:'exchange-alt',         rotation: 90, color:{primary: '#ff9606' /*naranja*/       , secondary:'#fce9cf'}, style: {}},
+      [api.TYPE_PAYMENT]     : {icon:'shopping-bag',         rotation: 0,  color:{primary: '#FF06A3' /*fuccia*/        , secondary:'#facae8'}, style: {}},
+      [api.TYPE_PROVIDER]    : {icon:'truck-moving',         rotation: 0,  color:{primary: '#ff5906' /*naranjrojo*/    , secondary:'#fcdecf'}, style: {}},
+      [api.TYPE_SEND]        : {icon:'paper-plane',          rotation: 0,  color:{primary: '#ffd606' /*amarillo*/      , secondary:'#fcf4c7'}, style: {}},
+      [api.TYPE_SERVICE]     : {icon:'store',                rotation: 0,  color:{primary: '#9DFF06' /*lima*/          , secondary:'#e7fcc5'}, style: {}},
+      [api.TYPE_SALARY]      : {icon:['fab', 'pagelines'],   rotation: 0,  color:{primary: '#25AEFF' /*celeste dark*/  , secondary:'#d7eefc'}, style: {}},
+      [api.TYPE_ISSUE]       : {icon:'credit-card',          rotation: 0,  color:{primary: '#067748' /*verde dark*/    , secondary:'#c5fce5'}, style: {}},
+      [api.TYPE_IUGU]        : {icon:'credit-card',          rotation: 0,  color:{primary: '#A115FF' /*violeta*/       , secondary:'#e2c3f7'}, style: {}},
+      [api.TYPE_REFUND]      : {icon:'credit-card',          rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/       , secondary:'#b1ecfa'}, style: {}},
+      [api.TYPE_PAD]         : {icon:'shopping-bag',         rotation: 0,  color:{primary: '#FF06A3' /*fuccia*/        , secondary:'#facae8'}, style: {}},
+
+      [api.TYPE_NEW_ACCOUNT] : {icon:'user-plus',            rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
+      [api.TYPE_ERASE_CUST]  : {icon:'user-minus',           rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
+      [api.TYPE_UPSERT_PAP]  : {icon:'file-signature',       rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
+      [api.TYPE_ERASE_PAP]   : {icon:'minus-circle',         rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
+      [api.TYPE_CHARGE_PAP]  : {icon:'file-invoice-dollar',  rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
+      [api.TYPE_UPSERT_CUST] : {icon:'user-plus',            rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}},
+      [api.TYPE_UNKNOWN]     : {icon:'question-circle',      rotation: 0,  color:{primary: '#FF0619' /*rojo*/           , secondary:'#f7c6ca'}, style: {}},
+      'hack_service'                   : {icon:'shapes',               rotation: 0,  color:{primary: '#EBCE54' /*yellow*/         , secondary:'rgba(235, 205, 86, 0.4)'}, style: {}},
+      'hack_user'                      : {icon:'user',                 rotation: 0,  color:{primary: '#0DD1FF' /*celeste*/        , secondary:'#b1ecfa'}, style: {}}
+    }
+  }
 
   , isDeposit          : (request) => { return (request.tx_type==api.TYPE_DEPOSIT||request.requested_type==api.TYPE_DEPOSIT)}
   , isIKDeposit        : (request) => { return (api.isDeposit(request) && request.deposit_currency==api.FIAT_CURR_IK)}
@@ -323,10 +378,10 @@ const api = {
   , PAYMENT_MODE                  : 'payment_mode'
   , getPaymentTitles : () => {
     return {
-      [api.PAYMENT_VEHICLE]:   'Vehicle',
-      [api.PAYMENT_CATEGORY]:  'Category',
-      [api.PAYMENT_TYPE]:      'Type',
-      [api.PAYMENT_MODE]:      'Mode',
+      [api.PAYMENT_VEHICLE]       : 'Vehicle',
+      [api.PAYMENT_CATEGORY]      : 'Category',
+      [api.PAYMENT_TYPE]          : 'Type',
+      [api.PAYMENT_MODE]          : 'Mode',
     }
   }
   
@@ -350,34 +405,106 @@ const api = {
 
 // ToDo: Traer DFuse config from private server!
 const dfuse = {
-  api_key                   : 'web_8a50f2bc42c1df1a41830c359ba74240',
-  // api_key                   : 'web_d171ffb1033789db684e7525782dbecf',
-  network                   : 'jungle',
-  auth_url                  : 'https://auth.dfuse.io/v1/auth/issue',
-  base_url                  : 'https://jungle.eos.dfuse.io',
-  chain_id                  : 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
-  websocket_url             : 'wss://jungle.eos.dfuse.io/v1/stream',
+  // api_key                   : 'web_8a50f2bc42c1df1a41830c359ba74240',
+  // // api_key                   : 'web_d171ffb1033789db684e7525782dbecf',
+  // network                   : 'jungle',
+  // auth_url                  : 'https://auth.dfuse.io/v1/auth/issue',
+  // base_url                  : 'https://jungle.eos.dfuse.io',
+  // chain_id                  : 'e70aaab8997e1dfce58fbfac80cbbb8fecec7b99cf982a9444273cbc64c41473',
+  // websocket_url             : 'wss://jungle.eos.dfuse.io/v1/stream',
   default_page_size         : 25,
-  // tx_url                    : 'https://jungle.bloks.io/transaction/',
-  // account_url               : 'https://jungle.bloks.io/account/',
-  tx_url                    : 'https://telos-test.bloks.io/transaction/',
-  account_url               : 'https://telos-test.bloks.io/account/',
+  
+}
+// https://hyperion.docs.eosrio.io/endpoint/
+/*
+  https://jungle.eosusa.news/v2/docs
+  https://junglehistory.cryptolions.io/v2/docs
+  https://jungle.eosn.io/v2/docs
+  https://jungle.eossweden.org/v2/docs
+*/
+
+const eosio_net = {
+  [EOS_TESTNET]:  {
+    customers                 : 'https://jungle.bloks.io/account/labisteste21?loadContract=true&tab=Tables&account=labisteste21&scope=labisteste21&limit=100&table=customer',
+    endpoint                  : 'https://jungle2.cryptolions.io:443',
+    endpoint_long_tx          : 'https://jungle2.cryptolions.io:443',
+    endpoint_history_v1       : 'https://jungle.eossweden.org',
+    endpoint_history_v2       : 'https://junglehistory.cryptolions.io',
+    // endpoint_scope            : 'https://jungle.eosusa.news',
+    history_endpoint          : 'https://jungle.eosusa.news', 
+    create_account            : 'https://api.monitor.jungletestnet.io/#account',
+    tx_url                    : 'https://jungle.bloks.io/transaction/',
+    account_url               : 'https://jungle.bloks.io/account/',
+    info_link                 : 'https://jungle.bloks.io',
+    info                      : 'EOS TESTNET',
+    currency_symbol           : 'EOS',
+
+  },
+  [TELOS_TESTNET]: {
+    customers                 : 'https://telos-test.bloks.io/account/labisteste21?loadContract=true&tab=Tables&account=labisteste21&scope=labisteste21&limit=100&table=customer',
+    endpoint                  : 'https://testnet.telosusa.io',
+    endpoint_long_tx          : 'https://testnet.telosusa.io',
+    endpoint_history_v1       : 'https://testnet.telosusa.io',
+    endpoint_history_v2       : 'https://testnet.telosusa.io',
+    history_endpoint          : 'https://testnet.telosusa.io',
+    create_account            : 'https://app.telos.net/testnet/developers',
+    tx_url                    : 'https://telos-test.bloks.io/transaction/',
+    account_url               : 'https://telos-test.bloks.io/account/',
+    info_link                 : 'https://telos-test.bloks.io',
+    info                      : 'TELOS TESTNET',
+    currency_symbol           : 'TLOS'
+  },
+  [TELOS_MAINNET]: {
+    customers                 : 'https://telos.bloks.io/account/labisteste21?loadContract=true&tab=Tables&account=labisteste21&scope=labisteste21&limit=100&table=customer',
+    
+    endpoint                  : 'https://telos.caleos.io',
+    endpoint_long_tx          : 'https://telos.caleos.io',
+    
+    history_endpoint          : 'https://telos.eoscafeblock.com',
+    endpoint_history_v1       : 'https://telos.caleos.io',
+    endpoint_history_v2       : 'https://telos.caleos.io',
+
+    // endpoint                  : 'https://mainnet.telosusa.io',
+    // endpoint_long_tx          : 'https://mainnet.telosusa.io',
+    // endpoint_scope            : 'https://mainnet.telosusa.io',
+    // history_endpoint          : 'https://mainnet.telosusa.io',
+
+    // endpoint                  : 'https://telos.eoscafeblock.com',
+    // endpoint_long_tx          : 'https://telos.eoscafeblock.com',
+    // history_endpoint          : 'https://telos.eoscafeblock.com',
+    
+    create_account            : 'https://app.telos.net/accounts/add',
+    tx_url                    : 'https://telos.bloks.io/transaction/',
+    account_url               : 'https://telos.bloks.io/account/',
+    info_link                 : 'https://telos.bloks.io',
+    info                      : 'TELOS MAINNET',
+    currency_symbol           : 'TLOS'
+  },
+  [LOCAL_TESTNET]:  {
+    customers                 : '#',
+    endpoint                  : 'http://localhost:8888',
+    endpoint_long_tx          : 'http://localhost:8888',
+    endpoint_history_v1       : 'http://localhost:8888',
+    endpoint_history_v2       : 'http://localhost:8888',
+    history_endpoint          : 'http://localhost:8888',
+    create_account            : '#',
+    tx_url                    : 'http://localhost:8888/v2/history/get_transaction?id=',
+    account_url               : 'http://localhost:8888/v2/state/get_account?account=',
+    info_link                 : 'http://localhost:8888/v2/docs/index.html',
+    info                      : 'EOS Local Single-Node Testnet',
+    currency_symbol           : 'EOS',
+  },
+}
+const eos = {
+  ...eosio_net[BLOCKCHAIN_NETWORK],
+  
   account_keys_url_postfix  : '#keys',
   getBlockExplorerTxLink : (tx_id) => {
-    return dfuse.tx_url + tx_id;
-  }
-}
-
-  /*
-  * I should take a look at: https://api.monitor.jungletestnet.io/#apiendpoints
-  */
-const eos = {
-  // endpoint       : env=='dev' ? 'http://127.0.0.1:8888' : 'https://jungle2.cryptolions.io:443',
-  /* HACK */
-  // endpoint                  : 'https://jungle2.cryptolions.io:443',
-  endpoint                  : 'https://testnet.telosusa.io',
-  history_endpoint          : 'https://testnet.telosusa.io',
-  node                      : 'https://proxy.eosnode.tools/',
+    return eos.tx_url + tx_id;
+  },
+  getBlockExplorerAccountLink : (account_name) => {
+    return eos.account_url + account_name;
+  },
   push: {
     retries                 : 3,
     use_options             : true,
@@ -387,8 +514,17 @@ const eos = {
     },
     breakable_error_codes   : [3081001]
   },
-  create_account            : 'https://api.monitor.jungletestnet.io/#account',
-  // create_account           : 'https://eos-account-creator.com/choose/'
+  
 }
-
-export { language, api, currency, dfuse, bank, eos };
+const firebase = {
+  apiKey:               'AIzaSyDTc_r8rfooRQMZrcgEIdGQEbXYyJoG11s',
+  authDomain:           'cristalnetwork-a4720.firebaseapp.com',
+  databaseURL:          'https://cristalnetwork-a4720.firebaseio.com',
+  projectId:            'cristalnetwork-a4720',
+  storageBucket:        'cristalnetwork-a4720.appspot.com',
+  messagingSenderId:    '953654846878',
+  appId:                '1:953654846878:web:b4b5946dcfea3750ef628f',
+  measurementId:        'G-HVBRMHZBDV',
+  vapid:                'BL5yhFPcmYQmRmeagmGUycnk5HrY-QvBr7AevdKeD52XU110KGpxSQlaD5qs5x6vfZdpPSrKKcKasPZ1RLTP61A'
+};
+export { language, api, currency, dfuse, bank, eos, env, version , firebase};

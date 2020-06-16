@@ -6,13 +6,16 @@ import { bindActionCreators } from 'redux';
 import { withRouter } from "react-router-dom";
 
 import * as apiRedux from '@app/redux/models/api';
-import * as menuRedux from '@app/redux/models/menu'
-import * as loginRedux from '@app/redux/models/login'
+import * as menuRedux from '@app/redux/models/menu';
+import * as loginRedux from '@app/redux/models/login';
+import * as messagingRedux from '@app/redux/models/messaging'
+
 import * as utils from '@app/utils/utils';
 import './right_content.less';
 
 import SelectLanguage from '@app/components/InkiriHeader/SelectLang';
 import ReferrerWidget  from '@app/components/InkiriHeader/referrer_widget';
+import NotificationWidget from '@app/components/InkiriHeader/NoticeIconView';
 import * as components_helper from '@app/components/helper';
 
 import { injectIntl } from "react-intl";
@@ -38,6 +41,9 @@ class InkiriHeader extends Component {
     if(this.props.canGoBack!=prevProps.canGoBack)
       new_state = {...new_state, canGoBack:this.props.canGoBack}
 
+    if(!utils.objectsEqual(this.state.messages, this.props.messages))
+      new_state = {...new_state, messages:this.props.messages}
+
     if(this.props.isMobile!=prevProps.isMobile)
       new_state = {...new_state, isMobile:this.props.isMobile}
 
@@ -59,7 +65,7 @@ class InkiriHeader extends Component {
           result:        ex?'error':undefined, 
           error:         ex?JSON.stringify(ex):null}
       if(ex)
-        components_helper.notif.exceptionNotification(  this.props.intl.formatMessage({id:'errors.occurred_title'}), ex, this.props.clearAll, this.props.intl)
+        components_helper.notif.exceptionNotification( this.props.intl.formatMessage({id:'errors.occurred_title'}), ex, this.props.clearAll, this.props.intl)
     }
 
     if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
@@ -102,6 +108,11 @@ class InkiriHeader extends Component {
     this.props.history.goBack();
   }
 
+  /*
+    <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">
+     {this.props.intl.formatMessage({id:'global.logout'})}
+    </Button>
+ */
   render(){
     let header_content ;
     const {referrer, isMobile, menuIsCollapsed, canGoBack} = this.state;
@@ -132,11 +143,10 @@ class InkiriHeader extends Component {
       header_content=(
         <div className="right">
           <div className="header_element_container">
+           <NotificationWidget />
            <ReferrerWidget />
-           <Button style={{marginLeft: '10px', marginRight: '10px'}}  icon={'logout'} onClick={this.handleLogout} size="small">
-             {this.props.intl.formatMessage({id:'global.logout'})}
-           </Button>
            <SelectLanguage />
+           <Button icon={'logout'} type="link" onClick={this.props.logout} style={{marginLeft:8, marginRight: '10px', color:'rgba(0, 0, 0, 0.8)'}} title={this.props.intl.formatMessage({id:'global.logout'})}></Button>
           </div>
         </div>
       );
@@ -158,6 +168,7 @@ export default withRouter(connect(
       menuIsCollapsed :   menuRedux.isCollapsed(state),
       isMobile :          menuRedux.isMobile(state),
       canGoBack:          menuRedux.canGoBack(state),
+      messages:           messagingRedux.messages(state),
       isFetching:         apiRedux.isFetching(state),
       getErrors:          apiRedux.getErrors(state),
       getLastError:       apiRedux.getLastError(state),
@@ -165,12 +176,12 @@ export default withRouter(connect(
       getLastResult:      apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
+      onShownMessages:    bindActionCreators(messagingRedux.onShownMessages, dispatch),
       callAPI:            bindActionCreators(apiRedux.callAPI, dispatch),
       callAPIEx:          bindActionCreators(apiRedux.callAPIEx, dispatch),
       clearAll:           bindActionCreators(apiRedux.clearAll, dispatch),
 
       tryLogin:           bindActionCreators(loginRedux.tryLogin, dispatch),
-      trySwitchAccount:   bindActionCreators(loginRedux.trySwitchAccount, dispatch),
       logout:             bindActionCreators(loginRedux.logout, dispatch),
       collapseMenu:       bindActionCreators(menuRedux.collapseMenu, dispatch),
 

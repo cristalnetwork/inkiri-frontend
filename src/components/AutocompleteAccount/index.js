@@ -11,7 +11,7 @@ import * as globalCfg from '@app/configs/global';
 import * as validators from '@app/components/Form/validators';
 import * as request_helper from '@app/components/TransactionCard/helper';
 import * as form_helper from '@app/components/Form/form_helper';
-
+import * as utils from '@app/utils/utils';
 import * as components_helper from '@app/components/helper';
 
 import { withRouter } from "react-router-dom";
@@ -28,11 +28,12 @@ class AutocompleteAccount extends Component {
   constructor(props) {
     super(props);
 
-    const value = props.value || {};
+    const value = props.defaultValue;
+    console.log('AutocompleteAccount::defaultValue:', value)
     this.state = {
       fetching:            false,
       size:                props.size,
-      value:               props.value,
+      value:               value,
       data:                [],
       validation_rule:     props.validation_rule,
       selected:            undefined,
@@ -41,13 +42,15 @@ class AutocompleteAccount extends Component {
       filter:              props.filter||null,
       without_icon:        props.without_icon,
       label:               props.label,
-      not_required:        props.not_required
+      not_required:        props.not_required,
+      accounts:            props.accounts
     };
 
     this.handleSelect               = this.handleSelect.bind(this)
     this.setAccounts                = this.setAccounts.bind(this)
     this.loadAccounts               = this.loadAccounts.bind(this)
     this.reset                      = this.reset.bind(this)
+    this.onAutocompleteBlur         = this.onAutocompleteBlur.bind(this)
   }
 
   componentDidMount(){
@@ -67,41 +70,50 @@ class AutocompleteAccount extends Component {
 
   componentDidUpdate(prevProps, prevState) 
   {
-      if(prevProps.filter !== this.props.filter ) {
-        // console.log(' --------- per que?')
-        // console.log(this.props.not_required, this.props.size, this.props.without_icon)
-        this.setState({
-            filter:                this.props.filter||false,
-            readOnly:              this.props.readOnly||false, 
-            without_icon:          this.props.without_icon,
-            label:                 this.props.label,
-            not_required:          this.props.not_required,
-            size:                  this.props.size
-          });
-      }
+    let call_setAccounts = false;
+    let new_state = {};
+    if(!utils.objectsEqual(this.state.filter , this.props.filter )) 
+    {
+      new_state = {...new_state, 
+          filter:                this.props.filter||false,
+          readOnly:              this.props.readOnly||false, 
+          without_icon:          this.props.without_icon,
+          label:                 this.props.label,
+          not_required:          this.props.not_required,
+          size:                  this.props.size
+        };
+    }
 
-      if(prevProps.accounts !== this.props.accounts )
-      {
-        this.setAccounts();
-      }
+    if(!utils.arraysEqual(this.state.accounts, this.props.accounts ))
+    {
+      new_state = {...new_state, accounts:this.props.accounts};
+      call_setAccounts=true;
+    }
 
-      // if(prevProps.value !== this.props.value )
-      // {
-      //   this.setState({value:value});
-      // }
+    if(this.state.value !== this.props.defaultValue && this.props.defaultValue)
+    {
+      new_state = {...new_state, value:this.props.defaultValue};
+    }
 
-      if(prevProps.exclude_list !== this.props.exclude_list )
-      {  
-        this.setState({
-            exclude_list: this.props.exclude_list
-        }, () => {
-            this.setAccounts();
-        });
-      }
-    // this.setState({fetching: false});
+    if(!utils.arraysEqual(this.state.exclude_list, this.props.exclude_list) )
+    { 
+      call_setAccounts=true; 
+      new_state = {...new_state, exclude_list:this.props.exclude_list};
+      // this.setState({
+      //     exclude_list: this.props.exclude_list
+      // }, () => {
+      //     this.setAccounts();
+      // });
+    }
+
+    if(Object.keys(new_state).length>0)      
+      this.setState(new_state, () => {
+          call_setAccounts && this.setAccounts();
+      });
   }
 
   setAccounts = () => {
+    // console.log('!!!!!!!!!!!!!!!!!!AutocompleteAccounts::: llamaron a SETACCOUNTS!')
     const {accounts, actualAccountName, filter, exclude_list} = this.props;
     
     const _filter_arr = filter?(!Array.isArray(filter)?[filter]:filter):null; 
@@ -122,7 +134,9 @@ class AutocompleteAccount extends Component {
   loadAccounts = (e) => {
     if(typeof e === 'object' && typeof e.preventDefault === 'function')
       e.preventDefault();
+    // console.log('!!!!!!!!!!!!!!!!!!AutocompleteAccounts::: calling LOADACCOUNTS')
     this.props.loadAccounts();
+    this.reset();
   }
   
   handleChange = (value) => {
@@ -163,7 +177,7 @@ class AutocompleteAccount extends Component {
   }
 
   onChange = (o) => {
-
+    console.log(o)
   }
   renderAccount = (item) => {
     //<AutoComplete.Option key={item.key} text={item.key}>
@@ -176,6 +190,11 @@ class AutocompleteAccount extends Component {
     );
   };
 
+  onAutocompleteBlur = () => {
+    // console.log('onAutocompleteBlur:', this.state.selected, this.props.form.getFieldValue(this.props.name));
+    if(!this.state.selected)
+      this.reset();
+  }
   render = () => {
     const { formatMessage }  = this.props.intl;
     const { form }           = this.props;
@@ -210,17 +229,20 @@ class AutocompleteAccount extends Component {
       selector = (<Form.Item label={label}>
                         {getFieldDecorator(name, {
                         rules: [{ required: !not_required, message: (!not_required)?formatMessage({id:'components.AutocompleteAccount.index.choose_account_message'}):undefined , validator: validation_rule}]
+                        , initialValue: value
                       })(
-                          <AutoComplete 
+                          <AutoComplete
+                            onBlur={this.onAutocompleteBlur} 
+                            backfill={true}
                             size={size||'large'} 
                             dataSource={data.map(this.renderAccount)} 
-                            style={{ width: '100%'}} 
+                            style={{ width: '100%' }} 
                             onSelect={this.handleSelect} 
                             placeholder={ formatMessage({id:"components.AutocompleteAccount.index.placeholder"}) }
                             filterOption={(inputValue, option) =>
                               {
                                 // console.log('>>filterOption >> ',inputValue, option);
-                                return option.key.indexOf((inputValue||'').toLowerCase()) !== -1;
+                                return option.key.indexOf(inputValue) !== -1;
                               }
                             } 
                             optionLabelProp="value" >
@@ -259,4 +281,3 @@ export default (connect(
     })
 ) (injectIntl(AutocompleteAccount)) )
 ;
-

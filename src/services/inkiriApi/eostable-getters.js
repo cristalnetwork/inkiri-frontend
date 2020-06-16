@@ -27,7 +27,8 @@ export const INDEX_POSITION_PAP_BY_CUSTOMER_SERVICE           = 5;
 
 
 
-const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
+// const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint_scope)
+const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint_history_v1)
 
 export const fetchResult = async (options, limit) => {
   const mergedOptions = {
@@ -59,7 +60,7 @@ export const customerByUInt64 = async(name, idx_index) => {
       upper_bound: `${boundsHex.lower_bound}`,
   }
 
-  console.log('bounds:', bounds)
+  // console.log('bounds:', bounds)
 
   const rows = await fetchRows({
     code:     globalCfg.bank.issuer,
@@ -174,18 +175,20 @@ export const papByUInt128 = async (first_param, second_param, idx_index, step) =
       upper_bound: `0x${firstHexLE}${eosjs_name_helper.leadingZeros(second_paramBounds.upper_bound)}`,
      }
 
-  console.log('bounds:', bounds)
-
-  const result = await fetchResult({
+  // console.log('bounds:', bounds)
+  const options = {
     code:             globalCfg.bank.issuer,
     table:            globalCfg.bank.table_paps,
     scope:            globalCfg.bank.issuer,
     key_type:         `i128`,
     index_position:   idx_index||1,
     ...bounds,
-  });
+  };
+  console.log('scope query:', JSON.stringify(options));
 
-  console.log(bounds)
+  const result = await fetchResult(options);
+
+  // console.log(bounds)
 
   return result;
 }

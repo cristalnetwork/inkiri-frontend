@@ -6025,9 +6025,13 @@ textarea.ant-input {
     flex: 1 0
 }
 
+h4 .ant-list-item-meta-title{
+    font-weight: 500;
+}
+
 .ant-list-item-meta-title {
     margin-bottom: 4px;
-    color: rgba(0, 0, 0, .65);
+    color: rgba(0, 0, 0, .85);
     font-size: 14px;
     line-height: 22px
 }
@@ -13543,13 +13547,13 @@ textarea.ant-pagination-options-quick-jumper input {
     top: -1px
 }
 
-.antd-pro-layouts-user-layout-container {
+/*.antd-pro-layouts-user-layout-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
     overflow: auto;
     background: #f0f2f5
-}
+}*/
 
 .antd-pro-layouts-user-layout-lang {
     width: 100%;
@@ -13562,22 +13566,22 @@ textarea.ant-pagination-options-quick-jumper input {
     margin-right: 24px
 }
 
-.antd-pro-layouts-user-layout-content {
+/*.antd-pro-layouts-user-layout-content {
     flex: 1 1;
     padding: 32px 0
-}
+}*/
 
 @media (min-width:768px) {
-    .antd-pro-layouts-user-layout-container {
+    /*.antd-pro-layouts-user-layout-container {
         background-image: url(https://gw.alipayobjects.com/zos/rmsportal/TVYTbAXWheQpRcWDaDMu.svg);
         background-repeat: no-repeat;
         background-position: center 110px;
         background-size: 100%
-    }
+    }*/
 
-    .antd-pro-layouts-user-layout-content {
+    /*.antd-pro-layouts-user-layout-content {
         padding: 32px 0 24px
-    }
+    }*/
 }
 
 .antd-pro-layouts-user-layout-top {
@@ -26208,4 +26212,14 @@ ul {
     .ant-table-thead>tr>th>span {
         display: block
     }
+}
+
+
+
+.ui-avatar__content--smaller{
+    width: 25px;
+    height: 25px;
+    font-size: 11px;
+    overflow: hidden;
+    border-radius: 50%;
 }

@@ -408,7 +408,7 @@ export const getRootKeys = (area) => {
 }
 
 export const getRootKeysEx = (area) => {
-    if(!area)
+    if(!area || !routes[area] )
         return [];
     return routes[area].items.map( item => 
         {

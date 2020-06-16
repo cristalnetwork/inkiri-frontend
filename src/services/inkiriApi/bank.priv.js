@@ -40,7 +40,7 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
       })
     .then((data) => {
       
-      console.log(' bank::auth >> ', JSON.stringify(data));
+      // console.log(' bank::auth >> ', JSON.stringify(data));
       const challenge = data.to_sign;
 
       eosHelper.signString(private_key, challenge).then((signed) => {  
@@ -53,7 +53,7 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
         
         const auth_endpoint      = globalCfg.api.endpoint+'/eos/auth';    
         
-        console.log(' AUTH PARAMS:', auth_endpoint, JSON.stringify(auth_params))
+        // console.log(' AUTH PARAMS:', auth_endpoint, JSON.stringify(auth_params))
 
         fetch(auth_endpoint, {
           method: 'POST',
@@ -65,13 +65,13 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
         })
           .then((response2) => {
             if (!response2.ok) {
-              console.log(' ********************************** !OK#3')
+              // console.log(' ********************************** !OK#3')
               rej(response2.statusText);
               throw new Error(response2.statusText);
             }
             return response2.json()
           }, (err) => {
-            console.log(' ********************************** !OK#4')
+            // console.log(' ********************************** !OK#4')
             rej(err); 
             throw err;
           })
@@ -101,6 +101,23 @@ export const auth = (account_name, private_key) =>   new Promise((res,rej)=> {
   }
 })
 
+
+export const setPushInfo = (account_name, token) =>   new Promise((res,rej)=> {
+  
+  const path    = globalCfg.api.endpoint + `/notifications/${account_name}/${token}`;
+  const method  = 'POST';
+  console.log('INKIRIAPI::setPushInfo:', path)
+  jwtHelper.apiCall(path, method)
+    .then((data) => {
+        console.log(' inkiriApi::setPushInfo >> RESPONSE', JSON.stringify(data))
+        console.log('INKIRIAPI::setPushInfo: OK', data )
+        res(data)
+      }, (ex) => {
+        console.log(' inkiriApi::setPushInfo >> ERROR ', JSON.stringify(ex))
+        console.log('INKIRIAPI::setPushInfo: ERROR', ex)
+        res({error:ex});
+      });
+});
 
 
 export const createDeposit = (account_name, amount, currency) =>   new Promise((res,rej)=> {
@@ -259,7 +276,7 @@ export const createOrUpdateUser = (id, account_type, account_name, first_name, l
           , last_name:     last_name
           , email:         email
           , legal_id:      legal_id
-          // , birthday:    birthday
+          , birthday:    birthday
           , phone:         phone
           , address:       address
           , business_name: business_name
@@ -617,7 +634,7 @@ export const createProviderPaymentEx = (account_name, amount, provider_id, provi
     ).catch(
       (error) => {
         console.log(JSON.stringify(error));
-        res(error);
+        rej(error);
         
       }
     );
@@ -690,7 +707,7 @@ export const updateExternal             = (sender, request_id, state, attachment
     ).catch(
       (error) => {
         console.log(JSON.stringify(error));
-        res(error);
+        rej(error);
         
       }
     );
@@ -752,14 +769,14 @@ export const createExchangeRequest      = (account_name, amount, bank_account, a
     ).catch(
       (error) => {
         console.log(JSON.stringify(error));
-        res(error);
+        rej(error);
         
       }
     );
     /*
     , (error) => {
         console.log(JSON.stringify(error));
-        res(error);
+        rej(error);
         
       });
       */
@@ -772,11 +789,15 @@ export const createMoneyRequest = (sender, request_type, requested, amount, memo
   const path    = globalCfg.api.endpoint + '/requests';
   const method  = 'POST';
   const post_params = {
-          'from':               sender
-          , 'requested_type':   request_type
+          // 'from':               sender
+          // , 'to':               requested
+          'from':               requested
+          , 'to':               sender
+          , 'requested_type':   globalCfg.api.TYPE_PAYMENT
+          // , 'requested_type':   request_type
           , 'amount':           Number(amount).toFixed(2)
           , 'description':      memo
-          , 'to':               requested
+          
           
         };
   // console.log(' ============================== createMoneyRequest', post_params)

@@ -311,6 +311,7 @@ class Crew extends Component {
 
     //if(active_view==STATE_LIST_MEMBERS)  
     const members         = team?team.members||[]:[];
+    const total_members   = members?members.length:0;
     return (
       <Card
           key="card_table_all_requests"
@@ -325,7 +326,8 @@ class Crew extends Component {
                 rowKey={record => record.member._id} 
                 loading={loading} 
                 columns={this.getColumns()} 
-                dataSource={members} 
+                dataSource={members}
+                pagination={{pageSize:total_members, total:total_members}} 
                 scroll={{ x: 700 }}
                 />
           </div>

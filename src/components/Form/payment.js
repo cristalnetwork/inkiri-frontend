@@ -74,14 +74,14 @@ const PaymentForm = (props) => {
       // handleSubmit();
     }
 
+    // filter={globalCfg.bank.ACCOUNT_TYPE_PERSONAL}
     const { getFieldDecorator }  = props.form;
     const userSearch             = (showUserSearch)
               ?(<AutocompleteAccount 
                     autoFocus 
                     callback={onSelect} 
                     form={props.form} 
-                    name="payer" 
-                    filter={globalCfg.bank.ACCOUNT_TYPE_PERSONAL}/>)
+                    name="payer" />)
               :(null);
     
     return (

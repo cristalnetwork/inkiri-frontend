@@ -38,6 +38,7 @@ export const REQUEST_MODE_BANK_TRANSFERS = 'request_mode_bank_trasnfers';
 export const REQUEST_MODE_EXTRATO        = 'request_mode_extrato';
 export const REQUEST_MODE_ALL            = 'request_mode_all';
 export const REQUEST_MODE_INNER_PAGE     = 'request_mode_inner_page';
+export const REQUEST_MODE_PDV            = 'request_mode_pdv';
 
 //
 class TransactionTable extends Component {
@@ -45,6 +46,7 @@ class TransactionTable extends Component {
     super(props);
     this.state = {
       txs:               [],
+      nonconfirmed_txs:  [],
       page:              -1, 
       loading:           false,
       limit:             globalCfg.api.default_page_size,
@@ -52,7 +54,8 @@ class TransactionTable extends Component {
       mode:              props.mode,
       filter:            props.filter,
       requests_filter:   {},
-
+      hide_export_button: props.hide_export_button||false,
+      show_reload_button: props.mode == REQUEST_MODE_PDV || props.show_reload_button,
       selectedRows:      [],
       selectedRowKeys:   [],
       dummy_rem_link:    '',
@@ -61,6 +64,7 @@ class TransactionTable extends Component {
     };
     // this.handleChange      = this.handleChange.bind(this);
     this.onNewData           = this.onNewData.bind(this);
+    this.onNewTx             = this.onNewTx.bind(this);
     this.renderFooter        = this.renderFooter.bind(this); 
     this.getColumnsForType   = this.getColumnsForType.bind(this);
     this.applyFilter         = this.applyFilter.bind(this);
@@ -89,15 +93,41 @@ class TransactionTable extends Component {
     
     if(this.state.mode==REQUEST_MODE_INNER_PAGE)
     {
-      // ??
+      return columns_helper.getColumnsForExtrato(this.props.callback
+              , is_admin, { process_wages:processWages
+                            , account_name:this.props.actualAccountName}
+              , this.props.actualAccountName
+              , false);
+    }
+
+    if(this.state.mode==REQUEST_MODE_PDV)
+    {
+      return columns_helper.getColumnsForPDV(this.props.callback, this.props.actualAccountName);
     }
     return columns_helper.getColumnsForExtrato(this.props.callback
               , is_admin, {process_wages:processWages
               , account_name:this.props.actualAccountName}
-              , this.props.actualAccountName);
+              , this.props.actualAccountName
+              , true);
   }
   
-  
+  onNewTx = (tx) => {
+    // console.log('========= onNewTx#1')
+    const new_txs          = Array.isArray(tx)?tx:[tx];
+    const nonconfirmed_txs = this.state.nonconfirmed_txs;
+    const txs              = this.state.txs;
+    // console.log('========= onNewTx#2')
+    const filtered_txs     = new_txs.filter(new_tx => 
+        nonconfirmed_txs.find(tx=>tx.tx_id==new_tx.tx_id)===undefined 
+          && txs.find(tx=>tx.tx_id==new_tx.tx_id)===undefined   
+        ); 
+    // console.log('========= onNewTx#3', filtered_txs);
+    const that = this;
+    this.setState({nonconfirmed_txs:[...filtered_txs, ...nonconfirmed_txs]}, ()=>{
+      that.onNewData([], true);
+    });
+  }
+
   componentDidMount(){
     if(typeof this.props.onRef==='function')
     {
@@ -113,7 +143,7 @@ class TransactionTable extends Component {
   }
 
   applyFilter = (filter) =>{
-    console.log(' -- table-widget::applyFilter:', filter)
+    // console.log(' -- table-widget::applyFilter:', filter)
     this.setState({
       requests_filter:filter
     },() => {
@@ -166,7 +196,7 @@ class TransactionTable extends Component {
     
     if(this.state.mode==REQUEST_MODE_EXTRATO)
     {
-      const filter_obj = {limit, page, account_name, ...requests_filter, ...(filter||{})};
+      const filter_obj = {limit:limit.toString(), page:page.toString(), account_name, ...requests_filter, ...(filter||{})};
       return filter_obj;
       
     }
@@ -184,7 +214,7 @@ class TransactionTable extends Component {
           requests_filter.to=account_name;
         }
     }
-    const filter_obj = {limit, account_name, page, requested_type, ...requests_filter, ...(filter||{}), ...(account_name_filter||{})};
+    const filter_obj = {limit:limit.toString(), account_name, page, requested_type, ...requests_filter, ...(filter||{}), ...(account_name_filter||{})};
     // console.log(' ---- TransactionTable filter_obj:', filter_obj);
     // console.log(' ---- TransactionTable default filter:', filter)
     return filter_obj;
@@ -208,9 +238,9 @@ class TransactionTable extends Component {
     const that       = this;
     let data = null;
 
-    console.log(' ====================== EXTRATO!! ')
-    console.log(' ====================== filter -> ', filter_obj)
-    console.log(' ====================== mode -> ', this.state.mode)
+    // console.log(' ====================== EXTRATO!! ')
+    // console.log(' ====================== filter -> ', filter_obj)
+    // console.log(' ====================== mode -> ', this.state.mode)
     try{
       if(this.state.mode==REQUEST_MODE_EXTRATO)  
         data = await gqlRequestI18nService.extrato(filter_obj, this.props.intl);
@@ -227,27 +257,36 @@ class TransactionTable extends Component {
     
   }
 
-  onNewData(txs){
+  onNewData(txs, is_hack){
     
     if(!txs || !txs.length) txs = [];
+
     const _txs            = [...this.state.txs, ...txs];
+    
+    // delete temp txs
+    const nonconfirmed_txs = this.state.nonconfirmed_txs.filter(nc_tx => 
+      _txs.find(tx=>tx.tx_id==nc_tx.tx_id)===undefined 
+    ); 
+    
     const pagination      = {...this.state.pagination};
-    pagination.pageSize   = _txs.length;
-    pagination.total      = _txs.length;
+    pagination.pageSize   = _txs.length+nonconfirmed_txs.length;
+    pagination.total      = _txs.length+nonconfirmed_txs.length;
 
     const has_received_new_data = (txs && txs.length>0);
 
+    // console.log('has_received_new_data:', has_received_new_data,  '||txs.length:',txs.length, '| this.state.limit:', this.state.limit );
     const {page}   = this.state;
     const the_page = has_received_new_data?(page+1):page;
     this.setState({
-      page:           the_page,
-      pagination:     pagination, 
-      txs:            _txs, 
-      can_get_more:   (has_received_new_data && txs.length==this.state.limit), 
-      loading:        false
+      page:             the_page,
+      pagination:       pagination, 
+      txs:              _txs, 
+      nonconfirmed_txs: nonconfirmed_txs,
+      can_get_more:     (has_received_new_data && txs.length>=this.state.limit), 
+      loading:          false
     });
 
-    if(!has_received_new_data)
+    if(!has_received_new_data && !is_hack)
     {
       const end_of_list           = this.props.intl.formatMessage({id:'components.TransactionTable.index.end_of_list'})
       const no_records_for_filter = this.props.intl.formatMessage({id:'components.TransactionTable.index.no_records_for_filter'})
@@ -262,23 +301,12 @@ class TransactionTable extends Component {
       }
   }
 
-//   const { selectedRowsArray } = this.state;
-// const rowSelection = {
-//       selectedRowKeys: selectedRowsArray,
-//       onChange: (selectedRowKeys, rows) => {
-//         this.setState({
-//           selectedRowsArray: [...rows]
-//         });
-//       },
-//     };
-  
-
   getRowSelection = () => {
     const {selectedRowKeys} = this.state;
     return{
         selectedRowKeys: selectedRowKeys,
         onChange: (selectedRowKeys, selectedRows) => {
-          console.log(`::onChange:: selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+          // console.log(`::onChange:: selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
           // const __selectedRows = selectedRows.filter(row=>row.state===globalCfg.api.STATE_RECEIVED);
           const __selectedRows = selectedRows;
           this.setState({selectedRows:__selectedRows, selectedRowKeys:__selectedRows.map(row=>row._id)}
@@ -290,9 +318,9 @@ class TransactionTable extends Component {
   };
 
   onChange = (date, dateString) => {
-    console.log('date:', date);
-    console.log('dateString:', dateString);
-    console.log('unix:', moment(date).unix());
+    // console.log('date:', date);
+    // console.log('dateString:', dateString);
+    // console.log('unix:', moment(date).unix());
     this.setState({payment_date:moment(date).unix()})
   }
 
@@ -301,10 +329,10 @@ class TransactionTable extends Component {
   handleREMMenuClick = (e) => {
     if(typeof e === 'object' && typeof e.preventDefault === 'function')
       e.preventDefault();
-    console.log('--------');
-    console.log('click: ', e);
-    console.log('action: ', e.item.props.action)
-    console.log('href: ', e.item.props.href)
+    // console.log('--------');
+    // console.log('click: ', e);
+    // console.log('action: ', e.item.props.action)
+    // console.log('href: ', e.item.props.href)
     this.downloadTxtFile(e.item.props.href);
   }
 
@@ -414,7 +442,18 @@ class TransactionTable extends Component {
     return `${globalCfg.api.rem_generator_endpoint}/${ids}/${conta_pagamento}/${payment_date}`
   }
 
-  exportButton = () => [<a className="hidden" key="export_button_dummy" ref={this.myExportRef}  href={this.state.sheet_href} target="_blank" >x</a>, <Button key="export_button" onClick={this.handleExportClick} size="small" style={{position: 'absolute', right: '8px', top: '16px'}} title={this.props.intl.formatMessage({id:'global.export_sheet_remember_allowing_popups'})}><FontAwesomeIcon icon="file-excel" size="sm" color="black"/>&nbsp;<InjectMessage id="global.export_list_to_spreadsheet" /></Button>];
+  exportButton = () => {
+    const redo_title = this.props.intl.formatMessage({id:'components.TransactionTable.reload_button_text'});
+    const export_button = this.state.hide_export_button 
+      ? []
+      : [<a className="hidden" key="export_button_dummy" ref={this.myExportRef}  href={this.state.sheet_href} target="_blank" >x</a>, <Button key="export_button" onClick={this.handleExportClick} size="small" style={{position: 'absolute', right: '8px', top: '16px'}} title={this.props.intl.formatMessage({id:'global.export_sheet_remember_allowing_popups'})}><FontAwesomeIcon icon="file-excel" size="sm" color="black"/>&nbsp;<InjectMessage id="global.export_list_to_spreadsheet" /></Button>];
+    const redo_button   = this.state.show_reload_button
+    ? [<Button size="small" key="refresh" style={{position: 'absolute', right: '8px', top: '16px'}} title={redo_title} icon="redo" disabled={this.state.loading} onClick={()=>this.refresh() } ></Button>]
+    : [];
+    
+    return [...redo_button,...export_button]  
+  }
+    
   //
   handleExportClick = async () => {
 
@@ -423,9 +462,11 @@ class TransactionTable extends Component {
     if(!filter_obj)
       return;
 
+    // console.log(filter_obj)
     this.setState({loading:true});
     const that       = this;
     let data = null;
+
     try{
       if(this.state.mode==REQUEST_MODE_EXTRATO)
         data = await gqlService.exportExtrato(filter_obj);
@@ -433,22 +474,22 @@ class TransactionTable extends Component {
         data = await gqlService.exportRequests(filter_obj);
       
       this.setState({loading:false});
-      console.log(data)
+      // console.log(data)
       if(data && data.file_id)
       {
-        console.log('SETTING STATE')
+        // console.log('SETTING STATE')
         this.setState( { sheet_href: `https://docs.google.com/spreadsheets/d/${data.file_id}` }
                         , () => { 
-                          console.log('CALLING BUTTON?')
+                          // console.log('CALLING BUTTON?')
                          if(!this.myExportRef)    
                             return;
-                          console.log('YES')
+                          // console.log('YES')
                           this.myExportRef.current.click();
                         });
         
         return;
       } 
-      console.log('NOooooooooooooooo')
+      // console.log('NOooooooooooooooo')
       if(data && data.error)
       {
         components_helper.notif.exceptionNotification(this.props.intl.formatMessage({id:'components.TransactionTable.index.error_exporting'}), data.error);
@@ -467,6 +508,7 @@ class TransactionTable extends Component {
   }
   //
   render(){
+    
     const is_external = (this.state.mode==REQUEST_MODE_BANK_TRANSFERS);
     
     const header = (is_external)
@@ -480,22 +522,24 @@ class TransactionTable extends Component {
         rowKey={record => record._id} 
         loading={this.state.loading} 
         columns_def={this.getColumnsForType()} 
-        dataSource={this.state.txs} 
+        dataSource={[...this.state.nonconfirmed_txs, ...this.state.txs]} 
         footer={() => this.renderFooter()}
         pagination={this.state.pagination}
         scroll={{ x: 950 }}
         expandedRowRender={columns_helper.expandedRequestRowRender}
         rowSelection={is_external ? this.getRowSelection() : null}
         rowClassName={ (record, rowIndex) => {
+                  if(record.unconfirmed==true)
+                    return 'unconfirmed';
                   return (rowIndex%2==0)
                     ? 'even'
                     : 'odd';
             }}
         onRow={ (record, rowIndex) => {
-                  return { 
-                    onDoubleClick: event => { this.props.callback(record) }
-                  };
-            }}
+            return { 
+              onDoubleClick: event => { this.props.callback(record) }
+            };
+          }}
       />
       
     )

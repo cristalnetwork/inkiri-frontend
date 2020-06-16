@@ -11,7 +11,7 @@ const ItemLink = ({link, icon, icon_size, is_external, text, href}) => {
     //
     const external_icon = is_external?'external-link-alt':'chevron-right';
     
-    if (link)
+    if (link && link!=null)
         return (<li className="ui-row ui-info-row ui-info-row--medium">
                 <div className="ui-row__col ui-row__col--heading">
                     <div className="ui-avatar ">

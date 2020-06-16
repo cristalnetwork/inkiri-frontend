@@ -113,6 +113,7 @@ class ExchangeForm extends Component {
       this.props.onRef(this)
     }
   }
+  
   componentWillUnmount() {
     if(typeof this.props.onRef==='function')
       this.props.onRef(undefined)

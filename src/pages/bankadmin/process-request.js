@@ -734,13 +734,18 @@ class processExternal extends Component {
     }
   }
 
-  //
+
   render() {
+    const go_back = (this.state.referrer)
+      ? {onBack:() => {this.props.history.push({pathname: this.state.referrer, state: {keep_search: true}}); } }
+      : {};
+
     let content     = this.renderContent();
     const routes    = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     return (
       <>
         <PageHeader
+          {...go_back}
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={<InjectMessage id="pages.bankadmin.process-external.title" />}>
         </PageHeader>

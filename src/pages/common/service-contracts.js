@@ -70,7 +70,7 @@ class ServiceContracts extends Component {
     this.ServiceContractChargeCallback  = this.ServiceContractChargeCallback.bind(this);
     this.renderFooter                 = this.renderFooter.bind(this); 
     this.onNewData                    = this.onNewData.bind(this); 
-    this.goBack                         = this.goBack.bind(this); 
+    this.goBack                       = this.goBack.bind(this); 
   }
   goBack(){
     this.props.history.goBack();
@@ -338,7 +338,7 @@ class ServiceContracts extends Component {
   }
   //
   renderServiceInfo(){
-    const {title, description, amount, state} = this.state.service;  
+    const {title, description, amount, state, serviceCounterId} = this.state.service;  
     const {intl} = this.state;
   
     const items = [
@@ -349,6 +349,7 @@ class ServiceContracts extends Component {
       ]
     return (<div style={{ background: '#fff', padding: 8, marginTop: 24}}>
         <TableStats stats_array={items} visible={true} can_close={false}/>
+        <span>#{serviceCounterId}</span>
       </div>)
   }
   //
