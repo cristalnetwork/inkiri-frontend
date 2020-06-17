@@ -20,7 +20,9 @@ import { bindActionCreators } from 'redux';
 
 import useMedia from 'react-media-hook2';
 
-import VersionIndicator from '@app/components/version_indicator';
+// import VersionIndicator from '@app/components/version_indicator';
+
+import UIFooter from '@app/components/footer';
 
 import MenuBalanceView from '@app/components/Views/balance_menu'
 import MenuAccountView from '@app/components/Views/account_menu'
@@ -120,7 +122,7 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
             { Children? <Children/>: false }
             <BackTop />
           </Content>
-          <Footer style={{ textAlign: 'center' }}>{ footerText || `INKIRI © ${(new Date()).getFullYear()} v ${globalCfg.version}`} <VersionIndicator /></Footer>
+          <Footer style={{ textAlign: 'center' }}><UIFooter with_version={true}/></Footer>
         </Layout>
       </Layout>
     );

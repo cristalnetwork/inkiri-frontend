@@ -13,7 +13,7 @@ import SelectLanguage from '@app/components/InkiriHeader/SelectLang';
 import * as components_helper from '@app/components/helper';
 import UIFooter from '@app/components/footer';
 import * as utils from '@app/utils/utils';
-import VersionIndicator from '@app/components/version_indicator';
+// import VersionIndicator from '@app/components/version_indicator';
 import './onboard.less'
 
 import Loading from '@app/pages/general/loading'

@@ -2,7 +2,7 @@
 *  APP VERSION
 * DO NOT CHANGE FOLLOWING LINE!!!!!!!!
 */
-const version = '1.0.18';
+const version = '1.0.19';
 /*
 *  ENV & BLOCKCHAIN CONFIGURATION!
 */
@@ -12,12 +12,13 @@ const ENV_STAGING        = 'staging';
 const ENV_PROD           = 'prod';
 
 const EOS_TESTNET        = 'eos_testnet';
+const EOS_TESTNET3       = 'eos_testnet3';
 const TELOS_TESTNET      = 'telos_testnet';
 const TELOS_MAINNET      = 'telos_mainnet';
 const LOCAL_TESTNET      = 'local_testnet';
 
 const env                = ENV_PROD;
-const BLOCKCHAIN_NETWORK = EOS_TESTNET;
+const BLOCKCHAIN_NETWORK = EOS_TESTNET3;
 
 const language   = {
   simple:      "es"
@@ -423,7 +424,26 @@ const dfuse = {
   https://jungle.eossweden.org/v2/docs
 */
 
+
+//https://jungle.eosdac.io/
+
 const eosio_net = {
+  [EOS_TESTNET3]:  {
+    customers                 : 'https://jungle3.bloks.io/account/labisteste21?loadContract=true&tab=Tables&account=labisteste21&scope=labisteste21&limit=100&table=customer',
+    endpoint                  : 'http://jungle3.cryptolions.io',
+    endpoint_long_tx          : 'http://jungle3.cryptolions.io',
+    endpoint_history_v1       : 'http://jungle.eosn.io',
+    endpoint_history_v2       : 'http://jungle.eosn.io',
+    // endpoint_scope            : 'https://jungle.eosusa.news',
+    history_endpoint          : 'http://jungle.eosn.io', 
+    create_account            : 'http://monitor3.jungletestnet.io/#account',
+    tx_url                    : 'https://jungle3.bloks.io/transaction/',
+    account_url               : 'https://jungle3.bloks.io/account/',
+    info_link                 : 'https://jungle3.bloks.io',
+    info                      : 'EOS JUNGLE3 TESTNET',
+    currency_symbol           : 'EOS',
+
+  },
   [EOS_TESTNET]:  {
     customers                 : 'https://jungle.bloks.io/account/labisteste21?loadContract=true&tab=Tables&account=labisteste21&scope=labisteste21&limit=100&table=customer',
     endpoint                  : 'https://jungle2.cryptolions.io:443',
@@ -436,7 +456,7 @@ const eosio_net = {
     tx_url                    : 'https://jungle.bloks.io/transaction/',
     account_url               : 'https://jungle.bloks.io/account/',
     info_link                 : 'https://jungle.bloks.io',
-    info                      : 'EOS TESTNET',
+    info                      : 'EOS JUNGLE2 TESTNET',
     currency_symbol           : 'EOS',
 
   },
