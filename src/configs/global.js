@@ -12,13 +12,14 @@ const ENV_DEMO           = 'demo';
 const ENV_STAGING        = 'staging';
 const ENV_PROD           = 'prod';
 
+const env                = ENV_DEV;
+
 const EOS_TESTNET        = 'eos_testnet';
 const EOS_TESTNET3       = 'eos_testnet3';
 const TELOS_TESTNET      = 'telos_testnet';
 const TELOS_MAINNET      = 'telos_mainnet';
 const LOCAL_TESTNET      = 'local_testnet';
 
-const env                = ENV_PROD;
 const BLOCKCHAIN_NETWORK = TELOS_MAINNET;
 
 const language   = {
