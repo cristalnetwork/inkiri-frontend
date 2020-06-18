@@ -34,6 +34,10 @@ function prettyJson(input){
   return JSON.stringify(input, null, 2)
 }
 
+const do_log = true;
+
+export const setPushInfo  = async (account_name, token) => bank.setPushInfo(account_name, token);
+
 /*
 * Retrieves Smart Contract's Bank accounts profile list.
 */
@@ -127,30 +131,28 @@ export const getCurrencyStats = async () => {
 // export const getKeyAccounts = (public_key) => dfuse.getKeyAccounts(public_key);
 export const getKeyAccounts = (public_key) => getKeyAccountsImpl(public_key);
 const getKeyAccountsImpl = async (public_key) => { 
-  // const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint);
-  // const response  = await jsonRpc.history_get_key_accounts(public_key);
-  // console.log(' ########## getKeyAccounts:', JSON.stringify(response));
-  // return response?response.account_names:[];
-
+  
   const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint_long_tx);
   const response  = await jsonRpc.history_get_key_accounts(public_key);
   console.log(' ########## getKeyAccounts:', JSON.stringify(response));
   return response?response.account_names:[];
 
-  // const jsonRpc   = new JsonRpc(globalCfg.eos.endpoint)
   // try{
-  //   const response = await jsonRpc.get_key_accounts(public_key);
-  //   console.log(response.account_names);
+  //   //curl -X GET "https://jungle2.cryptolions.io/v2/state/get_key_accounts?public_key=EOS7wB5NGGnDcw676aSqwe5tmmND1ZffDr2qehbxUCGwoXfbrBAbR" -H "accept: application/json"
 
-  //   if(!response.account_names){
-  //     rej('No name for given public key');
-  //     return;
-  //   }
-  //   res(response.account_names);
-  // }catch(ex){
+  //   const path         = globalCfg.eos.endpoint_history_v2 + '/v2/state/get_key_accounts';
+  //   const method       = 'GET';
+  //   const query_string = `?public_key=${public_key}`
+  //   const options      = { method: method};
+  //   const response     = await fetch(path+query_string, options);
+  //   const responseJSON = await response.json();
+  //   console.log('----responseJSON:',responseJSON)
+  //   return (responseJSON.account_names || []);
+  //  }catch(ex){
   //   console.log('error', ex)
-  //   rej(ex);
+  //   return[];
   // }
+  
 }
 
 
@@ -680,7 +682,6 @@ const getPermissionedAccountsForAccount = (account_name) => new Promise((res, re
 
 export const login = async (account_name, private_key) => {
   
-  const do_log = true;
   // 1.- Obtengo la publica de la privada.
   const pubkey  = ecc.privateToPublic(private_key); 
   
@@ -817,7 +818,7 @@ export const login = async (account_name, private_key) => {
     otherPersonalAccounts : personalAccounts
   };
 
-  console.log(' ============================================== inkiriApi::login >> result: '
+  do_log && console.log(' ============================================== inkiriApi::login >> result: '
       , JSON.stringify(ret));
 
   return ret;

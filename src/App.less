@@ -412,3 +412,97 @@ ui-avatar__icon {
     border: 0;
 }
 
+
+
+.operations{
+  .ant-card-body{
+    padding:16px;
+  }
+}
+
+/*HACK FOR FILTERS*/
+.filter_form{
+  /*background-color: #f0f0f0;*/
+  /*padding:8px!important; */
+  margin-bottom: 8px; 
+  .ant-select, .ant-select-selection--multiple .ant-select-selection__choice{
+    color: rgba(0, 0, 0, 0.85)!important;
+  }
+}
+
+.filter_form.ant-form-inline{
+  display: flex!important;
+  flex-direction: row!important;
+  justify-content: flex-start!important;
+  /*align-items: flex-end;*/
+}
+.filter_form.ant-form-inline .ant-form-item{
+  display: flex!important;
+  flex-direction: column;
+  /*justify-content: flex-end*/;
+  margin-right: 8px;
+
+}
+
+.filter_form .ant-form-item{
+  margin-bottom: 0px!important;
+}
+
+.filter_form .ant-form-item-label{
+  text-align: left!important;
+  height:20px!important;
+  line-height:20px!important;
+}
+
+/*.ant-form-item-label{
+  height:20px!important;
+  line-height:20px!important;
+}*/
+
+.filter_form .ant-form-item-label > label{
+  color: rgba(0, 0, 0, 0.65)!important;
+}
+
+.filter_form .ant-select-dropdown, /* << HACK: Should be like this */
+.ant-select-dropdown{
+  min-width: 250px!important;
+}
+
+.filter_wrap {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+
+  margin: 0 0px;
+  padding-bottom: 24px;
+  background-color: #fff;
+}
+
+.ant-table-title{
+  padding: 4px 4px;
+  min-height:48px;
+}
+.request_mode_bank_trasnfers {
+  .ant-table-title{
+    background-color:#e6f7ff;
+    padding: 8px 8px;
+    min-height:48px;
+  }
+}
+
+
+.temp_alert_action{
+  background-color: rgb(108, 84, 163);
+}
+.temp_alert_action:hover{
+  border: 1px solid rgb(108, 84, 163);
+}
+.temp_alert_action .fa_icon{
+  color: white;
+}
+.temp_alert_action:hover .fa_icon{
+  color: rgb(108, 84, 163);
+}
+
+
+

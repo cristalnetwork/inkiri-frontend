@@ -412,9 +412,14 @@ class iuguDetails extends Component {
     const routes         = routesService.breadcrumbForPaths([this.state.referrer, this.props.location.pathname]);
     const show_set_alias = this.showSetAlias();
 
+    const go_back = (this.state.referrer)
+      ? {onBack:() => {this.props.history.push({pathname: this.state.referrer, state: {keep_search: true}}); } }
+      : {};
+      
     return (
       <>
         <PageHeader
+          {...go_back}
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={title}>
         </PageHeader>

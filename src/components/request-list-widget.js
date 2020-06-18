@@ -18,7 +18,6 @@ export {REQUEST_MODE_BANK_TRANSFERS, REQUEST_MODE_EXTRATO, REQUEST_MODE_ALL, REQ
 
 const RequestListWidget = (props) => {
 
-  // const [stored, setStored]             = useState(props.page_key_values);
   const [key, setKey]                            = useState(props.the_key);
   const [filter, setFilter]                      = useState(props.filter);
   const [request_type, setRequestType]           = useState(props.request_type);
@@ -83,18 +82,23 @@ const RequestListWidget = (props) => {
       return;
     }
     
+    const _filter = {...values, ...(filter||{})};
+    
+    if(key!==undefined)
+      props.setPageKeyValue(key, _filter);
+
     if(table_ref && values!==undefined)
     {
       clearTimeout(t_id2);
       t_id2 = setTimeout(()=> {
-        table_ref.applyFilter({...values, ...(filter||{})})
+        table_ref.applyFilter(_filter)
       } ,100);
     }
   }
 
   var t_id3 = null;
   const onTableChange = (key, txs) => {
-    console.log('onTableChange', key)
+    // console.log('onTableChange', key)
     clearTimeout(t_id3);
     t_id3 = setTimeout(()=> {
       buildStats(txs)
@@ -103,7 +107,7 @@ const RequestListWidget = (props) => {
 
   const buildStats = (txs) => {
     
-    console.log('buildStats')
+    // console.log('buildStats')
     const money_in  = txs.filter( tx => request_helper.blockchain.is_money_in(tx, props.actualAccountName))
                     .map(tx =>tx.amount)
                     .reduce((acc, amount) => acc + Number(amount), 0);
@@ -119,7 +123,7 @@ const RequestListWidget = (props) => {
         , buildItemSimple(props.intl.formatMessage( { id:'components.request-list-widget.stats.transactions-count'}) , (count||0))
       ];
       
-    console.log('...about to set stats')
+    // console.log('...about to set stats')
     setStats(items);
   }
 
@@ -134,12 +138,16 @@ const RequestListWidget = (props) => {
     } ,100);
   }
 
+  // console.log('LIST-WIDGET::REQUEST:filter:',filter);
+
   return(
       <>
-      { !hide_filter && <RequestsFilter 
-              callback={requestFilterCallback} 
-              request_type={request_type}
-              hidden_fields={filter_hidden_fields} />}
+      { !hide_filter && 
+          <RequestsFilter 
+            filter={filter}
+            callback={requestFilterCallback} 
+            request_type={request_type}
+            hidden_fields={filter_hidden_fields} />}
       { !hide_stats && <TableStats stats_array={stats}/> }
       <TransactionTable 
         hide_export_button={hide_export_button||false}
@@ -158,7 +166,6 @@ const RequestListWidget = (props) => {
 export default connect(
     (state)=> ({
         actualAccountName:    loginRedux.actualAccountName(state),
-        page_key_values:      pageRedux.pageKeyValues(state),
         isAdmin:              loginRedux.isAdmin(state),
     }),
     (dispatch)=>({

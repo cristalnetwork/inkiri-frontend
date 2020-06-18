@@ -44,7 +44,7 @@ function* initLoginDataSaga() {
     console.log( ' # core.INIT@login-saga ' )
     yield put({ type: core.ACTION_START, payload: { login: 'Check local storage' } })
     const { data } = yield storage.getStorage(ACCOUNT_DATA);
-    console.log(' loginREDUX::loadLoginData >> storage >> ', JSON.stringify(data))
+    // console.log(' loginREDUX::loadLoginData >> storage >> ', JSON.stringify(data))
     if (data && data.account_name && data.password) {
         //yield put(tryLogin(data.account_name, data.password, false))
         const stateData = getLoginDataFromStorage(data);
@@ -81,6 +81,12 @@ function* tryLoginSaga({ type, payload }) {
                 , current_account:  accounts.personalAccount
                 , password:         password
                 , profile:          accounts.profile }))
+
+        const messaging = store.getState().messaging;
+        if(messaging && messaging.registrationToken)
+        {  
+          const x = yield api.setPushInfo(account_name, messaging.registrationToken);
+        }
     } catch (e) {
         console.log(' >> LOGIN REDUX ERROR#1', e)
         yield put({ type: TRY_LOGIN_ERROR, payload: {exception:e} })
@@ -126,7 +132,6 @@ function* trySwitchAccount2Saga({ type, payload }) {
     }
 
     const stateData = getLoginDataFromStorage(data, account_name);
-
     const profile = yield api.bank.getProfile(account_name);
     stateData['profile'] = profile;
     // console.log(' LOGIN REDUX >> trySwitchAccount2Saga >>putting new data', JSON.stringify(stateData));
@@ -139,6 +144,12 @@ function* trySwitchAccount2Saga({ type, payload }) {
     yield put({ type: TRY_DELETE_SESSION });
     yield put(setLoginData(stateData))
     yield put({ type: TRY_SWITCH_END })
+
+    const messaging = store.getState().messaging;
+    if(messaging && messaging.registrationToken)
+    {  
+      const x = yield api.setPushInfo(account_name, messaging.registrationToken);
+    }
 
     setTimeout(()=> {
       history.replace('/');
