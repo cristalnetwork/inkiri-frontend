@@ -17,7 +17,7 @@ const TELOS_TESTNET      = 'telos_testnet';
 const TELOS_MAINNET      = 'telos_mainnet';
 const LOCAL_TESTNET      = 'local_testnet';
 
-const env                = ENV_PROD;
+const env                = ENV_DEMO;
 const BLOCKCHAIN_NETWORK = EOS_TESTNET3;
 
 const language   = {
