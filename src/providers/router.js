@@ -3,6 +3,7 @@ import loadable from '@loadable/component'
 import { BrowserRouter as Router, Route, Redirect, withRouter } from "react-router-dom";
 
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import { Spin } from 'antd'
 
@@ -143,14 +144,22 @@ const loadableComponent = (area, fileName, container, role, itemPath)=> {
     return ()=><Container />
 }
 
-export const DashboardRouter = ({routes}) => {    
+const _DashboardRouter = ({routes, logout}) => {    
   // console.log(' DashboardRouter => ', routes);
+  const Logout = () => {
+    const x = logout();
+    return <Redirect to={'/login'} />
+  }
   return (
     <Router history={history}>
         <Route path="/login" component={CheckLogin} />
         {routes.map(item => <Route key={'/'+item.area+'/'+item.path} path={'/'+item.area+'/'+item.path} component={loadableComponent(item.area, item.fileName, item.container, item.role, item.path)} /> )}
         <Route path={'/'} component={()=><Redirect to={'/login'} />} />
+        <Route path={'/logout'} component={Logout} />
     </Router>
   );
 }
-
+//
+export const DashboardRouter = connect((state)=>({}),(dispatch)=>({
+  logout:      bindActionCreators(loginRedux.logout, dispatch)
+}))(_DashboardRouter)

@@ -17,7 +17,7 @@ const TELOS_TESTNET      = 'telos_testnet';
 const TELOS_MAINNET      = 'telos_mainnet';
 const LOCAL_TESTNET      = 'local_testnet';
 
-const env                = ENV_STAGING;
+const env                = ENV_PROD;
 const BLOCKCHAIN_NETWORK = TELOS_MAINNET;
 
 const language   = {
@@ -429,13 +429,15 @@ const dfuse = {
 
 const eosio_net = {
   [EOS_TESTNET3]:  {
-    customers                 : 'https://jungle3.bloks.io/account/labisteste21?loadContract=true&tab=Tables&account=labisteste21&scope=labisteste21&limit=100&table=customer',
-    endpoint                  : 'http://jungle3.cryptolions.io',
-    endpoint_long_tx          : 'http://jungle3.cryptolions.io',
-    endpoint_history_v1       : 'http://jungle.eosn.io',
-    endpoint_history_v2       : 'http://jungle.eosn.io',
+    customers                 : `https://jungle3.bloks.io/account/${contract_account}?loadContract=true&tab=Tables&account=${contract_account}&scope=${contract_account}&limit=100&table=customer`,
+    // endpoint                  : 'http://jungle3.cryptolions.io',
+    // endpoint_long_tx          : 'http://jungle3.cryptolions.io',
+    endpoint                  : 'https://jungle.eosn.io',
+    endpoint_long_tx          : 'https://jungle.eosn.io',
+    endpoint_history_v1       : 'https://jungle.eosn.io',
+    endpoint_history_v2       : 'https://jungle.eosn.io',
     // endpoint_scope            : 'https://jungle.eosusa.news',
-    history_endpoint          : 'http://jungle.eosn.io', 
+    history_endpoint          : 'https://jungle.eosn.io', 
     create_account            : 'http://monitor3.jungletestnet.io/#account',
     tx_url                    : 'https://jungle3.bloks.io/transaction/',
     account_url               : 'https://jungle3.bloks.io/account/',
@@ -445,7 +447,7 @@ const eosio_net = {
 
   },
   [EOS_TESTNET]:  {
-    customers                 : 'https://jungle.bloks.io/account/labisteste21?loadContract=true&tab=Tables&account=labisteste21&scope=labisteste21&limit=100&table=customer',
+    customers                 : `https://jungle.bloks.io/account/${contract_account}?loadContract=true&tab=Tables&account=${contract_account}&scope=${contract_account}&limit=100&table=customer`,
     endpoint                  : 'https://jungle2.cryptolions.io:443',
     endpoint_long_tx          : 'https://jungle2.cryptolions.io:443',
     endpoint_history_v1       : 'https://jungle.eossweden.org',
@@ -461,7 +463,7 @@ const eosio_net = {
 
   },
   [TELOS_TESTNET]: {
-    customers                 : 'https://telos-test.bloks.io/account/labisteste21?loadContract=true&tab=Tables&account=labisteste21&scope=labisteste21&limit=100&table=customer',
+    customers                 : `https://telos-test.bloks.io/account/${contract_account}?loadContract=true&tab=Tables&account=${contract_account}&scope=${contract_account}&limit=100&table=customer`,
     endpoint                  : 'https://testnet.telosusa.io',
     endpoint_long_tx          : 'https://testnet.telosusa.io',
     endpoint_history_v1       : 'https://testnet.telosusa.io',
@@ -475,7 +477,7 @@ const eosio_net = {
     currency_symbol           : 'TLOS'
   },
   [TELOS_MAINNET]: {
-    customers                 : 'https://telos.bloks.io/account/labisteste21?loadContract=true&tab=Tables&account=labisteste21&scope=labisteste21&limit=100&table=customer',
+    customers                 : `https://telos.bloks.io/account/${contract_account}?loadContract=true&tab=Tables&account=${contract_account}&scope=${contract_account}&limit=100&table=customer`,
     
     endpoint                  : 'https://telos.caleos.io',
     endpoint_long_tx          : 'https://telos.caleos.io',
