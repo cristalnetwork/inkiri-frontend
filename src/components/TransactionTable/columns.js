@@ -1032,7 +1032,7 @@ export const columnsForIUGU = (callback) => {
         title: <InjectMessage id="components.TransactionTable.columns.description" />,
         dataIndex: 'sub_header',
         key: 'sub_header',
-        width: 250,
+        width: 350,
         render: (value, record) => {
           return(
             <span className="name_value_row">
@@ -1043,6 +1043,7 @@ export const columnsForIUGU = (callback) => {
                 <span className="row_tx_title">
                   {request_helper.iugu.header(record)}
                 </span> 
+                <br/># {record.iugu_id}
                 <br/># Texto Fatura: <b>{request_helper.iugu.invoice_description(record)}</b>
                 <br/># custom_variables['projeto']: <b>{request_helper.iugu.invoice_variable(record)}</b>
                 <br/># {record.iuguCounterId}
@@ -1077,7 +1078,7 @@ export const columnsForIUGU = (callback) => {
       {
         title: <InjectMessage id="components.TransactionTable.columns.action" />,
         key: 'action',
-        width: 250,
+        width: 150,
         render: (text, record) => {
           //const iugu        = request_helper.iugu.iuguLink(record);
           const process     = request_helper.getProcessButton(record, callback, <InjectMessage id="components.TransactionTable.columns.details" />);

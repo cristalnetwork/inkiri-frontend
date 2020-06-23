@@ -12,9 +12,9 @@ export const pathNames = utils.arrToObj([
     'bankadminOperations',
     'bankadminServices',
     'bankadminExternalTransfers',
-    'bankadminExternalTransfers_ProcessExternal',
-    'bankadminIugu',
-    'bankadminIugu_Details',
+    // 'bankadminExternalTransfers_ProcessExternal',
+    // 'bankadminIugu',
+    // 'bankadminIugu_Details',
     'bankadminConfiguration',
     'bankadminAdministration',
     'bankadminAccounts',
@@ -33,6 +33,8 @@ export const pathNames = utils.arrToObj([
     'businessProvidersPayments',
     'businessProvidersPayments_Request',
 
+    'commonIugu',
+    'commonIugu_Details',
     'commonExtrato',
     'commonRequestDetails',
     'commonTransactionDetails',
@@ -115,23 +117,23 @@ const bankadmin = [
        container:   'dashboard',
        role:        'bankadmin'
     },
-    {
-       key:         pathNames.bankadminIugu,
-       fileName:    'iugu',
-       area:        'bankadmin',
-       path:        'iugu',
-       container:   'dashboard',
-       role:        'bankadmin'
-    },
-    {
-       key:         pathNames.bankadminIugu_Details,
-       father_key:  '*',
-       fileName:    'iugu_details',
-       area:        'bankadmin',
-       path:        'iugu-invoice',
-       container:   'dashboard',
-       role:        'bankadmin'
-    },
+    // {
+    //    key:         pathNames.bankadminIugu,
+    //    fileName:    'iugu',
+    //    area:        'bankadmin',
+    //    path:        'iugu',
+    //    container:   'dashboard',
+    //    role:        'bankadmin'
+    // },
+    // {
+    //    key:         pathNames.bankadminIugu_Details,
+    //    father_key:  '*',
+    //    fileName:    'iugu_details',
+    //    area:        'bankadmin',
+    //    path:        'iugu-invoice',
+    //    container:   'dashboard',
+    //    role:        'bankadmin'
+    // },
     {
        key:         pathNames.bankadminConfiguration,
        fileName:    'configuration',
@@ -243,6 +245,23 @@ const business = [
   ];
 
 const common = [
+  {
+     key:         pathNames.commonIugu,
+     fileName:    'iugu',
+     area:        'common',
+     path:        'iugu',
+     container:   'dashboard',
+     role:        '*'
+  },
+  {
+     key:         pathNames.commonIugu_Details,
+     father_key:  '*',
+     fileName:    'iugu_details',
+     area:        'common',
+     path:        'iugu-invoice',
+     container:   'dashboard',
+     role:        '*'
+  },
   {
      key:       pathNames.commonRequestDetails,
      fileName:  'request-details',

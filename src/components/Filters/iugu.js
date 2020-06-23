@@ -23,7 +23,7 @@ const { Option } = Select;
 var __formValuesChanged = null;
 const IuguFilter = (props) => {
     
-    // const [is_admin, setIsAdmin]       = useState(props.isAdmin);
+    const [is_admin, setIsAdmin]       = useState(props.isAdmin);
     // const [callback, setCallback]           = useState(props.callback);
     const [buttonType, setButtonType]       = useState('default');
     const [key, setKey]                     = useState(props.the_key);
@@ -31,9 +31,8 @@ const IuguFilter = (props) => {
     
     const [intl, setIntl]                   = useState({});
 
-    const default_filter               = { 
-        operation_type:   undefined     
-        , date_range:     [null, null]
+    const default_filter               = {
+        date_range:     [null, null]
         , account_type:   undefined     
         , state:          undefined     
         , search_text:    ''
@@ -46,6 +45,10 @@ const IuguFilter = (props) => {
     }, [props.filter]);
 
     const {formatMessage} = props.intl;
+
+    useEffect(() => {
+      setIsAdmin(props.isAdmin);
+    }, [props.isAdmin]);
 
     useEffect(() => {
       const myIntl = {}; 
@@ -89,11 +92,14 @@ const IuguFilter = (props) => {
           filtered = {...filtered, paid_at_from: date_range[0], paid_at_to: date_range[1]};
         delete filtered.date_range;
         // limpiamos las keys que estan vacias
-        const filtered_nn  = _.reduce(filtered, function(result, value, key) {
+        let filtered_nn  = _.reduce(filtered, function(result, value, key) {
           if(value)
             result[key] = value;
           return result;
         }, {});
+
+        if(!is_admin)
+          filtered_nn.account_name = props.actualAccountName;
 
         fireEvent(null, null, filtered_nn, null)
       });
@@ -160,7 +166,7 @@ const IuguFilter = (props) => {
         onChange={formValuesChanged}
         >
         
-        { <AutocompleteAccount
+        { is_admin && <AutocompleteAccount
                         validation_rule={validateAccountNames} 
                         label={toText}
                         not_required={true}
@@ -236,6 +242,7 @@ export default Form.create({
   }})
    (connect((state)=> ({
       isAdmin:               loginRedux.isAdmin(state),
+      actualAccountName:     loginRedux.actualAccountName(state),
       filterKeyValues:       operationsRedux.filterKeyValues(state),
       isOperationsLoading:   operationsRedux.isOperationsLoading(state),
 

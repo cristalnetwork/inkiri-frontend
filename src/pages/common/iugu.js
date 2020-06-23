@@ -117,8 +117,9 @@ class Iugu extends Component {
         :this.state.page;
 
     const {limit, filter}  = this.state;
-    
-    return {limit:limit.toString(), page:page.toString(), ...filter};
+    const account_filter   = this.props.isAdmin?{}:{account_name : this.props.actualAccountName}
+
+    return {limit:limit.toString(), page:page.toString(), ...filter, ...account_filter};
   }
   //
   loadInvoices = async () => {
@@ -218,7 +219,7 @@ class Iugu extends Component {
     console.log('****onInvoiceClick(invoice)')
     // ToDo: Move to common
     this.props.history.push({
-      pathname: `/${this.props.actualRole}/iugu-invoice/${invoice.iugu_id}`
+      pathname: `/common/iugu-invoice/${invoice.iugu_id}`
       , state: { 
           invoice:  invoice, 
           referrer: this.props.location.pathname
@@ -319,7 +320,8 @@ class Iugu extends Component {
   render() {
     //
     const stats                                 = this.renderTableViewStats();
-    const {routes, loading, filter_key, filter} = this.state;
+    const {routes, loading, filter_key}         = this.state;
+    const filter                                = this.getInvoicesFilter(false);
     return (
       <>
         <PageHeader
@@ -339,6 +341,7 @@ class Iugu extends Component {
             filter={filter}
             the_key={filter_key}
             />
+            
           {stats}
           
           <div style={{ background: '#fff', minHeight: 360, marginTop: 0}}>
@@ -385,6 +388,7 @@ class Iugu extends Component {
 //
 export default  (withRouter(connect(
     (state)=> ({
+        isAdmin:                 loginRedux.isAdmin(state),
         actualAccountName:       loginRedux.actualAccountName(state),
         actualRoleId:            loginRedux.actualRoleId(state),
         actualRole:              loginRedux.actualRole(state),
