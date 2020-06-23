@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import HashImg from './identicon';
+import HashImg, {HashSVG} from './identicon';
 
-export {HashImg};
+export {HashImg, HashSVG};
 
 export const parseString = (str) => {
     let idx = 0;
