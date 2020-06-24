@@ -605,7 +605,7 @@ class PDV extends Component {
         
         <div style={{ margin: '24px 0px', padding: 24}}>
           {payModal}
-          <div className="ly-main-content content-spacing cards">
+          <div className="">
             <section className="mp-box mp-box__shadow money-transfer__box_HACK_NO">
               {content}
             </section>

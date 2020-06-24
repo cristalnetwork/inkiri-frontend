@@ -447,22 +447,13 @@ const mobile = [{
        role:         'business'
     },
     {
-       key:          pathNames.mobileSend,
-       fileName:     'send',
-       area:         'mobile',
-       path:         'send',
-       container:    'dashboard',
-       role:         '*'
-    },
-    {
      key:            pathNames.mobileRequestDetails,
      fileName:       'request-details',
      area:           'mobile',
      path:           'request-details',
      container:      'dashboard',
      role:           '*', 
-  },
-    
+  }
 ];
 
 const merged  = [

@@ -195,7 +195,7 @@ class BankAccountForm extends Component {
 
     return (
       <div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-        <div className="ly-main-content content-spacing cards">
+        <div className="">
           <section className="mp-box mp-box__shadow money-transfer__box">
             {content}
           </section>

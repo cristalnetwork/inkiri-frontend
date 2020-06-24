@@ -59,6 +59,7 @@ const _checkRole = ({role, actualRole, children, history, location, isMobile}) =
               history.push(`/mobile/extrato`);
             else
             {
+              history.push(`/common/extrato`);
               // history.push(`/common/iugu`);
               // history.push(`/common/deposit`);
               // history.push(`/common/providers`);
@@ -83,7 +84,7 @@ const _checkRole = ({role, actualRole, children, history, location, isMobile}) =
           if(actualRole=='personal') {
             if(isMobile)
               history.push(`/mobile/extrato`);
-              // history.push(`/mobile/send`);
+              // history.push(`/common/send`);
             else
             {
               history.push(`/common/extrato`);

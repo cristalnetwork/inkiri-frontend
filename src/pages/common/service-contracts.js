@@ -385,7 +385,7 @@ class ServiceContracts extends Component {
     if(active_view==STATE_NEW_CHARGE)
     {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-          <div className="ly-main-content content-spacing cards">
+          <div className="">
             <section className="mp-box mp-box__shadow money-transfer__box">
               <Spin spinning={this.state.pushingTx} delay={500} tip={this.state.intl.pushing_transaction}>
                 <ServiceContractChargeForm key="charge_next_form" 

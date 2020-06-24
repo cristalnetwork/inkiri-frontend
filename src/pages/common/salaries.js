@@ -295,7 +295,7 @@ class Salaries extends Component {
       
       const result = (<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />);
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-                <div className="ly-main-content content-spacing cards">
+                <div className="">
                   <section className="mp-box mp-box__shadow money-transfer__box">
                     {result}
                   </section>
@@ -309,7 +309,7 @@ class Salaries extends Component {
     {
       console.log(dataSource);
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-          <div className="ly-main-content content-spacing cards">
+          <div className="">
             <section className="mp-box mp-box__shadow money-transfer__box">
               <Spin spinning={isFetching} delay={500} tip={pushing_transaction}>
                 <SalaryForm key="salary_payment_form" callback={this.salaryFormCallback} job_positions={job_positions} members={dataSource}/>    

@@ -82,38 +82,41 @@ class RequestDetails extends Component {
         })
     }
     const {formatMessage} = this.props.intl;
-    const title = formatMessage( { id:'pages.common.request-details.title'});
-    const cant_fetch_request = formatMessage( { id:'pages.common.request-details.cant_fetch_request'});
-    const only_one_file = formatMessage( { id:'pages.common.request-details.only_one_file'});
-    const pushing_transaction = formatMessage( { id:'pages.common.request-details.pushing_transaction'});
-    const loading_request = formatMessage( { id:'pages.common.request-details.loading_request'});
-    const valid_number_required_description = formatMessage( { id:'pages.common.request-details.valid_number_required_description'});
-    const confirm_payment = formatMessage( { id:'pages.common.request-details.confirm_payment'});
-    const error_service_price_mismatch = formatMessage( { id:'pages.common.request-details.error_service_price_mismatch'});
-    const confirm_accept_service = formatMessage( { id:'pages.common.request-details.confirm_accept_service'});
-    const confirm_accept_service_message = formatMessage( { id:'pages.common.request-details.confirm_accept_service_message'});
-    const reject_service_request = formatMessage( { id:'pages.common.request-details.reject_service_request'});
-    const reject_service_request_message = formatMessage( { id:'pages.common.request-details.reject_service_request_message'});
-    const receipt_attach_required = formatMessage( { id:'pages.common.request-details.receipt_attach_required'});
-    const receipt_attach_required_message = formatMessage( { id:'pages.common.request-details.receipt_attach_required_message'});
-    const cancel_service = formatMessage( { id:'pages.common.request-details.cancel_service'});
-    const cancel_service_message = formatMessage( { id:'pages.common.request-details.cancel_service_message'});
-    const cancel_request = formatMessage( { id:'pages.common.request-details.cancel_request'});
-    const cancel_request_message = formatMessage( { id:'pages.common.request-details.cancel_request_message'});
-    const cancel_request_and_refund_message = formatMessage( { id:'pages.common.request-details.cancel_request_and_refund_message'});
-    const reject_payment_request = formatMessage( { id:'pages.common.request-details.reject_payment_request'});
-    const reject_payment_request_message = formatMessage( { id:'pages.common.request-details.reject_payment_request_message'});
-    const action_process_request = formatMessage( { id:'pages.common.request-details.action.process_request'});
-    const action_accept = formatMessage( { id:'pages.common.request-details.action.accept'});
-    const action_accept_and_send = formatMessage( { id:'pages.common.request-details.action.accept_and_send'});
-    const action_cancel = formatMessage( { id:'pages.common.request-details.action.cancel'});
-    const action_cancel_get_refunded = formatMessage( { id:'pages.common.request-details.action.cancel_get_refunded'});
-    const action_reject = formatMessage( { id:'pages.common.request-details.action.reject'});
-    const action_revert_and_refund = formatMessage( { id:'pages.common.request-details.action.revert_and_refund'});
-    const action_upload_nota = formatMessage( { id:'pages.common.request-details.action.upload_nota'});
-    const action_attach_files = formatMessage( { id:'pages.common.request-details.action.attach_files'});
-    const action_refund = formatMessage( { id:'pages.common.request-details.action.refund'});
-    this.setState({intl:{action_cancel_get_refunded, title, cant_fetch_request, only_one_file, pushing_transaction, loading_request, valid_number_required_description, confirm_payment, error_service_price_mismatch, confirm_accept_service, confirm_accept_service_message, receipt_attach_required, receipt_attach_required_message, cancel_service, cancel_service_message, cancel_request, cancel_request_message, cancel_request_and_refund_message, reject_service_request, reject_service_request_message, reject_payment_request, reject_payment_request_message, action_process_request, action_accept, action_accept_and_send, action_accept, action_cancel, action_reject, action_cancel, action_cancel, action_reject, action_revert_and_refund, action_upload_nota, action_attach_files, action_refund}});
+    const _intl = {};
+    _intl.title = formatMessage( { id:'pages.common.request-details.title'});
+    _intl.cant_fetch_request = formatMessage( { id:'pages.common.request-details.cant_fetch_request'});
+    _intl.only_one_file = formatMessage( { id:'pages.common.request-details.only_one_file'});
+    _intl.pushing_transaction = formatMessage( { id:'pages.common.request-details.pushing_transaction'});
+    _intl.loading_request = formatMessage( { id:'pages.common.request-details.loading_request'});
+    _intl.valid_number_required_description = formatMessage( { id:'pages.common.request-details.valid_number_required_description'});
+    _intl.confirm_payment = formatMessage( { id:'pages.common.request-details.confirm_payment'});
+    _intl.error_service_price_mismatch = formatMessage( { id:'pages.common.request-details.error_service_price_mismatch'});
+    _intl.confirm_accept_service = formatMessage( { id:'pages.common.request-details.confirm_accept_service'});
+    _intl.confirm_accept_service_message = formatMessage( { id:'pages.common.request-details.confirm_accept_service_message'});
+    _intl.reject_service_request = formatMessage( { id:'pages.common.request-details.reject_service_request'});
+    _intl.reject_service_request_message = formatMessage( { id:'pages.common.request-details.reject_service_request_message'});
+    _intl.receipt_attach_required = formatMessage( { id:'pages.common.request-details.receipt_attach_required'});
+    _intl.receipt_attach_required_message = formatMessage( { id:'pages.common.request-details.receipt_attach_required_message'});
+    _intl.cancel_service = formatMessage( { id:'pages.common.request-details.cancel_service'});
+    _intl.cancel_service_message = formatMessage( { id:'pages.common.request-details.cancel_service_message'});
+    _intl.cancel_request = formatMessage( { id:'pages.common.request-details.cancel_request'});
+    _intl.cancel_request_message = formatMessage( { id:'pages.common.request-details.cancel_request_message'});
+    _intl.cancel_request_and_refund_message = formatMessage( { id:'pages.common.request-details.cancel_request_and_refund_message'});
+    _intl.reject_payment_request = formatMessage( { id:'pages.common.request-details.reject_payment_request'});
+    _intl.reject_payment_request_message = formatMessage( { id:'pages.common.request-details.reject_payment_request_message'});
+    _intl.action_process_request = formatMessage( { id:'pages.common.request-details.action.process_request'});
+    _intl.action_accept = formatMessage( { id:'pages.common.request-details.action.accept'});
+    _intl.action_accept_and_send = formatMessage( { id:'pages.common.request-details.action.accept_and_send'});
+    _intl.action_cancel = formatMessage( { id:'pages.common.request-details.action.cancel'});
+    _intl.action_cancel_get_refunded = formatMessage( { id:'pages.common.request-details.action.cancel_get_refunded'});
+    _intl.action_reject = formatMessage( { id:'pages.common.request-details.action.reject'});
+    _intl.action_revert_and_refund = formatMessage( { id:'pages.common.request-details.action.revert_and_refund'});
+    _intl.action_upload_nota = formatMessage( { id:'pages.common.request-details.action.upload_nota'});
+    _intl.action_attach_files = formatMessage( { id:'pages.common.request-details.action.attach_files'});
+    _intl.action_refund = formatMessage( { id:'pages.common.request-details.action.refund'});
+    this.setState({intl:_intl});
+
+    this.props.setCurrentPage({title:_intl.title, backButton:this.props.history.goBack, showMenu:false});
   }
   
   componentDidUpdate(prevProps, prevState) 
@@ -243,7 +246,7 @@ class RequestDetails extends Component {
       
       const result = (<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />);
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-                <div className="ly-main-content content-spacing cards">
+                <div className="">
                   <section className="mp-box mp-box__shadow money-transfer__box">
                     {result}
                   </section>
@@ -685,6 +688,7 @@ export default Form.create() (withRouter(connect(
         getLastResult:    apiRedux.getLastResult(state),
     }),
     (dispatch)=>({
+        setCurrentPage:   bindActionCreators(menuRedux.setCurrentPage, dispatch),
         callAPI:          bindActionCreators(apiRedux.callAPI, dispatch),
         callAPIEx:        bindActionCreators(apiRedux.callAPIEx, dispatch),
         clearAll:         bindActionCreators(apiRedux.clearAll, dispatch),

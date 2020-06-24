@@ -67,6 +67,7 @@
 .ant-pro-global-header{
   position:relative;
 }
+
 span.view_requests{
   line-height: 26px;
   color: rgba(0, 0, 0, 0.85)
@@ -161,16 +162,21 @@ h3.fileds_header{
 * HACK for SELECT CONTROLS
 */
 
-.money-transfer__select .ant-select-selection, .money-transfer__row .ant-select-selection
-,.money-transfer__select .ant-input:hover, .money-transfer__row .ant-input:hover{
-  border:none!important;
+.ant-layout:not(.mobile_device) .money-transfer__select .ant-select-selection
+, .ant-layout:not(.mobile_device) .money-transfer__row .ant-select-selection
+, .ant-layout:not(.mobile_device) .money-transfer__select .ant-input:hover
+, .ant-layout:not(.mobile_device) .money-transfer__row .ant-input:hover{
+  /*border:none!important;*/
 }
 
-.money-transfer__select .ant-select-focused .ant-select-selection, .money-transfer__select .ant-select-selection:focus, .money-transfer__select .ant-select-selection:active
-, .money-transfer__row .ant-select-focused ,.money-transfer__row .ant-select-selection:focus, .money-transfer__row .ant-select-selection:active
-, .money-transfer__select .ant-input:hover, .money-transfer__row .ant-input:hover
+.ant-layout:not(.mobile_device).money-transfer__select .ant-select-focused .ant-select-selection
+, .ant-layout:not(.mobile_device) .money-transfer__select .ant-select-selection:focus
+, .ant-layout:not(.mobile_device) .money-transfer__select .ant-select-selection:active
+, .ant-layout:not(.mobile_device) .money-transfer__row .ant-select-focused ,.money-transfer__row .ant-select-selection:focus
+, .ant-layout:not(.mobile_device) .money-transfer__row .ant-select-selection:active
+, .ant-layout:not(.mobile_device) .money-transfer__select .ant-input:hover, .money-transfer__row .ant-input:hover
 {
-  box-shadow: none!important;
+ /* box-shadow: none!important;*/
 }
 
 
@@ -584,10 +590,10 @@ div.headerList td .ant-descriptions-item-content{flex:3; align-self: flex-start;
 
 /* MOBILE */
 
-.ant-layout-header {background:#fff; padding:0px;}
+/*.ant-layout-header {background:#fff; padding:0px;}
 .mobile_device .ant-layout-header{
   background-color: rgb(108, 84, 163)!important;
-}
+}*/
 
 .mobile_device .transaction_list.menu_shown{
   min-width: 400px;
@@ -756,6 +762,7 @@ div.headerList td .ant-descriptions-item-content{flex:3; align-self: flex-start;
     /*padding-top: 40px!important;*/
 
 }
+/*
 .mobile_device .ant-pro-global-header{
   background-color: rgb(108, 84, 163);
 }
@@ -764,7 +771,7 @@ div.headerList td .ant-descriptions-item-content{flex:3; align-self: flex-start;
   background-color: rgb(108, 84, 163);
   color:#fff;
 }
-
+*/
 .mobile_table_wrapper{
   padding:8px;
 }
@@ -884,7 +891,7 @@ div.headerList td .ant-descriptions-item-content{flex:3; align-self: flex-start;
 
 .mobile_device .send-form-container { 
   margin: 0px 0px 0px 0px ;
-  padding: 8px; 
+  padding: 0px; 
 }
 
 .mobile_device .col_icon{

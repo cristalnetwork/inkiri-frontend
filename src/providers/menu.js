@@ -18,7 +18,7 @@ const  { SubMenu } = Menu;
 
 export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [], allAccounts, isMobile, collapseMenu, getMenu, trySwitchAccount2, 
                              actualAccountName, actualRole , actualRoleId,  actualPermission, 
-                             lastRootMenu, menuIsCollapsed, setGoBackEnabled}) => {
+                             lastRootMenu, menuIsCollapsed}) => {
         
         const [myActualAccountName, setActualAccountName]   = useState(null);
         const [myActualrole, setActualRole]                 = useState(actualRole);
@@ -29,23 +29,23 @@ export const MenuByRole = ({ renderAccounts, area, fileName, itemPath, items = [
           setMobileMode(isMobile)
         }, [isMobile])
 
-        useEffect(()=>{
-          const my_role = isMobile? `mobile_${actualRole}`:actualRole;
-          setDeviceRole(my_role);
-          if(actualRole&&my_role)
-          {
-            const keys = getRootKeysEx(my_role);
-            // console.log('=======getRootKeysEx', my_role)
-            // console.log(keys)
-            let _selected = routes_config.getItemByAreaNFilename(area, fileName, itemPath);
-            if(!keys.includes(_selected.key))
-              setGoBackEnabled(true)
-            else
-              setGoBackEnabled(false)
-          }
-          else
-              setGoBackEnabled(false)
-        }, [isMobile, actualRole, area, fileName, itemPath])
+        // useEffect(()=>{
+        //   const my_role = isMobile? `mobile_${actualRole}`:actualRole;
+        //   setDeviceRole(my_role);
+        //   if(actualRole&&my_role)
+        //   {
+        //     const keys = getRootKeysEx(my_role);
+        //     // console.log('=======getRootKeysEx', my_role)
+        //     // console.log(keys)
+        //     let _selected = routes_config.getItemByAreaNFilename(area, fileName, itemPath);
+        //     if(!keys.includes(_selected.key))
+        //       setGoBackEnabled(true)
+        //     else
+        //       setGoBackEnabled(false)
+        //   }
+        //   else
+        //       setGoBackEnabled(false)
+        // }, [isMobile, actualRole, area, fileName, itemPath])
         
 
         useEffect(()=>{
@@ -168,7 +168,6 @@ export default connect(
         isMobile :             menuRedux.isMobile(state),
     }),
     dispatch => ({
-        setGoBackEnabled:      bindActionCreators( menuRedux.setGoBackEnabled, dispatch),   
         collapseMenu:          bindActionCreators( menuRedux.collapseMenu, dispatch),   
         getMenu:               bindActionCreators( menuRedux.getMenu, dispatch),
         trySwitchAccount2:     bindActionCreators(loginRedux.trySwitchAccount2, dispatch),

@@ -63,7 +63,7 @@ class SendMoney extends Component {
       transferReasons:     props.transferReasons,
       ...input_style,
       ...DEFAULT_RESULT,
-
+      isMobile:            props.isMobile,
       receipt:             '',
       view_requests:       false,
       intl:                {}
@@ -94,41 +94,46 @@ class SendMoney extends Component {
 
   componentDidMount(){
     const {formatMessage} = this.props.intl;
-    
-    const select_transfer_reason_text = formatMessage({id:'pages.common.send.business.select_transfer_reason_text'});
-    const select_transfer_reason_placeholder = formatMessage({id:'pages.common.send.business.select_transfer_reason_placeholder'});
-    const error_cant_form_validation = formatMessage({id:'pages.common.send.error_cant_form_validation'});
-    const valid_amount_required = formatMessage({id:'pages.common.send.valid_amount_required'});
-    const valid_amount_required_description = formatMessage({id:'pages.common.send.valid_amount_required_description'});
-    const select_transfer_reason_validation = formatMessage({id:'pages.common.send.business.select_transfer_reason_validation'});
-    const confirm_payment  = formatMessage({id:'pages.common.send.confirm_payment'});
-    const confirm_transfer = formatMessage({id:'pages.common.send.confirm_transfer'});
-    const valid_number_required_description = formatMessage({id:'pages.common.send.valid_number_required_description'})
-    const amount_text = formatMessage({id:'global.amount'})
-    const amount_validation = formatMessage({id:'pages.common.send.amount_validation'});
-    const memo = formatMessage({id:'global.memo'});
-    const memo_message = formatMessage({id:'global.memo_message'});
-    const action_send = formatMessage({id:'pages.common.send.action_send'});
-    const title = formatMessage({id:'pages.common.send.title'});
-    const subtitle = formatMessage({id:'pages.common.send.subtitle'});
-    const view_requests = formatMessage({id:'global.view_requests'})
-    this.setState({intl:{view_requests, title, subtitle, action_send, memo, memo_message, amount_validation, amount_text, select_transfer_reason_text, select_transfer_reason_placeholder, error_cant_form_validation, select_transfer_reason_validation, valid_amount_required, valid_amount_required_description, confirm_payment, confirm_transfer, valid_number_required_description}});
+    const _intl = {};
+    _intl.select_transfer_reason_text = formatMessage({id:'pages.common.send.business.select_transfer_reason_text'});
+    _intl.select_transfer_reason_placeholder = formatMessage({id:'pages.common.send.business.select_transfer_reason_placeholder'});
+    _intl.error_cant_form_validation = formatMessage({id:'pages.common.send.error_cant_form_validation'});
+    _intl.valid_amount_required = formatMessage({id:'pages.common.send.valid_amount_required'});
+    _intl.valid_amount_required_description = formatMessage({id:'pages.common.send.valid_amount_required_description'});
+    _intl.select_transfer_reason_validation = formatMessage({id:'pages.common.send.business.select_transfer_reason_validation'});
+    _intl.confirm_payment  = formatMessage({id:'pages.common.send.confirm_payment'});
+    _intl.confirm_transfer = formatMessage({id:'pages.common.send.confirm_transfer'});
+    _intl.valid_number_required_description = formatMessage({id:'pages.common.send.valid_number_required_description'})
+    _intl.amount_text = formatMessage({id:'global.amount'})
+    _intl.amount_validation = formatMessage({id:'pages.common.send.amount_validation'});
+    _intl.memo = formatMessage({id:'global.memo'});
+    _intl.memo_message = formatMessage({id:'global.memo_message'});
+    _intl.action_send = formatMessage({id:'pages.common.send.action_send'});
+    _intl.title = formatMessage({id:'pages.common.send.title'});
+    _intl.subtitle = formatMessage({id:'pages.common.send.subtitle'});
+    _intl.view_requests = formatMessage({id:'global.view_requests'})
+    this.setState({intl:_intl});
+
+    this.props.setCurrentPage({title:_intl.title, backButton:null, showMenu:true});
 
   }
   componentDidUpdate(prevProps, prevState) 
   {
     let new_state = {};
-    if(prevProps.isFetching!=this.props.isFetching){
+    if(this.state.isFetching!=this.props.isFetching){
       new_state = {...new_state, isFetching:this.props.isFetching}
     }
-    if(!utils.arraysEqual(prevProps.getErrors, this.props.getErrors)){
+    if(!utils.arraysEqual(this.state.getErrors, this.props.getErrors)){
     }
-    if(!utils.arraysEqual(prevProps.getResults, this.props.getResults) ){
+    if(!utils.arraysEqual(this.state.getResults, this.props.getResults) ){
       const that = this;
       setTimeout(()=> that.resetPage() ,100);
     }
-    if(!utils.objectsEqual(prevProps.transferReasons, this.props.transferReasons) ){  
+    if(!utils.objectsEqual(this.state.transferReasons, this.props.transferReasons) ){  
       new_state = {...new_state, transferReasons:this.props.transferReasons}
+    }
+    if(this.state.isMobile!=this.props.isMobile){
+      new_state = {...new_state, isMobile:this.props.isMobile}
     }
     if(Object.keys(new_state).length>0)      
         this.setState(new_state);
@@ -356,7 +361,7 @@ class SendMoney extends Component {
       const error       = this.state.error
       
       return(
-          <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
+          <div className="_result">
             <TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />
           </div>)
     }
@@ -364,7 +369,7 @@ class SendMoney extends Component {
     //
     if(this.state.view_requests==true)
     {
-      return   <div className="styles standardList" style={{backgroundColor:'#fff', marginTop: 24, padding: 8 }}>
+      return   <div className="page_list_container">
                   <RequestListWidget
                       callback={this.onRequestClick}
                       hide_stats={true}
@@ -378,12 +383,12 @@ class SendMoney extends Component {
     //
     const option = this.props.isBusiness?this.renderTransferReason():(null);
 
-    const { getFieldDecorator }               = this.props.form;
-    const { input_amount, isFetching}           = this.state;
+    const { getFieldDecorator }                 = this.props.form;
+    const { input_amount, isFetching, isMobile} = this.state;
 
     return (
       <div className="send-form-container" >
-        <div className="ly-main-content content-spacing cards">
+        <div className="">
           <section className="mp-box mp-box__shadow money-transfer__box">
               
             <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
@@ -439,7 +444,7 @@ class SendMoney extends Component {
                 </div>
 
                 <div className="mp-box__actions mp-box__shore">
-                  <Button size="large" key="sendButton" htmlType="submit" type="primary" loading={isFetching} ><FontAwesomeIcon icon="paper-plane" size="1x"/>&nbsp;{this.state.intl.action_send}</Button>
+                  <Button size="large" key="sendButton" htmlType="submit" block={isMobile?true:false} type="primary" loading={isFetching} ><FontAwesomeIcon icon="paper-plane" size="1x"/>&nbsp;{this.state.intl.action_send}</Button>
                 </div>
 
               </Form>  
@@ -455,18 +460,22 @@ class SendMoney extends Component {
 
   render() {
     let content = this.renderContent();
-    const {routes} = this.state;
+    const {routes,isMobile} = this.state;
 
-    return (
-      <>
-        <PageHeader
+    const header = (!isMobile)
+      ?( <PageHeader
           breadcrumb={{ routes:routes, itemRender:components_helper.itemRender }}
           title={this.state.intl.title}
           subTitle={this.state.intl.subtitle}
           extra={[
              <span className="view_requests" key="view_requests_switch"> {this.state.intl.view_requests}&nbsp;<Switch key='view_requests' onChange={ (checked) => this.setState({view_requests:checked})} /></span>
           ]}
-        />
+        />)
+      :(null);
+
+    return (
+      <>
+          {header}
           {content}
       </>
     );
@@ -499,6 +508,7 @@ export default Form.create() (withRouter(connect(
         isMobile :         menuRedux.isMobile(state),
     }),
     (dispatch)=>({
+        setCurrentPage:   bindActionCreators(menuRedux.setCurrentPage, dispatch),
         callAPI:     bindActionCreators(apiRedux.callAPI, dispatch),
         clearAll:    bindActionCreators(apiRedux.clearAll, dispatch),
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch),

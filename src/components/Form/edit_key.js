@@ -183,7 +183,7 @@ class EditKeyForm extends Component {
     const can_create                = generated_keys.wif!=null;
     return (
       
-        <div className="ly-main-content content-spacing cards">
+        <div className="">
           <section className="mp-box money-transfer__box">
             <Spin spinning={this.state.loading} delay={500} tip={formatMessage({id:'components.Views.profile_security.generating_keys'})}>
               <Form onSubmit={this.handleSubmit}>

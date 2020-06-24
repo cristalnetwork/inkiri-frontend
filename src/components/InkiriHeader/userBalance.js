@@ -16,7 +16,8 @@ class UserBalance extends Component  {
       }
 
     componentDidMount() {
-        this.reloadBalance();
+        if(!this.props.balance || this.props.balance=='')
+            this.reloadBalance();
     }
 
     componentDidUpdate(prevProps, prevState) 

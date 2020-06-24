@@ -218,7 +218,7 @@ class Exchange extends Component {
     //
     return (
       <div style={{ margin: '0 0px', padding: 24}}>
-        <div className="ly-main-content content-spacing cards">
+        <div className="">
           <section className="mp-box mp-box__shadow money-transfer__box">
             <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
               <ExchangeForm onRef={ref => (this.childForm = ref)}  key="exchange_form" alone_component={false} button_text={this.state.intl.request_exchange_action_text} callback={this.handleSubmit} />    

@@ -4440,12 +4440,12 @@ textarea.ant-input {
     flex: 0 0 auto
 }
 
-.ant-layout-header {
+/*.ant-layout-header {
     height: 64px;
     padding: 0 50px;
     line-height: 64px;
     background: #001529
-}
+}*/
 
 .ant-layout-footer {
     padding: 24px 50px;
@@ -4572,13 +4572,13 @@ textarea.ant-input {
     transition: width .2s
 }
 
-.ant-pro-global-header {
+/*.ant-pro-global-header {
     position: relative;
     height: 64px;
     padding: 0;
     background: #fff;
     box-shadow: 0 1px 4px rgba(0, 21, 41, .08)
-}
+}*/
 
 .ant-pro-global-header-logo {
     display: inline-block;

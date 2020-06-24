@@ -382,11 +382,18 @@ const routes  = {
             },
             {
 
-                key:          routes_config.pathNames.mobileSend,
-                path:         routes_config.pathNames.mobileSend,
+                key:          routes_config.pathNames.commonSend,
+                path:         routes_config.pathNames.commonSend,
                 title:        'menu.item.send_money',
                 icon:         'arrow-up',
-            }
+            },
+
+            {
+              key:            routes_config.pathNames.commonRequestMoney,
+              path:           routes_config.pathNames.commonRequestMoney,
+              title:          'menu.item.receive',
+              icon:           'arrow-down',
+            },
         ]
     }
 }
@@ -470,7 +477,7 @@ export const breadcrumbForFile = (file) => {
       {
         path: menuItem.fullpath,
         breadcrumbName: menuItem.title,
-      }
+      },
     ];
 }
 

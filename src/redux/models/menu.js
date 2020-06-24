@@ -30,7 +30,8 @@ const SET_LANGUAGE           = 'menu/SET_LANGUAGE'
 const SET_REFERRER           = 'menu/SET_REFERRER'
 const CLEAR_REFERRER         = 'menu/CLEAR_REFERRER'
 
-const SET_GO_BACK_ENABLED    = 'menu/SET_GO_BACK_ENABLED'
+const SET_CURRENT_PAGE       = 'menu/SET_CURRENT_PAGE';
+const CLEAR_CURRENT_PAGE     = 'menu/CLEAR_CURRENT_PAGE';
 
 // Creadores de acciones (se pueden usar desde los compoenentes)
 export const getMenu                  = (account_name, account_type) =>({ type: GET_ASYNC, payload: { account_name, account_type }});
@@ -48,7 +49,9 @@ export const setLanguage              = (language)                   =>({ type: 
 export const setReferrer              = (title, referrer, father, icon)  =>({ type: SET_REFERRER, payload: { title:title, referrer:referrer, father:father, icon:icon} });
 export const clearReferrer            = ()                           =>({ type: CLEAR_REFERRER });
 
-export const setGoBackEnabled         = (can_go_back)                =>({ type: SET_GO_BACK_ENABLED, payload: { go_back_enabled:can_go_back} });
+export const setCurrentPage           = (current_page)               =>({ type: SET_CURRENT_PAGE, payload: {current_page} });
+export const setCurrentPageData       = (title, backButton, showMenu)=>({ type: SET_CURRENT_PAGE, payload: {current_page: {title, backButton, showMenu}} });
+export const clearCurrentPage         = ()                           =>({ type: CLEAR_CURRENT_PAGE });
 
 //Eventos que requieren del async
 function* getMenuSaga({ type, payload }) {
@@ -119,12 +122,13 @@ export const isCollapsed   = (state) => state.menu.is_collapsed
 export const lastRootMenu  = (state) => state.menu.last_root_menu_fullpath
 export const isMobile      = (state) => state.menu.is_mobile
 export const language      = (state) => state.menu.language
-export const canGoBack     = (state) => state.menu.go_back_enabled
+
 
 export const referrer      = (state) => { return { referrer:           state.menu.referrer
                                                    , referrer_father:  state.menu.referrer_father 
                                                    , referrer_title:   state.menu.referrer_title
                                                    , referrer_icon:    state.menu.referrer_icon }; }
+export const currentPage   = (state) => state.menu.current_page
 
 // El reducer del modelo
 const defaultState = { 
@@ -139,7 +143,9 @@ const defaultState = {
   referrer_father:           null,
   referrer_title:            '',
   referrer_icon:             '',
-  go_back_enabled:           false
+  current_page:              {} // title
+                                // backButtonCallback
+                                // showMenu
 };
 
 function reducer(state = defaultState, action = {}) {
@@ -175,11 +181,6 @@ function reducer(state = defaultState, action = {}) {
         ...state, 
         last_root_menu_fullpath:   action.payload.fullpath
       }
-    case SET_GO_BACK_ENABLED:
-       return{
-        ...state, 
-        go_back_enabled:   action.payload.go_back_enabled
-      }
     case SET_MOBILE:
         // const is_collapsed = state.is_collapsed;
         return {
@@ -207,6 +208,17 @@ function reducer(state = defaultState, action = {}) {
             , referrer_father:    ''
             , referrer_title:     null
             , referrer_icon:      null
+        }
+    case SET_CURRENT_PAGE:
+      // console.log(' #### REDUX:', action.payload.current_page)
+      return {
+            ...state,
+            current_page:             action.payload.current_page
+        };
+    case CLEAR_CURRENT_PAGE:
+      return {
+            ...state,
+            current_page:             {}
         }
     case CLEAN_MENU:
       return defaultState

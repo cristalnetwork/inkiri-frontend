@@ -37,9 +37,7 @@ class Extrato extends Component {
       
       isMobile:            props.isMobile,
 
-      page_key_values:     props.page_key_values,
-      // active_tab:          utils.twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_tab', DISPLAY_ALL_TXS)
-      active_tab:          utils.twoLevelObjectValueOrDefault(props.page_key_values, props.location.pathname, 'active_tab', DISPLAY_REQUESTS)
+      page_key_values:     props.page_key_values
     };
 
     this.onTabChange                = this.onTabChange.bind(this);
@@ -81,6 +79,7 @@ class Extrato extends Component {
   }
 
   componentDidMount(){
+    this.props.setCurrentPage({title:'', backButton:null, showMenu:true});
   } 
 
   componentDidUpdate(prevProps, prevState) 
@@ -98,10 +97,8 @@ class Extrato extends Component {
 
       if(prevProps.page_key_values !== this.props.page_key_values )
       {
-        const active_tab = utils .twoLevelObjectValueOrDefault(this.props.page_key_values, this.props.location.pathname, 'active_tab', DISPLAY_ALL_TXS)
         new_state = {...new_state
-            , page_key_values: this.props.page_key_values
-            , active_tab: active_tab};        
+            , page_key_values: this.props.page_key_values};        
 
       }
 
@@ -158,7 +155,7 @@ class Extrato extends Component {
     );
   }
 }
-// `
+// 
 
 export default  (withRouter(connect(
     (state)=> ({
@@ -172,7 +169,7 @@ export default  (withRouter(connect(
     }),
     (dispatch)=>({
         setPageKeyValue:      bindActionCreators(pageRedux.setPageKeyValue, dispatch),
-
+        setCurrentPage:   bindActionCreators(menuRedux.setCurrentPage, dispatch),
         setLastRootMenuFullpath: bindActionCreators(menuRedux.setLastRootMenuFullpath , dispatch)
     })
 )(injectIntl(Extrato))));

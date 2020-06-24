@@ -449,7 +449,7 @@ class Services extends Component {
     {
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
                 
-                <div className="ly-main-content content-spacing cards">
+                <div className="">
                   <section className="mp-box mp-box__shadow money-transfer__box">
                     <Spin spinning={this.state.pushingTx} delay={500} tip={this.state.intl.pushing_transaction}>
                       <ServiceContractForm key="edit_service_form" 
@@ -467,7 +467,7 @@ class Services extends Component {
     {
       //
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-          <div className="ly-main-content content-spacing cards">
+          <div className="">
             <section className="mp-box mp-box__shadow money-transfer__box">
               <Spin spinning={this.state.pushingTx} delay={500} tip={this.state.intl.pushing_transaction}>
                 <ServiceForm 
@@ -485,7 +485,7 @@ class Services extends Component {
     {
       //
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-          <div className="ly-main-content content-spacing cards">
+          <div className="">
             <section className="mp-box mp-box__shadow money-transfer__box">
               <Spin spinning={this.state.pushingTx} delay={500} tip={this.state.intl.pushing_transaction}>
                 <ServiceForm key="add_service_form" callback={this.serviceFormCallback} services_states={services_states}/>    

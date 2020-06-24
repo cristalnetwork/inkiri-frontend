@@ -88,9 +88,14 @@ const _DashboardContainer = ({footerText,  TopMenu, Menu, Children, area, fileNa
     const content_style         = isMobile?
       (menu_is_collapsed?{}:{ margin: '24px 16px 0' }):{ margin: '24px 16px 0' };
     
+    let _trigger = {};
+    if(isMobile)
+      _trigger = {trigger:null};
+    
     return (
       <Layout style={{ minHeight: '100vh' }} className={mobile_class}>
-        <Sider 
+        <Sider
+          {..._trigger} 
           collapsible 
           collapsed={menu_is_collapsed} 
           onCollapse={(collapsed, type) => {onCollapse(collapsed, type)}}

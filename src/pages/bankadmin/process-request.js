@@ -216,7 +216,7 @@ class processExternal extends Component {
       
       const result = (<TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />);
       return (<div style={{ margin: '0 0px', padding: 24, marginTop: 24}}>
-                <div className="ly-main-content content-spacing cards">
+                <div className="">
                   <section className="mp-box mp-box__shadow money-transfer__box">
                     {result}
                   </section>

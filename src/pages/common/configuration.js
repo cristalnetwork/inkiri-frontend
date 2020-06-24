@@ -344,7 +344,7 @@ class Configuration extends Component {
       const error       = this.state.error
       
       return(<div style={{ margin: '0 0px', padding: 24, marginTop: 24, backgroundColor:'#ffffff'}}>
-        <div className="ly-main-content content-spacing cards">          
+        <div className="">          
           <TxResult result_type={result_type} title={title} message={message} tx_id={tx_id} error={error} cb={this.userResultEvent}  />
         </div>
       </div>);

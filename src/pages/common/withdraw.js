@@ -303,7 +303,7 @@ class WithdrawMoney extends Component {
     const { input_amount, isFetching}         = this.state;
     return (
       <div style={{ margin: '0 0px', padding: 24}}>
-        <div className="ly-main-content content-spacing cards">
+        <div className="">
           <section className="mp-box mp-box__shadow money-transfer__box">
             <Spin spinning={isFetching} delay={500} tip={this.state.intl.pushing_transaction}>
               <Form onSubmit={this.handleSubmit}>
