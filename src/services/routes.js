@@ -167,8 +167,8 @@ const routes  = {
                         title: 'menu.item.services_pap',
                     },
                     {
-                        key: routes_config.pathNames.bankadminIugu,
-                        path: routes_config.pathNames.bankadminIugu,
+                        key: routes_config.pathNames.commonIugu,
+                        path: routes_config.pathNames.commonIugu,
                         title: 'menu.item.iugu',
                     }
 
@@ -279,9 +279,14 @@ const routes  = {
                         permission:  'owner,active'
                     },
                     {
-                        key: routes_config.pathNames.commonRequestMoney,
-                        path: routes_config.pathNames.commonRequestMoney,
-                        title: 'menu.item.request_money',
+                        key:         routes_config.pathNames.commonRequestMoney,
+                        path:        routes_config.pathNames.commonRequestMoney,
+                        title:       'menu.item.request_money',
+                    },
+                    {
+                        key:         routes_config.pathNames.commonIugu,
+                        path:        routes_config.pathNames.commonIugu,
+                        title:       'menu.item.iugu',
                     }
                 ]
             },

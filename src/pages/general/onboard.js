@@ -183,21 +183,21 @@ class Login extends Component {
       </div>);
     //            
     const logo_small  = (<a href="/" className="logo_small">
-                      <img alt="logo" src="/images/onboarding/nlUNcWIVLKoarLnWNaWS.png" />
+                      <img alt="logo" src="/images/onboarding/cristal.logo.png" />
                       <span className="antd-pro-layouts-user-layout-title">
                         <span className="cristal_network">{formatMessage({id:'cristalnetwork.title'})}</span>
                       </span>
                     </a>);
     //
     const logo_inkiri_small  = (<a href="/" className="logo_small">
-                      <img alt="logo" src="/favicons/favicon-32x32.png" />
+                      <img alt="logo" src="/favicons/instance.32x32.png" />
                       <span className="antd-pro-layouts-user-layout-title">
                         <span className="omnes_isologo">{formatMessage({id:'inkiri.bank.title'})}</span>
                       </span>
                     </a>);
     //
     const logo        = (<a href="/">
-                      <img alt="logo" className="antd-pro-layouts-user-layout-logo" src="/favicons/favicon-32x32.png" />
+                      <img alt="logo" className="antd-pro-layouts-user-layout-logo" src="/favicons/instance.32x32.png" />
                       <span className="antd-pro-layouts-user-layout-title">
                         <span className="omnes_isologo">{formatMessage({id:'inkiri.bank.title'})}</span>
                       </span>

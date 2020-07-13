@@ -2,8 +2,7 @@
 *  APP VERSION
 * DO NOT CHANGE FOLLOWING LINE!!!!!!!!
 */
-const version = '1.0.16';
-
+const version = '1.0.21';
 /*
 *  ENV & BLOCKCHAIN CONFIGURATION!
 */
@@ -12,7 +11,7 @@ const ENV_DEMO           = 'demo';
 const ENV_STAGING        = 'staging';
 const ENV_PROD           = 'prod';
 
-const env                = ENV_DEV;
+const env                = ENV_PROD;
 
 const EOS_TESTNET        = 'eos_testnet';
 const EOS_TESTNET3       = 'eos_testnet3';
@@ -199,10 +198,8 @@ const bank = {
 const base_api_url = {
   [ENV_DEV]      : 'http://localhost:3600',
   [ENV_DEMO]     : 'https://cristal-backend.herokuapp.com',
-  [ENV_STAGING]  : 'https://cristal-backend.herokuapp.com',
-  [ENV_PROD]     : 'https://cristal-backend.herokuapp.com'
-  // [ENV_STAGING]  : 'https://cristaltoken.herokuapp.com',
-  // [ENV_PROD]     : 'https://cristaltoken.herokuapp.com'
+  [ENV_STAGING]  : 'https://cristaltoken.herokuapp.com',
+  [ENV_PROD]     : 'https://cristaltoken.herokuapp.com'
 }
 const base_url     = base_api_url[env];
 

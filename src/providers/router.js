@@ -41,7 +41,7 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
             // history.push(`/common/crew`);
             // history.push(`/common/providers`);
             // history.push(`/${actualRole}/configuration`);
-            // history.push(`/${actualRole}/iugu`);
+            // history.push(`/common/iugu`);
             // history.push(`/${actualRole}/profiles`);
             // history.push(`/${actualRole}/provider-profile`);
             // history.push(`/common/providers`);
@@ -54,6 +54,7 @@ const _checkRole = ({role, actualRole, children, history, location}) => {
           if(actualRole=='business') 
           { 
             history.push(`/common/extrato`);
+            // history.push(`/common/iugu`);
             // history.push(`/common/deposit`);
             // history.push(`/common/providers`);
             // history.push(`/common/request-money`);
